@@ -64,7 +64,8 @@
       {
         "provider": "github",
         "owner": "elwinteer",
-        "repo": "winteer"
+        "repo": "winteer",
+        "releaseType": "release"
       }
     ]
   }

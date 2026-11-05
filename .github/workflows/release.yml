@@ -1,7 +1,9 @@
 name: Publicar WINTEER
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['main.js','preload.js','index.html','package.json','icon.ico','icon.png','sagas/**']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
