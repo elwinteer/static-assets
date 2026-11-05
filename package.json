@@ -1,14 +1,13 @@
 {
-  "name": "winteer",
+  "name": "static-assets",
   "productName": "WINTEER",
   "version": "1.0.2",
   "main": "main.js",
-  "description": "WINTEER Game Launcher",
-  "author": "WINTEER",
-  "homepage": "https://github.com/elwinteer/winteer",
+  "description": "",
+  "author": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elwinteer/winteer.git"
+    "url": "https://github.com/elwinteer/static-assets.git"
   },
   "scripts": {
     "dist": "electron-builder --win nsis --publish never",
@@ -48,7 +47,7 @@
         }
       ],
       "icon": "icon.ico",
-      "artifactName": "WINTEER-Setup-${version}.${ext}"
+      "artifactName": "setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": true,
@@ -66,7 +65,7 @@
       {
         "provider": "github",
         "owner": "elwinteer",
-        "repo": "winteer",
+        "repo": "static-assets",
         "releaseType": "release"
       }
     ]

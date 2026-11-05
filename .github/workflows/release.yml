@@ -1,4 +1,4 @@
-name: Publicar WINTEER
+name: Build
 on:
   push:
     branches: [main]
