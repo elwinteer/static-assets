@@ -1,0 +1,71 @@
+{
+  "name": "winteer",
+  "productName": "WINTEER",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "WINTEER Game Launcher",
+  "author": "WINTEER",
+  "homepage": "https://github.com/elwinteer/winteer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elwinteer/winteer.git"
+  },
+  "scripts": {
+    "dist": "electron-builder --win nsis --publish never",
+    "release": "electron-builder --win nsis --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.winteer.launcher",
+    "productName": "WINTEER",
+    "asar": false,
+    "icon": "icon.ico",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "icon.ico",
+      "icon.png",
+      "sagas/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico",
+      "artifactName": "WINTEER-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "WINTEER",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "elwinteer",
+        "repo": "winteer"
+      }
+    ]
+  }
+}
