@@ -16,7 +16,7 @@ const saveCfg = () => { try { fs.writeFileSync(CFGF, JSON.stringify(cfg)); } cat
 const startHidden = process.argv.includes('--hidden');
 function applyLogin() { try { app.setLoginItemSettings({ openAtLogin: !!cfg.auto, args: ['--hidden'] }); } catch (e) {} }
 function hideWin() { if (!win) return; win.setFullScreen(false); win.hide(); try { win.webContents.setBackgroundThrottling(true); } catch (e) {} }
-function showWin() { if (!win) createWindow(); if (!win.isMaximized() && !win.isFullScreen()) win.maximize(); try { win.webContents.setBackgroundThrottling(false); } catch (e) {} if (win.isMinimized()) win.restore(); win.show(); win.focus(); }
+function showWin() { if (pendingInstall) { installNow(); return; } if (!win) createWindow(); if (!win.isMaximized() && !win.isFullScreen()) win.maximize(); try { win.webContents.setBackgroundThrottling(false); } catch (e) {} if (win.isMinimized()) win.restore(); win.show(); win.focus(); }
 function bpFromBg() { const hidden = !win || !win.isVisible() || !win.isFocused(); if (!win) createWindow(); if (hidden) { fromBg = true; showWin(); win.webContents.send('bp', 'open'); } else win.webContents.send('bp', 'toggle'); }
 function mkShortcut() {
   if (process.platform !== 'win32') return;
@@ -637,11 +637,68 @@ function setupUpdater() {
   autoUpdater.on('download-progress', (p) => updSend({ s: 'downloading', p: Math.round(p.percent || 0) }));
   autoUpdater.on('update-downloaded', (i) => updSend({ s: 'ready', v: i.version }));
   autoUpdater.on('error', (e) => updSend({ s: 'error', e: String((e && e.message) || e).slice(0, 140) }));
-  setTimeout(updCheck, 25000); setInterval(updCheck, 4 * 3600e3);
+  setInterval(updCheck, 4 * 3600e3);
 }
 ipcMain.handle('updInfo', () => Object.assign({ ver: app.getVersion(), packaged: app.isPackaged }, updState));
 ipcMain.handle('updCheck', () => { updCheck(); return true; });
-ipcMain.handle('updInstall', () => { quitting = true; try { autoUpdater && autoUpdater.quitAndInstall(false, true); } catch (e) { quitting = false; } });
+ipcMain.handle('updInstall', () => { installNow(); });
+
+
+/* ---------- arranque con actualización (estilo Discord) ---------- */
+let splashWin = null, pendingInstall = false;
+function splashHtml() {
+  let logo = ''; try { logo = nativeImage.createFromPath(path.join(__dirname, 'icon.png')).resize({ width: 96, height: 96 }).toDataURL(); } catch (e) {}
+  return `<html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Segoe UI',system-ui,sans-serif;-webkit-user-select:none;-webkit-app-region:drag}
+.c{position:absolute;inset:8px;border-radius:26px;background:radial-gradient(420px 260px at 20% -10%,rgba(139,92,246,.45),transparent 70%),radial-gradient(360px 240px at 100% 110%,rgba(56,189,248,.25),transparent 70%),#0a0814;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 50px rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;animation:in .5s cubic-bezier(.2,1,.3,1)}
+@keyframes in{from{opacity:0;transform:scale(.96)}}
+img{width:92px;height:92px;filter:drop-shadow(0 8px 26px rgba(139,92,246,.7));animation:fl 3s ease-in-out infinite alternate}@keyframes fl{to{transform:translateY(-5px)}}
+h1{margin:6px 0 0;font-size:20px;letter-spacing:.42em;font-weight:700;padding-left:.42em}
+p{margin:0;font-size:13px;color:#a9a3c4;height:18px}
+.b{width:230px;height:5px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:6px}
+.b i{display:block;height:100%;width:30%;border-radius:9px;background:linear-gradient(90deg,#8b5cf6,#38bdf8);animation:ind 1.3s ease-in-out infinite}
+.b.d i{animation:none;width:var(--w,0%);transition:width .3s}
+@keyframes ind{0%{margin-left:-30%}100%{margin-left:100%}}
+</style></head><body><div class="c"><img src="${logo}"><h1>WINTEER</h1><p id="t">Buscando actualizaciones…</p><div class="b" id="b"><i id="i"></i></div></div></body></html>`;
+}
+function splashSet(txt, pct) {
+  if (!splashWin || splashWin.isDestroyed()) return;
+  const js = `document.getElementById('t').textContent=${JSON.stringify(txt)};` + (pct == null ? '' : `var b=document.getElementById('b');b.className='b d';b.style.setProperty('--w','${pct}%');`);
+  splashWin.webContents.executeJavaScript(js).catch(() => {});
+}
+function splashClose() { try { if (splashWin && !splashWin.isDestroyed()) splashWin.destroy(); } catch (e) {} splashWin = null; }
+function installNow() { quitting = true; try { autoUpdater.quitAndInstall(true, true); } catch (e) { quitting = false; } }
+function splashUpdate() {
+  return new Promise((resolve) => {
+    let done = false, gotUpdate = false;
+    const finish = (restart) => { if (done) return; done = true; clearTimeout(t0); autoUpdater.removeListener('update-available', onAvail); autoUpdater.removeListener('update-not-available', onNone); autoUpdater.removeListener('download-progress', onProg); autoUpdater.removeListener('update-downloaded', onDown); autoUpdater.removeListener('error', onErr); if (!restart) setTimeout(splashClose, 250); resolve(restart); };
+    const onAvail = () => { gotUpdate = true; clearTimeout(t0); splashSet('Descargando actualización…', 0); };
+    const onNone = () => { splashSet('Todo al día', 100); setTimeout(() => finish(false), 700); };
+    const onProg = (p) => splashSet('Descargando actualización · ' + Math.round(p.percent || 0) + '%', Math.round(p.percent || 0));
+    const onDown = () => { splashSet('Instalando…', 100); setTimeout(() => { finish(true); installNow(); }, 900); };
+    const onErr = () => finish(false);
+    const t0 = setTimeout(() => { if (!gotUpdate) finish(false); }, 15000);
+    try {
+      splashWin = new BrowserWindow({ width: 440, height: 330, frame: false, transparent: true, resizable: false, show: false, skipTaskbar: false, hasShadow: false, alwaysOnTop: true, center: true, title: 'WINTEER', webPreferences: { sandbox: true } });
+      splashWin.once('ready-to-show', () => { try { splashWin.show(); } catch (e) {} });
+      splashWin.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(splashHtml()));
+    } catch (e) { return finish(false); }
+    autoUpdater.on('update-available', onAvail); autoUpdater.on('update-not-available', onNone); autoUpdater.on('download-progress', onProg); autoUpdater.on('update-downloaded', onDown); autoUpdater.on('error', onErr);
+    setTimeout(() => { try { autoUpdater.checkForUpdates().catch(() => finish(false)); } catch (e) { finish(false); } }, 600);
+  });
+}
+async function startApp() {
+  if (!autoUpdater) { createWindow(); applyBg(); return; }
+  if (startHidden && cfg.bg) {
+    createWindow(); applyBg();
+    autoUpdater.once('update-downloaded', () => { pendingInstall = true; });
+    setTimeout(updCheck, 15000);
+    return;
+  }
+  const restarting = await splashUpdate();
+  if (restarting) return;
+  createWindow(); applyBg();
+}
 
 app.whenReady().then(() => {
   setupUpdater();
@@ -763,8 +820,7 @@ app.whenReady().then(() => {
   ipcMain.handle('cfgSet', (_e, o) => { if (o && ['bg', 'auto', 'pad'].includes(o.k)) { cfg[o.k] = !!o.v; if (o.k === 'bg' && !cfg.bg) cfg.auto = false; saveCfg(); applyBg(); } return cfg; });
   ipcMain.handle('toBg', () => { if (!win) return; fromBg = false; bgForGame = true; win.setFullScreen(false); if (cfg.bg) hideWin(); else win.minimize(); });
   ipcMain.handle('bpClosed', () => { if (fromBg && cfg.bg && win) { fromBg = false; win.setFullScreen(false); hideWin(); } fromBg = false; });
-  createWindow();
-  applyBg();
+  startApp();
 });
 app.on('second-instance', () => { showWin(); });
 app.on('before-quit', () => { quitting = true; stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });

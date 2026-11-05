@@ -4449,11 +4449,10 @@ setTimeout(ydBoot,3800);
 
 /* ===== actualizaciones ===== */
 let UPD={s:'idle',v:'',p:0,ver:''};
-const updTxt=u=>u.s==='checking'?'Buscando actualizaciones…':u.s==='downloading'?`Descargando la versión ${u.v||''} · ${u.p||0}%`:u.s==='ready'?`La versión ${u.v||''} está lista. Se instala al reiniciar.`:u.s==='none'?'Estás en la última versión.':u.s==='error'?'No pude buscar actualizaciones ahora. Probá más tarde.':'';
+const updTxt=u=>u.s==='checking'?'Buscando actualizaciones…':u.s==='downloading'?`Descargando la versión ${u.v||''} · ${u.p||0}%`:u.s==='ready'?`La versión ${u.v||''} está lista. Se instala la próxima vez que abras WINTEER.`:u.s==='none'?'Estás en la última versión.':u.s==='error'?'No pude buscar actualizaciones ahora. Probá más tarde.':'';
 function updUI(u){UPD=Object.assign(UPD,u||{});const e=$('#updst');if(e)e.textContent=updTxt(UPD);
   let b=$('#updbar');
-  if(UPD.s==='ready'){if(!b){b=document.createElement('div');b.id='updbar';document.body.appendChild(b)}b.innerHTML=`<div><b>Actualización lista</b><small>WINTEER ${esc(UPD.v||'')} se instala al reiniciar.</small></div><button class="b2" data-a="updgo">Reiniciar ahora</button><button class="b2 g" data-a="updx">Después</button>`}
-  else if(b&&UPD.s!=='ready')b.remove()}
+  if(b)b.remove()}
 async function updInit(){try{if(window.winteerNative&&winteerNative.updInfo){const r=await winteerNative.updInfo();UPD=Object.assign(UPD,r);updUI(r)}}catch(e){}}
 setTimeout(updInit,1200);
 /* ===== mascotas ===== */

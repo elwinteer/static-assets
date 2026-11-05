@@ -1,7 +1,7 @@
 {
   "name": "winteer",
   "productName": "WINTEER",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "main.js",
   "description": "WINTEER Game Launcher",
   "author": "WINTEER",
@@ -58,7 +58,9 @@
       "createStartMenuShortcut": true,
       "shortcutName": "WINTEER",
       "runAfterFinish": true,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "language": "3082",
+      "uninstallDisplayName": "WINTEER"
     },
     "publish": [
       {
