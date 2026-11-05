@@ -596,6 +596,21 @@ async function igdb({ id, secret, name, app }) {
   return { d: txt, u: g.url || '', dev: co('developer'), pub: co('publisher'), gl: links(g.websites), gen: [...(g.genres || []), ...(g.themes || [])].map(x => x.name).slice(0, 5), pcv: 1, rt: g.total_rating || 0, rel: g.first_release_date || 0, ig: { cover: g.cover ? g.cover.image_id : '', art: im(g.artworks), shot: im(g.screenshots) } };
 }
 
+
+/* ---------- versión de prueba (beta): solo se usa si fue armada sobre esta misma versión ---------- */
+function betaPage() {
+  try {
+    const dir = path.join(app.getPath('userData'), 'beta'), src = path.join(dir, 'index.html');
+    if (!fs.existsSync(src)) return null;
+    let base = ''; try { base = fs.readFileSync(path.join(dir, 'base.txt'), 'utf8').trim(); } catch (e) {}
+    if (base !== app.getVersion()) return null;
+    let h = fs.readFileSync(src, 'utf8');
+    const b = pathToFileURL(__dirname).href.replace(/\/?$/, '/');
+    h = h.replace(/<head[^>]*>/i, (x) => x + '<base href="' + b + '">');
+    const out = path.join(dir, '_run.html'); fs.writeFileSync(out, h); return out;
+  } catch (e) { return null; }
+}
+
 /* ---------- ventana ---------- */
 function createWindow() {
   win = new BrowserWindow({
@@ -608,7 +623,7 @@ function createWindow() {
   ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen', 'restore'].forEach(e => win.on(e, wst));
   win.webContents.on('did-finish-load', wst);
   try { win.setIcon(path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png')); } catch (e) {}
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadFile(betaPage() || path.join(__dirname, 'index.html'));
   win.once('ready-to-show', () => { if (!(startHidden && cfg.bg && !win.__shown)) { win.maximize(); win.show(); } win.__shown = true; if (process.env.WINTEER_TEST) win.webContents.openDevTools({ mode: 'detach' }); });
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^(https?|steam|com\.epicgames\.launcher|ms-windows-store):/i.test(url)) shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('file:')) { e.preventDefault(); if (/^(https?|steam|com\.epicgames\.launcher|ms-windows-store):/i.test(url)) shell.openExternal(url); } });
