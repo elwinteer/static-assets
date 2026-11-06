@@ -94,9 +94,13 @@ async function srcBuffer(u) {
   if (!r.ok) throw 0;
   const buf = Buffer.from(await r.arrayBuffer()), e = sniff(buf);
   if (!e || buf.length < 300) throw 0;
-  fs.writeFileSync(path.join(CACHE, h + '.' + e), buf); idx.set(h, e);
+  await fs.promises.writeFile(path.join(CACHE, h + '.' + e), buf); idx.set(h, e);
   return buf;
 }
+let imgAct = 0; const imgQ = [];
+const imgSlot = () => new Promise((r) => { const go = () => { imgAct++; r(); }; imgAct < 3 ? go() : imgQ.push(go); });
+const imgFree = () => { imgAct--; const n = imgQ.shift(); if (n) n(); };
+const tick = () => new Promise((r) => setImmediate(r));
 async function imgHandler(req) {
   const sp = new URL(req.url).searchParams, u = sp.get('u') || '', w = parseInt(sp.get('w') || '0', 10) || 0;
   if (!/^(https?|file):/i.test(u)) return new Response('', { status: 400 });
@@ -109,12 +113,16 @@ async function imgHandler(req) {
     let job = pend.get(key);
     if (!job) {
       job = (async () => {
-        const buf = await srcBuffer(u);
-        if (w) {
-          let out = buf, e = sniff(buf) || 'jpg';
-          try { const ni = nativeImage.createFromBuffer(buf); if (!ni.isEmpty() && ni.getSize().width > w) { out = ni.resize({ width: w, quality: 'better' }).toJPEG(86); e = 'jpg'; } } catch (x) {}
-          fs.writeFileSync(path.join(CACHE, key + '.' + e), out); idx.set(key, e);
-        } else if (!idx.has(key)) { const e = sniff(buf); if (e) { fs.writeFileSync(path.join(CACHE, key + '.' + e), buf); idx.set(key, e); } }
+        await imgSlot();
+        try {
+          const buf = await srcBuffer(u);
+          await tick();
+          if (w) {
+            let out = buf, e = sniff(buf) || 'jpg';
+            try { const ni = nativeImage.createFromBuffer(buf); if (!ni.isEmpty() && ni.getSize().width > w) { await tick(); out = ni.resize({ width: w, quality: 'good' }).toJPEG(86); e = 'jpg'; } } catch (x) {}
+            await fs.promises.writeFile(path.join(CACHE, key + '.' + e), out); idx.set(key, e);
+          } else if (!idx.has(key)) { const e = sniff(buf); if (e) { await fs.promises.writeFile(path.join(CACHE, key + '.' + e), buf); idx.set(key, e); } }
+        } finally { imgFree(); }
       })().finally(() => pend.delete(key));
       pend.set(key, job);
     }
