@@ -1,6 +1,10 @@
 const { app, BrowserWindow, ipcMain, shell, protocol, net, dialog, Menu, nativeImage, Tray, globalShortcut, desktopCapturer, screen } = require('electron');
 const path = require('path'), fs = require('fs'), crypto = require('crypto');
 app.commandLine.appendSwitch('autoplay-policy','no-user-gesture-required');
+app.commandLine.appendSwitch('disable-features','CalculateNativeWinOcclusion');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows','true');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.setAppUserModelId('com.winteer.launcher');
 const { spawn, execFile } = require('child_process');
 const { pathToFileURL, fileURLToPath } = require('url');
@@ -633,6 +637,7 @@ function createWindow() {
   try { win.setIcon(path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png')); } catch (e) {}
   win.loadFile(betaPage() || path.join(__dirname, 'index.html'));
   win.once('ready-to-show', () => { if (!(startHidden && cfg.bg && !win.__shown)) { win.maximize(); win.show(); } win.__shown = true; if (process.env.WINTEER_TEST) win.webContents.openDevTools({ mode: 'detach' }); });
+  for (const ev of ['show', 'restore', 'focus', 'maximize', 'unmaximize']) win.on(ev, () => { try { win.webContents.setBackgroundThrottling(false); win.webContents.invalidate(); } catch (x) {} });
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^(https?|steam|com\.epicgames\.launcher|ms-windows-store):/i.test(url)) shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('file:')) { e.preventDefault(); if (/^(https?|steam|com\.epicgames\.launcher|ms-windows-store):/i.test(url)) shell.openExternal(url); } });
   win.webContents.on('before-input-event', (e, i) => {
