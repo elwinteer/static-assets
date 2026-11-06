@@ -306,6 +306,8 @@ code{background:var(--card2);padding:2px 7px;border-radius:6px;font-size:12px}
 .mi{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 80%,#fff),var(--c))}
 
 /* ---------- menú contextual y edición ---------- */
+
+.exr{display:flex;gap:10px;align-items:center;margin-top:6px}.exr .txt{flex:1;width:auto;min-width:0}
 #ctx{position:fixed;z-index:90;min-width:210px;background:rgba(var(--pnrgb),.96);backdrop-filter:blur(14px);border:1px solid rgba(var(--argb),.4);border-radius:14px;padding:6px;box-shadow:0 18px 50px rgba(0,0,0,.6);transform-origin:top left;animation:ctxIn .28s var(--spring) both}
 @keyframes ctxIn{from{opacity:0;transform:scale(.85)}}
 #ctx button{display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;color:var(--text);padding:10px 12px;border-radius:10px;font-size:13.5px;text-align:left;transition:background .2s,transform .2s var(--ease)}
@@ -512,7 +514,7 @@ code{background:rgba(255,255,255,.12)}
 @keyframes wsub{from{opacity:0;transform:translateY(6px)}to{opacity:.85;transform:none}}
 .app.has-right .center{margin-right:18px}
 .center{padding-bottom:2px}
-#view{padding:2px 4px 26px 2px;-webkit-mask:linear-gradient(#000 calc(100% - 26px),transparent);mask:linear-gradient(#000 calc(100% - 26px),transparent)}
+#view{padding:2px 4px 26px 2px}
 #snow{opacity:.5}
 .b2,.btn,.play,.cp,.tab,.chip,.tag,.stat span{white-space:nowrap}
 .tool{gap:20px 22px}
@@ -860,6 +862,12 @@ body.hid *{animation-play-state:paused!important}
 .sp-skip{position:absolute;right:3vw;bottom:3vh;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,215,240,.35);z-index:3}
 .detail{transform:translateZ(0)}.libl{transform:translateZ(0)}.list{transform:translateZ(0)}
 body.scr .detail *,body.scr .detail,body.scr #amb i,body.scr .dbg,body.scr .media{animation-play-state:paused!important}
+body.scr #amb,body.scr #amb *,body.scr #amb b{animation-play-state:paused!important}
+body.vset #amb b{animation:none!important}body.vset #view *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.scr #view *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.scr #list .it,body.scr #view .game,body.scr #view .gc{pointer-events:none!important}
+#list .it{content-visibility:auto;contain-intrinsic-size:auto 58px}
+#amb b{mix-blend-mode:normal!important;filter:blur(44px)!important}
 .it .th img{content-visibility:auto}
 .mb.rnd{position:relative;overflow:hidden;width:min(540px,92vw);padding:34px 34px 28px;border-radius:32px;background:rgba(14,11,26,.82)}
 .rnd .rbg{position:absolute;inset:0;z-index:0}.rnd .rbg img{width:100%;height:100%;object-fit:cover;filter:blur(26px) saturate(1.4) brightness(.55);transform:scale(1.25);opacity:0;transition:opacity .8s}.rnd.done .rbg img{opacity:1}
@@ -2279,7 +2287,7 @@ const GEN={"280":[1,101],"489830":[3,101],"322170":[1,23,101],"3312020":[23,70,1
 const TG={1:'Acción',2:'Estrategia',3:'RPG',4:'Casual',9:'Carreras',18:'Deportes',23:'Indie',25:'Aventura',28:'Simulación',29:'Multijugador masivo',37:'Gratis',70:'Acceso anticipado',101:'Un jugador',102:'Multijugador',103:'Cooperativo'};
 const GENRE_IDS=[1,2,3,4,9,18,23,25,28];
 const genresOf=g=>(GEN[g.app]||[]).filter(c=>GENRE_IDS.includes(c)).map(c=>TG[c]);
-const tagsOf=g=>[...new Set([...(GEN[g.app]||[]).map(c=>TG[c]).filter(Boolean),...(g.tags||[]),...(g.exe?['Fuera de Steam']:[])])];
+const tagsOf=g=>[...new Set([...(GEN[g.app]||[]).map(c=>TG[c]).filter(Boolean),...(g.tags||[]),...(g.exe?['Otras tiendas']:[])])];
 const doneN=()=>G.filter(g=>g.status==='Terminado').length;
 const RK=[['Sin empezar','Todavía no lo jugaste','lock'],['Novato','Abriste el juego','flake'],['Aprendiz','Más de 2 horas','star'],['Experto','Mitad de la historia','shield'],['Leyenda','Juego completado','crown']];
 function rankOf(g){const h=g.hours||0,m=parseFloat((g.hl||{}).m)||0;if(g.status==='Terminado')return 4;if(h<=0)return 0;if(h<2)return 1;if(h>=(m?m/2:10))return 3;return 2}
@@ -2301,7 +2309,7 @@ const GA=[
  ['h1000','Maratón polar','Juntá 1000 horas jugadas','clock','e',()=>totalH()>=1000],
  ['fiel','Fiel compañero','100 horas en un solo juego','flame','r',()=>G.some(g=>g.hours>=100)],
  ['var','Explorador','Jugá 25 juegos distintos','compass','r',()=>G.filter(g=>g.hours>0).length>=25],
- ['exe','Rebelde','Agregá un juego fuera de Steam','bolt','c',()=>G.some(g=>g.exe)],
+ ['exe','Rebelde','Agregá un juego de otra tienda','bolt','c',()=>G.some(g=>g.exe)],
  ['resc','Deshielo','Volvé a jugar un juego abandonado','flame','r',()=>(ST.rescued||0)>0],
  ['str7','Constancia','Jugá 7 días seguidos','cal','r',()=>streakAll()>=7],
  ['oro3','Triple oro','Tené 3 juegos en rango Oro','trophy','r',()=>doneN()>=3]];
@@ -2345,6 +2353,8 @@ const TPRE=[['Violeta clásico','#8b5cf6','violet'],['Rojo sangre','#ef4444','ti
 let ST={accent:'#8b5cf6',snow:true,dens:90,key:'',igid:'',igsec:'',useSgdb:false,log:{},sgdb:{},intro:true};
 let G=SEED.map(g=>({...g}));
 try{const s=JSON.parse(localStorage.getItem('winteer2')||'null');if(s){Object.assign(ST,s.ST||{});if(s.G&&s.G.length)G=s.G}}catch(e){}
+G.forEach(g=>{if('fam' in g)delete g.fam});
+G.forEach(g=>{if(g.tags&&g.tags.includes('Fuera de Steam'))g.tags=g.tags.filter(t=>t!=='Fuera de Steam')});
 try{const _d=s=>atob(s).split('').reverse().join('');if(!ST.igid)ST.igid=_d('ZGE3bjVoa3MwMXppbWVkZmtidXh6NXZleWtrdWsw');if(!ST.igsec)ST.igsec=_d('aHcyNWJvMHp6ZGU3b3JmcHltdmQ3Yno3bXF3cnpq');if(!ST.key)ST.key=_d('OTcwZGQ3OTcyYzEzODlmMGMxMmIyZjk5MjVlZGVmYzY=');if(ST.useSgdb!==false)ST.useSgdb=true;ST.useSgdb=true}catch(e){}
 const save=()=>{try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
 const gm=id=>G.find(g=>g.id===id);
@@ -2473,17 +2483,17 @@ function rp(){
   ${feat?`<hr><div class="lbl">${S.playing?'Jugando ahora':'Último en curso'}</div><div class="now" data-a="open" data-id="${feat.id}"><div class="th"><img src="${art.grid(feat)}" data-fb="${art.wide(feat)}" alt=""></div><div><b>${esc(feat.name)}</b><small>${fh(feat.hours)}</small></div></div>`:''}`}
 
 V.games=()=>`<div class="lib">
-  <section class="libl"><div class="lh"><h2>Biblioteca</h2><div style="display:flex;gap:8px"><button class="ib" data-a="addexe" title="Agregar un .exe (fuera de Steam)">${ic('bolt')}</button></div></div>
+  <section class="libl"><div class="lh"><h2>Biblioteca</h2><div style="display:flex;gap:8px"><button class="ib" data-a="addexe" title="Agregar un juego de otra tienda (.exe)">${ic('bolt')}</button></div></div>
     <div class="ls">${ic('search')}<input id="lq" placeholder="Buscar en tu biblioteca…" value="${esc(S.q)}"><button class="fbtn ${(S.fs||S.fc||(S.so&&S.so!=='az'))?'act':''}" id="fbtn" data-a="fopen" title="Filtrar y ordenar">${ic('filter')}</button></div>
     <div class="fpan" id="fpan" hidden></div>
     <div class="cnt" id="cnt"></div>
     <div class="list" id="list">${listHTML()}</div></section>
   <section class="detail" id="detail"></section></div>`;
 const isNewG=g=>!!(g.isNew&&Date.now()-g.isNew<7*864e5);
-const PS=['','Nuevos','Favoritos','Jugando','Pausado','Sin empezar','Completado','Instalados','Préstamo'];
-const fsOk=g=>!S.fs||(S.fs==='Nuevos'?isNewG(g):S.fs==='Favoritos'?g.fav:S.fs==='Instalados'?instOf(g):S.fs==='Préstamo'?g.fam:stOf(g)===S.fs);
-const stN=o=>G.filter(g=>!o||(o==='Nuevos'?isNewG(g):o==='Favoritos'?g.fav:o==='Instalados'?instOf(g):o==='Préstamo'?g.fam:stOf(g)===o)).length;
-const FIC={'':'▦',Nuevos:'✦',Favoritos:'★',Jugando:'▶',Pausado:'❚❚','Sin empezar':'○',Completado:'✔',Instalados:'⬇',Préstamo:'⇄'};
+const PS=['','Nuevos','Favoritos','Jugando','Pausado','Sin empezar','Completado','Instalados'];
+const fsOk=g=>!S.fs||(S.fs==='Nuevos'?isNewG(g):S.fs==='Favoritos'?g.fav:S.fs==='Instalados'?instOf(g):stOf(g)===S.fs);
+const stN=o=>G.filter(g=>!o||(o==='Nuevos'?isNewG(g):o==='Favoritos'?g.fav:o==='Instalados'?instOf(g):stOf(g)===o)).length;
+const FIC={'':'▦',Nuevos:'✦',Favoritos:'★',Jugando:'▶',Pausado:'❚❚','Sin empezar':'○',Completado:'✔',Instalados:'⬇'};
 function fLabel(){const p=[];if(S.fs)p.push(S.fs);if(S.fc)p.push(S.fc);return p.length?p.join(' · '):'Filtros'}
 function fPanel(){const c={};G.forEach(g=>tagsOf(g).forEach(t=>c[t]=(c[t]||0)+1));
   const st=PS.map(o=>{const n=stN(o);return n||!o?`<button class="fch ${S.fs===o?'on':''}" data-a="lfs" data-v="${o}"><b>${FIC[o]}</b>${o||'Todos'}<i>${n}</i></button>`:''}).join('');
@@ -2494,7 +2504,7 @@ function listHTML(){THN=0;
   const q=S.q.toLowerCase(),arr=G.filter(g=>g.name.toLowerCase().includes(q)&&fsOk(g)&&(!S.fc||tagsOf(g).includes(S.fc))).sort((a,b)=>S.so==='hrs'?(b.hours||0)-(a.hours||0):S.so==='rec'?String(b.last||'').localeCompare(String(a.last||''))||a.name.localeCompare(b.name):a.name.localeCompare(b.name));
   if(!arr.length)return '<p style="color:var(--muted);padding:14px;font-size:13px">Sin resultados</p>';
   return arr.map(g=>{const run=S.playing&&S.playing.id===g.id;
-    return `<div class="it ${g.id===S.sel?'sel':''} ${stOf(g)==='Completado'?'done':''}" data-a="sel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em> ':''}${esc(g.name)}${g.isNew&&Date.now()-g.isNew<7*864e5?' <u class="nwl">Nuevo</u>':''}${g.fam?' <u class="nwl">Préstamo</u>':''}</b></div>${(()=>{const t=run?'Jugando':stOf(g);return t==='Jugando'?'<i class="sdt g" title="Jugando"></i>':t==='Pausado'?'<i class="sdt b" title="Pausado"></i>':''})()}</div>`}).join('')}
+    return `<div class="it ${g.id===S.sel?'sel':''} ${stOf(g)==='Completado'?'done':''}" data-a="sel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em> ':''}${esc(g.name)}${g.isNew&&Date.now()-g.isNew<7*864e5?' <u class="nwl">Nuevo</u>':''}</b></div>${(()=>{const t=run?'Jugando':stOf(g);return t==='Jugando'?'<i class="sdt g" title="Jugando"></i>':t==='Pausado'?'<i class="sdt b" title="Pausado"></i>':''})()}</div>`}).join('')}
 function renderList(){const l=$('#list');if(l)l.innerHTML=listHTML();const c=$('#cnt');if(c)c.textContent=l?l.querySelectorAll('.it').length+' juegos':''}
 function renderDetail(swap=true){
   const d=$('#detail');if(!d)return;const g=gm(S.sel);if(g&&g.isNew){delete g.isNew;save();scanBadge()}
@@ -2721,7 +2731,7 @@ V.wrapped=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="stack"><
 function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'todavía no hiciste ninguna';
   return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo (horas, logros, perfil, reseñas y las imágenes que cargaste vos) en un único archivo que se sobrescribe, dentro de la carpeta que elijas. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
   <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small></div><div style="display:flex;gap:10px"><button class="b2" data-a="bkpick">Elegir carpeta</button><button class="b2 g" data-a="bknow">Copiar ahora</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
-const STABS=[['look','Apariencia','flake'],['avi','Avisos y sonido','bolt'],['per','Personalizar','star'],['pet','Mascota','star'],['lib','Biblioteca','games'],['data','Datos','shield']];
+const STABS=[['look','Apariencia','flake'],['avi','Avisos y sonido','bolt'],['per','Personalizar','star'],['pet','Mascota','star'],['lib','Biblioteca','games'],['data','Sistema y datos','shield']];
 const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="sv" data-k="${k}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
 const badge=(ok,t1,t0)=>`<span class="bdg ${ok?'ok':''}">${ok?t1:t0}</span>`;
 V.settings=()=>{const t=({fx:'look',hit:'avi',frn:'avi',rew:'per',me:'per',con:'lib'})[S.stab]||S.stab||'look',N=!!window.winteerNative;
@@ -2743,8 +2753,10 @@ V.settings=()=>{const t=({fx:'look',hit:'avi',frn:'avi',rew:'per',me:'per',con:'
    per:['Personalizar','Hacelo tuyo',[...pick(R('me'),[0,1,3]),...pick(R('rew'),[0,3,4,5]),more([...pick(R('me'),[2,4]),...pick(R('rew'),[2,6,7,8,9])])]],
    pet:['Mascota','Tu compañero del launcher: se cuida jugando',R('pet')],
    lib:['Biblioteca','De dónde salen tus juegos y su información',(()=>{const L=R('lib'),C=N?R('con').slice(3):[],ad=L.filter(r=>/id="sdir"/.test(r));return [...L.filter(r=>!/id="sdir"/.test(r)),more([...ad,...C])]})()],
-   data:['Datos','Tu progreso es tuyo: llevalo a donde quieras',(()=>{const D=R('data'),ad=D.filter(r=>/tutreset|rsap|data-a="reset"|clrimg|sgexport/.test(r));return [...D.filter(r=>!ad.includes(r)),more(ad,'Mantenimiento y reinicios')]})()]};
+   data:['Sistema y datos','Capturas, segundo plano y tu progreso',(()=>{const D=R('data'),ad=D.filter(r=>/tutreset|rsap|data-a="reset"|clrimg|sgexport/.test(r)),sy=R('fx').filter(r=>typeof r==='string'&&/shtoggle|shkeyset|shfolder|bgsw/.test(r));return [...(sy.length?[sec('Capturas y sistema'),...sy,sec('Datos')]:[]),...D.filter(r=>!ad.includes(r)),more(ad,'Mantenimiento y reinicios')]})()]};
   const [h,sub,rows]=COMP[t]||COMP.look;
+  const SRC={look:['look','fx'],avi:['hit','frn'],per:['me','rew'],pet:['pet'],lib:['lib','con'],data:['data']};
+  {const body=rows.map(fl).join('');const ex=(SRC[t]||[]).flatMap(k=>R(k)).filter(r=>typeof r==='string'&&r.startsWith('<div class="row')&&!/id="sgk"|id="igid"|stat3|data-a="go"|data-a="rshit"|shtoggle|shkeyset|shfolder|bgsw/.test(r)&&!body.includes(r)&&!body.includes(fl(r)));if(ex.length)rows.push(more(ex,'Otros ajustes'))}
   return `<div class="sx2"><nav class="stabs">${STABS.map(([k,l,i])=>`<button class="stab ${k===t?'on':''}" data-a="stab" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>
   <section class="card set spane"><div class="sgrid">${rows.map(fl).join('')}</div></section></div>`};
 
@@ -2757,7 +2769,7 @@ function moveInd(){const a=$(`.nav a[data-v="${S.view}"]`),ind=$('#ind'),nw=$('.
   clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
+function go(v,o){document.body.classList.toggle('vset',v==='settings');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
   {const t=$('#tinst');if(t)t.textContent=G.filter(instOf).length}
@@ -2775,6 +2787,7 @@ function go(v,o){if(v!=='games'){document.body.classList.remove('cpg');egBody(ch
   counters(el);moveInd();if(v==='news')newsDraw();if(v==='games'){ST.newSeen=Date.now();save();scanBadge()}
 }
 
+(()=>{let t;document.addEventListener('scroll',e=>{const el=e.target;if(!el||el.nodeType!==1||!(el.id==='view'||el.closest('#view')))return;document.body.classList.add('scr');clearTimeout(t);t=setTimeout(()=>document.body.classList.remove('scr'),180)},true)})();
 /* ---------- acciones ---------- */
 function rollGame(){const m=$('.mb.rnd');if(!m)return;hcnt('roll');const pool=G.filter(g=>stOf(g)==='Sin empezar'||stOf(g)==='Pausado'||stOf(g)==='Sin estado'),L=pool.length?pool:G;if(!L.length)return;
   const fin=L[Math.floor(Math.random()*L.length)],seq=[];for(let i=0;i<13;i++)seq.push(L[Math.floor(Math.random()*L.length)]);seq.push(fin);
@@ -2898,7 +2911,7 @@ const A={
     else if(!canPlay(g)){if(isEpicG(g)){toast('No está instalado. Abriendo Epic Games…');const u=(g.uri||'').replace(/([?&])action=[^&]*/,'$1action=install').replace(/&silent=true/,'');location.href=/action=install/.test(u)?u:(u?u+(u.includes('?')?'&':'?')+'action=install':'com.epicgames.launcher://store');detEpicLater()}else if(isXbG(g)){toast('No está instalado. Abriendo Microsoft Store…');location.href=(g.uri&&/^ms-windows-store:/.test(g.uri))?g.uri:'ms-windows-store://pdp/?PFN='+encodeURIComponent(g.id.slice(3));detXboxLater()}else{toast('No está instalado. Abriendo la instalación en Steam…');location.href='steam://install/'+g.app}return}
     else{if(stOf(g)==='Sin estado'&&g.hours>0)ST.rescued=(ST.rescued||0)+1;S.playing={id:g.id,t:Date.now()};toast(isCP(g)?'Despertá, samurái. Tenemos una ciudad que quemar.':egK(g)?EGT[egK(g)]:'Abriendo '+g.name+'…');launchGame(g)}
     renderList();renderDetail(false)},
-  addexe:()=>{modal(`<h3>Agregar un juego fuera de Steam</h3><p>Elegí el archivo <code>.exe</code> del juego, o pegá su ruta completa (en el Explorador: Shift + clic derecho sobre el .exe → <i>Copiar como ruta de acceso</i>).</p>
+  addexe:()=>{modal(`<h3>Agregar un juego de otra tienda</h3><p>Elegí el archivo <code>.exe</code> del juego, o pegá su ruta completa (en el Explorador: Shift + clic derecho sobre el .exe → <i>Copiar como ruta de acceso</i>).</p>
     <div class="ed" style="text-align:left"><label>Nombre<input class="txt" id="x-n" placeholder="Nombre del juego"></label><label>Ruta del .exe<input class="txt" id="x-p" placeholder="C:\\Juegos\\MiJuego\\juego.exe"></label>
     ${window.winteerNative?'<button class="b2 sm" data-a="pickx" style="margin-top:10px;align-self:flex-start">Elegir archivo…</button>':'<label>…o elegí el archivo<input type="file" id="x-f" accept=".exe" style="display:block;margin-top:8px;color:var(--muted);font-size:12px"></label>'}</div>
     <div class="bs" style="margin-top:16px"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="doexe">Agregar</button></div>`);
@@ -3010,7 +3023,8 @@ const A={
     const q=G.filter(g=>!(g.hl&&parseFloat(g.hl.m)>0)&&!g.hlt);let n=0,f=0;const tot=q.length,P=()=>{const e=$('#hlp');if(e)e.textContent=`${n}/${tot} juegos`};
     async function w(){while(window._hla&&q.length&&f<6){const g=q.shift();try{const r=await hltbFor(g);if(r===-1)f++;else f=0}catch(e){f++}n++;P();await new Promise(r=>setTimeout(r,350))}}
     await Promise.all([w(),w()]);window._hla=false;const b=document.querySelector('[data-a=hltball]');if(b)b.textContent='Buscar todo';toast(f>=6?'HowLongToBeat dejó de responder. Probá más tarde.':`Listo: ${n} juegos revisados`);if(S.view==='games')renderTab()},
-  pickx:async()=>{const p=await winteerNative.pickExe();if(p){$('#x-p').value=p;if(!$('#x-n').value)$('#x-n').value=p.split(/[\\/]/).pop().replace(/\.exe$/i,'')}},
+  epickexe:async()=>{const p=await winteerNative.pickExe();if(p){const i=$('#e-ex');if(i)i.value=p;toast('Ejecutable cambiado. Guardá los cambios para aplicarlo')}},
+ pickx:async()=>{const p=await winteerNative.pickExe();if(p){$('#x-p').value=p;if(!$('#x-n').value)$('#x-n').value=p.split(/[\\/]/).pop().replace(/\.exe$/i,'')}},
   tg:a=>{const k=a.dataset.k,d=!!a.dataset.d;ST[k]=!P_(k,d);a.classList.toggle('on',ST[k]);applyPrefs();save()},
   lfs:a=>{S.fs=a.dataset.v;fRef()},lso:a=>{S.so=a.dataset.v;fRef()},
   lfc:a=>{S.fc=S.fc===a.dataset.v?'':a.dataset.v;fRef()},
@@ -3039,17 +3053,17 @@ const A={
     <code style="display:block;margin:6px 0;word-break:break-all;line-height:1.5">https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=TU_KEY&amp;steamid=TU_ID&amp;include_appinfo=1&amp;include_played_free_games=1</code>
     <b style="color:var(--text)">4.</b> Guardá esa página (Ctrl+S) y elegila acá, o pegá el texto abajo.</p>
     <input type="file" id="impf" accept=".json,.txt,.tsv,.csv,application/json" style="margin-bottom:12px;color:var(--muted);font-size:12px;max-width:100%">
-    <label style="display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:12.5px;color:var(--muted);margin-bottom:12px;cursor:pointer"><input type="checkbox" id="impfam" style="accent-color:var(--a);margin-top:2px"><span>Esta lista es de la cuenta de <b style="color:var(--text)">otra persona</b> (préstamo familiar). Agrega solo los juegos que no tengas, sin horas. Sirve también para el archivo .tsv de la biblioteca familiar.</span></label>
+    
     <textarea id="impt" placeholder="…o pegá acá el texto que mostró Steam"></textarea>
     <div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="doimp">Importar</button></div>`)},
-  doimp:async a=>{const fl=$('#impf').files[0],fam=$('#impfam').checked;let txt=$('#impt').value.trim();
+  doimp:async a=>{const fl=$('#impf').files[0];let txt=$('#impt').value.trim();
     try{if(fl)txt=await fl.text();let list;try{const j=JSON.parse(txt);list=(j.response&&j.response.games)||j.games||(Array.isArray(j)?j:null)}catch(e2){list=txt.split(/\r?\n/).map(l=>l.split(l.includes('\t')?'\t':',').map(x=>x.trim().replace(/^"|"$/g,''))).filter(p=>/^\d+$/.test(p[0])).map(p=>({appid:p[0],name:p[1]||''}))}
       
       if(!list||!list.length)throw 0;
       const ds=ts=>new Date(ts*1000).toLocaleDateString('es-AR');let add=0,upd=0;
       for(const x of list){const id=+x.appid;if(!id)continue;const h=(x.playtime_forever||0)/60;let g=G.find(q=>q.app===id);
-        if(g){if(!fam){if(h>g.hours)g.hours=h;if(x.rtime_last_played)g.last=ds(x.rtime_last_played)}upd++}
-        else{G.push({id:'g'+id,app:id,name:x.name||'Juego '+id,hours:fam?0:h,status:'',last:fam||!x.rtime_last_played?'':ds(x.rtime_last_played),notes:'',fam:fam});add++}}
+        if(g){if(h>g.hours)g.hours=h;if(x.rtime_last_played)g.last=ds(x.rtime_last_played);upd++}
+        else{G.push({id:'g'+id,app:id,name:x.name||'Juego '+id,hours:h,status:'',last:!x.rtime_last_played?'':ds(x.rtime_last_played),notes:''});add++}}
       save();a.closest('.modal').remove();toast(`${add} juegos nuevos · ${upd} actualizados`);go('games')}
     catch(e){toast('No pude leer ese archivo. Tiene que ser el JSON que muestra la dirección de Steam.')}},
   bye:a=>{if(window.winteerNative){winteerNative.quit();return}a.closest('.mb').innerHTML=`<h3>Sesión cerrada ❄️</h3><p>Nos vemos pronto.</p><div class="bs"><button class="b2" data-a="close">Volver a entrar</button></div>`}
@@ -3360,7 +3374,7 @@ setInterval(()=>{try{if(!document.hidden)newsFetch()}catch(e){}},3*36e5);
 
 Object.assign(A,{
  updgo:()=>{try{winteerNative.updInstall()}catch(e){}},updx:()=>{const b=$('#updbar');if(b)b.remove()},updchk:()=>{try{UPD.s='checking';const e=$('#updst');if(e)e.textContent=updTxt(UPD);winteerNative.updCheck()}catch(e){}},
- tournext:()=>tourShow((S.tour||0)+1),tourprev:()=>tourShow((S.tour||0)-1),tourskip:()=>{tourEnd(true);toast('Tutorial omitido. Lo podés ver de nuevo desde Ajustes → Datos')},tourend:()=>tourEnd(false),tutgo:a=>{tourEnd(false);if(a.dataset.tb)S.stab=a.dataset.tb;go(a.dataset.v)},tutreset:()=>{ST.tut={off:false,seen:{}};save();toast('Tutorial reiniciado');tourShow(0)},
+ tournext:()=>tourShow((S.tour||0)+1),tourprev:()=>tourShow((S.tour||0)-1),tourskip:()=>{tourEnd(true);toast('Tutorial omitido. Lo podés ver de nuevo desde Ajustes → Sistema y datos')},tourend:()=>tourEnd(false),tutgo:a=>{tourEnd(false);if(a.dataset.tb)S.stab=a.dataset.tb;go(a.dataset.v)},tutreset:()=>{ST.tut={off:false,seen:{}};save();toast('Tutorial reiniciado');tourShow(0)},
  sttab:a=>{S.sttb=a.dataset.v;$$('[data-a=sttab]').forEach(b=>b.classList.toggle('on',b===a));const e=$('#stp');if(e&&window.__stPanel)e.innerHTML=window.__stPanel(S.sttb)},
  newsopen:a=>{const u=a.dataset.u;if(/^https?:\/\//.test(u))window.open(u,'_blank','noopener')},
  newsf:a=>{S.nf=a.dataset.v;S.nlim=18;S.npg=0;$$('[data-a=newsf]').forEach(b=>b.classList.toggle('on',b===a));newsDraw()},
@@ -4651,7 +4665,7 @@ function petBark(){if(ST.hsnd===false||ST.petSnd===false)return;try{PAC=PAC||new
 function petFx(em,n){const f=$('#petfx');if(!f)return;for(let i=0;i<(n||5);i++){const s=document.createElement('i');s.textContent=em;s.style.left=(30+Math.random()*40)+'%';s.style.animationDelay=(i*.12)+'s';s.style.fontSize=(18+Math.random()*16)+'px';f.appendChild(s);setTimeout(()=>s.remove(),1900)}}
 function petBar(l,v,c){return `<div class="pt-b"><span>${l}</span><div><i style="--w:${Math.round(v)}%;background:${c}"></i></div><em>${Math.round(v)}</em></div>`}
 const PCHOP={name:'Chop',coat:7,ear:'down',pat:'none',photo:'',bd:'05-11',acc:'',xp:0,pre:'chop',bg:'casa'};
-function petInner(){const p=petCur();if(!p)return '';petBdCheck(p);const m=petMood(p),L=pLvl(p),w=petWalks(p),td=(ST.log||{})[pTK()]||0,goalOk=td>=1,claimed=p.gd===pTK(),MD=PMOOD[m],d=petDay(p),LM=petLim(p),bg=bgOk(p,p.bg||'casa')?(p.bg||'casa'):'casa',tab=S.petTab||'ropa',cur=(L-1)*(L-1)*20,nx=L*L*20,list=PETS();
+function petInner(){const p=petCur();if(!p)return '';petBdCheck(p);const m=petMood(p),L=pLvl(p),w=petWalks(p),td=(ST.log||{})[today()]||0,goalOk=td>=1,claimed=p.gd===pTK(),MD=PMOOD[m],d=petDay(p),LM=petLim(p),bg=bgOk(p,p.bg||'casa')?(p.bg||'casa'):'casa',tab=S.petTab||'ropa',cur=(L-1)*(L-1)*20,nx=L*L*20,list=PETS();
   const lv=[...Object.values(PACC).map(v=>v[1]),...PBG.map(b=>b[2])].filter(x=>x>L),nl=lv.length?Math.min(...lv):0;
   const nn=nl?[...Object.values(PACC).filter(v=>v[1]===nl).map(v=>v[0]),...PBG.filter(b=>b[2]===nl).map(b=>b[1])].join(' · '):'';
   const ropa=[['',['Sin ropa',0,'']],...Object.entries(PACC)].map(([k,[nm,lv2,tg]])=>{const ok=L>=lv2;return `<button class="pt-a ${(p.acc||'')===k?'on':''} ${ok?'':'lock'}" data-a="petacc" data-k="${k}" title="${nm}"><span class="pt-ai">${k===''?'<i>∅</i>':petSVG({...p,photo:''},'happy',{size:58,acc:k})}</span><b>${nm}</b><small>${ok?(tg==='fun'?'😂 Gracioso':tg==='cool'?'😎 Cool':'Al natural'):'🔒 Nivel '+lv2}</small></button>`}).join('');
@@ -4755,7 +4769,7 @@ Object.assign(A,{
  petpat:()=>{const p=petCur();if(!p)return;const n=Date.now();if(S.petPt&&n-S.petPt<500)return;S.petPt=n;petTick(p);const d=petDay(p),L=petLim(p);if(d.pat>=L.pat){S.petMsg=pPick(PTS.patCap);const b=$('.pt-bub');if(b)b.textContent=S.petMsg;else petPaint();return}d.pat++;petCare(p);p.love=Math.min(100,p.love+5);S.petMsg=pPick(PTS.pat);if(Math.random()<.4)petBark();hcnt('petpat');petGain(p,2);const dg=$('.pt-dog');if(dg){const s=dg.querySelector('svg');s&&s.setAttribute('class',(s.getAttribute('class')||'').replace(' pat','')+' pat');const b=$('.pt-bub');if(b)b.textContent=S.petMsg;setTimeout(()=>{petPaint()},650)}else petPaint();petFx('❤',4)},
  petplay:()=>{const p=petCur();if(!p)return;petTick(p);const d=petDay(p),L=petLim(p);if(p.food<15){S.petMsg=pPick(PTS.playHungry);petPaint();return}if(p.joy>88){S.petMsg=pPick(PTS.playFull);petPaint();return}if(d.play>=L.play){S.petMsg=pPick(PTS.playCap);petPaint();return}d.play++;petCare(p);p.joy=Math.min(100,p.joy+30);p.food=Math.max(0,p.food-6);p.ex=Date.now();S.petMsg=pPick(PTS.play);petBark();hcnt('petplay');petGain(p,8);petPaint();petFx('🎾',3)},
  petwalk:()=>{const p=petCur();if(!p)return;if(!petWalks(p)){S.petMsg=pPick(PTS.nowalk);toast('Jugá media hora para ganar un paseo');petPaint();return}petTick(p);petCare(p);p.used=(p.used||0)+1;p.wk=(p.wk||0)+1;p.joy=Math.min(100,p.joy+30);p.love=Math.min(100,p.love+15);p.food=Math.max(0,p.food-8);p.ex=Date.now();S.petMsg=pPick(PTS.walk);petBark();hcnt('petwalk');petGain(p,20);petPaint();petFx('🐾',6)},
- petgoal:()=>{const p=petCur();if(!p)return;if(((ST.log||{})[pTK()]||0)<1){toast('Todavía no jugaste una hora hoy');return}if(p.gd===pTK())return;p.gd=pTK();p.love=Math.min(100,p.love+20);p.ex=Date.now();S.petMsg=pPick(PTS.goal);petBark();hcnt('petgoal');petGain(p,30);petPaint();petFx('⭐',6)},
+ petgoal:()=>{const p=petCur();if(!p)return;if(((ST.log||{})[today()]||0)<1){toast('Todavía no jugaste una hora hoy');return}if(p.gd===pTK())return;p.gd=pTK();p.love=Math.min(100,p.love+20);p.ex=Date.now();S.petMsg=pPick(PTS.goal);petBark();hcnt('petgoal');petGain(p,30);petPaint();petFx('⭐',6)},
  petacc:a=>{const p=petCur();if(!p)return;const k=a.dataset.k,lv=k?PACC[k][1]:0;if(pLvl(p)<lv){toast('Se desbloquea en el nivel '+lv);return}p.acc=k;S.petMsg=PTS.acc[k]||'';save();petPaint()},
  petchat:()=>{const p=petCur();if(!p)return;S.petMsg=petSay(p);const b=$('.pt-bub');if(b)b.textContent=S.petMsg;if(Math.random()<.3)petBark()},
  pettab:a=>{S.petTab=a.dataset.v;petPaint()},
@@ -5157,7 +5171,7 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='gen';EST=g.status==
      </section>
      <section class="edp" data-p="play">
       <label>Instalación<select class="txt" id="e-im"><option value="">Automática${isSteamG(g)?': detectar en Steam'+(g.inst?' (instalado ahora)':' (no instalado)'):': según el ejecutable ('+(g.exe&&g.inst!==false?'instalado':'no instalado')+')'}</option><option value="1" ${g.instM===true?'selected':''}>Instalado</option><option value="0" ${g.instM===false?'selected':''}>Desinstalado</option></select></label>
-      ${g.exe!==undefined?`<label>Ruta del .exe<input class="txt" id="e-ex" value="${esc(g.exe)}"></label>`:''}
+      ${g.exe!==undefined?`<label>Ejecutable del juego (.exe)<div class="exr"><input class="txt" id="e-ex" value="${esc(g.exe)}" placeholder="C:\\Juegos\\MiJuego\\juego.exe">${window.winteerNative?'<button type="button" class="b2 sm" data-a="epickexe">Buscar en carpeta…</button>':''}</div></label>`:''}
       <label>Enlace de inicio (opcional)<input class="txt" id="e-l" placeholder="steam://rungameid/${g.app}" value="${esc(g.launch||'')}"></label>
       <p class="hint" style="margin-top:8px">Si lo dejás vacío, WINTEER usa su forma normal de abrir el juego.</p>
      </section>
