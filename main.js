@@ -707,19 +707,29 @@ ipcMain.handle('updInstall', () => { installNow(); });
 /* ---------- arranque con actualización (estilo Discord) ---------- */
 let splashWin = null, pendingInstall = false;
 function splashHtml() {
-  let logo = ''; try { logo = nativeImage.createFromPath(path.join(__dirname, 'icon.png')).resize({ width: 96, height: 96 }).toDataURL(); } catch (e) {}
+  const arms = [0, 60, 120, 180, 240, 300].map((d) => `<g transform="rotate(${d})"><path d="M0 -7V-30M0 -17L-7.5 -24.5M0 -17L7.5 -24.5M0 -23.5L-4.5 -28M0 -23.5L4.5 -28"/></g>`).join('');
+  const flake = `<svg viewBox="-34 -34 68 68" class="fk"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="-26" y1="-30" x2="26" y2="30"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#d6d6dc"/><stop offset="1" stop-color="#8f8f9b"/></linearGradient></defs><g fill="none" stroke="url(#g)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${arms}<path d="M0 -7L6 -3.5V3.5L0 7L-6 3.5V-3.5Z" stroke-width="1.8"/></g></svg>`;
+  const dots = Array.from({ length: 22 }, (_, i) => `<u style="left:${(i * 47 + 9) % 100}%;--d:${6 + (i * 7) % 9}s;--s:${(i * 13) % 7 - 3}s;--z:${1 + (i % 3)}px"></u>`).join('');
   return `<html><head><meta charset="utf-8"><style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Segoe UI',system-ui,sans-serif;-webkit-user-select:none;-webkit-app-region:drag}
-.c{position:absolute;inset:8px;border-radius:26px;background:radial-gradient(420px 260px at 20% -10%,rgba(139,92,246,.45),transparent 70%),radial-gradient(360px 240px at 100% 110%,rgba(56,189,248,.25),transparent 70%),#0a0814;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 50px rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;animation:in .5s cubic-bezier(.2,1,.3,1)}
+.c{position:absolute;inset:8px;border-radius:28px;overflow:hidden;background:radial-gradient(380px 240px at 50% 0%,rgba(255,255,255,.09),transparent 70%),linear-gradient(180deg,#121214,#08080a);box-shadow:0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.2),0 22px 60px rgba(0,0,0,.65);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;animation:in .7s cubic-bezier(.2,1,.3,1)}
 @keyframes in{from{opacity:0;transform:scale(.96)}}
-img{width:92px;height:92px;filter:drop-shadow(0 8px 26px rgba(139,92,246,.7));animation:fl 3s ease-in-out infinite alternate}@keyframes fl{to{transform:translateY(-5px)}}
-h1{margin:6px 0 0;font-size:20px;letter-spacing:.42em;font-weight:700;padding-left:.42em}
-p{margin:0;font-size:13px;color:#a9a3c4;height:18px}
-.b{width:230px;height:5px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:6px}
-.b i{display:block;height:100%;width:30%;border-radius:9px;background:linear-gradient(90deg,#8b5cf6,#38bdf8);animation:ind 1.3s ease-in-out infinite}
-.b.d i{animation:none;width:var(--w,0%);transition:width .3s}
-@keyframes ind{0%{margin-left:-30%}100%{margin-left:100%}}
-</style></head><body><div class="c"><img src="${logo}"><h1>WINTEER</h1><p id="t">Buscando actualizaciones…</p><div class="b" id="b"><i id="i"></i></div></div></body></html>`;
+u{position:absolute;top:-6px;width:var(--z);height:var(--z);border-radius:50%;background:rgba(255,255,255,.55);animation:sn var(--d) linear infinite;animation-delay:var(--s);opacity:.0}
+@keyframes sn{0%{transform:translateY(0);opacity:0}10%{opacity:.7}100%{transform:translateY(340px);opacity:0}}
+.mk{position:relative;width:104px;height:104px;display:grid;place-items:center;margin-bottom:14px}
+.mk::before{content:"";position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),transparent 68%);animation:pu 3.2s ease-in-out infinite alternate}
+@keyframes pu{from{opacity:.45;transform:scale(.92)}to{opacity:1;transform:scale(1.06)}}
+.rg{position:absolute;inset:0;width:100%;height:100%;animation:sp 9s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.rg circle{fill:none;stroke:rgba(255,255,255,.14);stroke-width:1;stroke-dasharray:2 5}
+.fk{position:relative;width:70px;height:70px;filter:drop-shadow(0 0 10px rgba(255,255,255,.35));animation:fl 3.4s ease-in-out infinite alternate}@keyframes fl{to{transform:translateY(-4px) rotate(8deg)}}
+h1{margin:0;font-size:19px;letter-spacing:.5em;font-weight:300;padding-left:.5em;background:linear-gradient(180deg,#fff,#b4b4bc);-webkit-background-clip:text;color:transparent}
+.ln{width:120px;height:1px;margin:14px 0 12px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent)}
+p{margin:0;font-size:12.5px;color:#9a9aa3;height:18px;letter-spacing:.02em}
+.b{width:220px;height:3px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:14px}
+.b i{display:block;height:100%;width:34%;border-radius:9px;background:linear-gradient(90deg,rgba(255,255,255,.2),#fff);animation:ind 1.5s ease-in-out infinite}
+.b.d i{animation:none;width:var(--w,0%);transition:width .35s cubic-bezier(.2,.8,.2,1);background:linear-gradient(90deg,#8f8f9b,#fff)}
+@keyframes ind{0%{margin-left:-34%}100%{margin-left:100%}}
+</style></head><body><div class="c">${dots}<div class="mk"><svg viewBox="0 0 100 100" class="rg"><circle cx="50" cy="50" r="48"/></svg>${flake}</div><h1>WINTEER</h1><div class="ln"></div><p id="t">Buscando actualizaciones…</p><div class="b" id="b"><i id="i"></i></div></div></body></html>`;
 }
 function splashSet(txt, pct) {
   if (!splashWin || splashWin.isDestroyed()) return;
@@ -854,7 +864,7 @@ app.whenReady().then(() => {
   });
   const TRL = path.join(app.getPath('userData'), 'trailers'), YTX = path.join(TRL, 'yt-dlp.exe'), YLOG = path.join(TRL, '_log.txt');
   const tlog = (m) => { try { fs.appendFileSync(YLOG, new Date().toISOString() + ' ' + m + '\n'); } catch (e) {} };
-  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; for (const f of fs.readdirSync(TRL)) { if (/\.none$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const m = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (m) o[m[1]] = m[2] === 'nx' ? '' : pathToFileURL(path.join(TRL, f)).href; } return o; } catch (e) { return {}; } });
+  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; const QF = path.join(TRL, '_q1080'); if (!fs.existsSync(QF)) { for (const f of fs.readdirSync(TRL)) { const mm = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (mm && !fs.existsSync(path.join(TRL, mm[1] + '.cu'))) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} } } fs.writeFileSync(QF, '1'); } for (const f of fs.readdirSync(TRL)) { if (/\.none$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const m = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (m) o[m[1]] = m[2] === 'nx' ? '' : pathToFileURL(path.join(TRL, f)).href; } return o; } catch (e) { return {}; } });
   let ytReady = null;
   const ytEnsure = () => ytReady || (ytReady = (async () => {
     if (process.platform !== 'win32') throw new Error('solo Windows');
@@ -877,7 +887,7 @@ app.whenReady().then(() => {
           const r = await net.fetch('https://store.steampowered.com/api/appdetails?appids=' + appid + '&filters=movies&l=english');
           const j = await r.json(), d = j && j[appid] && j[appid].data, mv = d && d.movies;
           if (mv && mv[0] && !o.probed) { o.probed = 1; tlog('steam movie keys ' + Object.keys(mv[0]).join(',')); }
-          const pick = (mv || []).map(m => ({ u: (m.mp4 && (m.mp4['480'] || m.mp4.max)) || (m.webm && (m.webm['480'] || m.webm.max)) || '' })).find(x => x.u);
+          const pick = (mv || []).map(m => ({ u: (m.mp4 && (m.mp4.max || m.mp4['480'])) || (m.webm && (m.webm.max || m.webm['480'])) || '' })).find(x => x.u);
           if (pick) {
             const u = new URL(pick.u);
             if (/(^|\.)steamstatic\.com$|(^|\.)akamaihd\.net$|(^|\.)steamcontent\.com$/.test(u.hostname)) {
@@ -892,7 +902,7 @@ app.whenReady().then(() => {
       await ytEnsure();
       const fin = path.join(TRL, key + '.mp4'), tmp = path.join(TRL, key + '.dl.mp4');
       try { fs.unlinkSync(tmp); } catch (e) {}
-      const args = ['ytsearch3:' + name + ' official game trailer', '--max-downloads', '1', '--no-playlist', '--no-warnings', '--match-filter', 'duration<420', '-f', 'bv[height<=720][vcodec^=avc1][filesize<60M]/bv[height<=480][vcodec^=avc1]/bv[height<=480][ext=mp4]', '--max-filesize', '80M', '--socket-timeout', '20', '-o', tmp];
+      const args = ['ytsearch3:' + name + ' official game trailer', '--max-downloads', '1', '--no-playlist', '--no-warnings', '--match-filter', 'duration<420', '-f', 'bv[height<=1080][vcodec^=avc1][filesize<160M]/bv[height<=1080][vcodec^=avc1][filesize_approx<160M]/bv[height<=720][vcodec^=avc1]/bv[height<=720][ext=mp4]', '--max-filesize', '200M', '--socket-timeout', '20', '-o', tmp];
       const res = await new Promise((resolve) => require('child_process').execFile(YTX, args, { timeout: 120000, windowsHide: true, maxBuffer: 4e6 }, (err, so, se) => resolve({ err, so: String(so || ''), se: String(se || '') })));
       if (fs.existsSync(tmp)) { fs.renameSync(tmp, fin); return { url: pathToFileURL(fin).href }; }
       for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.dl.')) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
@@ -901,6 +911,19 @@ app.whenReady().then(() => {
       return { err: res.se.slice(-120) || 'sin resultado' };
     } catch (e) { tlog('error ' + String(e.message || e)); return { err: String(e.message || e) }; }
   });
+  ipcMain.handle('trlPick', async (_e, key) => {
+    try {
+      key = String(key || '').replace(/\W/g, ''); if (!key) return { err: 'sin clave' };
+      const r = await dialog.showOpenDialog(win, { title: 'Elegí el trailer', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mov', 'm4v'] }] });
+      if (r.canceled || !r.filePaths[0]) return { cancel: true };
+      fs.mkdirSync(TRL, { recursive: true });
+      for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.')) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
+      const ext = (path.extname(r.filePaths[0]).slice(1).toLowerCase() === 'webm') ? 'webm' : 'mp4', fin = path.join(TRL, key + '.' + ext);
+      fs.copyFileSync(r.filePaths[0], fin); fs.writeFileSync(path.join(TRL, key + '.cu'), '');
+      return { url: pathToFileURL(fin).href };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('trlDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.')) fs.unlinkSync(path.join(TRL, f)); fs.writeFileSync(path.join(TRL, key + '.nx'), ''); return true; } catch (e) { return false; } });
   ipcMain.handle('trlClear', () => { try { for (const f of fs.readdirSync(TRL)) if (f !== 'yt-dlp.exe') fs.unlinkSync(path.join(TRL, f)); } catch (e) {} return true; });
   ipcMain.handle('pickVideo', async () => {
     const r = await dialog.showOpenDialog(win, { title: 'Elegí el tráiler', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'mov'] }] });
@@ -910,7 +933,7 @@ app.whenReady().then(() => {
     const r = await dialog.showOpenDialog(win, { title: 'Elegí el juego', properties: ['openFile'], filters: [{ name: 'Programas', extensions: ['exe'] }] });
     return r.canceled ? '' : r.filePaths[0];
   });
-  ipcMain.handle('cacheInfo', () => { let n = 0, b = 0; try { for (const f of fs.readdirSync(CACHE)) { n++; b += fs.statSync(path.join(CACHE, f)).size; } } catch (e) {} return { n, mb: Math.round(b / 1048576), dir: CACHE }; });
+  ipcMain.handle('cacheInfo', () => { let n = 0, b = 0; try { for (const f of fs.readdirSync(CACHE)) { n++; b += fs.statSync(path.join(CACHE, f)).size; } } catch (e) {} let tn = 0, tb = 0; try { const td = path.join(app.getPath('userData'), 'trailers'); for (const f of fs.readdirSync(td)) { if (!/\.(mp4|webm)$/.test(f)) continue; tn++; tb += fs.statSync(path.join(td, f)).size; } } catch (e) {} return { n, mb: Math.round(b / 1048576), dir: CACHE, tn, tmb: Math.round(tb / 1048576) }; });
   ipcMain.handle('clearCache', () => { try { for (const f of fs.readdirSync(CACHE)) fs.unlinkSync(path.join(CACHE, f)); } catch (e) {} loadIdx(); bad.clear(); return true; });
   ipcMain.handle('scanEpic', async () => { try { return scanEpic(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('epicImport', async (_e, o) => { try { return await epicImport(o); } catch (e) { return { ok: false, err: 'Error inesperado con Epic', diag: String(e && e.message || e) }; } });

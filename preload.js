@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   igdbVid: (o) => ipcRenderer.invoke('igdbVid', o),
   trlList: () => ipcRenderer.invoke('trlList'),
   trlGet: (a) => ipcRenderer.invoke('trlGet', a),
+  trlPick: (k) => ipcRenderer.invoke('trlPick', k),
+  trlDel: (k) => ipcRenderer.invoke('trlDel', k),
   trlClear: () => ipcRenderer.invoke('trlClear'),
   igdbSagas: (o) => ipcRenderer.invoke('igdbSagas', o),
   igdbSagaGames: (o) => ipcRenderer.invoke('igdbSagaGames', o),
