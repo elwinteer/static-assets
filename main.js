@@ -852,24 +852,56 @@ app.whenReady().then(() => {
       return { url: u || '', thumb: mv ? (mv.thumbnail || '') : '' };
     } catch (e) { return { url: '', err: String(e.message || e) }; }
   });
-  const TRL = path.join(app.getPath('userData'), 'trailers');
-  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; for (const f of fs.readdirSync(TRL)) { const m = f.match(/^(\d+)\.(mp4|webm|none)$/); if (m) o[m[1]] = m[2] === 'none' ? '' : pathToFileURL(path.join(TRL, f)).href; } return o; } catch (e) { return {}; } });
-  ipcMain.handle('trlGet', async (_e, appid) => {
+  const TRL = path.join(app.getPath('userData'), 'trailers'), YTX = path.join(TRL, 'yt-dlp.exe'), YLOG = path.join(TRL, '_log.txt');
+  const tlog = (m) => { try { fs.appendFileSync(YLOG, new Date().toISOString() + ' ' + m + '\n'); } catch (e) {} };
+  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; for (const f of fs.readdirSync(TRL)) { if (/\.none$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const m = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (m) o[m[1]] = m[2] === 'nx' ? '' : pathToFileURL(path.join(TRL, f)).href; } return o; } catch (e) { return {}; } });
+  let ytReady = null;
+  const ytEnsure = () => ytReady || (ytReady = (async () => {
+    if (process.platform !== 'win32') throw new Error('solo Windows');
+    fs.mkdirSync(TRL, { recursive: true });
+    let age = Infinity; try { age = Date.now() - fs.statSync(YTX).mtimeMs; } catch (e) {}
+    if (age < 7 * 864e5) return;
+    if (age !== Infinity) { try { await new Promise((res) => require('child_process').execFile(YTX, ['-U'], { timeout: 60000, windowsHide: true }, () => res())); const t = new Date(); fs.utimesSync(YTX, t, t); if (Date.now() - fs.statSync(YTX).mtimeMs < 7 * 864e5) return; } catch (e) {} }
+    const r = await net.fetch('https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe'); if (!r.ok) throw new Error('descarga yt-dlp http' + r.status);
+    const buf = Buffer.from(await r.arrayBuffer()); if (buf.length < 5e6) throw new Error('yt-dlp incompleto');
+    fs.writeFileSync(YTX + '.part', buf); fs.renameSync(YTX + '.part', YTX);
+  })().catch((e) => { ytReady = null; throw e; }));
+  ipcMain.handle('trlGet', async (_e, o) => {
     try {
-      appid = String(appid || '').replace(/\D/g, ''); if (!appid) return { none: true };
+      const key = String((o && o.key) || '').replace(/\W/g, ''), name = String((o && o.name) || '').replace(/[™®©"]/g, '').trim(), appid = String((o && o.app) || '').replace(/\D/g, '');
+      if (!key || !name) return { none: true };
       fs.mkdirSync(TRL, { recursive: true });
-      const r = await net.fetch('https://store.steampowered.com/api/appdetails?appids=' + appid + '&filters=movies&l=english');
-      const j = await r.json(), d = j && j[appid] && j[appid].data, mv = d && d.movies;
-      const pick = (mv || []).map(m => ({ u: (m.mp4 && (m.mp4['480'] || m.mp4.max)) || (m.webm && (m.webm['480'] || m.webm.max)) || '' })).find(x => x.u);
-      if (!pick) { if (j && j[appid]) fs.writeFileSync(path.join(TRL, appid + '.none'), ''); return { none: true }; }
-      const u = new URL(pick.u); if (!/(^|\.)steamstatic\.com$|(^|\.)akamaihd\.net$|(^|\.)steamcontent\.com$/.test(u.hostname)) return { none: true };
-      const ext = /\.webm/i.test(u.pathname) ? 'webm' : 'mp4', fin = path.join(TRL, appid + '.' + ext), tmp = fin + '.part';
-      const rr = await net.fetch(pick.u); if (!rr.ok) return { err: 'http' + rr.status };
-      fs.writeFileSync(tmp, Buffer.from(await rr.arrayBuffer())); fs.renameSync(tmp, fin);
-      return { url: pathToFileURL(fin).href };
-    } catch (e) { return { err: String(e.message || e) }; }
+      /* 1) Steam: mp4/webm directo si lo ofrece */
+      if (appid) {
+        try {
+          const r = await net.fetch('https://store.steampowered.com/api/appdetails?appids=' + appid + '&filters=movies&l=english');
+          const j = await r.json(), d = j && j[appid] && j[appid].data, mv = d && d.movies;
+          if (mv && mv[0] && !o.probed) { o.probed = 1; tlog('steam movie keys ' + Object.keys(mv[0]).join(',')); }
+          const pick = (mv || []).map(m => ({ u: (m.mp4 && (m.mp4['480'] || m.mp4.max)) || (m.webm && (m.webm['480'] || m.webm.max)) || '' })).find(x => x.u);
+          if (pick) {
+            const u = new URL(pick.u);
+            if (/(^|\.)steamstatic\.com$|(^|\.)akamaihd\.net$|(^|\.)steamcontent\.com$/.test(u.hostname)) {
+              const ext = /\.webm/i.test(u.pathname) ? 'webm' : 'mp4', fin = path.join(TRL, key + '.' + ext), tmp = fin + '.part';
+              const rr = await net.fetch(pick.u);
+              if (rr.ok) { fs.writeFileSync(tmp, Buffer.from(await rr.arrayBuffer())); fs.renameSync(tmp, fin); return { url: pathToFileURL(fin).href }; }
+            }
+          }
+        } catch (e) {}
+      }
+      /* 2) yt-dlp: busca el trailer oficial y baja solo el video (sin audio) */
+      await ytEnsure();
+      const fin = path.join(TRL, key + '.mp4'), tmp = path.join(TRL, key + '.dl.mp4');
+      try { fs.unlinkSync(tmp); } catch (e) {}
+      const args = ['ytsearch3:' + name + ' official game trailer', '--max-downloads', '1', '--no-playlist', '--no-warnings', '--match-filter', 'duration<420', '-f', 'bv[height<=720][vcodec^=avc1][filesize<60M]/bv[height<=480][vcodec^=avc1]/bv[height<=480][ext=mp4]', '--max-filesize', '80M', '--socket-timeout', '20', '-o', tmp];
+      const res = await new Promise((resolve) => require('child_process').execFile(YTX, args, { timeout: 120000, windowsHide: true, maxBuffer: 4e6 }, (err, so, se) => resolve({ err, so: String(so || ''), se: String(se || '') })));
+      if (fs.existsSync(tmp)) { fs.renameSync(tmp, fin); return { url: pathToFileURL(fin).href }; }
+      for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.dl.')) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
+      tlog('sin archivo ' + name + ' :: ' + (res.err ? String(res.err.message).slice(0, 160) : 'ok') + ' :: ' + res.se.slice(-300).replace(/\s+/g, ' '));
+      if (!res.err && /does not pass filter|no video/i.test(res.so + res.se)) { fs.writeFileSync(path.join(TRL, key + '.nx'), ''); return { none: true }; }
+      return { err: res.se.slice(-120) || 'sin resultado' };
+    } catch (e) { tlog('error ' + String(e.message || e)); return { err: String(e.message || e) }; }
   });
-  ipcMain.handle('trlClear', () => { try { for (const f of fs.readdirSync(TRL)) fs.unlinkSync(path.join(TRL, f)); } catch (e) {} return true; });
+  ipcMain.handle('trlClear', () => { try { for (const f of fs.readdirSync(TRL)) if (f !== 'yt-dlp.exe') fs.unlinkSync(path.join(TRL, f)); } catch (e) {} return true; });
   ipcMain.handle('pickVideo', async () => {
     const r = await dialog.showOpenDialog(win, { title: 'Elegí el tráiler', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'mov'] }] });
     return r.canceled ? '' : pathToFileURL(r.filePaths[0]).href;
