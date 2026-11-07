@@ -227,6 +227,7 @@ function shotToast(thumbPng, text) {
     setTimeout(() => { try { if (toastWin && !toastWin.isDestroyed()) toastWin.destroy(); } catch (e) {} }, 2600);
   } catch (e) {}
 }
+let scrPickId = null, scrPickAudio = false;
 async function takeShot() {
   if (shotBusy) return; shotBusy = true;
   try {
@@ -567,6 +568,27 @@ const siteLabel = (u) => {
   return 'Web';
 };
 const links = (arr) => { const out = [], seen = new Set(); for (const w of (arr || [])) { const l = siteLabel(w.url || ''); if (l && !seen.has(l)) { seen.add(l); out.push([l, w.url]); } } return out; };
+async function igdbVid({ id, secret, name, app }) {
+  const nrm = (x) => (x || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  let gid = 0;
+  if (app) {
+    for (const cond of ['external_game_source = 1', 'category = 1']) {
+      try { const ex = await igq(id, secret, 'external_games', `fields game; where uid = "${app}" & ${cond}; limit 1;`); if (ex[0] && ex[0].game) gid = ex[0].game; break; }
+      catch (e) { if (String(e.message) === 'auth') throw e; }
+    }
+  }
+  if (!gid) {
+    const n = (name || '').replace(/[™®©]/g, '').replace(/"/g, '').trim(), n0 = nrm(n);
+    const r = await igq(id, secret, 'games', `search "${n}"; fields name; limit 8;`);
+    const g = r.find(x => nrm(x.name) === n0) || r.find(x => nrm(x.name).startsWith(n0) || n0.startsWith(nrm(x.name)));
+    if (g) gid = g.id;
+  }
+  if (!gid) return { v: '' };
+  const r = await igq(id, secret, 'games', `fields videos.video_id,videos.name; where id = ${gid}; limit 1;`);
+  const vs = (r[0] && r[0].videos) || [];
+  const pick = vs.find(v => /trailer|launch|release/i.test(v.name || '')) || vs[0];
+  return { v: pick ? pick.video_id : '' };
+}
 async function igdb({ id, secret, name, app }) {
   const F = 'platforms,category,parent_game,version_parent,name,slug,summary,storyline,first_release_date,total_rating,url,genres.name,themes.name,cover.image_id,artworks.image_id,screenshots.image_id,websites.url,involved_companies.developer,involved_companies.publisher,involved_companies.company.name,involved_companies.company.websites.url';
   let g = null;
@@ -630,6 +652,16 @@ function createWindow() {
     icon: path.join(__dirname, 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, spellcheck: false, backgroundThrottling: false },
   });
+  try {
+    win.webContents.session.setDisplayMediaRequestHandler((_req, cb) => {
+      desktopCapturer.getSources({ types: ['screen', 'window'] }).then(srcs => {
+        const s = srcs.find(x => x.id === scrPickId) || srcs.find(x => /^screen/.test(x.id)) || srcs[0];
+        const au = scrPickAudio; scrPickId = null; scrPickAudio = false;
+        if (!s) { cb({}); return; }
+        cb(au && process.platform === 'win32' ? { video: s, audio: 'loopback' } : { video: s });
+      }).catch(() => cb({}));
+    });
+  } catch (e) {}
   Menu.setApplicationMenu(null);
   const wst = () => send({ type: 'wst', max: win.isMaximized(), fs: win.isFullScreen() });
   ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen', 'restore'].forEach(e => win.on(e, wst));
@@ -808,6 +840,7 @@ app.whenReady().then(() => {
     }
     return { sagas: out };
   } catch (e) { return { error: String(e.message || e) }; } });
+  ipcMain.handle('igdbVid', async (_e, o) => { try { return await igdbVid(o); } catch (e) { return { error: String(e.message || e) }; } });
   ipcMain.handle('igdb', async (_e, o) => { try { return await igdb(o); } catch (e) { return { error: String(e.message || e) }; } });
   ipcMain.handle('hltb', async (_e, o) => { try { return await hltb(o); } catch (e) { return { error: String(e.message || e) }; } });
   ipcMain.handle('trailer', async (_e, appid) => {
@@ -841,7 +874,12 @@ app.whenReady().then(() => {
   ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^[\d-T]+\.jpg$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.jpg$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
   ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey }; });
-  ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; });
+  ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })
+  ipcMain.handle('scrSources', async () => {
+    const srcs = await desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 320, height: 180 }, fetchWindowIcons: false });
+    return srcs.filter(s => !s.thumbnail.isEmpty() && s.name !== 'WINTEER').map(s => ({ id: s.id, name: s.name, th: s.thumbnail.toDataURL() }));
+  });
+  ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });;
   ipcMain.handle('winCtl', (_e, a) => { if (!win) return; if (a === 'min') win.minimize(); else if (a === 'max') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); } else if (a === 'close') win.close(); });
   ipcMain.handle('quit', () => { quitting = true; app.quit(); });
   ipcMain.handle('cfgGet', () => Object.assign({ win: process.platform === 'win32' }, cfg));
