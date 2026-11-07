@@ -852,6 +852,24 @@ app.whenReady().then(() => {
       return { url: u || '', thumb: mv ? (mv.thumbnail || '') : '' };
     } catch (e) { return { url: '', err: String(e.message || e) }; }
   });
+  const TRL = path.join(app.getPath('userData'), 'trailers');
+  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; for (const f of fs.readdirSync(TRL)) { const m = f.match(/^(\d+)\.(mp4|webm|none)$/); if (m) o[m[1]] = m[2] === 'none' ? '' : pathToFileURL(path.join(TRL, f)).href; } return o; } catch (e) { return {}; } });
+  ipcMain.handle('trlGet', async (_e, appid) => {
+    try {
+      appid = String(appid || '').replace(/\D/g, ''); if (!appid) return { none: true };
+      fs.mkdirSync(TRL, { recursive: true });
+      const r = await net.fetch('https://store.steampowered.com/api/appdetails?appids=' + appid + '&filters=movies&l=english');
+      const j = await r.json(), d = j && j[appid] && j[appid].data, mv = d && d.movies;
+      const pick = (mv || []).map(m => ({ u: (m.mp4 && (m.mp4['480'] || m.mp4.max)) || (m.webm && (m.webm['480'] || m.webm.max)) || '' })).find(x => x.u);
+      if (!pick) { if (j && j[appid]) fs.writeFileSync(path.join(TRL, appid + '.none'), ''); return { none: true }; }
+      const u = new URL(pick.u); if (!/(^|\.)steamstatic\.com$|(^|\.)akamaihd\.net$|(^|\.)steamcontent\.com$/.test(u.hostname)) return { none: true };
+      const ext = /\.webm/i.test(u.pathname) ? 'webm' : 'mp4', fin = path.join(TRL, appid + '.' + ext), tmp = fin + '.part';
+      const rr = await net.fetch(pick.u); if (!rr.ok) return { err: 'http' + rr.status };
+      fs.writeFileSync(tmp, Buffer.from(await rr.arrayBuffer())); fs.renameSync(tmp, fin);
+      return { url: pathToFileURL(fin).href };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('trlClear', () => { try { for (const f of fs.readdirSync(TRL)) fs.unlinkSync(path.join(TRL, f)); } catch (e) {} return true; });
   ipcMain.handle('pickVideo', async () => {
     const r = await dialog.showOpenDialog(win, { title: 'Elegí el tráiler', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'mov'] }] });
     return r.canceled ? '' : pathToFileURL(r.filePaths[0]).href;
