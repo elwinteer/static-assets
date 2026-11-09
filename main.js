@@ -441,15 +441,19 @@ async function epicImport(o) {
 }
 
 /* ===== Steam: biblioteca de la cuenta + juegos del grupo familiar ===== */
+const STEAM_CFG_JS = "fetch('/pointssummary/ajaxgetasyncconfig',{credentials:'include'}).then(function(r){return r.text()}).catch(function(){return ''})";
+function steamCfgParse(t) {
+  t = String(t || ''); const i = t.indexOf('{'), k = t.lastIndexOf('}'); if (i < 0 || k < i) return null; t = t.slice(i, k + 1);
+  try { const j = JSON.parse(t); const d = j.data || j; if (d && d.webapi_token && d.steamid) return { tok: String(d.webapi_token), id: String(d.steamid) }; } catch (e) {}
+  const m = /"webapi_token"\s*:\s*"([^"]+)"/.exec(t), q = /"steamid"\s*:\s*"?(\d+)"?/.exec(t);
+  return m && q ? { tok: m[1], id: q[1] } : null;
+}
 async function steamImport() {
   const diag = [];
   const cfg = await loginWin('https://store.steampowered.com/login/?redir=' + encodeURIComponent('pointssummary/ajaxgetasyncconfig') + '&redir_ssl=1', async (u, w) => {
-    if (u.indexOf('pointssummary/ajaxgetasyncconfig') < 0) return null;
-    let t = await w.webContents.executeJavaScript('(function(){var p=document.querySelector("pre");return (p?p.textContent:(document.body?document.body.innerText:""))||""})()');
-    const i = t.indexOf('{'), k = t.lastIndexOf('}'); if (i < 0 || k < i) return null; t = t.slice(i, k + 1);
-    try { const j = JSON.parse(t); const d = j.data || j; if (d && d.webapi_token && d.steamid) return { tok: d.webapi_token, id: d.steamid }; } catch (e) {}
-    const m = /"webapi_token"\s*:\s*"([^"]+)"/.exec(t), q = /"steamid"\s*:\s*"?(\d+)"?/.exec(t); if (m && q) return { tok: m[1], id: q[1] };
-    return null;
+    if (!/^https:\/\/store\.steampowered\.com\//.test(u) || /\/login/.test(u)) return null;
+    const t = await w.webContents.executeJavaScript(STEAM_CFG_JS);
+    return steamCfgParse(t);
   }, 'Steam · Iniciar sesión');
   if (!cfg) return { ok: false, cancel: true };
   const A = 'https://api.steampowered.com/', T = 'access_token=' + encodeURIComponent(cfg.tok);
