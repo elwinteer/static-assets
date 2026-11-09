@@ -445,8 +445,10 @@ async function steamImport() {
   const diag = [];
   const cfg = await loginWin('https://store.steampowered.com/login/?redir=' + encodeURIComponent('pointssummary/ajaxgetasyncconfig') + '&redir_ssl=1', async (u, w) => {
     if (u.indexOf('pointssummary/ajaxgetasyncconfig') < 0) return null;
-    const t = await w.webContents.executeJavaScript('document.body ? document.body.innerText : ""');
+    let t = await w.webContents.executeJavaScript('(function(){var p=document.querySelector("pre");return (p?p.textContent:(document.body?document.body.innerText:""))||""})()');
+    const i = t.indexOf('{'), k = t.lastIndexOf('}'); if (i < 0 || k < i) return null; t = t.slice(i, k + 1);
     try { const j = JSON.parse(t); const d = j.data || j; if (d && d.webapi_token && d.steamid) return { tok: d.webapi_token, id: d.steamid }; } catch (e) {}
+    const m = /"webapi_token"\s*:\s*"([^"]+)"/.exec(t), q = /"steamid"\s*:\s*"?(\d+)"?/.exec(t); if (m && q) return { tok: m[1], id: q[1] };
     return null;
   }, 'Steam · Iniciar sesión');
   if (!cfg) return { ok: false, cancel: true };
