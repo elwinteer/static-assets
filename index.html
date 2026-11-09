@@ -5915,7 +5915,8 @@ Object.assign(P,{phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-
  monitor:'<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
  expand:'<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/>'});
 let CL=null,CLIN=null,CLIB=0,CLAC=null,CLRING=0;const CLSEEN={};
-const CLICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]};
+let CLICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]},CLICE_T=0;
+async function clIceLoad(){if(CLICE_T&&Date.now()-CLICE_T<600000)return;try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4500);const r=await fetch('https://winteer.metered.live/api/v1/turn/credentials?apiKey=f1369fee142a1cba757f79bd165534b950ce',{signal:ac.signal});clearTimeout(t);const j=await r.json();if(Array.isArray(j)&&j.length){CLICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},...j]};CLICE_T=Date.now()}}catch(e){}}
 const clMe=()=>frId(frCode()),clDoc=(c,mine)=>frPair(c)+'_call_'+(mine?clMe():frId(c));
 const clMunge=s=>s.replace(/a=fmtp:(\d+) (minptime=10[^\r\n]*)/g,(m,p,r)=>/maxaveragebitrate/.test(m)?m:`a=fmtp:${p} ${r};maxaveragebitrate=128000;usedtx=0;stereo=0`);
 const clIceWait=pc=>new Promise(r=>{if(pc.iceGatheringState==='complete')return r();const t=setTimeout(r,3500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);r()}})});
@@ -5925,9 +5926,10 @@ function clRing(on,back){clearInterval(CLRING);CLRING=0;if(!on)return;const f=()
 async function clMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1},video:false})}
 function clMk(c,role){const pc=new RTCPeerConnection(CLICE);CL={c,role,pc,cid:'',st:'',muted:0,t0:0,cam:0,scr:0,rcam:0,rscr:0,rmu:0,au:document.createElement('audio'),au2:document.createElement('audio')};CL.au.autoplay=CL.au2.autoplay=true;document.body.appendChild(CL.au);document.body.appendChild(CL.au2);
   pc.onconnectionstatechange=()=>{if(!CL||CL.pc!==pc)return;const s=pc.connectionState;
+    if(s==='connecting'&&!CL.t0&&!CL.ct)CL.ct=setTimeout(()=>{if(CL&&CL.pc===pc&&!CL.t0)clEnd('No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')},20000);
     if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000)}clUI()}
     else if(s==='disconnected'){clearTimeout(CL.dt);CL.dt=setTimeout(()=>{if(CL&&CL.pc===pc&&pc.connectionState!=='connected')clEnd('Se perdió la conexión')},9000)}
-    else if(s==='failed')clEnd(CL.t0?'Se perdió la conexión':'No pude conectar la llamada. Puede ser la red de alguno de los dos')};
+    else if(s==='failed')clEnd(CL.t0?'Se perdió la conexión':'No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')};
   pc.ontrack=e=>{if(!CL||CL.pc!==pc)return;const i=pc.getTransceivers().indexOf(e.transceiver),ms=new MediaStream([e.track]);
     if(i===0){CL.au.srcObject=ms;CL.au.play&&CL.au.play().catch(()=>{})}else if(i===3){CL.au2.srcObject=ms;CL.au2.play&&CL.au2.play().catch(()=>{})}
     else if(i===1){CL.rcamS=ms;const v=$('#cl-rcam');if(v)v.srcObject=ms}else if(i===2){CL.rscrS=ms;const v=$('#cl-rscr');if(v)v.srcObject=ms}};
@@ -5938,20 +5940,20 @@ function clDc(dc){dc.onmessage=e=>{if(!CL)return;let m;try{m=JSON.parse(e.data)}
 const clSend=o=>{try{if(CL&&CL.dc&&CL.dc.readyState==='open')CL.dc.send(JSON.stringify(o))}catch(e){}};
 async function clCall(c){if(CL||CLIN)return;const f=FR(),d=f.c[c]||{};if(!fbOn())return;
   let ms;try{ms=await clMic()}catch(e){toast('No pude usar el micrófono. Revisá los permisos de Windows');return}
-  const pc=clMk(c,'out');CL.ms=ms;CL.cid=String(Date.now());CL.st='ring';pc.addTrack(ms.getAudioTracks()[0],ms);
+  await clIceLoad();const pc=clMk(c,'out');CL.ms=ms;CL.cid=String(Date.now());CL.st='ring';pc.addTrack(ms.getAudioTracks()[0],ms);
   CL.tx={a:pc.getTransceivers()[0],cam:pc.addTransceiver('video',{direction:'sendrecv'}),scr:pc.addTransceiver('video',{direction:'sendrecv'}),sa:pc.addTransceiver('audio',{direction:'sendrecv'})};
   CL.dc=pc.createDataChannel('ctl');clDc(CL.dc);clUI();clRing(true,true);
-  try{const off=await pc.createOffer();await pc.setLocalDescription({type:'offer',sdp:clMunge(off.sdp)});await clIceWait(pc);if(!CL||CL.pc!==pc)return;
+  try{const off=await pc.createOffer();await pc.setLocalDescription({type:'offer',sdp:clMunge(off.sdp)});await clIceWait(pc);if(!CL||CL.pc!==pc)return;CL.relay=/typ relay/.test(pc.localDescription.sdp);
     await fbSet(clDoc(c,1),{cid:CL.cid,st:'ring',to:frId(c),off:pc.localDescription.sdp,ts:Date.now()},'winteer_chats')}catch(e){clEnd('No pude iniciar la llamada. Revisá tu internet');return}
   CL.rt=setTimeout(()=>{if(CL&&!CL.t0&&CL.st==='ring')clEnd('No atendió')},45000);clPollStart()}
 function clIncoming(c,x){CLIN={c,x};const f=FR(),d=f.c[c]||{};clRing(true);clUI();try{frToast(c,'call','Te está llamando')}catch(e){}
   clearTimeout(CLIN.to);CLIN.to=setTimeout(()=>{if(CLIN&&CLIN.x===x){clRing(false);CLIN=null;clUI()}},45000)}
 async function clAccept(){if(!CLIN)return;const {c,x}=CLIN;clearTimeout(CLIN.to);CLIN=null;clRing(false);
   let ms;try{ms=await clMic()}catch(e){toast('No pude usar el micrófono. Revisá los permisos de Windows');clUI();clWrite(c,x.cid,'no');return}
-  const pc=clMk(c,'in');CL.ms=ms;CL.cid=x.cid;CL.st='live';
+  await clIceLoad();const pc=clMk(c,'in');CL.ms=ms;CL.cid=x.cid;CL.st='live';
   try{await pc.setRemoteDescription({type:'offer',sdp:x.off});const T=pc.getTransceivers();CL.tx={a:T[0],cam:T[1],scr:T[2],sa:T[3]};T.forEach(t=>{t.direction='sendrecv'});await T[0].sender.replaceTrack(ms.getAudioTracks()[0]);
     pc.ondatachannel=e=>{CL.dc=e.channel;clDc(e.channel)};
-    const an=await pc.createAnswer();await pc.setLocalDescription({type:'answer',sdp:clMunge(an.sdp)});await clIceWait(pc);if(!CL||CL.pc!==pc)return;
+    const an=await pc.createAnswer();await pc.setLocalDescription({type:'answer',sdp:clMunge(an.sdp)});await clIceWait(pc);if(!CL||CL.pc!==pc)return;CL.relay=/typ relay/.test(pc.localDescription.sdp);
     await fbSet(clDoc(c,1),{cid:x.cid,st:'live',to:frId(c),ans:pc.localDescription.sdp,ts:Date.now()},'winteer_chats')}catch(e){clEnd('No pude atender la llamada');return}
   clUI();clPollStart()}
 function clReject(){if(!CLIN)return;const {c,x}=CLIN;clearTimeout(CLIN.to);CLIN=null;clRing(false);clWrite(c,x.cid,'no');clUI()}
@@ -5961,7 +5963,7 @@ async function clPoll(){if(!CL||CL.pb)return;CL.pb=1;const me=CL;try{const x=awa
   if(x.cid===me.cid){if(x.st==='no'){clEnd('No quiso atender');return}if(x.st==='end'){clEnd(me.t0?'Terminó la llamada':'Cortó la llamada');return}
     if(me.role==='out'&&x.ans&&!me.ans){me.ans=1;try{await me.pc.setRemoteDescription({type:'answer',sdp:x.ans})}catch(e){clEnd('No pude conectar la llamada')}}}}catch(e){}finally{if(CL===me)me.pb=0}}
 function clTick(){const e=$('#cl-s');if(e&&CL&&CL.t0){const s=Math.floor((Date.now()-CL.t0)/1000);e.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+(CL.rmu?' · silenciado':'')}}
-function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);[me.pi,me.tm,me.rt,me.dt].forEach(t=>{clearInterval(t);clearTimeout(t)});
+function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);[me.pi,me.tm,me.rt,me.dt,me.ct].forEach(t=>{clearInterval(t);clearTimeout(t)});
   [me.ms,me.cs,me.ss].forEach(s=>{try{s&&s.getTracks().forEach(t=>t.stop())}catch(e){}});try{me.dc&&me.dc.close()}catch(e){}try{me.pc.close()}catch(e){}try{me.au.remove();me.au2.remove()}catch(e){}
   if(me.cid&&me.st)clWrite(me.c,me.cid,'end');clBeep([[520,.12],[390,.2]],.1);if(msg)toast(msg);clUI()}
 async function clBr(tx,bps){try{const p=tx.sender.getParameters();if(!p.encodings||!p.encodings.length)p.encodings=[{}];p.encodings[0].maxBitrate=bps;await tx.sender.setParameters(p)}catch(e){}}
