@@ -439,6 +439,38 @@ async function epicImport(o) {
   if (!out.length) return { ok: false, err: 'No pude leer los datos de los juegos de Epic.', diag: diag.join(' | ') };
   return { ok: true, who, list: out, diag: diag.join(' | ') };
 }
+
+/* ===== Steam: biblioteca de la cuenta + juegos del grupo familiar ===== */
+async function steamImport() {
+  const diag = [];
+  const cfg = await loginWin('https://store.steampowered.com/login/?redir=' + encodeURIComponent('pointssummary/ajaxgetasyncconfig') + '&redir_ssl=1', async (u, w) => {
+    if (u.indexOf('pointssummary/ajaxgetasyncconfig') < 0) return null;
+    const t = await w.webContents.executeJavaScript('document.body ? document.body.innerText : ""');
+    try { const j = JSON.parse(t); const d = j.data || j; if (d && d.webapi_token && d.steamid) return { tok: d.webapi_token, id: d.steamid }; } catch (e) {}
+    return null;
+  }, 'Steam · Iniciar sesión');
+  if (!cfg) return { ok: false, cancel: true };
+  const A = 'https://api.steampowered.com/', T = 'access_token=' + encodeURIComponent(cfg.tok);
+  const map = new Map();
+  const own = await jreq(A + 'IPlayerService/GetOwnedGames/v1/?' + T + '&steamid=' + cfg.id + '&include_appinfo=1&include_played_free_games=1&language=spanish');
+  const og = own.json && own.json.response && own.json.response.games;
+  diag.push('propios ' + own.status + ' ' + (og ? og.length : 0));
+  (og || []).forEach((x) => map.set(+x.appid, { appid: +x.appid, name: x.name, min: x.playtime_forever || 0, last: x.rtime_last_played || 0, own: true }));
+  let fam = 0;
+  try {
+    const fg = await jreq(A + 'IFamilyGroupsService/GetFamilyGroupForUser/v1/?' + T + '&steamid=' + cfg.id);
+    const gid = fg.json && fg.json.response && fg.json.response.family_groupid;
+    diag.push('grupo ' + fg.status + ' ' + (gid || 'no'));
+    if (gid) {
+      const sh = await jreq(A + 'IFamilyGroupsService/GetSharedLibraryApps/v1/?' + T + '&family_groupid=' + gid + '&steamid=' + cfg.id + '&include_own=true&include_excluded=true&include_free=true&include_non_games=false&language=spanish');
+      const ap = sh.json && sh.json.response && sh.json.response.apps;
+      diag.push('compartidos ' + sh.status + ' ' + (ap ? ap.length : 0));
+      (ap || []).forEach((x) => { const id = +x.appid; if (!id) return; if (!map.has(id)) { map.set(id, { appid: id, name: x.name || ('Juego ' + id), min: 0, last: 0, own: false }); fam++; } });
+    }
+  } catch (e) { diag.push('familia error ' + e); }
+  if (!map.size) return { ok: false, err: 'Steam no devolvió ningún juego (si el perfil tiene los detalles de juego privados puede pasar).', diag: diag.join(' | ') };
+  return { ok: true, list: [...map.values()], fam, diag: diag.join(' | ') };
+}
 const XB_ID = '000000004C12AE6F';
 const XB_REDIR = 'https://login.live.com/oauth20_desktop.srf';
 const XB_LOGIN = 'https://login.live.com/oauth20_authorize.srf?client_id=' + XB_ID + '&redirect_uri=' + encodeURIComponent(XB_REDIR) + '&response_type=token&display=touch&scope=' + encodeURIComponent('service::user.auth.xboxlive.com::MBI_SSL') + '&locale=es';
@@ -937,6 +969,7 @@ app.whenReady().then(() => {
   ipcMain.handle('clearCache', () => { try { for (const f of fs.readdirSync(CACHE)) fs.unlinkSync(path.join(CACHE, f)); } catch (e) {} loadIdx(); bad.clear(); return true; });
   ipcMain.handle('scanEpic', async () => { try { return scanEpic(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('epicImport', async (_e, o) => { try { return await epicImport(o); } catch (e) { return { ok: false, err: 'Error inesperado con Epic', diag: String(e && e.message || e) }; } });
+  ipcMain.handle('steamImport', async () => { try { return await steamImport(); } catch (e) { return { ok: false, err: 'Error inesperado con Steam', diag: String(e && e.message || e) }; } });
   ipcMain.handle('xboxImport', async () => { try { return await xboxImport(); } catch (e) { return { ok: false, err: 'Error inesperado con Xbox', diag: String(e && e.message || e) }; } });
   ipcMain.handle('scanXbox', async () => { try { return await scanXbox(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('pickDir', async () => { const r = await dialog.showOpenDialog(win, { title: 'Elegí la carpeta para las copias', properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });

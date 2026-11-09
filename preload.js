@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   scanXbox: () => ipcRenderer.invoke('scanXbox'),
   epicImport: (o) => ipcRenderer.invoke('epicImport', o || {}),
   xboxImport: () => ipcRenderer.invoke('xboxImport'),
+  steamImport: () => ipcRenderer.invoke('steamImport'),
   pickDir: () => ipcRenderer.invoke('pickDir'),
   writeBackup: (o) => ipcRenderer.invoke('writeBackup', o),
   fullscreen: (on) => ipcRenderer.invoke('fullscreen', on),
