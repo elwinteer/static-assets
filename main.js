@@ -444,9 +444,11 @@ async function epicImport(o) {
 const STEAM_CFG_JS = "fetch('/pointssummary/ajaxgetasyncconfig',{credentials:'include'}).then(function(r){return r.text()}).catch(function(){return ''})";
 function steamCfgParse(t) {
   t = String(t || ''); const i = t.indexOf('{'), k = t.lastIndexOf('}'); if (i < 0 || k < i) return null; t = t.slice(i, k + 1);
-  try { const j = JSON.parse(t); const d = j.data || j; if (d && d.webapi_token && d.steamid) return { tok: String(d.webapi_token), id: String(d.steamid) }; } catch (e) {}
-  const m = /"webapi_token"\s*:\s*"([^"]+)"/.exec(t), q = /"steamid"\s*:\s*"?(\d+)"?/.exec(t);
-  return m && q ? { tok: m[1], id: q[1] } : null;
+  let tok = '', id = '';
+  try { const j = JSON.parse(t); const d = j.data || j; tok = String((d && d.webapi_token) || ''); id = String((d && d.steamid) || ''); } catch (e) { const m = /"webapi_token"\s*:\s*"([^"]+)"/.exec(t); if (m) tok = m[1]; }
+  if (!tok) return null;
+  if (!/^\d{15,20}$/.test(id)) { try { const pl = JSON.parse(Buffer.from(tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')); id = String(pl.sub || ''); } catch (e) { id = ''; } }
+  return /^\d{15,20}$/.test(id) ? { tok, id } : null;
 }
 async function steamImport() {
   const diag = [];
