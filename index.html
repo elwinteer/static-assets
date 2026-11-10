@@ -1237,6 +1237,14 @@ body.light .rin .rst{background:linear-gradient(90deg,#f59e0b calc(var(--f)*100%
 .hi-c em{font-style:normal;font-size:10.5px;text-align:right;color:var(--c);letter-spacing:.06em;text-transform:uppercase;line-height:1.35}.hi-c em b{color:var(--text);font-size:13px;letter-spacing:0}
 .hi-pb{height:5px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:8px}.hi-pb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--a),var(--a2))}
 .hi-nx{margin-top:10px}.hi-nx>div:first-child{display:flex;justify-content:space-between;font-size:12.5px}.hi-nx small{color:var(--muted)}.pf-bd.hm{grid-template-columns:repeat(3,1fr)}.pf-bd.hm .pf-b{opacity:1;filter:none;background:linear-gradient(160deg,color-mix(in srgb,var(--c) 30%,transparent),rgba(255,255,255,.03))}.pf-bd.hm .pf-b .i{color:var(--c)}
+.gg-h{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.gg-h b{font-size:15px}.gg-h small{display:block;color:var(--muted);font-size:12px;margin-top:3px}.gg-n{font-size:13px;font-weight:700;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.08)}
+.gg-pb{height:5px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin:12px 0}.gg-pb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--a),var(--a2));transition:width .6s var(--ease)}
+.gg-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}.gg-i{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:16px;background:rgba(255,255,255,.04);opacity:.62;transition:transform .25s var(--spring),opacity .25s}
+.gg-i.on{opacity:1;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,transparent),rgba(255,255,255,.03));box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent)}.gg-i.on:hover{transform:translateY(-2px)}
+.gg-ic{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--muted)}.gg-i.on .gg-ic{background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 85%,#fff),var(--c));color:#fff;box-shadow:0 0 14px color-mix(in srgb,var(--c) 50%,transparent)}.gg-ic svg{width:20px;height:20px}
+.gg-b{flex:1;min-width:0}.gg-b b{display:block;font-size:13.5px}.gg-b span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}.gg-p{height:4px;border-radius:9px;background:rgba(255,255,255,.1);margin-top:7px;overflow:hidden}.gg-p i{display:block;height:100%;background:var(--c);border-radius:9px}
+.gg-i em{font-style:normal;font-size:10px;text-align:right;color:var(--c);letter-spacing:.07em;text-transform:uppercase;line-height:1.4}.gg-i em small{display:block;color:var(--muted);letter-spacing:0;text-transform:none;font-size:10.5px}.gg-t{margin-top:12px;font-size:12px;color:var(--muted);text-align:right}
+.shc{position:relative}.shpl{position:absolute;inset:0;margin:auto;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);pointer-events:none}.shpl:before{content:"";position:absolute;left:18px;top:13px;border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
 /* aviso */
 .hito{position:fixed;left:50%;top:-140px;transform:translateX(-50%);z-index:9800;display:flex;align-items:center;gap:18px;padding:16px 24px 16px 18px;min-width:430px;max-width:92vw;border-radius:26px;background:linear-gradient(135deg,rgba(26,22,44,.94),rgba(12,10,22,.96));color:#fff;cursor:pointer;overflow:hidden;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--c) 70%,transparent),0 20px 70px rgba(0,0,0,.6),0 0 60px color-mix(in srgb,var(--c) 40%,transparent);animation:hiIn .8s cubic-bezier(.2,1.25,.3,1) forwards}
 .hito.out{animation:hiOut .55s ease-in forwards}@keyframes hiIn{to{top:26px}}@keyframes hiOut{from{top:26px;opacity:1}to{top:-160px;opacity:0}}
@@ -3190,7 +3198,7 @@ const GA=[
  ['str7','Constancia','Jugá 7 días seguidos','cal','r',()=>streakAll()>=7],
  ['oro3','Triple oro','Tené 3 juegos en rango Oro','trophy','r',()=>doneN()>=3]];
 const gaN=()=>GA.filter(a=>(ST.gach||{})[a[0]]).length;
-function checkGA(){try{hitoCheck()}catch(e){}try{rwCheck()}catch(e){}try{avCheck()}catch(e){}}
+function checkGA(){try{ggAll()}catch(e){}try{hitoCheck()}catch(e){}try{rwCheck()}catch(e){}try{avCheck()}catch(e){}}
 const achOf=g=>RK[rankOf(g)][0];
 function rankHTML(g,foot){const r=rankOf(g),nx=rankNext(g),cur=r>0?RK[r]:null,pct=r>=4?100:Math.min(100,((Math.max(r,1)-1+(r>0?nx.p/100:0))/3)*100);
   return `<div class="rk"><div class="rk-h"><div class="rk-ic ${r===4?'gold':''}">${ic(cur?cur[2]:'lock')}</div><div class="rk-t"><small>Rango de este juego</small><b>${cur?cur[0]:'Sin rango todavía'}</b><span>${cur?cur[1]:'Jugalo para empezar a subir'}</span></div>${foot?'':`<button class="rk-cb ${g.status==='Terminado'?'on':''}" data-a="donem">${ic('check')}<span>${g.status==='Terminado'?'Completado'+(g.doneAt?' · '+new Date(g.doneAt).toLocaleDateString('es-AR'):''):'Marcar como completado'}</span></button>`}</div>
@@ -3474,10 +3482,10 @@ function infoHTML(g){
     <section class="inf-c"><div class="inf-h"><span>Duración</span><em>HowLongToBeat</em></div>${c3}<div class="hn">${HL.some(([k])=>parseFloat(hl[k])>0)?'La barra muestra cuánto jugaste vs. esa duración.':(window.winteerNative?(g.hlt?'No encontré este juego en HowLongToBeat. Podés cargar las horas a mano:':'Buscando en HowLongToBeat…'):'HowLongToBeat no permite leer sus datos desde un archivo local. Cargalos una vez:')}</div>
     ${!HL.some(([k])=>parseFloat(hl[k])>0)&&window.winteerNative?'<div class="hact"><button class="b2 g sm" data-a="hltbgo" data-id="'+g.id+'">Buscar de nuevo</button></div>':''}</div></section></aside></div>`}
 let SHL=[],SHI=0,SHG='';
-async function shFill(id){SHG=id;let l=[];try{l=await winteerNative.shots(id)}catch(e){}SHL=l;const el=$('#shg');if(!el||S.sel!==id)return;const n=$('#shn');if(n)n.textContent=l.length?l.length+(l.length===1?' captura':' capturas'):'Capturas';
-  el.innerHTML=l.length?l.map((x,i)=>`<div class="shc" data-a="shview" data-i="${i}"><img loading="lazy" decoding="async" src="${x.thumb}" alt=""></div>`).join(''):`<div class="shempty"><svg class="i" viewBox="0 0 24 24" style="width:34px;height:34px;opacity:.5"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Todavía no hay capturas</b><span>Abrí el juego desde WINTEER y apretá ${esc((BGC&&BGC.shotKey)||'F12')}.</span></div>`}
+async function shFill(id){SHG=id;let l=[];try{l=await winteerNative.shots(id)}catch(e){}SHL=l;const el=$('#shg');if(!el||S.sel!==id)return;const n=$('#shn');if(n)n.textContent=l.length?l.length+(l.length===1?' elemento':' elementos'):'Capturas';
+  el.innerHTML=l.length?l.map((x,i)=>`<div class="shc ${x.clip?'clp':''}" data-a="shview" data-i="${i}"><img loading="lazy" decoding="async" src="${x.thumb}" alt="">${x.clip?'<i class="shpl"></i>':''}</div>`).join(''):`<div class="shempty"><svg class="i" viewBox="0 0 24 24" style="width:34px;height:34px;opacity:.5"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Todavía no hay capturas</b><span>Abrí el juego desde WINTEER y apretá ${esc((BGC&&BGC.shotKey)||'F12')}.</span></div>`}
 function shLight(){const x=SHL[SHI];if(!x)return;$$('.shlb').forEach(e=>e.remove());const d=document.createElement('div');d.className='shlb';
-  d.innerHTML=`<div class="shlbb" data-a="shclose"></div><img src="${x.file}" alt=""><div class="shbar"><button data-a="shnav" data-v="-1">‹</button><span>${SHI+1} / ${SHL.length} · ${new Date(x.t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span><button data-a="shnav" data-v="1">›</button><i></i><button class="t" data-a="shbg">Usar de fondo</button><button class="t" data-a="shfolder" data-id="${SHG}">Carpeta</button><button class="t r" data-a="shdel">Eliminar</button><button data-a="shclose">✕</button></div>`;document.body.appendChild(d)}
+  d.innerHTML=`<div class="shlbb" data-a="shclose"></div>${x.clip?`<video src="${x.file}" controls autoplay loop style="position:relative;max-width:92vw;max-height:80vh;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.7)"></video>`:`<img src="${x.file}" alt="">`}<div class="shbar"><button data-a="shnav" data-v="-1">‹</button><span>${SHI+1} / ${SHL.length} · ${new Date(x.t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span><button data-a="shnav" data-v="1">›</button><i></i><button class="t" data-a="shbg">Usar de fondo</button><button class="t" data-a="shfolder" data-id="${SHG}">Carpeta</button><button class="t r" data-a="shdel">Eliminar</button><button data-a="shclose">✕</button></div>`;document.body.appendChild(d)}
 function shKey(e){const k=e.key;if(['Control','Shift','Alt','Meta'].includes(k))return '';let n=k.length===1?k.toUpperCase():({' ':'Space',ArrowUp:'Up',ArrowDown:'Down',ArrowLeft:'Left',ArrowRight:'Right',Escape:'',Enter:'Return',Insert:'Insert',Delete:'Delete',PrintScreen:'PrintScreen'}[k]??k);if(!n)return '';return [e.ctrlKey?'Ctrl':'',e.altKey?'Alt':'',e.shiftKey?'Shift':'',n].filter(Boolean).join('+')}
 function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
@@ -3487,9 +3495,9 @@ function renderTab(){
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
   else if(S.tab==='ach'){
-    h=`<div class="ach2"><div class="inf-c">${rankHTML(g)}</div><div class="inf-c">${cgHTML(g)}</div></div>`;
+    h=`<div class="ach2"><div class="inf-c">${rankHTML(g)}</div><div class="inf-c">${cgHTML(g)}</div></div>`+(ggOwn(g)?`<div style="margin-top:14px">${ggHTML(g)}</div>`:'');
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
-    h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
+    h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='rv'){
     h=rvTabHTML(g)+`<div class="nt"><div class="lbl">Notas</div><textarea id="notes" rows="3" placeholder="Algo que quieras recordar de este juego…">${esc(g.notes||'')}</textarea></div>`;
   }else if(S.tab==='cg'){h=cgHTML(g)
@@ -4013,7 +4021,7 @@ function banHTML(p){const b=(p&&p.ban)||{k:'g',i:0};
   if(b.k==='img'){const u=p.banUrl||ART['p:banner'];if(u)return `<div class="pban"><img src="${u}" alt=""></div>`}
   if(b.k==='game'){const g=gm(b.id);if(g)return `<div class="pban" style="background:#0b0a12"><img src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>`}
   return `<div class="pban" style="background:${BANS[b.i||0]||BANS[0]}"></div>`}
-function xpOf(){let hp=0;try{hp=Math.round(hitoPts()/4)}catch(e){}return hp+totalH()+doneN()*25+gaN()*5+G.filter(g=>g.rate>0).length*3+RV().filter(r=>r.text).length*5}
+function xpOf(){let hp=0;try{hp=Math.round(hitoPts()/4)}catch(e){}return hp+totalH()+doneN()*25+gaN()*5+G.filter(g=>g.rate>0).length*3+RV().filter(r=>r.text).length*5+ggXP()}
 const LV_T=20000,LV_MAX=100,LV_TT=['Recién llegado','Aprendiz','Jugador','Veterano','Experto','Maestro','Leyenda','Mítico'];
 const lvOld=x=>Math.max(1,Math.floor(Math.sqrt(x/12))+1);
 const lvNeed=(L,l0)=>L<=l0?0:LV_T*Math.pow((L-l0)/(LV_MAX-l0),2);
@@ -5254,6 +5262,56 @@ function hitoCheck(){hcCalc();const first=!ST.gach,silent=first||ST.hv!==3;ST.ga
 const hitoQ=[];let hitoBusy=false;
 function hitoRun(){if(hitoBusy||!hitoQ.length)return;const sp=$('#splash');if((sp&&sp.isConnected&&getComputedStyle(sp).display!=='none'&&getComputedStyle(sp).opacity!=='0')||document.hidden){setTimeout(hitoRun,900);return}
   hitoBusy=true;const a=hitoQ.shift();hitoShow(a,()=>{hitoBusy=false;setTimeout(hitoRun,350)})}
+/* ===== logros propios (juegos fuera de tiendas) ===== */
+const ggOwn=g=>!!g&&!isSteamG(g)&&!isEpicG(g)&&!isXbG(g);
+const GGX={c:3,r:8,e:18};
+const ggS=g=>{ST.gs=ST.gs||{};return ST.gs[g.id]=ST.gs[g.id]||{n:0,days:[],max:0,ls:0,back:0}};
+const ggLive=g=>(g.hours||0)+(S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0);
+const GGL=[
+ ['first','Primer arranque','Abriste el juego desde WINTEER','play','c',g=>ggS(g).n>=1,g=>[Math.min(1,ggS(g).n),1]],
+ ['h1','Calentando motores','1 hora de juego','clock','c',g=>ggLive(g)>=1,g=>[ggLive(g),1]],
+ ['h5','Se pone bueno','5 horas de juego','clock','c',g=>ggLive(g)>=5,g=>[ggLive(g),5]],
+ ['h10','Enganchado','10 horas de juego','flame','r',g=>ggLive(g)>=10,g=>[ggLive(g),10]],
+ ['h25','Vicio sano','25 horas de juego','bolt','r',g=>ggLive(g)>=25,g=>[ggLive(g),25]],
+ ['h50','Veterano','50 horas de juego','crown','e',g=>ggLive(g)>=50,g=>[ggLive(g),50]],
+ ['d5','Constante','Jugalo en 5 días distintos','star','r',g=>ggS(g).days.length>=5,g=>[ggS(g).days.length,5]],
+ ['mar','Maratón','Una sesión de 3 horas seguidas','bolt','r',g=>Math.max(ggS(g).max,S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0)>=3,g=>[Math.max(ggS(g).max,S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0),3]],
+ ['back','El regreso','Volvé a jugarlo después de 30 días','arrow','r',g=>!!ggS(g).back,g=>[ggS(g).back?1:0,1]],
+ ['done','Misión cumplida','Marcalo como completado','trophy','e',g=>g.status==='Terminado',g=>[g.status==='Terminado'?1:0,1]]
+];
+const ggU=g=>((ST.gg||{})[g.id])||{};
+function ggXP(){let t=0;try{for(const id in (ST.gg||{}))for(const k in ST.gg[id])if(ST.gg[id][k]>0){const d=GGL.find(x=>x[0]===k);if(d)t+=GGX[d[4]]}}catch(e){}return t}
+let GGT=[];
+function ggUnlock(g,d,retro){ST.gg=ST.gg||{};const u=ST.gg[g.id]=ST.gg[g.id]||{};if(u[d[0]])return;u[d[0]]=retro?-Date.now():Date.now();save();if(retro)return;
+  const xp=GGX[d[4]];let inGame=false;try{inGame=!!(S.playing&&S.playing.id===g.id)}catch(e){}
+  if(inGame&&WN)try{winteerNative.achToast({n:d[1],d:d[2]+' · '+g.name,r:d[4],x:xp})}catch(e){}
+  else{const a=[d[0],d[1],d[2]+' · '+g.name,d[3],d[4]];a.pts=xp;a.gg=1;a.gm=g.name;a.gid=g.id;hitoQ.push(a);hitoRun()}
+  try{if(S.view==='games'&&S.sel===g.id&&S.tab==='ach')renderTab()}catch(e){}try{checkGA()}catch(e){}}
+function ggCheck(g,retro){if(!ggOwn(g))return;const u=ggU(g);for(const d of GGL){if(!u[d[0]]){let ok=false;try{ok=d[5](g)}catch(e){}if(ok)ggUnlock(g,d,retro)}}}
+function ggAll(){const retro=ST.ggv!==1;G.forEach(g=>{if(ggOwn(g))ggCheck(g,retro)});if(retro){ST.ggv=1;save()}}
+function ggClear(){GGT.forEach(clearTimeout);GGT=[]}
+function ggStart(id){const g=gm(id);if(!ggOwn(g))return;const s=ggS(g),now=Date.now();
+  if(s.ls&&now-s.ls>30*864e5)s.back=1;s.ls=now;s.n++;const dk=today();if(!s.days.includes(dk)){s.days.push(dk);if(s.days.length>400)s.days=s.days.slice(-400)}save();ggCheck(g);
+  ggClear();const u=ggU(g),h0=g.hours||0;
+  [[1,'h1'],[5,'h5'],[10,'h10'],[25,'h25'],[50,'h50']].forEach(([T,k])=>{if(!u[k]&&T>h0){const ms=(T-h0)*3600000;if(ms<16*3600000)GGT.push(setTimeout(()=>{const q=gm(id);if(q&&S.playing&&S.playing.id===id)ggCheck(q)},ms+1500))}});
+  if(!u.mar)GGT.push(setTimeout(()=>{const q=gm(id);if(q&&S.playing&&S.playing.id===id)ggCheck(q)},3*3600000+1500))}
+function ggStop(sp){ggClear();const g=gm(sp.id);if(!ggOwn(g))return;const s=ggS(g),h=((sp.end||Date.now())-sp.t)/3600000;if(h>s.max)s.max=+h.toFixed(3);save();ggCheck(g)}
+(()=>{const p=A.play;A.play=function(){const sp=S.playing&&gm(S.playing.id)?{id:S.playing.id,t:S.playing.t,end:S.playing.end}:null;const r=p.apply(this,arguments);try{if(sp&&!S.playing)ggStop(sp);else if(!sp&&S.playing)ggStart(S.playing.id)}catch(e){}return r}})();
+function ggHTML(g){if(!ggOwn(g))return '';const u=ggU(g),n=GGL.filter(d=>u[d[0]]).length,xp=GGL.reduce((a,d)=>a+(u[d[0]]>0?GGX[d[4]]:0),0);
+  return `<div class="inf-c gg"><div class="gg-h"><div><b>Logros de este juego</b><small>Se desbloquean solos mientras jugás desde WINTEER. Suman un poco de XP.</small></div><span class="gg-n">${n}/${GGL.length}</span></div><div class="gg-pb"><i style="width:${n/GGL.length*100}%"></i></div>
+  <div class="gg-l">${GGL.map(d=>{const on=!!u[d[0]],c=RAR[d[4]][1];let r=[0,1];try{r=d[6](g)}catch(e){}const pc=Math.max(0,Math.min(100,r[0]/r[1]*100));
+   return `<div class="gg-i ${on?'on':''}" style="--c:${c}"><div class="gg-ic">${ic(on?d[3]:'lock')}</div><div class="gg-b"><b>${d[1]}</b><span>${d[2]}</span>${on?'':`<div class="gg-p"><i style="width:${pc}%"></i></div>`}</div><em>${RAR[d[4]][0]}<small>${on?(u[d[0]]>0?'+'+GGX[d[4]]+' XP':'ya lo tenías'):GGX[d[4]]+' XP'}</small></em></div>`}).join('')}</div>${xp?`<div class="gg-t">${xp} XP ganados en este juego</div>`:''}</div>`}
+async function recClip(id){if(!WN||window.__rec)return;window.__rec=1;
+  try{const sid=await winteerNative.clipSrc();let st;const vc={mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,maxWidth:1920,maxHeight:1080,maxFrameRate:30}};
+    try{st=await navigator.mediaDevices.getUserMedia({audio:{mandatory:{chromeMediaSource:'desktop'}},video:vc})}catch(e){st=await navigator.mediaDevices.getUserMedia({audio:false,video:vc})}
+    const mt=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp9','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:9e6,audioBitsPerSecond:128000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
+    const done=new Promise(r=>{rc.onstop=r});rc.start(1000);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
+    let thumb='';try{const v=document.createElement('video');v.muted=true;v.srcObject=st;await v.play();await new Promise(r=>setTimeout(r,1500));const c=document.createElement('canvas');c.width=640;c.height=Math.round(640*(v.videoHeight||9)/(v.videoWidth||16));c.getContext('2d').drawImage(v,0,0,c.width,c.height);thumb=c.toDataURL('image/jpeg',.82);v.srcObject=null}catch(e){}
+    await done;st.getTracks().forEach(t=>t.stop());const blob=new Blob(ch,{type:'video/webm'}),data=new Uint8Array(await blob.arrayBuffer());
+    const r=await winteerNative.clipSave({id,data,thumb});if(r&&r.ok){try{hcnt('shot')}catch(e){}if(S.view==='games'&&S.sel===id&&S.tab==='shots')shFill(id)}else throw 0}
+  catch(e){try{await winteerNative.clipDone()}catch(x){}try{winteerNative.toast({k:'Clip',n:'No pude grabar el clip',b:'Probá de nuevo o en modo ventana sin bordes.'})}catch(x){}}
+  window.__rec=0}
 /* sonido */
 let HAC=null;
 function hitoSnd(r){try{HAC=HAC||new (window.AudioContext||window.webkitAudioContext)();const c=HAC;if(c.state==='suspended')c.resume();
@@ -5288,16 +5346,17 @@ function hitoShow(a,done){const rr=RAR[a[4]]||RAR.c,col=rr[1];$$('#hito').forEac
   const el=document.createElement('div');el.id='hito';el.className='hito r-'+a[4];el.style.setProperty('--c',col);
   const dur=a[4]==='l'?7400:a[4]==='e'?5400:4600;
   if(a[4]==='c'){const icn=a[3]==='flake'?WLG('hc'+Math.floor(Math.random()*1e6)):ic(a[3]);el.innerHTML=`<div class="hc-sh"></div><div class="hc-badge"><i class="hc-pulse"></i><div class="hc-ic">${icn}</div></div><div class="hc-tx"><small>Hito desbloqueado</small><b>${esc(a[1])}</b><span>${esc(a[2])}</span></div><div class="hc-pt"><em class="hc-n">+0</em><small>pts</small></div>`;
-    const pn=el.querySelector('.hc-n'),to=HPTS.c,t0=performance.now()+450;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/600));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+    const pn=el.querySelector('.hc-n'),to=(a.pts!=null?a.pts:HPTS.c),t0=performance.now()+450;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/600));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
   else if(a[4]==='r'){el.innerHTML=`<div class="hr-glow"></div><div class="hr-rim"></div><div class="hr-sh"></div><div class="hr-badge"><i class="hr-p1"></i><i class="hr-p2"></i><div class="hr-gem"><div class="hr-ic">${hic(a[3])}</div></div><u class="hr-s1"></u><u class="hr-s2"></u><u class="hr-s3"></u><u class="hr-s4"></u><u class="hr-s5"></u><u class="hr-s6"></u></div><div class="hr-tx"><small><span>Hito desbloqueado</span><em>Raro</em></small><b>${esc(a[1])}</b><span class="hr-d">${esc(a[2])}</span></div><div class="hr-pt"><em class="hr-n">+0</em><small>pts</small></div>`;
-    const pn=el.querySelector('.hr-n'),to=HPTS.r,t0=performance.now()+700;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/800));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+    const pn=el.querySelector('.hr-n'),to=(a.pts!=null?a.pts:HPTS.r),t0=performance.now()+700;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/800));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
   else if(a[4]==='e'){el.innerHTML=`<div class="he-rays"></div><div class="he-aura"></div><div class="he-rim"></div><div class="he-sh"></div><div class="he-badge"><i class="he-w1"></i><i class="he-w2"></i><div class="he-orbit"><b></b><b></b><b></b></div><div class="he-orb"><div class="he-ic">${hic(a[3])}</div></div><u class="he-s1"></u><u class="he-s2"></u><u class="he-s3"></u><u class="he-s4"></u><u class="he-s5"></u><u class="he-s6"></u><u class="he-s7"></u><u class="he-s8"></u></div><div class="he-tx"><small><span>Hito desbloqueado</span><em>Épico</em></small><b>${esc(a[1])}</b><span class="he-d">${esc(a[2])}</span></div><div class="he-pt"><em class="he-n">+0</em><small>pts</small></div>`;
-    const pn=el.querySelector('.he-n'),to=HPTS.e,t0=performance.now()+800;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/1000));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+    const pn=el.querySelector('.he-n'),to=(a.pts!=null?a.pts:HPTS.e),t0=performance.now()+800;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/1000));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
   else if(a[4]==='l'){el.innerHTML=`<div class="hl-rays"></div><div class="hl-aura"></div><div class="hl-rim"></div><div class="hl-sh"></div><div class="hl-sh hl-sh2"></div><div class="hl-badge"><i class="hl-w1"></i><i class="hl-w2"></i><i class="hl-w3"></i><div class="hl-ring"></div><div class="hl-ring hl-r2"></div><div class="hl-orbit"><b></b><b></b><b></b><b></b></div><div class="hl-med"><div class="hl-ic">${hic(a[3])}</div></div>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<u class="hl-s${n}"></u>`).join('')}</div><div class="hl-tx"><small><span>Hito desbloqueado</span><em>Legendario</em></small><b>${esc(a[1])}</b><span class="hl-d">${esc(a[2])}</span></div><div class="hl-pt"><em class="hl-n">+0</em><small>pts</small></div>`;
-    const pn=el.querySelector('.hl-n'),to=HPTS.l,t0=performance.now()+1100;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/1400));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,4)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+    const pn=el.querySelector('.hl-n'),to=(a.pts!=null?a.pts:HPTS.l),t0=performance.now()+1100;const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/1400));pn.textContent='+'+Math.round(to*(1-Math.pow(1-k,4)));if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
   else
-  el.innerHTML=`<div class="hi-sh"></div><div class="hi-ring"><i></i><div class="hi-ic">${hic(a[3])}</div></div><div class="hi-tx"><small>Hito desbloqueado · ${rr[0]}</small><b>${esc(a[1])}</b><span>${esc(a[2])}</span></div><div class="hi-pt">+${HPTS[a[4]]}<small>pts</small></div>`;
-  el.onclick=()=>{el.classList.add('out');go('hitos')};document.body.appendChild(el);hitoSnd(a[4]);if(a[4]!=='c')hitoBurst(col,a[4]);
+  el.innerHTML=`<div class="hi-sh"></div><div class="hi-ring"><i></i><div class="hi-ic">${hic(a[3])}</div></div><div class="hi-tx"><small>Hito desbloqueado · ${rr[0]}</small><b>${esc(a[1])}</b><span>${esc(a[2])}</span></div><div class="hi-pt">+${a.pts!=null?a.pts:HPTS[a[4]]}<small>${a.gg?'XP':'pts'}</small></div>`;
+  if(a.gg){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let nd;while(nd=w.nextNode())if(/Hito desbloqueado/.test(nd.nodeValue))nd.nodeValue=nd.nodeValue.replace('Hito desbloqueado','Logro desbloqueado')}
+  el.onclick=()=>{el.classList.add('out');if(a.gg){S.tab='ach';go('games',{sel:a.gid,q:''})}else go('hitos')};document.body.appendChild(el);hitoSnd(a[4]);if(a[4]!=='c')hitoBurst(col,a[4]);
   setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();done&&done()},600)},dur*(+ST.hdur||1))}
 function hitoBurst(col,r){let cv=$('#hitocv');if(!cv){cv=document.createElement('canvas');cv.id='hitocv';document.body.appendChild(cv)}
   const W=cv.width=innerWidth,Hh=cv.height=innerHeight,x=cv.getContext('2d'),n={c:26,r:46,e:80,l:260}[r]||30,P=[];
@@ -7008,6 +7067,8 @@ if(window.winteerNative&&winteerNative.winCtl){const tb=document.getElementById(
 if(window.winteerNative)winteerNative.onGame(ev=>{
   if(ev.type==='upd'){updUI(ev);return}
   if(ev.type==='friend-open'){if(ev.c&&FR().c[ev.c]){S.frSel=ev.c;S.frTab='chat'}go('friends');return}
+  if(ev.type==='clipreq'){recClip(ev.id);return}
+  if(ev.type==='ovreq'){try{const g=gm(ev.id);if(!g)return;const u=ggU(g);winteerNative.ovData({id:g.id,name:g.name,t:S.playing&&S.playing.id===g.id?S.playing.t:Date.now(),items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:GGX[d[4]],on:!!u[d[0]],p:r[0]/r[1]*100}}):[]})}catch(e){}return}
   if(ev.type==='shot'){hcnt('shot');const gg=gm(ev.id);toast('Captura guardada'+(gg?' · '+gg.name:''));if(S.view==='games'&&S.sel===ev.id&&S.tab==='shots')shFill(ev.id);return}
   const g=gm(ev.id);if(!g||!S.playing||S.playing.id!==ev.id)return;
   if(ev.type==='started'){S.playing.t=ev.t;S.playing.auto=true;renderList();if(S.view==='games')renderDetail(false)}

@@ -14,7 +14,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 
 let win = null, tray = null, quitting = false, fromBg = false, padProc = null;
 const CFGF = path.join(app.getPath('userData'), 'winteer-cfg.json');
-let cfg = { bg: false, auto: false, pad: true, shots: true, shotKey: 'F12' };
+let cfg = { bg: false, auto: false, pad: true, shots: true, shotKey: 'F12', clipKey: 'F9', ovKey: 'Shift+Tab' };
 try { cfg = Object.assign(cfg, JSON.parse(fs.readFileSync(CFGF, 'utf8'))); } catch (e) {}
 const saveCfg = () => { try { fs.writeFileSync(CFGF, JSON.stringify(cfg)); } catch (e) {} };
 const startHidden = process.argv.includes('--hidden');
@@ -181,6 +181,116 @@ function syncShot() {
   try {
     if (shotReg && (!want || shotReg !== cfg.shotKey)) { globalShortcut.unregister(shotReg); shotReg = ''; }
     if (want && !shotReg) { if (globalShortcut.register(cfg.shotKey || 'F12', takeShot)) shotReg = cfg.shotKey || 'F12'; }
+    if (ovReg && (!want || ovReg !== (cfg.ovKey || 'Shift+Tab'))) { globalShortcut.unregister(ovReg); ovReg = ''; if (!want) ovClose(); }
+    if (want && !ovReg) { if (globalShortcut.register(cfg.ovKey || 'Shift+Tab', ovToggle)) ovReg = cfg.ovKey || 'Shift+Tab'; }
+    if (clipReg && (!want || clipReg !== cfg.clipKey)) { globalShortcut.unregister(clipReg); clipReg = ''; }
+    if (want && !clipReg) { if (globalShortcut.register(cfg.clipKey || 'F9', takeClip)) clipReg = cfg.clipKey || 'F9'; }
+  } catch (e) {}
+}
+let clipReg = '', clipBusy = false;
+function takeClip() {
+  if (clipBusy) return;
+  const cur = curNonSteam(); if (!cur) return;
+  clipBusy = true; setTimeout(() => { clipBusy = false; }, 25000);
+  shotToast(null, 'Grabando 10 s…');
+  send({ type: 'clipreq', id: cur.id });
+}
+let achWin = null;
+
+/* ---------- overlay en juego (Shift+Tab) ---------- */
+let ovWin = null, ovReg = '', ovPend = null;
+const OVP = () => path.join(app.getPath('userData'), 'ov');
+function ovClose() { try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; }
+function ovToggle() {
+  if (ovWin && !ovWin.isDestroyed()) { ovClose(); return; }
+  const cur = curNonSteam(); if (!cur) return;
+  if (ovPend) return;
+  ovPend = setTimeout(() => { ovPend = null; ovOpen({ id: cur.id, name: String(cur.id), items: [], t: cur.t.started }); }, 900);
+  send({ type: 'ovreq', id: cur.id });
+}
+function ovOpen(data) {
+  try {
+    if (ovPend) { clearTimeout(ovPend); ovPend = null; }
+    ovClose();
+    const dir = OVP(); fs.mkdirSync(dir, { recursive: true });
+    const cur = curNonSteam(); if (!cur) return;
+    const shots = listShots(cur.id).slice(0, 9).map(x => ({ n: x.n, clip: !!x.clip, thumb: x.thumb }));
+    fs.writeFileSync(path.join(dir, 'pre.js'), `const{ipcRenderer:r}=require('electron');window.ov={act:a=>r.invoke('ovAct',a),open:n=>r.invoke('ovOpen',n)};`);
+    fs.writeFileSync(path.join(dir, 'ov.html'), ovHTML(data, shots, cur.t.started));
+    const d = screen.getPrimaryDisplay(), b = d.bounds;
+    ovWin = new BrowserWindow({ x: b.x, y: b.y, width: b.width, height: b.height, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, alwaysOnTop: true, show: false, hasShadow: false, fullscreenable: false, webPreferences: { sandbox: true, preload: path.join(dir, 'pre.js') } });
+    ovWin.setAlwaysOnTop(true, 'screen-saver');
+    ovWin.loadFile(path.join(dir, 'ov.html'));
+    ovWin.once('ready-to-show', () => { try { ovWin.show(); ovWin.focus(); } catch (e) {} });
+    ovWin.on('closed', () => { ovWin = null; });
+  } catch (e) {}
+}
+function ovHTML(o, shots, started) {
+  const E = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const RC = { c: '#9aa0b8', r: '#60a5fa', e: '#c084fc', l: '#fbbf24' }, RN = { c: 'Común', r: 'Raro', e: 'Épico', l: 'Legendario' };
+  const items = Array.isArray(o.items) ? o.items.slice(0, 40) : [];
+  const n = items.filter(x => x.on).length;
+  const ic = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">';
+  const lock = ic + '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>', cup = ic + '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg>';
+  const list = items.length ? items.map(x => { const c = RC[x.r] || RC.c; return `<div class="a ${x.on ? 'on' : ''}" style="--c:${c}"><div class="ai">${x.on ? cup : lock}</div><div class="ab"><b>${E(x.n)}</b><span>${E(x.d)}</span>${x.on ? '' : `<div class="ap"><i style="width:${Math.max(0, Math.min(100, +x.p || 0))}%"></i></div>`}</div><em>${RN[x.r] || ''}<small>${+x.x || 0} XP</small></em></div>`; }).join('') : '<div class="empty">Abrí este juego desde WINTEER para ver sus logros acá.</div>';
+  const sh = shots.length ? shots.map(x => `<div class="s" onclick="ov.open('${E(x.n)}')"><img src="${E(x.thumb)}">${x.clip ? '<i class="pl"></i>' : ''}</div>`).join('') : '<div class="empty">Todavía no hay capturas ni clips de este juego.</div>';
+  const kk = (cfg.shotKey || 'F12'), ck = (cfg.clipKey || 'F9');
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;user-select:none}
+@keyframes bi{from{opacity:0}to{opacity:1}}@keyframes pi{from{opacity:0;transform:translateX(-40px) scale(.97)}to{opacity:1;transform:none}}@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.bd{position:fixed;inset:0;background:linear-gradient(90deg,rgba(4,4,12,.78),rgba(4,4,12,.45) 45%,rgba(4,4,12,.25));animation:bi .25s ease both}
+.p{position:fixed;left:26px;top:26px;bottom:26px;width:480px;display:flex;flex-direction:column;border-radius:26px;background:linear-gradient(160deg,rgba(28,24,48,.97),rgba(11,10,22,.98));border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 90px rgba(0,0,0,.7),0 0 0 1px rgba(124,92,255,.15),inset 0 1px 0 rgba(255,255,255,.08);animation:pi .38s cubic-bezier(.2,.9,.25,1.05) both;overflow:hidden}
+.p:before{content:"";position:absolute;left:-30%;top:-30%;width:90%;height:60%;background:radial-gradient(circle,rgba(124,92,255,.22),transparent 70%);pointer-events:none}
+.h{padding:24px 26px 14px;position:relative}.k{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#a99cff}.t{font-size:24px;font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.m{font-size:12.5px;color:#aaa6c6;margin-top:4px}
+.sc{flex:1;overflow-y:auto;padding:0 26px 10px;position:relative}.sc::-webkit-scrollbar{width:6px}.sc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:9px}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:14px 0 9px;font-size:13px;font-weight:700;letter-spacing:.02em}.sec span{font-size:12px;color:#cfc9ff;background:rgba(124,92,255,.2);padding:2px 10px;border-radius:12px}
+.pb{height:5px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:12px}.pb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#7c5cff,#c084fc)}
+.a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.04);margin-bottom:8px;opacity:.6;animation:up .4s both}.a.on{opacity:1;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 18%,transparent),rgba(255,255,255,.03));box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent)}
+.ai{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;background:rgba(255,255,255,.07);color:#8c88a8}.a.on .ai{background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 80%,#fff),var(--c));color:#fff;box-shadow:0 0 14px color-mix(in srgb,var(--c) 55%,transparent)}
+.ab{flex:1;min-width:0}.ab b{display:block;font-size:13.5px}.ab span{display:block;font-size:11.5px;color:#aaa6c6;margin-top:2px}.ap{height:4px;border-radius:9px;background:rgba(255,255,255,.1);margin-top:6px;overflow:hidden}.ap i{display:block;height:100%;background:var(--c)}
+.a em{font-style:normal;font-size:10px;text-align:right;color:var(--c);letter-spacing:.08em;text-transform:uppercase;line-height:1.5}.a em small{display:block;color:#8c88a8;letter-spacing:0;text-transform:none;font-size:10.5px}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.s{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;cursor:pointer;transition:transform .2s,box-shadow .2s}.s:hover{transform:scale(1.04);box-shadow:0 8px 22px rgba(0,0,0,.6),0 0 0 2px #a99cff}.s img{width:100%;height:100%;object-fit:cover;display:block}
+.pl{position:absolute;inset:0;margin:auto;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff}.pl:before{content:"";position:absolute;left:12px;top:8px;border-left:10px solid #fff;border-top:6px solid transparent;border-bottom:6px solid transparent}
+.empty{grid-column:1/-1;font-size:12.5px;color:#9a96b3;padding:12px 4px}
+.f{padding:14px 26px 22px;display:flex;gap:10px;position:relative;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.18)}
+.bt{flex:1;border:0;border-radius:15px;padding:12px 8px;font:600 13px 'Segoe UI',system-ui,sans-serif;color:#fff;cursor:pointer;background:rgba(255,255,255,.08);transition:transform .15s,background .2s;display:flex;flex-direction:column;align-items:center;gap:3px}.bt:hover{transform:translateY(-2px);background:rgba(255,255,255,.14)}.bt small{font-weight:500;font-size:10.5px;color:#aaa6c6}
+.bt.pr{background:linear-gradient(135deg,#7c5cff,#a46bff);box-shadow:0 8px 22px rgba(124,92,255,.4)}.bt.pr small{color:#e6dcff}
+.hint{position:fixed;right:26px;bottom:20px;font-size:12px;color:#c9c5e0;background:rgba(10,9,20,.75);padding:7px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}kbd{background:rgba(255,255,255,.14);border-radius:6px;padding:1px 7px;font:600 11px 'Segoe UI';margin:0 2px}
+</style></head><body><div class="bd" onclick="ov.act('close')"></div>
+<div class="p"><div class="h"><div class="k">WINTEER · En juego</div><div class="t">${E(o.name)}</div><div class="m" id="tm"></div></div>
+<div class="sc"><div class="sec">Logros del juego<span>${n}/${items.length}</span></div><div class="pb"><i style="width:${items.length ? n / items.length * 100 : 0}%"></i></div>${list}
+<div class="sec" style="margin-top:20px">Capturas y clips</div><div class="g">${sh}</div><div style="height:8px"></div></div>
+<div class="f"><button class="bt pr" onclick="ov.act('shot')">Capturar<small>${E(kk)}</small></button><button class="bt pr" onclick="ov.act('clip')">Clip 10 s<small>${E(ck)}</small></button><button class="bt" onclick="ov.act('close')">Cerrar<small>Esc</small></button></div></div>
+<div class="hint"><kbd>Shift</kbd>+<kbd>Tab</kbd> para cerrar</div>
+<script>var st=${+started || 0};function tk(){var m=Math.max(0,Math.floor((Date.now()-st)/60000)),e=document.getElementById('tm');e.textContent=st?('Jugando hace '+(m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min')):'';}tk();document.addEventListener('keydown',function(e){if(e.key==='Escape')ov.act('close')});</script></body></html>`;
+}
+function achToast(o) {
+  try {
+    o = o || {};
+    const E = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const R = { c: ['Común', '#9aa0b8'], r: ['Raro', '#60a5fa'], e: ['Épico', '#c084fc'], l: ['Legendario', '#fbbf24'] }[o.r] || ['Común', '#9aa0b8'];
+    if (achWin && !achWin.isDestroyed()) achWin.destroy();
+    const d = screen.getPrimaryDisplay(), w = 400, h = 118, wa = d.workArea;
+    achWin = new BrowserWindow({ width: w, height: h, x: wa.x + Math.round((wa.width - w) / 2), y: wa.y + 14, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true, autoplayPolicy: 'no-user-gesture-required' } });
+    achWin.setAlwaysOnTop(true, 'screen-saver'); achWin.setIgnoreMouseEvents(true);
+    const c = R[1];
+    const snd = { c: [660, 990], r: [660, 880, 1175], e: [523, 784, 1047, 1319], l: [523, 659, 784, 1047, 1319] }[o.r] || [660, 990];
+    const html = `<html><body style="margin:0;background:transparent;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif"><style>
+@keyframes i{0%{opacity:0;transform:translateY(-34px) scale(.92)}60%{opacity:1;transform:translateY(4px) scale(1.01)}100%{opacity:1;transform:none}}@keyframes o{to{opacity:0;transform:translateY(-26px)}}
+@keyframes sh{from{transform:translateX(-120%) skewX(-18deg)}to{transform:translateX(420%) skewX(-18deg)}}@keyframes pu{0%,100%{box-shadow:0 0 0 0 ${c}66,0 0 22px ${c}55}50%{box-shadow:0 0 0 7px ${c}00,0 0 30px ${c}88}}@keyframes pr{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.t{position:absolute;left:10px;top:8px;right:10px;bottom:12px;display:flex;align-items:center;gap:14px;padding:0 18px 0 14px;border-radius:18px;background:linear-gradient(135deg,rgba(24,20,40,.97),rgba(12,10,22,.97));border:1px solid ${c}88;box-shadow:0 14px 36px rgba(0,0,0,.65),0 0 28px ${c}33;color:#fff;overflow:hidden;animation:i .55s cubic-bezier(.2,.9,.25,1.1) both}
+.t.o{animation:o .35s ease both}.t:before{content:"";position:absolute;top:0;bottom:0;width:36%;left:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);animation:sh 1.5s .5s ease-out both}
+.t:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:${c};opacity:.7;transform-origin:left;animation:pr 5.2s linear forwards}
+.b{width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,${c},${c}99 70%);animation:pu 1.8s ease-in-out infinite}
+.x{min-width:0;flex:1}.k{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:${c};filter:brightness(1.25);display:flex;gap:8px;align-items:center}.k em{font-style:normal;padding:1px 7px;border-radius:9px;background:${c}2e;border:1px solid ${c}66;letter-spacing:.08em}
+.n{font-size:16px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.d{font-size:12.5px;color:#b9b5d0;margin-top:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p{text-align:right;flex:none}.p b{display:block;font-size:20px;color:${c};filter:brightness(1.2)}.p small{font-size:10px;color:#9a96b3;letter-spacing:.1em}
+</style><div class="t" id="t"><div class="b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg></div><div class="x"><div class="k">Logro desbloqueado <em>${R[0]}</em></div><div class="n">${E(o.n)}</div><div class="d">${E(o.d)}</div></div><div class="p"><b>+${Math.max(0, +o.x || 0)}</b><small>XP</small></div></div>
+<script>setTimeout(function(){document.getElementById('t').classList.add('o')},4900);
+try{var A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime+.05;${JSON.stringify(snd)}.forEach(function(f,i){var o=A.createOscillator(),g=A.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.11);g.gain.linearRampToValueAtTime(.16,t+i*.11+.02);g.gain.exponentialRampToValueAtTime(.0008,t+i*.11+.7);o.connect(g);g.connect(A.destination);o.start(t+i*.11);o.stop(t+i*.11+.75)})}catch(e){}</script></body></html>`;
+    achWin.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
+    achWin.once('ready-to-show', () => { try { achWin.showInactive(); } catch (e) {} });
+    setTimeout(() => { try { if (achWin && !achWin.isDestroyed()) achWin.destroy(); } catch (e) {} }, 5600);
   } catch (e) {}
 }
 
@@ -247,6 +357,7 @@ async function takeShot() {
 }
 function listShots(id) {
   const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')), out = [];
+  try { for (const f of fs.readdirSync(dir)) if (/^c[\d-T]+\.webm$/.test(f)) out.push({ n: f, clip: true, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.webm$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
   try { for (const f of fs.readdirSync(dir)) if (/^[\d-T]+\.jpg$/.test(f)) out.push({ n: f, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.jpg$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
   return out.sort((a, b) => b.t - a.t);
 }
@@ -985,7 +1096,28 @@ app.whenReady().then(() => {
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
   ipcMain.handle('shots', (_e, id) => listShots(id));
-  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^[\d-T]+\.jpg$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.jpg$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
+  ipcMain.handle('achToast', (_e, o) => { achToast(o); return true; });
+  ipcMain.handle('clipSrc', async () => { try { const srcs = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 1, height: 1 } }); const d = screen.getPrimaryDisplay(); const x = srcs.find((q) => String(q.display_id) === String(d.id)) || srcs[0]; return x ? x.id : ''; } catch (e) { return ''; } });
+  ipcMain.handle('ovData', (_e, o) => { try { o = o || {}; ovOpen({ id: String(o.id || ''), name: String(o.name || ''), items: Array.isArray(o.items) ? o.items : [], t: +o.t || 0 }); } catch (e) {} return true; });
+  ipcMain.handle('ovAct', (_e, a) => { try {
+    if (a === 'close') { ovClose(); return; }
+    if (a === 'shot') { ovClose(); setTimeout(takeShot, 350); }
+    if (a === 'clip') { ovClose(); setTimeout(takeClip, 350); }
+  } catch (e) {} });
+  ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
+  ipcMain.handle('clipDone', () => { clipBusy = false; return true; });
+  ipcMain.handle('clipSave', (_e, o) => {
+    try {
+      o = o || {}; const dir = path.join(SHOTS, String(o.id).replace(/[^\w.-]/g, '_')); fs.mkdirSync(dir, { recursive: true });
+      const buf = Buffer.from(o.data); if (!buf.length || buf.length > 200 * 1024 * 1024) { clipBusy = false; return { ok: false }; }
+      const stamp = 'c' + new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), file = path.join(dir, stamp + '.webm');
+      fs.writeFileSync(file, buf);
+      let th = null; try { const m = /^data:image\/jpeg;base64,(.+)$/.exec(o.thumb || ''); if (m) { th = Buffer.from(m[1], 'base64'); fs.writeFileSync(path.join(dir, stamp + '.t.jpg'), th); } } catch (e) {}
+      clipBusy = false; shotToast(th, 'Clip guardado');
+      return { ok: true, file: pathToFileURL(file).href };
+    } catch (e) { clipBusy = false; return { ok: false }; }
+  });
+  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|webm)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|webm)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
   ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey }; });
   ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })
