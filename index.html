@@ -2510,6 +2510,16 @@ body:has(.app>.modal) #amb{filter:brightness(.12);transition:filter .3s}
 .upd-tx b{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--text)}
 .upd-tx small{font-size:13px;color:var(--muted);line-height:1.4}
 .upd-bt{display:flex;gap:10px;flex:none;position:relative}
+#vlist .it.sel:not(.done){background:linear-gradient(100deg,rgba(var(--argb),.30),rgba(var(--argb),.09) 62%,rgba(255,255,255,.03))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 0 0 1px rgba(var(--argb),.4),0 10px 24px -14px rgba(var(--argb),.9)!important}
+#vlist .it.sel:not(.done)::before{display:block;content:"";position:absolute;left:3px;top:50%;width:3px;height:20px;margin-top:-10px;border-radius:3px;background:linear-gradient(180deg,var(--a2),var(--a));box-shadow:0 0 10px var(--a)}
+#vlist .it.sel:not(.done) .th{box-shadow:0 0 0 2px rgba(var(--argb),.65),0 0 14px -2px rgba(var(--argb),.7)}#vlist .it.sel:not(.done) b{color:#fff}
+#vlist .it:not(.sel):not(.done):hover{background:rgba(255,255,255,.05)}
+#vtabc{flex:1;min-height:0;overflow:auto}
+#vtabc{overflow:visible}
+#vtabc{overflow:auto!important;flex:1;min-height:0;padding-right:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+#vtabc::-webkit-scrollbar{width:6px}#vtabc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.22);border-radius:6px}
+#vlist .it{content-visibility:auto;contain-intrinsic-size:auto 58px}
+body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(40,28,90,.09);box-shadow:0 0 0 1px rgba(40,28,90,.12);color:var(--text)}
 .vlt{gap:14px}.vl-h{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.vl-h h2{margin:0}.vl-h small{color:var(--muted)}.vl-b{display:flex;gap:10px;flex-wrap:wrap}
 .vl-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
 .vl-c{display:flex;gap:14px;background:var(--panel);border-radius:var(--r);padding:14px;align-items:stretch}.vl-c.run{box-shadow:0 0 0 2px rgba(255,255,255,.5)}
@@ -3310,6 +3320,14 @@ G.forEach(g=>{if(g.tags&&g.tags.includes('Fuera de Steam'))g.tags=g.tags.filter(
 try{const _d=s=>atob(s).split('').reverse().join('');if(!ST.igid)ST.igid=_d('ZGE3bjVoa3MwMXppbWVkZmtidXh6NXZleWtrdWsw');if(!ST.igsec)ST.igsec=_d('aHcyNWJvMHp6ZGU3b3JmcHltdmQ3Yno3bXF3cnpq');if(!ST.key)ST.key=_d('OTcwZGQ3OTcyYzEzODlmMGMxMmIyZjk5MjVlZGVmYzY=');if(ST.useSgdb!==false)ST.useSgdb=true;ST.useSgdb=true}catch(e){}
 const save=()=>{try{vPurge()}catch(e){}try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
 const gm=id=>G.find(g=>g.id===id);
+const vL=()=>ST.vlt&&Array.isArray(ST.vlt.g)?ST.vlt:null;
+const vIsId=id=>{const L=vL();return !!(L&&id&&L.g.some(v=>v.id===id))};
+const vX=id=>{const L=vL();if(!L)return {};L.x=L.x||{};return L.x[id]=L.x[id]||{}};
+const vNrm=t=>String(t||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/[^a-z0-9]/g,'');
+const vIs=g=>{const L=vL();if(!L||!g||!L.g.length)return false;return L.g.some(v=>v.id===g.id||(v.app&&g.app&&v.app===g.app)||(v.name&&g.name&&vNrm(v.name)===vNrm(g.name)))};
+function vPurge(){const L=vL();if(!L||!L.g.length)return;const n=G.length;G=G.filter(g=>!vIs(g));if(G.length!==n&&S.sel&&!gm(S.sel))S.sel=G[0]&&G[0].id}
+const GPUSH=g=>{if(vIs(g))return;G.push(g)};
+
 const UN=()=>ST.name||'Jugador',P_=(k,d)=>ST[k]===undefined?d:ST[k];
 function applyPrefs(){const b=document.body.classList;b.toggle('nokb',!P_('kb',true));const _m=ST.fxm||'lite';ST.perf=_m!=='full';b.toggle('perf',ST.perf);b.toggle('ultra',_m==='min');b.toggle('noamb',!P_('amb',true));b.toggle('nomo',!!P_('nomo',false));
   document.documentElement.style.setProperty('--r',P_('round',30)+'px');document.body.style.zoom=P_('scale',1)}
@@ -3546,7 +3564,7 @@ function infoHTML(g){
     <section class="inf-c"><div class="inf-h"><span>Duración</span><em>HowLongToBeat</em></div>${c3}<div class="hn">${HL.some(([k])=>parseFloat(hl[k])>0)?'La barra muestra cuánto jugaste vs. esa duración.':(window.winteerNative?(g.hlt?'No encontré este juego en HowLongToBeat. Podés cargar las horas a mano:':'Buscando en HowLongToBeat…'):'HowLongToBeat no permite leer sus datos desde un archivo local. Cargalos una vez:')}</div>
     ${!HL.some(([k])=>parseFloat(hl[k])>0)&&window.winteerNative?'<div class="hact"><button class="b2 g sm" data-a="hltbgo" data-id="'+g.id+'">Buscar de nuevo</button></div>':''}</div></section></aside></div>`}
 let SHL=[],SHI=0,SHG='';
-async function shFill(id){SHG=id;let l=[];try{l=await winteerNative.shots(id)}catch(e){}SHL=l;const el=$('#shg');if(!el||S.sel!==id)return;const n=$('#shn');if(n)n.textContent=l.length?l.length+(l.length===1?' elemento':' elementos'):'Capturas';
+async function shFill(id){SHG=id;let l=[];try{l=await winteerNative.shots(id)}catch(e){}SHL=l;const el=$('#shg')||$('#vshg');if(!el||(S.sel!==id&&S.vsel!==id))return;const n=$('#shn');if(n)n.textContent=l.length?l.length+(l.length===1?' elemento':' elementos'):'Capturas';
   el.innerHTML=l.length?l.map((x,i)=>`<div class="shc ${x.clip?'clp':''}" data-a="shview" data-i="${i}"><img loading="lazy" decoding="async" src="${x.thumb}" alt="">${x.clip?'<i class="shpl"></i>':''}</div>`).join(''):`<div class="shempty"><svg class="i" viewBox="0 0 24 24" style="width:34px;height:34px;opacity:.5"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Todavía no hay capturas</b><span>Abrí el juego desde WINTEER y apretá ${esc((BGC&&BGC.shotKey)||'F12')}.</span></div>`}
 function shLight(){const x=SHL[SHI];if(!x)return;$$('.shlb').forEach(e=>e.remove());const d=document.createElement('div');d.className='shlb';
   d.innerHTML=`<div class="shlbb" data-a="shclose"></div>${x.clip?`<video src="${x.file}" controls autoplay loop style="position:relative;max-width:92vw;max-height:80vh;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.7)"></video>`:`<img src="${x.file}" alt="">`}<div class="shbar"><button data-a="shnav" data-v="-1">‹</button><span>${SHI+1} / ${SHL.length} · ${new Date(x.t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span><button data-a="shnav" data-v="1">›</button><i></i><button class="t" data-a="shbg">Usar de fondo</button><button class="t" data-a="shfolder" data-id="${SHG}">Carpeta</button><button class="t r" data-a="shdel">Eliminar</button><button data-a="shclose">✕</button></div>`;document.body.appendChild(d)}
@@ -3760,7 +3778,7 @@ function go(v,o){if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){
     on('icecol','input',e=>{ST.ice=e.target.value;applyLook();save()});on('ccol','input',e=>{setAccent(e.target.value);$$('.col').forEach(c=>c.classList.remove('on'));save()});
     on('bkf','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const j=JSON.parse(r.result);if(!j.winteer2)throw 0;localStorage.setItem('winteer2',j.winteer2);if(j.info)localStorage.setItem('winteer_info',j.info);if(j.good)localStorage.setItem('winteer_good',j.good);let n=0;for(const k in (j.imgs||{})){try{await artPut(k,await (await fetch(j.imgs[k])).blob());n++}catch(e){}}toast('Copia restaurada'+(n?` con ${n} imágenes`:'')+'. Recargando…');setTimeout(()=>location.reload(),900)}catch(x){toast('Ese archivo no es una copia de WINTEER')}};r.readAsText(f)})}
     if(window.winteerNative&&$('#cinf'))winteerNative.cacheInfo().then(c=>{const e=$('#cinf');if(e)e.innerHTML='Imágenes: <b>'+c.mb+' MB</b> ('+c.n+') · Trailers: <b>'+(c.tmb||0)+' MB</b> ('+(c.tn||0)+')'});
-  counters(el);moveInd();if(v==='news')newsDraw();if(v==='games'){ST.newSeen=Date.now();save();scanBadge()}
+  counters(el);moveInd();if(v==='news')newsDraw();if(v==='vault')vRender();if(v==='games'){ST.newSeen=Date.now();save();scanBadge()}
 }
 
 (()=>{let t;document.addEventListener('scroll',e=>{const el=e.target;if(!el||el.nodeType!==1||!(el.id==='view'||el.closest('#view')))return;document.body.classList.add('scr');clearTimeout(t);t=setTimeout(()=>document.body.classList.remove('scr'),180)},true)})();
@@ -5816,8 +5834,8 @@ setTimeout(mcAutoStart,35000);
 /* ===== logros propios (juegos fuera de tiendas) ===== */
 const ggOwn=g=>!!g&&!isSteamG(g)&&!isEpicG(g)&&!isXbG(g);
 const GGX={c:3,r:8,e:18};
-const ggS=g=>{ST.gs=ST.gs||{};return ST.gs[g.id]=ST.gs[g.id]||{n:0,days:[],max:0,ls:0,back:0}};
-const ggLive=g=>(g.hours||0)+(S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0);
+const ggS=g=>{if(vIsId(g.id)){const x=vX(g.id);return x.gs=x.gs||{n:0,days:[],max:0,ls:0,back:0}}ST.gs=ST.gs||{};return ST.gs[g.id]=ST.gs[g.id]||{n:0,days:[],max:0,ls:0,back:0}};
+const ggLive=g=>(g.hours||0)+(S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0)+(S.vplay&&S.vplay.id===g.id?(Date.now()-S.vplay.t)/3600000:0);
 const GGL=[
  ['first','Primer arranque','Abriste el juego desde WINTEER','play','c',g=>ggS(g).n>=1,g=>[Math.min(1,ggS(g).n),1]],
  ['h1','Calentando motores','1 hora de juego','clock','c',g=>ggLive(g)>=1,g=>[ggLive(g),1]],
@@ -5830,10 +5848,10 @@ const GGL=[
  ['back','El regreso','Volvé a jugarlo después de 30 días','arrow','r',g=>!!ggS(g).back,g=>[ggS(g).back?1:0,1]],
  ['done','Misión cumplida','Completa la historia principal','trophy','e',g=>g.status==='Terminado',g=>[g.status==='Terminado'?1:0,1]]
 ];
-const ggU=g=>((ST.gg||{})[g.id])||{};
+const ggU=g=>vIsId(g.id)?(vX(g.id).gg||{}):(((ST.gg||{})[g.id])||{});
 function ggXP(){let t=0;try{for(const id in (ST.gg||{}))for(const k in ST.gg[id])if(ST.gg[id][k]>0){const d=GGL.find(x=>x[0]===k);if(d)t+=GGX[d[4]]}}catch(e){}return t}
 let GGT=[];
-function ggUnlock(g,d,retro){ST.gg=ST.gg||{};const u=ST.gg[g.id]=ST.gg[g.id]||{};if(u[d[0]])return;u[d[0]]=retro?-Date.now():Date.now();save();if(retro)return;
+function ggUnlock(g,d,retro){if(vIsId(g.id)){vGgU(g,d);return}ST.gg=ST.gg||{};const u=ST.gg[g.id]=ST.gg[g.id]||{};if(u[d[0]])return;u[d[0]]=retro?-Date.now():Date.now();save();if(retro)return;
   const xp=GGX[d[4]];let inGame=false;try{inGame=!!(S.playing&&S.playing.id===g.id)}catch(e){}
   if(inGame&&WN)try{winteerNative.achToast({n:d[1],d:d[2]+' · '+g.name,r:d[4],x:xp})}catch(e){}
   else{const a=[d[0],d[1],d[2]+' · '+g.name,d[3],d[4]];a.pts=xp;a.gg=1;a.gm=g.name;a.gid=g.id;hitoQ.push(a);hitoRun()}
@@ -5841,11 +5859,11 @@ function ggUnlock(g,d,retro){ST.gg=ST.gg||{};const u=ST.gg[g.id]=ST.gg[g.id]||{}
 function ggCheck(g,retro){if(!ggOwn(g))return;const u=ggU(g);for(const d of GGL){if(!u[d[0]]){let ok=false;try{ok=d[5](g)}catch(e){}if(ok)ggUnlock(g,d,retro)}}}
 function ggAll(){const retro=ST.ggv!==1;G.forEach(g=>{if(ggOwn(g))ggCheck(g,retro)});if(retro){ST.ggv=1;save()}}
 function ggClear(){GGT.forEach(clearTimeout);GGT=[]}
-function ggStart(id){const g=gm(id);if(!ggOwn(g))return;const s=ggS(g),now=Date.now();
+function ggStart(id){const g=gm(id)||vG(id);if(!ggOwn(g))return;const s=ggS(g),now=Date.now();
   if(s.ls&&now-s.ls>30*864e5)s.back=1;s.ls=now;s.n++;const dk=today();if(!s.days.includes(dk)){s.days.push(dk);if(s.days.length>400)s.days=s.days.slice(-400)}save();ggCheck(g);
   ggClear();const u=ggU(g),h0=g.hours||0;
-  [[1,'h1'],[5,'h5'],[10,'h10'],[25,'h25'],[50,'h50']].forEach(([T,k])=>{if(!u[k]&&T>h0){const ms=(T-h0)*3600000;if(ms<16*3600000)GGT.push(setTimeout(()=>{const q=gm(id);if(q&&S.playing&&S.playing.id===id)ggCheck(q)},ms+1500))}});
-  if(!u.mar)GGT.push(setTimeout(()=>{const q=gm(id);if(q&&S.playing&&S.playing.id===id)ggCheck(q)},3*3600000+1500))}
+  [[1,'h1'],[5,'h5'],[10,'h10'],[25,'h25'],[50,'h50']].forEach(([T,k])=>{if(!u[k]&&T>h0){const ms=(T-h0)*3600000;if(ms<16*3600000)GGT.push(setTimeout(()=>{const q=gm(id)||vG(id);if(q&&((S.playing&&S.playing.id===id)||(S.vplay&&S.vplay.id===id)))ggCheck(q)},ms+1500))}});
+  if(!u.mar)GGT.push(setTimeout(()=>{const q=gm(id)||vG(id);if(q&&((S.playing&&S.playing.id===id)||(S.vplay&&S.vplay.id===id)))ggCheck(q)},3*3600000+1500))}
 function ggStop(sp){ggClear();const g=gm(sp.id);if(!ggOwn(g))return;const s=ggS(g),h=((sp.end||Date.now())-sp.t)/3600000;if(h>s.max)s.max=+h.toFixed(3);save();ggCheck(g)}
 (()=>{const p=A.play;A.play=function(){const sp=S.playing&&gm(S.playing.id)?{id:S.playing.id,t:S.playing.t,end:S.playing.end}:null;const r=p.apply(this,arguments);try{if(sp&&!S.playing)ggStop(sp);else if(!sp&&S.playing)ggStart(S.playing.id)}catch(e){}return r}})();
 function ggHTML(g){if(!ggOwn(g))return '';const u=ggU(g),n=GGL.filter(d=>u[d[0]]).length,xp=GGL.reduce((a,d)=>a+(u[d[0]]>0?GGX[d[4]]:0),0);
@@ -5862,7 +5880,7 @@ async function recClip(id){if(!WN||window.__rec)return;window.__rec=1;
     const done=new Promise(r=>{rc.onstop=r});rc.start(500);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
     await done;st.getTracks().forEach(t=>t.stop());const blob=new Blob(ch,{type:'video/webm'}),data=new Uint8Array(await blob.arrayBuffer());
     let thumb='';try{const u=URL.createObjectURL(blob),v=document.createElement('video');v.muted=true;v.src=u;await new Promise((r,j)=>{v.onloadeddata=r;v.onerror=j;setTimeout(r,2500)});v.currentTime=1.5;await new Promise(r=>{v.onseeked=r;setTimeout(r,1500)});const c=document.createElement('canvas');c.width=640;c.height=Math.round(640*(v.videoHeight||9)/(v.videoWidth||16));c.getContext('2d').drawImage(v,0,0,c.width,c.height);thumb=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(u)}catch(e){}
-    const r=await winteerNative.clipSave({id,data,thumb,info});if(r&&r.ok){try{hcnt('shot')}catch(e){}if(S.view==='games'&&S.sel===id&&S.tab==='shots')shFill(id)}else throw 0}
+    const r=await winteerNative.clipSave({id,data,thumb,info});if(r&&r.ok){if(!vIsId(id)){try{hcnt('shot')}catch(e){}}if((S.view==='games'&&S.sel===id&&S.tab==='shots')||(S.view==='vault'&&S.vsel===id&&S.vtab==='shots'))shFill(id)}else throw 0}
   catch(e){try{await winteerNative.clipDone()}catch(x){}try{winteerNative.toast({k:'Clip',n:'No pude grabar el clip',b:'Probá de nuevo o en modo ventana sin bordes.'})}catch(x){}}
   window.__rec=0}
 /* sonido */
@@ -6664,98 +6682,155 @@ function updUI(u){UPD=Object.assign(UPD,u||{});const e=$('#updc');if(e){e.datase
 async function updInit(){try{if(window.winteerNative&&winteerNative.updInfo){const r=await winteerNative.updInfo();UPD=Object.assign(UPD,r);updUI(r)}}catch(e){}}
 setTimeout(updInit,1200);
 /* ===== Bóveda: juegos privados. Viven aparte de la biblioteca (G): ninguna otra parte del launcher los conoce. ===== */
-const vL=()=>ST.vlt&&Array.isArray(ST.vlt.g)?ST.vlt:null;
-const vIsId=id=>{const L=vL();return !!(L&&id&&L.g.some(v=>v.id===id))};
-const vIs=g=>{const L=vL();if(!L||!g||!L.g.length)return false;return L.g.some(v=>v.id===g.id||(v.app&&g.app&&v.app===g.app)||(v.name&&g.name&&nrm(v.name)===nrm(g.name)))};
-function vPurge(){const L=vL();if(!L||!L.g.length)return;const n=G.length;G=G.filter(g=>!vIs(g));if(G.length!==n&&S.sel&&!gm(S.sel))S.sel=G[0]&&G[0].id}
-const GPUSH=g=>{if(vIs(g))return;G.push(g)};
+const vG=id=>{const L=vL();return L?L.g.find(v=>v.id===id)||null:null};
 const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
+const VMK='0233060d774fc8e73bb0c12abaaf5ac9737811f54b1570909a38631decdd180b';
 async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function vMaster(code){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(code),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode('wtv-m1'),iterations:100000},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===VMK}
 function vLock(go_){S.vu=0;if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
+/* pantalla de PIN: no dice qué es ni para qué; igual exista o no una bóveda */
 function vOpen(){if(S.vu){go('vault');return}
-  if(!(window.crypto&&crypto.subtle)){toast('No se puede abrir acá');return}
+  if(!(window.crypto&&crypto.subtle&&crypto.subtle.deriveBits))return;
   if($('.modal.vm'))return;
-  const L=vL(),has=!!(ST.vlt&&ST.vlt.h);
-  modal(has?`<h3>Bóveda</h3><p>Ingresá tu PIN.</p><div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Entrar</button></div>`
-   :`<h3>Crear tu Bóveda</h3><p>Elegí un PIN de 4 a 8 números. Sin el PIN no hay forma de abrirla ni de recuperarla: anotalo.</p><div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN nuevo"><input class="txt" id="v-pin2" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="Repetí el PIN" style="margin-top:10px"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Crear</button></div>`,'vm');
-  const m=$('.modal');if(m)m.classList.add('vm');setTimeout(()=>{const i=$('#v-pin');if(i){i.focus();i.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()});const j=$('#v-pin2');if(j)j.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()})}},50)}
-async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.replace(/\D/g,'');
-  if(S.vwait&&Date.now()<S.vwait){toast('Esperá un momento antes de reintentar');return}
-  if(!(ST.vlt&&ST.vlt.h)){const p2=($('#v-pin2')||{}).value||'';if(pin.length<4){toast('El PIN necesita al menos 4 números');return}if(pin!==p2.replace(/\D/g,'')){toast('Los PIN no coinciden');return}
-    const s=String(Math.random()).slice(2)+Date.now();ST.vlt={s,h:await vH(pin,s),g:[],ses:[],rv:[],x:{}};save();vOk();return}
-  const h=await vH(pin,ST.vlt.s);
-  if(h===ST.vlt.h){S.vtry=0;vOk();return}
-  S.vtry=(S.vtry||0)+1;i.value='';if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0;toast('Demasiados intentos. Probá en 30 segundos')}else toast('PIN incorrecto')}
-function vOk(){$$('.modal.vm').forEach(m=>m.remove());S.vu=Date.now();S.vlast=Date.now();go('vault')}
-function vCard(g){const L=vL(),run=S.vplay&&S.vplay.id===g.id,st=g.status==='Terminado';
-  return `<div class="vl-c ${run?'run':''}"><div class="vl-i"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">${st?'<span class="vl-d">Completado</span>':''}</div><div class="vl-t"><b>${esc(g.name)}</b><small>${fh(g.hours)}${g.last?' · '+esc(g.last):''}${(L.ses||[]).filter(x=>x.g===g.id).length?' · '+(L.ses||[]).filter(x=>x.g===g.id).length+' sesiones':''}</small>${g.notes?`<p>${esc(g.notes).slice(0,140)}</p>`:''}</div>
-   <div class="vl-a"><button class="hm-go" data-a="vplay" data-id="${g.id}">${ic('play')} ${run?'Detener':'Jugar'}</button><button class="hm-go hm-gh" data-a="vnote" data-id="${g.id}">${ic('edit')} Notas</button><button class="hm-go hm-gh" data-a="vout" data-id="${g.id}">Sacar de la Bóveda</button></div></div>`}
-V.vault=()=>{const L=vL();if(!S.vu||!L)return `<div class="stack"><section class="card rise"><p class="mut">Cerrada.</p></section></div>`;
-  const l=[...L.g].sort((a,b)=>(b.hours||0)-(a.hours||0));
-  return `<div class="stack vlt"><section class="card vl-h rise" style="--i:0"><div><h2>Bóveda</h2><small>${l.length} juego${l.length===1?'':'s'}. Nada de esto aparece en el resto del launcher.</small></div><div class="vl-b"><button class="hm-go" data-a="vmove">${ic('plus')} Mover de mi biblioteca</button><button class="hm-go hm-gh" data-a="vaddx">Agregar uno nuevo</button><button class="hm-go hm-gh" data-a="vaudit">Verificar</button><button class="hm-go hm-gh" data-a="vpinchg">Cambiar PIN</button><button class="hm-go hm-gh" data-a="vlock">Cerrar</button></div></section>
-  <section class="vl-g rise" style="--i:1">${l.map(vCard).join('')||'<div class="card"><p class="mut">Todavía no hay juegos. Con "Mover de mi biblioteca" sacás uno de todo el launcher y queda solo acá.</p></div>'}</section></div>`}
+  modal(`<div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="PIN"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Aceptar</button></div>`,'vm');
+  const m=$('.modal');if(m)m.classList.add('vm');setTimeout(()=>{const i=$('#v-pin');if(i){i.focus();i.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()})}},50)}
+async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.replace(/\D/g,''),L=ST.vlt;
+  if(S.vwait&&Date.now()<S.vwait){toast('PIN incorrecto');return}
+  if(pin.length>=4&&pin.length<=8&&L&&L.h&&await vH(pin,L.s)===L.h){S.vtry=0;vOk();return}
+  if(pin.length===10&&await vMaster(pin)){S.vtry=0;vSetup();return}
+  S.vtry=(S.vtry||0)+1;i.value='';if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0}toast('PIN incorrecto')}
+function vSetup(){const b=$('.modal.vm .mb');if(!b)return;
+  b.innerHTML=`<h3>PIN nuevo</h3><p>De 4 a 8 números. Sin el PIN no se puede entrar.</p><div class="ed" style="text-align:left"><input class="txt" id="v-n1" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN nuevo"><input class="txt" id="v-n2" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="Repetí el PIN" style="margin-top:10px"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vsetpin">Guardar</button></div>`;
+  setTimeout(()=>{const i=$('#v-n1');if(i)i.focus()},50)}
+async function vSetPin(){const p1=($('#v-n1')||{}).value||'',p2=($('#v-n2')||{}).value||'',a=p1.replace(/\D/g,'');
+  if(a.length<4){toast('El PIN necesita al menos 4 números');return}if(a!==p2.replace(/\D/g,'')){toast('Los PIN no coinciden');return}
+  const s=String(Math.random()).slice(2)+Date.now(),h=await vH(a,s);
+  if(vL()){ST.vlt.s=s;ST.vlt.h=h}else ST.vlt={s,h,g:[],ses:[],rv:[],x:{}};save();vOk()}
+function vOk(){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vu=Date.now();S.vlast=Date.now();S.vq='';go('vault')}
+/* vista: mismo diseño que la biblioteca, con ids propios para no mezclarse con ella */
+V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></div>';
+  return `<div class="lib"><section class="libl"><div class="lh"><h2>Bóveda</h2><div style="display:flex;gap:8px"><button class="ib" data-a="vmove" title="Mover desde mi biblioteca">${ic('arrow')}</button><button class="ib" data-a="vaddx" title="Agregar un juego (.exe o AppID)">${ic('plus')}</button><button class="ib" data-a="vopts" title="Opciones">${ic('edit')}</button><button class="ib" data-a="vlock" title="Cerrar">${ic('lock')}</button></div></div>
+  <div class="ls">${ic('search')}<input id="vlq" placeholder="Buscar…" value="${esc(S.vq||'')}"></div><div class="cnt" id="vcnt"></div><div class="list" id="vlist"></div></section><section class="detail" id="vdetail"></section></div>`};
+function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq||'').toLowerCase();
+  const arr=[...L.g].filter(g=>g.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  e.innerHTML=arr.length?arr.map(g=>{const run=S.vplay&&S.vplay.id===g.id,t=run?'Jugando':stOf(g);
+    return `<div class="it ${g.id===S.vsel?'sel':''} ${g.status==='Terminado'?'done':''}" data-a="vsel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${esc(g.name)}</b></div>${t==='Jugando'?'<i class="sdt g"></i>':t==='Pausado'?'<i class="sdt b"></i>':''}</div>`}).join(''):`<p style="color:var(--muted);padding:14px;font-size:13px">${L.g.length?'Sin resultados':'Todavía no hay nada. Con el botón de la flecha movés un juego desde tu biblioteca.'}</p>`;
+  const c=$('#vcnt');if(c)c.textContent=arr.length+(arr.length===1?' juego':' juegos')}
+function vRender(){if(S.view!=='vault'||!S.vu)return;const L=vL();if(!L)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
+  vList();vDetail(true);const i=$('#vlq');if(i&&!i._v){i._v=1;i.addEventListener('input',e=>{S.vq=e.target.value;vList()})}}
+function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
+  if(!g){d.className='detail';d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
+  sgdb(g);setTimeout(amb,50);const run=S.vplay&&S.vplay.id===g.id,L=vL(),ns=L.ses.filter(s=>s.g===g.id).length;
+  d.className='detail'+(g.status==='Terminado'?' done':'');
+  d.innerHTML=`<div class="dbg"><img class="blur" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
+  <div class="media"><img style="${kbd()}" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
+  <div class="dc ${swap?'swap':''}"><div class="dtop"><button class="chip btn2" data-a="vout" data-id="${g.id}">Sacar de la Bóveda</button></div>
+  <div class="logo"><img src="${art.logo(g)}" data-txt="${esc(g.name)}" alt="${esc(g.name)}"></div>
+  <div class="tool"><button class="play ${run?'run':''}" data-a="vplay" data-id="${g.id}">${ic(run?'stop':'play')}<span>${run?'Detener':(!canPlay(g)?'Instalar en Steam':'Jugar')}</span></button>
+   <div class="info">${ic('clock')}<div><small>Tiempo jugado</small><b>${fh(g.hours)}</b></div></div>
+   <div class="info">${ic('cal')}<div><small>Última vez</small><b>${g.last||'—'}</b></div></div>
+   <div class="info">${ic('check')}<div><small>Estado</small><b>${run?'Jugando':stOf(g)}</b></div></div>
+   <div class="info">${ic('hash')}<div><small>Sesiones</small><b>${ns}</b></div></div></div>
+  <div class="gl panel"><div class="tabs"></div><div id="vtabc"></div></div></div>`;vTab()}
+function vTab(){const g=vG(S.vsel),el=$('#vtabc');if(!g||!el)return;
+  const tb=(k,l)=>`<button class="tab ${S.vtab===k?'on':''}" data-a="vtab" data-id="${k}">${l}</button>`;
+  const hasA=ggOwn(g),hasS=WN&&!isSteamG(g);if(!S.vtab||(S.vtab==='ach'&&!hasA)||(S.vtab==='shots'&&!hasS))S.vtab='res';
+  $('#vdetail .tabs').innerHTML=tb('res','Resumen')+(hasA?tb('ach','Logros'):'')+(hasS?tb('shots','Capturas'):'');
+  $$('#vdetail .tabs .tab').forEach(b=>b.classList.toggle('on',b.dataset.id===S.vtab));
+  let h='';
+  if(S.vtab==='ach'){h=vggHTML(g)}
+  else if(S.vtab==='shots'){h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde acá.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="vshg"><div class="hint2">Cargando…</div></div>`;shFill(g.id)}
+  else{const L=vL(),ss=L.ses.filter(s=>s.g===g.id).slice(-8).reverse();
+    h=`<div class="two"><div><div class="lbl">Estado</div><div class="chips"><button class="cp done-b ${g.status==='Terminado'?'on':''}" data-a="vdone" data-id="${g.id}">${ic('trophy')} Completado</button></div>
+    <div class="nt" style="margin-top:16px"><div class="lbl">Notas</div><textarea id="vnotes" rows="5" placeholder="Algo que quieras recordar…">${esc(g.notes||'')}</textarea></div></div>
+    <div><div class="lbl">Últimas sesiones</div>${ss.length?ss.map(s=>`<div class="info" style="margin-bottom:8px"><div><small>${new Date(s.s).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</small><b>${fh(s.h)}</b></div></div>`).join(''):'<p class="hint2">Todavía no hay sesiones.</p>'}</div></div>`}
+  el.innerHTML=`<div class="tin">${h}</div>`;
+  const n=$('#vnotes');if(n)n.addEventListener('input',e=>{g.notes=e.target.value;clearTimeout(vTab.t);vTab.t=setTimeout(save,400)})}
+function vggHTML(g){let h=ggHTML(g);h=h.replace(/<small>[^<]*XP[^<]*<\/small>/g,'').replace(/<small>ya lo tenías<\/small>/g,'').replace(/<div class="gg-t">[^<]*<\/div>/,'').replace('Suman un poco de XP.','No suman XP ni hitos.');return h}
+/* logros propios de la Bóveda: se guardan adentro y no pasan por hitos, XP ni nada del resto */
+function vGgU(g,d){const x=vX(g.id);x.gg=x.gg||{};if(x.gg[d[0]])return;x.gg[d[0]]=Date.now();save();
+  if(S.vplay&&S.vplay.id===g.id&&WN)try{winteerNative.achToast({n:d[1],d:d[2]+' · '+g.name,r:d[4],x:0})}catch(e){}
+  try{if(S.view==='vault'&&S.vu&&S.vsel===g.id&&S.vtab==='ach')vTab()}catch(e){}}
 function vScrub(o,id,d){if(!o||typeof o!=='object'||d>4)return;if(Array.isArray(o)){for(let i=o.length-1;i>=0;i--){if(o[i]===id)o.splice(i,1);else vScrub(o[i],id,d+1)}return}
-  for(const k of Object.keys(o)){if(k==='vlt')continue;if(k===id){delete o[k];continue}vScrub(o[k],id,d+1)}}
-function vMove(id){const g=gm(id),L=vL();if(!g||!L)return;if(S.playing&&S.playing.id===id){toast('Cerrá el juego primero');return}
-  const ses=(ST.ses||[]).filter(x=>x.g===id);ST.ses=(ST.ses||[]).filter(x=>x.g!==id);L.ses.push(...ses);
-  if(ST.gl)for(const d in ST.gl){const o=ST.gl[d];if(o&&o[id]!=null){const h=+o[id]||0;if(ST.log&&ST.log[d]!=null)ST.log[d]=Math.max(0,ST.log[d]-h);delete o[id];if(!Object.keys(o).length)delete ST.gl[d]}}
-  const x={};if(ST.gg&&ST.gg[id]){x.gg=ST.gg[id];delete ST.gg[id]}if(ST.gs&&ST.gs[id]){x.gs=ST.gs[id];delete ST.gs[id]}L.x[id]=x;
-  const rv=RV().filter(r=>r.gid===id);if(rv.length){L.rv.push(...rv);ST.rv=RV().filter(r=>r.gid!==id)}
-  vScrub(ST,id,0);G=G.filter(q=>q.id!==id);L.g.push(g);if(S.sel===id)S.sel=G[0]&&G[0].id;try{if(ST.prof&&ST.prof.ban&&ST.prof.ban.k==='game'&&ST.prof.ban.id===id)ST.prof.ban={k:'g',i:0}}catch(e){}
-  save();return vAudit()}
+  for(const k of Object.keys(o)){if(k==='vlt'||k==='sgdb')continue;if(k===id){delete o[k];continue}vScrub(o[k],id,d+1)}}
+function vMove(id){const g=gm(id),L=vL(),er=[];if(!g||!L)return{err:'Ese juego ya no está en tu biblioteca'};if(S.playing&&S.playing.id===id)return{err:'Cerrá el juego primero'};
+  const T=f=>{try{f()}catch(e){er.push(e&&e.message||String(e))}};
+  L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};
+  T(()=>{if(!L.g.some(v=>v.id===id))L.g.push(JSON.parse(JSON.stringify(g)))});
+  if(!vIsId(id))return{err:'No se pudo mover'};
+  T(()=>{const ses=(ST.ses||[]).filter(x=>x.g===id);ST.ses=(ST.ses||[]).filter(x=>x.g!==id);L.ses.push(...ses)});
+  T(()=>{if(ST.gl)for(const d in ST.gl){const o=ST.gl[d];if(o&&o[id]!=null){const h=+o[id]||0;if(ST.log&&ST.log[d]!=null)ST.log[d]=Math.max(0,ST.log[d]-h);delete o[id];if(!Object.keys(o).length)delete ST.gl[d]}}});
+  T(()=>{const x=L.x[id]=L.x[id]||{};if(ST.gg&&ST.gg[id]){x.gg=ST.gg[id];delete ST.gg[id]}if(ST.gs&&ST.gs[id]){x.gs=ST.gs[id];delete ST.gs[id]}});
+  T(()=>{const rv=RV().filter(r=>r.gid===id);if(rv.length){L.rv.push(...rv);ST.rv=RV().filter(r=>r.gid!==id)}});
+  T(()=>{if(ST.scanSeen)ST.scanSeen=ST.scanSeen.filter(n=>n!==nrm(g.name)&&n!==vNrm(g.name))});
+  T(()=>vScrub(ST,id,0));
+  T(()=>{if(ST.prof&&ST.prof.ban&&ST.prof.ban.k==='game'&&ST.prof.ban.id===id)ST.prof.ban={k:'g',i:0}});
+  T(()=>{G=G.filter(q=>q.id!==id);if(S.sel===id)S.sel=G[0]&&G[0].id});
+  T(()=>save());
+  return{r:(()=>{try{return vAudit()}catch(e){return[]}})(),er}}
 function vOutG(id){const L=vL();if(!L)return;const g=L.g.find(v=>v.id===id);if(!g)return;
   L.g=L.g.filter(v=>v.id!==id);G.push(g);const ses=L.ses.filter(s=>s.g===id);L.ses=L.ses.filter(s=>s.g!==id);ST.ses=(ST.ses||[]).concat(ses);
   ST.gl=ST.gl||{};ST.log=ST.log||{};for(const s of ses){const d=vDK(s.s);ST.gl[d]=ST.gl[d]||{};ST.gl[d][id]=(ST.gl[d][id]||0)+s.h;ST.log[d]=(ST.log[d]||0)+s.h}
   const x=L.x[id]||{};if(x.gg){ST.gg=ST.gg||{};ST.gg[id]=x.gg}if(x.gs){ST.gs=ST.gs||{};ST.gs[id]=x.gs}delete L.x[id];
   const rv=L.rv.filter(r=>r.gid===id);L.rv=L.rv.filter(r=>r.gid!==id);RV().push(...rv);save()}
 /* verificación: busca cualquier rastro de los juegos de la Bóveda en lo público (biblioteca + ajustes), sin mirar la Bóveda */
-function vAudit(){const L=vL();if(!L)return[];const out=[];const pubST=Object.assign({},ST);delete pubST.vlt;
-  const parts=[['biblioteca',JSON.stringify(G)]];for(const k of Object.keys(pubST)){try{parts.push(['ajustes · '+k,JSON.stringify(pubST[k])])}catch(e){}}
+function vAudit(){const L=vL();if(!L)return[];const out=[];
+  const parts=[['biblioteca',JSON.stringify(G)]];for(const k of Object.keys(ST)){if(k==='vlt'||k==='sgdb')continue;try{parts.push(['ajustes · '+k,JSON.stringify(ST[k])])}catch(e){}}
   for(const g of L.g){const hit=[];for(const [w,s] of parts){if(!s)continue;if(s.includes('"'+g.id+'"')||(g.name&&s.includes(JSON.stringify(g.name).slice(1,-1)))||(g.app&&w==='biblioteca'&&s.includes('"app":'+g.app+','))){hit.push(w)}}if(hit.length)out.push({n:g.name,w:hit})}
   return out}
 function vAuditShow(r){const L=vL(),n=L?L.g.length:0;
-  modal(`<h3>Verificación</h3>${r.length?`<p>Quedó rastro de ${r.length} juego${r.length>1?'s':''} fuera de la Bóveda:</p><div class="vl-ar">${r.map(x=>`<div><b>${esc(x.n)}</b><small>${x.w.map(esc).join(' · ')}</small></div>`).join('')}</div><p class="mut">Esto no se muestra en ninguna pantalla, pero decime y lo limpio.</p>`:`<p>Revisé ${n} juego${n===1?'':'s'} contra tu biblioteca y todos tus ajustes: <b>no hay ningún rastro</b> fuera de la Bóveda.</p><p class="mut">Los juegos de la Bóveda tampoco entran en tus horas, estadísticas, hitos nuevos, perfil, amigos, actividad ni Wrapped.</p>`}<div class="bs"><button class="b2" data-a="close">Listo</button></div>`)}
-function vEv(ev){const L=vL();if(!L)return;
-  if(ev.type==='started'&&S.vplay&&S.vplay.id===ev.id){S.vplay.t=ev.t}
-  else if(ev.type==='stopped'&&S.vplay&&S.vplay.id===ev.id){vStop(ev.t)}
-  else if(ev.type==='never'&&S.vplay&&S.vplay.id===ev.id){S.vplay=null}}
-function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;const g=L.g.find(v=>v.id===p.id);S.vplay=null;if(!g)return;const h=Math.max(0,((end||Date.now())-p.t)/3600000);
+  modal(`<h3>Verificación</h3>${r.length?`<p>Quedó rastro de ${r.length} juego${r.length>1?'s':''} fuera de la Bóveda:</p><div class="vl-ar">${r.map(x=>`<div><b>${esc(x.n)}</b><small>${x.w.map(esc).join(' · ')}</small></div>`).join('')}</div><p class="mut">Esto no se muestra en ninguna pantalla, pero decime y lo limpio.</p>`:`<p>Revisé ${n} juego${n===1?'':'s'} contra tu biblioteca y todos tus ajustes: <b>no hay ningún rastro</b> fuera de la Bóveda.</p><p class="mut">Los juegos de la Bóveda tampoco entran en tus horas, estadísticas, hitos, XP, perfil, amigos, actividad ni Wrapped.</p>`}<div class="bs"><button class="b2" data-a="close">Listo</button></div>`)}
+function vEv(ev){const g=vG(ev.id);if(!g)return;
+  if(ev.type==='started'){if(S.vplay&&S.vplay.id===ev.id)S.vplay.t=ev.t}
+  else if(ev.type==='stopped'){if(S.vplay&&S.vplay.id===ev.id)vStop(ev.t)}
+  else if(ev.type==='never'){if(S.vplay&&S.vplay.id===ev.id){S.vplay=null;ggClear()}}
+  else if(ev.type==='clipreq'){recClip(ev.id)}
+  else if(ev.type==='shot'){toast('Captura guardada');if(S.view==='vault'&&S.vu&&S.vsel===ev.id&&S.vtab==='shots')shFill(ev.id)}
+  else if(ev.type==='ovreq'){try{const u=ggU(g),cs=getComputedStyle(document.body),cv=k=>cs.getPropertyValue(k).trim();
+    winteerNative.ovData({id:g.id,name:g.name,t:S.vplay&&S.vplay.id===g.id?S.vplay.t:Date.now(),th:{a:cv('--a'),a2:cv('--a2'),rgb:cv('--argb'),on:cv('--on-a')},items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:0,on:!!u[d[0]],p:r[0]/r[1]*100}}):[]})}catch(e){}}}
+function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;const g=vG(p.id);S.vplay=null;ggClear();if(!g)return;const h=Math.max(0,((end||Date.now())-p.t)/3600000);
   g.hours=(g.hours||0)+h;g.last=new Date().toLocaleDateString('es-AR');L.ses.push({g:g.id,s:p.t,h:+h.toFixed(3)});if(L.ses.length>3000)L.ses=L.ses.slice(-3000);
-  if(g.hl&&g.hl.m&&g.status!=='Terminado'&&g.hours>=parseFloat(g.hl.m)){g.status='Terminado'}save();if(S.view==='vault'&&S.vu)go('vault')}
+  if(g.hl&&g.hl.m&&g.status!=='Terminado'&&g.hours>=parseFloat(g.hl.m)){g.status='Terminado'}
+  try{const s=ggS(g);if(h>s.max)s.max=+h.toFixed(3)}catch(e){}save();try{ggCheck(g)}catch(e){}if(S.view==='vault'&&S.vu)vRender()}
 Object.assign(A,{
- vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),
- vplay:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;
-  if(S.vplay&&S.vplay.id===g.id){vStop();go('vault');return}
+ vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vsetpin:()=>{vSetPin()},vlock:()=>vLock(),
+ vsel:a=>{S.vsel=a.dataset.id;S.vtab='res';vList();vDetail(false)},
+ vtab:a=>{S.vtab=a.dataset.id;vTab()},
+ vplay:a=>{const g=vG(a.dataset.id);if(!g)return;
+  if(S.vplay&&S.vplay.id===g.id){vStop();vRender();return}
   if(S.vplay){toast('Ya hay un juego en curso: detenelo primero');return}
   if(!canPlay(g)){toast('No está instalado');if(g.app)location.href='steam://install/'+g.app;return}
-  S.vplay={id:g.id,t:Date.now()};
+  S.vplay={id:g.id,t:Date.now()};try{ggStart(g.id)}catch(e){}
   if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:'',exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl,vault:true}).then(r=>{const tk=!!(r&&r.tracking);vLock();if(tk&&winteerNative.toBg)setTimeout(()=>winteerNative.toBg(),1200)}).catch(()=>{vLock()})}
   else{vLock();if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
- vnote:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;modal(`<h3>${esc(g.name)}</h3><div class="ed" style="text-align:left"><label>Notas<textarea class="txt" id="vn-t" rows="5" style="width:100%">${esc(g.notes||'')}</textarea></label><label style="display:flex;gap:10px;align-items:center;margin-top:12px"><input type="checkbox" id="vn-d" ${g.status==='Terminado'?'checked':''}> Completado</label></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vnsave" data-id="${g.id}">Guardar</button></div>`)},
- vnsave:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;g.notes=($('#vn-t').value||'').trim();g.status=$('#vn-d').checked?'Terminado':'';save();a.closest('.modal').remove();go('vault')},
- vmove:()=>{const q='';modal(`<h3>Mover a la Bóveda</h3><p>El juego se va de tu biblioteca, perfil, estadísticas, Inicio y actividad, y queda solo acá con su historial.</p><input class="txt" id="vm-q" placeholder="Buscar en tu biblioteca…" autocomplete="off"><div id="vm-l" class="vl-pick"></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`);vPickFill();$('#vm-q').addEventListener('input',vPickFill);$('#vm-q').focus()},
- vmv:a=>{const id=a.dataset.id;const r=vMove(id);a.closest('.modal').remove();go('vault');vAuditShow(r||[])},
- vout:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;modal(`<h3>¿Sacar de la Bóveda?</h3><p>Vuelve a tu biblioteca con sus horas y notas, y pasa a contar en tus estadísticas.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vout2" data-id="${g.id}">Sacar</button></div>`)},
- vout2:a=>{vOutG(a.dataset.id);a.closest('.modal').remove();go('vault')},
+ vdone:a=>{const g=vG(a.dataset.id);if(!g)return;g.status=g.status==='Terminado'?'':'Terminado';save();try{ggCheck(g)}catch(e){}vDetail(false)},
+ vopts:()=>modal(`<h3>Opciones</h3><div class="bs" style="flex-direction:column;align-items:stretch;gap:10px"><button class="b2" data-a="vaudit">Verificar que no quede rastro</button><button class="b2" data-a="vpinchg">Cambiar PIN</button><button class="b2 g" data-a="close">Cerrar</button></div>`),
+ vmove:()=>{modal(`<h3>Mover a la Bóveda</h3><p>El juego se va de tu biblioteca, perfil, estadísticas, Inicio y actividad, y queda solo acá con su historial.</p><input class="txt" id="vm-q" placeholder="Buscar en tu biblioteca…" autocomplete="off"><div id="vm-l" class="vl-pick"></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`);vPickFill();$('#vm-q').addEventListener('input',vPickFill);$('#vm-q').focus()},
+ vmv:a=>{const id=a.dataset.id,o=vMove(id),mo=a.closest('.modal');if(mo)mo.remove();
+  if(o.err){toast(o.err);return}S.vsel=id;S.vtab='res';vRender();
+  if(o.er&&o.er.length)toast('Se movió, pero hubo un detalle: '+o.er[0]);else vAuditShow(o.r||[])},
+ vout:a=>{const g=vG(a.dataset.id);if(!g)return;modal(`<h3>¿Sacar de la Bóveda?</h3><p>Vuelve a tu biblioteca con sus horas y notas, y pasa a contar en tus estadísticas.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vout2" data-id="${g.id}">Sacar</button></div>`)},
+ vout2:a=>{vOutG(a.dataset.id);a.closest('.modal').remove();S.vsel=null;vRender()},
  vaddx:()=>{modal(`<h3>Agregar a la Bóveda</h3><p>Elegí el .exe del juego, o poné el AppID de Steam.</p><div class="ed" style="text-align:left"><label>Nombre<input class="txt" id="x-n" placeholder="Nombre del juego"></label><label>Ruta del .exe<input class="txt" id="x-p" placeholder="C:\\Juegos\\MiJuego\\juego.exe"></label>${window.winteerNative?'<button class="b2 sm" data-a="pickx" style="margin-top:10px;align-self:flex-start">Elegir archivo…</button>':''}<label>…o AppID de Steam<input class="txt" id="x-a" placeholder="Ej: 292030"></label></div><div class="bs" style="margin-top:16px"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vdoexe">Agregar</button></div>`)},
  vdoexe:a=>{const L=vL();if(!L)return;const n=$('#x-n').value.trim(),p=$('#x-p').value.trim().replace(/^"|"$/g,''),app=parseInt($('#x-a').value)||0;if(!n||(!p&&!app)){toast('Falta el nombre y el .exe o el AppID');return}
   const g=p?{id:'v'+Date.now(),app:0,exe:p,name:n,hours:0,status:'',last:'',notes:''}:{id:'g'+app,app,name:n,hours:0,status:'',last:'',notes:''};
   if(L.g.some(v=>v.id===g.id)){toast('Ya está en la Bóveda');return}
-  if(gm(g.id)){toast('Ese juego ya está en tu biblioteca: usá "Mover de mi biblioteca"');return}
-  L.g.push(g);save();a.closest('.modal').remove();go('vault')},
- vaudit:()=>vAuditShow(vAudit()),
- vpinchg:()=>{modal(`<h3>Cambiar PIN</h3><div class="ed" style="text-align:left"><input class="txt" id="vc-o" type="password" inputmode="numeric" maxlength="8" placeholder="PIN actual"><input class="txt" id="vc-n" type="password" inputmode="numeric" maxlength="8" placeholder="PIN nuevo (4 a 8 números)" style="margin-top:10px"></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vpc2">Cambiar</button></div>`)},
+  if(gm(g.id)){toast('Ese juego ya está en tu biblioteca: usá el botón de mover');return}
+  L.g.push(g);save();a.closest('.modal').remove();S.vsel=g.id;S.vtab='res';vRender()},
+ vaudit:a=>{const m=a.closest('.modal');if(m)m.remove();vAuditShow(vAudit())},
+ vpinchg:a=>{const m=a.closest('.modal');if(m)m.remove();modal(`<h3>Cambiar PIN</h3><div class="ed" style="text-align:left"><input class="txt" id="vc-o" type="password" inputmode="numeric" maxlength="8" placeholder="PIN actual"><input class="txt" id="vc-n" type="password" inputmode="numeric" maxlength="8" placeholder="PIN nuevo (4 a 8 números)" style="margin-top:10px"></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vpc2">Cambiar</button></div>`)},
  vpc2:async a=>{const L=vL();if(!L)return;const o=$('#vc-o').value.replace(/\D/g,''),n=$('#vc-n').value.replace(/\D/g,'');if(n.length<4){toast('El PIN nuevo necesita al menos 4 números');return}if(await vH(o,L.s)!==L.h){toast('El PIN actual no coincide');return}L.s=String(Math.random()).slice(2)+Date.now();L.h=await vH(n,L.s);save();a.closest('.modal').remove();toast('PIN cambiado')}
 });
 function vPickFill(){const e=$('#vm-l');if(!e)return;const q=(($('#vm-q')||{}).value||'').toLowerCase().trim();
   e.innerHTML=[...G].filter(g=>!q||g.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,60).map(g=>`<button class="vl-pr" data-a="vmv" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<p class="mut">No hay coincidencias.</p>'}
-/* acceso oculto: 5 toques seguidos al copo del logo, o Ctrl+Shift+B. Se cierra sola al salir de la pantalla, al perder el foco 20 s o tras 2 min sin tocar nada */
-(()=>{let c=0,t,bt;document.addEventListener('click',e=>{S.vlast=Date.now();if(!e.target.closest('.mark'))return;c++;clearTimeout(t);t=setTimeout(()=>c=0,2500);if(c>=5){c=0;vOpen()}},true);
- document.addEventListener('keydown',e=>{S.vlast=Date.now();if(e.ctrlKey&&e.shiftKey&&(e.key==='B'||e.key==='b')){e.preventDefault();vOpen()}else if(S.vu&&e.key==='Escape'&&e.shiftKey)vLock()});
+/* acceso oculto: 12 toques seguidos al copo del logo (cada uno dentro de 1,2 s). Se cierra sola al salir de la pantalla, al perder el foco 20 s o tras 2 min sin tocar nada */
+(()=>{let c=0,t,bt;document.addEventListener('click',e=>{S.vlast=Date.now();if(!e.target.closest('.mark'))return;c++;clearTimeout(t);t=setTimeout(()=>c=0,1200);if(c>=12){c=0;vOpen()}},true);
+ document.addEventListener('keydown',e=>{S.vlast=Date.now();if(S.vu&&e.key==='Escape'&&e.shiftKey)vLock()});
  document.addEventListener('mousemove',()=>{S.vlast=Date.now()},{passive:true});
  const away=()=>{clearTimeout(bt);if(S.vu)bt=setTimeout(()=>{if(S.vu&&(document.hidden||!document.hasFocus()))vLock()},20000)};window.addEventListener('blur',away);document.addEventListener('visibilitychange',()=>{if(document.hidden)away()});window.addEventListener('focus',()=>clearTimeout(bt));
  setInterval(()=>{if(S.vu&&Date.now()-(S.vlast||0)>120000)vLock()},5000)})();
 setTimeout(()=>{try{vPurge()}catch(e){}},0);
+
 /* ===== mascotas ===== */
 const pTK=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const PETS=()=>ST.pets||(ST.pets=[]);

@@ -174,11 +174,11 @@ const SHOTS = path.join(app.getPath('userData'), 'shots');
 let shotReg = '', shotBusy = false, toastWin = null;
 function curNonSteam() {
   let best = null;
-  for (const [id, t] of track) if (!t.app && !t.vault && t.started && (!best || t.started > best.t.started)) best = { id, t };
+  for (const [id, t] of track) if (!t.app && t.started && (!best || t.started > best.t.started)) best = { id, t };
   return best;
 }
 function syncShot() {
-  const want = cfg.shots && [...track.values()].some(t => !t.app && !t.vault);
+  const want = cfg.shots && [...track.values()].some(t => !t.app);
   try {
     if (shotReg && (!want || shotReg !== cfg.shotKey)) { globalShortcut.unregister(shotReg); shotReg = ''; }
     if (want && !shotReg) { if (globalShortcut.register(cfg.shotKey || 'F12', takeShot)) shotReg = cfg.shotKey || 'F12'; }
@@ -360,7 +360,7 @@ var IC='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="curr
 var LOCK=IC+'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',CUP=IC+'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg>';
 document.getElementById('nm').textContent=D.name;document.getElementById('k1').textContent=D.K.k1;document.getElementById('k2').textContent=D.K.k2;
 var items=D.items,n=items.filter(function(x){return x.on}).length;
-document.getElementById('sa').innerHTML='<div class="sec">Logros del juego<span>'+n+'/'+items.length+'</span></div><div class="pb"><i style="width:'+(items.length?n/items.length*100:0)+'%"></i></div>'+(items.length?items.map(function(x,i){return '<div class="a '+(x.on?'on':'')+'" style="--c:'+(RC[x.r]||RC.c)+';animation-delay:'+(i*35)+'ms"><div class="ai">'+(x.on?CUP:LOCK)+'</div><div class="ab"><b>'+E(x.n)+'</b><span>'+E(x.d)+'</span>'+(x.on?'':'<div class="ap"><i style="width:'+Math.max(0,Math.min(100,+x.p||0))+'%"></i></div>')+'</div><em>'+(RN[x.r]||'')+'<small>'+(+x.x||0)+' XP</small></em></div>'}).join(''):'<div class="empty">Abrí este juego desde WINTEER para ver sus logros acá.</div>');
+document.getElementById('sa').innerHTML='<div class="sec">Logros del juego<span>'+n+'/'+items.length+'</span></div><div class="pb"><i style="width:'+(items.length?n/items.length*100:0)+'%"></i></div>'+(items.length?items.map(function(x,i){return '<div class="a '+(x.on?'on':'')+'" style="--c:'+(RC[x.r]||RC.c)+';animation-delay:'+(i*35)+'ms"><div class="ai">'+(x.on?CUP:LOCK)+'</div><div class="ab"><b>'+E(x.n)+'</b><span>'+E(x.d)+'</span>'+(x.on?'':'<div class="ap"><i style="width:'+Math.max(0,Math.min(100,+x.p||0))+'%"></i></div>')+'</div><em>'+(RN[x.r]||'')+'<small>'+(+x.x?(+x.x)+' XP':'')+'</small></em></div>'}).join(''):'<div class="empty">Abrí este juego desde WINTEER para ver sus logros acá.</div>');
 document.getElementById('ss').innerHTML='<div class="sec" style="margin-top:20px">Capturas y clips</div><div class="g">'+(D.shots.length?D.shots.map(function(x){return '<div class="s" onclick="ov.open(\\''+E(x.n)+'\\')"><img src="'+E(x.thumb)+'">'+(x.clip?'<i class="pl"></i>':'')+'</div>'}).join(''):'<div class="empty">Todavía no hay capturas ni clips de este juego.</div>')+'</div><div style="height:8px"></div>';
 function tk(){var m=Math.max(0,Math.floor((Date.now()-D.started)/60000));document.getElementById('tm').textContent=D.started?('Jugando hace '+(m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min')):''}tk();setInterval(tk,15000);
 var OPT=[['ach','Logros'],['shots','Capturas y clips'],['chat','Chat con amigos'],['perf','Rendimiento (CPU, GPU, RAM)']];
@@ -404,7 +404,7 @@ function achToast(o) {
 .x{min-width:0;flex:1}.k{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:${c};filter:brightness(1.25);display:flex;gap:8px;align-items:center}.k em{font-style:normal;padding:1px 7px;border-radius:9px;background:${c}2e;border:1px solid ${c}66;letter-spacing:.08em}
 .n{font-size:16px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.d{font-size:12.5px;color:#b9b5d0;margin-top:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .p{text-align:right;flex:none}.p b{display:block;font-size:20px;color:${c};filter:brightness(1.2)}.p small{font-size:10px;color:#9a96b3;letter-spacing:.1em}
-</style><div class="t" id="t"><div class="b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg></div><div class="x"><div class="k">Logro desbloqueado <em>${R[0]}</em></div><div class="n">${E(o.n)}</div><div class="d">${E(o.d)}</div></div><div class="p"><b>+${Math.max(0, +o.x || 0)}</b><small>XP</small></div></div>
+</style><div class="t" id="t"><div class="b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg></div><div class="x"><div class="k">Logro desbloqueado <em>${R[0]}</em></div><div class="n">${E(o.n)}</div><div class="d">${E(o.d)}</div></div>${+o.x > 0 ? `<div class="p"><b>+${Math.max(0, +o.x || 0)}</b><small>XP</small></div>` : ''}</div>
 <script>setTimeout(function(){document.getElementById('t').classList.add('o')},4900);
 try{var A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime+.05;${JSON.stringify(snd)}.forEach(function(f,i){var o=A.createOscillator(),g=A.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.11);g.gain.linearRampToValueAtTime(.16,t+i*.11+.02);g.gain.exponentialRampToValueAtTime(.0008,t+i*.11+.7);o.connect(g);g.connect(A.destination);o.start(t+i*.11);o.stop(t+i*.11+.75)})}catch(e){}</script></body></html>`;
     achWin.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
