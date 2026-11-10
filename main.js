@@ -1783,8 +1783,7 @@ app.whenReady().then(() => {
   ipcMain.handle('pzOpen', (_e, wid) => { try { if (/^\d{5,12}$/.test(String(wid))) shell.openExternal('steam://url/CommunityFilePage/' + wid); } catch (e) {} return true; });
   ipcMain.handle('clipDone', () => { clipBusy = false; recIcon(false); return true; });
   /* salida rápida de la Bóveda: minimiza todo, baja el volumen y abre YouTube */
-  let panicReg = '', panicVol = 0;
-  const PANIC_KEY = 'Ctrl+Alt+Q';
+  let panicVol = 0;
   const volKeys = (vk, n) => { if (process.platform !== 'win32') return; try { require('child_process').execFile('powershell.exe', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class WK{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte b,byte s,uint f,UIntPtr e);}'; 1.." + n + " | ForEach-Object { [WK]::keybd_event(" + vk + ",0,0,[UIntPtr]::Zero); [WK]::keybd_event(" + vk + ",0,2,[UIntPtr]::Zero) }"], { windowsHide: true, timeout: 15000 }, () => {}); } catch (e) {} };
   const panicDo = () => {
     try {
@@ -1796,13 +1795,20 @@ app.whenReady().then(() => {
     } catch (e) {}
   };
   const panicBack = () => { if (panicVol) { const n = panicVol; panicVol = 0; volKeys(175, n); } };
-  ipcMain.handle('vpanicArm', (_e, on) => {
+  /* doble toque de Ctrl (solo mientras corre un juego de la Bóveda): un proceso mínimo lee el estado de la tecla */
+  let panicProc = null, panicLast = 0;
+  const panicStop = () => { if (panicProc) { try { panicProc.kill(); } catch (e) {} panicProc = null; } };
+  const panicStart = () => {
+    if (panicProc || process.platform !== 'win32') return;
+    const script = "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class WG{[DllImport(\"user32.dll\")]public static extern short GetAsyncKeyState(int k);}'; $p=$false; while($true){ $d=([WG]::GetAsyncKeyState(0x11) -band 0x8000) -ne 0; if($d -and -not $p){ [Console]::Out.WriteLine('C'); [Console]::Out.Flush() }; $p=$d; Start-Sleep -Milliseconds 25 }";
     try {
-      if (on && !panicReg) { if (globalShortcut.register(PANIC_KEY, panicDo)) panicReg = PANIC_KEY; }
-      else if (!on) { if (panicReg) { globalShortcut.unregister(panicReg); panicReg = ''; } panicBack(); }
-    } catch (e) {}
-    return { key: PANIC_KEY, on: !!panicReg };
-  });
+      panicProc = require('child_process').spawn('powershell.exe', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', script], { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
+      panicProc.stdout.on('data', (d) => { const n = String(d).split('C').length - 1; for (let i = 0; i < n; i++) { const t = Date.now(); if (t - panicLast < 450) { panicLast = 0; panicDo(); } else panicLast = t; } });
+      panicProc.on('exit', () => { panicProc = null; });
+    } catch (e) { panicProc = null; }
+  };
+  app.on('will-quit', panicStop);
+  ipcMain.handle('vpanicArm', (_e, on) => { try { if (on) panicStart(); else { panicStop(); panicBack(); } } catch (e) {} return { on: !!panicProc }; });
   ipcMain.handle('vpanicNow', () => { panicDo(); return true; });
   ipcMain.handle('clipRec', (_e, on) => { recIcon(!!on); return true; });
   ipcMain.handle('clipSave', (_e, o) => {
