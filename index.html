@@ -421,6 +421,29 @@ code{background:var(--card2);padding:2px 7px;border-radius:6px;font-size:12px}
 .ced-r{overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start;align-items:stretch;padding:0 4px 8px 0}.ced-s{margin:0;display:flex;flex-direction:column;background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px;min-width:0}.ced-s.w{grid-column:1/-1}.ced-s .ob-gp{margin-top:12px}.ced-s .ob-gl{max-height:300px;overflow:auto}.ced-s .ob-avg{flex:1;align-content:start}.ced-s textarea{flex:1;min-height:60px;resize:none}.ced-s h4{margin:0 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;color:var(--muted)}.ced-s h4 svg{width:16px;height:16px}
 .ced-s .ob-l{margin:12px 0 6px}.ced-s .ob-ty{grid-template-columns:1fr 1fr}.ced-s .ob-slots{gap:8px}.ced-s .ob-sl{width:calc(20% - 7px)}.ced-s .ob-avg{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}.ced-s .ob-bg8{grid-template-columns:repeat(4,1fr)}.ced-s .ob-bn{height:46px}
 .ced-no{padding:30px;max-width:520px}@media(max-width:1200px){.ced{grid-template-columns:1fr}.ced-r{grid-template-columns:1fr}}
+/* tarjeta pública en subpestañas: todo a un clic, sin scroll */
+.ced-p{overflow:hidden}
+.ced-r{display:flex;flex-direction:column;gap:12px;overflow:hidden;padding:0;min-height:0}
+.cedt{display:flex;gap:6px;flex-wrap:wrap;flex:none}
+.ced-b{flex:1;min-height:0;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:stretch}
+.ced-b>.ced-s{min-height:0;overflow:hidden}
+.ced-id,.ced-av,.ced-ty,.ced-fav,.ced-aj,.ced-ax{grid-template-columns:1fr}
+.ced-id .ced-s textarea{min-height:120px}
+.ced-av .ob-avg{flex:none!important;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}.ced-av .cols{margin-top:6px}
+.ced-ty .ob-ty{grid-template-columns:repeat(3,1fr)}
+.ced-fav .ob-sl{width:calc(20% - 7px);max-width:140px}
+.ced-ban .ob-gl,.ced-fav .ob-gl{flex:1;max-height:none;min-height:0;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));align-content:start}
+.ced-fav .ob-gl{max-height:none}
+.ced-b .ob-gl{scrollbar-width:none}.ced-b .ob-gl::-webkit-scrollbar{display:none}
+.ced-aj>.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;align-content:start}
+.ced-aj .ced-fl,.ced-aj .sgrid .sgrid{display:contents}
+.ced-aj .row{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:6px;padding:8px 12px;margin:0;min-width:0}
+.ced-aj .row>*{max-width:100%}.ced-aj .row .seg,.ced-aj .row .chips{flex-wrap:wrap;justify-content:flex-start}
+.ced-aj .row.f,.ced-aj .row.rwr{grid-column:auto}
+.ced-ax .sgrid{grid-template-columns:1fr 1fr}
+.ced-aj:not(.ced-ax) .sgrid{grid-template-columns:1fr}
+.ced-aj{overflow:hidden}
+@media(max-width:1200px){.ced-b{grid-template-columns:1fr}.ced-aj>.sgrid{grid-template-columns:1fr}}
 .avs-pet[hidden]{display:none!important}.avgs{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}.avg{padding:9px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:inherit;font:600 14px inherit;cursor:pointer}.avg small{margin-left:6px;opacity:.55;font-weight:500}.avg.on{background:rgba(var(--argb),.28);border-color:rgba(var(--argb),.9)}
 .avfl{display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px;font-size:12px;color:var(--muted)}.avfl div{display:flex;gap:6px}.avfl button{padding:5px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.14);background:none;color:inherit;font:inherit;cursor:pointer}.avfl button.on{background:rgba(255,255,255,.14);color:#fff}
 .avedit{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:16px;align-items:start}.avl{padding:0;overflow:hidden;position:sticky;top:8px}.avl .avs-st{border-radius:0;min-height:520px;padding:0;justify-content:center}.avl .avs-st .avx{height:500px}.avl-b{display:flex;gap:8px;padding:12px;flex-wrap:wrap}
@@ -6296,17 +6319,24 @@ function cedSecs(){const d=W.d,mes=['Enero','Febrero','Marzo','Abril','Mayo','Ju
    ${Object.keys(AVS).map(k=>`<button class="ob-avt ${d.av.k===k?'on':''}" data-a="obav" data-k="${k}">${avHTML({av:{k,c:d.av.c}},56)}<span>${AVS[k][0]}</span></button>`).join('')}</div>
    <label class="ob-l">Color</label><div class="cols">${AVC.map((c,i)=>`<div class="col ${(d.av.c||0)===i?'on':''}" style="background:${c[0]}" data-a="obavc" data-i="${i}"></div>`).join('')}</div></section>`;
   const ban=`<section class="ced-s"><h4>${ic('img')} Portada</h4><div class="ob-bg8">${BANS.map((b,i)=>`<button class="ob-bn ${d.ban.k==='g'&&d.ban.i===i?'on':''}" style="background:${b}" data-a="obbp" data-i="${i}"></button>`).join('')}</div>
-   <div class="ob-btns" style="margin-top:12px"><button class="hm-go hm-gh" data-a="obbimg">${ic('img')} Subir imagen</button><button class="hm-go hm-gh ${W.gp==='ban'?'on':''}" data-a="obbgame">${ic('games')} Arte de un juego</button></div>
-   ${W.gp==='ban'?`<div class="ob-gp"><input class="txt" id="obq" placeholder="Buscar juego…" value="${esc(W.q)}"><div id="obl" class="ob-gl"></div></div>`:''}</section>`;
+   <div class="ob-btns" style="margin-top:14px"><button class="hm-go hm-gh" data-a="obbimg">${ic('img')} Subir imagen propia</button></div></section>
+   <section class="ced-s"><h4>${ic('games')} Arte de un juego</h4><input class="txt" id="obq" placeholder="Buscar juego…" value="${esc(W.q)}"><div id="obl" class="ob-gl"></div></section>`;
   const ty=`<section class="ced-s"><h4>${ic('compass')} Tipo de jugador y géneros</h4><div class="ob-ty">${TYP.map(t=>`<button class="ob-tc ${d.type===t[0]?'on':''}" data-a="obtype" data-v="${t[0]}">${ic(t[2])}<b>${t[0]}</b><small>${t[1]}</small></button>`).join('')}</div>
    <label class="ob-l">Géneros favoritos <small>(hasta 6)</small></label><div class="chips">${GENL.map(x=>`<button class="cp ${d.genres.includes(x)?'on':''}" data-a="obgen" data-v="${x}">${x}</button>`).join('')}</div></section>`;
   const fv=`<section class="ced-s w"><h4>${ic('crown')} Top 5 favoritos</h4><div class="ob-slots">${[0,1,2,3,4].map(i=>{const g=gm(d.fav[i]);return g?`<button class="ob-sl on" data-a="obfav" data-id="${g.id}" title="Sacar"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><span>${esc(g.name)}</span></button>`:`<div class="ob-sl"><i>${i+1}</i></div>`}).join('')}</div>
    <input class="txt" id="cedq" placeholder="Buscar en tu biblioteca…" value="${esc(W.q2||'')}"><div id="cedfl" class="ob-gl"></div></section>`;
-  const lk=`<section class="ced-s w set"><h4>${ic('edit')} Personalizar</h4><div class="sgrid">${setX('per')}</div></section>`;
-  return id+av+ban+ty+fv+lk}
+  const ajR=(()=>{const t=document.createElement('template');t.innerHTML=setX('per');const rs=[...t.content.querySelectorAll('.row')].filter(r=>!r.querySelector('[data-a="obedit"],#uname'));
+   const es=rs.filter(r=>/^(Marco del avatar|Efecto del nombre|Saludo de Inicio|Título)/i.test(r.textContent.trim())),ot=rs.filter(r=>!es.includes(r));
+   return [es,ot].map(a=>a.map(r=>r.outerHTML).join(''))})();
+  const aj=`<section class="ced-s w set ced-aj"><h4>${ic('edit')} Estilo de tu perfil</h4><div class="sgrid">${ajR[0]}</div></section>`;
+  const ax=`<section class="ced-s w set ced-aj ced-ax"><h4>${ic('gear')} Efectos, sonido y arranque</h4><div class="sgrid">${ajR[1]}</div></section>`;
+  const CT=[['id','Identidad','edit',id],['av','Avatar','star',av],['ban','Portada','img',ban],['ty','Jugador','compass',ty],['fav','Favoritos','crown',fv],['aj','Estilo','flake',aj],['ax','Extras','gear',ax]];
+  if(!CT.some(x=>x[0]===S.ced))S.ced='id';
+  const nav=`<nav class="cedt">${CT.map(([k,l,i])=>`<button class="stab ${k===S.ced?'on':''}" data-a="cedt" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
+  return nav+`<div class="ced-b ced-${S.ced}">${CT.find(x=>x[0]===S.ced)[3]}</div>`}
 function cedLists(){const mk=(q,act,on)=>{const t=(q||'').toLowerCase().trim();return G.filter(g=>!t||g.name.toLowerCase().includes(t)).sort((a,b)=>b.hours-a.hours).slice(0,40).map(g=>`<button class="ob-gr ${on(g)?'on':''}" data-a="${act}" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<div class="empty">No hay coincidencias.</div>'};
   const b=$('#obl');if(b)b.innerHTML=mk(W.q,'obgsel',g=>W.d.ban.k==='game'&&W.d.ban.id===g.id);const f=$('#cedfl');if(f)f.innerHTML=mk(W.q2,'obfav',g=>W.d.fav.includes(g.id))}
-function cedRef(){const r=$('#cedr');if(!r)return;const st=r.scrollTop;r.innerHTML=cedSecs();r.scrollTop=st;cedLists();cedPrev()}
+function cedRef(){const r=$('#cedr');if(!r)return;r.innerHTML=cedSecs();cedLists();cedPrev()}
 function cedPrev(){const e=$('#cedp');if(e)e.innerHTML=pcard(W.d);const d=W.d;
   if(d.banBlob){artPut('p:banner',d.banBlob).catch(()=>{});if(ART['p:banner'])URL.revokeObjectURL(ART['p:banner']);ART['p:banner']=d.banUrl;d.banBlob=null;d.banUrl=''}
   if(d.name&&d.name.trim())ST.name=d.name.trim();clearTimeout(W.sv);W.sv=setTimeout(()=>{try{save()}catch(e){}},300)}
@@ -6333,6 +6363,7 @@ V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',
   return `<div class="stack avp">${nav}<section class="card set spane rise" style="--i:1">${profTabBody(t)}</section></div>`};
 Object.assign(A,{
  ptab:a=>{S.ptab=a.dataset.v;S.avp=null;go('profile')},
+ cedt:a=>{S.ced=a.dataset.v;cedRef()},
  avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
  avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;S.avp=null;avRef()},
  avflt:a=>{S.avf=a.dataset.v;avRef()},
