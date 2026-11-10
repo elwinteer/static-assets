@@ -5929,8 +5929,10 @@ async function recClip(id){if(!WN||window.__rec)return;window.__rec=1;
     try{st.getVideoTracks()[0].contentHint='motion'}catch(e){}
     const vs=(()=>{try{return st.getVideoTracks()[0].getSettings()}catch(e){return{}}})(),info=(hw?'H.264':'VP8')+' · '+(vs.width||'?')+'×'+(vs.height||'?')+' · '+Math.round(vs.frameRate||0)+' fps';
     const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:hw?45e6:70e6,audioBitsPerSecond:192000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
+    const wv=document.createElement('video');wv.muted=true;wv.srcObject=st;wv.play().catch(()=>{});
+    await new Promise(res=>{let n=0,f=0;const fin=()=>{if(!f){f=1;res()}};if(wv.requestVideoFrameCallback){const cb=()=>{if(++n>=6)fin();else wv.requestVideoFrameCallback(cb)};wv.requestVideoFrameCallback(cb)}else setTimeout(fin,1200);setTimeout(fin,3000)});
     const done=new Promise(r=>{rc.onstop=r});rc.start(500);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
-    await done;st.getTracks().forEach(t=>t.stop());const blob=new Blob(ch,{type:'video/webm'}),data=new Uint8Array(await blob.arrayBuffer());
+    await done;try{winteerNative.clipRec(false)}catch(e){}try{wv.srcObject=null}catch(e){}st.getTracks().forEach(t=>t.stop());const blob=new Blob(ch,{type:'video/webm'}),data=new Uint8Array(await blob.arrayBuffer());
     let thumb='';try{const u=URL.createObjectURL(blob),v=document.createElement('video');v.muted=true;v.src=u;await new Promise((r,j)=>{v.onloadeddata=r;v.onerror=j;setTimeout(r,2500)});v.currentTime=1.5;await new Promise(r=>{v.onseeked=r;setTimeout(r,1500)});const c=document.createElement('canvas');c.width=640;c.height=Math.round(640*(v.videoHeight||9)/(v.videoWidth||16));c.getContext('2d').drawImage(v,0,0,c.width,c.height);thumb=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(u)}catch(e){}
     const r=await winteerNative.clipSave({id,data,thumb,info});if(r&&r.ok){if(!vIsId(id)){try{hcnt('shot')}catch(e){}}if((S.view==='games'&&S.sel===id&&S.tab==='shots')||(S.view==='vault'&&S.vsel===id&&S.vtab==='shots'))shFill(id)}else throw 0}
   catch(e){try{await winteerNative.clipDone()}catch(x){}try{winteerNative.toast({k:'Clip',n:'No pude grabar el clip',b:'Probá de nuevo o en modo ventana sin bordes.'})}catch(x){}}

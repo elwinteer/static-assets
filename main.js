@@ -189,11 +189,27 @@ function syncShot() {
   } catch (e) {}
 }
 let clipReg = '', clipBusy = false;
+let recWin = null, recTimer = null;
+/* aviso mínimo mientras graba un clip: solo un puntito rojo en la esquina, sin texto, hasta que termina */
+function recIcon(on) {
+  try {
+    clearTimeout(recTimer); recTimer = null;
+    if (recWin && !recWin.isDestroyed()) { recWin.destroy(); } recWin = null;
+    if (!on) return;
+    const d = screen.getPrimaryDisplay(), s = 30;
+    recWin = new BrowserWindow({ width: s, height: s, x: d.workArea.x + d.workArea.width - s - 10, y: d.workArea.y + 8, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true } });
+    recWin.setAlwaysOnTop(true, 'screen-saver'); try { recWin.setContentProtection(true); } catch (e) {} recWin.setIgnoreMouseEvents(true);
+    const html = '<html><body style="margin:0;background:transparent;overflow:hidden"><style>@keyframes p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}.d{position:absolute;left:8px;top:8px;width:14px;height:14px;border-radius:50%;background:#ff3b4e;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 0 10px #ff3b4e;animation:p 1s ease-in-out infinite}</style><div class="d"></div></body></html>';
+    recWin.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
+    recWin.once('ready-to-show', () => { try { recWin.showInactive(); } catch (e) {} });
+    recTimer = setTimeout(() => recIcon(false), 20000);
+  } catch (e) {}
+}
 function takeClip() {
   if (clipBusy) return;
   const cur = curNonSteam(); if (!cur) return;
   clipBusy = true; setTimeout(() => { clipBusy = false; }, 25000);
-  shotToast(null, 'Grabando 10 s…', 'rec');
+  recIcon(true);
   send({ type: 'clipreq', id: cur.id });
 }
 let achWin = null;
@@ -1753,7 +1769,8 @@ app.whenReady().then(() => {
   ipcMain.handle('wsUnsub', (_e, wid, app) => wsUnsub(wid, app));
   ipcMain.handle('pzSub', (_e, wid, app) => pzSub(wid, false, app));
   ipcMain.handle('pzOpen', (_e, wid) => { try { if (/^\d{5,12}$/.test(String(wid))) shell.openExternal('steam://url/CommunityFilePage/' + wid); } catch (e) {} return true; });
-  ipcMain.handle('clipDone', () => { clipBusy = false; return true; });
+  ipcMain.handle('clipDone', () => { clipBusy = false; recIcon(false); return true; });
+  ipcMain.handle('clipRec', (_e, on) => { recIcon(!!on); return true; });
   ipcMain.handle('clipSave', (_e, o) => {
     try {
       o = o || {}; const dir = path.join(SHOTS, String(o.id).replace(/[^\w.-]/g, '_')); fs.mkdirSync(dir, { recursive: true });
