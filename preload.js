@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   achToast: (o) => ipcRenderer.invoke('achToast', o),
   clipSave: (o) => ipcRenderer.invoke('clipSave', o),
   ovData: (o) => ipcRenderer.invoke('ovData', o),
+  ovState: (o) => ipcRenderer.invoke('ovState', o),
   clipDone: () => ipcRenderer.invoke('clipDone'),
   clipSrc: () => ipcRenderer.invoke('clipSrc'),
   quit: () => ipcRenderer.invoke('quit'),

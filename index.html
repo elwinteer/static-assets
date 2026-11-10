@@ -5262,6 +5262,9 @@ function hitoCheck(){hcCalc();const first=!ST.gach,silent=first||ST.hv!==3;ST.ga
 const hitoQ=[];let hitoBusy=false;
 function hitoRun(){if(hitoBusy||!hitoQ.length)return;const sp=$('#splash');if((sp&&sp.isConnected&&getComputedStyle(sp).display!=='none'&&getComputedStyle(sp).opacity!=='0')||document.hidden){setTimeout(hitoRun,900);return}
   hitoBusy=true;const a=hitoQ.shift();hitoShow(a,()=>{hitoBusy=false;setTimeout(hitoRun,350)})}
+const OVS={on:0,c:''};
+async function ovPush(){if(!OVS.on||!WN)return;try{const f=FR();if(!f.on)return;const fr=(f.list||[]).filter(c=>f.c[c]&&!f.c[c].gone).map(c=>({c,n:f.c[c].name||c,o:frOnl(f.c[c])?1:0,u:f.un[c]||0}));let ms;if(OVS.c&&f.c[OVS.c]){ms=frMsgs(OVS.c).slice(-40).map(m=>({t:m.t,me:m.me?1:0,x:m.d?'Mensaje eliminado':m.x||frSnip(m)}));if(f.un[OVS.c]){f.un[OVS.c]=0;f.sn[OVS.c]=Date.now();save()}}winteerNative.ovState({fr,c:OVS.c,ms})}catch(e){}}
+setInterval(async()=>{if(!OVS.on)return;try{if(OVS.c)await frChatPull(OVS.c)}catch(e){}ovPush()},2500);
 /* ===== logros propios (juegos fuera de tiendas) ===== */
 const ggOwn=g=>!!g&&!isSteamG(g)&&!isEpicG(g)&&!isXbG(g);
 const GGX={c:3,r:8,e:18};
@@ -5277,7 +5280,7 @@ const GGL=[
  ['d5','Constante','Jugalo en 5 días distintos','star','r',g=>ggS(g).days.length>=5,g=>[ggS(g).days.length,5]],
  ['mar','Maratón','Una sesión de 3 horas seguidas','bolt','r',g=>Math.max(ggS(g).max,S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0)>=3,g=>[Math.max(ggS(g).max,S.playing&&S.playing.id===g.id?(Date.now()-S.playing.t)/3600000:0),3]],
  ['back','El regreso','Volvé a jugarlo después de 30 días','arrow','r',g=>!!ggS(g).back,g=>[ggS(g).back?1:0,1]],
- ['done','Misión cumplida','Marcalo como completado','trophy','e',g=>g.status==='Terminado',g=>[g.status==='Terminado'?1:0,1]]
+ ['done','Misión cumplida','Completa la historia principal','trophy','e',g=>g.status==='Terminado',g=>[g.status==='Terminado'?1:0,1]]
 ];
 const ggU=g=>((ST.gg||{})[g.id])||{};
 function ggXP(){let t=0;try{for(const id in (ST.gg||{}))for(const k in ST.gg[id])if(ST.gg[id][k]>0){const d=GGL.find(x=>x[0]===k);if(d)t+=GGX[d[4]]}}catch(e){}return t}
@@ -5302,13 +5305,13 @@ function ggHTML(g){if(!ggOwn(g))return '';const u=ggU(g),n=GGL.filter(d=>u[d[0]]
   <div class="gg-l">${GGL.map(d=>{const on=!!u[d[0]],c=RAR[d[4]][1];let r=[0,1];try{r=d[6](g)}catch(e){}const pc=Math.max(0,Math.min(100,r[0]/r[1]*100));
    return `<div class="gg-i ${on?'on':''}" style="--c:${c}"><div class="gg-ic">${ic(on?d[3]:'lock')}</div><div class="gg-b"><b>${d[1]}</b><span>${d[2]}</span>${on?'':`<div class="gg-p"><i style="width:${pc}%"></i></div>`}</div><em>${RAR[d[4]][0]}<small>${on?(u[d[0]]>0?'+'+GGX[d[4]]+' XP':'ya lo tenías'):GGX[d[4]]+' XP'}</small></em></div>`}).join('')}</div>${xp?`<div class="gg-t">${xp} XP ganados en este juego</div>`:''}</div>`}
 async function recClip(id){if(!WN||window.__rec)return;window.__rec=1;
-  try{const sid=await winteerNative.clipSrc();let st;const vc={mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,maxWidth:1920,maxHeight:1080,maxFrameRate:30}};
-    try{st=await navigator.mediaDevices.getUserMedia({audio:{mandatory:{chromeMediaSource:'desktop'}},video:vc})}catch(e){st=await navigator.mediaDevices.getUserMedia({audio:false,video:vc})}
-    const mt=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp9','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
-    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:9e6,audioBitsPerSecond:128000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
-    const done=new Promise(r=>{rc.onstop=r});rc.start(1000);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
-    let thumb='';try{const v=document.createElement('video');v.muted=true;v.srcObject=st;await v.play();await new Promise(r=>setTimeout(r,1500));const c=document.createElement('canvas');c.width=640;c.height=Math.round(640*(v.videoHeight||9)/(v.videoWidth||16));c.getContext('2d').drawImage(v,0,0,c.width,c.height);thumb=c.toDataURL('image/jpeg',.82);v.srcObject=null}catch(e){}
+  try{const sid=await winteerNative.clipSrc();let st;const vc={mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,minWidth:1280,maxWidth:1920,minHeight:720,maxHeight:1080,minFrameRate:30,maxFrameRate:60}};
+    try{st=await navigator.mediaDevices.getUserMedia({audio:{mandatory:{chromeMediaSource:'desktop'}},video:vc})}catch(e){try{st=await navigator.mediaDevices.getUserMedia({audio:false,video:vc})}catch(e2){st=await navigator.mediaDevices.getUserMedia({audio:false,video:{mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,maxWidth:1920,maxHeight:1080,maxFrameRate:30}}})}}
+    const mt=['video/webm;codecs=vp8,opus','video/webm;codecs=vp8','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:14e6,audioBitsPerSecond:160000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
+    const done=new Promise(r=>{rc.onstop=r});rc.start(500);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
     await done;st.getTracks().forEach(t=>t.stop());const blob=new Blob(ch,{type:'video/webm'}),data=new Uint8Array(await blob.arrayBuffer());
+    let thumb='';try{const u=URL.createObjectURL(blob),v=document.createElement('video');v.muted=true;v.src=u;await new Promise((r,j)=>{v.onloadeddata=r;v.onerror=j;setTimeout(r,2500)});v.currentTime=1.5;await new Promise(r=>{v.onseeked=r;setTimeout(r,1500)});const c=document.createElement('canvas');c.width=640;c.height=Math.round(640*(v.videoHeight||9)/(v.videoWidth||16));c.getContext('2d').drawImage(v,0,0,c.width,c.height);thumb=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(u)}catch(e){}
     const r=await winteerNative.clipSave({id,data,thumb});if(r&&r.ok){try{hcnt('shot')}catch(e){}if(S.view==='games'&&S.sel===id&&S.tab==='shots')shFill(id)}else throw 0}
   catch(e){try{await winteerNative.clipDone()}catch(x){}try{winteerNative.toast({k:'Clip',n:'No pude grabar el clip',b:'Probá de nuevo o en modo ventana sin bordes.'})}catch(x){}}
   window.__rec=0}
@@ -7068,7 +7071,8 @@ if(window.winteerNative)winteerNative.onGame(ev=>{
   if(ev.type==='upd'){updUI(ev);return}
   if(ev.type==='friend-open'){if(ev.c&&FR().c[ev.c]){S.frSel=ev.c;S.frTab='chat'}go('friends');return}
   if(ev.type==='clipreq'){recClip(ev.id);return}
-  if(ev.type==='ovreq'){try{const g=gm(ev.id);if(!g)return;const u=ggU(g);winteerNative.ovData({id:g.id,name:g.name,t:S.playing&&S.playing.id===g.id?S.playing.t:Date.now(),items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:GGX[d[4]],on:!!u[d[0]],p:r[0]/r[1]*100}}):[]})}catch(e){}return}
+  if(ev.type==='ovreq'){try{const g=gm(ev.id);if(!g)return;const u=ggU(g),cs=getComputedStyle(document.body),cv=k=>cs.getPropertyValue(k).trim();OVS.on=1;OVS.c='';winteerNative.ovData({id:g.id,name:g.name,t:S.playing&&S.playing.id===g.id?S.playing.t:Date.now(),th:{a:cv('--a'),a2:cv('--a2'),rgb:cv('--argb'),on:cv('--on-a')},items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:GGX[d[4]],on:!!u[d[0]],p:r[0]/r[1]*100}}):[]});setTimeout(ovPush,900)}catch(e){}return}
+  if(ev.type==='ovfr'){try{if(ev.op==='off'){OVS.on=0;OVS.c=''}else if(ev.op==='sel'){OVS.c=ev.c;frChatPull(ev.c).then(()=>ovPush())}else if(ev.op==='send'&&FR().c[ev.c]){frSend(ev.c,ev.x).then(()=>ovPush())}}catch(e){}return}
   if(ev.type==='shot'){hcnt('shot');const gg=gm(ev.id);toast('Captura guardada'+(gg?' · '+gg.name:''));if(S.view==='games'&&S.sel===ev.id&&S.tab==='shots')shFill(ev.id);return}
   const g=gm(ev.id);if(!g||!S.playing||S.playing.id!==ev.id)return;
   if(ev.type==='started'){S.playing.t=ev.t;S.playing.auto=true;renderList();if(S.view==='games')renderDetail(false)}
