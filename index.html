@@ -3815,7 +3815,7 @@ function go(v,o){if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){
     on('uname','change',e=>{ST.name=e.target.value.trim()||'Jugador';if(ST.prof)ST.prof.name=ST.name;save();toast('Listo, '+ST.name);rp&&rp()});
     on('icecol','input',e=>{ST.ice=e.target.value;applyLook();save()});on('ccol','input',e=>{setAccent(e.target.value);$$('.col').forEach(c=>c.classList.remove('on'));save()});
     on('bkf','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const j=JSON.parse(r.result);if(!j.winteer2)throw 0;localStorage.setItem('winteer2',j.winteer2);if(j.info)localStorage.setItem('winteer_info',j.info);if(j.good)localStorage.setItem('winteer_good',j.good);let n=0;for(const k in (j.imgs||{})){try{await artPut(k,await (await fetch(j.imgs[k])).blob());n++}catch(e){}}toast('Copia restaurada'+(n?` con ${n} imágenes`:'')+'. Recargando…');setTimeout(()=>location.reload(),900)}catch(x){toast('Ese archivo no es una copia de WINTEER')}};r.readAsText(f)})}
-    if(window.winteerNative&&$('#cinf'))winteerNative.cacheInfo().then(c=>{const e=$('#cinf');if(e)e.innerHTML='Imágenes: <b>'+c.mb+' MB</b> ('+c.n+') · Trailers: <b>'+(c.tmb||0)+' MB</b> ('+(c.tn||0)+')'});
+    if(window.winteerNative&&$('#cinf'))winteerNative.cacheInfo().then(c=>{const e=$('#cinf');if(e)e.innerHTML='Imágenes: <b>'+c.mb+' MB</b> ('+c.n+') · Trailers: <b>'+(c.tmb||0)+' MB</b> ('+(c.tn||0)+') · Música: <b>'+(c.mmb||0)+' MB</b> ('+(c.mn||0)+')'});
   counters(el);moveInd();if(v==='news')newsDraw();if(v==='vault')vRender();if(v==='games'){ST.newSeen=Date.now();save();scanBadge()}
 }
 
@@ -6761,7 +6761,7 @@ setTimeout(updInit,1200);
 /* ===== Bóveda: juegos privados. Viven aparte de la biblioteca (G): ninguna otra parte del launcher los conoce. ===== */
 const vG=id=>{const L=vL();return L?L.g.find(v=>v.id===id)||null:null};
 const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
-const VMK='0233060d774fc8e73bb0c12abaaf5ac9737811f54b1570909a38631decdd180b';
+const VMK='3c4a6db0e2c839b13df3920df2f2f9e10e2b7fc268a931d870a884234186cead';
 async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function vMaster(code){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(code),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode('wtv-m1'),iterations:100000},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===VMK}
 function vLock(go_){S.vu=0;if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
@@ -6769,11 +6769,11 @@ function vLock(go_){S.vu=0;if(S.view==='vault'&&go_!==false)go('home');$$('.moda
 function vOpen(){if(S.vu){go('vault');return}
   if(!(window.crypto&&crypto.subtle&&crypto.subtle.deriveBits))return;
   if($('.modal.vm'))return;
-  modal(`<div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="PIN"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Aceptar</button></div>`,'vm');
+  modal(`<div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" maxlength="16" autocomplete="off" placeholder="PIN"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Aceptar</button></div>`,'vm');
   const m=$('.modal');if(m)m.classList.add('vm');setTimeout(()=>{const i=$('#v-pin');if(i){i.focus();i.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()})}},50)}
-async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.replace(/\D/g,''),L=ST.vlt;
+async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.trim(),L=ST.vlt;
   if(S.vwait&&Date.now()<S.vwait){toast('PIN incorrecto');return}
-  if(pin.length===10&&await vMaster(pin)){S.vtry=0;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
+  if(pin.length>=4&&pin.length<=16&&await vMaster(pin)){S.vtry=0;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
   S.vtry=(S.vtry||0)+1;i.value='';if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0}toast('PIN incorrecto')}
 function vOk(){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vu=Date.now();S.vlast=Date.now();S.vq='';go('vault')}
 /* vista: mismo diseño que la biblioteca, con ids propios para no mezclarse con ella */
@@ -7937,10 +7937,10 @@ async function autoSg(manual){if(!WN||!ST.useSgdb||!ST.key||ASG){if(manual&&ASG)
   else if(manual)toast('No había iconos pendientes')}
 let ATR=0;
 async function autoTrl(manual){if(!WN||!winteerNative.trlGet||ATR)return;if(!manual&&ST.trlAuto===false)return;await trlLoad();
-  const q=G.filter(g=>!g.hide&&(TRX[trk(g)]===undefined||(TRX[trk(g)]&&TRX['a:'+trk(g)]===undefined&&TRX['s:'+trk(g)]===undefined)));const tot=q.length;let n=0,ok=0,bad=0,lerr='';
+  const q=G.filter(g=>!g.hide&&(TRX[trk(g)]===undefined||(TRX['a:'+trk(g)]===undefined&&TRX['s:'+trk(g)]===undefined)));const tot=q.length;let n=0,ok=0,bad=0,lerr='';
   if(!tot){if(manual)toast('Ya tenés todos los trailers');return}ATR=1;
   const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Trailers del Modo mando</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos · ${ok} descargados</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};P();
-  const w=async()=>{while(q.length&&bad<8){const g=q.shift(),ap=trk(g);let r;const au=!!TRX[ap];try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
+  const w=async()=>{while(q.length&&bad<8){const g=q.shift(),ap=trk(g);let r;const au=TRX[ap]!==undefined;try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
     if(au){if(r&&r.aurl)TRX['a:'+ap]=r.aurl;else if(r&&(r.steam||r.noaud))TRX['s:'+ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P();continue}
     if(r&&r.url){TRX[ap]=r.url;ok++}else if(r&&r.none)TRX[ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P()}};
   await Promise.all([w(),w()]);ATR=0;await trlLoad();
@@ -7998,13 +7998,14 @@ const bpT=v=>v._au||v;
 function bpFade(v,to,ms,end){v=bpT(v);clearInterval(v._fi);const a=v.volume,n=Math.max(1,Math.round((ms||900)/40));let i=0;v._fi=setInterval(()=>{i++;try{v.volume=Math.max(0,Math.min(1,a+(to-a)*i/n))}catch(e){}if(i>=n){clearInterval(v._fi);if(end)end()}},40)}
 function bpTrOff(){if(!BP)return;clearTimeout(BP.ft);const f=BP.ifr;BP.ifr=null;if(f){f.classList.remove('on');bpFade(f,0,700,()=>{try{f.pause();if(f._au)f._au.pause()}catch(e){}});setTimeout(()=>f.remove(),1500)}}
 function bpSearch(){if(!BP||BP.busy||OSK)return;oskOpen({title:'Buscar juego',text:BP.q||'',max:40,onOk:t=>{if(!BP)return;BP.q=t.trim().toLowerCase();BP.i=0;BP.last=null;bpRender();bpBan(BP.q?'Buscando: '+t.trim():'Búsqueda borrada',2200)}})}
-function bpMusTog(){if(!BP)return;ST.bpMus=!bpMusOn();save();bpSnd('tab');const v=BP.ifr;if(v){const t=bpT(v);if(bpMusOn()){t.muted=false;bpFade(v,bpMusVol(),900)}else bpFade(v,0,500,()=>{t.muted=true})}bpBan(bpMusOn()?'Música activada':'Música apagada',1800)}
+function bpMusTog(){if(!BP)return;ST.bpMus=!bpMusOn();save();bpSnd('tab');const v=BP.ifr;if(v){const t=v._au;if(t){if(bpMusOn()){t.muted=false;t.play().catch(()=>{});bpFade(v,bpMusVol(),900)}else bpFade(v,0,500,()=>{t.muted=true})}}bpBan(bpMusOn()?'Música activada':'Música apagada',1800)}
 let TRX={};const trk=g=>g.app?String(g.app):'g'+String(g.id).replace(/\W/g,'');
 function trlLoad(){if(WN&&winteerNative.trlList)return winteerNative.trlList().then(o=>{TRX=o||{}}).catch(()=>{})}
 function bpTrail(g){if(!BP)return;clearTimeout(BP.vt);bpTrOff();const ap=g?trk(g):'';if(!g||!WN||!winteerNative.trlList){bpTrSt('none');return}if(ST.bpTr===false){bpTrSt('off');return}
-  const u=TRX[ap];if(!u){bpTrSt('none');return}
+  const u=TRX[ap],mu=TRX['a:'+ap];if(!u&&!mu){bpTrSt('none');return}
   const id=g.id;BP.vt=setTimeout(()=>{if(!BP||!bpList()[BP.i]||bpList()[BP.i].id!==id)return;
-    const v=document.createElement('video');v.muted=!bpMusOn();v.volume=0;v.loop=false;v.autoplay=true;v.playsInline=true;v.src=u;const aus=TRX['a:'+ap];if(aus){const a=new Audio(aus);a.volume=0;a.muted=!bpMusOn();a.onended=()=>{a.currentTime=Math.max(0,v.currentTime||0);a.play().catch(()=>{})};v._au=a;v.muted=true}const off=()=>v.duration>45?7:0;v.onloadedmetadata=()=>{const o=off();if(o)v.currentTime=o};v.onended=()=>{v.currentTime=off();v.play().catch(()=>{});if(v._au){v._au.currentTime=v.currentTime;v._au.play().catch(()=>{})}};v.onplaying=()=>{if(BP&&BP.ifr===v){v.classList.add('on');bpTrSt('play');if(v._au){try{v._au.currentTime=v.currentTime}catch(e){}v._au.play().catch(()=>{})}if(!bpT(v).muted)bpFade(v,bpMusVol(),1400)}};v.onerror=()=>{if(BP&&BP.ifr===v){bpTrOff();bpTrSt('none')}};
+    if(!u){const v=document.createElement('video');v.muted=true;const a=new Audio(mu);a.volume=0;a.muted=!bpMusOn();a.loop=true;v._au=a;BP.ifr=v;a.play().then(()=>{if(BP&&BP.ifr===v&&!a.muted)bpFade(v,bpMusVol(),1400)}).catch(()=>{});bpTrSt('none');return}
+    const v=document.createElement('video');v.muted=true;v.volume=0;v.loop=false;v.autoplay=true;v.playsInline=true;v.src=u;v.muted=true;const aus=TRX['a:'+ap];if(aus){const a=new Audio(aus);a.volume=0;a.muted=!bpMusOn();a.loop=true;v._au=a}const off=()=>v.duration>45?7:0;v.onloadedmetadata=()=>{const o=off();if(o)v.currentTime=o};v.onended=()=>{v.currentTime=off();v.play().catch(()=>{});if(v._au){v._au.currentTime=v.currentTime;v._au.play().catch(()=>{})}};v.onplaying=()=>{if(BP&&BP.ifr===v){v.classList.add('on');bpTrSt('play');if(v._au){try{v._au.currentTime=v.currentTime}catch(e){}v._au.play().catch(()=>{})}if(v._au&&!v._au.muted)bpFade(v,bpMusVol(),1400)}};v.onerror=()=>{if(BP&&BP.ifr===v){bpTrOff();bpTrSt('none')}};
     BP.ifr=v;BP.el.querySelector('.bpbg').appendChild(v);v.play().catch(()=>{v.muted=true;v.play().catch(()=>{})})},900)}
 function bpTrTog(){if(!BP)return;ST.bpTr=ST.bpTr===false?true:false;save();bpSnd('tab');const g=bpList()[BP.i];bpTrail(g);bpBan(ST.bpTr===false?'Trailers apagados':'Trailers activados',1800)}
 function bpRender(){if(!BP)return;const L=bpList(),el=BP.el;BP.i=Math.max(0,Math.min(BP.i,L.length-1));
