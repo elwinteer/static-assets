@@ -503,6 +503,26 @@ function listShots(id) {
 }
 
 const track = new Map();
+
+/* ---------- ventana sin bordes para juegos que no la tienen ---------- */
+const BL_PS = 'JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnAAoAQQBkAGQALQBUAHkAcABlACAALQBBAHMAcwBlAG0AYgBsAHkATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVwBpAG4AZABvAHcAcwAuAEYAbwByAG0AcwAKAEEAZABkAC0AVAB5AHAAZQAgAEAAIgAKAHUAcwBpAG4AZwAgAFMAeQBzAHQAZQBtADsAdQBzAGkAbgBnACAAUwB5AHMAdABlAG0ALgBSAHUAbgB0AGkAbQBlAC4ASQBuAHQAZQByAG8AcABTAGUAcgB2AGkAYwBlAHMAOwAKAHAAdQBiAGwAaQBjACAAYwBsAGEAcwBzACAAVwBUAHsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGkAbgB0ACAARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoAEkAbgB0AFAAdAByACAAaAAsAGkAbgB0ACAAaQApADsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGkAbgB0ACAAUwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoAEkAbgB0AFAAdAByACAAaAAsAGkAbgB0ACAAaQAsAGkAbgB0ACAAdgApADsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGIAbwBvAGwAIABTAGUAdABXAGkAbgBkAG8AdwBQAG8AcwAoAEkAbgB0AFAAdAByACAAaAAsAEkAbgB0AFAAdAByACAAYQAsAGkAbgB0ACAAeAAsAGkAbgB0ACAAeQAsAGkAbgB0ACAAdwAsAGkAbgB0ACAAYwAsAHUAaQBuAHQAIABmACkAOwAKAFsARABsAGwASQBtAHAAbwByAHQAKAAiAHUAcwBlAHIAMwAyAC4AZABsAGwAIgApAF0AcAB1AGIAbABpAGMAIABzAHQAYQB0AGkAYwAgAGUAeAB0AGUAcgBuACAAYgBvAG8AbAAgAFMAaABvAHcAVwBpAG4AZABvAHcAKABJAG4AdABQAHQAcgAgAGgALABpAG4AdAAgAGMAKQA7AAoAWwBEAGwAbABJAG0AcABvAHIAdAAoACIAdQBzAGUAcgAzADIALgBkAGwAbAAiACkAXQBwAHUAYgBsAGkAYwAgAHMAdABhAHQAaQBjACAAZQB4AHQAZQByAG4AIABiAG8AbwBsACAAUwBlAHQAUAByAG8AYwBlAHMAcwBEAFAASQBBAHcAYQByAGUAKAApADsACgB9AAoAIgBAAAoAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAUAByAG8AYwBlAHMAcwBEAFAASQBBAHcAYQByAGUAKAApAAoAJABlAHgAPQAkAGUAbgB2ADoAVwBUAF8ARQBYAEUAOwAkAGQAaQByAHMAPQBAACgAKQA7AGkAZgAoACQAZQBuAHYAOgBXAFQAXwBEAEkAUgApAHsAJABkAGkAcgBzAD0AJABlAG4AdgA6AFcAVABfAEQASQBSAC4AUwBwAGwAaQB0ACgAJwB8ACcAKQB9AAoAJABuAD0AMAAKAGYAbwByAGUAYQBjAGgAKAAkAHAAIABpAG4AIAAoAEcAZQB0AC0AUAByAG8AYwBlAHMAcwAgAHwAIABXAGgAZQByAGUALQBPAGIAagBlAGMAdAAgAHsAIAAkAF8ALgBNAGEAaQBuAFcAaQBuAGQAbwB3AEgAYQBuAGQAbABlACAALQBuAGUAIAAwACAAfQApACkAewAKACAAIAAkAHAAYQA9ACQAbgB1AGwAbAA7AHQAcgB5AHsAJABwAGEAPQAkAHAALgBQAGEAdABoAC4AVABvAEwAbwB3AGUAcgAoACkAfQBjAGEAdABjAGgAewB9AAoAIAAgAGkAZgAoAC0AbgBvAHQAIAAkAHAAYQApAHsAYwBvAG4AdABpAG4AdQBlAH0ACgAgACAAJABoAGkAdAA9ACQAZgBhAGwAcwBlADsAaQBmACgAJABlAHgAIAAtAGEAbgBkACAAJABwAGEAIAAtAGUAcQAgACQAZQB4ACkAewAkAGgAaQB0AD0AJAB0AHIAdQBlAH0AOwBmAG8AcgBlAGEAYwBoACgAJABkACAAaQBuACAAJABkAGkAcgBzACkAewBpAGYAKAAkAGQAIAAtAGEAbgBkACAAJABwAGEALgBTAHQAYQByAHQAcwBXAGkAdABoACgAJABkACkAKQB7ACQAaABpAHQAPQAkAHQAcgB1AGUAfQB9AAoAIAAgAGkAZgAoAC0AbgBvAHQAIAAkAGgAaQB0ACkAewBjAG8AbgB0AGkAbgB1AGUAfQAKACAAIAAkAGgAPQAkAHAALgBNAGEAaQBuAFcAaQBuAGQAbwB3AEgAYQBuAGQAbABlAAoAIAAgAFsAdgBvAGkAZABdAFsAVwBUAF0AOgA6AFMAaABvAHcAVwBpAG4AZABvAHcAKAAkAGgALAA5ACkACgAgACAAJABzAD0AWwBXAFQAXQA6ADoARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMQA2ACkAOwAkAHMAPQAkAHMAIAAtAGIAYQBuAGQAIAAoAC0AYgBuAG8AdAAgADAAeABDAEYAMAAwADAAMAApADsAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMQA2ACwAJABzACkACgAgACAAJAB4AD0AWwBXAFQAXQA6ADoARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMgAwACkAOwAkAHgAPQAkAHgAIAAtAGIAYQBuAGQAIAAoAC0AYgBuAG8AdAAgADAAeAAyADAAMwAwADEAKQA7AFsAdgBvAGkAZABdAFsAVwBUAF0AOgA6AFMAZQB0AFcAaQBuAGQAbwB3AEwAbwBuAGcAKAAkAGgALAAtADIAMAAsACQAeAApAAoAIAAgACQAYgA9AFsAUwB5AHMAdABlAG0ALgBXAGkAbgBkAG8AdwBzAC4ARgBvAHIAbQBzAC4AUwBjAHIAZQBlAG4AXQA6ADoARgByAG8AbQBIAGEAbgBkAGwAZQAoACQAaAApAC4AQgBvAHUAbgBkAHMACgAgACAAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAVwBpAG4AZABvAHcAUABvAHMAKAAkAGgALABbAEkAbgB0AFAAdAByAF0AOgA6AFoAZQByAG8ALAAkAGIALgBYACwAJABiAC4AWQAsACQAYgAuAFcAaQBkAHQAaAAsACQAYgAuAEgAZQBpAGcAaAB0ACwAMAB4ADAAMAA2ADAAKQAKACAAIAAkAG4AKwArAAoAfQAKAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAKAAiAGQAbwBuAGUAIAAiACsAJABuACkA';
+function applyBl(t) {
+  return new Promise((res) => {
+    if (process.platform !== 'win32') return res(false);
+    try {
+      execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', BL_PS], { windowsHide: true, timeout: 20000, env: Object.assign({}, process.env, { WT_EXE: t.exe || '', WT_DIR: (t.dirs || []).join('|') }) }, (err, out) => {
+        const m = /done (\d+)/.exec(out || ''); res(!!(m && +m[1] > 0));
+      });
+    } catch (e) { res(false); }
+  });
+}
+function blStep(t) {
+  if (!t.bl || !t.started || t.blRun || (t.blS || 0) >= 3) return;
+  const el = Date.now() - t.started, due = [0, 8000, 25000], i = t.blS || 0;
+  if (el < due[i]) return;
+  t.blRun = 1;
+  applyBl(t).then((ok) => { t.blRun = 0; if (ok) t.blS = i + 1; else if (el > 90000) t.blS = 3; });
+}
 let poller = null;
 const norm = (p) => p.toLowerCase().replace(/\//g, path.sep === '\\' ? '\\' : '/');
 function steamRun(app) {
@@ -523,7 +543,7 @@ async function poll() {
   for (const [id, t] of [...track]) {
     const byProc = () => procs.some(p => t.exe ? p === t.exe : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
-    if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } }
+    if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
     else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
@@ -534,7 +554,7 @@ function watch(o) {
   if (o.exe) { exe = norm(o.exe); }
   else if (o.app) { const d = installDir(o.app, o.steamDir); if (d) dirs.push(norm(d) + sep); }
   if (!exe && !dirs.length && !(o.app && process.platform === 'win32')) return false;
-  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, dirs, since: Date.now(), started: 0, miss: 0 });
+  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless });
   if (!poller) poller = setInterval(poll, 4000);
   setTimeout(poll, 1500);
   syncShot();
