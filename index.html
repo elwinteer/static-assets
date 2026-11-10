@@ -1263,6 +1263,18 @@ body.light .rin .rst{background:linear-gradient(90deg,#f59e0b calc(var(--f)*100%
 .mc-cats{gap:5px}.mc-cats .cp{font-size:12px;padding:5px 11px}.mc-msg{padding:10px 14px;border-radius:14px;background:rgba(255,184,84,.09);box-shadow:inset 0 0 0 1px rgba(255,184,84,.3);font-size:12.5px}
 .mc-sec{margin:6px 2px 0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}.mc-sec em{font-style:normal;opacity:.6;margin-left:6px}
 .mc-warn{padding:12px 16px;border-radius:16px;background:rgba(255,93,108,.08);box-shadow:inset 0 0 0 1px rgba(255,93,108,.28)}.mc-warn b{display:block;font-size:13.5px}.mc-warn small{color:var(--muted);font-size:12px}.mc-wr{color:#ffb454!important}
+.detail.modsfull .dtop,.detail.modsfull .logo,.detail.modsfull .tool{display:none!important}
+.detail.modsfull .dc{justify-content:flex-start}
+.detail.modsfull .gl.panel{flex:1!important;height:auto!important;min-height:0!important}
+.detail.modsfull .mc-g{grid-template-columns:repeat(auto-fill,minmax(390px,1fr));gap:14px}
+.detail.modsfull .mc-c{padding:16px;gap:16px}.detail.modsfull .mc-ic{width:84px;height:84px;border-radius:18px;font-size:30px}
+.detail.modsfull .mc-b b{font-size:15.5px}.detail.modsfull .mc-b p{font-size:12.8px;-webkit-line-clamp:5;margin-top:8px}
+.detail.modsfull .pz-g{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.detail.modsfull .pz-p{width:84px;height:56px}
+.nx{min-height:100%}.nx-hd{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-radius:20px;overflow:hidden;background:linear-gradient(90deg,rgba(14,12,26,.92),rgba(14,12,26,.55)),var(--bg) center/cover,#1b1830;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.nx-hd small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}.nx-hd b{display:block;font-size:22px;margin:3px 0 2px}.nx-hd span{font-size:12.5px;color:var(--muted)}
+.nx-ft{margin-top:auto;padding:14px 18px;border-radius:18px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);display:flex;flex-direction:column;gap:8px}.nx-ft .hint2{margin:0}
+.detail.modsfull .pz{min-height:100%}.nx-g{grid-template-columns:1fr!important}.nx-g .mc-c{align-items:center}
 /* aviso */
 .hito{position:fixed;left:50%;top:-140px;transform:translateX(-50%);z-index:9800;display:flex;align-items:center;gap:18px;padding:16px 24px 16px 18px;min-width:430px;max-width:92vw;border-radius:26px;background:linear-gradient(135deg,rgba(26,22,44,.94),rgba(12,10,22,.96));color:#fff;cursor:pointer;overflow:hidden;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--c) 70%,transparent),0 20px 70px rgba(0,0,0,.6),0 0 60px color-mix(in srgb,var(--c) 40%,transparent);animation:hiIn .8s cubic-bezier(.2,1.25,.3,1) forwards}
 .hito.out{animation:hiOut .55s ease-in forwards}@keyframes hiIn{to{top:26px}}@keyframes hiOut{from{top:26px;opacity:1}to{top:-160px;opacity:0}}
@@ -3510,7 +3522,8 @@ function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
   if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario');
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
+  {const dt=$('#detail');if(dt)dt.classList.toggle('modsfull',S.tab==='mods'&&(pzOf(g)||mcOf(g)||!!(window.winteerNative&&winteerNative.mioReq)))}
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
   else if(S.tab==='ach'){
@@ -5643,20 +5656,24 @@ async function nxResolve(g,name){
   }catch(e){NX.err=1}
   NX.ld=0;NX.list=null;NX.res=null;mcRt();
 }
-async function nxLoad(g){
-  const s=nxSt(g);if(!s.d)return;NX.res='load';mcRt();
+async function nxLoad(g,more){
+  const s=nxSt(g);if(!s.d)return;if(!more){NX.pg=0;NX.off=0;NX.more=0;NX.gq=0;NX.list=null}NX.res=more?NX.res:'load';mcRt();
+  const ORD=[NX.so,...['trending','latest_added','latest_updated'].filter(k=>k!==NX.so)];
   try{let items=[];
    if(NX.q){
-    const r=await winteerNative.nxReq({gql:'query($f:ModsFilter,$c:Int){mods(filter:$f,count:$c){nodes{modId name summary pictureUrl downloads endorsements creator{name}}}}',vars:{f:{gameDomainName:[{value:s.d}],name:[{value:NX.q,op:'WILDCARD'}]},c:24}});
+    const r=await winteerNative.nxReq({gql:'query($f:ModsFilter,$c:Int,$o:Int){mods(filter:$f,count:$c,offset:$o){nodes{modId name summary pictureUrl downloads endorsements creator{name}}}}',vars:{f:{gameDomainName:[{value:s.d}],name:[{value:NX.q,op:'WILDCARD'}]},c:24,o:NX.off}});
     const nodes=r.ok&&r.d&&r.d.data&&r.d.data.mods&&r.d.data.mods.nodes;
-    if(Array.isArray(nodes))items=nodes.map(m=>({id:m.modId,t:m.name,d:m.summary,i:m.pictureUrl,a:m.creator&&m.creator.name||'',n:m.downloads}));
-    else{const all=[];for(const k of ['trending','latest_added','latest_updated']){const x=await nxR('/games/'+s.d+'/mods/'+k+'.json');if(x.ok&&Array.isArray(x.d))all.push(...x.d)}const q=nxNorm(NX.q),seen=new Set();items=all.filter(m=>{if(seen.has(m.mod_id))return false;seen.add(m.mod_id);return nxNorm(m.name).includes(q)}).map(nxMap);NX.msg='La búsqueda por texto de Nexus no respondió; te muestro coincidencias entre los mods más movidos.'}
+    if(Array.isArray(nodes)){NX.gq=1;items=nodes.map(m=>({id:m.modId,t:m.name,d:m.summary,i:m.pictureUrl,a:m.creator&&m.creator.name||'',n:m.downloads}));NX.off+=items.length;NX.more=items.length>=24}
+    else if(!more){const all=[];for(const k of ORD){const x=await nxR('/games/'+s.d+'/mods/'+k+'.json');if(x.ok&&Array.isArray(x.d))all.push(...x.d)}const q=nxNorm(NX.q),seen=new Set();items=all.filter(m=>{if(seen.has(m.mod_id))return false;seen.add(m.mod_id);return nxNorm(m.name).includes(q)}).map(nxMap);NX.msg='La búsqueda por texto de Nexus no respondió; te muestro coincidencias entre los mods más movidos.';NX.more=0}
    }else{
-    const r=await nxR('/games/'+s.d+'/mods/'+NX.so+'.json');if(!r.ok||!Array.isArray(r.d)){NX.res=r.err==='key'?'key':'err';if(r.err==='key')NX.key=0;mcRt();return}
-    items=r.d.map(nxMap);
+    const k=ORD[NX.pg];const r=await nxR('/games/'+s.d+'/mods/'+k+'.json');
+    if(!r.ok||!Array.isArray(r.d)){if(more){NX.more=NX.pg+1<ORD.length;NX.pg++;NX.res='ok';mcRt();return}NX.res=r.err==='key'?'key':'err';if(r.err==='key')NX.key=0;mcRt();return}
+    items=r.d.map(nxMap);NX.pg++;NX.more=NX.pg<ORD.length;
    }
-   NX.list=items;NX.res='ok';
-  }catch(e){NX.res='err'}
+   const seen=new Set((more&&NX.list||[]).map(x=>x.id));const add=items.filter(x=>!seen.has(x.id));
+   NX.list=(more&&NX.list||[]).concat(add);NX.res='ok';
+   if(more&&!add.length&&NX.more){nxLoad(g,true);return}
+  }catch(e){NX.res=more?'ok':'err'}
   mcRt();
 }
 const nxMap=m=>({id:m.mod_id,t:m.name,d:m.summary,i:m.picture_url,a:m.author||'',n:m.mod_downloads||0});
@@ -5670,10 +5687,10 @@ function nxHTML(g){
   if(NX.res===null&&!NX.ld2){NX.ld2=1;setTimeout(()=>{NX.ld2=0;nxLoad(g)},0)}
   const so=[['trending','En tendencia'],['latest_added','Nuevos'],['latest_updated','Actualizados']].map(([k,l])=>`<button class="cp ${NX.so===k&&!NX.q?'on':''}" data-a="nxsort" data-id="${k}" ${NX.q?'disabled':''}>${l}</button>`).join('');
   const card=x=>{const bz=NX.busy[x.id],dn=s.done&&s.done[x.id];return `<div class="mc-c"><div class="mc-ic">${x.i?`<img loading="lazy" decoding="async" src="${esc(x.i)}" alt="">`:`<b>${esc((x.t||'?')[0])}</b>`}</div><div class="mc-b"><b>${esc(x.t)}</b><small>${esc(x.a)}${x.a?' · ':''}${mcN(x.n)} descargas</small><p>${esc(x.d)}</p></div><div class="mc-x">${bz?`<button class="b2 sm" disabled>Bajando…</button>`:dn?`<button class="b2 g sm" data-a="nxdir">✓ Bajado</button>`:`<button class="b2 sm" data-a="nxget" data-id="${x.id}">${NX.prem?'Descargar':'Ver en Nexus'}</button>`}</div></div>`};
-  const body=NX.res==='key'?`<div class="pz-e"><b>Nexus rechazó tu clave</b><span>Puede estar mal copiada o vencida.</span><button class="b2 sm" data-a="nxkeyreset">Cambiar la clave</button></div>`:NX.res==='err'?`<div class="pz-e"><b>No pude leer Nexus</b><button class="b2 sm" data-a="nxgo">Reintentar</button></div>`:NX.list===null?`<div class="pz-e">Buscando…</div>`:!NX.list.length?`<div class="pz-e"><b>No hay resultados</b></div>`:`<div class="mc-g">${NX.list.map(card).join('')}</div>`;
-  return `<div class="pz"><div class="pz-h"><div class="pz-pr"><b style="font-size:15px;align-self:center">Mods de ${esc(s.n||g.name)}</b><span class="hint2" style="align-self:center">Nexus Mods · ${esc(NX.user)}${NX.prem?' · Premium':''}</span></div><div class="pz-ac">${s.dir?'<button class="b2 g sm" data-a="nxdir">Abrir carpeta</button>':''}<button class="b2 g sm" data-a="nxbye">Salir</button></div></div>
+  const body=NX.res==='key'?`<div class="pz-e"><b>Nexus rechazó tu clave</b><span>Puede estar mal copiada o vencida.</span><button class="b2 sm" data-a="nxkeyreset">Cambiar la clave</button></div>`:NX.res==='err'?`<div class="pz-e"><b>No pude leer Nexus</b><button class="b2 sm" data-a="nxgo">Reintentar</button></div>`:NX.list===null?`<div class="pz-e">Buscando…</div>`:!NX.list.length?`<div class="pz-e"><b>No hay resultados</b></div>`:`<div class="mc-g nx-g">${NX.list.map(card).join('')}</div>${NX.more?`<div style="text-align:center;margin-top:10px"><button class="b2 sm" data-a="nxmore">${NX.mb?'Cargando…':'Ver más'}</button></div>`:''}`;
+  return `<div class="pz nx"><div class="nx-hd" style="--bg:url('${esc(art.hero(g))}')"><div><small>Nexus Mods</small><b>Mods de ${esc(s.n||g.name)}</b><span>${esc(NX.user)}${NX.prem?' · Premium':' · sin Premium'}</span></div><div class="pz-ac">${s.dir?'<button class="b2 g sm" data-a="nxdir">Abrir carpeta</button>':''}<button class="b2 g sm" data-a="nxbye">Salir</button></div></div>
    <div class="pz-q"><input class="txt" id="nx-q" placeholder="Buscar mods de ${esc(s.n||g.name)}…" value="${esc(NX.q)}"><button class="b2 sm" data-a="nxgo">Buscar</button></div><div class="pz-pr">${so}</div>${NX.msg?`<div class="mc-msg">${esc(NX.msg)}</div>`:''}${body}
-   <label class="pz-au" style="margin-top:4px"><input type="checkbox" data-a="nxmtog" ${NX.nxm?'checked':''}> Usar WINTEER para el botón «Descarga con gestor» de Nexus (sin Premium)</label><div class="hint2">${NX.prem?'Con tu cuenta Premium WINTEER baja el archivo y lo descomprime en «Descargas → WINTEER Mods». Cómo se instala depende de cada juego.':'Sin Premium, Nexus exige confirmar cada descarga en su página: el botón te abre el mod ahí. Con Premium se baja directo desde WINTEER.'}</div></div>`;
+   <div class="nx-ft"><label class="pz-au"><input type="checkbox" data-a="nxmtog" ${NX.nxm?'checked':''}> Usar WINTEER para el botón «Descarga con gestor» de Nexus (sin Premium)</label><div class="hint2">${NX.prem?'Con tu cuenta Premium WINTEER baja el archivo y lo descomprime en «Descargas → WINTEER Mods». Cómo se instala depende de cada juego.':'Sin Premium, Nexus exige confirmar cada descarga en su página: el botón te abre el mod ahí. Con Premium se baja directo desde WINTEER.'}</div></div></div>`;
 }
 function srcHTML(g){
   const hasMio=!!(window.winteerNative&&winteerNative.mioReq);
@@ -5689,6 +5706,7 @@ Object.assign(A,{
  nxweb:()=>window.open('https://www.nexusmods.com/settings/api-keys','_blank'),
  nxname:()=>{const n=(($('#nx-name')||{}).value||'').trim();const g=gm(S.sel);if(n&&g)nxResolve(g,n)},
  nxgo:()=>{const el=$('#nx-q');NX.q=el?el.value.trim():NX.q;NX.res=null;NX.list=null;NX.msg='';renderTab()},
+ nxmore:async()=>{const g=gm(S.sel);if(!g||NX.mb)return;NX.mb=1;renderTab();await nxLoad(g,true);NX.mb=0;renderTab()},
  nxsort:a=>{NX.so=a.dataset.id;NX.res=null;NX.list=null;NX.msg='';renderTab()},
  nxdir:()=>{const g=gm(S.sel);const s=g&&nxSt(g);if(s&&s.dir)winteerNative.nxOpenDir(s.dir)},
  nxget:async a=>{const g=gm(S.sel);if(!g)return;const s=nxSt(g),id=+a.dataset.id;
