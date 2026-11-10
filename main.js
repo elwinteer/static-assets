@@ -1782,6 +1782,28 @@ app.whenReady().then(() => {
   ipcMain.handle('pzSub', (_e, wid, app) => pzSub(wid, false, app));
   ipcMain.handle('pzOpen', (_e, wid) => { try { if (/^\d{5,12}$/.test(String(wid))) shell.openExternal('steam://url/CommunityFilePage/' + wid); } catch (e) {} return true; });
   ipcMain.handle('clipDone', () => { clipBusy = false; recIcon(false); return true; });
+  /* salida rápida de la Bóveda: minimiza todo, baja el volumen y abre YouTube */
+  let panicReg = '', panicVol = 0;
+  const PANIC_KEY = 'Ctrl+Alt+Q';
+  const volKeys = (vk, n) => { if (process.platform !== 'win32') return; try { require('child_process').execFile('powershell.exe', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class WK{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte b,byte s,uint f,UIntPtr e);}'; 1.." + n + " | ForEach-Object { [WK]::keybd_event(" + vk + ",0,0,[UIntPtr]::Zero); [WK]::keybd_event(" + vk + ",0,2,[UIntPtr]::Zero) }"], { windowsHide: true, timeout: 15000 }, () => {}); } catch (e) {} };
+  const panicDo = () => {
+    try {
+      if (process.platform === 'win32') {
+        require('child_process').execFile('powershell.exe', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', '(New-Object -ComObject Shell.Application).MinimizeAll()'], { windowsHide: true, timeout: 10000 }, () => {});
+        if (!panicVol) { panicVol = 20; volKeys(174, 20); }
+      }
+      setTimeout(() => { try { shell.openExternal('https://www.youtube.com'); } catch (e) {} }, 450);
+    } catch (e) {}
+  };
+  const panicBack = () => { if (panicVol) { const n = panicVol; panicVol = 0; volKeys(175, n); } };
+  ipcMain.handle('vpanicArm', (_e, on) => {
+    try {
+      if (on && !panicReg) { if (globalShortcut.register(PANIC_KEY, panicDo)) panicReg = PANIC_KEY; }
+      else if (!on) { if (panicReg) { globalShortcut.unregister(panicReg); panicReg = ''; } panicBack(); }
+    } catch (e) {}
+    return { key: PANIC_KEY, on: !!panicReg };
+  });
+  ipcMain.handle('vpanicNow', () => { panicDo(); return true; });
   ipcMain.handle('clipRec', (_e, on) => { recIcon(!!on); return true; });
   ipcMain.handle('clipSave', (_e, o) => {
     try {

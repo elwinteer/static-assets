@@ -3772,7 +3772,7 @@ function setX(t){const N=!!window.winteerNative;
   data:['Datos y mantenimiento','Tu progreso es tuyo: llevalo a donde quieras',[...(N?[bkRows(),`${updCard()}`,]:[]),`<div class="row"><div>Copia de seguridad<small>Guarda un archivo con tus horas, estados, logros, ajustes, perfil, diario, listas y las imágenes que cargaste vos. Se descarga en tu carpeta Descargas.</small></div><div style="display:flex;gap:10px"><button class="b2" data-a="bkx">Exportar</button><button class="b2 g" data-a="bki">Importar</button><input type="file" id="bkf" accept=".json" hidden></div></div>`,cbRow(),`<div class="row"><div>Tutorial por zonas<small>Un recorrido guiado por todas las pestañas, una por una.</small></div><button class="b2 g" data-a="tutreset">Ver de nuevo</button></div>`,`<div class="row"><div>Restablecer apariencia<small>Vuelve el tema, color, tamaño y efectos a como venían de fábrica. No toca tus datos.</small></div><button class="b2 g" data-a="rsap">Restablecer</button></div>`,`<div class="row"><div>Restablecer biblioteca<small>Vuelve a la biblioteca leída de Steam y borra estados y notas.</small></div><button class="b2 g" data-a="reset">Restablecer</button></div>`,`<div class="row"><div>Limpiar caché de imágenes<small>Si alguna carátula quedó mal, esto la vuelve a buscar.</small></div><button class="b2 g" data-a="clrimg">Limpiar</button></div>`,N?`<div class="row"><div>Espacio en disco<small>Imágenes y trailers que WINTEER guarda en tu PC para cargar rápido.</small></div><b id="cinf" style="font-size:13px">calculando…</b></div>`:'']]};
   PANE.hit=['Hitos','Avisos, sonido y progreso de tus medallas',[`<div class="row"><div>Tu progreso<small>${GA.filter(a=>(ST.gach||{})[a[0]]).length} de ${GA.length} hitos · ${hitoPts().toLocaleString('es-AR')} puntos</small></div><button class="hm-go hm-gh" data-a="go" data-v="hitos">Ver hitos</button></div>`,...PANE.fx[2].splice(0,6),`<div class="row"><div>Avisar el Wrapped nuevo<small>Un mensajito al abrir WINTEER cuando termina un trimestre o el año.</small></div><button class="sw ${ST.wtoast_on!==false?'on':''}" data-a="wtog"></button></div>`,`<div class="row"><div>Reiniciar hitos<small>Borra tus hitos ganados y los vuelve a calcular en silencio con lo que ya tenés. Útil si algo quedó raro.</small></div><button class="b2 g" data-a="rshit">Reiniciar</button></div>`]];
   PANE.frn=['Amigos y chat','Avisos y sonido de los mensajes',typeof frSndPane==='function'?frSndPane():[]];PANE.rew=rwPane();PANE.pet=petPane();
-  const padRows=()=>{const ob=ST.oskBtn==null?8:ST.oskBtn;return [`<h4 class="shd">Mando</h4>`,`<div class="row"><div>Centro de mandos<small>Probá botones y palancas, medí la deriva, probá la vibración y poné nombre y zona muerta a cada mando.</small></div><button class="b2" data-a="ccopen">Abrir</button></div>`,`<div class="row"><div>Música del Modo mando<small>Suena el audio del tráiler del juego en el que estás parado, con subida y bajada suave. También se prende y apaga con M o con el botón R3.</small></div><div style="display:flex;gap:10px;align-items:center"><input type="range" id="bpmv" min="0.1" max="1" step="0.05" value="${ST.bpMusV||.35}"><button class="sw ${ST.bpMus!==false?'on':''}" data-a="bpmus"></button></div></div>`,`<div class="row"><div>Teclado en pantalla<small>Opcional. Con un campo de texto seleccionado, el botón que elijas abre un teclado que se maneja con el mando.</small></div><div style="display:flex;gap:10px;align-items:center"><div class="seg" id="oskseg">${[[8,'Select'],[10,'L3'],[11,'R3'],[3,'Y']].map(([k,l])=>`<button data-a="oskbtn" data-v="${k}" class="${ob===k?'on':''}">${l}</button>`).join('')}</div><button class="sw ${ST.oskOn?'on':''}" data-a="oskon"></button></div></div>`]};
+  const padRows=()=>{return [`<h4 class="shd">Mando</h4>`,`<div class="row"><div>Centro de mandos<small>Probá botones y palancas, medí la deriva, probá la vibración y poné nombre y zona muerta a cada mando.</small></div><button class="b2" data-a="ccopen">Abrir</button></div>`,`<div class="row"><div>Música del Modo mando<small>Suena el audio del tráiler del juego en el que estás parado, con subida y bajada suave. También se prende y apaga con M o con el botón R3.</small></div><div style="display:flex;gap:10px;align-items:center"><input type="range" id="bpmv" min="0.1" max="1" step="0.05" value="${ST.bpMusV||.35}"><button class="sw ${ST.bpMus!==false?'on':''}" data-a="bpmus"></button></div></div>`,`<div class="row"><div>Canciones de los juegos<small>Cada juego suena con su tema principal en el Modo mando. Se bajan solas junto con los trailers; si querés bajarlas ya, tocá el botón.</small></div><button class="b2" data-a="trldl">Descargar ahora</button></div>`,`<div class="row"><div>Teclado en pantalla<small>Opcional. Con un campo de texto seleccionado, el botón que elijas abre un teclado que se maneja con el mando.</small></div><div style="display:flex;gap:10px;align-items:center"><b id="oskl" style="font-size:13px">${oskName()}</b><button class="b2 g" data-a="oskbind">Elegir botón</button></div><button class="sw ${ST.oskOn?'on':''}" data-a="oskon"></button></div></div>`]};
   const R=k=>PANE[k][2],pick=(arr,ix)=>ix.map(i=>arr[i]).filter(x=>x!=null),rest=(arr,ix)=>arr.filter((_,i)=>!ix.includes(i));
   const fl=r=>typeof r==='string'&&r.startsWith('<div class="row')&&((r.match(/<button/g)||[]).length>=4||/class="row pre"/.test(r))?r.replace('class="row','class="row f'):r;
   const sec=x=>`<h4 class="shd">${x}</h4>`,more=(r,l)=>r.length?`<details class="mo"><summary>${l||'Más opciones'}</summary><div class="sgrid">${r.map(fl).join('')}</div></details>`:'';
@@ -4529,7 +4529,7 @@ Object.assign(A,{
 ccopen:()=>ccOpen(),ccclose:a=>{const m=a.closest('.modal');if(m)m.remove()},ccsel:a=>{CC.sel=+a.dataset.i;ccBuild()},
  ccdrift:()=>{const ps=ccPads();if(!ps.length)return;CC.meas={t0:performance.now(),max:[0,0],sx:[0,0],sy:[0,0],n:0}},
  ccvib:a=>{const p=ccPads()[CC.sel],ac=p&&p.vibrationActuator,r=$('#cc-res');if(!ac||!ac.playEffect){if(r)r.textContent='Este mando no informa vibración (en algunos mandos solo anda por cable o Bluetooth).';return}try{ac.playEffect('dual-rumble',{duration:900,strongMagnitude:a.dataset.v==='s'?1:0,weakMagnitude:a.dataset.v==='w'?1:0});if(r)r.textContent='Probando la vibración '+(a.dataset.v==='s'?'fuerte':'suave')+'…'}catch(e){if(r)r.textContent='No pude hacerlo vibrar.'}},
- oskon:a=>{ST.oskOn=!ST.oskOn;a.classList.toggle('on',!!ST.oskOn);save()},oskbtn:a=>{ST.oskBtn=+a.dataset.v;$$('#oskseg button').forEach(b=>b.classList.toggle('on',b===a));save()},
+ oskon:a=>{ST.oskOn=!ST.oskOn;a.classList.toggle('on',!!ST.oskOn);save()},oskbind:a=>{OSKB=1;a.textContent='Apretá un botón del mando…';toast('Apretá el botón que quieras en tu mando')},
  bpmus:a=>{ST.bpMus=!(ST.bpMus!==false);a.classList.toggle('on',ST.bpMus!==false);save()},
  sttab:a=>{S.sttb=a.dataset.v;$$('[data-a=sttab]').forEach(b=>b.classList.toggle('on',b===a));const e=$('#stp');if(e&&window.__stPanel)e.innerHTML=window.__stPanel(S.sttb)},
  newsopen:a=>{const u=a.dataset.u;if(/^https?:\/\//.test(u))window.open(u,'_blank','noopener')},
@@ -6852,28 +6852,28 @@ function vAuditShow(r){const L=vL(),n=L?L.g.length:0;
 function vEv(ev){const g=vG(ev.id);if(!g)return;
   if(ev.type==='started'){if(S.vplay&&S.vplay.id===ev.id)S.vplay.t=ev.t}
   else if(ev.type==='stopped'){if(S.vplay&&S.vplay.id===ev.id)vStop(ev.t)}
-  else if(ev.type==='never'){if(S.vplay&&S.vplay.id===ev.id){S.vplay=null;ggClear()}}
+  else if(ev.type==='never'){if(S.vplay&&S.vplay.id===ev.id){S.vplay=null;ggClear();try{winteerNative.vpanicArm(false)}catch(e){}}}
   else if(ev.type==='clipreq'){recClip(ev.id)}
   else if(ev.type==='shot'){toast('Captura guardada');if(S.view==='vault'&&S.vu&&S.vsel===ev.id&&S.vtab==='shots')shFill(ev.id)}
   else if(ev.type==='ovreq'){try{const u=ggU(g),cs=getComputedStyle(document.body),cv=k=>cs.getPropertyValue(k).trim();
     winteerNative.ovData({id:g.id,name:g.name,t:S.vplay&&S.vplay.id===g.id?S.vplay.t:Date.now(),th:{a:cv('--a'),a2:cv('--a2'),rgb:cv('--argb'),on:cv('--on-a')},items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:0,on:!!u[d[0]],p:r[0]/r[1]*100}}):[]})}catch(e){}}}
-function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;const g=vG(p.id);S.vplay=null;ggClear();if(!g)return;const h=Math.max(0,((end||Date.now())-p.t)/3600000);
+function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;try{winteerNative.vpanicArm(false)}catch(e){}const g=vG(p.id);S.vplay=null;ggClear();if(!g)return;const h=Math.max(0,((end||Date.now())-p.t)/3600000);
   g.hours=(g.hours||0)+h;g.last=new Date().toLocaleDateString('es-AR');L.ses.push({g:g.id,s:p.t,h:+h.toFixed(3)});if(L.ses.length>3000)L.ses=L.ses.slice(-3000);
   if(g.hl&&g.hl.m&&g.status!=='Terminado'&&g.hours>=parseFloat(g.hl.m)){g.status='Terminado'}
   try{const s=ggS(g);if(h>s.max)s.max=+h.toFixed(3)}catch(e){}save();try{ggCheck(g)}catch(e){}if(S.view==='vault'&&S.vu)vRender()}
 Object.assign(A,{
- vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),
+ vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),vpanic:()=>{try{winteerNative.vpanicNow()}catch(e){}},
  vsel:a=>{S.vsel=a.dataset.id;S.vtab='res';vList();vDetail(false)},
  vtab:a=>{S.vtab=a.dataset.id;vTab()},
  vplay:a=>{const g=vG(a.dataset.id);if(!g)return;
   if(S.vplay&&S.vplay.id===g.id){vStop();vRender();return}
   if(S.vplay){toast('Ya hay un juego en curso: detenelo primero');return}
   if(!canPlay(g)){toast('No está instalado');if(g.app)location.href='steam://install/'+g.app;return}
-  S.vplay={id:g.id,t:Date.now()};try{ggStart(g.id)}catch(e){}
+  S.vplay={id:g.id,t:Date.now()};try{ggStart(g.id)}catch(e){}try{winteerNative.vpanicArm(true)}catch(e){}
   if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:'',exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl,vault:true}).then(r=>{const tk=!!(r&&r.tracking);vLock();if(tk&&winteerNative.toBg)setTimeout(()=>winteerNative.toBg(),1200)}).catch(()=>{vLock()})}
   else{vLock();if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
  vdone:a=>{const g=vG(a.dataset.id);if(!g)return;g.status=g.status==='Terminado'?'':'Terminado';save();try{ggCheck(g)}catch(e){}vDetail(false)},
- vopts:()=>modal(`<h3>Opciones</h3><div class="bs" style="flex-direction:column;align-items:stretch;gap:10px"><button class="b2" data-a="vaudit">Verificar que no quede rastro</button><button class="b2 g" data-a="close">Cerrar</button></div>`),
+ vopts:()=>modal(`<h3>Opciones</h3><div class="bs" style="flex-direction:column;align-items:stretch;gap:10px"><button class="b2" data-a="vaudit">Verificar que no quede rastro</button><button class="b2" data-a="vpanic">Salida rápida (Ctrl+Alt+Q durante el juego)</button><button class="b2 g" data-a="close">Cerrar</button></div>`),
  vmove:()=>{modal(`<h3>Mover a la Bóveda</h3><p>El juego se va de tu biblioteca, perfil, estadísticas, Inicio y actividad, y queda solo acá con su historial.</p><input class="txt" id="vm-q" placeholder="Buscar en tu biblioteca…" autocomplete="off"><div id="vm-l" class="vl-pick"></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`);vPickFill();$('#vm-q').addEventListener('input',vPickFill);$('#vm-q').focus()},
  vmv:a=>{const id=a.dataset.id,o=vMove(id),mo=a.closest('.modal');if(mo)mo.remove();
   if(o.err){toast(o.err);return}S.vsel=id;S.vtab='res';vRender();
@@ -6895,7 +6895,7 @@ function vPickFill(){const e=$('#vm-l');if(!e)return;const q=(($('#vm-q')||{}).v
  document.addEventListener('keydown',e=>{S.vlast=Date.now();if(S.vu&&e.key==='Escape'&&e.shiftKey)vLock()});
  document.addEventListener('mousemove',()=>{S.vlast=Date.now()},{passive:true});
  const away=()=>{clearTimeout(bt);if(S.vu)bt=setTimeout(()=>{if(S.vu&&(document.hidden||!document.hasFocus()))vLock()},20000)};window.addEventListener('blur',away);document.addEventListener('visibilitychange',()=>{if(document.hidden)away()});window.addEventListener('focus',()=>clearTimeout(bt));
- setInterval(()=>{if(S.vu&&Date.now()-(S.vlast||0)>120000)vLock()},5000)})();
+ setInterval(()=>{if(S.vu&&Date.now()-(S.vlast||0)>300000)vLock()},5000)})();
 setTimeout(()=>{try{vPurge()}catch(e){}},0);
 
 /* ===== mascotas ===== */
@@ -7938,13 +7938,13 @@ async function autoSg(manual){if(!WN||!ST.useSgdb||!ST.key||ASG){if(manual&&ASG)
 let ATR=0;
 async function autoTrl(manual){if(!WN||!winteerNative.trlGet||ATR)return;if(!manual&&ST.trlAuto===false)return;await trlLoad();
   const q=G.filter(g=>!g.hide&&(TRX[trk(g)]===undefined||(TRX['a:'+trk(g)]===undefined&&TRX['s:'+trk(g)]===undefined)));const tot=q.length;let n=0,ok=0,bad=0,lerr='';
-  if(!tot){if(manual)toast('Ya tenés todos los trailers');return}ATR=1;
-  const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Trailers del Modo mando</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos · ${ok} descargados</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};P();
+  if(!tot){if(manual)toast('Ya tenés todos los trailers y canciones');return}ATR=1;
+  const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Trailers y música del Modo mando</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos · ${ok} descargados</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};P();
   const w=async()=>{while(q.length&&bad<8){const g=q.shift(),ap=trk(g);let r;const au=TRX[ap]!==undefined;try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
     if(au){if(r&&r.aurl)TRX['a:'+ap]=r.aurl;else if(r&&(r.steam||r.noaud))TRX['s:'+ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P();continue}
     if(r&&r.url){TRX[ap]=r.url;ok++}else if(r&&r.none)TRX[ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P()}};
   await Promise.all([w(),w()]);ATR=0;await trlLoad();
-  sgStat(bad>=8?`<b>Trailers del Modo mando</b><div style="margin-top:6px;color:#ff9aa8">Se cortó la descarga. Se reintenta en el próximo arranque.${lerr?'<div style="opacity:.7;margin-top:4px;font-size:11px">'+esc(String(lerr).slice(0,90))+'</div>':''}</div>`:`<b>Listo</b><div style="margin-top:6px;opacity:.85">${ok} trailers descargados. Ya los ves en el Modo mando.</div>`);setTimeout(()=>sgStat(''),8000)}
+  sgStat(bad>=8?`<b>Trailers y música del Modo mando</b><div style="margin-top:6px;color:#ff9aa8">Se cortó la descarga. Se reintenta en el próximo arranque.${lerr?'<div style="opacity:.7;margin-top:4px;font-size:11px">'+esc(String(lerr).slice(0,90))+'</div>':''}</div>`:`<b>Listo</b><div style="margin-top:6px;opacity:.85">${ok} trailers nuevos. Las canciones se bajaron en segundo plano; ya suenan en el Modo mando.</div>`);setTimeout(()=>sgStat(''),8000)}
 async function autoInfo(){if(!igOn()||AIN)return;AIN=1;const q=G.filter(g=>!okInfo(g)&&!IFAIL.has(g.id));let n=0;const P=()=>{const e=$('#ifp');if(e)e.textContent=`${n}/${q.length+n} juegos`};
   const w=async()=>{while(q.length&&igOn()){const g=q.shift();await loadInfo(g);n++;P()}};await Promise.all([w(),w()]);AIN=0;if(n&&S.view==='games'&&S.tab==='info'&&$('#tabc'))renderTab()}
 
@@ -8122,10 +8122,12 @@ function ccLoop(){if(!$('#cc-root')){CC.on=0;return}
         if(res)res.innerHTML=ds.map((d,k)=>`Palanca ${nm[k]}: <b>${lv(d.max)}</b> (se movió hasta ${Math.round(d.max*100)}% sin tocarla)`).join('<br>')+(Math.max(ds[0].max,ds[1].max)>=.05?`<br>Te recomiendo una zona muerta de <b>${Math.round(rec*100)}%</b>. Si ya la tenés más alta y sigue pasando, la palanca está desgastada.`:'<br>Las dos están bien.')}}}
   requestAnimationFrame(ccLoop)}
 const GPS={};let gpT=0;
+let OSKB=0;const oskName=()=>{const i=ST.oskBtn==null?8:ST.oskBtn;return padLbl(PBL[i]||('Botón '+i))};
 function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[...navigator.getGamepads()]:[]).filter(Boolean),now=performance.now();
   if(BP){const on=pads.length>0;if(on!==BP.padOn){BP.padOn=on;bpHints();bpPadUi()}if(on&&BP.pi==null)BP.pi=pads[0].index}
   for(const p of pads){const st=GPS[p.index]||(GPS[p.index]={d:{},t:{},h:0});const B=i=>!!(p.buttons[i]&&p.buttons[i].pressed);
     const fire=(id,down,rep)=>{const was=st.d[id];st.d[id]=down;if(down&&!was){st.t[id]=now+340;return true}if(down&&rep&&now>st.t[id]){st.t[id]=now+105;return true}return false};
+    if(OSKB){for(let i=0;i<p.buttons.length;i++){if(i===16)continue;if(fire('ob'+i,B(i))){ST.oskBtn=i;OSKB=0;save();toast('Listo: '+oskName());const l=$('#oskl');if(l)l.textContent=oskName();const bb=$('[data-a=oskbind]');if(bb)bb.textContent='Elegir botón';break}}continue}
     if(OSK){oskPad(fire,B,p);continue}
     if(!BP&&ST.oskOn&&fire('oy',B(ST.oskBtn==null?8:ST.oskBtn))){const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&/^(text|search|password|)$/.test(a.type||'')))){oskFor(a);continue}}
     if(fire('g',B(16)))bpToggle();

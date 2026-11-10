@@ -85,6 +85,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   pzOpen: (w) => ipcRenderer.invoke('pzOpen', w),
   clipDone: () => ipcRenderer.invoke('clipDone'),
   clipRec: (on) => ipcRenderer.invoke('clipRec', on),
+  vpanicArm: (on) => ipcRenderer.invoke('vpanicArm', on),
+  vpanicNow: () => ipcRenderer.invoke('vpanicNow'),
   clipSrc: () => ipcRenderer.invoke('clipSrc'),
   quit: () => ipcRenderer.invoke('quit'),
   winCtl: (a) => ipcRenderer.invoke('winCtl', a),
