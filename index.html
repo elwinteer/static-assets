@@ -3294,81 +3294,19 @@ function celebrate(g){const n=doneN(),el=document.createElement('div');el.classN
   el.innerHTML=`<div class="burst">${p}</div><div class="cbox"><div class="ck">¡JUEGO COMPLETADO!</div>${treeSVG(n,170,1)}<h3>${esc(g.name)}</h3><p>Sumaste el adorno <b>#${n}</b> a tu árbol de invierno${GA.some(a=>a[0]==='first')&&n===1?' y desbloqueaste <b>Primer copo</b>':''}.</p><button class="b2 gld" id="cok">Genial</button></div>`;
   document.body.appendChild(el);const close=()=>{el.classList.add('out');setTimeout(()=>el.remove(),500)};el.querySelector('#cok').onclick=close;el.addEventListener('click',e=>{if(e.target===el)close()});setTimeout(close,9000)}
 const isSteamG=g=>!!(g.app>0&&g.exe===undefined&&!g.uri&&!g.shellApp),instOf=g=>g.instM===true?true:g.instM===false?false:g.inst!==undefined?!!g.inst:(!isSteamG(g)&&!!g.exe),isEpicG=g=>!g.app&&(g.tags||[]).includes('Epic Games')&&/^ep_/.test(g.id||''),isXbG=g=>!g.app&&/^xb_/.test(g.id||''),canPlay=g=>!(isSteamG(g)||isEpicG(g)||isXbG(g))||instOf(g);
-/* ---------- ¿Mi PC lo corre?: requisitos de Steam contra los componentes de esta PC (estimación por modelos) ---------- */
-const PCS={sp:null,ld:0,req:{}};try{PCS.req=JSON.parse(localStorage.getItem('winteer_req')||'{}')}catch(e){}
-const GPUT={nv:{710:.5,730:.6,1030:1.5,650:1.2,'750':2,'750ti':2.2,760:2.5,770:3,780:4,950:3,960:4,970:6.5,980:8,'980ti':10,1050:5,'1050ti':6,1060:10,1070:15,'1070ti':17,1080:20,'1080ti':25,1650:8,1660:13,'1660ti':15,'1660super':14,2060:19,'2060super':21,2070:24,'2070super':27,2080:30,'2080super':32,'2080ti':38,3050:16,3060:25,'3060ti':32,3070:38,'3070ti':41,3080:48,'3080ti':53,3090:55,4060:30,'4060ti':36,4070:45,'4070super':50,'4070ti':55,'4070tisuper':60,'4080':68,'4080super':72,4090:95,5060:34,'5060ti':42,5070:50,'5070ti':65,5080:80,5090:110},
- rx:{460:3,470:5,480:7,550:3.5,560:4,570:8,580:10,590:12,'5500xt':11,'5600xt':17,5700:22,'5700xt':25,'6500xt':11,'6600':24,'6600xt':27,'6650xt':28,'6700xt':35,'6750xt':37,6800:46,'6800xt':52,'6900xt':57,'6950xt':60,7600:30,'7600xt':32,'7700xt':42,'7800xt':50,'7900gre':58,'7900xt':65,'7900xtx':75,9060:36,'9070':60,'9070xt':68}};
-function gpuScore(s){s=String(s||'').toLowerCase();let m;
-  if((m=/(?:rtx|gtx|gt)\s*(\d{3,4})\s*(ti\s*super|super|ti)?/.exec(s))){const k=m[1]+(m[2]||'').replace(/\s/g,''),T=GPUT.nv;if(T[k]!=null)return T[k];if(T[m[1]]!=null)return T[m[1]];const n=+m[1],ks=Object.keys(T).filter(x=>/^\d+$/.test(x)).map(Number).sort((a,b)=>a-b);let b=ks[0];ks.forEach(x=>{if(Math.abs(x-n)<Math.abs(b-n))b=x});return T[b]}
-  if((m=/rx\s*(\d{3,4})\s*(xtx|xt|gre)?/.exec(s))){const k=m[1]+(m[2]||''),T=GPUT.rx;if(T[k]!=null)return T[k];if(T[m[1]]!=null)return T[m[1]]}
-  if(/vega\s*(56)/.test(s))return 17;if(/vega\s*(64)/.test(s))return 20;if(/radeon\s*vii/.test(s))return 28;if(/vega|radeon\(tm\) graphics|radeon graphics/.test(s))return 3;
-  if(/r9\s*(\d{3})/.test(s))return 5;if(/r7\s*(\d{3})/.test(s))return 2.5;if(/hd\s*(7[789]\d\d)/.test(s))return 3;
-  if((m=/arc\s*a?(\d{3})/.exec(s)))return {380:9,580:22,750:28,770:32}[m[1]]||15;
-  if(/iris\s*xe|iris\s*plus/.test(s))return 3;if(/uhd|hd graphics|intel\(r\) hd/.test(s))return 1;return null}
-function cpuScore(s){s=String(s||'').toLowerCase();let m,t=0,g=0;
-  if((m=/(?:core\s*(?:ultra\s*)?)?i([3579])[\s-]*(\d{4,5})/.exec(s))||(m=/i([3579])-?(\d{3,5})/.exec(s))){t={3:1,5:1.3,7:1.6,9:2}[m[1]];const d=m[2],ge=d.length===5?+d.slice(0,2):+d[0];g=ge>=14?1.85:ge>=13?1.8:ge>=12?1.6:ge>=11?1.3:ge>=10?1.2:ge>=9?1.1:ge>=8?1:ge>=7?.8:ge>=6?.75:ge>=5?.65:ge>=4?.6:.5;return +(t*g).toFixed(2)}
-  if((m=/ryzen\s*([3579])\s*(?:pro\s*)?(\d)(\d{3})/.exec(s))){t={3:1,5:1.35,7:1.7,9:2.1}[m[1]];g={1:.8,2:.9,3:1.1,4:1.2,5:1.5,7:1.9,8:1.9,9:2.1}[m[2]]||1;return +(t*g).toFixed(2)}
-  if(/core\s*2|pentium|celeron|athlon|phenom|fx[-\s]?\d|\bi[3579]-?[1-3]\d\d\b|e[3-8]\d\d\d|q\d{4}/.test(s))return .45;return null}
-function pcPieces(s,f){const l=String(s||'').split(/\/|,|;|\bor\b|\band\b|\bor equivalent\b/i).map(x=>f(x)).filter(x=>x!=null);return l.length?Math.min(...l):null}
-function pcRamGB(s){const m=/(\d+(?:[.,]\d+)?)\s*(gb|mb|g)\b/i.exec(String(s||''));if(!m)return null;let v=parseFloat(m[1].replace(',','.'));if(/mb/i.test(m[2])&&v>64)v/=1024;return v}
-function pcReqParse(html){const o={};String(html||'').split(/<li>/i).forEach(li=>{const m=/<strong>\s*([^<]*?)\s*<\/strong>\s*([\s\S]*)/i.exec(li);if(!m)return;const k=m[1].toLowerCase(),v=m[2].replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
-  if(/^proc/.test(k))o.cpu=v;else if(/^mem/.test(k))o.ram=v;else if(/^graph/.test(k))o.gpu=v;else if(/^stor/.test(k))o.sto=v});return o}
-async function pcLoad(g){if(!window.winteerNative||PCS.ld)return;PCS.ld=1;
-  try{if(!PCS.sp&&winteerNative.pcSpecs)PCS.sp=await winteerNative.pcSpecs();
-    const c=PCS.req[g.app];if(!c||Date.now()-c.t>30*864e5){const r=await nf('https://store.steampowered.com/api/appdetails?appids='+g.app+'&l=english&filters=pc_requirements');const j=await r.json(),d=j&&j[g.app]&&j[g.app].data,pr=d&&d.pc_requirements;
-      PCS.req[g.app]={t:Date.now(),min:pcReqParse(pr&&pr.minimum),rec:pcReqParse(pr&&pr.recommended),none:!(pr&&pr.minimum)};try{localStorage.setItem('winteer_req',JSON.stringify(PCS.req))}catch(e){}}}catch(e){}
-  PCS.ld=0;if(S.view==='games'&&S.tab==='pc'&&$('#tabc'))renderTab()}
-function pcEval(g){const sp=PCS.sp,rq=PCS.req[g.app];if(!sp||!rq||rq.none)return null;
-  const my={cpu:cpuScore(sp.cpu),gpu:Math.max(...(sp.gpu||[]).map(gpuScore).filter(x=>x!=null),-1),ram:sp.ram};if(my.gpu<0)my.gpu=null;
-  const need=k=>{const f=x=>k==='cpu'?pcPieces(x,cpuScore):k==='gpu'?pcPieces(x,gpuScore):pcRamGB(x);return {min:f(rq.min[k]),rec:f(rq.rec[k])}};
-  const rows=['cpu','gpu','ram'].map(k=>{const n=need(k),m=my[k];let st='unk';if(m!=null){const lo=n.min!=null?n.min:null,hi=n.rec!=null?n.rec:null;
-      if(k==='ram'){const ok=v=>m>=v-0.6;st=hi!=null&&ok(hi)?'ok':lo!=null&&ok(lo)?'min':lo!=null?'low':hi!=null?(ok(hi)?'ok':'min'):'unk'}
-      else{st=hi!=null&&m>=hi*.95?'ok':lo!=null&&m>=lo*.95?'min':lo!=null?'low':hi!=null?(m>=hi*.95?'ok':'min'):'unk'}}
-    return {k,st,my:k==='cpu'?sp.cpu:k==='gpu'?(sp.gpu||[]).join(' / '):sp.ram+' GB',min:rq.min[k]||'',rec:rq.rec[k]||''}});
-  const sts=rows.map(r=>r.st),v=sts.includes('low')?'low':sts.every(x=>x==='unk')?'unk':sts.includes('min')?'min':'ok';return {rows,v}}
-function pcHTML(g){if(!window.winteerNative)return '<div class="inf-c"><p class="hint2">Esto se calcula desde la app de escritorio.</p></div>';
-  const rq=PCS.req[g.app];if(!PCS.sp||!rq){pcLoad(g);return '<div class="inf-c"><p class="hint2">Comparando con tu PC…</p></div>'}
-  if(rq.none)return '<div class="inf-c"><p class="hint2">Steam no publica requisitos para este juego.</p></div>';
-  const e=pcEval(g);if(!e)return '<div class="inf-c"><p class="hint2">No pude leer los componentes de tu PC.</p></div>';
-  const V={ok:['Debería andar bien','Tu PC cumple lo recomendado.','#4ade80'],min:['Debería andar, en calidad baja o media','Cumple lo mínimo pero no del todo lo recomendado.','#facc15'],low:['Probablemente ande mal','Algún componente está por debajo del mínimo.','#f87171'],unk:['No se puede estimar','Los requisitos no nombran componentes que pueda comparar.','#94a3b8']}[e.v],L={cpu:'Procesador',gpu:'Placa de video',ram:'Memoria RAM'},S2={ok:['Bien','#4ade80'],min:['Justo','#facc15'],low:['Por debajo','#f87171'],unk:['Sin dato','#94a3b8']};
-  return `<div class="inf-c"><div style="display:flex;align-items:center;gap:14px;margin-bottom:14px"><i style="width:14px;height:14px;border-radius:50%;background:${V[2]};box-shadow:0 0 14px ${V[2]}"></i><div><b style="font-size:17px">${V[0]}</b><small style="display:block;color:var(--muted)">${V[1]}</small></div></div>
-  ${e.rows.map(r=>`<div class="pcr" style="padding:10px 0;border-top:1px solid rgba(255,255,255,.07)"><div style="display:flex;justify-content:space-between;gap:12px"><b>${L[r.k]}</b><span style="color:${S2[r.st][1]}">${S2[r.st][0]}</span></div><small style="display:block;color:var(--muted)">Tu PC: ${esc(r.my||'—')}</small>${r.min?`<small style="display:block;color:var(--muted)">Mínimo: ${esc(r.min)}</small>`:''}${r.rec?`<small style="display:block;color:var(--muted)">Recomendado: ${esc(r.rec)}</small>`:''}</div>`).join('')}
-  <p class="hint2" style="margin-top:12px">Es una estimación que compara modelos de procesador y placa; no mide el rendimiento real. Los requisitos los publica el propio juego en Steam.</p></div>`}
 /* ---------- Doctor de juegos: lee los cierres con error que registra Windows y los explica en criollo ---------- */
 const DOCC={'0xc000007b':['No pudo arrancar por una mezcla de versiones de archivos (32 y 64 bits) o por falta de Visual C++.',['vc','dx','validate']],'0xc0000135':['Falta un archivo (DLL) que el juego necesita para abrir.',['vc','net','dx','validate']],'0xc0000139':['Un archivo del juego no es compatible con lo que hay instalado.',['vc','validate']],'0xc0000142':['Un componente necesario no pudo iniciarse.',['vc','dx','validate']],'0xc0000005':['El juego tocó una zona de memoria que no debía. Suele ser un archivo dañado, el driver de video o un overlay que molesta.',['validate','drv']],'0xc0000409':['Windows lo cortó por una protección de memoria. Suele ser un archivo dañado o un mod incompatible.',['validate']],'0xe06d7363':['El juego tuvo un error interno y se cerró.',['validate','vc']],'0xc0000374':['Se corrompió la memoria. A veces pasa por RAM inestable (overclock o XMP) o por drivers.',['drv']],'0x80000003':['El juego se detuvo por una comprobación interna.',['validate']]};
 const DOCM=[[/vcruntime|msvcp|msvcr|ucrtbase|concrt/i,'Le falta o tiene dañado Visual C++, un componente de Microsoft que usan casi todos los juegos.',['vc','validate']],[/d3d1|dxgi|nvwgf|nvlddmkm|atidxx|amdxx|atio|igd\d|nvoglv|vulkan|amdvlk/i,'Falló algo de la placa de video (casi siempre el driver).',['drv','validate']],[/xinput|d3dx9|d3dcompiler|x3daudio|xaudio/i,'Le falta una parte antigua de DirectX.',['dx','validate']],[/steam_api|steamclient/i,'Falló la conexión con Steam. Probá cerrar Steam y abrirlo de nuevo.',['validate']],[/easyanticheat|beclient|battleye|vgk|eac/i,'El sistema anti-trampas cortó el juego.',['validate']]];
-const DOCF={vc:['Instalar Visual C++','https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist'],dx:['Instalar DirectX','https://www.microsoft.com/download/details.aspx?id=35'],net:['Instalar .NET','https://dotnet.microsoft.com/download/dotnet-framework'],drv:['Actualizar driver de video','']};
+const DOCF={drvn:['Driver NVIDIA',''],drva:['Driver AMD',''],vc:['Instalar Visual C++','https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist'],dx:['Instalar DirectX','https://www.microsoft.com/download/details.aspx?id=35'],net:['Instalar .NET','https://dotnet.microsoft.com/download/dotnet-framework'],drv:['Actualizar driver de video','']};
 function docExplain(g,it){let txt='',fx=[];const mm=DOCM.find(x=>x[0].test(it.mod||''));
   if(it.id===1026)return {t:'Falló una parte de .NET: '+(it.net||'error sin detalle'),fx:['net','validate']};
   if(mm){txt=mm[1];fx=mm[2]}else if(DOCC[it.code]){txt=DOCC[it.code][0];fx=DOCC[it.code][1]}else{txt='El juego se cerró por un error'+(it.mod?' en «'+it.mod+'»':'')+'. Probá verificar los archivos y actualizar el driver de video.';fx=['validate','drv']}
-  return {t:txt,fx:fx.filter(k=>k!=='validate'||g.app>0)}}
-async function docRun(g,since,auto){if(!(window.winteerNative&&winteerNative.docScan)||vIsId(g.id))return;if(auto)await new Promise(r=>setTimeout(r,4000));
-  try{const r=await winteerNative.docScan({since:since||0,exe:g.exe||'',steam:isSteamG(g)});if(!r||!r.ok)return;ST.doc=ST.doc||{};ST.doc[g.id]={t:Date.now(),list:r.list.slice(0,5)};save();
-    if(auto&&r.list.length)toast('Parece que '+g.name+' se cerró por un error. Mirá la pestaña Doctor');
-    if(S.view==='games'&&S.sel===g.id&&S.tab==='doc'&&$('#tabc'))renderTab()}catch(e){}}
-function docHTML(g){return docHTML0(g)+healthHTML(g)}
-function docHTML0(g){const d=(ST.doc||{})[g.id],ago=t=>new Date(t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-  const head=`<div class="inf-c"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Doctor de juegos</b><small style="display:block;color:var(--muted)">Mira los cierres con error que Windows anotó para este juego y te explica la causa.</small></div><button class="b2 sm" data-a="docscan" data-id="${g.id}">${DOC.b===g.id?'Buscando…':'Buscar problemas'}</button></div></div>`;
-  if(!d)return head;
-  if(!d.list.length)return head+`<div class="inf-c" style="margin-top:12px"><p class="hint2">Última revisión: ${ago(d.t)}. No encontré cierres con error de Windows para este juego en los últimos 14 días.</p><p class="hint2">Si igual no abre, puede ser un antivirus que lo bloquea, o que necesite abrirse como administrador.</p></div>`;
-  return head+d.list.map(it=>{const e=docExplain(g,it);return `<div class="inf-c" style="margin-top:12px"><small style="color:var(--muted)">${ago(it.t)} · ${esc(it.app)}${it.mod?' · '+esc(it.mod):''}${it.code?' · '+esc(it.code):''}</small><p style="margin:6px 0 10px">${esc(e.t)}</p><div class="chips">${e.fx.map(k=>`<button class="cp" data-a="docfix" data-k="${k}" data-id="${g.id}">${k==='validate'?'Verificar archivos en Steam':DOCF[k][0]}</button>`).join('')}</div></div>`}).join('')}
-const DOC={b:''};
-/* ---------- Salud de la PC por juego: temperaturas de cada sesión (se leen de LibreHardwareMonitor si está abierto) ---------- */
-const HW_WARN={cpu:92,gpu:88};
-function healthAdd(g,ev){const th=ev&&ev.th;if(!th||vIsId(g.id)||!S.playing)return;
-  const r={s:S.playing.t,d:+Math.max(0,(ev.t-S.playing.t)/36e5).toFixed(2),cm:th.cpu?th.cpu.max:null,ca:th.cpu?th.cpu.avg:null,gm:th.gpu?th.gpu.max:null,ga:th.gpu?th.gpu.avg:null};
-  ST.hp=ST.hp||{};const l=ST.hp[g.id]=ST.hp[g.id]||[];l.push(r);if(l.length>20)l.splice(0,l.length-20);save();
-  const hot=(r.gm!=null&&r.gm>=HW_WARN.gpu)?'la placa de video llegó a '+r.gm+'°C':(r.cm!=null&&r.cm>=HW_WARN.cpu)?'el procesador llegó a '+r.cm+'°C':'';
-  if(hot)toast('En esta sesión de '+g.name+' '+hot+'. Mirá la pestaña Doctor para ver qué hacer')}
-function healthHTML(g){const l=((ST.hp||{})[g.id]||[]).slice(-10),ago=t=>new Date(t).toLocaleDateString('es-AR',{day:'numeric',month:'short'});
-  const head=`<div class="inf-c" style="margin-top:12px"><b>Salud de la PC en este juego</b><small style="display:block;color:var(--muted)">Temperatura máxima de cada sesión.</small>`;
-  if(!l.length)return head+`<p class="hint2" style="margin-top:8px">Todavía no hay datos. WINTEER lee las temperaturas de LibreHardwareMonitor: abrilo con el servidor web activado (Options → Remote Web Server → Run, puerto 8085) y jugá una sesión desde WINTEER. Sin eso, Windows no deja leerlas.</p></div>`;
-  const mx=Math.max(100,...l.map(x=>Math.max(x.cm||0,x.gm||0))),bar=(v,c)=>v==null?'':`<i style="display:block;height:${Math.max(4,v/mx*70)}px;background:${v>=(c==='g'?HW_WARN.gpu:HW_WARN.cpu)?'#f87171':'rgba(255,255,255,.55)'};border-radius:4px 4px 0 0;flex:1" title="${c==='g'?'Placa de video':'Procesador'}: ${v}°C"></i>`;
-  const worst={cpu:Math.max(...l.map(x=>x.cm||0)),gpu:Math.max(...l.map(x=>x.gm||0))},hot=worst.gpu>=HW_WARN.gpu||worst.cpu>=HW_WARN.cpu;
-  return head+`<div style="display:flex;gap:10px;align-items:flex-end;height:90px;margin:12px 0 6px">${l.map(x=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="display:flex;gap:2px;align-items:flex-end;width:100%;height:76px">${bar(x.cm,'c')}${bar(x.gm,'g')}</div><small style="color:var(--muted);font-size:10px;margin-top:3px">${ago(x.s)}</small></div>`).join('')}</div>
-  <small style="color:var(--muted)">Cada día: barra clara izquierda = procesador, derecha = placa de video. Rojo = pasó el límite que considero alto (procesador ${HW_WARN.cpu}°C, placa ${HW_WARN.gpu}°C).</small>
-  <p class="hint2" style="margin-top:10px">${hot?'Hubo sesiones con temperatura alta. Probá limpiar el polvo, revisar que los ventiladores giren, mejorar el flujo de aire del gabinete o limitar los FPS del juego. Si pasa en todos los juegos, conviene revisar la pasta térmica.':'Las temperaturas están dentro de lo normal.'}</p></div>`}
-
+  return {t:txt,fx:fx.flatMap(k=>k==='drv'?['drvn','drva']:[k]).filter(k=>k!=='validate'||g.app>0)}}
+async function docRun(g,since){if(!(window.winteerNative&&winteerNative.docScan)||vIsId(g.id))return;
+  await new Promise(r=>setTimeout(r,4000));
+  try{const r=await winteerNative.docScan({since:since||0,exe:g.exe||'',steam:isSteamG(g)});if(!r||!r.ok||!r.list.length||$('.modal'))return;
+    const ago=t=>new Date(t).toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit'}),seen=new Set();
+    modal(`<h3>Por qué se cerró ${esc(g.name)}</h3><p class="hint2">Windows anotó estos errores justo cuando el juego se cerró.</p>${r.list.filter(it=>{const k=(it.mod||'')+it.code;if(seen.has(k))return false;seen.add(k);return true}).slice(0,2).map(it=>{const e=docExplain(g,it);return `<div class="inf-c" style="margin-top:12px;text-align:left"><small style="color:var(--muted)">${ago(it.t)} · ${esc(it.app)}${it.mod?' · '+esc(it.mod):''}${it.code?' · '+esc(it.code):''}</small><p style="margin:6px 0 10px">${esc(e.t)}</p><div class="chips">${e.fx.map(k=>`<button class="cp" data-a="docfix" data-k="${k}" data-id="${g.id}">${k==='validate'?'Verificar archivos en Steam':DOCF[k][0]}</button>`).join('')}</div></div>`}).join('')}<div class="bs"><button class="b2" data-a="close">Cerrar</button></div>`)}catch(e){}}
 let DETN=0;async function detInst(force){if(!(window.winteerNative&&winteerNative.installed))return null;if(!force&&Date.now()-DETN<8000)return null;DETN=Date.now();
   try{const r=await winteerNative.installed(ST.steamDir||'');if(!r||!r.ok)return null;const set=new Set(r.apps);let ch=0;G.forEach(g=>{if(!isSteamG(g))return;const v=set.has(g.app);if(!!g.inst!==v){g.inst=v||undefined;ch++}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}else if(S.view==='home'||S.view==='settings'||S.view==='stats')go(S.view)}catch(e){}}return set}catch(e){return null}}
 let XBN=0;function detXboxLater(){[30000,90000,240000].forEach(t=>setTimeout(()=>detXbox(true),t))}
@@ -3648,7 +3586,7 @@ function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
   if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario')+(g.app>0&&window.winteerNative&&winteerNative.pcSpecs?tb('pc','Mi PC'):'')+(window.winteerNative&&winteerNative.docScan?tb('doc','Doctor'):'')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
   {const dt=$('#detail');if(dt)dt.classList.toggle('modsfull',S.tab==='mods'&&(pzOf(g)||mcOf(g)||!!(window.winteerNative&&winteerNative.mioReq)))}
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
@@ -3658,8 +3596,6 @@ function renderTab(){
     h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):srcHTML(g);
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
-  }else if(S.tab==='pc'&&g.app>0){h=pcHTML(g)
-  }else if(S.tab==='doc'&&window.winteerNative&&winteerNative.docScan){h=docHTML(g)
   }else if(S.tab==='rv'){
     h=rvTabHTML(g)+`<div class="nt"><div class="lbl">Notas</div><textarea id="notes" rows="3" placeholder="Algo que quieras recordar de este juego…">${esc(g.notes||'')}</textarea></div>`;
   }else if(S.tab==='cg'){h=cgHTML(g)
@@ -4571,8 +4507,7 @@ Object.assign(A,{
  betatog:()=>{try{winteerNative.betaSet(!UPD.beta).then(r=>updUI({beta:!!r,s:'checking'}))}catch(e){}},
  updgo:()=>{try{winteerNative.updInstall()}catch(e){}},updx:()=>{const b=$('#updbar');if(b)b.remove()},updchk:()=>{try{updUI({s:'checking'});winteerNative.updCheck()}catch(e){}},
  tournext:()=>tourShow((S.tour||0)+1),tourprev:()=>tourShow((S.tour||0)-1),tourskip:()=>{tourEnd(true);toast('Tutorial omitido. Lo podés ver de nuevo desde Ajustes → Sistema y datos')},tourend:()=>tourEnd(false),tutgo:a=>{tourEnd(false);if(a.dataset.tb)S.stab=a.dataset.tb;go(a.dataset.v)},tutreset:()=>{ST.tut={off:false,seen:{}};save();toast('Tutorial reiniciado');tourShow(0)},
- docscan:async a=>{const g=gm(a.dataset.id);if(!g||DOC.b)return;DOC.b=g.id;renderTab();await docRun(g,0,false);DOC.b='';renderTab()},
- docfix:a=>{const g=gm(a.dataset.id),k=a.dataset.k;if(k==='validate'&&g&&g.app){location.href='steam://validate/'+g.app;toast('Steam va a verificar los archivos');return}if(k==='drv'){const sp=PCS.sp,gp=((sp&&sp.gpu)||[]).join(' ').toLowerCase();window.open(/nvidia|geforce/.test(gp)?'https://www.nvidia.com/Download/index.aspx':/intel/.test(gp)&&!/amd|radeon/.test(gp)?'https://www.intel.com/content/www/us/en/download-center/home.html':'https://www.amd.com/en/support','_blank','noopener');return}if(DOCF[k]&&DOCF[k][1])window.open(DOCF[k][1],'_blank','noopener')},
+ docfix:a=>{const g=gm(a.dataset.id),k=a.dataset.k;if(k==='validate'&&g&&g.app){location.href='steam://validate/'+g.app;toast('Steam va a verificar los archivos');return}if(k==='drvn'){window.open('https://www.nvidia.com/Download/index.aspx','_blank','noopener');return}if(k==='drva'){window.open('https://www.amd.com/en/support','_blank','noopener');return}if(DOCF[k]&&DOCF[k][1])window.open(DOCF[k][1],'_blank','noopener')},
  sttab:a=>{S.sttb=a.dataset.v;$$('[data-a=sttab]').forEach(b=>b.classList.toggle('on',b===a));const e=$('#stp');if(e&&window.__stPanel)e.innerHTML=window.__stPanel(S.sttb)},
  newsopen:a=>{const u=a.dataset.u;if(/^https?:\/\//.test(u))window.open(u,'_blank','noopener')},
  newsf:a=>{S.nf=a.dataset.v;S.nlim=18;S.npg=0;$$('[data-a=newsf]').forEach(b=>b.classList.toggle('on',b===a));newsDraw()},
@@ -7922,8 +7857,8 @@ if(window.winteerNative)winteerNative.onGame(ev=>{
   if(ev.type==='shot'){hcnt('shot');const gg=gm(ev.id);toast('Captura guardada'+(gg?' · '+gg.name:''));if(S.view==='games'&&S.sel===ev.id&&S.tab==='shots')shFill(ev.id);return}
   const g=gm(ev.id);if(!g||!S.playing||S.playing.id!==ev.id)return;
   if(ev.type==='started'){S.playing.t=ev.t;S.playing.auto=true;renderList();if(S.view==='games')renderDetail(false)}
-  else if(ev.type==='stopped'){try{if(S.playing&&(ev.t-S.playing.t)<3*6e4)docRun(g,S.playing.t,true)}catch(e){}try{healthAdd(g,ev)}catch(e){}if(S.fromBP){S.fromBP=false;setTimeout(()=>{if(!BP)bpOpen()},600)}S.playing.end=ev.t;const o=S.sel;S.sel=ev.id;A.play();S.sel=o;setTimeout(()=>{try{mqRefresh()}catch(e){}},1500)}
-  else if(ev.type==='never'){toast(ev.err||'No pude detectar el juego. Cuando lo cierres, tocá Detener.');try{docRun(g,S.playing&&S.playing.t,true)}catch(e){}}});
+  else if(ev.type==='stopped'){try{if(S.playing&&(ev.t-S.playing.t)<3*6e4)docRun(g,S.playing.t)}catch(e){}if(S.fromBP){S.fromBP=false;setTimeout(()=>{if(!BP)bpOpen()},600)}S.playing.end=ev.t;const o=S.sel;S.sel=ev.id;A.play();S.sel=o;setTimeout(()=>{try{mqRefresh()}catch(e){}},1500)}
+  else if(ev.type==='never'){toast(ev.err||'No pude detectar el juego. Cuando lo cierres, tocá Detener.');try{docRun(g,S.playing&&S.playing.t)}catch(e){}}});
 /* ---------- precarga de miniaturas ---------- */
 function warm(g){const o=art.grid(g),key=ORIG[o]||o;let cur=o,fb=art.wide(g);return new Promise(res=>{const im=new Image();
   im.onload=()=>{if(cur!==key){GOOD[key]=cur;ORIG[cur]=key;gSave()}res()};

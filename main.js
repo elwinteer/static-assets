@@ -943,16 +943,6 @@ function steamRun(app) {
     });
   });
 }
-function hSample(t) {
-  try { ovTempFetch(); setTimeout(() => { if (ovTemps.ok && (ovTemps.cpu != null || ovTemps.gpu != null)) (t.hl = t.hl || []).push([ovTemps.cpu, ovTemps.gpu]); }, 1800); } catch (e) {}
-}
-function hSum(t) {
-  try {
-    const l = t.hl || []; if (l.length < 2) return null;
-    const f = (i) => { const v = l.map((x) => x[i]).filter((x) => x != null); return v.length ? { max: Math.max.apply(null, v), avg: Math.round(v.reduce((a, b) => a + b, 0) / v.length) } : null; };
-    return { n: l.length, cpu: f(0), gpu: f(1) };
-  } catch (e) { return null; }
-}
 async function poll() {
   if (!track.size) { clearInterval(poller); poller = null; return; }
   const sr = new Map();
@@ -962,8 +952,8 @@ async function poll() {
   for (const [id, t] of [...track]) {
     const byProc = () => procs.some(p => t.exe ? p === t.exe : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
-    if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); if (!t.vault && Date.now() - (t.hs || 0) > 30000) { t.hs = Date.now(); hSample(t); } }
-    else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000, th: t.vault ? null : hSum(t) }); track.delete(id); syncShot(); backFromGame(); } }
+    if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
+    else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
@@ -1563,13 +1553,6 @@ app.whenReady().then(() => {
       if (list.length >= 5) break;
     }
     return { ok: true, list };
-  });
-  let pcSp = null;
-  ipcMain.handle('pcSpecs', async () => {
-    if (pcSp) return pcSp;
-    const cp = os.cpus(), o = { cpu: (cp[0] || {}).model || '', cores: cp.length, ram: +(os.totalmem() / 1073741824).toFixed(1), gpu: [] };
-    if (process.platform === 'win32') await new Promise((res) => { try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Get-CimInstance Win32_VideoController | ForEach-Object { $_.Name }'], { windowsHide: true, timeout: 15000 }, (err, out) => { if (!err) o.gpu = String(out).split(/\r?\n/).map((s) => s.trim()).filter(Boolean); res(); }); } catch (e) { res(); } });
-    pcSp = o; return o;
   });
   ipcMain.handle('playniteHltb', async () => { try { return playniteHltb(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('igdbMonth', async (_e, o) => { try {

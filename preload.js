@@ -9,7 +9,6 @@ contextBridge.exposeInMainWorld('winteerNative', {
   exportFile: (o) => ipcRenderer.invoke('exportFile', o),
   httpImg: (u) => ipcRenderer.invoke('httpImg', u),
   playniteHltb: () => ipcRenderer.invoke('playniteHltb'),
-  pcSpecs: () => ipcRenderer.invoke('pcSpecs'),
   docScan: (o) => ipcRenderer.invoke('docScan', o),
   igdb: (o) => ipcRenderer.invoke('igdb', o),
   igdbVid: (o) => ipcRenderer.invoke('igdbVid', o),
