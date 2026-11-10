@@ -3501,13 +3501,13 @@ function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
   if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(pzOf(g)?tb('mods','Mods'):'')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario');
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(pzOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario');
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
   else if(S.tab==='ach'){
     h=`<div class="ach2"><div class="inf-c">${rankHTML(g)}</div><div class="inf-c">${cgHTML(g)}</div></div>`+(ggOwn(g)?`<div style="margin-top:14px">${ggHTML(g)}</div>`:'');
-  }else if(S.tab==='mods'&&pzOf(g)){
-    h=pzHTML(g);
+  }else if(S.tab==='mods'&&(pzOf(g)||(window.winteerNative&&winteerNative.mioReq))){
+    h=pzOf(g)?pzHTML(g):miHTML(g);
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='rv'){
@@ -5279,7 +5279,7 @@ async function ovPush(){if(!OVS.on||!WN)return;try{const f=FR();if(!f.on)return;
 setInterval(async()=>{if(!OVS.on)return;try{if(OVS.c)await frChatPull(OVS.c)}catch(e){}ovPush()},2500);
 /* ===== gestor de mods (Project Zomboid) ===== */
 const pzOf=g=>!!g&&!!window.winteerNative&&!!winteerNative.pzScan&&(g.app===108600||/project\s*zomboid/i.test(g.name||''));
-const PZS={inst:{},mods:[],act:null,ok:0,ld:0,q:'',view:'list',res:null,sq:'',busy:0,sp:1};
+const PZS={inst:{},mods:[],act:null,ok:0,ld:0,q:'',view:'list',res:null,sq:'',busy:0,sp:1,so:'trend',b42:1,more:0,list:null};
 const pzSt=()=>{const z=(ST.pz=ST.pz||{profiles:[],cur:'',auto:0});z.profiles=z.profiles||[];return z};
 const pzProf=()=>{const z=pzSt();return z.profiles.find(p=>p.id===z.cur)||z.profiles[0]||null};
 const pzById=id=>PZS.mods.find(m=>m.id===id);
@@ -5304,20 +5304,32 @@ function pzHTML(g){
    ${miss.length?`<div class="pz-ms"><b>Faltan ${miss.length} mod${miss.length>1?'s':''} de este perfil</b><small>WINTEER puede suscribirte a los que tienen enlace del Workshop.</small><div>${miss.slice(0,8).map(i=>`<span class="cp" style="cursor:default">${esc(i)}</span>`).join('')}${miss.length>8?`<span class="hint2">y ${miss.length-8} más</span>`:''}<button class="b2 sm" data-a="pzinstmiss" style="margin-left:auto">Instalar los que faltan</button></div></div>`:''}
    <div class="pz-q"><input class="txt" id="pz-q" placeholder="Buscar entre tus ${PZS.mods.length} mods…" value="${esc(PZS.q)}"><button class="b2 g sm" data-a="pzrescan" title="Volver a leer tus mods">Actualizar lista</button>${z.profiles.length>1?`<button class="b2 g sm" data-a="pzdel">Borrar perfil</button>`:''}</div>
    <div class="pz-l">${list.length?list.map(row).join(''):'<div class="pz-e">Ningún mod coincide con la búsqueda.</div>'}</div></div>`}
-function pzSearchHTML(){const r=PZS.res,inst=new Set(PZS.mods.map(m=>m.wid).filter(Boolean));
+function pzSearchHTML(){const r=PZS.res,inst=new Set(PZS.mods.map(m=>m.wid).filter(Boolean)),srt=[['trend','Populares'],['totaluniquesubscribers','Más suscriptos'],['mostrecent','Nuevos']];
+  const sb=!PZS.sq;
+  const card=x=>`<div class="pz-c"><div class="pz-i">${x.img?`<img loading="lazy" decoding="async" src="${esc(x.img)}" alt="">`:''}</div><div class="pz-ct"><b title="${esc(x.t)}">${esc(x.t)}</b><small>${esc(x.a)}</small>${inst.has(x.wid)||PZS.inst[x.wid]==='ok'?'<div class="b2 g sm pz-in">✓ Instalado</div>':PZS.inst[x.wid]==='busy'?'<div class="b2 g sm pz-in">Suscribiendo…</div>':PZS.inst[x.wid]==='wait'?'<div class="b2 g sm pz-in">Bajando en Steam…</div>':`<button class="b2 p sm" data-a="pzinst" data-id="${esc(x.wid)}">Instalar</button>`}</div></div>`;
+  const body=r==='err'?`<div class="pz-e"><b>No pude leer el Workshop desde acá</b><span>Probá de nuevo, o explorá el Workshop directamente.</span><button class="b2 sm" data-a="pzgo">Reintentar</button><button class="b2 g sm" data-a="pzweb">Abrir el Workshop en Steam</button></div>`:(!PZS.list&&r!=='ok')?'<div class="pz-e">Buscando en el Workshop…</div>':!(PZS.list||[]).length?'<div class="pz-e">No encontré resultados.</div>':`<div class="pz-g">${PZS.list.map(card).join('')}</div>${PZS.more?`<div style="text-align:center;margin-top:14px"><button class="b2 g" data-a="pzmore" ${r==='load'?'disabled':''}>${r==='load'?'Cargando…':'Ver más'}</button></div>`:''}<div class="hint2" style="margin-top:12px">«Instalar» te suscribe con tu cuenta de Steam. Steam tiene que estar abierto para bajarlo; cuando termina, el mod aparece solo en tu perfil.</div>`;
   return `<div class="pz"><div class="pz-h"><button class="b2 g sm" data-a="pzback">← Mis mods</button><span class="hint2" style="margin-left:auto">Fuente: Steam Workshop</span></div>
    <div class="pz-q"><input class="txt" id="pz-s" placeholder="Buscar mods de Project Zomboid en el Workshop…" value="${esc(PZS.sq)}"><button class="b2 sm" data-a="pzgo">Buscar</button></div>
-   ${r===null?'<div class="pz-e">Escribí qué buscás o tocá Buscar para ver los más populares.</div>':r==='load'?'<div class="pz-e">Buscando en el Workshop…</div>':r==='err'?`<div class="pz-e"><b>No pude leer el Workshop desde acá</b><span>Probá de nuevo, o explorá el Workshop directamente.</span><button class="b2 sm" data-a="pzweb">Abrir el Workshop en Steam</button></div>`:!r.length?'<div class="pz-e">No encontré resultados.</div>':`<div class="pz-g">${r.map(x=>`<div class="pz-c"><div class="pz-i">${x.img?`<img loading="lazy" decoding="async" src="${esc(x.img)}" alt="">`:''}</div><div class="pz-ct"><b>${esc(x.t)}</b><small>${esc(x.a)}</small>${inst.has(x.wid)||PZS.inst[x.wid]==='ok'?'<div class="b2 g sm pz-in">✓ Instalado</div>':PZS.inst[x.wid]==='busy'?'<div class="b2 g sm pz-in">Suscribiendo…</div>':PZS.inst[x.wid]==='wait'?'<div class="b2 g sm pz-in">Bajando en Steam…</div>':`<button class="b2 p sm" data-a="pzinst" data-id="${esc(x.wid)}">Instalar</button>`}</div></div>`).join('')}</div><div class="hint2" style="margin-top:12px">«Instalar» te suscribe con tu cuenta de Steam. Steam tiene que estar abierto para bajarlo; cuando termina, el mod aparece solo en tu perfil.</div>`}</div>`}
-async function pzDoSearch(){const el=$('#pz-s');PZS.sq=el?el.value.trim():PZS.sq;PZS.res='load';renderTab();try{const r=await winteerNative.pzSearch(PZS.sq,1);PZS.res=r&&r.ok&&r.items.length?r.items:(r&&r.ok?[]:'err')}catch(e){PZS.res='err'}if(S.tab==='mods'&&$('#tabc'))renderTab()}
+   <div class="pz-pr">${srt.map(([k,l])=>`<button class="cp ${PZS.so===k&&sb?'on':''}" data-a="pzsort" data-id="${k}" ${sb?'':'disabled'}>${l}</button>`).join('')}<button class="cp ${PZS.b42?'on':''}" data-a="pzb42" title="Mostrar solo mods marcados para Build 42">Build 42</button></div>${body}</div>`}
+async function pzDoSearch(more){const el=$('#pz-s');if(!more){PZS.sq=el?el.value.trim():PZS.sq;PZS.sp=1;PZS.list=null}else PZS.sp++;PZS.res='load';if(S.tab==='mods'&&$('#tabc'))renderTab();
+  try{let r=await winteerNative.pzSearch(PZS.sq,PZS.sp,PZS.so,PZS.b42);if(r&&r.ok&&!r.items.length&&PZS.b42&&!more)r=await winteerNative.pzSearch(PZS.sq,1,PZS.so,0);
+   if(r&&r.ok){const seen=new Set((more&&PZS.list||[]).map(x=>x.wid));PZS.list=(more&&PZS.list||[]).concat(r.items.filter(x=>!seen.has(x.wid)));PZS.more=r.items.length>=10&&PZS.list.length<200?1:0;PZS.res='ok'}else{PZS.res='err'}}catch(e){PZS.res='err'}if(S.tab==='mods'&&$('#tabc'))renderTab()}
 async function pzWatch(wid,n){n=n||0;if(n>40){PZS.inst[wid]=null;if(S.tab==='mods'&&$('#tabc'))renderTab();return}
   await new Promise(r=>setTimeout(r,6000));try{const r=await winteerNative.pzScan(ST.steamDir||'');const have=(r.mods||[]).filter(m=>m.wid===wid);
    if(have.length){PZS.mods=r.mods;PZS.act=r.active;PZS.inst[wid]='ok';const p=pzProf();if(p){p.w=p.w||{};have.forEach(m=>{if(!p.m.includes(m.id))p.m.push(m.id);p.w[m.id]=wid})}save();toast('Mod instalado: '+have[0].name+(p?' · sumado a «'+p.n+'»':''));if(S.view==='games'&&S.tab==='mods'&&$('#tabc'))renderTab();return}}catch(e){}
   return pzWatch(wid,n+1)}
-async function pzInstOne(wid){PZS.inst[wid]='busy';if(S.tab==='mods'&&$('#tabc'))renderTab();const r=await winteerNative.pzSub(wid).catch(()=>({ok:false}));
-  if(r&&r.ok){PZS.inst[wid]='wait';if(S.tab==='mods'&&$('#tabc'))renderTab();pzWatch(wid);return true}
-  PZS.inst[wid]=null;if(S.tab==='mods'&&$('#tabc'))renderTab();return r}
+async function pzInstOne(wid){PZS.inst[wid]='busy';if(S.tab==='mods'&&$('#tabc'))renderTab();
+  let deps=[];try{const d=await winteerNative.pzDeps(wid);deps=(d&&d.ids)||[]}catch(e){}
+  const have=new Set(PZS.mods.map(m=>m.wid).filter(Boolean));deps=deps.filter(w=>!have.has(w)&&!PZS.inst[w]);
+  const r=await winteerNative.pzSub(wid).catch(()=>({ok:false}));
+  if(!(r&&r.ok)){PZS.inst[wid]=null;if(S.tab==='mods'&&$('#tabc'))renderTab();return r}
+  let nd=0;for(const w of deps){PZS.inst[w]='busy';const x=await winteerNative.pzSub(w).catch(()=>({ok:false}));if(x&&x.ok){PZS.inst[w]='wait';nd++;pzWatch(w)}else PZS.inst[w]=null}
+  PZS.inst[wid]='wait';PZS.nd=nd;if(S.tab==='mods'&&$('#tabc'))renderTab();pzWatch(wid);return true}
 Object.assign(A,{
- pztog:a=>{const p=pzProf();if(!p)return;const id=a.dataset.id,i=p.m.indexOf(id);if(i<0){p.m.push(id);const m=pzById(id);p.w=p.w||{};if(m&&m.wid)p.w[id]=m.wid}else p.m.splice(i,1);save();renderTab()},
+ pztog:a=>{const p=pzProf();if(!p)return;const id=a.dataset.id,i=p.m.indexOf(id);p.w=p.w||{};
+   if(i<0){const add=[];const walk=x=>{const m=pzById(x);if(!m)return;m.req.forEach(r=>{const d=pzById(r);if(d&&!p.m.includes(r)&&!add.includes(r)){add.push(r);walk(r)}})};p.m.push(id);const m0=pzById(id);if(m0&&m0.wid)p.w[id]=m0.wid;walk(id);add.forEach(r=>{p.m.push(r);const d=pzById(r);if(d&&d.wid)p.w[r]=d.wid});if(add.length)toast('Sumé también '+add.length+' mod'+(add.length>1?'s':'')+' que necesita: '+add.slice(0,3).map(r=>(pzById(r)||{}).name||r).join(', ')+(add.length>3?'…':''))}
+   else{const need=PZS.mods.filter(m=>p.m.includes(m.id)&&m.req.includes(id)).map(m=>m.name);p.m.splice(i,1);if(need.length)toast('Ojo: '+need.slice(0,2).join(', ')+(need.length>2?' y otros':'')+' lo necesita'+(need.length>1?'n':''))}
+   save();renderTab()},
  pzprof:a=>{pzSt().cur=a.dataset.id;save();renderTab()},
  pznew:()=>{modal(`<h3 style="margin:0 0 10px">Nuevo perfil de mods</h3><input class="txt" id="pz-nn" placeholder="Ej: Con mi primo" maxlength="30" style="width:100%"><label class="pz-au" style="margin-top:14px"><button class="sw on" id="pz-cp" type="button" onclick="this.classList.toggle('on')"></button><span>Empezar con los mods del perfil actual</span></label><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="b2 g" data-a="mclose">Cancelar</button><button class="b2" data-a="pznewok">Crear</button></div>`);setTimeout(()=>{const e=$('#pz-nn');if(e)e.focus()},50)},
  pznewok:a=>{const n=(($('#pz-nn')||{}).value||'').trim().slice(0,30);if(!n){toast('Ponele un nombre al perfil');return}const z=pzSt(),cur=pzProf(),cp=$('#pz-cp')&&$('#pz-cp').classList.contains('on');const p={id:'p'+Date.now().toString(36),n,m:cp&&cur?cur.m.slice():[],w:cp&&cur?Object.assign({},cur.w):{}};z.profiles.push(p);z.cur=p.id;save();const m=a.closest('.modal');if(m)m.remove();renderTab()},
@@ -5329,9 +5341,9 @@ Object.assign(A,{
  pzshare:async()=>{const p=pzProf();if(!p)return;const code='WTMODS1:'+btoa(unescape(encodeURIComponent(JSON.stringify({n:p.n,m:p.m.map(i=>[i,(p.w||{})[i]||(pzById(i)||{}).wid||''])}))));try{await navigator.clipboard.writeText(code);toast('Código copiado: pasáselo a tu amigo y que toque Importar')}catch(e){toast('No pude copiar el código')}},
  pzimp:()=>{modal(`<h3 style="margin:0 0 10px">Importar perfil de mods</h3><p class="hint2" style="margin:0 0 10px">Pegá el código que te pasó tu amigo.</p><textarea class="txt" id="pz-code" rows="4" style="width:100%" placeholder="WTMODS1:..."></textarea><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="b2 g" data-a="mclose">Cancelar</button><button class="b2" data-a="pzimpok">Importar</button></div>`)},
  pzimpok:a=>{try{const t=(($('#pz-code')||{}).value||'').trim();if(!t.startsWith('WTMODS1:'))throw 0;const o=JSON.parse(decodeURIComponent(escape(atob(t.slice(8)))));if(!Array.isArray(o.m))throw 0;const z=pzSt(),w={},ids=[];o.m.slice(0,600).forEach(x=>{const i=String(x[0]||'').replace(/[^\w.\-]/g,'');if(!i)return;ids.push(i);const k=String(x[1]||'').replace(/\D/g,'');if(k)w[i]=k});const p={id:'p'+Date.now().toString(36),n:String(o.n||'Importado').slice(0,30),m:ids,w};z.profiles.push(p);z.cur=p.id;save();const m=a.closest('.modal');if(m)m.remove();renderTab();const inst=new Set(PZS.mods.map(x=>x.id)),f=ids.filter(i=>!inst.has(i)).length;toast(f?'Perfil importado. Te faltan '+f+' mods por instalar':'Perfil importado: tenés todos los mods')}catch(e){toast('Ese código no es válido')}},
- pzsearch:()=>{PZS.view='search';renderTab()},pzback:()=>{PZS.view='list';renderTab()},pzgo:()=>pzDoSearch(),
+ pzsearch:()=>{PZS.view='search';renderTab();if(PZS.res===null||PZS.res==='err')pzDoSearch()},pzsort:a=>{PZS.so=a.dataset.id;pzDoSearch()},pzb42:()=>{PZS.b42=PZS.b42?0:1;pzDoSearch()},pzmore:()=>pzDoSearch(true),pzback:()=>{PZS.view='list';renderTab()},pzgo:()=>pzDoSearch(),
  pzopen:a=>{if(a.dataset.id)winteerNative.pzOpen(a.dataset.id)},
- pzinst:async a=>{const w=a.dataset.id;if(!w||PZS.inst[w])return;const r=await pzInstOne(w);if(r!==true){toast(r&&r.err==='login'?'Necesito que inicies sesión en Steam para suscribirte':'No pude suscribirte desde WINTEER. Te abro el mod en Steam');if(!(r&&r.err==='login'))winteerNative.pzOpen(w)}else toast('Suscripto. Steam lo está bajando…')},
+ pzinst:async a=>{const w=a.dataset.id;if(!w||PZS.inst[w])return;const r=await pzInstOne(w);if(r!==true){toast(r&&r.err==='login'?'Necesito que inicies sesión en Steam para suscribirte':'No pude suscribirte desde WINTEER. Te abro el mod en Steam');if(!(r&&r.err==='login'))winteerNative.pzOpen(w)}else toast(PZS.nd?'Suscripto, con '+PZS.nd+' mod'+(PZS.nd>1?'s':'')+' que necesita. Steam los está bajando…':'Suscripto. Steam lo está bajando…')},
  pzinstmiss:async()=>{const p=pzProf();if(!p)return;const inst=new Set(PZS.mods.map(m=>m.id)),ws=[...new Set(p.m.filter(i=>!inst.has(i)).map(i=>(p.w||{})[i]).filter(Boolean))];if(!ws.length){toast('Estos mods no tienen enlace del Workshop guardado');return}toast('Suscribiéndote a '+ws.length+' mod'+(ws.length>1?'s':'')+'…');let ok=0;for(const w of ws){const r=await pzInstOne(w);if(r===true)ok++;else if(r&&r.err==='login'){toast('Necesito que inicies sesión en Steam');return}}toast(ok+' de '+ws.length+' suscripciones hechas. Steam los está bajando')},
  pzweb:()=>{try{winteerNative.pzOpen('')}catch(e){}window.open('https://steamcommunity.com/app/108600/workshop/','_blank')},
  mclose:a=>{const m=a.closest('.modal');if(m)m.remove()}
@@ -5339,6 +5351,53 @@ Object.assign(A,{
 document.addEventListener('input',e=>{if(e.target.id==='pz-q'){PZS.q=e.target.value;const l=$('.pz-l');if(l){const sv=e.target.selectionStart;renderTab();const n=$('#pz-q');if(n){n.focus();try{n.setSelectionRange(sv,sv)}catch(x){}}}}});
 document.addEventListener('keydown',e=>{if(e.target.id==='pz-s'&&e.key==='Enter'){e.preventDefault();A.pzgo()}});
 window.addEventListener('focus',()=>{try{if(S.view==='games'&&S.tab==='mods'){PZS.ok=0;PZS.ld=0;pzLoad(true)}}catch(e){}});
+/* ===== mods de otros juegos (mod.io) ===== */
+const MIO={key:0,tok:0,ld:0,g:{},list:null,res:null,so:'-popular',q:'',sub:null,more:0,off:0,busy:{},st:0};
+async function mioInit(){try{const r=await winteerNative.mioState();MIO.key=!!r.key;MIO.tok=!!r.tok}catch(e){}MIO.st=1}
+if(window.winteerNative&&winteerNative.mioState)mioInit();
+const mioSt=()=>{const z=(ST.mio=ST.mio||{});return z};
+const mioGame=g=>mioSt()[g.id];
+async function mioReq(o){const r=await winteerNative.mioReq(o);if(r&&r.err==='auth'){MIO.tok=0;MIO.sub=null}return r}
+async function mioResolve(g,name){const n=(name||g.name||'').trim();if(!n)return;MIO.ld=1;try{const r=await mioReq({p:'/games',q:{_q:n,_limit:'10'}});const L=(r&&r.d&&r.d.data)||[];const low=n.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const best=L.find(x=>String(x.name||'').toLowerCase().replace(/[^a-z0-9]/g,'')===low)||L.find(x=>{const y=String(x.name||'').toLowerCase().replace(/[^a-z0-9]/g,'');return y&&(y.includes(low)||low.includes(y))});
+  mioSt()[g.id]=best?{id:best.id,n:best.name}:{id:0,n:n,t:Date.now()};save()}catch(e){}MIO.ld=0;MIO.list=null;MIO.res=null;if(S.view==='games'&&S.tab==='mods'&&$('#tabc'))renderTab()}
+async function mioLoad(g,more){const mg=mioGame(g);if(!mg||!mg.id)return;if(!more){MIO.off=0;MIO.list=null}MIO.res='load';if(S.tab==='mods'&&$('#tabc'))renderTab();
+  const q={_limit:'24',_offset:String(MIO.off),_sort:MIO.q?'-popular':MIO.so};if(MIO.q)q._q=MIO.q;
+  try{const r=await mioReq({p:'/games/'+mg.id+'/mods',q});if(r&&r.ok&&r.d&&Array.isArray(r.d.data)){const seen=new Set((more&&MIO.list||[]).map(x=>x.id));MIO.list=(more&&MIO.list||[]).concat(r.d.data.filter(x=>!seen.has(x.id)));MIO.off+=r.d.data.length;MIO.more=r.d.data.length>=24&&MIO.list.length<240?1:0;MIO.res='ok'}else MIO.res='err'}catch(e){MIO.res='err'}
+  if(S.view==='games'&&S.tab==='mods'&&$('#tabc'))renderTab()}
+async function mioSubs(g){const mg=mioGame(g);if(!MIO.tok||!mg||!mg.id)return;try{const r=await mioReq({p:'/me/subscribed',auth:1,q:{game_id:String(mg.id),_limit:'100'}});if(r&&r.ok&&r.d&&Array.isArray(r.d.data)){MIO.sub=new Set(r.d.data.map(x=>x.id));if(S.tab==='mods'&&$('#tabc'))renderTab()}}catch(e){}}
+function miHTML(g){
+  if(!MIO.st)return `<div class="pz-e">Cargando…</div>`;
+  if(MIO.gid!==g.id){MIO.gid=g.id;MIO.list=null;MIO.res=null;MIO.sub=null;MIO.q='';MIO.more=0;MIO.off=0}
+  if(!MIO.key)return `<div class="pz-e"><b>Mods con mod.io</b><span>mod.io reúne los mods de muchos juegos (SnowRunner, BONELAB y más). Para buscarlos desde WINTEER necesito una clave gratuita que creás vos en tu cuenta: entrá a mod.io/me/access, creá una clave en «API access» y pegala acá. Queda guardada solo en tu PC.</span><div style="display:flex;gap:8px;width:100%;max-width:520px;margin-top:6px"><input class="txt" id="mi-key" placeholder="Clave de mod.io (32 letras y números)" style="flex:1"><button class="b2 sm" data-a="mikey">Guardar</button></div><button class="b2 g sm" data-a="miweb">Abrir mod.io/me/access</button></div>`;
+  const mg=mioGame(g);
+  if(!mg){if(!MIO.ld)mioResolve(g);return `<div class="pz-e">Buscando «${esc(g.name)}» en mod.io…</div>`}
+  if(!mg.id)return `<div class="pz-e"><b>No encontré «${esc(mg.n||g.name)}» en mod.io</b><span>Puede que este juego no use mod.io. Si lo tiene con otro nombre, probá buscarlo.</span><div style="display:flex;gap:8px;width:100%;max-width:460px;margin-top:6px"><input class="txt" id="mi-name" placeholder="Nombre del juego en mod.io" value="${esc(mg.n||'')}" style="flex:1"><button class="b2 sm" data-a="miname">Buscar</button></div></div>`;
+  if(MIO.res===null&&!MIO.ld){MIO.ld=1;setTimeout(()=>{MIO.ld=0;mioLoad(g);mioSubs(g)},0)}
+  const so=[['-popular','Populares'],['-subscribers_total','Más suscriptos'],['-date_added','Nuevos']];
+  const card=x=>{const sub=MIO.sub&&MIO.sub.has(x.id),bz=MIO.busy[x.id];return `<div class="pz-c"><div class="pz-i">${x.logo&&x.logo.thumb_320x180?`<img loading="lazy" decoding="async" src="${esc(x.logo.thumb_320x180)}" alt="">`:''}</div><div class="pz-ct"><b title="${esc(x.name)}">${esc(x.name)}</b><small>${esc((x.submitted_by&&x.submitted_by.username)||'')}${x.stats&&x.stats.subscribers_total?' · '+x.stats.subscribers_total.toLocaleString('es-AR')+' suscriptos':''}</small>${bz?'<div class="b2 g sm pz-in">…</div>':sub?`<button class="b2 g sm" data-a="mirm" data-id="${x.id}">✓ Suscripto · Quitar</button>`:`<button class="b2 p sm" data-a="misub" data-id="${x.id}">Suscribirme</button>`}</div></div>`};
+  const body=MIO.res==='err'?`<div class="pz-e"><b>No pude leer mod.io</b><span>Revisá tu clave o tu conexión.</span><button class="b2 sm" data-a="migo">Reintentar</button><button class="b2 g sm" data-a="mikeyreset">Cambiar la clave</button></div>`:!MIO.list?'<div class="pz-e">Buscando mods…</div>':!MIO.list.length?'<div class="pz-e">No encontré mods.</div>':`<div class="pz-g">${MIO.list.map(card).join('')}</div>${MIO.more?`<div style="text-align:center;margin-top:14px"><button class="b2 g" data-a="mimore" ${MIO.res==='load'?'disabled':''}>${MIO.res==='load'?'Cargando…':'Ver más'}</button></div>`:''}`;
+  return `<div class="pz"><div class="pz-h"><div class="pz-pr"><b style="font-size:15px;align-self:center">Mods de ${esc(mg.n)}</b><span class="hint2" style="align-self:center">mod.io</span></div><div class="pz-ac">${MIO.tok?'<button class="b2 g sm" data-a="mibye">Cerrar sesión de mod.io</button>':'<button class="b2 sm" data-a="milogin">Iniciar sesión</button>'}</div></div>
+   <div class="pz-q"><input class="txt" id="mi-q" placeholder="Buscar mods de ${esc(mg.n)}…" value="${esc(MIO.q)}"><button class="b2 sm" data-a="migo">Buscar</button></div>
+   <div class="pz-pr">${so.map(([k,l])=>`<button class="cp ${MIO.so===k&&!MIO.q?'on':''}" data-a="misort" data-id="${k}" ${MIO.q?'disabled':''}>${l}</button>`).join('')}</div>${body}
+   <div class="hint2">«Suscribirme» agrega el mod a tu cuenta de mod.io. El juego lo baja solo la próxima vez que lo abras, si tiene mod.io integrado.</div></div>`}
+Object.assign(A,{
+ mikey:async()=>{const k=(($('#mi-key')||{}).value||'').trim();const r=await winteerNative.mioKeySet(k);if(r&&r.ok&&r.key){MIO.key=1;toast('Clave guardada');renderTab()}else toast('Esa clave no parece válida: son 32 letras y números')},
+ mikeyreset:async()=>{await winteerNative.mioKeySet('');MIO.key=0;MIO.tok=0;MIO.res=null;renderTab()},
+ miweb:()=>window.open('https://mod.io/me/access','_blank'),
+ miname:g=>{const n=(($('#mi-name')||{}).value||'').trim();const gg=gm(S.sel);if(n&&gg)mioResolve(gg,n)},
+ migo:()=>{const el=$('#mi-q');MIO.q=el?el.value.trim():MIO.q;MIO.res=null;MIO.list=null;renderTab()},
+ misort:a=>{MIO.so=a.dataset.id;MIO.res=null;MIO.list=null;renderTab()},
+ mimore:()=>{const g=gm(S.sel);if(g)mioLoad(g,true)},
+ milogin:()=>{modal(`<h3 style="margin:0 0 8px">Iniciar sesión en mod.io</h3><p class="hint2" style="margin:0 0 12px">Te mando un código por mail para confirmar que sos vos. No necesito tu contraseña.</p><div id="mi-s1"><input class="txt" id="mi-em" type="email" placeholder="tu@mail.com" style="width:100%"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="b2 g" data-a="mclose">Cancelar</button><button class="b2" data-a="milogin1">Enviar código</button></div></div><div id="mi-s2" style="display:none"><input class="txt" id="mi-cd" placeholder="Código del mail" maxlength="8" style="width:100%"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="b2 g" data-a="mclose">Cancelar</button><button class="b2" data-a="milogin2">Entrar</button></div></div>`)},
+ milogin1:async()=>{const e=(($('#mi-em')||{}).value||'').trim();if(!/^\S+@\S+\.\S+$/.test(e)){toast('Escribí un mail válido');return}const r=await winteerNative.mioLogin({step:1,email:e}).catch(()=>({}));if(r&&r.ok){$('#mi-s1').style.display='none';$('#mi-s2').style.display='block';toast('Te mandé un código a tu mail')}else toast('No pude mandar el código. Revisá el mail y la clave')},
+ milogin2:async a=>{const c=(($('#mi-cd')||{}).value||'').trim();if(!c)return;const r=await winteerNative.mioLogin({step:2,code:c}).catch(()=>({}));if(r&&r.ok){MIO.tok=1;const m=a.closest('.modal');if(m)m.remove();toast('Sesión iniciada en mod.io');const g=gm(S.sel);if(g)mioSubs(g)}else toast('Código incorrecto o vencido')},
+ mibye:async()=>{await winteerNative.mioLogout();MIO.tok=0;MIO.sub=null;renderTab()},
+ misub:async a=>{const g=gm(S.sel),mg=g&&mioGame(g);if(!mg)return;if(!MIO.tok){A.milogin();return}const id=+a.dataset.id;MIO.busy[id]=1;renderTab();const r=await mioReq({p:'/games/'+mg.id+'/mods/'+id+'/subscribe',m:'POST',auth:1,f:{include_dependencies:'true'}});delete MIO.busy[id];
+   if(r&&(r.ok||r.st===400)){MIO.sub=MIO.sub||new Set();MIO.sub.add(id);toast('Suscripto, con lo que necesita. El juego lo baja la próxima vez que lo abras')}else if(r&&r.err==='auth'){toast('Tu sesión de mod.io venció. Iniciá sesión de nuevo')}else toast('No pude suscribirme a ese mod');renderTab()},
+ mirm:async a=>{const g=gm(S.sel),mg=g&&mioGame(g);if(!mg||!MIO.tok)return;const id=+a.dataset.id;MIO.busy[id]=1;renderTab();const r=await mioReq({p:'/games/'+mg.id+'/mods/'+id+'/subscribe',m:'DELETE',auth:1});delete MIO.busy[id];if(r&&(r.ok||r.st===204)){if(MIO.sub)MIO.sub.delete(id);toast('Mod quitado de tu cuenta')}else toast('No pude quitarlo');renderTab()}
+});
+document.addEventListener('keydown',e=>{if(e.target.id==='mi-q'&&e.key==='Enter'){e.preventDefault();A.migo()}if(e.target.id==='mi-key'&&e.key==='Enter'){e.preventDefault();A.mikey()}});
 /* ===== logros propios (juegos fuera de tiendas) ===== */
 const ggOwn=g=>!!g&&!isSteamG(g)&&!isEpicG(g)&&!isXbG(g);
 const GGX={c:3,r:8,e:18};

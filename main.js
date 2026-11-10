@@ -563,13 +563,14 @@ async function pzApply(ids, steamDir) {
     return { ok: true, count: out.length, active: out };
   } catch (e) { return { ok: false, err: String(e && e.message || e) }; }
 }
-function pzSearch(q, page) {
+function pzSearch(q, page, sort, tag) {
   return new Promise((res) => {
     let w = null, done = false;
     const fin = (r) => { if (done) return; done = true; try { if (w && !w.isDestroyed()) w.destroy(); } catch (e) {} res(r); };
     try {
       w = new BrowserWindow({ show: false, width: 1200, height: 900, webPreferences: { partition: 'wt-pzsearch', sandbox: true, backgroundThrottling: false } });
-      const u = 'https://steamcommunity.com/workshop/browse/?appid=108600&searchtext=' + encodeURIComponent(String(q || '').slice(0, 80)) + '&browsesort=' + (q ? 'textsearch' : 'trend') + '&section=readytouseitems&actualsort=' + (q ? 'textsearch' : 'trend') + '&p=' + (Math.max(1, +page || 1)) + '&days=-1';
+      const so = q ? 'textsearch' : (['trend', 'mostrecent', 'totaluniquesubscribers'].includes(sort) ? sort : 'trend');
+      const u = 'https://steamcommunity.com/workshop/browse/?appid=108600&searchtext=' + encodeURIComponent(String(q || '').slice(0, 80)) + '&browsesort=' + so + '&section=readytouseitems&actualsort=' + so + '&p=' + (Math.max(1, Math.min(20, +page || 1))) + '&days=' + (so === 'trend' ? 7 : -1) + (tag ? '&requiredtags%5B0%5D=' + encodeURIComponent('Build 42') : '');
       setTimeout(() => fin({ ok: false, err: 'timeout' }), 20000);
       w.webContents.on('did-fail-load', (_e, c) => { if (c !== -3) fin({ ok: false, err: 'net' }); });
       w.webContents.on('did-finish-load', async () => {
@@ -613,6 +614,36 @@ async function pzSub(wid, retry) {
     if (j && (j.success === 1 || j.success === true)) return { ok: true };
     if (!retry) { try { await ses.clearStorageData({ storages: ['cookies'] }); } catch (e) {} return pzSub(wid, true); }
     return { ok: false, err: 'api', st: r.status };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
+
+async function pzDeps(wid) {
+  try {
+    const seen = new Set([String(wid)]), out = []; let level = [String(wid)];
+    for (let d = 0; d < 3 && level.length; d++) {
+      const body = new URLSearchParams({ itemcount: String(level.length) }); level.forEach((id, i) => body.set('publishedfileids[' + i + ']', id));
+      const r = await net.fetch('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+      const j = await r.json().catch(() => null); const det = (j && j.response && j.response.publishedfiledetails) || [];
+      const next = [];
+      for (const x of det) for (const c of (x.children || [])) { const id = String(c.publishedfileid || ''); if (/^\d{5,12}$/.test(id) && !seen.has(id)) { seen.add(id); out.push(id); next.push(id); } }
+      level = next;
+    }
+    return { ok: true, ids: out.slice(0, 30) };
+  } catch (e) { return { ok: false, ids: [] }; }
+}
+
+/* ---------- mods de otros juegos: mod.io ---------- */
+async function mioReq(o) {
+  try {
+    o = o || {}; const p = String(o.p || ''); if (!/^\/(games|me|oauth)(\/|$)/.test(p) || p.includes('..')) return { ok: false, err: 'path' };
+    if (!cfg.mioKey) return { ok: false, err: 'key' };
+    const q = new URLSearchParams(o.q || {}); const h = { Accept: 'application/json' };
+    if (o.auth) { if (!cfg.mioTok) return { ok: false, err: 'auth' }; h.Authorization = 'Bearer ' + cfg.mioTok; } else q.set('api_key', cfg.mioKey);
+    let body; if (o.f) { h['Content-Type'] = 'application/x-www-form-urlencoded'; body = new URLSearchParams(o.f).toString(); }
+    const r = await net.fetch('https://api.mod.io/v1' + p + (q.toString() ? '?' + q : ''), { method: o.m || 'GET', headers: h, body });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (r.status === 401 && o.auth) { cfg.mioTok = ''; saveCfg(); return { ok: false, st: 401, err: 'auth' }; }
+    return { ok: r.ok, st: r.status, d: j };
   } catch (e) { return { ok: false, err: 'net' }; }
 }
 
@@ -1384,7 +1415,20 @@ app.whenReady().then(() => {
   ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
   ipcMain.handle('pzScan', (_e, sd) => { try { return pzScan(String(sd || '')); } catch (e) { return { ok: false, mods: [], active: [] }; } });
   ipcMain.handle('pzApply', (_e, ids, sd) => pzApply(Array.isArray(ids) ? ids.slice(0, 600) : [], String(sd || '')));
-  ipcMain.handle('pzSearch', (_e, q, p) => pzSearch(q, p));
+  ipcMain.handle('pzSearch', (_e, q, p, so, tg) => pzSearch(q, p, String(so || ''), !!tg));
+  ipcMain.handle('mioState', () => ({ key: !!cfg.mioKey, tok: !!cfg.mioTok }));
+  ipcMain.handle('mioKeySet', (_e, k) => { k = String(k || '').trim(); if (k && !/^[a-f0-9]{32}$/i.test(k)) return { ok: false }; cfg.mioKey = k; if (!k) cfg.mioTok = ''; saveCfg(); return { ok: true, key: !!k }; });
+  ipcMain.handle('mioReq', (_e, o) => mioReq(o));
+  ipcMain.handle('mioLogin', async (_e, o) => {
+    try {
+      o = o || {}; if (!cfg.mioKey) return { ok: false, err: 'key' };
+      if (o.step === 1) { const r = await net.fetch('https://api.mod.io/v1/oauth/emailrequest?api_key=' + cfg.mioKey, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' }, body: new URLSearchParams({ email: String(o.email || '').slice(0, 120) }).toString() }); return { ok: r.ok }; }
+      if (o.step === 2) { const r = await net.fetch('https://api.mod.io/v1/oauth/emailexchange?api_key=' + cfg.mioKey, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' }, body: new URLSearchParams({ security_code: String(o.code || '').trim().slice(0, 10) }).toString() }); const j = await r.json().catch(() => null); if (r.ok && j && j.access_token) { cfg.mioTok = String(j.access_token); saveCfg(); return { ok: true }; } return { ok: false }; }
+    } catch (e) {}
+    return { ok: false };
+  });
+  ipcMain.handle('mioLogout', () => { cfg.mioTok = ''; saveCfg(); return true; });
+  ipcMain.handle('pzDeps', (_e, w) => pzDeps(w));
   ipcMain.handle('pzSub', (_e, wid) => pzSub(wid));
   ipcMain.handle('pzOpen', (_e, wid) => { try { if (/^\d{5,12}$/.test(String(wid))) shell.openExternal('steam://url/CommunityFilePage/' + wid); } catch (e) {} return true; });
   ipcMain.handle('clipDone', () => { clipBusy = false; return true; });
@@ -1410,7 +1454,7 @@ app.whenReady().then(() => {
   ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });;
   ipcMain.handle('winCtl', (_e, a) => { if (!win) return; if (a === 'min') win.minimize(); else if (a === 'max') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); } else if (a === 'close') win.close(); });
   ipcMain.handle('quit', () => { quitting = true; app.quit(); });
-  ipcMain.handle('cfgGet', () => Object.assign({ win: process.platform === 'win32' }, cfg));
+  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; return c; });
   ipcMain.handle('cfgSet', (_e, o) => { if (o && ['bg', 'auto', 'pad'].includes(o.k)) { cfg[o.k] = !!o.v; if (o.k === 'bg' && !cfg.bg) cfg.auto = false; saveCfg(); applyBg(); } return cfg; });
   ipcMain.handle('toBg', () => { if (!win) return; fromBg = false; bgForGame = true; win.setFullScreen(false); if (cfg.bg) hideWin(); else win.minimize(); });
   ipcMain.handle('bpClosed', () => { if (fromBg && cfg.bg && win) { fromBg = false; win.setFullScreen(false); hideWin(); } fromBg = false; });
