@@ -389,15 +389,15 @@ function achToast(o) {
     const E = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const R = { c: ['Común', '#9aa0b8'], r: ['Raro', '#60a5fa'], e: ['Épico', '#c084fc'], l: ['Legendario', '#fbbf24'] }[o.r] || ['Común', '#9aa0b8'];
     if (achWin && !achWin.isDestroyed()) achWin.destroy();
-    const d = screen.getPrimaryDisplay(), w = 400, h = 118, wa = d.workArea;
-    achWin = new BrowserWindow({ width: w, height: h, x: wa.x + Math.round((wa.width - w) / 2), y: wa.y + 14, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true, autoplayPolicy: 'no-user-gesture-required' } });
+    const d = screen.getPrimaryDisplay(), w = 460, h = 178, wa = d.workArea;
+    achWin = new BrowserWindow({ width: w, height: h, x: wa.x + Math.round((wa.width - w) / 2), y: wa.y - 16, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true, autoplayPolicy: 'no-user-gesture-required' } });
     achWin.setAlwaysOnTop(true, 'screen-saver'); try { achWin.setContentProtection(true); } catch (e) {} achWin.setIgnoreMouseEvents(true);
     const c = R[1];
     const snd = { c: [660, 990], r: [660, 880, 1175], e: [523, 784, 1047, 1319], l: [523, 659, 784, 1047, 1319] }[o.r] || [660, 990];
     const html = `<html><body style="margin:0;background:transparent;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif"><style>
 @keyframes i{0%{opacity:0;transform:translateY(-34px) scale(.92)}60%{opacity:1;transform:translateY(4px) scale(1.01)}100%{opacity:1;transform:none}}@keyframes o{to{opacity:0;transform:translateY(-26px)}}
-@keyframes sh{from{transform:translateX(-120%) skewX(-18deg)}to{transform:translateX(420%) skewX(-18deg)}}@keyframes pu{0%,100%{box-shadow:0 0 0 0 ${c}66,0 0 22px ${c}55}50%{box-shadow:0 0 0 7px ${c}00,0 0 30px ${c}88}}@keyframes pr{from{transform:scaleX(1)}to{transform:scaleX(0)}}
-.t{position:absolute;left:10px;top:8px;right:10px;bottom:12px;display:flex;align-items:center;gap:14px;padding:0 18px 0 14px;border-radius:18px;background:linear-gradient(135deg,rgba(24,20,40,.97),rgba(12,10,22,.97));border:1px solid ${c}88;box-shadow:0 14px 36px rgba(0,0,0,.65),0 0 28px ${c}33;color:#fff;overflow:hidden;animation:i .55s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes sh{from{transform:translateX(-120%) skewX(-18deg)}to{transform:translateX(420%) skewX(-18deg)}}@keyframes pu{0%,100%{box-shadow:0 0 0 0 ${c}66,0 0 14px ${c}55}50%{box-shadow:0 0 0 6px ${c}00,0 0 20px ${c}88}}@keyframes pr{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.t{position:absolute;left:30px;top:30px;right:30px;bottom:30px;display:flex;align-items:center;gap:14px;padding:0 18px 0 14px;border-radius:18px;background:linear-gradient(135deg,rgba(24,20,40,.97),rgba(12,10,22,.97));border:1px solid ${c}88;box-shadow:0 8px 18px rgba(0,0,0,.55),0 0 18px ${c}33;color:#fff;overflow:hidden;animation:i .55s cubic-bezier(.2,.9,.25,1.1) both}
 .t.o{animation:o .35s ease both}.t:before{content:"";position:absolute;top:0;bottom:0;width:36%;left:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);animation:sh 1.5s .5s ease-out both}
 .t:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:${c};opacity:.7;transform-origin:left;animation:pr 5.2s linear forwards}
 .b{width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,${c},${c}99 70%);animation:pu 1.8s ease-in-out infinite}
@@ -421,13 +421,13 @@ function friendToast(o) {
     const ac = /^(#[0-9a-f]{3,8}|rgb\([\d\s,.]+\))$/i.test(o.ac || '') ? o.ac : '#7c5cff';
     const pic = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(o.pic || '') && o.pic.length < 120000 ? o.pic : '';
     if (ftWin && !ftWin.isDestroyed()) ftWin.destroy();
-    const d = screen.getPrimaryDisplay(), w = 372, h = 112, wa = d.workArea;
-    ftWin = new BrowserWindow({ width: w, height: h, x: wa.x + wa.width - w - 6, y: wa.y + wa.height - h - 6, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true } });
+    const d = screen.getPrimaryDisplay(), w = 412, h = 152, wa = d.workArea;
+    ftWin = new BrowserWindow({ width: w, height: h, x: wa.x + wa.width - w + 14, y: wa.y + wa.height - h + 14, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true } });
     ftWin.setAlwaysOnTop(true, 'screen-saver'); try { ftWin.setContentProtection(true); } catch (e) {}
     const ini = E(String(o.n || '?').trim().charAt(0).toUpperCase());
     const html = `<html><head><title>x</title></head><body style="margin:0;background:transparent;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;-webkit-user-select:none"><style>
 @keyframes i{from{opacity:0;transform:translateX(46px)}to{opacity:1;transform:none}}@keyframes o{to{opacity:0;transform:translateX(36px)}}@keyframes p{from{transform:scaleX(1)}to{transform:scaleX(0)}}
-.t{position:absolute;left:10px;top:10px;right:10px;bottom:10px;display:flex;align-items:center;gap:13px;padding:0 16px 0 18px;border-radius:12px;background:rgba(19,16,32,.97);border:1px solid rgba(255,255,255,.09);box-shadow:0 12px 32px rgba(0,0,0,.6);color:#fff;overflow:hidden;cursor:pointer;animation:i .38s cubic-bezier(.2,.8,.2,1) both}
+.t{position:absolute;left:30px;top:30px;right:30px;bottom:30px;display:flex;align-items:center;gap:13px;padding:0 16px 0 18px;border-radius:12px;background:rgba(19,16,32,.97);border:1px solid rgba(255,255,255,.09);box-shadow:0 8px 18px rgba(0,0,0,.55);color:#fff;overflow:hidden;cursor:pointer;animation:i .38s cubic-bezier(.2,.8,.2,1) both}
 .t.o{animation:o .3s ease both}.t:hover{background:rgba(27,23,45,.98)}
 .t:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:${ac}}
 .t:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:${ac};opacity:.55;transform-origin:left;animation:p 5s linear forwards}
@@ -444,13 +444,13 @@ function friendToast(o) {
     setTimeout(() => { try { if (ftWin && !ftWin.isDestroyed()) ftWin.destroy(); } catch (e) {} }, 5200);
   } catch (e) {}
 }
-function shotToast(thumbPng, text, kind) {
+function shotToast(thumbPng, text, kind, sub2) {
   try {
     if (toastWin && !toastWin.isDestroyed()) toastWin.destroy();
     kind = kind || 'shot';
     const E = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const d = screen.getPrimaryDisplay(), w = 360, h = 112, dur = kind === 'rec' ? 3200 : 3600;
-    toastWin = new BrowserWindow({ width: w, height: h, x: d.workArea.x + d.workArea.width - w - 14, y: d.workArea.y + 14, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true } });
+    const d = screen.getPrimaryDisplay(), w = 410, h = 160, dur = kind === 'rec' ? 3200 : 3600;
+    toastWin = new BrowserWindow({ width: w, height: h, x: d.workArea.x + d.workArea.width - w + 16, y: d.workArea.y - 16, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true } });
     toastWin.setAlwaysOnTop(true, 'screen-saver'); try { toastWin.setContentProtection(true); } catch (e) {} toastWin.setIgnoreMouseEvents(true);
     const C = { shot: '#8ec5ff', clip: '#c4a4ff', rec: '#ff5d6c', err: '#ffb454' }[kind] || '#8ec5ff';
     const T = { shot: 'Captura', clip: 'Clip', rec: 'Grabando', err: 'Aviso' }[kind] || 'Captura';
@@ -461,16 +461,16 @@ function shotToast(thumbPng, text, kind) {
       err: '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/>'
     }[kind] || '';
     const img = thumbPng ? `<div class="th"><img src="data:image/jpeg;base64,${thumbPng.toString('base64')}">${kind === 'clip' ? '<i></i>' : ''}</div>` : '';
-    const sub = { shot: 'Guardada en la carpeta de este juego', clip: 'Listo para ver en tu launcher', rec: 'Los próximos 10 segundos', err: 'Probá de nuevo' }[kind] || '';
+    const sub = { shot: 'En la carpeta de este juego', clip: 'Listo en tu launcher', rec: 'Los próximos 10 segundos', err: 'Probá de nuevo' }[kind] || '';
     const html = `<html><body style="margin:0;background:transparent;overflow:hidden;font-family:'Segoe UI Variable','Segoe UI',system-ui,sans-serif"><style>
-@keyframes i{0%{opacity:0;transform:translateX(60px) scale(.94)}60%{opacity:1;transform:translateX(-5px) scale(1.01)}100%{opacity:1;transform:none}}@keyframes o{to{opacity:0;transform:translateX(50px)}}@keyframes sh{from{transform:translateX(-130%) skewX(-18deg)}to{transform:translateX(480%) skewX(-18deg)}}@keyframes pr{from{transform:scaleX(1)}to{transform:scaleX(0)}}@keyframes pu{0%,100%{box-shadow:0 0 0 0 ${C}88}50%{box-shadow:0 0 0 8px ${C}00}}
-.t{position:absolute;left:8px;top:6px;right:8px;bottom:12px;display:flex;align-items:center;gap:13px;padding:0 16px 0 12px;border-radius:22px;background:linear-gradient(160deg,rgba(34,34,40,.97),rgba(13,13,17,.97));border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 36px rgba(0,0,0,.6),0 0 24px ${C}33,inset 0 1.5px 0 rgba(255,255,255,.2);color:#fff;overflow:hidden;animation:i .5s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes i{0%{opacity:0;transform:translateX(40px) scale(.94)}60%{opacity:1;transform:translateX(-4px) scale(1.01)}100%{opacity:1;transform:none}}@keyframes o{to{opacity:0;transform:translateX(50px)}}@keyframes sh{from{transform:translateX(-130%) skewX(-18deg)}to{transform:translateX(480%) skewX(-18deg)}}@keyframes pr{from{transform:scaleX(1)}to{transform:scaleX(0)}}@keyframes pu{0%,100%{box-shadow:0 0 0 0 ${C}88}50%{box-shadow:0 0 0 6px ${C}00}}
+.t{position:absolute;left:30px;top:30px;right:30px;bottom:30px;display:flex;align-items:center;gap:13px;padding:0 16px 0 12px;border-radius:22px;background:linear-gradient(160deg,rgba(34,34,40,.97),rgba(13,13,17,.97));border:1px solid rgba(255,255,255,.16);box-shadow:0 8px 18px rgba(0,0,0,.5),0 0 18px ${C}30,inset 0 1.5px 0 rgba(255,255,255,.2);color:#fff;overflow:hidden;animation:i .5s cubic-bezier(.2,.9,.25,1.1) both}
 .t.o{animation:o .32s ease both}.t:before{content:"";position:absolute;top:0;bottom:0;width:30%;left:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);animation:sh 1.3s .45s ease-out both}
 .t:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,${C},#fff8);transform-origin:left;animation:pr ${dur / 1000}s linear forwards}
 .b{width:46px;height:46px;border-radius:15px;flex:none;display:grid;place-items:center;color:${C};background:linear-gradient(145deg,${C}33,${C}0d);border:1px solid ${C}55;${kind === 'rec' ? 'border-radius:50%;animation:pu 1.2s ease-in-out infinite;' : ''}}
 .th{position:relative;flex:none}.th img{height:60px;border-radius:12px;display:block;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 6px 16px rgba(0,0,0,.5)}.th i{position:absolute;inset:0;margin:auto;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff}.th i:before{content:"";position:absolute;left:9px;top:5px;border-left:8px solid #fff;border-top:5px solid transparent;border-bottom:5px solid transparent}
 .x{min-width:0;flex:1}.k{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:${C}}.n{font-size:15.5px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.s{font-size:11.5px;color:#a9a9b3;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-</style><div class="t" id="t"><div class="b"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${I}</svg></div>${img}<div class="x"><div class="k">WINTEER · ${T}</div><div class="n">${E(text)}</div><div class="s">${sub}</div></div></div>
+</style><div class="t" id="t"><div class="b"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${I}</svg></div>${img}<div class="x"><div class="k">WINTEER · ${T}</div><div class="n">${E(text)}</div><div class="s">${E(sub2 || sub)}</div></div></div>
 <script>setTimeout(function(){document.getElementById('t').classList.add('o')},${dur - 350});</script></body></html>`;
     toastWin.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
     toastWin.once('ready-to-show', () => { try { toastWin.showInactive(); } catch (e) {} });
@@ -488,8 +488,8 @@ async function takeShot() {
     const s = srcs.find(x => String(x.display_id) === String(d.id)) || srcs[0];
     if (!s || s.thumbnail.isEmpty()) { shotToast(null, 'No pude capturar la pantalla', 'err'); return; }
     const dir = path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_')); fs.mkdirSync(dir, { recursive: true });
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), file = path.join(dir, stamp + '.jpg'), tfile = path.join(dir, stamp + '.t.jpg');
-    fs.writeFileSync(file, s.thumbnail.toJPEG(95));
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), file = path.join(dir, stamp + '.png'), tfile = path.join(dir, stamp + '.t.jpg');
+    fs.writeFileSync(file, s.thumbnail.toPNG());
     const th = s.thumbnail.resize({ width: 640 }).toJPEG(85); fs.writeFileSync(tfile, th);
     shotToast(th, 'Captura guardada', 'shot');
     send({ type: 'shot', id: cur.id, file: pathToFileURL(file).href, thumb: pathToFileURL(tfile).href });
@@ -498,7 +498,7 @@ async function takeShot() {
 function listShots(id) {
   const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')), out = [];
   try { for (const f of fs.readdirSync(dir)) if (/^c[\d-T]+\.webm$/.test(f)) out.push({ n: f, clip: true, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.webm$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
-  try { for (const f of fs.readdirSync(dir)) if (/^[\d-T]+\.jpg$/.test(f)) out.push({ n: f, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.jpg$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
+  try { for (const f of fs.readdirSync(dir)) if (/^[\d-T]+\.(jpg|png)$/.test(f)) out.push({ n: f, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.(jpg|png)$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
   return out.sort((a, b) => b.t - a.t);
 }
 
@@ -1269,7 +1269,7 @@ app.whenReady().then(() => {
     if (a.a === 'sel') send({ type: 'ovfr', op: 'sel', c: String(a.c || '').slice(0, 40) });
     if (a.a === 'send') send({ type: 'ovfr', op: 'send', c: String(a.c || '').slice(0, 40), x: String(a.x || '').slice(0, 500) });
   } catch (e) {} });
-  ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
+  ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
   ipcMain.handle('clipDone', () => { clipBusy = false; return true; });
   ipcMain.handle('clipSave', (_e, o) => {
     try {
@@ -1278,11 +1278,11 @@ app.whenReady().then(() => {
       const stamp = 'c' + new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), file = path.join(dir, stamp + '.webm');
       fs.writeFileSync(file, buf);
       let th = null; try { const m = /^data:image\/jpeg;base64,(.+)$/.exec(o.thumb || ''); if (m) { th = Buffer.from(m[1], 'base64'); fs.writeFileSync(path.join(dir, stamp + '.t.jpg'), th); } } catch (e) {}
-      clipBusy = false; shotToast(th, 'Clip guardado', 'clip');
+      clipBusy = false; shotToast(th, 'Clip guardado', 'clip', String(o.info || '').slice(0, 60));
       return { ok: true, file: pathToFileURL(file).href };
     } catch (e) { clipBusy = false; return { ok: false }; }
   });
-  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|webm)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|webm)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
+  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|png|webm)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|png|webm)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
   ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey }; });
   ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })

@@ -5305,14 +5305,16 @@ function ggHTML(g){if(!ggOwn(g))return '';const u=ggU(g),n=GGL.filter(d=>u[d[0]]
   <div class="gg-l">${GGL.map(d=>{const on=!!u[d[0]],c=RAR[d[4]][1];let r=[0,1];try{r=d[6](g)}catch(e){}const pc=Math.max(0,Math.min(100,r[0]/r[1]*100));
    return `<div class="gg-i ${on?'on':''}" style="--c:${c}"><div class="gg-ic">${ic(on?d[3]:'lock')}</div><div class="gg-b"><b>${d[1]}</b><span>${d[2]}</span>${on?'':`<div class="gg-p"><i style="width:${pc}%"></i></div>`}</div><em>${RAR[d[4]][0]}<small>${on?(u[d[0]]>0?'+'+GGX[d[4]]+' XP':'ya lo tenías'):GGX[d[4]]+' XP'}</small></em></div>`}).join('')}</div>${xp?`<div class="gg-t">${xp} XP ganados en este juego</div>`:''}</div>`}
 async function recClip(id){if(!WN||window.__rec)return;window.__rec=1;
-  try{const sid=await winteerNative.clipSrc();let st;const vc={mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,minWidth:1280,maxWidth:1920,minHeight:720,maxHeight:1080,minFrameRate:30,maxFrameRate:60}};
+  try{const sid=await winteerNative.clipSrc();let st;const vc={mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,minWidth:1280,maxWidth:1920,minHeight:720,maxHeight:1080,minFrameRate:50,maxFrameRate:120}};
     try{st=await navigator.mediaDevices.getUserMedia({audio:{mandatory:{chromeMediaSource:'desktop'}},video:vc})}catch(e){try{st=await navigator.mediaDevices.getUserMedia({audio:false,video:vc})}catch(e2){st=await navigator.mediaDevices.getUserMedia({audio:false,video:{mandatory:{chromeMediaSource:'desktop',chromeMediaSourceId:sid,maxWidth:1920,maxHeight:1080,maxFrameRate:30}}})}}
     const mts=['video/webm;codecs=avc1,opus','video/webm;codecs=h264,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp8','video/webm'],mt=mts.find(m=>MediaRecorder.isTypeSupported(m)),hw=/avc1|h264/.test(mt||'');
-    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:hw?24e6:40e6,audioBitsPerSecond:192000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
+    try{st.getVideoTracks()[0].contentHint='motion'}catch(e){}
+    const vs=(()=>{try{return st.getVideoTracks()[0].getSettings()}catch(e){return{}}})(),info=(hw?'H.264':'VP8')+' · '+(vs.width||'?')+'×'+(vs.height||'?')+' · '+Math.round(vs.frameRate||0)+' fps';
+    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:hw?45e6:70e6,audioBitsPerSecond:192000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
     const done=new Promise(r=>{rc.onstop=r});rc.start(500);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
     await done;st.getTracks().forEach(t=>t.stop());const blob=new Blob(ch,{type:'video/webm'}),data=new Uint8Array(await blob.arrayBuffer());
     let thumb='';try{const u=URL.createObjectURL(blob),v=document.createElement('video');v.muted=true;v.src=u;await new Promise((r,j)=>{v.onloadeddata=r;v.onerror=j;setTimeout(r,2500)});v.currentTime=1.5;await new Promise(r=>{v.onseeked=r;setTimeout(r,1500)});const c=document.createElement('canvas');c.width=640;c.height=Math.round(640*(v.videoHeight||9)/(v.videoWidth||16));c.getContext('2d').drawImage(v,0,0,c.width,c.height);thumb=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(u)}catch(e){}
-    const r=await winteerNative.clipSave({id,data,thumb});if(r&&r.ok){try{hcnt('shot')}catch(e){}if(S.view==='games'&&S.sel===id&&S.tab==='shots')shFill(id)}else throw 0}
+    const r=await winteerNative.clipSave({id,data,thumb,info});if(r&&r.ok){try{hcnt('shot')}catch(e){}if(S.view==='games'&&S.sel===id&&S.tab==='shots')shFill(id)}else throw 0}
   catch(e){try{await winteerNative.clipDone()}catch(x){}try{winteerNative.toast({k:'Clip',n:'No pude grabar el clip',b:'Probá de nuevo o en modo ventana sin bordes.'})}catch(x){}}
   window.__rec=0}
 /* sonido */
