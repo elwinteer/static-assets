@@ -563,14 +563,15 @@ async function pzApply(ids, steamDir) {
     return { ok: true, count: out.length, active: out };
   } catch (e) { return { ok: false, err: String(e && e.message || e) }; }
 }
-function pzSearch(q, page, sort, tag) {
+function pzSearch(q, page, sort, tag, app) {
+  app = /^\d{2,9}$/.test(String(app || '')) ? String(app) : '108600';
   return new Promise((res) => {
     let w = null, done = false;
     const fin = (r) => { if (done) return; done = true; try { if (w && !w.isDestroyed()) w.destroy(); } catch (e) {} res(r); };
     try {
       w = new BrowserWindow({ show: false, width: 1200, height: 900, webPreferences: { partition: 'wt-pzsearch', sandbox: true, backgroundThrottling: false } });
       const so = q ? 'textsearch' : (['trend', 'mostrecent', 'totaluniquesubscribers'].includes(sort) ? sort : 'trend');
-      const u = 'https://steamcommunity.com/workshop/browse/?appid=108600&searchtext=' + encodeURIComponent(String(q || '').slice(0, 80)) + '&browsesort=' + so + '&section=readytouseitems&actualsort=' + so + '&p=' + (Math.max(1, Math.min(20, +page || 1))) + '&days=' + (so === 'trend' ? 7 : -1) + (tag ? '&requiredtags%5B0%5D=' + encodeURIComponent('Build 42') : '');
+      const u = 'https://steamcommunity.com/workshop/browse/?appid=' + app + '&searchtext=' + encodeURIComponent(String(q || '').slice(0, 80)) + '&browsesort=' + so + '&section=readytouseitems&actualsort=' + so + '&p=' + (Math.max(1, Math.min(20, +page || 1))) + '&days=' + (so === 'trend' ? 7 : -1) + (tag ? '&requiredtags%5B0%5D=' + encodeURIComponent('Build 42') : '');
       setTimeout(() => fin({ ok: false, err: 'timeout' }), 20000);
       w.webContents.on('did-fail-load', (_e, c) => { if (c !== -3) fin({ ok: false, err: 'net' }); });
       w.webContents.on('did-finish-load', async () => {
@@ -600,20 +601,66 @@ function swLogin() {
     } catch (e) { fin(false); }
   });
 }
-async function pzSub(wid, retry) {
+async function pzSub(wid, retry, app) {
   try {
+    app = /^\d{2,9}$/.test(String(app || '')) ? String(app) : '108600';
     wid = String(wid || ''); if (!/^\d{5,12}$/.test(wid)) return { ok: false, err: 'id' };
     if (!(await swCookie('steamLoginSecure'))) { if (!(await swLogin())) return { ok: false, err: 'login' }; }
     const ses = session.fromPartition(PZ_PART);
     let sid = await swCookie('sessionid');
     if (!sid) { try { await ses.fetch('https://steamcommunity.com/app/108600/workshop/'); } catch (e) {} sid = await swCookie('sessionid'); }
     if (!sid) return { ok: false, err: 'sid' };
-    const r = await ses.fetch('https://steamcommunity.com/sharedfiles/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', Origin: 'https://steamcommunity.com', Referer: 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + wid, 'X-Requested-With': 'XMLHttpRequest' }, body: new URLSearchParams({ id: wid, appid: '108600', sessionid: sid.value }).toString() });
+    const r = await ses.fetch('https://steamcommunity.com/sharedfiles/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', Origin: 'https://steamcommunity.com', Referer: 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + wid, 'X-Requested-With': 'XMLHttpRequest' }, body: new URLSearchParams({ id: wid, appid: app, sessionid: sid.value }).toString() });
     let j = null; try { j = await r.json(); } catch (e) {}
     if (j && (j.success === 1 || j.success === true)) return { ok: true };
-    if (!retry) { try { await ses.clearStorageData({ storages: ['cookies'] }); } catch (e) {} return pzSub(wid, true); }
+    if (!retry) { try { await ses.clearStorageData({ storages: ['cookies'] }); } catch (e) {} return pzSub(wid, true, app); }
     return { ok: false, err: 'api', st: r.status };
   } catch (e) { return { ok: false, err: 'net' }; }
+}
+
+/* ---------- Workshop de Steam para cualquier juego: quitar suscripción y ver lo instalado ---------- */
+async function wsUnsub(wid, app, retry) {
+  try {
+    wid = String(wid || ''); app = String(app || ''); if (!/^\d{5,12}$/.test(wid) || !/^\d{2,9}$/.test(app)) return { ok: false, err: 'id' };
+    if (!(await swCookie('steamLoginSecure'))) { if (!(await swLogin())) return { ok: false, err: 'login' }; }
+    const ses = session.fromPartition(PZ_PART);
+    let sid = await swCookie('sessionid');
+    if (!sid) { try { await ses.fetch('https://steamcommunity.com/app/' + app + '/workshop/'); } catch (e) {} sid = await swCookie('sessionid'); }
+    if (!sid) return { ok: false, err: 'sid' };
+    const r = await ses.fetch('https://steamcommunity.com/sharedfiles/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', Origin: 'https://steamcommunity.com', Referer: 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + wid, 'X-Requested-With': 'XMLHttpRequest' }, body: new URLSearchParams({ id: wid, appid: app, sessionid: sid.value }).toString() });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (j && (j.success === 1 || j.success === true)) return { ok: true };
+    if (!retry) { try { await ses.clearStorageData({ storages: ['cookies'] }); } catch (e) {} return wsUnsub(wid, app, true); }
+    return { ok: false, err: 'api' };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
+function dirSize(d, depth) {
+  let n = 0; if ((depth || 0) > 6) return 0;
+  try { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) n += dirSize(p, (depth || 0) + 1); else { try { n += fs.statSync(p).size; } catch (x) {} } } } catch (e) {}
+  return n;
+}
+async function wsList(app, steamDir) {
+  try {
+    app = String(app || ''); if (!/^\d{2,9}$/.test(app)) return { ok: false, items: [] };
+    const items = [], seen = new Set();
+    for (const lib of steamLibs(steamDir)) {
+      const base = path.join(lib, 'steamapps', 'workshop', 'content', app);
+      let ws = []; try { ws = fs.readdirSync(base); } catch (e) { continue; }
+      for (const w of ws) if (/^\d{5,12}$/.test(w) && !seen.has(w)) { seen.add(w); items.push({ wid: w, size: dirSize(path.join(base, w)), t: '', img: '' }); }
+    }
+    items.sort((a, b) => b.size - a.size);
+    const top = items.slice(0, 100);
+    if (top.length) {
+      try {
+        const body = new URLSearchParams({ itemcount: String(top.length) }); top.forEach((x, i) => body.set('publishedfileids[' + i + ']', x.wid));
+        const r = await net.fetch('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+        const j = await r.json().catch(() => null), det = (j && j.response && j.response.publishedfiledetails) || [];
+        const by = new Map(det.map((x) => [String(x.publishedfileid), x]));
+        for (const x of top) { const d = by.get(x.wid); if (d) { x.t = String(d.title || '').slice(0, 120); x.img = /^https:\/\//.test(d.preview_url || '') ? d.preview_url : ''; } }
+      } catch (e) {}
+    }
+    return { ok: true, items: top, total: items.length };
+  } catch (e) { return { ok: false, items: [] }; }
 }
 
 async function pzDeps(wid) {
@@ -1640,7 +1687,7 @@ app.whenReady().then(() => {
   ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
   ipcMain.handle('pzScan', (_e, sd) => { try { return pzScan(String(sd || '')); } catch (e) { return { ok: false, mods: [], active: [] }; } });
   ipcMain.handle('pzApply', (_e, ids, sd) => pzApply(Array.isArray(ids) ? ids.slice(0, 600) : [], String(sd || '')));
-  ipcMain.handle('pzSearch', (_e, q, p, so, tg) => pzSearch(q, p, String(so || ''), !!tg));
+  ipcMain.handle('pzSearch', (_e, q, p, so, tg, app) => pzSearch(q, p, String(so || ''), !!tg, app));
   ipcMain.handle('mcInfo', (_e, r) => mcInfo(r));
   ipcMain.handle('mcState', () => ({ cf: !!cfg.cfKey }));
   ipcMain.handle('mcKeySet', (_e, k) => { k = String(k || '').trim(); if (k && !/^\S{20,120}$/.test(k)) return { ok: false }; cfg.cfKey = k; saveCfg(); return { ok: true, key: !!k }; });
@@ -1680,7 +1727,9 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('mioLogout', () => { cfg.mioTok = ''; saveCfg(); return true; });
   ipcMain.handle('pzDeps', (_e, w) => pzDeps(w));
-  ipcMain.handle('pzSub', (_e, wid) => pzSub(wid));
+  ipcMain.handle('wsList', (_e, app, sd) => wsList(app, String(sd || '')));
+  ipcMain.handle('wsUnsub', (_e, wid, app) => wsUnsub(wid, app));
+  ipcMain.handle('pzSub', (_e, wid, app) => pzSub(wid, false, app));
   ipcMain.handle('pzOpen', (_e, wid) => { try { if (/^\d{5,12}$/.test(String(wid))) shell.openExternal('steam://url/CommunityFilePage/' + wid); } catch (e) {} return true; });
   ipcMain.handle('clipDone', () => { clipBusy = false; return true; });
   ipcMain.handle('clipSave', (_e, o) => {

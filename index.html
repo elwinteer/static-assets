@@ -5727,13 +5727,59 @@ function nxHTML(g){
    <div class="pz-q"><input class="txt" id="nx-q" placeholder="Buscar mods de ${esc(s.n||g.name)}…" value="${esc(NX.q)}"><button class="b2 sm" data-a="nxgo">Buscar</button></div><div class="pz-pr">${so}</div>${NX.msg?`<div class="mc-msg">${esc(NX.msg)}</div>`:''}${body}
    <div class="nx-ft"><label class="pz-au"><input type="checkbox" data-a="nxmtog" ${NX.nxm?'checked':''}> Usar WINTEER para el botón «Descarga con gestor» de Nexus (sin Premium)</label><div class="hint2">${NX.prem?'Con tu cuenta Premium WINTEER baja el archivo y lo descomprime en «Descargas → WINTEER Mods». Cómo se instala depende de cada juego.':'Sin Premium, Nexus exige confirmar cada descarga en su página: el botón te abre el mod ahí. Con Premium se baja directo desde WINTEER.'}</div></div></div>`;
 }
+/* ===== Steam Workshop para cualquier juego de Steam que lo tenga ===== */
+const WSS={};
+const wsGet=g=>WSS[g.app]||(WSS[g.app]={tab:'explore',res:null,list:null,sq:'',sp:1,so:'trend',more:0,inst:{},mine:null,mres:null});
+const wsOk=g=>!!(g&&g.app>0&&window.winteerNative&&winteerNative.wsList&&((ST.wsHas||{})[g.app]||{}).v);
+const wsRt=()=>{if(S.view==='games'&&S.tab==='mods'&&$('#tabc'))renderTab()};
+async function wsProbe(g){if(!g||!(g.app>0)||!(window.winteerNative&&winteerNative.http&&winteerNative.wsList))return;
+  const c=(ST.wsHas=ST.wsHas||{})[g.app];if(c&&Date.now()-c.t<30*864e5)return;wsProbe.b=wsProbe.b||{};if(wsProbe.b[g.app])return;wsProbe.b[g.app]=1;
+  try{const r=await winteerNative.http({url:'https://store.steampowered.com/api/appdetails?appids='+g.app+'&filters=categories&l=spanish'});const j=JSON.parse((r&&r.text)||'{}'),d=j[g.app];
+    if(d&&d.success){ST.wsHas[g.app]={v:((d.data&&d.data.categories)||[]).some(x=>x.id===30)?1:0,t:Date.now()};save();if(ST.wsHas[g.app].v)wsRt()}}catch(e){}
+  delete wsProbe.b[g.app]}
+async function wsSearch(g,more){const w=wsGet(g),el=$('#ws-s');if(!more){w.sq=el?el.value.trim():w.sq;w.sp=1;w.list=null}else w.sp++;w.res='load';wsRt();
+  try{const r=await winteerNative.pzSearch(w.sq,w.sp,w.so,0,g.app);
+   if(r&&r.ok){const seen=new Set((more&&w.list||[]).map(x=>x.wid));w.list=(more&&w.list||[]).concat(r.items.filter(x=>!seen.has(x.wid)));w.more=r.items.length>=10&&w.list.length<200?1:0;w.res='ok'}else w.res='err'}catch(e){w.res='err'}wsRt()}
+async function wsLoadMine(g){const w=wsGet(g);w.mres='load';wsRt();try{const r=await winteerNative.wsList(g.app,ST.steamDir||'');if(r&&r.ok){w.mine=r.items;w.mres='ok'}else w.mres='err'}catch(e){w.mres='err'}wsRt()}
+async function wsWatch(g,wid,n){n=n||0;const w=wsGet(g);if(n>40){w.inst[wid]=null;wsRt();return}
+  await new Promise(r=>setTimeout(r,6000));try{const r=await winteerNative.wsList(g.app,ST.steamDir||'');if(r&&r.ok){w.mine=r.items;if(r.items.some(x=>x.wid===wid)){w.inst[wid]='ok';toast('Mod instalado');wsRt();return}}}catch(e){}
+  return wsWatch(g,wid,n+1)}
+function wsHTML(g){const w=wsGet(g),mine=new Set((w.mine||[]).map(x=>x.wid));
+  const top=`<div class="pz-h"><div class="pz-pr"><button class="cp ${w.tab==='explore'?'on':''}" data-a="wstab" data-id="explore">Explorar</button><button class="cp ${w.tab==='mine'?'on':''}" data-a="wstab" data-id="mine">Mis suscripciones${w.mine?' <em>'+w.mine.length+'</em>':''}</button></div><span class="hint2" style="margin-left:auto">Steam Workshop · te suscribe tu cuenta de Steam y el juego los carga solo</span></div>`;
+  if(w.tab==='mine'){
+    const body=w.mres==='err'?`<div class="pz-e"><b>No pude leer tus mods</b><span>Probá de nuevo.</span><button class="b2 sm" data-a="wsmine">Reintentar</button></div>`:w.mine==null?'<div class="pz-e">Buscando tus mods…</div>':!w.mine.length?`<div class="pz-e"><b>Todavía no tenés mods del Workshop de ${esc(g.name)}</b><span>Explorá el Workshop y suscribite a los que quieras.</span><button class="b2 sm" data-a="wstab" data-id="explore">Explorar</button></div>`
+     :`<div class="pz-l">${w.mine.map(x=>`<div class="pz-r on"><div class="pz-p">${x.img?`<img loading="lazy" decoding="async" src="${esc(x.img)}" alt="">`:`<span>${esc((x.t||'?').charAt(0).toUpperCase())}</span>`}</div><div class="pz-b"><b>${esc(x.t||('Mod '+x.wid))}</b><small>${x.size?(x.size/1048576).toFixed(x.size>1e8?0:1)+' MB':''}</small></div><div style="display:flex;gap:8px;margin-left:auto"><button class="b2 g sm" data-a="wsopen" data-id="${x.wid}">Ver en Steam</button><button class="b2 g sm" data-a="wsunsub" data-id="${x.wid}">Quitar</button></div></div>`).join('')}</div>`;
+    return `<div class="pz">${top}<div class="pz-q"><span class="hint2">${w.mine?w.mine.length+' mod'+(w.mine.length===1?'':'s')+' instalado'+(w.mine.length===1?'':'s')+' de este juego':''}</span><button class="b2 g sm" data-a="wsmine" style="margin-left:auto">Actualizar lista</button></div>${body}</div>`}
+  const srt=[['trend','Populares'],['totaluniquesubscribers','Más suscriptos'],['mostrecent','Nuevos']],sb=!w.sq;
+  const card=x=>`<div class="pz-c"><div class="pz-i">${x.img?`<img loading="lazy" decoding="async" src="${esc(x.img)}" alt="">`:''}</div><div class="pz-ct"><b title="${esc(x.t)}">${esc(x.t)}</b><small>${esc(x.a)}</small>${mine.has(x.wid)||w.inst[x.wid]==='ok'?'<div class="b2 g sm pz-in">✓ Instalado</div>':w.inst[x.wid]==='busy'?'<div class="b2 g sm pz-in">Suscribiendo…</div>':w.inst[x.wid]==='wait'?'<div class="b2 g sm pz-in">Bajando en Steam…</div>':`<button class="b2 p sm" data-a="wsinst" data-id="${esc(x.wid)}">Suscribirme</button>`}</div></div>`;
+  const body=w.res==='err'?`<div class="pz-e"><b>No pude leer el Workshop desde acá</b><span>Probá de nuevo, o explorá el Workshop directamente.</span><button class="b2 sm" data-a="wsgo">Reintentar</button><button class="b2 g sm" data-a="wsweb">Abrir el Workshop en Steam</button></div>`:(!w.list&&w.res!=='ok')?'<div class="pz-e">Buscando en el Workshop…</div>':!(w.list||[]).length?'<div class="pz-e">No encontré resultados.</div>':`<div class="pz-g">${w.list.map(card).join('')}</div>${w.more?`<div style="text-align:center;margin:16px 0"><button class="b2 g" data-a="wsmore">Ver más</button></div>`:''}`;
+  if(w.res===null){w.res='load';setTimeout(()=>wsSearch(g),0)}
+  if(w.mine===null&&!w.mres){w.mres='load';winteerNative.wsList(g.app,ST.steamDir||'').then(r=>{w.mine=(r&&r.ok)?r.items:[];w.mres='ok';wsRt()}).catch(()=>{w.mine=[];w.mres='ok'})}
+  return `<div class="pz">${top}<div class="pz-q"><input class="txt" id="ws-s" placeholder="Buscar mods de ${esc(g.name)} en el Workshop…" value="${esc(w.sq)}"><button class="b2 sm" data-a="wsgo">Buscar</button></div><div class="pz-pr">${srt.map(([k,l])=>`<button class="cp ${w.so===k&&sb?'on':''}" data-a="wssort" data-id="${k}" ${sb?'':'disabled'}>${l}</button>`).join('')}</div>${body}</div>`}
+Object.assign(A,{
+ wstab:a=>{const g=gm(S.sel);if(!g)return;const w=wsGet(g);w.tab=a.dataset.id;renderTab();if(w.tab==='mine')wsLoadMine(g)},
+ wsgo:()=>{const g=gm(S.sel);if(g)wsSearch(g)},wsmore:()=>{const g=gm(S.sel);if(g)wsSearch(g,true)},
+ wssort:a=>{const g=gm(S.sel);if(!g)return;wsGet(g).so=a.dataset.id;wsSearch(g)},
+ wsmine:()=>{const g=gm(S.sel);if(g)wsLoadMine(g)},
+ wsopen:a=>{try{winteerNative.pzOpen(a.dataset.id)}catch(e){}},
+ wsweb:()=>{const g=gm(S.sel);if(g)window.open('https://steamcommunity.com/app/'+g.app+'/workshop/','_blank')},
+ wsinst:async a=>{const g=gm(S.sel),id=a.dataset.id;if(!g||!id)return;const w=wsGet(g);if(w.inst[id])return;w.inst[id]='busy';wsRt();
+   const r=await winteerNative.pzSub(id,g.app).catch(()=>({ok:false}));
+   if(r&&r.ok){w.inst[id]='wait';wsRt();toast('Suscripto. Steam lo está bajando…');wsWatch(g,id)}
+   else{w.inst[id]=null;wsRt();toast(r&&r.err==='login'?'Necesito que inicies sesión en Steam para suscribirte':'No pude suscribirte desde WINTEER. Te abro el mod en Steam');if(!(r&&r.err==='login'))winteerNative.pzOpen(id)}},
+ wsunsub:async a=>{const g=gm(S.sel),id=a.dataset.id;if(!g||!id)return;const w=wsGet(g);const x=(w.mine||[]).find(m=>m.wid===id);
+   if(!confirm('¿Quitar «'+((x&&x.t)||'este mod')+'»? Steam lo desinstala la próxima vez que se sincronice.'))return;
+   const r=await winteerNative.wsUnsub(id,g.app).catch(()=>({ok:false}));
+   if(r&&r.ok){w.mine=(w.mine||[]).filter(m=>m.wid!==id);w.inst[id]=null;toast('Mod quitado');wsRt()}else toast(r&&r.err==='login'?'Necesito que inicies sesión en Steam':'No pude quitarlo desde WINTEER')}
+});
 function srcHTML(g){
-  const hasMio=!!(window.winteerNative&&winteerNative.mioReq);
-  const pills=`<div class="mc-src" style="display:inline-flex;margin-bottom:12px"><button class="${NX.src==='nx'?'on':''}" data-a="xsrc" data-id="nx">Nexus Mods</button>${hasMio?`<button class="${NX.src==='mio'?'on':''}" data-a="xsrc" data-id="mio">mod.io</button>`:''}</div>`;
-  return `<div>${pills}${NX.src==='mio'&&hasMio?miHTML(g):nxHTML(g)}</div>`;
+  const hasMio=!!(window.winteerNative&&winteerNative.mioReq);wsProbe(g);
+  const hw=wsOk(g);NX.sg=NX.sg||{};const cur=hw&&NX.sg[g.id]!=='x'?'ws':(NX.src==='ws'?'nx':NX.src);if(cur!=='ws')NX.src=cur;
+  const pills=`<div class="mc-src" style="display:inline-flex;margin-bottom:12px">${hw?`<button class="${cur==='ws'?'on':''}" data-a="xsrc" data-id="ws">Steam Workshop</button>`:''}<button class="${cur==='nx'?'on':''}" data-a="xsrc" data-id="nx">Nexus Mods</button>${hasMio?`<button class="${cur==='mio'?'on':''}" data-a="xsrc" data-id="mio">mod.io</button>`:''}</div>`;
+  return `<div>${pills}${cur==='ws'?wsHTML(g):cur==='mio'&&hasMio?miHTML(g):nxHTML(g)}</div>`;
 }
 Object.assign(A,{
- xsrc:a=>{NX.src=a.dataset.id;renderTab()},
+ xsrc:a=>{const g=gm(S.sel);if(g){NX.sg=NX.sg||{};NX.sg[g.id]=a.dataset.id==='ws'?'w':'x'}if(a.dataset.id!=='ws')NX.src=a.dataset.id;renderTab()},
  nxkey:async()=>{const k=(($('#nx-key')||{}).value||'').trim();const r=await winteerNative.nxKeySet(k);if(r&&r.ok&&r.key){NX.key=1;NX.prem=!!r.prem;NX.user=r.user||'';NX.res=null;NX.list=null;toast('Conectado a Nexus'+(r.prem?' (Premium)':''));renderTab()}else toast(r&&r.err==='net'?'No pude conectarme':'Esa clave no la aceptó Nexus')},
  nxmtog:async a=>{const on=!!a.checked;try{await winteerNative.nxmSet(on)}catch(e){}NX.nxm=on;toast(on?'Listo: el botón «Descarga con gestor» abre WINTEER':'WINTEER ya no recibe esos botones')},
  nxkeyreset:async()=>{await winteerNative.nxKeySet('');NX.key=0;NX.res=null;NX.list=null;renderTab()},
