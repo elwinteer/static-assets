@@ -2456,7 +2456,7 @@ body:has(.app>.modal) #amb{filter:brightness(.12);transition:filter .3s}
 .stx .kpis{flex:none;gap:12px}.stx .kpi{padding:14px 18px}.stx .kpi b{font-size:26px}
 .stx-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px}
 .stx-main{display:flex;flex-direction:column;min-height:0;padding:16px 20px;gap:12px}
-.stx-tabs{display:flex;gap:8px;align-items:center;flex:none}.stx-sub{margin-left:auto;color:var(--muted);font-size:13px;letter-spacing:.1em}
+.stx-tabs{display:flex;gap:8px;align-items:center;flex:none;flex-wrap:wrap}.stx-sub{margin-left:auto;color:var(--muted);font-size:13px;letter-spacing:.1em}
 .stx-pan{flex:1;min-height:0;display:flex;flex-direction:column}
 .stx-top{flex:1;min-height:0;display:grid;grid-template-rows:repeat(10,minmax(0,1fr));gap:4px}
 .stx-top .tp{margin:0;padding:0}.stx-top .tp .th{width:38px;height:38px}.stx-top .tp .th *{max-height:100%}
@@ -3294,15 +3294,90 @@ function celebrate(g){const n=doneN(),el=document.createElement('div');el.classN
   el.innerHTML=`<div class="burst">${p}</div><div class="cbox"><div class="ck">¡JUEGO COMPLETADO!</div>${treeSVG(n,170,1)}<h3>${esc(g.name)}</h3><p>Sumaste el adorno <b>#${n}</b> a tu árbol de invierno${GA.some(a=>a[0]==='first')&&n===1?' y desbloqueaste <b>Primer copo</b>':''}.</p><button class="b2 gld" id="cok">Genial</button></div>`;
   document.body.appendChild(el);const close=()=>{el.classList.add('out');setTimeout(()=>el.remove(),500)};el.querySelector('#cok').onclick=close;el.addEventListener('click',e=>{if(e.target===el)close()});setTimeout(close,9000)}
 const isSteamG=g=>!!(g.app>0&&g.exe===undefined&&!g.uri&&!g.shellApp),instOf=g=>g.instM===true?true:g.instM===false?false:g.inst!==undefined?!!g.inst:(!isSteamG(g)&&!!g.exe),isEpicG=g=>!g.app&&(g.tags||[]).includes('Epic Games')&&/^ep_/.test(g.id||''),isXbG=g=>!g.app&&/^xb_/.test(g.id||''),canPlay=g=>!(isSteamG(g)||isEpicG(g)||isXbG(g))||instOf(g);
+/* ---------- ¿Mi PC lo corre?: requisitos de Steam contra los componentes de esta PC (estimación por modelos) ---------- */
+const PCS={sp:null,ld:0,req:{}};try{PCS.req=JSON.parse(localStorage.getItem('winteer_req')||'{}')}catch(e){}
+const GPUT={nv:{710:.5,730:.6,1030:1.5,650:1.2,'750':2,'750ti':2.2,760:2.5,770:3,780:4,950:3,960:4,970:6.5,980:8,'980ti':10,1050:5,'1050ti':6,1060:10,1070:15,'1070ti':17,1080:20,'1080ti':25,1650:8,1660:13,'1660ti':15,'1660super':14,2060:19,'2060super':21,2070:24,'2070super':27,2080:30,'2080super':32,'2080ti':38,3050:16,3060:25,'3060ti':32,3070:38,'3070ti':41,3080:48,'3080ti':53,3090:55,4060:30,'4060ti':36,4070:45,'4070super':50,'4070ti':55,'4070tisuper':60,'4080':68,'4080super':72,4090:95,5060:34,'5060ti':42,5070:50,'5070ti':65,5080:80,5090:110},
+ rx:{460:3,470:5,480:7,550:3.5,560:4,570:8,580:10,590:12,'5500xt':11,'5600xt':17,5700:22,'5700xt':25,'6500xt':11,'6600':24,'6600xt':27,'6650xt':28,'6700xt':35,'6750xt':37,6800:46,'6800xt':52,'6900xt':57,'6950xt':60,7600:30,'7600xt':32,'7700xt':42,'7800xt':50,'7900gre':58,'7900xt':65,'7900xtx':75,9060:36,'9070':60,'9070xt':68}};
+function gpuScore(s){s=String(s||'').toLowerCase();let m;
+  if((m=/(?:rtx|gtx|gt)\s*(\d{3,4})\s*(ti\s*super|super|ti)?/.exec(s))){const k=m[1]+(m[2]||'').replace(/\s/g,''),T=GPUT.nv;if(T[k]!=null)return T[k];if(T[m[1]]!=null)return T[m[1]];const n=+m[1],ks=Object.keys(T).filter(x=>/^\d+$/.test(x)).map(Number).sort((a,b)=>a-b);let b=ks[0];ks.forEach(x=>{if(Math.abs(x-n)<Math.abs(b-n))b=x});return T[b]}
+  if((m=/rx\s*(\d{3,4})\s*(xtx|xt|gre)?/.exec(s))){const k=m[1]+(m[2]||''),T=GPUT.rx;if(T[k]!=null)return T[k];if(T[m[1]]!=null)return T[m[1]]}
+  if(/vega\s*(56)/.test(s))return 17;if(/vega\s*(64)/.test(s))return 20;if(/radeon\s*vii/.test(s))return 28;if(/vega|radeon\(tm\) graphics|radeon graphics/.test(s))return 3;
+  if(/r9\s*(\d{3})/.test(s))return 5;if(/r7\s*(\d{3})/.test(s))return 2.5;if(/hd\s*(7[789]\d\d)/.test(s))return 3;
+  if((m=/arc\s*a?(\d{3})/.exec(s)))return {380:9,580:22,750:28,770:32}[m[1]]||15;
+  if(/iris\s*xe|iris\s*plus/.test(s))return 3;if(/uhd|hd graphics|intel\(r\) hd/.test(s))return 1;return null}
+function cpuScore(s){s=String(s||'').toLowerCase();let m,t=0,g=0;
+  if((m=/(?:core\s*(?:ultra\s*)?)?i([3579])[\s-]*(\d{4,5})/.exec(s))||(m=/i([3579])-?(\d{3,5})/.exec(s))){t={3:1,5:1.3,7:1.6,9:2}[m[1]];const d=m[2],ge=d.length===5?+d.slice(0,2):+d[0];g=ge>=14?1.85:ge>=13?1.8:ge>=12?1.6:ge>=11?1.3:ge>=10?1.2:ge>=9?1.1:ge>=8?1:ge>=7?.8:ge>=6?.75:ge>=5?.65:ge>=4?.6:.5;return +(t*g).toFixed(2)}
+  if((m=/ryzen\s*([3579])\s*(?:pro\s*)?(\d)(\d{3})/.exec(s))){t={3:1,5:1.35,7:1.7,9:2.1}[m[1]];g={1:.8,2:.9,3:1.1,4:1.2,5:1.5,7:1.9,8:1.9,9:2.1}[m[2]]||1;return +(t*g).toFixed(2)}
+  if(/core\s*2|pentium|celeron|athlon|phenom|fx[-\s]?\d|\bi[3579]-?[1-3]\d\d\b|e[3-8]\d\d\d|q\d{4}/.test(s))return .45;return null}
+function pcPieces(s,f){const l=String(s||'').split(/\/|,|;|\bor\b|\band\b|\bor equivalent\b/i).map(x=>f(x)).filter(x=>x!=null);return l.length?Math.min(...l):null}
+function pcRamGB(s){const m=/(\d+(?:[.,]\d+)?)\s*(gb|mb|g)\b/i.exec(String(s||''));if(!m)return null;let v=parseFloat(m[1].replace(',','.'));if(/mb/i.test(m[2])&&v>64)v/=1024;return v}
+function pcReqParse(html){const o={};String(html||'').split(/<li>/i).forEach(li=>{const m=/<strong>\s*([^<]*?)\s*<\/strong>\s*([\s\S]*)/i.exec(li);if(!m)return;const k=m[1].toLowerCase(),v=m[2].replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+  if(/^proc/.test(k))o.cpu=v;else if(/^mem/.test(k))o.ram=v;else if(/^graph/.test(k))o.gpu=v;else if(/^stor/.test(k))o.sto=v});return o}
+async function pcLoad(g){if(!window.winteerNative||PCS.ld)return;PCS.ld=1;
+  try{if(!PCS.sp&&winteerNative.pcSpecs)PCS.sp=await winteerNative.pcSpecs();
+    const c=PCS.req[g.app];if(!c||Date.now()-c.t>30*864e5){const r=await nf('https://store.steampowered.com/api/appdetails?appids='+g.app+'&l=english&filters=pc_requirements');const j=await r.json(),d=j&&j[g.app]&&j[g.app].data,pr=d&&d.pc_requirements;
+      PCS.req[g.app]={t:Date.now(),min:pcReqParse(pr&&pr.minimum),rec:pcReqParse(pr&&pr.recommended),none:!(pr&&pr.minimum)};try{localStorage.setItem('winteer_req',JSON.stringify(PCS.req))}catch(e){}}}catch(e){}
+  PCS.ld=0;if(S.view==='games'&&S.tab==='pc'&&$('#tabc'))renderTab()}
+function pcEval(g){const sp=PCS.sp,rq=PCS.req[g.app];if(!sp||!rq||rq.none)return null;
+  const my={cpu:cpuScore(sp.cpu),gpu:Math.max(...(sp.gpu||[]).map(gpuScore).filter(x=>x!=null),-1),ram:sp.ram};if(my.gpu<0)my.gpu=null;
+  const need=k=>{const f=x=>k==='cpu'?pcPieces(x,cpuScore):k==='gpu'?pcPieces(x,gpuScore):pcRamGB(x);return {min:f(rq.min[k]),rec:f(rq.rec[k])}};
+  const rows=['cpu','gpu','ram'].map(k=>{const n=need(k),m=my[k];let st='unk';if(m!=null){const lo=n.min!=null?n.min:null,hi=n.rec!=null?n.rec:null;
+      if(k==='ram'){const ok=v=>m>=v-0.6;st=hi!=null&&ok(hi)?'ok':lo!=null&&ok(lo)?'min':lo!=null?'low':hi!=null?(ok(hi)?'ok':'min'):'unk'}
+      else{st=hi!=null&&m>=hi*.95?'ok':lo!=null&&m>=lo*.95?'min':lo!=null?'low':hi!=null?(m>=hi*.95?'ok':'min'):'unk'}}
+    return {k,st,my:k==='cpu'?sp.cpu:k==='gpu'?(sp.gpu||[]).join(' / '):sp.ram+' GB',min:rq.min[k]||'',rec:rq.rec[k]||''}});
+  const sts=rows.map(r=>r.st),v=sts.includes('low')?'low':sts.every(x=>x==='unk')?'unk':sts.includes('min')?'min':'ok';return {rows,v}}
+function pcHTML(g){if(!window.winteerNative)return '<div class="inf-c"><p class="hint2">Esto se calcula desde la app de escritorio.</p></div>';
+  const rq=PCS.req[g.app];if(!PCS.sp||!rq){pcLoad(g);return '<div class="inf-c"><p class="hint2">Comparando con tu PC…</p></div>'}
+  if(rq.none)return '<div class="inf-c"><p class="hint2">Steam no publica requisitos para este juego.</p></div>';
+  const e=pcEval(g);if(!e)return '<div class="inf-c"><p class="hint2">No pude leer los componentes de tu PC.</p></div>';
+  const V={ok:['Debería andar bien','Tu PC cumple lo recomendado.','#4ade80'],min:['Debería andar, en calidad baja o media','Cumple lo mínimo pero no del todo lo recomendado.','#facc15'],low:['Probablemente ande mal','Algún componente está por debajo del mínimo.','#f87171'],unk:['No se puede estimar','Los requisitos no nombran componentes que pueda comparar.','#94a3b8']}[e.v],L={cpu:'Procesador',gpu:'Placa de video',ram:'Memoria RAM'},S2={ok:['Bien','#4ade80'],min:['Justo','#facc15'],low:['Por debajo','#f87171'],unk:['Sin dato','#94a3b8']};
+  return `<div class="inf-c"><div style="display:flex;align-items:center;gap:14px;margin-bottom:14px"><i style="width:14px;height:14px;border-radius:50%;background:${V[2]};box-shadow:0 0 14px ${V[2]}"></i><div><b style="font-size:17px">${V[0]}</b><small style="display:block;color:var(--muted)">${V[1]}</small></div></div>
+  ${e.rows.map(r=>`<div class="pcr" style="padding:10px 0;border-top:1px solid rgba(255,255,255,.07)"><div style="display:flex;justify-content:space-between;gap:12px"><b>${L[r.k]}</b><span style="color:${S2[r.st][1]}">${S2[r.st][0]}</span></div><small style="display:block;color:var(--muted)">Tu PC: ${esc(r.my||'—')}</small>${r.min?`<small style="display:block;color:var(--muted)">Mínimo: ${esc(r.min)}</small>`:''}${r.rec?`<small style="display:block;color:var(--muted)">Recomendado: ${esc(r.rec)}</small>`:''}</div>`).join('')}
+  <p class="hint2" style="margin-top:12px">Es una estimación que compara modelos de procesador y placa; no mide el rendimiento real. Los requisitos los publica el propio juego en Steam.</p></div>`}
+/* ---------- Doctor de juegos: lee los cierres con error que registra Windows y los explica en criollo ---------- */
+const DOCC={'0xc000007b':['No pudo arrancar por una mezcla de versiones de archivos (32 y 64 bits) o por falta de Visual C++.',['vc','dx','validate']],'0xc0000135':['Falta un archivo (DLL) que el juego necesita para abrir.',['vc','net','dx','validate']],'0xc0000139':['Un archivo del juego no es compatible con lo que hay instalado.',['vc','validate']],'0xc0000142':['Un componente necesario no pudo iniciarse.',['vc','dx','validate']],'0xc0000005':['El juego tocó una zona de memoria que no debía. Suele ser un archivo dañado, el driver de video o un overlay que molesta.',['validate','drv']],'0xc0000409':['Windows lo cortó por una protección de memoria. Suele ser un archivo dañado o un mod incompatible.',['validate']],'0xe06d7363':['El juego tuvo un error interno y se cerró.',['validate','vc']],'0xc0000374':['Se corrompió la memoria. A veces pasa por RAM inestable (overclock o XMP) o por drivers.',['drv']],'0x80000003':['El juego se detuvo por una comprobación interna.',['validate']]};
+const DOCM=[[/vcruntime|msvcp|msvcr|ucrtbase|concrt/i,'Le falta o tiene dañado Visual C++, un componente de Microsoft que usan casi todos los juegos.',['vc','validate']],[/d3d1|dxgi|nvwgf|nvlddmkm|atidxx|amdxx|atio|igd\d|nvoglv|vulkan|amdvlk/i,'Falló algo de la placa de video (casi siempre el driver).',['drv','validate']],[/xinput|d3dx9|d3dcompiler|x3daudio|xaudio/i,'Le falta una parte antigua de DirectX.',['dx','validate']],[/steam_api|steamclient/i,'Falló la conexión con Steam. Probá cerrar Steam y abrirlo de nuevo.',['validate']],[/easyanticheat|beclient|battleye|vgk|eac/i,'El sistema anti-trampas cortó el juego.',['validate']]];
+const DOCF={vc:['Instalar Visual C++','https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist'],dx:['Instalar DirectX','https://www.microsoft.com/download/details.aspx?id=35'],net:['Instalar .NET','https://dotnet.microsoft.com/download/dotnet-framework'],drv:['Actualizar driver de video','']};
+function docExplain(g,it){let txt='',fx=[];const mm=DOCM.find(x=>x[0].test(it.mod||''));
+  if(it.id===1026)return {t:'Falló una parte de .NET: '+(it.net||'error sin detalle'),fx:['net','validate']};
+  if(mm){txt=mm[1];fx=mm[2]}else if(DOCC[it.code]){txt=DOCC[it.code][0];fx=DOCC[it.code][1]}else{txt='El juego se cerró por un error'+(it.mod?' en «'+it.mod+'»':'')+'. Probá verificar los archivos y actualizar el driver de video.';fx=['validate','drv']}
+  return {t:txt,fx:fx.filter(k=>k!=='validate'||g.app>0)}}
+async function docRun(g,since,auto){if(!(window.winteerNative&&winteerNative.docScan)||vIsId(g.id))return;if(auto)await new Promise(r=>setTimeout(r,4000));
+  try{const r=await winteerNative.docScan({since:since||0,exe:g.exe||'',steam:isSteamG(g)});if(!r||!r.ok)return;ST.doc=ST.doc||{};ST.doc[g.id]={t:Date.now(),list:r.list.slice(0,5)};save();
+    if(auto&&r.list.length)toast('Parece que '+g.name+' se cerró por un error. Mirá la pestaña Doctor');
+    if(S.view==='games'&&S.sel===g.id&&S.tab==='doc'&&$('#tabc'))renderTab()}catch(e){}}
+function docHTML(g){return docHTML0(g)+healthHTML(g)}
+function docHTML0(g){const d=(ST.doc||{})[g.id],ago=t=>new Date(t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const head=`<div class="inf-c"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Doctor de juegos</b><small style="display:block;color:var(--muted)">Mira los cierres con error que Windows anotó para este juego y te explica la causa.</small></div><button class="b2 sm" data-a="docscan" data-id="${g.id}">${DOC.b===g.id?'Buscando…':'Buscar problemas'}</button></div></div>`;
+  if(!d)return head;
+  if(!d.list.length)return head+`<div class="inf-c" style="margin-top:12px"><p class="hint2">Última revisión: ${ago(d.t)}. No encontré cierres con error de Windows para este juego en los últimos 14 días.</p><p class="hint2">Si igual no abre, puede ser un antivirus que lo bloquea, o que necesite abrirse como administrador.</p></div>`;
+  return head+d.list.map(it=>{const e=docExplain(g,it);return `<div class="inf-c" style="margin-top:12px"><small style="color:var(--muted)">${ago(it.t)} · ${esc(it.app)}${it.mod?' · '+esc(it.mod):''}${it.code?' · '+esc(it.code):''}</small><p style="margin:6px 0 10px">${esc(e.t)}</p><div class="chips">${e.fx.map(k=>`<button class="cp" data-a="docfix" data-k="${k}" data-id="${g.id}">${k==='validate'?'Verificar archivos en Steam':DOCF[k][0]}</button>`).join('')}</div></div>`}).join('')}
+const DOC={b:''};
+/* ---------- Salud de la PC por juego: temperaturas de cada sesión (se leen de LibreHardwareMonitor si está abierto) ---------- */
+const HW_WARN={cpu:92,gpu:88};
+function healthAdd(g,ev){const th=ev&&ev.th;if(!th||vIsId(g.id)||!S.playing)return;
+  const r={s:S.playing.t,d:+Math.max(0,(ev.t-S.playing.t)/36e5).toFixed(2),cm:th.cpu?th.cpu.max:null,ca:th.cpu?th.cpu.avg:null,gm:th.gpu?th.gpu.max:null,ga:th.gpu?th.gpu.avg:null};
+  ST.hp=ST.hp||{};const l=ST.hp[g.id]=ST.hp[g.id]||[];l.push(r);if(l.length>20)l.splice(0,l.length-20);save();
+  const hot=(r.gm!=null&&r.gm>=HW_WARN.gpu)?'la placa de video llegó a '+r.gm+'°C':(r.cm!=null&&r.cm>=HW_WARN.cpu)?'el procesador llegó a '+r.cm+'°C':'';
+  if(hot)toast('En esta sesión de '+g.name+' '+hot+'. Mirá la pestaña Doctor para ver qué hacer')}
+function healthHTML(g){const l=((ST.hp||{})[g.id]||[]).slice(-10),ago=t=>new Date(t).toLocaleDateString('es-AR',{day:'numeric',month:'short'});
+  const head=`<div class="inf-c" style="margin-top:12px"><b>Salud de la PC en este juego</b><small style="display:block;color:var(--muted)">Temperatura máxima de cada sesión.</small>`;
+  if(!l.length)return head+`<p class="hint2" style="margin-top:8px">Todavía no hay datos. WINTEER lee las temperaturas de LibreHardwareMonitor: abrilo con el servidor web activado (Options → Remote Web Server → Run, puerto 8085) y jugá una sesión desde WINTEER. Sin eso, Windows no deja leerlas.</p></div>`;
+  const mx=Math.max(100,...l.map(x=>Math.max(x.cm||0,x.gm||0))),bar=(v,c)=>v==null?'':`<i style="display:block;height:${Math.max(4,v/mx*70)}px;background:${v>=(c==='g'?HW_WARN.gpu:HW_WARN.cpu)?'#f87171':'rgba(255,255,255,.55)'};border-radius:4px 4px 0 0;flex:1" title="${c==='g'?'Placa de video':'Procesador'}: ${v}°C"></i>`;
+  const worst={cpu:Math.max(...l.map(x=>x.cm||0)),gpu:Math.max(...l.map(x=>x.gm||0))},hot=worst.gpu>=HW_WARN.gpu||worst.cpu>=HW_WARN.cpu;
+  return head+`<div style="display:flex;gap:10px;align-items:flex-end;height:90px;margin:12px 0 6px">${l.map(x=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="display:flex;gap:2px;align-items:flex-end;width:100%;height:76px">${bar(x.cm,'c')}${bar(x.gm,'g')}</div><small style="color:var(--muted);font-size:10px;margin-top:3px">${ago(x.s)}</small></div>`).join('')}</div>
+  <small style="color:var(--muted)">Cada día: barra clara izquierda = procesador, derecha = placa de video. Rojo = pasó el límite que considero alto (procesador ${HW_WARN.cpu}°C, placa ${HW_WARN.gpu}°C).</small>
+  <p class="hint2" style="margin-top:10px">${hot?'Hubo sesiones con temperatura alta. Probá limpiar el polvo, revisar que los ventiladores giren, mejorar el flujo de aire del gabinete o limitar los FPS del juego. Si pasa en todos los juegos, conviene revisar la pasta térmica.':'Las temperaturas están dentro de lo normal.'}</p></div>`}
+
 let DETN=0;async function detInst(force){if(!(window.winteerNative&&winteerNative.installed))return null;if(!force&&Date.now()-DETN<8000)return null;DETN=Date.now();
   try{const r=await winteerNative.installed(ST.steamDir||'');if(!r||!r.ok)return null;const set=new Set(r.apps);let ch=0;G.forEach(g=>{if(!isSteamG(g))return;const v=set.has(g.app);if(!!g.inst!==v){g.inst=v||undefined;ch++}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}else if(S.view==='home'||S.view==='settings'||S.view==='stats')go(S.view)}catch(e){}}return set}catch(e){return null}}
 let XBN=0;function detXboxLater(){[30000,90000,240000].forEach(t=>setTimeout(()=>detXbox(true),t))}
-async function detXbox(force){if(!(window.winteerNative&&winteerNative.scanXbox))return;if(!force&&Date.now()-XBN<90000)return;if(!G.some(isXbG))return;XBN=Date.now();try{const r=await winteerNative.scanXbox();if(!r||!r.found)return;const m={};(r.list||[]).forEach(x=>m[x.id]=x);let ch=0;G.forEach(g=>{if(!isXbG(g))return;const x=m[g.id],v=!!x;if(!!g.inst!==v){g.inst=v||undefined;ch++}if(x){if(x.exe&&g.exe!==x.exe){g.exe=x.exe;ch++}if(x.shellApp&&g.shellApp!==x.shellApp){g.shellApp=x.shellApp;ch++}if(g.uri&&/^ms-windows-store:/.test(g.uri)){delete g.uri;ch++}}else if(!g.uri){g.uri='ms-windows-store://pdp/?PFN='+encodeURIComponent(g.id.slice(3));ch++}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}}catch(e){}}
+async function detXbox(force){if(!(window.winteerNative&&winteerNative.scanXbox))return;if(!force&&Date.now()-XBN<90000)return;if(!G.some(isXbG))return;XBN=Date.now();try{const r=await winteerNative.scanXbox();if(!r||!r.found)return;const m={};(r.list||[]).forEach(x=>m[x.id]=x);let ch=0;G.forEach(g=>{if(!isXbG(g))return;const x=m[g.id],v=!!x;if(!!g.inst!==v){g.inst=v||undefined;ch++}if(x){if(x.exe&&g.xdet!==x.exe){g.xdet=x.exe;ch++}if(x.exe&&!g.xexe&&g.exe!==x.exe){g.exe=x.exe;ch++}if(x.shellApp&&g.shellApp!==x.shellApp){g.shellApp=x.shellApp;ch++}if(g.uri&&/^ms-windows-store:/.test(g.uri)){delete g.uri;ch++}}else if(!g.uri){g.uri='ms-windows-store://pdp/?PFN='+encodeURIComponent(g.id.slice(3));ch++}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}}catch(e){}}
 function detEpicLater(){[20000,60000,180000].forEach(t=>setTimeout(detEpic,t))}
 async function detEpic(){if(!(window.winteerNative&&winteerNative.scanEpic))return;try{const r=await winteerNative.scanEpic();if(!r||!r.found)return;const m={};(r.list||[]).forEach(x=>m[x.id]=x);let ch=0;G.forEach(g=>{if(!isEpicG(g))return;const x=m[g.id],v=!!x;if(!!g.inst!==v){g.inst=v||undefined;ch++}if(x){if(x.exe&&g.exe!==x.exe){g.exe=x.exe;ch++}if(x.uri&&g.uri!==x.uri){g.uri=x.uri;ch++}}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}}catch(e){}}
 function launchGame(g){hcnt('play');
   if(pzOf(g)&&pzSt().auto&&pzProf()){const pp=pzProf();winteerNative.pzApply(pp.m,ST.steamDir||'').then(r=>{if(r&&r.ok)toast('Mods del perfil «'+pp.n+'» aplicados')}).catch(()=>{})}
-  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:g.name,exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl}).then(r=>{S.trk=!!(r&&r.tracking)}).catch(()=>{S.trk=false});return}
+  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:g.name,exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:(isXbG(g)&&g.xexe)?'':(g.uri||''),shellApp:(isXbG(g)&&g.xexe)?'':(g.shellApp||''),borderless:!!g.bl}).then(r=>{S.trk=!!(r&&r.tracking)}).catch(()=>{S.trk=false});return}
   if(g.exe){const u='[InternetShortcut]\r\nURL=file:///'+g.exe.replace(/\\/g,'/')+'\r\n',a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u],{type:'text/plain'}));a.download=g.name.replace(/[^\w\- ]/g,'').trim()+'.url';document.body.appendChild(a);a.click();a.remove();toast('Abrí el acceso que se descargó para iniciar el juego (en la versión Electron se abre solo)');return}
   location.href=g.launch||('steam://rungameid/'+g.app)}
 
@@ -3573,7 +3648,7 @@ function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
   if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario')+(g.app>0&&window.winteerNative&&winteerNative.pcSpecs?tb('pc','Mi PC'):'')+(window.winteerNative&&winteerNative.docScan?tb('doc','Doctor'):'')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
   {const dt=$('#detail');if(dt)dt.classList.toggle('modsfull',S.tab==='mods'&&(pzOf(g)||mcOf(g)||!!(window.winteerNative&&winteerNative.mioReq)))}
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
@@ -3583,6 +3658,8 @@ function renderTab(){
     h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):srcHTML(g);
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
+  }else if(S.tab==='pc'&&g.app>0){h=pcHTML(g)
+  }else if(S.tab==='doc'&&window.winteerNative&&winteerNative.docScan){h=docHTML(g)
   }else if(S.tab==='rv'){
     h=rvTabHTML(g)+`<div class="nt"><div class="lbl">Notas</div><textarea id="notes" rows="3" placeholder="Algo que quieras recordar de este juego…">${esc(g.notes||'')}</textarea></div>`;
   }else if(S.tab==='cg'){h=cgHTML(g)
@@ -3625,9 +3702,17 @@ V.stats=()=>{
   const ins=[['Mes más fuerte',bmi>=0?`${MN[bmi]} · ${d.month[bmi].toFixed(1)} h`:'—'],['Día favorito',bwi>=0?['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][bwi]:'—'],['Día récord',d.max?`${d.max.toFixed(1)} h`:'—'],['Promedio por día activo',d.n?avg.toFixed(1)+' h':'—'],['Mayor racha',d.streak?d.streak+(d.streak===1?' día':' días'):'—'],['Juego más jugado',top[0]?esc(top[0].name):'—']];
   const WDF=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   const bars=(arr,lab,mx2,hi)=>`<div class="stx-bars">${arr.map((h,i)=>`<div class="stx-b ${i===hi?'hi':''}" title="${h.toFixed(1)} h"><em>${h>=1?Math.round(h):(h>0?h.toFixed(1):'')}</em><div><i style="--h:${h/mx2*100}%"></i></div><span>${lab[i]}</span></div>`).join('')}</div>`;
-  const PN={top:['Más jugados','top'],gen:['Géneros','gen'],mon:['Por mes','mon'],wd:['Por día','wd']};
+  const PN={top:['Más jugados','top'],gen:['Géneros','gen'],mon:['Por mes','mon'],wd:['Por día','wd'],hr:['Hora','hr'],yy:['Año vs año','yy'],eng:['Enganche','eng']};
+  const hrD=(()=>{const a=Array(24).fill(0);for(const x of (ST.ses||[])){let t=x.s,end=x.s+x.h*36e5;if(new Date(x.s).getFullYear()!==y&&new Date(end).getFullYear()!==y)continue;while(t<end){const st=Math.min(end,t+6e5);a[new Date(t).getHours()]+=(st-t)/36e5;t=st}}return a})();
+  const hrMx=Math.max(0.01,...hrD),hrB=hrD.indexOf(Math.max(...hrD));
+  const yyD=(()=>{const a=statYear(y-1),b=d;return {a:a.month,b:b.month,ta:a.tot,tb:b.tot}})();
+  const yyMx=Math.max(1,...yyD.a,...yyD.b);
+  const engD=(()=>{const by={};for(const x of (ST.ses||[])){(by[x.g]=by[x.g]||[]).push(x)}const out=[];for(const id in by){const g=gm(id);if(!g)continue;const l=by[id].sort((p,q)=>p.s-q.s);let c=0;for(const x of l){c+=x.h;if(c>=5){out.push({g,d:Math.max(1,Math.ceil((x.s+x.h*36e5-l[0].s)/864e5)),n:l.length});break}}}return out.sort((a,b)=>a.d-b.d||b.n-a.n).slice(0,10)})();
   const panel=k=>k==='gen'?(gl.length?`<div class="stx-list">${gl.map(([t,h],i)=>`<div class="sbar"><div class="t"><span style="color:var(--text)">${esc(t)}</span><span>${fh(h)}</span></div><div class="tr"><i style="--w:${h/gmx*100}%;--i:${i}"></i></div></div>`).join('')}</div>`:'<div class="empty">Se llena con la información de tus juegos.</div>'):
    k==='mon'?bars(d.month,MN,mmx,bmi):k==='wd'?bars(d.wd,WDF,wmx,bwi):
+   k==='hr'?(hrD.some(v=>v>0)?bars(hrD,hrD.map((_,i)=>i%3===0?String(i):''),hrMx,hrB)+`<p class="hint2" style="text-align:center;margin-top:10px">Jugás más a las <b>${hrB}:00</b> en ${y}. Cuenta el momento real en que estabas jugando.</p>`:'<div class="empty">Todavía no hay sesiones registradas en '+y+'.</div>'):
+   k==='yy'?(yyD.ta||yyD.tb?`<div class="stx-bars" style="gap:4px">${MN.map((m,i)=>`<div class="stx-b" title="${m}: ${yyD.a[i].toFixed(1)} h en ${y-1} · ${yyD.b[i].toFixed(1)} h en ${y}"><div style="display:flex;gap:2px;align-items:flex-end;height:100%"><div style="flex:1;height:100%;position:relative"><i style="position:absolute;bottom:0;left:0;right:0;border-radius:4px;height:${yyD.a[i]/yyMx*100}%;background:rgba(255,255,255,.25)"></i></div><div style="flex:1;height:100%;position:relative"><i style="position:absolute;bottom:0;left:0;right:0;border-radius:4px;height:${yyD.b[i]/yyMx*100}%;background:var(--a)"></i></div></div><span>${m}</span></div>`).join('')}</div><p class="hint2" style="text-align:center;margin-top:10px"><b style="color:var(--a)">${y}</b>: ${yyD.tb.toFixed(0)} h · <b>${y-1}</b>: ${yyD.ta.toFixed(0)} h${yyD.ta>0?' ('+(yyD.tb>=yyD.ta?'+':'')+Math.round((yyD.tb-yyD.ta)/yyD.ta*100)+'%)':''}</p>`:'<div class="empty">Todavía no hay horas para comparar.</div>'):
+   k==='eng'?(engD.length?`<div class="stx-list">${engD.map((e,i)=>`<div class="sbar"><div class="t"><span style="color:var(--text)">${esc(e.g.name)}</span><span>5 h en ${e.d===1?'1 día':e.d+' días'}</span></div><div class="tr"><i style="--w:${100-Math.min(95,(e.d-1)*4)}%;--i:${i}"></i></div></div>`).join('')}</div><p class="hint2" style="margin-top:10px">Los juegos que más rápido te llevaron a 5 horas desde la primera vez que los abriste.</p>`:'<div class="empty">Se llena a medida que jugás sesiones largas.</div>'):
    (top.length?`<div class="stx-top">${top.map((g,i)=>`<div class="tp" data-a="open" data-id="${g.id}"><span class="n">${i+1}</span><div class="th">${thumb(g).replace(/^<div class="th">|<\/div>$/g,'')}</div><div class="tb"><div class="t"><span>${esc(g.name)}</span><span>${fh(g.hours)}</span></div><div class="tr"><i style="--w:${g.hours/mx*100}%;--i:${i}"></i></div></div></div>`).join('')}</div>`:'<div class="empty">Sin horas todavía.</div>');
   window.__stPanel=panel;
   if(!PN[S.sttb])S.sttb='top';
@@ -3998,7 +4083,7 @@ const A={
   esave:async a=>{const g=EG,nm=$('#e-name').value.trim();if(nm)g.name=nm;g.fav=EFAV||undefined;g.rate=ERATE||undefined;
     const h=parseFloat($('#e-h').value);if(!isNaN(h)&&h>=0)g.hours=h;
     const ap=parseInt(($('#e-app')||{}).value);if(ap&&ap!==g.app){g.app=ap;delete ST.sgdb[ap]}
-    if($('#e-im'))g.instM=$('#e-im').value==='1'?true:$('#e-im').value==='0'?false:undefined;g.launch=($('#e-l')||{value:''}).value.trim();if($('#e-bl')){if($('#e-bl').value==='1')g.bl=1;else delete g.bl}const was=g.status==='Terminado';g.status=EST;const dd=$('#e-dd').value,ddt=dd?new Date(dd+'T12:00:00').getTime():0;if(EST==='Terminado'&&!was){g.doneAt=ddt||achLast(g)||Date.now();window._cel=g}else if(EST!=='Terminado')delete g.doneAt;else if(ddt)g.doneAt=ddt;g.tags=$('#e-tg').value.split(',').map(x=>x.trim()).filter(Boolean);if($('#e-ex'))g.exe=$('#e-ex').value.trim().replace(/^"|"$/g,'');if(!g.app&&!g.wimg){delete g.wno;wpImg(g)}g.hl={m:parseFloat($('#e-hm').value)||0,e:parseFloat($('#e-he').value)||0,c:parseFloat($('#e-hc').value)||0};
+    if($('#e-im'))g.instM=$('#e-im').value==='1'?true:$('#e-im').value==='0'?false:undefined;g.launch=($('#e-l')||{value:''}).value.trim();if($('#e-bl')){if($('#e-bl').value==='1')g.bl=1;else delete g.bl}const was=g.status==='Terminado';g.status=EST;const dd=$('#e-dd').value,ddt=dd?new Date(dd+'T12:00:00').getTime():0;if(EST==='Terminado'&&!was){g.doneAt=ddt||achLast(g)||Date.now();window._cel=g}else if(EST!=='Terminado')delete g.doneAt;else if(ddt)g.doneAt=ddt;g.tags=$('#e-tg').value.split(',').map(x=>x.trim()).filter(Boolean);if($('#e-ex')){const ev=$('#e-ex').value.trim().replace(/^"|"$/g,'');if(isXbG(g)){const det=g.xdet||g.exe;if(ev&&ev!==det){g.xexe=ev;g.exe=ev}else{delete g.xexe;if(g.xdet)g.exe=g.xdet}}else g.exe=ev}if(!g.app&&!g.wimg){delete g.wno;wpImg(g)}g.hl={m:parseFloat($('#e-hm').value)||0,e:parseFloat($('#e-he').value)||0,c:parseFloat($('#e-hc').value)||0};
     for(const k of Object.keys(EP)){const key='c:'+g.id+':'+k;
       if(EP[k]){await artPut(key,EP[k]);if(ART[key])URL.revokeObjectURL(ART[key]);ART[key]=URL.createObjectURL(EP[k])}
       else{await artDel(key);if(ART[key]){URL.revokeObjectURL(ART[key]);delete ART[key]}}}
@@ -4425,17 +4510,18 @@ function worldDraw(e,sec){const now=Date.now()/1000;
   if(sec==='up'){const tm=new Date();tm.setHours(24,0,0,0);const l=((NW.up&&NW.up.v===6&&NW.up.items)||[]).filter(x=>x.ts>=tm.getTime()).sort((a,b)=>a.ts-b.ts);e.innerHTML=l.length?`<div class="nw-g">${l.map(x=>nwCard({u:x.u||('https://store.steampowered.com/app/'+x.id),im:x.im,fb:x.fb,sm:x.pl?x.pl:'Steam · estreno del mes',t:x.n,c:'Sale el '+new Date(x.ts).toLocaleDateString('es-AR',{day:'numeric',month:'long'}),tag:'Próximo'})).join('')}</div>`:`<div class="empty">${worldFetch.b?'Buscando los mejores estrenos del mes…':'No quedan estrenos destacados este mes. El 1° se arma la lista del mes nuevo.'}</div>`;return}
   const l=(NW.w&&NW.w.items)||[],sn=S.nseen||0;e.innerHTML=l.length?`<div class="nw-g">${l.slice(0,S.nlim||18).map(x=>nwCard({u:x.u,im:x.im,sm:esc(x.s)+' · '+relDay(x.d),t:x.te||x.t,c:x.ce||x.c,nw:x.d>sn})).join('')}</div>${l.length>(S.nlim||18)?`<div class="nw-more"><button class="hm-go hm-gh" data-a="newsmore">Ver más</button></div>`:''}`:`<div class="empty">${worldFetch.b?'Buscando noticias…':'Todavía no hay noticias del mundo gamer. Tocá Actualizar.'}</div>`}
 setTimeout(()=>{try{worldFetch()}catch(e){}},35000);setInterval(()=>{try{if(!document.hidden)worldFetch()}catch(e){}},3*36e5);
-function newsBadge(){const sn=ST.newsSeen||0,n=newsItems().filter(x=>x.d>sn).length,a=$('.nav a[data-v="news"]');if(a)a.classList.toggle('has',n>0)}
+function newsBadge(){const sn=ST.newsSeen||0,n=newsItems().filter(x=>x.d>sn).length+radarNew(),a=$('.nav a[data-v="news"]');if(a)a.classList.toggle('has',n>0)}
 const relDay=t=>{const n=Math.floor((Date.now()/1000-t)/86400);return n<=0?'hoy':n===1?'ayer':n<30?'hace '+n+' días':n<365?'hace '+Math.floor(n/30)+' mes'+(n>=60?'es':''):'hace más de un año'};
 function nwList(){const sec=S.nsec||'m',sn=S.nseen||0;
   if(sec==='up'){const tm=new Date();tm.setHours(24,0,0,0);return ((NW.up&&NW.up.v===6&&NW.up.items)||[]).filter(x=>x.ts>=tm.getTime()).sort((a,b)=>a.ts-b.ts).map(x=>({u:x.u||('https://store.steampowered.com/app/'+x.id),im:x.im,fb:x.fb,sm:x.pl?x.pl:'Steam · estreno del mes',t:x.n,c:'Sale el '+new Date(x.ts).toLocaleDateString('es-AR',{day:'numeric',month:'long'})+'. Tocá para ver la ficha en la tienda y agregarlo a tu lista de deseados.',tag:'Próximo'}))}
+  if(sec==='fr')return radarList();
   if(sec==='w')return ((NW.w&&NW.w.items)||[]).slice(0,24).map(x=>({u:x.u,im:x.im,sm:x.s+' · '+relDay(x.d),t:x.te||x.t,c:x.ce||x.c,nw:x.d>sn}));
   const f=sec==='p'?'patch':'all',fv=new Set(((PR()||{}).fav)||[]);let l=newsItems();
   if(f==='fav')l=l.filter(x=>fv.has(x.g.id));else if(f==='play')l=l.filter(x=>stOf(x.g)==='Jugando'||(S.playing&&S.playing.id===x.g.id));else if(f==='patch')l=l.filter(x=>x.patch);
   {const cap=f==='all'?1:2,c={};l=l.filter(x=>(c[x.g.id]=(c[x.g.id]||0)+1)<=cap)}
   return l.slice(0,24).map(x=>({u:x.u,im:art.wide(x.g),fb:art.grid(x.g),sm:x.g.name+' · '+relDay(x.d),t:x.te||x.t,c:x.ce||x.c,tag:x.patch?'Parche':'',nw:x.d>sn,fv:fv.has(x.g.id)}))}
 function newsDraw(){const e=$('#nwb');if(!e)return;const l=nwList(),n=Math.max(1,Math.ceil(l.length/3));S.npg=Math.min(S.npg||0,n-1);
-  if(!l.length){const sec=S.nsec||'m';e.innerHTML=`<div class="nwx-main"><div class="empty">${sec==='up'?(worldFetch.b?'Buscando los mejores estrenos del mes…':'No quedan estrenos destacados este mes. El 1° se arma la lista del mes nuevo.'):sec==='w'?(worldFetch.b?'Buscando noticias…':'Todavía no hay noticias del mundo gamer. Tocá Actualizar.'):(newsFetch.busy?'Buscando novedades de tus juegos…':(Object.keys(NEWS).length?'No hay novedades con este filtro.':(WN?'Todavía no hay novedades. Probá de nuevo en un rato.':'Las novedades se cargan desde la app de escritorio.')))}</div></div>`;return}
+  if(!l.length){const sec=S.nsec||'m';e.innerHTML=`<div class="nwx-main"><div class="empty">${sec==='up'?(worldFetch.b?'Buscando los mejores estrenos del mes…':'No quedan estrenos destacados este mes. El 1° se arma la lista del mes nuevo.'):sec==='fr'?(RAD.b?'Buscando juegos gratis…':'Ahora no hay juegos gratis para reclamar. Tocá Actualizar.'):sec==='w'?(worldFetch.b?'Buscando noticias…':'Todavía no hay noticias del mundo gamer. Tocá Actualizar.'):(newsFetch.busy?'Buscando novedades de tus juegos…':(Object.keys(NEWS).length?'No hay novedades con este filtro.':(WN?'Todavía no hay novedades. Probá de nuevo en un rato.':'Las novedades se cargan desde la app de escritorio.')))}</div></div>`;return}
   const pg=l.slice(S.npg*3,S.npg*3+3);
   e.innerHTML=`<div class="nwx-main"><div class="nwx-pg"><span>${l.length} novedades</span><div><button class="nwx-ar" data-a="nwprev" ${S.npg<=0?'disabled':''} aria-label="Anteriores">${ic('arrow')}</button><b>${S.npg+1} / ${n}</b><button class="nwx-ar nx" data-a="nwnext" ${S.npg>=n-1?'disabled':''} aria-label="Siguientes">${ic('arrow')}</button></div></div>
   <div class="nwx-rows">${pg.map(x=>`<article class="nwx-r ${x.nw?'new':''}" data-a="newsopen" data-u="${esc(x.u)}"><div class="nwx-im">${x.im?`<img src="${esc(x.im)}" ${x.fb?`data-fb="${esc(x.fb)}"`:''} alt="" onerror="if(this.dataset.fb&&!this.dataset.t){this.dataset.t=1;this.src=this.dataset.fb}else this.style.display='none'">`:''}${x.tag?`<span class="nw-tag">${x.tag}</span>`:''}${x.fv?'<span class="nw-fv">★</span>':''}</div><div class="nwx-t"><small>${esc(x.sm)}</small><b>${esc(x.t)}</b>${x.c?`<p>${esc(x.c)}</p>`:''}</div></article>`).join('')}</div></div>`}
@@ -4444,9 +4530,38 @@ V.news=()=>{S.nf=S.nf||'all';S.nsec=S.nsec||'m';if(S.nsec==='fav')S.nsec='m';set
   const TB=[['all','Todo'],['fav','Mis favoritos'],['play','Jugando'],['patch','Parches']];
   S.npg=0;
   return `<div class="stack nw nwx"><header class="st-h rise"><div><small>Lo último de tus juegos</small><h1>Novedades</h1></div></header>
-  <div class="nwx-bar rise" style="--i:1"><div class="chips">${[['m','Mis juegos'],['w','Mundo gamer'],['up','Próximos lanzamientos'],['p','Parches']].map(([k,l])=>`<button class="cp ${S.nsec===k?'on':''}" data-a="newssec" data-v="${k}">${l}</button>`).join('')}</div>
+  <div class="nwx-bar rise" style="--i:1"><div class="chips">${[['m','Mis juegos'],['w','Mundo gamer'],['up','Próximos lanzamientos'],['p','Parches'],['fr','Gratis'+(radarNew()?' ('+radarNew()+')':'')]].map(([k,l])=>`<button class="cp ${S.nsec===k?'on':''}" data-a="newssec" data-v="${k}">${l}</button>`).join('')}</div>
   <button class="hm-go hm-gh nwx-rf" data-a="newsrefresh">${ic('flake')} Actualizar</button></div>
   <div class="nwx-body"><div id="nwb" class="rise" style="--i:2;min-height:0"></div><aside class="nwx-side">${ydCard()}${recCard()}</aside></div></div>`};
+/* ---------- Radar de juegos gratis: Epic (semanales), Steam (100% de descuento) y GOG ---------- */
+const RAD={b:0};
+const radR=()=>{const R=(ST.rad=ST.rad||{});R.items=R.items||[];R.seen=R.seen||{};R.ann=R.ann||{};R.t=R.t||0;return R};
+const radActive=()=>radR().items.filter(x=>!x.end||x.end>Date.now());
+function radarNew(){try{const R=radR();return radActive().filter(x=>!x.up&&!R.seen[x.id]).length}catch(e){return 0}}
+function radarList(){const R=radR(),SRC={epic:'Epic Games',steam:'Steam',gog:'GOG'},fd=t=>new Date(t).toLocaleDateString('es-AR',{day:'numeric',month:'long'});
+  const l=radActive().sort((a,b)=>(a.up?1:0)-(b.up?1:0)||(a.end||9e15)-(b.end||9e15));
+  const out=l.map(x=>({u:x.u,im:x.im,sm:SRC[x.k]+(x.up?'':(x.end?' · hasta el '+fd(x.end):'')),t:x.n,c:x.up?(x.start?'Gratis desde el '+fd(x.start)+'.':'Se viene un juego gratis.'):'Gratis ahora. Tocá para ir a la tienda y reclamarlo.',tag:x.up?'Próximo':'Gratis',nw:!x.up&&!R.seen[x.id]}));
+  if(out.some(x=>x.nw))setTimeout(()=>{const R2=radR();radActive().forEach(x=>R2.seen[x.id]=1);save();try{newsBadge()}catch(e){}},2500);
+  return out}
+async function radarFetch(force){if(RAD.b||!window.winteerNative)return;const R=radR();if(!force&&Date.now()-R.t<5*36e5)return;RAD.b=1;
+  const got={},now=Date.now(),isF=m=>m&&(+m.amount===0||/^0([.,]0+)?$/.test(String(m.amount||m)));
+  try{const r=await nf('https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=es-AR&country=AR&allowCountries=AR'),j=await r.json(),l=[];
+    for(const e of j.data.Catalog.searchStore.elements){const pr=e.promotions||{},cur=((pr.promotionalOffers||[])[0]||{}).promotionalOffers||[],nx=((pr.upcomingPromotionalOffers||[])[0]||{}).promotionalOffers||[];
+      const f0=o=>o&&o.discountSetting&&+o.discountSetting.discountPercentage===0,a=cur.find(f0),b=a?null:nx.find(f0);if(!a&&!b)continue;
+      const sl=(e.offerMappings&&e.offerMappings[0]&&e.offerMappings[0].pageSlug)||(e.catalogNs&&e.catalogNs.mappings&&e.catalogNs.mappings[0]&&e.catalogNs.mappings[0].pageSlug)||e.productSlug||e.urlSlug,ki=(e.keyImages||[]).find(k=>k.type==='OfferImageWide')||(e.keyImages||[]).find(k=>k.type==='Thumbnail')||(e.keyImages||[])[0],o=a||b;
+      l.push({id:'epic:'+(e.id||e.title),k:'epic',n:e.title,im:ki?ki.url:'',u:sl&&!/^\[?\]?$/.test(sl)&&sl.indexOf('[')<0?'https://store.epicgames.com/es-ES/p/'+String(sl).replace(/\/home$/,''):'https://store.epicgames.com/es-ES/free-games',end:Date.parse(o.endDate)||0,start:Date.parse(o.startDate)||0,up:!a})}
+    got.epic=l}catch(e){}
+  try{const r=await nf('https://store.steampowered.com/api/featuredcategories?cc=ar&l=spanish'),j=await r.json(),l=[];
+    for(const x of ((j.specials||{}).items||[])){if(+x.discount_percent===100&&+x.original_price>0)l.push({id:'steam:'+x.id,k:'steam',n:x.name,im:x.header_image||x.large_capsule_image||'',u:'https://store.steampowered.com/app/'+x.id,end:(+x.discount_expiration||0)*1000,start:0,up:false})}
+    got.steam=l}catch(e){}
+  try{const r=await nf('https://catalog.gog.com/v1/catalog?limit=24&discounted=eq:true&price=between:0,0&productType=in:game,pack&countryCode=AR&locale=es-ES&currencyCode=ARS'),j=await r.json(),l=[];
+    for(const p of (j.products||[])){const pf=p.price&&(p.price.finalMoney||p.price.final);if(!isF(pf))continue;l.push({id:'gog:'+(p.id||p.slug),k:'gog',n:p.title,im:p.coverHorizontal||p.coverVertical||'',u:p.storeLink||('https://www.gog.com/game/'+p.slug),end:0,start:0,up:false})}
+    got.gog=l}catch(e){}
+  const keys=Object.keys(got);if(keys.length){const keep=R.items.filter(x=>!got[x.k]&&(!x.end||x.end>now));R.items=[...keep,...keys.flatMap(k=>got[k])];R.t=now;
+    const fresh=R.items.filter(x=>!x.up&&!R.ann[x.id]);if(fresh.length){fresh.forEach(x=>R.ann[x.id]=1);const first=!R.annOnce;R.annOnce=1;if(!first)toast(fresh.length===1?'Gratis ahora: '+fresh[0].n:fresh.length+' juegos gratis nuevos en Novedades')}
+    save();try{newsBadge()}catch(e){}if(S.view==='news'&&S.nsec==='fr')newsDraw()}
+  RAD.b=0}
+setTimeout(()=>{try{radarFetch()}catch(e){}},25000);setInterval(()=>{try{if(!document.hidden)radarFetch()}catch(e){}},3*36e5);
 setTimeout(()=>{try{newsBadge()}catch(e){}},1500);
 setTimeout(()=>{try{if(navigator.onLine!==false){ST.newsSeen=ST.newsSeen||Math.floor(Date.now()/1000)-7*86400;newsFetch()}}catch(e){}},20000);
 setInterval(()=>{try{if(!document.hidden)newsFetch()}catch(e){}},3*36e5);
@@ -4456,12 +4571,14 @@ Object.assign(A,{
  betatog:()=>{try{winteerNative.betaSet(!UPD.beta).then(r=>updUI({beta:!!r,s:'checking'}))}catch(e){}},
  updgo:()=>{try{winteerNative.updInstall()}catch(e){}},updx:()=>{const b=$('#updbar');if(b)b.remove()},updchk:()=>{try{updUI({s:'checking'});winteerNative.updCheck()}catch(e){}},
  tournext:()=>tourShow((S.tour||0)+1),tourprev:()=>tourShow((S.tour||0)-1),tourskip:()=>{tourEnd(true);toast('Tutorial omitido. Lo podés ver de nuevo desde Ajustes → Sistema y datos')},tourend:()=>tourEnd(false),tutgo:a=>{tourEnd(false);if(a.dataset.tb)S.stab=a.dataset.tb;go(a.dataset.v)},tutreset:()=>{ST.tut={off:false,seen:{}};save();toast('Tutorial reiniciado');tourShow(0)},
+ docscan:async a=>{const g=gm(a.dataset.id);if(!g||DOC.b)return;DOC.b=g.id;renderTab();await docRun(g,0,false);DOC.b='';renderTab()},
+ docfix:a=>{const g=gm(a.dataset.id),k=a.dataset.k;if(k==='validate'&&g&&g.app){location.href='steam://validate/'+g.app;toast('Steam va a verificar los archivos');return}if(k==='drv'){const sp=PCS.sp,gp=((sp&&sp.gpu)||[]).join(' ').toLowerCase();window.open(/nvidia|geforce/.test(gp)?'https://www.nvidia.com/Download/index.aspx':/intel/.test(gp)&&!/amd|radeon/.test(gp)?'https://www.intel.com/content/www/us/en/download-center/home.html':'https://www.amd.com/en/support','_blank','noopener');return}if(DOCF[k]&&DOCF[k][1])window.open(DOCF[k][1],'_blank','noopener')},
  sttab:a=>{S.sttb=a.dataset.v;$$('[data-a=sttab]').forEach(b=>b.classList.toggle('on',b===a));const e=$('#stp');if(e&&window.__stPanel)e.innerHTML=window.__stPanel(S.sttb)},
  newsopen:a=>{const u=a.dataset.u;if(/^https?:\/\//.test(u))window.open(u,'_blank','noopener')},
  newsf:a=>{S.nf=a.dataset.v;S.nlim=18;S.npg=0;$$('[data-a=newsf]').forEach(b=>b.classList.toggle('on',b===a));newsDraw()},
  newssec:a=>{S.nsec=a.dataset.v;S.nlim=18;S.npg=0;$$('[data-a=newssec]').forEach(b=>b.classList.toggle('on',b===a));newsDraw()},
  newsmore:()=>{S.nlim=(S.nlim||18)+18;newsDraw()},nwprev:()=>{S.npg=Math.max(0,(S.npg||0)-1);newsDraw()},nwnext:()=>{S.npg=(S.npg||0)+1;newsDraw()},
- newsrefresh:()=>{toast('Buscando novedades…');newsFetch(true);worldFetch(true)},
+ newsrefresh:()=>{toast('Buscando novedades…');newsFetch(true);worldFetch(true);radarFetch(true)},
  obedit:a=>{if(ST.prof&&!W){S.ptab='card';go('profile');return}obOpen(true,+(a&&a.dataset&&a.dataset.s)||0)},
  obx:()=>{if(!W)return;if(!W.edit){ST.obSkip=true;save()}obClose(true)},
  obnext:()=>{if(W.step===0&&!(W.d.name||'').trim()){toast('Poné tu nombre para seguir');return}W.step=Math.min(OBS.length-1,W.step+1);W.q='';obDraw()},
@@ -7755,7 +7872,7 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='gen';EST=g.status==
      </section>
      <section class="edp" data-p="play">
       <label>Instalación<select class="txt" id="e-im"><option value="">Automática${isSteamG(g)?': detectar en Steam'+(g.inst?' (instalado ahora)':' (no instalado)'):': según el ejecutable ('+(g.exe&&g.inst!==false?'instalado':'no instalado')+')'}</option><option value="1" ${g.instM===true?'selected':''}>Instalado</option><option value="0" ${g.instM===false?'selected':''}>Desinstalado</option></select></label>
-      ${g.exe!==undefined?`<label>Ejecutable del juego (.exe)<div class="exr"><input class="txt" id="e-ex" value="${esc(g.exe)}" placeholder="C:\\Juegos\\MiJuego\\juego.exe">${window.winteerNative?'<button type="button" class="b2 sm" data-a="epickexe">Buscar en carpeta…</button>':''}</div></label>`:''}
+      ${g.exe!==undefined||isXbG(g)?`<label>Ejecutable del juego (.exe)${isXbG(g)?'<span class="hint" style="display:block;margin:4px 0 6px">Si el juego abre con otro .exe, elegilo acá: la entrada sigue siendo la misma y conserva horas, logros y capturas. '+(g.xexe?'Ahora usa uno elegido por vos. Para volver al automático, borrá el campo.':'')+'</span>':''}<div class="exr"><input class="txt" id="e-ex" value="${esc(g.exe||'')}" placeholder="C:\\Juegos\\MiJuego\\juego.exe">${window.winteerNative?'<button type="button" class="b2 sm" data-a="epickexe">Buscar en carpeta…</button>':''}</div></label>`:''}
       ${window.winteerNative&&winteerNative.launch&&!g.uri&&!g.shellApp?`<label>Pantalla del juego<select class="txt" id="e-bl"><option value="">Normal (como lo abre el juego)</option><option value="1" ${g.bl?'selected':''}>Ventana sin bordes: llena toda la pantalla</option></select><span class="hint" style="display:block;margin-top:6px">Sirve para juegos que solo tienen ventana o pantalla completa. WINTEER le saca los bordes y estira la imagen al tamaño del monitor.</span></label>`:''}
       ${window.winteerNative&&winteerNative.trlPick?`<label>Trailer del Modo mando<div class="exr"><span class="hint" id="e-trs" style="flex:1;margin:0">${TRX[trk(g)]?'Tiene trailer':'Sin trailer'}</span><button type="button" class="b2 sm" data-a="etrpick">Elegir video…</button>${TRX[trk(g)]?'<button type="button" class="b2 sm" data-a="etrdel">Quitar</button>':''}</div></label>`:''}
       <label>Enlace de inicio (opcional)<input class="txt" id="e-l" placeholder="steam://rungameid/${g.app}" value="${esc(g.launch||'')}"></label>
@@ -7805,8 +7922,8 @@ if(window.winteerNative)winteerNative.onGame(ev=>{
   if(ev.type==='shot'){hcnt('shot');const gg=gm(ev.id);toast('Captura guardada'+(gg?' · '+gg.name:''));if(S.view==='games'&&S.sel===ev.id&&S.tab==='shots')shFill(ev.id);return}
   const g=gm(ev.id);if(!g||!S.playing||S.playing.id!==ev.id)return;
   if(ev.type==='started'){S.playing.t=ev.t;S.playing.auto=true;renderList();if(S.view==='games')renderDetail(false)}
-  else if(ev.type==='stopped'){if(S.fromBP){S.fromBP=false;setTimeout(()=>{if(!BP)bpOpen()},600)}S.playing.end=ev.t;const o=S.sel;S.sel=ev.id;A.play();S.sel=o;setTimeout(()=>{try{mqRefresh()}catch(e){}},1500)}
-  else if(ev.type==='never'){toast(ev.err||'No pude detectar el juego. Cuando lo cierres, tocá Detener.')}});
+  else if(ev.type==='stopped'){try{if(S.playing&&(ev.t-S.playing.t)<3*6e4)docRun(g,S.playing.t,true)}catch(e){}try{healthAdd(g,ev)}catch(e){}if(S.fromBP){S.fromBP=false;setTimeout(()=>{if(!BP)bpOpen()},600)}S.playing.end=ev.t;const o=S.sel;S.sel=ev.id;A.play();S.sel=o;setTimeout(()=>{try{mqRefresh()}catch(e){}},1500)}
+  else if(ev.type==='never'){toast(ev.err||'No pude detectar el juego. Cuando lo cierres, tocá Detener.');try{docRun(g,S.playing&&S.playing.t,true)}catch(e){}}});
 /* ---------- precarga de miniaturas ---------- */
 function warm(g){const o=art.grid(g),key=ORIG[o]||o;let cur=o,fb=art.wide(g);return new Promise(res=>{const im=new Image();
   im.onload=()=>{if(cur!==key){GOOD[key]=cur;ORIG[cur]=key;gSave()}res()};
