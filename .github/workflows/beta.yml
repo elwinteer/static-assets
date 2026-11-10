@@ -1,0 +1,37 @@
+name: Beta
+on:
+  push:
+    branches: [beta]
+    paths: ['main.js','preload.js','index.html','package.json','icon.ico','icon.png','sagas/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Construir la beta (siempre una versión por encima de la oficial)
+        run: |
+          V=$(node -p "const v=require('./package.json').version.split('-')[0].split('.').map(Number);v[2]++;v.join('.')")
+          echo "BETA_V=$V-beta.${{ github.run_number }}" >> $GITHUB_ENV
+          npx electron-builder --win nsis --publish never -c.extraMetadata.version="$V-beta.${{ github.run_number }}"
+          if [ -f dist/beta.yml ]; then mv dist/beta.yml dist/latest.yml; fi
+          ls dist
+      - name: Subir al release fijo "beta" (que la versión normal nunca mira)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view beta >/dev/null 2>&1 || gh release create beta --prerelease --title "beta" --notes "Canal de prueba" --target "${{ github.sha }}"
+          gh release upload beta dist/latest.yml dist/setup-*.exe dist/setup-*.exe.blockmap --clobber
+          KEEP=$(ls dist | grep -E '^(latest\.yml|setup-.*\.exe(\.blockmap)?)$' || true)
+          for a in $(gh release view beta --json assets -q '.assets[].name'); do
+            echo "$KEEP" | grep -qx "$a" || gh release delete-asset beta "$a" -y
+          done

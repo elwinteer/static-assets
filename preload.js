@@ -90,4 +90,5 @@ contextBridge.exposeInMainWorld('winteerNative', {
   updInfo: () => ipcRenderer.invoke('updInfo'),
   updCheck: () => ipcRenderer.invoke('updCheck'),
   updInstall: () => ipcRenderer.invoke('updInstall'),
+  betaSet: (on) => ipcRenderer.invoke('betaSet', on),
 });

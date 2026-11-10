@@ -1358,12 +1358,17 @@ function createWindow() {
 
 /* ---------- actualizaciones automáticas (GitHub Releases) ---------- */
 let autoUpdater = null, updState = { s: 'idle', v: '', p: 0, e: '' };
+/* canal Beta: solo si el usuario lo activa (se desbloquea tocando 5 veces la versión en Ajustes). Las betas se publican en un release fijo "beta" que la versión normal nunca mira. */
+const BETA_URL = 'https://github.com/elwinteer/static-assets/releases/download/beta';
+function updFeed(on) { try { if (!autoUpdater) return; autoUpdater.setFeedURL(on ? { provider: 'generic', url: BETA_URL, channel: 'latest' } : { provider: 'github', owner: 'elwinteer', repo: 'static-assets', releaseType: 'release' }); } catch (e) {} }
 const updSend = (o) => { updState = Object.assign(updState, o); send(Object.assign({ type: 'upd' }, updState)); };
 function updCheck() { try { if (autoUpdater) autoUpdater.checkForUpdates().catch(() => {}); } catch (e) {} }
 function setupUpdater() {
   if (!app.isPackaged) return;
   try { autoUpdater = require('electron-updater').autoUpdater; } catch (e) { return; }
   autoUpdater.autoDownload = true; autoUpdater.autoInstallOnAppQuit = true; autoUpdater.logger = null;
+  autoUpdater.channel = 'latest'; autoUpdater.allowPrerelease = false; autoUpdater.allowDowngrade = false;
+  if (cfg.beta) updFeed(true);
   autoUpdater.on('checking-for-update', () => updSend({ s: 'checking', e: '' }));
   autoUpdater.on('update-available', (i) => updSend({ s: 'downloading', v: i.version, p: 0 }));
   autoUpdater.on('update-not-available', () => updSend({ s: 'none' }));
@@ -1372,7 +1377,8 @@ function setupUpdater() {
   autoUpdater.on('error', (e) => updSend({ s: 'error', e: String((e && e.message) || e).slice(0, 140) }));
   setInterval(updCheck, 4 * 3600e3);
 }
-ipcMain.handle('updInfo', () => Object.assign({ ver: app.getVersion(), packaged: app.isPackaged }, updState));
+ipcMain.handle('updInfo', () => Object.assign({ ver: app.getVersion(), packaged: app.isPackaged, beta: !!cfg.beta }, updState));
+ipcMain.handle('betaSet', (_e, on) => { cfg.beta = !!on; saveCfg(); updFeed(cfg.beta); updSend({ s: 'idle', e: '' }); updCheck(); return cfg.beta; });
 ipcMain.handle('updCheck', () => { updCheck(); return true; });
 ipcMain.handle('updInstall', () => { installNow(); });
 

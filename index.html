@@ -2488,6 +2488,7 @@ body:has(.app>.modal) #amb{filter:brightness(.12);transition:filter .3s}
 .upd-tx small{font-size:13px;color:var(--muted);line-height:1.4}
 .upd-bt{display:flex;gap:10px;flex:none;position:relative}
 .upd-bt .b2[disabled]{opacity:.45;pointer-events:none}
+.upd{flex-wrap:wrap}.upd-beta{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;margin-top:4px;border-top:1px solid rgba(255,255,255,.08)}.upd-beta b{display:block;font-size:14px}.upd-beta small{font-size:12px;color:var(--muted)}.upd-ver{cursor:default;user-select:none}
 @media(max-width:900px){.upd{flex-wrap:wrap}.upd-bt{width:100%}}
 
 /* ===== contraste monocromo ===== */
@@ -4401,6 +4402,8 @@ setTimeout(()=>{try{if(navigator.onLine!==false){ST.newsSeen=ST.newsSeen||Math.f
 setInterval(()=>{try{if(!document.hidden)newsFetch()}catch(e){}},3*36e5);
 
 Object.assign(A,{
+ updver:()=>{S.uvc=(S.uvc||0)+1;clearTimeout(S.uvt);S.uvt=setTimeout(()=>S.uvc=0,2500);if(S.uvc>=5&&!ST.betaOk){ST.betaOk=1;save();toast('Canal Beta desbloqueado');updUI({})}},
+ betatog:()=>{try{winteerNative.betaSet(!UPD.beta).then(r=>updUI({beta:!!r,s:'checking'}))}catch(e){}},
  updgo:()=>{try{winteerNative.updInstall()}catch(e){}},updx:()=>{const b=$('#updbar');if(b)b.remove()},updchk:()=>{try{updUI({s:'checking'});winteerNative.updCheck()}catch(e){}},
  tournext:()=>tourShow((S.tour||0)+1),tourprev:()=>tourShow((S.tour||0)-1),tourskip:()=>{tourEnd(true);toast('Tutorial omitido. Lo podés ver de nuevo desde Ajustes → Sistema y datos')},tourend:()=>tourEnd(false),tutgo:a=>{tourEnd(false);if(a.dataset.tb)S.stab=a.dataset.tb;go(a.dataset.v)},tutreset:()=>{ST.tut={off:false,seen:{}};save();toast('Tutorial reiniciado');tourShow(0)},
  sttab:a=>{S.sttb=a.dataset.v;$$('[data-a=sttab]').forEach(b=>b.classList.toggle('on',b===a));const e=$('#stp');if(e&&window.__stPanel)e.innerHTML=window.__stPanel(S.sttb)},
@@ -6566,8 +6569,9 @@ const updTxt=u=>u.s==='checking'?'Buscando actualizaciones…':u.s==='downloadin
 function updInner(u){const st=u.s||'idle',R=46,C=2*Math.PI*R,p=st==='downloading'?Math.max(2,Math.min(100,u.p||0)):st==='ready'||st==='none'?100:0;
   const T={idle:['Todo en orden','WINTEER se actualiza solo en segundo plano.'],checking:['Buscando…','Revisando si hay una versión nueva.'],downloading:['Descargando '+(u.v||'')+'',`${u.p||0}% completado. Podés seguir usando el launcher.`],ready:['Versión '+(u.v||'')+' lista','Se instala la próxima vez que abras WINTEER.'],none:['Estás al día','Tenés la última versión instalada.'],error:['No se pudo buscar','Probá de nuevo en un rato.']}[st]||['',''];
   return `<div class="upd-lg"><svg class="upd-rg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="upd-t"/><circle cx="50" cy="50" r="${R}" class="upd-p" style="stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${(C*(1-p/100)).toFixed(1)}"/></svg><div class="upd-fl">${WLG('u'+Math.floor(Math.random()*1e6))}</div></div>
-   <div class="upd-tx"><span class="upd-ver">Versión instalada · v${esc(u.ver||'—')}</span><b>${T[0]}</b><small>${T[1]}</small></div>
-   <div class="upd-bt">${st==='ready'?'<button class="b2" data-a="updgo">Reiniciar y actualizar</button>':''}<button class="b2 g" data-a="updchk"${st==='checking'||st==='downloading'?' disabled':''}>Buscar ahora</button></div>`}
+   <div class="upd-tx"><span class="upd-ver" data-a="updver">Versión instalada · v${esc(u.ver||'—')}${u.beta?' · BETA':''}</span><b>${T[0]}</b><small>${T[1]}</small></div>
+   <div class="upd-bt">${st==='ready'?'<button class="b2" data-a="updgo">Reiniciar y actualizar</button>':''}<button class="b2 g" data-a="updchk"${st==='checking'||st==='downloading'?' disabled':''}>Buscar ahora</button></div>
+   ${(u.beta||ST.betaOk)?`<div class="upd-beta"><div><b>Versiones de prueba (Beta)</b><small>Recibís los cambios antes que nadie, mientras se pulen. Al apagarlo volvés a las versiones normales.</small></div><button class="sw ${u.beta?'on':''}" data-a="betatog"></button></div>`:''}`}
 function updCard(){return `<div class="upd" id="updc" data-s="${UPD.s||'idle'}">${updInner(UPD)}</div>`}
 function updUI(u){UPD=Object.assign(UPD,u||{});const e=$('#updc');if(e){e.dataset.s=UPD.s||'idle';e.innerHTML=updInner(UPD)}
   const b=$('#updbar');if(b)b.remove()}
