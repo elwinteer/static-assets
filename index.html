@@ -2510,6 +2510,15 @@ body:has(.app>.modal) #amb{filter:brightness(.12);transition:filter .3s}
 .upd-tx b{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--text)}
 .upd-tx small{font-size:13px;color:var(--muted);line-height:1.4}
 .upd-bt{display:flex;gap:10px;flex:none;position:relative}
+.vlt{gap:14px}.vl-h{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.vl-h h2{margin:0}.vl-h small{color:var(--muted)}.vl-b{display:flex;gap:10px;flex-wrap:wrap}
+.vl-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+.vl-c{display:flex;gap:14px;background:var(--panel);border-radius:var(--r);padding:14px;align-items:stretch}.vl-c.run{box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+.vl-i{position:relative;width:96px;flex:none;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.06)}.vl-i img{width:100%;height:100%;object-fit:cover;display:block}.vl-d{position:absolute;left:6px;bottom:6px;font-size:10px;font-weight:700;background:rgba(0,0,0,.7);padding:3px 7px;border-radius:99px}
+.vl-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.vl-t b{font-size:16px}.vl-t small{color:var(--muted)}.vl-t p{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
+.vl-a{display:flex;flex-direction:column;gap:8px;justify-content:center;flex:none}
+.vl-pick{display:grid;gap:6px;max-height:340px;overflow:auto;margin:12px 0;scrollbar-width:none}.vl-pick::-webkit-scrollbar{display:none}
+.vl-pr{display:flex;align-items:center;gap:12px;text-align:left;background:rgba(255,255,255,.05);border:0;border-radius:14px;padding:8px 12px;color:inherit;font:inherit;cursor:pointer}.vl-pr:hover{background:rgba(255,255,255,.1)}.vl-pr .th{width:42px;flex:none}.vl-pr b{flex:1}.vl-pr small{color:var(--muted)}
+.vl-ar{display:grid;gap:8px;margin:10px 0}.vl-ar div{background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column}.vl-ar small{color:var(--muted)}
 .upd-bt .b2[disabled]{opacity:.45;pointer-events:none}
 .upd{flex-wrap:wrap}.upd-beta{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;margin-top:4px;border-top:1px solid rgba(255,255,255,.08)}.upd-beta b{display:block;font-size:14px}.upd-beta small{font-size:12px;color:var(--muted)}.upd-ver{cursor:default;user-select:none}
 @media(max-width:900px){.upd{flex-wrap:wrap}.upd-bt{width:100%}}
@@ -3299,7 +3308,7 @@ if(!ST.thv){if((ST.accent||'').toLowerCase()==='#8b5cf6'){ST.accent=DEFA;delete 
 G.forEach(g=>{if('fam' in g)delete g.fam});
 G.forEach(g=>{if(g.tags&&g.tags.includes('Fuera de Steam'))g.tags=g.tags.filter(t=>t!=='Fuera de Steam')});
 try{const _d=s=>atob(s).split('').reverse().join('');if(!ST.igid)ST.igid=_d('ZGE3bjVoa3MwMXppbWVkZmtidXh6NXZleWtrdWsw');if(!ST.igsec)ST.igsec=_d('aHcyNWJvMHp6ZGU3b3JmcHltdmQ3Yno3bXF3cnpq');if(!ST.key)ST.key=_d('OTcwZGQ3OTcyYzEzODlmMGMxMmIyZjk5MjVlZGVmYzY=');if(ST.useSgdb!==false)ST.useSgdb=true;ST.useSgdb=true}catch(e){}
-const save=()=>{try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
+const save=()=>{try{vPurge()}catch(e){}try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
 const gm=id=>G.find(g=>g.id===id);
 const UN=()=>ST.name||'Jugador',P_=(k,d)=>ST[k]===undefined?d:ST[k];
 function applyPrefs(){const b=document.body.classList;b.toggle('nokb',!P_('kb',true));const _m=ST.fxm||'lite';ST.perf=_m!=='full';b.toggle('perf',ST.perf);b.toggle('ultra',_m==='min');b.toggle('noamb',!P_('amb',true));b.toggle('nomo',!!P_('nomo',false));
@@ -3314,7 +3323,7 @@ function mergePre(){if(ST.pre===1)return;
   const ds=ts=>new Date(ts*1000).toLocaleDateString('es-AR'),sz=b=>b>=1e9?(b/1e9).toFixed(1)+' GB':Math.round(b/1e6)+' MB';
   for(const x of PRE){const g=G.find(q=>q.app===x[0]);
     if(g){if(x[2]>g.hours)g.hours=x[2];if(x[3]&&!g.last)g.last=ds(x[3]);if(x[4]){g.inst=true;g.size=sz(x[5])}}
-    else G.push({id:'g'+x[0],app:x[0],name:x[1],hours:x[2],status:'',last:x[3]?ds(x[3]):'',notes:'',inst:!!x[4],size:x[4]?sz(x[5]):undefined})}
+    else GPUSH({id:'g'+x[0],app:x[0],name:x[1],hours:x[2],status:'',last:x[3]?ds(x[3]):'',notes:'',inst:!!x[4],size:x[4]?sz(x[5]):undefined})}
   ST.pre=1;save()}
 mergePre();
 /* juegos que faltaban en la biblioteca */
@@ -3735,7 +3744,7 @@ function moveInd(){const a=$(`.nav a[data-v="${S.view}"]`),ind=$('#ind'),nw=$('.
   clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
+function go(v,o){if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
@@ -3919,7 +3928,7 @@ const A={
     for(const x of r.list){if(ids.has(x.id)||have.has(nrm(x.name)))continue;
       const g={id:x.id,app:0,name:x.name,hours:0,status:'',last:'',notes:'',inst:true,tags:[s==='epic'?'Epic Games':'Xbox']};
       if(x.exe)g.exe=x.exe;if(x.uri)g.uri=x.uri;if(x.shellApp)g.shellApp=x.shellApp;if(x.size)g.size=x.size;
-      G.push(g);n++;try{wpImg(g)}catch(e){}}
+      GPUSH(g);n++;try{wpImg(g)}catch(e){}}
     save();if(lab)lab.textContent=n?`Se agregaron ${n} juegos.`:'No hay juegos nuevos para agregar.';toast(n?`Importados ${n} juegos de ${s==='epic'?'Epic':'Xbox'}`:'No hay juegos nuevos');
     if(n){setTimeout(()=>{autoSg();autoInfo()},500)}},
   acct:async a=>{const s=a.dataset.s,lab=$('#imp-'+(s==='epic'?'epa':s==='steam'?'sta':'xba')),btn=a,t0=btn.textContent;let o={};
@@ -3932,7 +3941,7 @@ const A={
     if(s==='steam'){const ds=ts=>new Date(ts*1000).toLocaleDateString('es-AR');let add=0,upd=0;
       for(const x of r.list){let g=G.find(q=>q.app===x.appid);
         if(g){if(x.min/60>g.hours)g.hours=x.min/60;if(x.last&&!g.last)g.last=ds(x.last);upd++}
-        else{G.push({id:'g'+x.appid,app:x.appid,name:x.name,hours:x.min/60,status:'',last:x.last?ds(x.last):'',notes:''});add++}}
+        else{GPUSH({id:'g'+x.appid,app:x.appid,name:x.name,hours:x.min/60,status:'',last:x.last?ds(x.last):'',notes:''});add++}}
       save();const msg=`${add} juegos nuevos${r.fam?' (con '+r.fam+' de Préstamo familiar)':''} · ${upd} ya estaban`;if(lab)lab.textContent=msg;toast(msg);
       if(add){setTimeout(()=>{try{autoSg();autoInfo()}catch(e){}},500)}go('settings');return}
     let inst={};try{const sc=await (s==='epic'?winteerNative.scanEpic():winteerNative.scanXbox());(sc.list||[]).forEach(x=>inst[x.id]=x)}catch(e){}
@@ -3944,7 +3953,7 @@ const A={
       if(ix){if(ix.exe)g.exe=ix.exe;if(ix.shellApp)g.shellApp=ix.shellApp;if(ix.uri)g.uri=ix.uri;if(ix.size)g.size=ix.size}
       if(!ix||!(ix.uri||ix.shellApp))g.uri=x.uri;
       if(x.img)g.wimg=x.img;
-      G.push(g);ids.add(g.id);have.add(nrm(g.name));n++;try{wpImg(g)}catch(e){}}
+      GPUSH(g);ids.add(g.id);have.add(nrm(g.name));n++;try{wpImg(g)}catch(e){}}
     save();const msg=n?`Se agregaron ${n} juegos${r.who?' de '+r.who:''}.`:'Todo lo de tu cuenta ya estaba en el launcher.';if(lab)lab.textContent=msg;toast(msg);
     if(n){setTimeout(()=>{try{autoSg();autoInfo()}catch(e){}},500)}},
   acctcode:()=>modal(`<h3>Epic con código</h3><p>Si la ventana de inicio de sesión no te sirve (por ejemplo si entrás a Epic con Google), abrí la página de Epic en tu navegador, iniciá sesión y copiá el valor de <code>authorizationCode</code> que aparece. Pegalo acá. Vence en pocos minutos.</p>
@@ -4039,7 +4048,7 @@ const A={
       const ds=ts=>new Date(ts*1000).toLocaleDateString('es-AR');let add=0,upd=0;
       for(const x of list){const id=+x.appid;if(!id)continue;const h=(x.playtime_forever||0)/60;let g=G.find(q=>q.app===id);
         if(g){if(h>g.hours)g.hours=h;if(x.rtime_last_played)g.last=ds(x.rtime_last_played);upd++}
-        else{G.push({id:'g'+id,app:id,name:x.name||'Juego '+id,hours:h,status:'',last:!x.rtime_last_played?'':ds(x.rtime_last_played),notes:''});add++}}
+        else{GPUSH({id:'g'+id,app:id,name:x.name||'Juego '+id,hours:h,status:'',last:!x.rtime_last_played?'':ds(x.rtime_last_played),notes:''});add++}}
       save();a.closest('.modal').remove();toast(`${add} juegos nuevos · ${upd} actualizados`);go('games')}
     catch(e){toast('No pude leer ese archivo. Tiene que ser el JSON que muestra la dirección de Steam.')}},
   bye:a=>{if(window.winteerNative){winteerNative.quit();return}a.closest('.mb').innerHTML=`<h3>Sesión cerrada ❄️</h3><p>Nos vemos pronto.</p><div class="bs"><button class="b2" data-a="close">Volver a entrar</button></div>`}
@@ -4353,8 +4362,8 @@ function wrapRow(){const ps=wrapPeriods().sort((a,b)=>b.un-a.un),now=Date.now(),
 const SCSKIP=/redistributable|runtime|proton|steamworks|dedicated server|\bsdk\b|steam linux|benchmark tool/i;
 function scanBadge(){const a=$('.nav a[data-v="games"]');if(!a)return;const n=G.filter(g=>g.isNew&&g.isNew>(ST.newSeen||0)&&Date.now()-g.isNew<7*864e5).length;a.classList.toggle('nb',n>0);if(n)a.dataset.n='+'+n;else delete a.dataset.n}
 async function autoScan(force){if(!WN||autoScan.b)return;const now=Date.now();if(!force&&ST.scanT&&now-ST.scanT<6*36e5)return;autoScan.b=1;const ln=$('#scl');if(ln)ln.classList.add('on');
-  try{const seen=new Set(ST.scanSeen||[]),have=new Set(G.map(g=>nrm(g.name))),ids=new Set(G.map(g=>g.id)),hasApp=new Set(G.map(g=>g.app).filter(Boolean)),found=[];let n=0;
-    try{const r=await winteerNative.installed(ST.steamDir||'');if(r&&r.ok&&r.list)for(const x of r.list){found.push('g'+x.app);if(!x.n||SCSKIP.test(x.n)||hasApp.has(x.app)||seen.has('g'+x.app)||ids.has('g'+x.app))continue;G.push({id:'g'+x.app,app:x.app,name:x.n,hours:0,status:'',last:'',notes:'',inst:true,isNew:now});ids.add('g'+x.app);have.add(nrm(x.n));n++}}catch(e){}
+  try{const seen=new Set(ST.scanSeen||[]),have=new Set([...G,...((ST.vlt&&ST.vlt.g)||[])].map(g=>nrm(g.name))),ids=new Set([...G,...((ST.vlt&&ST.vlt.g)||[])].map(g=>g.id)),hasApp=new Set([...G,...((ST.vlt&&ST.vlt.g)||[])].map(g=>g.app).filter(Boolean)),found=[];let n=0;
+    try{const r=await winteerNative.installed(ST.steamDir||'');if(r&&r.ok&&r.list)for(const x of r.list){found.push('g'+x.app);if(!x.n||SCSKIP.test(x.n)||hasApp.has(x.app)||seen.has('g'+x.app)||ids.has('g'+x.app))continue;GPUSH({id:'g'+x.app,app:x.app,name:x.n,hours:0,status:'',last:'',notes:'',inst:true,isNew:now});ids.add('g'+x.app);have.add(nrm(x.n));n++}}catch(e){}
     for(const s of ['epic','xbox']){try{const r=await (s==='epic'?winteerNative.scanEpic():winteerNative.scanXbox());if(!r||!r.found)continue;for(const x of (r.list||[])){found.push(x.id);if(seen.has(x.id)||ids.has(x.id)||have.has(nrm(x.name)))continue;const g={id:x.id,app:0,name:x.name,hours:0,status:'',last:'',notes:'',inst:true,tags:[s==='epic'?'Epic Games':'Xbox'],isNew:now};if(x.exe)g.exe=x.exe;if(x.uri)g.uri=x.uri;if(x.shellApp)g.shellApp=x.shellApp;if(x.size)g.size=x.size;G.push(g);ids.add(x.id);have.add(nrm(x.name));n++;try{wpImg(g)}catch(e){}}}catch(e){}}
     ST.scanSeen=[...new Set([...(ST.scanSeen||[]),...found])].slice(-3000);ST.scanT=Date.now();save();scanBadge();
     if(n){try{if(S.view==='games')renderList();else if(S.view==='home')go('home')}catch(e){}setTimeout(()=>{try{autoSg();autoInfo()}catch(e){}},500)}
@@ -6608,6 +6617,99 @@ function updUI(u){UPD=Object.assign(UPD,u||{});const e=$('#updc');if(e){e.datase
   const b=$('#updbar');if(b)b.remove()}
 async function updInit(){try{if(window.winteerNative&&winteerNative.updInfo){const r=await winteerNative.updInfo();UPD=Object.assign(UPD,r);updUI(r)}}catch(e){}}
 setTimeout(updInit,1200);
+/* ===== Bóveda: juegos privados. Viven aparte de la biblioteca (G): ninguna otra parte del launcher los conoce. ===== */
+const vL=()=>ST.vlt&&Array.isArray(ST.vlt.g)?ST.vlt:null;
+const vIsId=id=>{const L=vL();return !!(L&&id&&L.g.some(v=>v.id===id))};
+const vIs=g=>{const L=vL();if(!L||!g||!L.g.length)return false;return L.g.some(v=>v.id===g.id||(v.app&&g.app&&v.app===g.app)||(v.name&&g.name&&nrm(v.name)===nrm(g.name)))};
+function vPurge(){const L=vL();if(!L||!L.g.length)return;const n=G.length;G=G.filter(g=>!vIs(g));if(G.length!==n&&S.sel&&!gm(S.sel))S.sel=G[0]&&G[0].id}
+const GPUSH=g=>{if(vIs(g))return;G.push(g)};
+const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
+async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function vLock(go_){S.vu=0;if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
+function vOpen(){if(S.vu){go('vault');return}
+  if(!(window.crypto&&crypto.subtle)){toast('No se puede abrir acá');return}
+  if($('.modal.vm'))return;
+  const L=vL(),has=!!(ST.vlt&&ST.vlt.h);
+  modal(has?`<h3>Bóveda</h3><p>Ingresá tu PIN.</p><div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Entrar</button></div>`
+   :`<h3>Crear tu Bóveda</h3><p>Elegí un PIN de 4 a 8 números. Sin el PIN no hay forma de abrirla ni de recuperarla: anotalo.</p><div class="ed" style="text-align:left"><input class="txt" id="v-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN nuevo"><input class="txt" id="v-pin2" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="Repetí el PIN" style="margin-top:10px"></div><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Crear</button></div>`,'vm');
+  const m=$('.modal');if(m)m.classList.add('vm');setTimeout(()=>{const i=$('#v-pin');if(i){i.focus();i.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()});const j=$('#v-pin2');if(j)j.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()})}},50)}
+async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.replace(/\D/g,'');
+  if(S.vwait&&Date.now()<S.vwait){toast('Esperá un momento antes de reintentar');return}
+  if(!(ST.vlt&&ST.vlt.h)){const p2=($('#v-pin2')||{}).value||'';if(pin.length<4){toast('El PIN necesita al menos 4 números');return}if(pin!==p2.replace(/\D/g,'')){toast('Los PIN no coinciden');return}
+    const s=String(Math.random()).slice(2)+Date.now();ST.vlt={s,h:await vH(pin,s),g:[],ses:[],rv:[],x:{}};save();vOk();return}
+  const h=await vH(pin,ST.vlt.s);
+  if(h===ST.vlt.h){S.vtry=0;vOk();return}
+  S.vtry=(S.vtry||0)+1;i.value='';if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0;toast('Demasiados intentos. Probá en 30 segundos')}else toast('PIN incorrecto')}
+function vOk(){$$('.modal.vm').forEach(m=>m.remove());S.vu=Date.now();S.vlast=Date.now();go('vault')}
+function vCard(g){const L=vL(),run=S.vplay&&S.vplay.id===g.id,st=g.status==='Terminado';
+  return `<div class="vl-c ${run?'run':''}"><div class="vl-i"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">${st?'<span class="vl-d">Completado</span>':''}</div><div class="vl-t"><b>${esc(g.name)}</b><small>${fh(g.hours)}${g.last?' · '+esc(g.last):''}${(L.ses||[]).filter(x=>x.g===g.id).length?' · '+(L.ses||[]).filter(x=>x.g===g.id).length+' sesiones':''}</small>${g.notes?`<p>${esc(g.notes).slice(0,140)}</p>`:''}</div>
+   <div class="vl-a"><button class="hm-go" data-a="vplay" data-id="${g.id}">${ic('play')} ${run?'Detener':'Jugar'}</button><button class="hm-go hm-gh" data-a="vnote" data-id="${g.id}">${ic('edit')} Notas</button><button class="hm-go hm-gh" data-a="vout" data-id="${g.id}">Sacar de la Bóveda</button></div></div>`}
+V.vault=()=>{const L=vL();if(!S.vu||!L)return `<div class="stack"><section class="card rise"><p class="mut">Cerrada.</p></section></div>`;
+  const l=[...L.g].sort((a,b)=>(b.hours||0)-(a.hours||0));
+  return `<div class="stack vlt"><section class="card vl-h rise" style="--i:0"><div><h2>Bóveda</h2><small>${l.length} juego${l.length===1?'':'s'}. Nada de esto aparece en el resto del launcher.</small></div><div class="vl-b"><button class="hm-go" data-a="vmove">${ic('plus')} Mover de mi biblioteca</button><button class="hm-go hm-gh" data-a="vaddx">Agregar uno nuevo</button><button class="hm-go hm-gh" data-a="vaudit">Verificar</button><button class="hm-go hm-gh" data-a="vpinchg">Cambiar PIN</button><button class="hm-go hm-gh" data-a="vlock">Cerrar</button></div></section>
+  <section class="vl-g rise" style="--i:1">${l.map(vCard).join('')||'<div class="card"><p class="mut">Todavía no hay juegos. Con "Mover de mi biblioteca" sacás uno de todo el launcher y queda solo acá.</p></div>'}</section></div>`}
+function vScrub(o,id,d){if(!o||typeof o!=='object'||d>4)return;if(Array.isArray(o)){for(let i=o.length-1;i>=0;i--){if(o[i]===id)o.splice(i,1);else vScrub(o[i],id,d+1)}return}
+  for(const k of Object.keys(o)){if(k==='vlt')continue;if(k===id){delete o[k];continue}vScrub(o[k],id,d+1)}}
+function vMove(id){const g=gm(id),L=vL();if(!g||!L)return;if(S.playing&&S.playing.id===id){toast('Cerrá el juego primero');return}
+  const ses=(ST.ses||[]).filter(x=>x.g===id);ST.ses=(ST.ses||[]).filter(x=>x.g!==id);L.ses.push(...ses);
+  if(ST.gl)for(const d in ST.gl){const o=ST.gl[d];if(o&&o[id]!=null){const h=+o[id]||0;if(ST.log&&ST.log[d]!=null)ST.log[d]=Math.max(0,ST.log[d]-h);delete o[id];if(!Object.keys(o).length)delete ST.gl[d]}}
+  const x={};if(ST.gg&&ST.gg[id]){x.gg=ST.gg[id];delete ST.gg[id]}if(ST.gs&&ST.gs[id]){x.gs=ST.gs[id];delete ST.gs[id]}L.x[id]=x;
+  const rv=RV().filter(r=>r.gid===id);if(rv.length){L.rv.push(...rv);ST.rv=RV().filter(r=>r.gid!==id)}
+  vScrub(ST,id,0);G=G.filter(q=>q.id!==id);L.g.push(g);if(S.sel===id)S.sel=G[0]&&G[0].id;try{if(ST.prof&&ST.prof.ban&&ST.prof.ban.k==='game'&&ST.prof.ban.id===id)ST.prof.ban={k:'g',i:0}}catch(e){}
+  save();return vAudit()}
+function vOutG(id){const L=vL();if(!L)return;const g=L.g.find(v=>v.id===id);if(!g)return;
+  L.g=L.g.filter(v=>v.id!==id);G.push(g);const ses=L.ses.filter(s=>s.g===id);L.ses=L.ses.filter(s=>s.g!==id);ST.ses=(ST.ses||[]).concat(ses);
+  ST.gl=ST.gl||{};ST.log=ST.log||{};for(const s of ses){const d=vDK(s.s);ST.gl[d]=ST.gl[d]||{};ST.gl[d][id]=(ST.gl[d][id]||0)+s.h;ST.log[d]=(ST.log[d]||0)+s.h}
+  const x=L.x[id]||{};if(x.gg){ST.gg=ST.gg||{};ST.gg[id]=x.gg}if(x.gs){ST.gs=ST.gs||{};ST.gs[id]=x.gs}delete L.x[id];
+  const rv=L.rv.filter(r=>r.gid===id);L.rv=L.rv.filter(r=>r.gid!==id);RV().push(...rv);save()}
+/* verificación: busca cualquier rastro de los juegos de la Bóveda en lo público (biblioteca + ajustes), sin mirar la Bóveda */
+function vAudit(){const L=vL();if(!L)return[];const out=[];const pubST=Object.assign({},ST);delete pubST.vlt;
+  const parts=[['biblioteca',JSON.stringify(G)]];for(const k of Object.keys(pubST)){try{parts.push(['ajustes · '+k,JSON.stringify(pubST[k])])}catch(e){}}
+  for(const g of L.g){const hit=[];for(const [w,s] of parts){if(!s)continue;if(s.includes('"'+g.id+'"')||(g.name&&s.includes(JSON.stringify(g.name).slice(1,-1)))||(g.app&&w==='biblioteca'&&s.includes('"app":'+g.app+','))){hit.push(w)}}if(hit.length)out.push({n:g.name,w:hit})}
+  return out}
+function vAuditShow(r){const L=vL(),n=L?L.g.length:0;
+  modal(`<h3>Verificación</h3>${r.length?`<p>Quedó rastro de ${r.length} juego${r.length>1?'s':''} fuera de la Bóveda:</p><div class="vl-ar">${r.map(x=>`<div><b>${esc(x.n)}</b><small>${x.w.map(esc).join(' · ')}</small></div>`).join('')}</div><p class="mut">Esto no se muestra en ninguna pantalla, pero decime y lo limpio.</p>`:`<p>Revisé ${n} juego${n===1?'':'s'} contra tu biblioteca y todos tus ajustes: <b>no hay ningún rastro</b> fuera de la Bóveda.</p><p class="mut">Los juegos de la Bóveda tampoco entran en tus horas, estadísticas, hitos nuevos, perfil, amigos, actividad ni Wrapped.</p>`}<div class="bs"><button class="b2" data-a="close">Listo</button></div>`)}
+function vEv(ev){const L=vL();if(!L)return;
+  if(ev.type==='started'&&S.vplay&&S.vplay.id===ev.id){S.vplay.t=ev.t}
+  else if(ev.type==='stopped'&&S.vplay&&S.vplay.id===ev.id){vStop(ev.t)}
+  else if(ev.type==='never'&&S.vplay&&S.vplay.id===ev.id){S.vplay=null}}
+function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;const g=L.g.find(v=>v.id===p.id);S.vplay=null;if(!g)return;const h=Math.max(0,((end||Date.now())-p.t)/3600000);
+  g.hours=(g.hours||0)+h;g.last=new Date().toLocaleDateString('es-AR');L.ses.push({g:g.id,s:p.t,h:+h.toFixed(3)});if(L.ses.length>3000)L.ses=L.ses.slice(-3000);
+  if(g.hl&&g.hl.m&&g.status!=='Terminado'&&g.hours>=parseFloat(g.hl.m)){g.status='Terminado'}save();if(S.view==='vault'&&S.vu)go('vault')}
+Object.assign(A,{
+ vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),
+ vplay:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;
+  if(S.vplay&&S.vplay.id===g.id){vStop();go('vault');return}
+  if(S.vplay){toast('Ya hay un juego en curso: detenelo primero');return}
+  if(!canPlay(g)){toast('No está instalado');if(g.app)location.href='steam://install/'+g.app;return}
+  S.vplay={id:g.id,t:Date.now()};
+  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:'',exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl,vault:true}).then(r=>{const tk=!!(r&&r.tracking);vLock();if(tk&&winteerNative.toBg)setTimeout(()=>winteerNative.toBg(),1200)}).catch(()=>{vLock()})}
+  else{vLock();if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
+ vnote:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;modal(`<h3>${esc(g.name)}</h3><div class="ed" style="text-align:left"><label>Notas<textarea class="txt" id="vn-t" rows="5" style="width:100%">${esc(g.notes||'')}</textarea></label><label style="display:flex;gap:10px;align-items:center;margin-top:12px"><input type="checkbox" id="vn-d" ${g.status==='Terminado'?'checked':''}> Completado</label></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vnsave" data-id="${g.id}">Guardar</button></div>`)},
+ vnsave:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;g.notes=($('#vn-t').value||'').trim();g.status=$('#vn-d').checked?'Terminado':'';save();a.closest('.modal').remove();go('vault')},
+ vmove:()=>{const q='';modal(`<h3>Mover a la Bóveda</h3><p>El juego se va de tu biblioteca, perfil, estadísticas, Inicio y actividad, y queda solo acá con su historial.</p><input class="txt" id="vm-q" placeholder="Buscar en tu biblioteca…" autocomplete="off"><div id="vm-l" class="vl-pick"></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`);vPickFill();$('#vm-q').addEventListener('input',vPickFill);$('#vm-q').focus()},
+ vmv:a=>{const id=a.dataset.id;const r=vMove(id);a.closest('.modal').remove();go('vault');vAuditShow(r||[])},
+ vout:a=>{const L=vL(),g=L&&L.g.find(v=>v.id===a.dataset.id);if(!g)return;modal(`<h3>¿Sacar de la Bóveda?</h3><p>Vuelve a tu biblioteca con sus horas y notas, y pasa a contar en tus estadísticas.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vout2" data-id="${g.id}">Sacar</button></div>`)},
+ vout2:a=>{vOutG(a.dataset.id);a.closest('.modal').remove();go('vault')},
+ vaddx:()=>{modal(`<h3>Agregar a la Bóveda</h3><p>Elegí el .exe del juego, o poné el AppID de Steam.</p><div class="ed" style="text-align:left"><label>Nombre<input class="txt" id="x-n" placeholder="Nombre del juego"></label><label>Ruta del .exe<input class="txt" id="x-p" placeholder="C:\\Juegos\\MiJuego\\juego.exe"></label>${window.winteerNative?'<button class="b2 sm" data-a="pickx" style="margin-top:10px;align-self:flex-start">Elegir archivo…</button>':''}<label>…o AppID de Steam<input class="txt" id="x-a" placeholder="Ej: 292030"></label></div><div class="bs" style="margin-top:16px"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vdoexe">Agregar</button></div>`)},
+ vdoexe:a=>{const L=vL();if(!L)return;const n=$('#x-n').value.trim(),p=$('#x-p').value.trim().replace(/^"|"$/g,''),app=parseInt($('#x-a').value)||0;if(!n||(!p&&!app)){toast('Falta el nombre y el .exe o el AppID');return}
+  const g=p?{id:'v'+Date.now(),app:0,exe:p,name:n,hours:0,status:'',last:'',notes:''}:{id:'g'+app,app,name:n,hours:0,status:'',last:'',notes:''};
+  if(L.g.some(v=>v.id===g.id)){toast('Ya está en la Bóveda');return}
+  if(gm(g.id)){toast('Ese juego ya está en tu biblioteca: usá "Mover de mi biblioteca"');return}
+  L.g.push(g);save();a.closest('.modal').remove();go('vault')},
+ vaudit:()=>vAuditShow(vAudit()),
+ vpinchg:()=>{modal(`<h3>Cambiar PIN</h3><div class="ed" style="text-align:left"><input class="txt" id="vc-o" type="password" inputmode="numeric" maxlength="8" placeholder="PIN actual"><input class="txt" id="vc-n" type="password" inputmode="numeric" maxlength="8" placeholder="PIN nuevo (4 a 8 números)" style="margin-top:10px"></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="vpc2">Cambiar</button></div>`)},
+ vpc2:async a=>{const L=vL();if(!L)return;const o=$('#vc-o').value.replace(/\D/g,''),n=$('#vc-n').value.replace(/\D/g,'');if(n.length<4){toast('El PIN nuevo necesita al menos 4 números');return}if(await vH(o,L.s)!==L.h){toast('El PIN actual no coincide');return}L.s=String(Math.random()).slice(2)+Date.now();L.h=await vH(n,L.s);save();a.closest('.modal').remove();toast('PIN cambiado')}
+});
+function vPickFill(){const e=$('#vm-l');if(!e)return;const q=(($('#vm-q')||{}).value||'').toLowerCase().trim();
+  e.innerHTML=[...G].filter(g=>!q||g.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,60).map(g=>`<button class="vl-pr" data-a="vmv" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<p class="mut">No hay coincidencias.</p>'}
+/* acceso oculto: 5 toques seguidos al copo del logo, o Ctrl+Shift+B. Se cierra sola al salir de la pantalla, al perder el foco 20 s o tras 2 min sin tocar nada */
+(()=>{let c=0,t,bt;document.addEventListener('click',e=>{S.vlast=Date.now();if(!e.target.closest('.mark'))return;c++;clearTimeout(t);t=setTimeout(()=>c=0,2500);if(c>=5){c=0;vOpen()}},true);
+ document.addEventListener('keydown',e=>{S.vlast=Date.now();if(e.ctrlKey&&e.shiftKey&&(e.key==='B'||e.key==='b')){e.preventDefault();vOpen()}else if(S.vu&&e.key==='Escape'&&e.shiftKey)vLock()});
+ document.addEventListener('mousemove',()=>{S.vlast=Date.now()},{passive:true});
+ const away=()=>{clearTimeout(bt);if(S.vu)bt=setTimeout(()=>{if(S.vu&&(document.hidden||!document.hasFocus()))vLock()},20000)};window.addEventListener('blur',away);document.addEventListener('visibilitychange',()=>{if(document.hidden)away()});window.addEventListener('focus',()=>clearTimeout(bt));
+ setInterval(()=>{if(S.vu&&Date.now()-(S.vlast||0)>120000)vLock()},5000)})();
+setTimeout(()=>{try{vPurge()}catch(e){}},0);
 /* ===== mascotas ===== */
 const pTK=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const PETS=()=>ST.pets||(ST.pets=[]);
@@ -7447,7 +7549,7 @@ async function runScan(hs){
   let add=0,upd=0;const names=[];
   for(const [id,x] of apps){const pl=play.get(id)||{pt:0,lp:0},lp=Math.max(x.last,pl.lp);let g=G.find(q=>q.app===id);
     if(g){g.inst=true;g.size=sz(x.size);if(pl.pt/60>g.hours)g.hours=pl.pt/60;if(lp)g.last=ds(lp);upd++}
-    else{G.push({id:'g'+id,app:id,name:x.name,hours:pl.pt/60,status:'',last:lp?ds(lp):'',notes:'',inst:true,size:sz(x.size)});add++;names.push(x.name)}}
+    else{GPUSH({id:'g'+id,app:id,name:x.name,hours:pl.pt/60,status:'',last:lp?ds(lp):'',notes:'',inst:true,size:sz(x.size)});add++;names.push(x.name)}}
   save();
   modal(`<h3>Escaneo completo</h3><p><b>${apps.size}</b> juegos instalados · <b>${add}</b> nuevos · <b>${upd}</b> ya estaban${play.size?'':'<br>No pude leer tu tiempo de juego en esta carpeta, así que las horas no se importaron.'}</p>${names.length?`<p style="color:var(--text)">${names.slice(0,8).map(esc).join(' · ')}${names.length>8?' …':''}</p>`:''}<div class="bs"><button class="b2" data-a="scandone">Ver biblioteca</button></div>`)}
 
@@ -7574,6 +7676,7 @@ document.addEventListener('visibilitychange',()=>document.body.classList.toggle(
 if(window.winteerNative&&winteerNative.winCtl){const tb=document.getElementById('tbar');if(tb){tb.hidden=false;document.body.classList.add('wtb');tb.addEventListener('click',e=>{const b=e.target.closest('[data-wc]');if(b)winteerNative.winCtl(b.dataset.wc)});tb.addEventListener('dblclick',e=>{if(!e.target.closest('.tb-r'))winteerNative.winCtl('max')});winteerNative.onGame(ev=>{if(ev&&ev.type==='wst'){tb.hidden=!!ev.fs;document.body.classList.toggle('wtb',!ev.fs);const m=document.getElementById('tbmx');if(m)m.innerHTML=ev.max?'<svg viewBox="0 0 10 10"><rect x=".5" y="2.5" width="7" height="7"/><path d="M2.5 2.5v-2h7v7h-2"/></svg>':'<svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9"/></svg>'}})}}
 if(window.winteerNative)winteerNative.onGame(ev=>{
   if(ev.type==='upd'){updUI(ev);return}
+  if(ev&&ev.id&&vIsId(ev.id)){vEv(ev);return}
   if(ev.type==='friend-open'){if(ev.c&&FR().c[ev.c]){S.frSel=ev.c;S.frTab='chat'}go('friends');return}
   if(ev.type==='clipreq'){recClip(ev.id);return}
   if(ev.type==='ovreq'){try{const g=gm(ev.id);if(!g)return;const u=ggU(g),cs=getComputedStyle(document.body),cv=k=>cs.getPropertyValue(k).trim();OVS.on=1;OVS.c='';winteerNative.ovData({id:g.id,name:g.name,t:S.playing&&S.playing.id===g.id?S.playing.t:Date.now(),th:{a:cv('--a'),a2:cv('--a2'),rgb:cv('--argb'),on:cv('--on-a')},items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:GGX[d[4]],on:!!u[d[0]],p:r[0]/r[1]*100}}):[]});setTimeout(ovPush,900)}catch(e){}return}

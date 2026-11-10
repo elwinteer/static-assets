@@ -174,11 +174,11 @@ const SHOTS = path.join(app.getPath('userData'), 'shots');
 let shotReg = '', shotBusy = false, toastWin = null;
 function curNonSteam() {
   let best = null;
-  for (const [id, t] of track) if (!t.app && t.started && (!best || t.started > best.t.started)) best = { id, t };
+  for (const [id, t] of track) if (!t.app && !t.vault && t.started && (!best || t.started > best.t.started)) best = { id, t };
   return best;
 }
 function syncShot() {
-  const want = cfg.shots && [...track.values()].some(t => !t.app);
+  const want = cfg.shots && [...track.values()].some(t => !t.app && !t.vault);
   try {
     if (shotReg && (!want || shotReg !== cfg.shotKey)) { globalShortcut.unregister(shotReg); shotReg = ''; }
     if (want && !shotReg) { if (globalShortcut.register(cfg.shotKey || 'F12', takeShot)) shotReg = cfg.shotKey || 'F12'; }
@@ -916,7 +916,7 @@ function watch(o) {
   if (o.exe) { exe = norm(o.exe); }
   else if (o.app) { const d = installDir(o.app, o.steamDir); if (d) dirs.push(norm(d) + sep); }
   if (!exe && !dirs.length && !(o.app && process.platform === 'win32')) return false;
-  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless });
+  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
   if (!poller) poller = setInterval(poll, 4000);
   setTimeout(poll, 1500);
   syncShot();
