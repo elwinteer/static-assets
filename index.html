@@ -1254,6 +1254,14 @@ body.light .rin .rst{background:linear-gradient(90deg,#f59e0b calc(var(--f)*100%
 .pz-b{flex:1;min-width:0}.pz-b b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pz-b small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pz-w{font-style:normal;color:#ffb454}
 .pz-e{display:flex;flex-direction:column;align-items:center;gap:8px;padding:34px 10px;color:var(--muted);text-align:center;font-size:13px}.pz-e b{color:var(--text);font-size:15px}
 .pz-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}.pz-c{border-radius:18px;overflow:hidden;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.pz-i{aspect-ratio:16/9;background:linear-gradient(135deg,#3a3a46,#1c1c24)}.pz-i img{width:100%;height:100%;object-fit:cover;display:block}.pz-ct{padding:11px 13px 13px}.pz-ct b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pz-ct small{display:block;color:var(--muted);font-size:11.5px;margin:2px 0 10px}.pz-ct .b2{width:100%;text-align:center}.pz-in{opacity:.8;pointer-events:none}
+.mc-bar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.mc-bar label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}.mc-bar select.txt{min-width:120px;padding:7px 10px;font-size:13px;text-transform:none;letter-spacing:0}
+.mc-dir{flex:1;min-width:120px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;align-self:center}
+.mc-src{display:flex;padding:3px;border-radius:999px;background:rgba(255,255,255,.07)}.mc-src button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer}.mc-src button.on{background:linear-gradient(135deg,var(--a1,#8b5cf6),var(--a2,#22d3ee));color:#fff}
+.mc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}.mc-c{display:flex;gap:13px;align-items:flex-start;padding:13px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:transform .18s,background .18s}.mc-c:hover{transform:translateY(-2px);background:rgba(255,255,255,.08)}
+.mc-ic{width:58px;height:58px;border-radius:14px;overflow:hidden;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,#3a3a46,#1c1c24);box-shadow:0 0 0 1px rgba(255,255,255,.1);font-size:22px;color:var(--muted)}.mc-ic img{width:100%;height:100%;object-fit:cover}
+.mc-b{flex:1;min-width:0}.mc-b b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mc-b small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}.mc-b p{margin:6px 0 0;font-size:12px;line-height:1.4;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mc-x{flex:none}
+.mc-cats{gap:5px}.mc-cats .cp{font-size:12px;padding:5px 11px}.mc-msg{padding:10px 14px;border-radius:14px;background:rgba(255,184,84,.09);box-shadow:inset 0 0 0 1px rgba(255,184,84,.3);font-size:12.5px}
+.mc-sec{margin:6px 2px 0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}.mc-sec em{font-style:normal;opacity:.6;margin-left:6px}
 /* aviso */
 .hito{position:fixed;left:50%;top:-140px;transform:translateX(-50%);z-index:9800;display:flex;align-items:center;gap:18px;padding:16px 24px 16px 18px;min-width:430px;max-width:92vw;border-radius:26px;background:linear-gradient(135deg,rgba(26,22,44,.94),rgba(12,10,22,.96));color:#fff;cursor:pointer;overflow:hidden;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--c) 70%,transparent),0 20px 70px rgba(0,0,0,.6),0 0 60px color-mix(in srgb,var(--c) 40%,transparent);animation:hiIn .8s cubic-bezier(.2,1.25,.3,1) forwards}
 .hito.out{animation:hiOut .55s ease-in forwards}@keyframes hiIn{to{top:26px}}@keyframes hiOut{from{top:26px;opacity:1}to{top:-160px;opacity:0}}
@@ -3501,13 +3509,13 @@ function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
   if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(pzOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario');
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario');
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
   else if(S.tab==='ach'){
     h=`<div class="ach2"><div class="inf-c">${rankHTML(g)}</div><div class="inf-c">${cgHTML(g)}</div></div>`+(ggOwn(g)?`<div style="margin-top:14px">${ggHTML(g)}</div>`:'');
-  }else if(S.tab==='mods'&&(pzOf(g)||(window.winteerNative&&winteerNative.mioReq))){
-    h=pzOf(g)?pzHTML(g):miHTML(g);
+  }else if(S.tab==='mods'&&(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq))){
+    h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):miHTML(g);
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='rv'){
@@ -5398,6 +5406,154 @@ Object.assign(A,{
  mirm:async a=>{const g=gm(S.sel),mg=g&&mioGame(g);if(!mg||!MIO.tok)return;const id=+a.dataset.id;MIO.busy[id]=1;renderTab();const r=await mioReq({p:'/games/'+mg.id+'/mods/'+id+'/subscribe',m:'DELETE',auth:1});delete MIO.busy[id];if(r&&(r.ok||r.st===204)){if(MIO.sub)MIO.sub.delete(id);toast('Mod quitado de tu cuenta')}else toast('No pude quitarlo');renderTab()}
 });
 document.addEventListener('keydown',e=>{if(e.target.id==='mi-q'&&e.key==='Enter'){e.preventDefault();A.migo()}if(e.target.id==='mi-key'&&e.key==='Enter'){e.preventDefault();A.mikey()}});
+/* ===== Minecraft: Modrinth + CurseForge ===== */
+const mcOf=g=>!!g&&!!window.winteerNative&&!!winteerNative.mcReq&&/^minecraft\b(?!.*(dungeons|legends|earth|story|education))/i.test((g.name||'').trim());
+const MC={st:0,cf:0,gid:null,tab:'browse',kind:'mod',src:'mr',q:'',so:'rel',cat:'',list:null,res:null,off:0,more:0,busy:{},vers:null,info:null,files:null,upd:{},msg:''};
+const CFL={forge:1,fabric:4,quilt:5,neoforge:6},CFC={mod:6,resourcepack:12,shader:6552};
+const MCK=[['mod','Mods'],['shader','Shaders'],['resourcepack','Texturas']];
+const MCLD=[['fabric','Fabric'],['forge','Forge'],['neoforge','NeoForge'],['quilt','Quilt']];
+const MCCAT=[['','Todos'],['optimization','Rendimiento'],['technology','Tecnología'],['magic','Magia'],['adventure','Aventura'],['decoration','Decoración'],['worldgen','Mundo'],['mobs','Mobs'],['storage','Almacenaje'],['utility','Utilidad'],['library','Librerías']];
+const mcSt=g=>{const z=(ST.mc=ST.mc||{});return z[g.id]=z[g.id]||{inst:{}}};
+const mcRt=()=>{if(S.view==='games'&&S.tab==='mods'&&$('#tabc'))renderTab()};
+const mcN=n=>n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' M':n>=1e3?Math.round(n/1e3)+' mil':String(n||0);
+const mcR=(p,q,src)=>winteerNative.mcReq({src:src||'mr',p,q});
+async function mcInit(g){
+  try{const r=await winteerNative.mcState();MC.cf=!!r.cf}catch(e){}
+  const s=mcSt(g);
+  try{MC.info=await winteerNative.mcInfo(s.root||'')}catch(e){MC.info={root:'',exists:false,versions:[]}}
+  if(!s.ver||!s.ld){const d=(MC.info.versions||[]).filter(x=>x.l).sort((a,b)=>b.v.localeCompare(a.v,undefined,{numeric:true}))[0];if(d){s.ver=s.ver||d.v;s.ld=s.ld||d.l}}
+  s.ld=s.ld||'fabric';
+  if(!MC.vers){try{const r=await mcR('/tag/game_version');MC.vers=r.ok&&Array.isArray(r.d)?r.d.filter(x=>x.version_type==='release').slice(0,45).map(x=>x.version):[]}catch(e){MC.vers=[]}}
+  if(!s.ver)s.ver=(MC.vers&&MC.vers[0])||'1.21.1';
+  save();MC.st=1;MC.gid=g.id;await mcFiles(g,1);
+}
+async function mcFiles(g,quiet){const s=mcSt(g);try{const o={};for(const [k] of MCK)o[k]=await winteerNative.mcList(s.root||'',k);MC.files=o}catch(e){MC.files={mod:[],shader:[],resourcepack:[]}}if(!quiet)mcRt()}
+async function mcLoad(g,more){
+  const s=mcSt(g),L=s.ld,V=s.ver;if(!more){MC.off=0;MC.list=null}MC.res='load';mcRt();
+  try{let items=[],tot=0;
+   if(MC.src==='mr'){const f=[['project_type:'+MC.kind]];if(V)f.push(['versions:'+V]);if(MC.kind==='mod'&&L)f.push(['categories:'+L]);if(MC.cat&&MC.kind==='mod')f.push(['categories:'+MC.cat]);
+    const idx=MC.q?'relevance':{pop:'downloads',rel:'relevance',new:'newest',upd:'updated'}[MC.so]||'relevance';
+    const r=await mcR('/search',{query:MC.q,facets:JSON.stringify(f),index:idx,limit:'24',offset:String(MC.off)});
+    if(!r.ok||!r.d||!Array.isArray(r.d.hits))throw 0;
+    items=r.d.hits.map(h=>({k:'mr:'+h.project_id,src:'mr',kind:MC.kind,id:h.project_id,t:h.title,d:h.description,i:h.icon_url,a:h.author,n:h.downloads,u:'https://modrinth.com/'+h.project_type+'/'+h.slug}));tot=r.d.total_hits||0;
+   }else{
+    if(!MC.cf){MC.res='key';mcRt();return}
+    const q={gameId:'432',classId:String(CFC[MC.kind]),pageSize:'24',index:String(MC.off),sortOrder:'desc',sortField:String(MC.q?1:{rel:2,pop:6,new:11,upd:3}[MC.so]||2)};
+    if(MC.q)q.searchFilter=MC.q;if(V)q.gameVersion=V;if(MC.kind==='mod'&&L)q.modLoaderType=String(CFL[L]);
+    const r=await mcR('/mods/search',q,'cf');
+    if(r.err==='key'){MC.cf=0;MC.res='key';mcRt();return}
+    if(!r.ok||!r.d||!Array.isArray(r.d.data))throw 0;
+    items=r.d.data.map(h=>({k:'cf:'+h.id,src:'cf',kind:MC.kind,id:h.id,t:h.name,d:h.summary,i:h.logo&&h.logo.thumbnailUrl,a:(h.authors&&h.authors[0]&&h.authors[0].name)||'',n:h.downloadCount,u:(h.links&&h.links.websiteUrl)||''}));tot=(r.d.pagination&&r.d.pagination.totalCount)||0;
+   }
+   const seen=new Set((more&&MC.list||[]).map(x=>x.k));MC.list=(more&&MC.list||[]).concat(items.filter(x=>!seen.has(x.k)));MC.off+=items.length;MC.more=MC.off<tot&&items.length>0;MC.res='ok';
+  }catch(e){MC.res='err'}
+  mcRt();
+}
+/* busca el archivo más nuevo compatible con la versión y el cargador elegidos */
+async function mcPick(c,s){
+  const L=s.ld,V=s.ver;
+  if(c.src==='mr'){
+    const q={};if(V)q.game_versions=JSON.stringify([V]);if(c.kind==='mod'&&L)q.loaders=JSON.stringify([L]);
+    const r=await mcR('/project/'+c.id+'/version',q);const v=r.ok&&Array.isArray(r.d)&&r.d[0];
+    if(!v)return{ok:false,e:'nover'};
+    const f=(v.files||[]).find(x=>x.primary)||(v.files||[])[0];if(!f)return{ok:false,e:'nover'};
+    return{ok:true,url:f.url,name:f.filename,sha1:f.hashes&&f.hashes.sha1,sha512:f.hashes&&f.hashes.sha512,vid:v.id,
+      deps:c.kind==='mod'?(v.dependencies||[]).filter(d=>d.dependency_type==='required'&&d.project_id).map(d=>({k:'mr:'+d.project_id,src:'mr',kind:'mod',id:d.project_id,t:''})):[]};
+  }
+  const q={pageSize:'1'};if(V)q.gameVersion=V;if(c.kind==='mod'&&L)q.modLoaderType=String(CFL[L]);
+  const r=await mcR('/mods/'+c.id+'/files',q,'cf');const f=r.ok&&r.d&&r.d.data&&r.d.data[0];
+  if(!f)return{ok:false,e:'nover'};
+  const h=(f.hashes||[]).find(x=>x.algo===1);
+  return{ok:true,url:f.downloadUrl||`https://edge.forgecdn.net/files/${Math.floor(f.id/1000)}/${f.id%1000}/${encodeURIComponent(f.fileName)}`,name:f.fileName,sha1:h&&h.value,vid:String(f.id),
+    deps:c.kind==='mod'?(f.dependencies||[]).filter(d=>d.relationType===3).map(d=>({k:'cf:'+d.modId,src:'cf',kind:'mod',id:d.modId,t:''})):[]};
+}
+async function mcInstall(g,it,upd){
+  const s=mcSt(g),q=[it],seen=new Set(Object.keys(s.inst)),got=[],skip=[];
+  if(upd)seen.delete(it.k);
+  while(q.length&&got.length+skip.length<16){
+    const c=q.shift();if(seen.has(c.k)&&c!==it)continue;seen.add(c.k);
+    if(!c.t&&c.src==='mr'){const p=await mcR('/project/'+c.id);if(p.ok&&p.d){c.t=p.d.title;c.i=p.d.icon_url}}
+    if(!c.t&&c.src==='cf'){const p=await mcR('/mods/'+c.id,{},'cf');if(p.ok&&p.d&&p.d.data){c.t=p.d.data.name;c.i=p.d.data.logo&&p.d.data.logo.thumbnailUrl}}
+    const rv=await mcPick(c,s);
+    if(!rv.ok){if(c===it)return{ok:false,e:rv.e};skip.push(c.t||c.id);continue}
+    const r=await winteerNative.mcGet({root:s.root||'',kind:c.kind,url:rv.url,name:rv.name,sha1:rv.sha1,sha512:rv.src==='mr'?rv.sha512:''});
+    if(!r.ok){if(c===it)return{ok:false,e:r.err==='http'?'blocked':r.err,u:it.u};skip.push(c.t||c.id);continue}
+    const old=s.inst[c.k];if(old&&old.f&&old.f!==r.file)await winteerNative.mcFile({root:s.root||'',kind:c.kind,file:old.f,op:'del'});
+    s.inst[c.k]={f:r.file,v:rv.vid,t:c.t||r.file,i:c.i||'',kind:c.kind,src:c.src,id:c.id,dep:c===it?(old&&old.dep||0):1};got.push(c.t||r.file);
+    for(const d of rv.deps)q.push(d);
+  }
+  save();return{ok:true,got,skip};
+}
+async function mcCheck(g){
+  const s=mcSt(g);MC.upd={};MC.chk=1;mcRt();
+  await Promise.all(Object.entries(s.inst).map(async([k,e])=>{try{const rv=await mcPick({src:e.src,kind:e.kind,id:e.id},s);if(rv.ok&&String(rv.vid)!==String(e.v))MC.upd[k]=1}catch(x){}}));
+  MC.chk=0;MC.chkd=1;mcRt();
+}
+const mcMsgE={nover:'No hay una versión de este mod para tu versión de Minecraft y tu cargador. Probá cambiar la versión arriba.',blocked:'El autor no permite bajarlo desde fuera de CurseForge.',hash:'La descarga vino dañada. Probá de nuevo.',net:'No pude conectarme. Revisá tu internet.',host:'Descarga bloqueada por seguridad.'};
+function mcHTML(g){
+  const s=mcSt(g);
+  if(!MC.st||MC.gid!==g.id){if(!MC.ld){MC.ld=1;MC.gid=g.id;mcInit(g).finally(()=>{MC.ld=0;mcRt()})}return `<div class="pz-e">Preparando Minecraft…</div>`}
+  const inst=Object.keys(s.inst).length,nf=MC.files?MC.files.mod.length+MC.files.shader.length+MC.files.resourcepack.length:0;
+  if(MC.tab==='browse'&&MC.res===null&&MC.src&&!(MC.src==='cf'&&!MC.cf)&&!MC.rq){MC.rq=1;setTimeout(()=>{MC.rq=0;mcLoad(g)},0)}
+  const opt=(arr,cur)=>arr.map(v=>`<option value="${esc(v)}" ${v===cur?'selected':''}>${esc(v)}</option>`).join('');
+  const vers=(MC.vers&&MC.vers.length?MC.vers:[s.ver]);if(!vers.includes(s.ver))vers.unshift(s.ver);
+  const top=`<div class="pz-h"><div class="pz-pr"><button class="cp ${MC.tab==='browse'?'on':''}" data-a="mctab" data-id="browse">Explorar</button><button class="cp ${MC.tab==='inst'?'on':''}" data-a="mctab" data-id="inst">Instalados<em>${nf}</em></button></div><div class="pz-ac"><button class="b2 g sm" data-a="mcopen">Abrir carpeta</button></div></div>
+   <div class="mc-bar"><label>Minecraft<select class="txt" data-s="mcver">${opt(vers,s.ver)}</select></label><label>Cargador<select class="txt" data-s="mcld">${MCLD.map(([k,l])=>`<option value="${k}" ${s.ld===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <span class="mc-dir" title="${esc(MC.info&&MC.info.root)}">${MC.info&&MC.info.exists?'':'⚠ '}${esc(((MC.info&&MC.info.root)||'').replace(/^.*[\\/](?=[^\\/]+[\\/][^\\/]+$)/,'…/'))}</span><button class="b2 g sm" data-a="mcdir">Cambiar carpeta</button></div>
+   ${MC.info&&!MC.info.exists?`<div class="pz-ms"><b>No encontré tu carpeta de Minecraft</b><small>Elegí la carpeta que contiene «mods» (la de tu launcher o instancia). Si todavía no abriste Minecraft nunca, se crea sola al instalar.</small></div>`:''}`;
+  if(MC.tab==='inst')return `<div class="pz">${top}${mcInstHTML(g,s)}</div>`;
+  const kinds=MCK.map(([k,l])=>`<button class="cp ${MC.kind===k?'on':''}" data-a="mckind" data-id="${k}">${l}</button>`).join('');
+  const so=[['rel','Destacados'],['pop','Más descargados'],['upd','Actualizados'],['new','Nuevos']].map(([k,l])=>`<button class="cp ${MC.so===k&&!MC.q?'on':''}" data-a="mcsort" data-id="${k}" ${MC.q?'disabled':''}>${l}</button>`).join('');
+  const srcb=`<div class="mc-src"><button class="${MC.src==='mr'?'on':''}" data-a="mcsrc" data-id="mr">Modrinth</button><button class="${MC.src==='cf'?'on':''}" data-a="mcsrc" data-id="cf">CurseForge</button></div>`;
+  const cats=MC.src==='mr'&&MC.kind==='mod'?`<div class="pz-pr mc-cats">${MCCAT.map(([k,l])=>`<button class="cp ${MC.cat===k?'on':''}" data-a="mccat" data-id="${k}">${l}</button>`).join('')}</div>`:'';
+  const card=x=>{const ins=s.inst[x.k],bz=MC.busy[x.k];return `<div class="mc-c"><div class="mc-ic">${x.i?`<img loading="lazy" decoding="async" src="${esc(x.i)}" alt="">`:`<b>${esc((x.t||'?')[0])}</b>`}</div><div class="mc-b"><b>${esc(x.t)}</b><small>${esc(x.a)}${x.a?' · ':''}${mcN(x.n)} descargas</small><p>${esc(x.d)}</p></div><div class="mc-x">${bz?`<button class="b2 sm" disabled>Instalando…</button>`:ins?`<button class="b2 g sm" disabled>✓ Instalado</button>`:`<button class="b2 sm" data-a="mcget" data-id="${esc(x.k)}">Instalar</button>`}</div></div>`};
+  let body;
+  if(MC.res==='key')body=`<div class="pz-e"><b>Conectá CurseForge</b><span>CurseForge pide una clave gratuita para que apps como WINTEER puedan buscar. La creás una sola vez: entrá a console.curseforge.com, creá la clave («API Keys») y pegala acá. Queda guardada solo en tu PC. Si no querés, Modrinth tiene casi todo lo mismo sin clave.</span><div style="display:flex;gap:8px;width:100%;max-width:520px;margin-top:6px"><input class="txt" id="mc-key" placeholder="Clave de CurseForge" style="flex:1"><button class="b2 sm" data-a="mckey">Guardar</button></div><div style="display:flex;gap:8px"><button class="b2 g sm" data-a="mcweb">Abrir console.curseforge.com</button><button class="b2 g sm" data-a="mcsrc" data-id="mr">Usar Modrinth</button></div></div>`;
+  else if(MC.res==='err')body=`<div class="pz-e"><b>No pude leer ${MC.src==='mr'?'Modrinth':'CurseForge'}</b><span>Revisá tu conexión.</span><button class="b2 sm" data-a="mcgo">Reintentar</button></div>`;
+  else if(MC.list===null)body=`<div class="pz-e">Buscando…</div>`;
+  else if(!MC.list.length)body=`<div class="pz-e"><b>No hay resultados</b><span>Para Minecraft ${esc(s.ver)}${MC.kind==='mod'?' con '+esc(s.ld):''}. Probá otra versión, otro cargador o la otra fuente.</span></div>`;
+  else body=`<div class="mc-g">${MC.list.map(card).join('')}</div>${MC.more?`<div style="text-align:center;margin-top:8px"><button class="b2 sm" data-a="mcmore">Ver más</button></div>`:''}`;
+  return `<div class="pz">${top}<div class="pz-q"><input class="txt" id="mc-q" placeholder="Buscar ${MC.kind==='mod'?'mods':MC.kind==='shader'?'shaders':'paquetes de texturas'}…" value="${esc(MC.q)}"><button class="b2 sm" data-a="mcgo">Buscar</button>${srcb}</div>
+   <div class="pz-pr">${kinds}</div><div class="pz-pr">${so}</div>${cats}${MC.msg?`<div class="mc-msg">${esc(MC.msg)}</div>`:''}${body}
+   <div class="hint2">Instalar baja el archivo a tu carpeta de Minecraft junto con lo que necesita para funcionar. Para que un mod ande, abrí Minecraft con ${esc(MCLD.find(x=>x[0]===s.ld)[1])} ${esc(s.ver)}.</div></div>`;
+}
+function mcInstHTML(g,s){
+  const F=MC.files||{mod:[],shader:[],resourcepack:[]},by={};
+  Object.entries(s.inst).forEach(([k,e])=>{by[e.kind+'|'+e.f]=[k,e]});
+  const nu=Object.keys(MC.upd).length;
+  const sec=([kind,lab])=>{const L=F[kind]||[];if(!L.length)return '';return `<div class="mc-sec">${lab}<em>${L.length}</em></div><div class="pz-l">${L.map(f=>{const nm=f.f.replace(/\.disabled$/i,''),h=by[kind+'|'+nm],k=h&&h[0],e=h&&h[1];
+    return `<div class="pz-r ${f.off?'':'on'}"><div class="pz-p">${e&&e.i?`<img src="${esc(e.i)}" alt="">`:esc((nm[0]||'?').toUpperCase())}</div><div class="pz-b"><b>${esc(e?e.t:nm)}</b><small>${esc(nm)} · ${(f.size/1048576).toFixed(1)} MB${e?(e.dep?' · dependencia':' · instalado con WINTEER'):' · manual'}${f.off?' · desactivado':''}</small></div>
+     ${k&&MC.upd[k]?`<button class="b2 sm" data-a="mcupd" data-id="${esc(k)}">${MC.busy[k]?'…':'Actualizar'}</button>`:''}<button class="b2 g sm" data-a="mctog" data-id="${esc(kind)}" data-f="${esc(f.f)}">${f.off?'Activar':'Desactivar'}</button><button class="b2 g sm" data-a="mcdel" data-id="${esc(kind)}" data-f="${esc(f.f)}">Quitar</button></div>`}).join('')}</div>`};
+  const all=MCK.map(([k,l])=>sec([k,l])).join('');
+  return `<div class="pz-q" style="justify-content:flex-end;gap:8px">${Object.keys(s.inst).length?`<button class="b2 g sm" data-a="mccheck">${MC.chk?'Buscando…':'Buscar actualizaciones'}</button>`:''}${nu?`<button class="b2 sm" data-a="mcupall">Actualizar todo (${nu})</button>`:''}</div>${MC.chkd&&!nu&&!MC.chk?`<div class="mc-msg">Todo está al día.</div>`:''}${all||`<div class="pz-e"><b>Todavía no instalaste nada</b><span>Andá a «Explorar» y tocá «Instalar» en lo que te guste.</span></div>`}`;
+}
+Object.assign(A,{
+ mctab:a=>{MC.tab=a.dataset.id;if(MC.tab==='inst'){const g=gm(S.sel);if(g)mcFiles(g);else renderTab()}else renderTab()},
+ mckind:a=>{MC.kind=a.dataset.id;MC.cat='';MC.res=null;MC.list=null;renderTab()},
+ mcsort:a=>{MC.so=a.dataset.id;MC.res=null;MC.list=null;renderTab()},
+ mccat:a=>{MC.cat=a.dataset.id;MC.res=null;MC.list=null;renderTab()},
+ mcsrc:a=>{MC.src=a.dataset.id;MC.res=null;MC.list=null;MC.cat='';renderTab()},
+ mcgo:()=>{const el=$('#mc-q');MC.q=el?el.value.trim():MC.q;MC.res=null;MC.list=null;renderTab()},
+ mcmore:()=>{const g=gm(S.sel);if(g)mcLoad(g,true)},
+ mcver:a=>{const g=gm(S.sel);if(!g)return;mcSt(g).ver=a.value;save();MC.res=null;MC.list=null;MC.upd={};MC.chkd=0;renderTab()},
+ mcld:a=>{const g=gm(S.sel);if(!g)return;mcSt(g).ld=a.value;save();MC.res=null;MC.list=null;MC.upd={};MC.chkd=0;renderTab()},
+ mcdir:async()=>{const g=gm(S.sel);if(!g)return;const p=await winteerNative.mcPick();if(!p)return;mcSt(g).root=p;save();MC.st=0;MC.info=null;MC.res=null;MC.list=null;renderTab()},
+ mcopen:()=>{const g=gm(S.sel);if(g)winteerNative.mcOpen(mcSt(g).root||'',MC.tab==='inst'?'mod':MC.kind)},
+ mckey:async()=>{const k=(($('#mc-key')||{}).value||'').trim();const r=await winteerNative.mcKeySet(k);if(r&&r.ok&&r.key){MC.cf=1;MC.res=null;toast('Clave guardada');renderTab()}else toast('Esa clave no parece válida')},
+ mcweb:()=>window.open('https://console.curseforge.com/','_blank'),
+ mcget:async a=>{const g=gm(S.sel);if(!g)return;const it=(MC.list||[]).find(x=>x.k===a.dataset.id);if(!it)return;MC.busy[it.k]=1;MC.msg='';renderTab();
+   let r;try{r=await mcInstall(g,it)}catch(e){r={ok:false,e:'net'}}delete MC.busy[it.k];
+   if(r.ok){toast('Instalado: '+it.t+(r.got.length>1?' (+'+(r.got.length-1)+' que necesita)':''));if(r.skip.length)MC.msg='No pude instalar lo que necesita: '+r.skip.join(', ')+'. Buscalo a mano.'}
+   else MC.msg=(mcMsgE[r.e]||'No se pudo instalar.')+(r.e==='blocked'&&it.u?' Abrilo desde su página.':'');
+   await mcFiles(g,1);renderTab()},
+ mctog:async a=>{const g=gm(S.sel);if(!g)return;const s=mcSt(g);const r=await winteerNative.mcFile({root:s.root||'',kind:a.dataset.id,file:a.dataset.f,op:'toggle'});if(r&&r.ok){const nm=a.dataset.f.replace(/\.disabled$/i,'');}await mcFiles(g)},
+ mcdel:async a=>{const g=gm(S.sel);if(!g)return;const s=mcSt(g);const nm=a.dataset.f.replace(/\.disabled$/i,'');if(!confirm('¿Quitar '+nm+' de tu carpeta de Minecraft?'))return;const r=await winteerNative.mcFile({root:s.root||'',kind:a.dataset.id,file:a.dataset.f,op:'del'});if(r&&r.ok){for(const k of Object.keys(s.inst)){const e=s.inst[k];if(e.kind===a.dataset.id&&e.f===nm)delete s.inst[k]}save();toast('Quitado')}await mcFiles(g)},
+ mccheck:()=>{const g=gm(S.sel);if(g)mcCheck(g)},
+ mcupd:async a=>{const g=gm(S.sel);if(!g)return;const s=mcSt(g),e=s.inst[a.dataset.id];if(!e)return;MC.busy[a.dataset.id]=1;renderTab();const r=await mcInstall(g,{k:a.dataset.id,src:e.src,kind:e.kind,id:e.id,t:e.t,i:e.i},1).catch(()=>({ok:false}));delete MC.busy[a.dataset.id];if(r.ok){delete MC.upd[a.dataset.id];toast('Actualizado: '+e.t)}else toast('No pude actualizar '+e.t);await mcFiles(g)},
+ mcupall:async()=>{const g=gm(S.sel);if(!g)return;const s=mcSt(g);let n=0;for(const k of Object.keys(MC.upd)){const e=s.inst[k];if(!e)continue;MC.busy[k]=1;renderTab();const r=await mcInstall(g,{k,src:e.src,kind:e.kind,id:e.id,t:e.t,i:e.i},1).catch(()=>({ok:false}));delete MC.busy[k];if(r.ok){delete MC.upd[k];n++}}toast(n+' mods actualizados');await mcFiles(g)}
+});
+document.addEventListener('keydown',e=>{if(e.target.id==='mc-q'&&e.key==='Enter'){e.preventDefault();A.mcgo()}if(e.target.id==='mc-key'&&e.key==='Enter'){e.preventDefault();A.mckey()}});
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.tagName==='SELECT'&&t.dataset&&/^mc(ver|ld)$/.test(t.dataset.s||''))A[t.dataset.s](t)});
 /* ===== logros propios (juegos fuera de tiendas) ===== */
 const ggOwn=g=>!!g&&!isSteamG(g)&&!isEpicG(g)&&!isXbG(g);
 const GGX={c:3,r:8,e:18};

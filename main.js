@@ -575,8 +575,7 @@ function pzSearch(q, page, sort, tag) {
       w.webContents.on('did-fail-load', (_e, c) => { if (c !== -3) fin({ ok: false, err: 'net' }); });
       w.webContents.on('did-finish-load', async () => {
         try {
-          await new Promise((r) => setTimeout(r, 900));
-          const items = await w.webContents.executeJavaScript(`(function(){var o=[],seen={};document.querySelectorAll('a[data-publishedfileid]').forEach(function(a){var id=a.getAttribute('data-publishedfileid');if(!id||seen[id])return;var c=a.closest('.workshopItem')||a.parentElement;var t=c&&c.querySelector('.workshopItemTitle');var im=c&&c.querySelector('img');var au=c&&c.querySelector('.workshopItemAuthorName a, .workshopItemAuthorName');var title=t?t.textContent.trim():'';if(!title)return;seen[id]=1;o.push({wid:id,t:title,img:im?(im.getAttribute('src')||''):'',a:au?au.textContent.trim():''})});return o})()`);
+          const items = await w.webContents.executeJavaScript(`(async function(){var get=function(){var by={};document.querySelectorAll('a[href*="filedetails/?id="]').forEach(function(a){var x=/[?&]id=(\\d+)/.exec(a.href);if(!x)return;var id=x[1],o=by[id]||(by[id]={wid:id,t:'',img:'',a:''});var im=a.querySelector('img');if(im){if(!o.img)o.img=im.getAttribute('src')||'';if(!o.t)o.t=(im.getAttribute('alt')||'').trim()}var tx=(a.textContent||'').trim();if(tx&&!im&&tx.length>1&&!/^(M\\u00e1s informaci\\u00f3n|Learn More)$/i.test(tx))o.t=tx;var c=a.closest('.workshopItem');if(c){var t=c.querySelector('.workshopItemTitle');if(t&&!o.t)o.t=t.textContent.trim();var au=c.querySelector('.workshopItemAuthorName');if(au)o.a=au.textContent.replace(/^\\s*(por|by)\\s*/i,'').trim()}});return Object.keys(by).map(function(k){return by[k]}).filter(function(o){return o.img&&o.t})};var t0=Date.now(),r=get();while(r.length<4&&Date.now()-t0<11000){await new Promise(function(z){setTimeout(z,500)});r=get()}return r})()`);
           fin({ ok: true, items: (items || []).slice(0, 40).map((x) => ({ wid: String(x.wid).replace(/\D/g, ''), t: String(x.t).slice(0, 120), img: /^https:\/\//.test(x.img) ? x.img : '', a: String(x.a || '').slice(0, 60) })) });
         } catch (e) { fin({ ok: false, err: 'parse' }); }
       });
@@ -645,6 +644,79 @@ async function mioReq(o) {
     if (r.status === 401 && o.auth) { cfg.mioTok = ''; saveCfg(); return { ok: false, st: 401, err: 'auth' }; }
     return { ok: r.ok, st: r.status, d: j };
   } catch (e) { return { ok: false, err: 'net' }; }
+}
+
+/* ---------- Minecraft: Modrinth + CurseForge ---------- */
+const MC_SUB = { mod: 'mods', resourcepack: 'resourcepacks', shader: 'shaderpacks' };
+function mcRoot(r) {
+  r = String(r || '').trim();
+  if (r && path.isAbsolute(r)) return r;
+  return path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), '.minecraft');
+}
+function mcInfo(r) {
+  const root = mcRoot(r); const out = { root, exists: false, versions: [] };
+  try { out.exists = fs.statSync(root).isDirectory(); } catch (e) {}
+  const seen = new Set();
+  const add = (v, l) => { const k = v + '|' + l; if (!seen.has(k)) { seen.add(k); out.versions.push({ v, l }); } };
+  try {
+    for (const d of fs.readdirSync(path.join(root, 'versions'))) {
+      let m;
+      if ((m = /^fabric-loader-[\d.]+(?:-beta\.?\d+)?-(\d+\.\d+(?:\.\d+)?)$/.exec(d))) add(m[1], 'fabric');
+      else if ((m = /^quilt-loader-[\d.]+-(\d+\.\d+(?:\.\d+)?)$/.exec(d))) add(m[1], 'quilt');
+      else if ((m = /^(\d+\.\d+(?:\.\d+)?)-forge-/i.exec(d))) add(m[1], 'forge');
+      else if ((m = /^neoforge-(\d+)\.(\d+)/i.exec(d))) add('1.' + m[1] + (+m[2] > 0 ? '.' + m[2] : ''), 'neoforge');
+      else if ((m = /^(\d+\.\d+(?:\.\d+)?)$/.exec(d))) add(m[1], '');
+    }
+  } catch (e) {}
+  return out;
+}
+const MC_HOSTS = /^(cdn\.modrinth\.com|edge\.forgecdn\.net|mediafilez\.forgecdn\.net|media\.forgecdn\.net)$/;
+async function mcReq(o) {
+  try {
+    o = o || {}; const p = String(o.p || ''); if (!p.startsWith('/') || p.includes('..')) return { ok: false, err: 'path' };
+    const q = new URLSearchParams(o.q || {}); let base, h = { Accept: 'application/json', 'User-Agent': 'WINTEER/' + app.getVersion() };
+    if (o.src === 'cf') { if (!cfg.cfKey) return { ok: false, err: 'key' }; base = 'https://api.curseforge.com/v1'; h['x-api-key'] = cfg.cfKey; }
+    else base = 'https://api.modrinth.com/v2';
+    const r = await net.fetch(base + p + (q.toString() ? '?' + q : ''), { headers: h });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (r.status === 403 && o.src === 'cf') return { ok: false, st: 403, err: 'key' };
+    return { ok: r.ok, st: r.status, d: j };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
+function mcDirOf(root, kind) { const sub = MC_SUB[kind]; if (!sub) return null; return path.join(mcRoot(root), sub); }
+async function mcGet(o) {
+  try {
+    o = o || {}; const dir = mcDirOf(o.root, o.kind); if (!dir) return { ok: false, err: 'kind' };
+    const u = new URL(String(o.url || '')); if (u.protocol !== 'https:' || !MC_HOSTS.test(u.hostname)) return { ok: false, err: 'host' };
+    const name = path.basename(String(o.name || '')).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_'); if (!/\.(jar|zip)$/i.test(name)) return { ok: false, err: 'name' };
+    const r = await net.fetch(u.href, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+    if (!r.ok) return { ok: false, err: 'http', st: r.status };
+    const buf = Buffer.from(await r.arrayBuffer()); if (!buf.length || buf.length > 400 * 1024 * 1024) return { ok: false, err: 'size' };
+    if (o.sha1 && crypto.createHash('sha1').update(buf).digest('hex') !== String(o.sha1).toLowerCase()) return { ok: false, err: 'hash' };
+    if (o.sha512 && crypto.createHash('sha512').update(buf).digest('hex') !== String(o.sha512).toLowerCase()) return { ok: false, err: 'hash' };
+    fs.mkdirSync(dir, { recursive: true });
+    const tmp = path.join(dir, name + '.wtpart'); fs.writeFileSync(tmp, buf); fs.renameSync(tmp, path.join(dir, name));
+    return { ok: true, file: name, size: buf.length };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
+function mcList(root, kind) {
+  const dir = mcDirOf(root, kind); if (!dir) return [];
+  try {
+    return fs.readdirSync(dir).filter(f => /\.(jar|zip)(\.disabled)?$/i.test(f)).map(f => {
+      let st = null; try { st = fs.statSync(path.join(dir, f)); } catch (e) {}
+      return { f, size: st ? st.size : 0, t: st ? st.mtimeMs : 0, off: /\.disabled$/i.test(f) };
+    }).sort((a, b) => a.f.localeCompare(b.f));
+  } catch (e) { return []; }
+}
+function mcFileOp(o) {
+  try {
+    const dir = mcDirOf(o.root, o.kind); if (!dir) return { ok: false };
+    const f = path.basename(String(o.file || '')); if (!/\.(jar|zip)(\.disabled)?$/i.test(f)) return { ok: false };
+    const p = path.join(dir, f); if (!fs.existsSync(p)) return { ok: true, file: f };
+    if (o.op === 'del') { fs.unlinkSync(p); return { ok: true }; }
+    if (o.op === 'toggle') { const nf = /\.disabled$/i.test(f) ? f.replace(/\.disabled$/i, '') : f + '.disabled'; fs.renameSync(p, path.join(dir, nf)); return { ok: true, file: nf }; }
+    return { ok: false };
+  } catch (e) { return { ok: false }; }
 }
 
 /* ---------- ventana sin bordes para juegos que no la tienen ---------- */
@@ -1416,6 +1488,15 @@ app.whenReady().then(() => {
   ipcMain.handle('pzScan', (_e, sd) => { try { return pzScan(String(sd || '')); } catch (e) { return { ok: false, mods: [], active: [] }; } });
   ipcMain.handle('pzApply', (_e, ids, sd) => pzApply(Array.isArray(ids) ? ids.slice(0, 600) : [], String(sd || '')));
   ipcMain.handle('pzSearch', (_e, q, p, so, tg) => pzSearch(q, p, String(so || ''), !!tg));
+  ipcMain.handle('mcInfo', (_e, r) => mcInfo(r));
+  ipcMain.handle('mcState', () => ({ cf: !!cfg.cfKey }));
+  ipcMain.handle('mcKeySet', (_e, k) => { k = String(k || '').trim(); if (k && !/^\S{20,120}$/.test(k)) return { ok: false }; cfg.cfKey = k; saveCfg(); return { ok: true, key: !!k }; });
+  ipcMain.handle('mcReq', (_e, o) => mcReq(o));
+  ipcMain.handle('mcGet', (_e, o) => mcGet(o));
+  ipcMain.handle('mcList', (_e, r, k) => mcList(r, String(k || 'mod')));
+  ipcMain.handle('mcFile', (_e, o) => mcFileOp(o || {}));
+  ipcMain.handle('mcPick', async () => { const r = await dialog.showOpenDialog(win, { title: 'Elegí la carpeta de Minecraft (la que tiene «mods»)', properties: ['openDirectory'] }); return r.canceled || !r.filePaths[0] ? '' : r.filePaths[0]; });
+  ipcMain.handle('mcOpen', (_e, r, k) => { const d = mcDirOf(r, String(k || 'mod')); if (d) { try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} shell.openPath(d); } });
   ipcMain.handle('mioState', () => ({ key: !!cfg.mioKey, tok: !!cfg.mioTok }));
   ipcMain.handle('mioKeySet', (_e, k) => { k = String(k || '').trim(); if (k && !/^[a-f0-9]{32}$/i.test(k)) return { ok: false }; cfg.mioKey = k; if (!k) cfg.mioTok = ''; saveCfg(); return { ok: true, key: !!k }; });
   ipcMain.handle('mioReq', (_e, o) => mioReq(o));
@@ -1454,7 +1535,7 @@ app.whenReady().then(() => {
   ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });;
   ipcMain.handle('winCtl', (_e, a) => { if (!win) return; if (a === 'min') win.minimize(); else if (a === 'max') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); } else if (a === 'close') win.close(); });
   ipcMain.handle('quit', () => { quitting = true; app.quit(); });
-  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; return c; });
+  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; delete c.cfKey; return c; });
   ipcMain.handle('cfgSet', (_e, o) => { if (o && ['bg', 'auto', 'pad'].includes(o.k)) { cfg[o.k] = !!o.v; if (o.k === 'bg' && !cfg.bg) cfg.auto = false; saveCfg(); applyBg(); } return cfg; });
   ipcMain.handle('toBg', () => { if (!win) return; fromBg = false; bgForGame = true; win.setFullScreen(false); if (cfg.bg) hideWin(); else win.minimize(); });
   ipcMain.handle('bpClosed', () => { if (fromBg && cfg.bg && win) { fromBg = false; win.setFullScreen(false); hideWin(); } fromBg = false; });
