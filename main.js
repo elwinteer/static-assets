@@ -719,6 +719,153 @@ function mcFileOp(o) {
   } catch (e) { return { ok: false }; }
 }
 
+/* ---------- Nexus Mods ---------- */
+async function nxReq(o) {
+  try {
+    o = o || {}; if (!cfg.nxKey) return { ok: false, err: 'key' };
+    const p = String(o.p || ''); const h = { Accept: 'application/json', apikey: cfg.nxKey, 'Application-Name': 'WINTEER', 'Application-Version': app.getVersion(), 'User-Agent': 'WINTEER/' + app.getVersion() };
+    let r;
+    if (o.gql) { h['Content-Type'] = 'application/json'; r = await net.fetch('https://api.nexusmods.com/v2/graphql', { method: 'POST', headers: h, body: JSON.stringify({ query: String(o.gql), variables: o.vars || {} }) }); }
+    else { if (!/^\/(games|users)(\/|\.|$)/.test(p) || p.includes('..')) return { ok: false, err: 'path' }; r = await net.fetch('https://api.nexusmods.com/v1' + p, { headers: h }); }
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (r.status === 401 || r.status === 403) return { ok: false, st: r.status, err: 'key' };
+    return { ok: r.ok, st: r.status, d: j };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
+async function nxGet(o) {
+  try {
+    o = o || {}; const kx = o.key && o.expires && /^[A-Za-z0-9_-]{4,200}$/.test(String(o.key)) && /^\d{6,14}$/.test(String(o.expires)); if (!cfg.nxKey || (!cfg.nxPrem && !kx)) return { ok: false, err: 'prem' };
+    const dom = String(o.domain || ''), mid = +o.mod, fid = +o.file; if (!/^[a-z0-9_]+$/i.test(dom) || !mid || !fid) return { ok: false, err: 'args' };
+    const lk = await nxReq({ p: `/games/${dom}/mods/${mid}/files/${fid}/download_link.json` + (kx ? `?key=${o.key}&expires=${o.expires}` : '') });
+    const u0 = lk.ok && Array.isArray(lk.d) && lk.d[0] && lk.d[0].URI; if (!u0) return { ok: false, err: 'link' };
+    const u = new URL(u0); if (u.protocol !== 'https:' || !/(^|\.)nexusmods\.com$/i.test(u.hostname)) return { ok: false, err: 'host' };
+    const base = o.dest && path.isAbsolute(String(o.dest)) ? String(o.dest) : path.join(app.getPath('downloads'), 'WINTEER Mods', dom);
+    fs.mkdirSync(base, { recursive: true });
+    const name = path.basename(String(o.name || '')).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') || ('mod-' + mid + '.zip');
+    const r = await net.fetch(u.href, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() } }); if (!r.ok) return { ok: false, err: 'http', st: r.status };
+    const buf = Buffer.from(await r.arrayBuffer()); if (!buf.length || buf.length > 3 * 1024 * 1024 * 1024) return { ok: false, err: 'size' };
+    const fp = path.join(base, name); fs.writeFileSync(fp, buf);
+    let ext = '';
+    if (o.extract && process.platform === 'win32' && /\.zip$/i.test(name)) {
+      ext = path.join(base, name.replace(/\.zip$/i, ''));
+      await new Promise(res => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Expand-Archive -LiteralPath $env:WT_Z -DestinationPath $env:WT_D -Force'], { windowsHide: true, timeout: 120000, env: Object.assign({}, process.env, { WT_Z: fp, WT_D: ext }) }, () => res()));
+      if (!fs.existsSync(ext)) ext = '';
+    }
+    return { ok: true, dir: base, file: name, ext };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
+
+/* ---------- lector mínimo de zip/jar (sin dependencias) ---------- */
+const zlib = require('zlib');
+function zipOpen(fp) {
+  const fd = fs.openSync(fp, 'r'); const size = fs.fstatSync(fd).size;
+  const tl = Math.min(size, 65557 + 22), tb = Buffer.alloc(tl); fs.readSync(fd, tb, 0, tl, size - tl);
+  let e = -1; for (let i = tl - 22; i >= 0; i--) if (tb.readUInt32LE(i) === 0x06054b50) { e = i; break; }
+  if (e < 0) { fs.closeSync(fd); throw new Error('zip'); }
+  const n = tb.readUInt16LE(e + 10), csz = tb.readUInt32LE(e + 12), coff = tb.readUInt32LE(e + 16);
+  const cb = Buffer.alloc(csz); fs.readSync(fd, cb, 0, csz, coff);
+  const ents = new Map(); let p = 0;
+  for (let i = 0; i < n && p + 46 <= csz; i++) {
+    if (cb.readUInt32LE(p) !== 0x02014b50) break;
+    const meth = cb.readUInt16LE(p + 10), cs = cb.readUInt32LE(p + 20), us = cb.readUInt32LE(p + 24), nl = cb.readUInt16LE(p + 28), xl = cb.readUInt16LE(p + 30), cl = cb.readUInt16LE(p + 32), off = cb.readUInt32LE(p + 42);
+    const name = cb.toString('utf8', p + 46, p + 46 + nl); ents.set(name, { name, meth, cs, us, off }); p += 46 + nl + xl + cl;
+  }
+  const read = (name) => {
+    const en = ents.get(name); if (!en || en.us > 200 * 1024 * 1024) return null;
+    const lh = Buffer.alloc(30); fs.readSync(fd, lh, 0, 30, en.off); if (lh.readUInt32LE(0) !== 0x04034b50) return null;
+    const ds = en.off + 30 + lh.readUInt16LE(26) + lh.readUInt16LE(28); const raw = Buffer.alloc(en.cs); fs.readSync(fd, raw, 0, en.cs, ds);
+    return en.meth === 0 ? raw : en.meth === 8 ? zlib.inflateRawSync(raw) : null;
+  };
+  return { ents, read, close: () => { try { fs.closeSync(fd); } catch (x) {} } };
+}
+/* qué mods hay en la carpeta y qué necesita cada uno (para detectar conflictos) */
+function mcScan(root) {
+  const dir = mcDirOf(root, 'mod'), out = [];
+  let L = []; try { L = fs.readdirSync(dir).filter(f => /\.jar$/i.test(f)); } catch (e) {}
+  for (const f of L) {
+    const it = { f, loaders: [], ids: [], deps: [], mc: '' }; let z = null;
+    try {
+      z = zipOpen(path.join(dir, f));
+      let b;
+      if ((b = z.read('fabric.mod.json'))) {
+        const j = JSON.parse(b.toString('utf8').replace(/^﻿/, '')); it.loaders.push('fabric', 'quilt'); if (j.id) it.ids.push(j.id); (Array.isArray(j.provides) ? j.provides : []).forEach(x => it.ids.push(String(x)));
+        const d = j.depends || {}; for (const k of Object.keys(d)) { if (k === 'minecraft') it.mc = Array.isArray(d[k]) ? d[k].join(' || ') : String(d[k]); else if (!['fabricloader', 'java', 'fabric-loader'].includes(k)) it.deps.push(k); }
+      }
+      if ((b = z.read('quilt.mod.json'))) { it.loaders.push('quilt'); try { const j = JSON.parse(b.toString('utf8')); const id = j.quilt_loader && j.quilt_loader.id; if (id) it.ids.push(id); } catch (x) {} }
+      for (const tn of ['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
+        if ((b = z.read(tn))) {
+          const t = b.toString('utf8'); it.loaders.push(tn.includes('neoforge') ? 'neoforge' : 'forge'); if (tn.includes('mods.toml') && !tn.includes('neoforge')) it.loaders.push('neoforge');
+          const m = /\[\[mods\]\][\s\S]*?modId\s*=\s*"([^"]+)"/.exec(t); if (m) it.ids.push(m[1]);
+          const re = /\[\[dependencies\.[^\]]+\]\]([\s\S]*?)(?=\n\s*\[\[|$)/g; let x;
+          while ((x = re.exec(t))) { const blk = x[1], id = /modId\s*=\s*"([^"]+)"/.exec(blk), req = /mandatory\s*=\s*true/i.test(blk) || /type\s*=\s*"required"/i.test(blk); if (!id || !req) continue; if (id[1] === 'minecraft') { const vr = /versionRange\s*=\s*"([^"]*)"/.exec(blk); if (vr) it.mc = vr[1]; } else if (!['forge', 'neoforge'].includes(id[1])) it.deps.push(id[1]); }
+        }
+      }
+      if (!it.loaders.length && z.ents.has('mcmod.info')) it.loaders.push('forge');
+    } catch (e) { it.bad = 1; }
+    if (z) z.close(); it.loaders = [...new Set(it.loaders)]; it.ids = [...new Set(it.ids)]; out.push(it);
+  }
+  return out;
+}
+const MP_HOSTS = /^(cdn\.modrinth\.com|github\.com|raw\.githubusercontent\.com|gitlab\.com)$/;
+const mcSend = (c, d) => { if (win && !win.isDestroyed()) win.webContents.send('mcprog', { c, d }); };
+async function mcPackInstall(o) {
+  const root = mcRoot(o.root); const tmp = path.join(app.getPath('temp'), 'wt-pack-' + Date.now() + '.mrpack');
+  try {
+    const u = new URL(String(o.url || '')); if (u.protocol !== 'https:' || u.hostname !== 'cdn.modrinth.com') return { ok: false, err: 'host' };
+    mcSend('Bajando el pack…');
+    const r = await net.fetch(u.href, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() } }); if (!r.ok) return { ok: false, err: 'http' };
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (o.sha512 && crypto.createHash('sha512').update(buf).digest('hex') !== String(o.sha512).toLowerCase()) return { ok: false, err: 'hash' };
+    fs.writeFileSync(tmp, buf);
+    const z = zipOpen(tmp); const ib = z.read('modrinth.index.json'); if (!ib) { z.close(); return { ok: false, err: 'pack' }; }
+    const idx = JSON.parse(ib.toString('utf8')); const files = (idx.files || []).filter(f => !(f.env && f.env.client === 'unsupported'));
+    const safe = (rel) => { rel = String(rel || '').replace(/\\/g, '/'); if (!rel || rel.startsWith('/') || rel.split('/').includes('..') || /^[a-z]:/i.test(rel)) return null; const p = path.join(root, rel); return p.startsWith(root + path.sep) ? p : null; };
+    // overrides primero
+    for (const pre of ['overrides/', 'client-overrides/']) for (const [name] of z.ents) {
+      if (!name.startsWith(pre) || name.endsWith('/')) continue; const dest = safe(name.slice(pre.length)); if (!dest) continue;
+      const d = z.read(name); if (!d) continue; fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, d);
+    }
+    z.close();
+    let done = 0; const failed = []; let i = 0;
+    const work = async () => {
+      while (i < files.length) {
+        const f = files[i++], dest = safe(f.path); let ok = false;
+        if (dest) for (const url of (f.downloads || [])) {
+          try {
+            const uu = new URL(url); if (uu.protocol !== 'https:' || !MP_HOSTS.test(uu.hostname)) continue;
+            const rr = await net.fetch(uu.href, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() } }); if (!rr.ok) continue;
+            const b = Buffer.from(await rr.arrayBuffer());
+            if (f.hashes && f.hashes.sha512 && crypto.createHash('sha512').update(b).digest('hex') !== f.hashes.sha512.toLowerCase()) continue;
+            fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, b); ok = true; break;
+          } catch (e) {}
+        }
+        if (!ok) failed.push(path.basename(String(f.path || '?')));
+        done++; mcSend('Bajando mods… ' + done + '/' + files.length);
+      }
+    };
+    await Promise.all([work(), work(), work(), work()]);
+    const dep = idx.dependencies || {}; const ld = dep['fabric-loader'] ? 'fabric' : dep['quilt-loader'] ? 'quilt' : dep.neoforge ? 'neoforge' : dep.forge ? 'forge' : '';
+    return { ok: true, name: idx.name || 'Modpack', mc: dep.minecraft || '', ld, count: files.length, failed: failed.slice(0, 20) };
+  } catch (e) { return { ok: false, err: 'net' }; }
+  finally { try { fs.unlinkSync(tmp); } catch (e) {} }
+}
+function mcNewRoot(name) {
+  const n = String(name || 'Instancia').replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim().slice(0, 60) || 'Instancia';
+  let base = path.join(app.getPath('documents'), 'WINTEER Minecraft', n), p = base, k = 2;
+  while (fs.existsSync(p)) p = base + ' ' + (k++);
+  fs.mkdirSync(p, { recursive: true }); return p;
+}
+/* ---------- nxm:// (botón «Descarga con gestor» de Nexus) ---------- */
+let nxmPending = [];
+function parseNxm(u) {
+  const m = /^nxm:\/\/([a-z0-9_]+)\/mods\/(\d+)\/files\/(\d+)\?(.*)$/i.exec(String(u || '').trim()); if (!m) return null;
+  const q = new URLSearchParams(m[4]); const key = q.get('key') || '', ex = q.get('expires') || '';
+  if (!/^[A-Za-z0-9_-]{4,200}$/.test(key) || !/^\d{6,14}$/.test(ex)) return null;
+  return { domain: m[1].toLowerCase(), mod: +m[2], file: +m[3], key, expires: ex };
+}
+function nxmArgv(argv) { for (const a of (argv || [])) if (/^nxm:\/\//i.test(a)) { const r = parseNxm(a); if (r) { nxmPending.push(r); nxmFlush(); } } }
+function nxmFlush() { if (win && !win.isDestroyed() && nxmPending.length && win.webContents && !win.webContents.isLoading()) { for (const r of nxmPending.splice(0)) win.webContents.send('nxm', r); showWin(); } }
+
 /* ---------- ventana sin bordes para juegos que no la tienen ---------- */
 const BL_PS = 'JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnAAoAQQBkAGQALQBUAHkAcABlACAALQBBAHMAcwBlAG0AYgBsAHkATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVwBpAG4AZABvAHcAcwAuAEYAbwByAG0AcwAKAEEAZABkAC0AVAB5AHAAZQAgAEAAIgAKAHUAcwBpAG4AZwAgAFMAeQBzAHQAZQBtADsAdQBzAGkAbgBnACAAUwB5AHMAdABlAG0ALgBSAHUAbgB0AGkAbQBlAC4ASQBuAHQAZQByAG8AcABTAGUAcgB2AGkAYwBlAHMAOwAKAHAAdQBiAGwAaQBjACAAYwBsAGEAcwBzACAAVwBUAHsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGkAbgB0ACAARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoAEkAbgB0AFAAdAByACAAaAAsAGkAbgB0ACAAaQApADsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGkAbgB0ACAAUwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoAEkAbgB0AFAAdAByACAAaAAsAGkAbgB0ACAAaQAsAGkAbgB0ACAAdgApADsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGIAbwBvAGwAIABTAGUAdABXAGkAbgBkAG8AdwBQAG8AcwAoAEkAbgB0AFAAdAByACAAaAAsAEkAbgB0AFAAdAByACAAYQAsAGkAbgB0ACAAeAAsAGkAbgB0ACAAeQAsAGkAbgB0ACAAdwAsAGkAbgB0ACAAYwAsAHUAaQBuAHQAIABmACkAOwAKAFsARABsAGwASQBtAHAAbwByAHQAKAAiAHUAcwBlAHIAMwAyAC4AZABsAGwAIgApAF0AcAB1AGIAbABpAGMAIABzAHQAYQB0AGkAYwAgAGUAeAB0AGUAcgBuACAAYgBvAG8AbAAgAFMAaABvAHcAVwBpAG4AZABvAHcAKABJAG4AdABQAHQAcgAgAGgALABpAG4AdAAgAGMAKQA7AAoAWwBEAGwAbABJAG0AcABvAHIAdAAoACIAdQBzAGUAcgAzADIALgBkAGwAbAAiACkAXQBwAHUAYgBsAGkAYwAgAHMAdABhAHQAaQBjACAAZQB4AHQAZQByAG4AIABiAG8AbwBsACAAUwBlAHQAUAByAG8AYwBlAHMAcwBEAFAASQBBAHcAYQByAGUAKAApADsACgB9AAoAIgBAAAoAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAUAByAG8AYwBlAHMAcwBEAFAASQBBAHcAYQByAGUAKAApAAoAJABlAHgAPQAkAGUAbgB2ADoAVwBUAF8ARQBYAEUAOwAkAGQAaQByAHMAPQBAACgAKQA7AGkAZgAoACQAZQBuAHYAOgBXAFQAXwBEAEkAUgApAHsAJABkAGkAcgBzAD0AJABlAG4AdgA6AFcAVABfAEQASQBSAC4AUwBwAGwAaQB0ACgAJwB8ACcAKQB9AAoAJABuAD0AMAAKAGYAbwByAGUAYQBjAGgAKAAkAHAAIABpAG4AIAAoAEcAZQB0AC0AUAByAG8AYwBlAHMAcwAgAHwAIABXAGgAZQByAGUALQBPAGIAagBlAGMAdAAgAHsAIAAkAF8ALgBNAGEAaQBuAFcAaQBuAGQAbwB3AEgAYQBuAGQAbABlACAALQBuAGUAIAAwACAAfQApACkAewAKACAAIAAkAHAAYQA9ACQAbgB1AGwAbAA7AHQAcgB5AHsAJABwAGEAPQAkAHAALgBQAGEAdABoAC4AVABvAEwAbwB3AGUAcgAoACkAfQBjAGEAdABjAGgAewB9AAoAIAAgAGkAZgAoAC0AbgBvAHQAIAAkAHAAYQApAHsAYwBvAG4AdABpAG4AdQBlAH0ACgAgACAAJABoAGkAdAA9ACQAZgBhAGwAcwBlADsAaQBmACgAJABlAHgAIAAtAGEAbgBkACAAJABwAGEAIAAtAGUAcQAgACQAZQB4ACkAewAkAGgAaQB0AD0AJAB0AHIAdQBlAH0AOwBmAG8AcgBlAGEAYwBoACgAJABkACAAaQBuACAAJABkAGkAcgBzACkAewBpAGYAKAAkAGQAIAAtAGEAbgBkACAAJABwAGEALgBTAHQAYQByAHQAcwBXAGkAdABoACgAJABkACkAKQB7ACQAaABpAHQAPQAkAHQAcgB1AGUAfQB9AAoAIAAgAGkAZgAoAC0AbgBvAHQAIAAkAGgAaQB0ACkAewBjAG8AbgB0AGkAbgB1AGUAfQAKACAAIAAkAGgAPQAkAHAALgBNAGEAaQBuAFcAaQBuAGQAbwB3AEgAYQBuAGQAbABlAAoAIAAgAFsAdgBvAGkAZABdAFsAVwBUAF0AOgA6AFMAaABvAHcAVwBpAG4AZABvAHcAKAAkAGgALAA5ACkACgAgACAAJABzAD0AWwBXAFQAXQA6ADoARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMQA2ACkAOwAkAHMAPQAkAHMAIAAtAGIAYQBuAGQAIAAoAC0AYgBuAG8AdAAgADAAeABDAEYAMAAwADAAMAApADsAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMQA2ACwAJABzACkACgAgACAAJAB4AD0AWwBXAFQAXQA6ADoARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMgAwACkAOwAkAHgAPQAkAHgAIAAtAGIAYQBuAGQAIAAoAC0AYgBuAG8AdAAgADAAeAAyADAAMwAwADEAKQA7AFsAdgBvAGkAZABdAFsAVwBUAF0AOgA6AFMAZQB0AFcAaQBuAGQAbwB3AEwAbwBuAGcAKAAkAGgALAAtADIAMAAsACQAeAApAAoAIAAgACQAYgA9AFsAUwB5AHMAdABlAG0ALgBXAGkAbgBkAG8AdwBzAC4ARgBvAHIAbQBzAC4AUwBjAHIAZQBlAG4AXQA6ADoARgByAG8AbQBIAGEAbgBkAGwAZQAoACQAaAApAC4AQgBvAHUAbgBkAHMACgAgACAAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAVwBpAG4AZABvAHcAUABvAHMAKAAkAGgALABbAEkAbgB0AFAAdAByAF0AOgA6AFoAZQByAG8ALAAkAGIALgBYACwAJABiAC4AWQAsACQAYgAuAFcAaQBkAHQAaAAsACQAYgAuAEgAZQBpAGcAaAB0ACwAMAB4ADAAMAA2ADAAKQAKACAAIAAkAG4AKwArAAoAfQAKAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAKAAiAGQAbwBuAGUAIAAiACsAJABuACkA';
 function applyBl(t) {
@@ -1497,6 +1644,23 @@ app.whenReady().then(() => {
   ipcMain.handle('mcFile', (_e, o) => mcFileOp(o || {}));
   ipcMain.handle('mcPick', async () => { const r = await dialog.showOpenDialog(win, { title: 'Elegí la carpeta de Minecraft (la que tiene «mods»)', properties: ['openDirectory'] }); return r.canceled || !r.filePaths[0] ? '' : r.filePaths[0]; });
   ipcMain.handle('mcOpen', (_e, r, k) => { const d = mcDirOf(r, String(k || 'mod')); if (d) { try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} shell.openPath(d); } });
+  ipcMain.handle('nxState', () => ({ key: !!cfg.nxKey, prem: !!cfg.nxPrem, user: cfg.nxUser || '' }));
+  ipcMain.handle('nxKeySet', async (_e, k) => {
+    k = String(k || '').trim(); if (!k) { cfg.nxKey = ''; cfg.nxPrem = false; cfg.nxUser = ''; saveCfg(); return { ok: true, key: false }; }
+    if (!/^[A-Za-z0-9+/=_-]{20,200}$/.test(k)) return { ok: false };
+    cfg.nxKey = k; const r = await nxReq({ p: '/users/validate.json' });
+    if (!r.ok || !r.d || !r.d.name) { cfg.nxKey = ''; saveCfg(); return { ok: false, err: r.err || 'bad' }; }
+    cfg.nxPrem = !!r.d.is_premium; cfg.nxUser = String(r.d.name); saveCfg(); return { ok: true, key: true, prem: cfg.nxPrem, user: cfg.nxUser };
+  });
+  ipcMain.handle('nxReq', (_e, o) => nxReq(o));
+  ipcMain.handle('nxGet', (_e, o) => nxGet(o));
+  ipcMain.handle('nxOpenDir', (_e, d) => { d = String(d || ''); if (d && path.isAbsolute(d)) shell.openPath(d); });
+  ipcMain.handle('mcScan', (_e, r) => { try { return mcScan(r); } catch (e) { return []; } });
+  ipcMain.handle('mcPack', (_e, o) => mcPackInstall(o || {}));
+  ipcMain.handle('mcNewRoot', (_e, n) => mcNewRoot(n));
+  ipcMain.handle('nxmSet', (_e, on) => { on = !!on; cfg.nxm = on; saveCfg(); try { if (on) app.setAsDefaultProtocolClient('nxm'); else app.removeAsDefaultProtocolClient('nxm'); } catch (e) {} return { ok: true, on }; });
+  ipcMain.handle('nxmState', () => !!cfg.nxm);
+  ipcMain.handle('nxmReady', () => { setTimeout(nxmFlush, 200); return true; });
   ipcMain.handle('mioState', () => ({ key: !!cfg.mioKey, tok: !!cfg.mioTok }));
   ipcMain.handle('mioKeySet', (_e, k) => { k = String(k || '').trim(); if (k && !/^[a-f0-9]{32}$/i.test(k)) return { ok: false }; cfg.mioKey = k; if (!k) cfg.mioTok = ''; saveCfg(); return { ok: true, key: !!k }; });
   ipcMain.handle('mioReq', (_e, o) => mioReq(o));
@@ -1535,12 +1699,14 @@ app.whenReady().then(() => {
   ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });;
   ipcMain.handle('winCtl', (_e, a) => { if (!win) return; if (a === 'min') win.minimize(); else if (a === 'max') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); } else if (a === 'close') win.close(); });
   ipcMain.handle('quit', () => { quitting = true; app.quit(); });
-  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; delete c.cfKey; return c; });
+  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; delete c.cfKey; delete c.nxKey; return c; });
   ipcMain.handle('cfgSet', (_e, o) => { if (o && ['bg', 'auto', 'pad'].includes(o.k)) { cfg[o.k] = !!o.v; if (o.k === 'bg' && !cfg.bg) cfg.auto = false; saveCfg(); applyBg(); } return cfg; });
   ipcMain.handle('toBg', () => { if (!win) return; fromBg = false; bgForGame = true; win.setFullScreen(false); if (cfg.bg) hideWin(); else win.minimize(); });
   ipcMain.handle('bpClosed', () => { if (fromBg && cfg.bg && win) { fromBg = false; win.setFullScreen(false); hideWin(); } fromBg = false; });
   startApp();
+  try { if (cfg.nxm) app.setAsDefaultProtocolClient('nxm'); } catch (e) {}
+  nxmArgv(process.argv);
 });
-app.on('second-instance', () => { showWin(); });
+app.on('second-instance', (_e, argv) => { showWin(); nxmArgv(argv); });
 app.on('before-quit', () => { quitting = true; stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
 app.on('window-all-closed', () => { if (!cfg.bg || quitting) app.quit(); });

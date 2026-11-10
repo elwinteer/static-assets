@@ -1262,6 +1262,7 @@ body.light .rin .rst{background:linear-gradient(90deg,#f59e0b calc(var(--f)*100%
 .mc-b{flex:1;min-width:0}.mc-b b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mc-b small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}.mc-b p{margin:6px 0 0;font-size:12px;line-height:1.4;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mc-x{flex:none}
 .mc-cats{gap:5px}.mc-cats .cp{font-size:12px;padding:5px 11px}.mc-msg{padding:10px 14px;border-radius:14px;background:rgba(255,184,84,.09);box-shadow:inset 0 0 0 1px rgba(255,184,84,.3);font-size:12.5px}
 .mc-sec{margin:6px 2px 0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}.mc-sec em{font-style:normal;opacity:.6;margin-left:6px}
+.mc-warn{padding:12px 16px;border-radius:16px;background:rgba(255,93,108,.08);box-shadow:inset 0 0 0 1px rgba(255,93,108,.28)}.mc-warn b{display:block;font-size:13.5px}.mc-warn small{color:var(--muted);font-size:12px}.mc-wr{color:#ffb454!important}
 /* aviso */
 .hito{position:fixed;left:50%;top:-140px;transform:translateX(-50%);z-index:9800;display:flex;align-items:center;gap:18px;padding:16px 24px 16px 18px;min-width:430px;max-width:92vw;border-radius:26px;background:linear-gradient(135deg,rgba(26,22,44,.94),rgba(12,10,22,.96));color:#fff;cursor:pointer;overflow:hidden;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--c) 70%,transparent),0 20px 70px rgba(0,0,0,.6),0 0 60px color-mix(in srgb,var(--c) 40%,transparent);animation:hiIn .8s cubic-bezier(.2,1.25,.3,1) forwards}
 .hito.out{animation:hiOut .55s ease-in forwards}@keyframes hiIn{to{top:26px}}@keyframes hiOut{from{top:26px;opacity:1}to{top:-160px;opacity:0}}
@@ -3515,7 +3516,7 @@ function renderTab(){
   else if(S.tab==='ach'){
     h=`<div class="ach2"><div class="inf-c">${rankHTML(g)}</div><div class="inf-c">${cgHTML(g)}</div></div>`+(ggOwn(g)?`<div style="margin-top:14px">${ggHTML(g)}</div>`:'');
   }else if(S.tab==='mods'&&(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq))){
-    h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):miHTML(g);
+    h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):srcHTML(g);
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='rv'){
@@ -5410,10 +5411,35 @@ document.addEventListener('keydown',e=>{if(e.target.id==='mi-q'&&e.key==='Enter'
 const mcOf=g=>!!g&&!!window.winteerNative&&!!winteerNative.mcReq&&/^minecraft\b(?!.*(dungeons|legends|earth|story|education))/i.test((g.name||'').trim());
 const MC={st:0,cf:0,gid:null,tab:'browse',kind:'mod',src:'mr',q:'',so:'rel',cat:'',list:null,res:null,off:0,more:0,busy:{},vers:null,info:null,files:null,upd:{},msg:''};
 const CFL={forge:1,fabric:4,quilt:5,neoforge:6},CFC={mod:6,resourcepack:12,shader:6552};
-const MCK=[['mod','Mods'],['shader','Shaders'],['resourcepack','Texturas']];
+const MCK=[['mod','Mods'],['modpack','Modpacks'],['shader','Shaders'],['resourcepack','Texturas']];
+const MCF=MCK.filter(k=>k[0]!=='modpack');
 const MCLD=[['fabric','Fabric'],['forge','Forge'],['neoforge','NeoForge'],['quilt','Quilt']];
 const MCCAT=[['','Todos'],['optimization','Rendimiento'],['technology','Tecnología'],['magic','Magia'],['adventure','Aventura'],['decoration','Decoración'],['worldgen','Mundo'],['mobs','Mobs'],['storage','Almacenaje'],['utility','Utilidad'],['library','Librerías']];
-const mcSt=g=>{const z=(ST.mc=ST.mc||{});return z[g.id]=z[g.id]||{inst:{}}};
+const mcCt=g=>{const z=(ST.mc=ST.mc||{});let c=z[g.id];if(!c){c=z[g.id]={act:'main',list:[{id:'main',n:'Principal',root:'',ver:'',ld:'',inst:{}}]}}
+ else if(!c.list){const o=c;c=z[g.id]={act:'main',list:[{id:'main',n:'Principal',root:o.root||'',ver:o.ver||'',ld:o.ld||'',inst:o.inst||{}}]}}
+ if(!c.list.length)c.list.push({id:'main',n:'Principal',root:'',ver:'',ld:'',inst:{}});
+ if(!c.list.find(x=>x.id===c.act))c.act=c.list[0].id;return c};
+const mcSt=g=>{const c=mcCt(g);return c.list.find(x=>x.id===c.act)};
+function mcVc(a,b){const x=String(a).split('.').map(n=>parseInt(n)||0),y=String(b).split('.').map(n=>parseInt(n)||0);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0}
+function mcRangeOk(r,v){if(!r||!v)return true;r=String(r).trim();
+ if(/^[\[(]/.test(r))return r.split(/(?<=[\])]),(?=[\[(])/).some(seg=>{seg=seg.trim();const m=/^([\[(])\s*([^,\s]*)\s*(,?)\s*([^\])\s]*)\s*([\])])$/.exec(seg);if(!m)return true;const lo=m[2],hi=m[4];if(!m[3])return mcVc(v,lo)===0;if(lo&&(m[1]==='['?mcVc(v,lo)<0:mcVc(v,lo)<=0))return false;if(hi&&(m[5]===']'?mcVc(v,hi)>0:mcVc(v,hi)>=0))return false;return true});
+ return r.split('||').some(alt=>alt.trim().split(/\s+/).filter(Boolean).every(t=>{const m=/^(>=|<=|>|<|=|~|\^)?(.+)$/.exec(t);if(!m)return true;const op=m[1]||'=',w=m[2];
+  if(/[x*]/i.test(w)){const p=w.split('.'),q=v.split('.');for(let i=0;i<p.length;i++){if(/^[x*]$/i.test(p[i]))break;if(+p[i]!==+q[i])return false}return true}
+  const c=mcVc(v,w),pp=w.split('.');
+  if(op==='>=')return c>=0;if(op==='>')return c>0;if(op==='<=')return c<=0;if(op==='<')return c<0;
+  if(op==='~')return c>=0&&mcVc(v,pp[0]+'.'+((+pp[1]||0)+1))<0;if(op==='^')return c>=0&&mcVc(v,(+pp[0]+1)+'.0')<0;
+  return c===0||(pp.length<3&&String(v).startsWith(w+'.'))}))}
+function mcWarns(s){
+  const L=Array.isArray(MC.scan)?MC.scan:[],out=[],byId={},all=new Set();
+  L.forEach(m=>m.ids.forEach(i=>{all.add(i);(byId[i]=byId[i]||[]).push(m.f)}));
+  Object.entries(byId).forEach(([id,fs])=>{if(fs.length>1)out.push({f:fs[0],t:'dup',m:'Está duplicado ('+fs.join(' y ')+'). Dejá solo uno.'})});
+  const hasFab=all.has('fabric-api');
+  L.forEach(m=>{
+   if(m.loaders.length&&s.ld&&!m.loaders.includes(s.ld))out.push({f:m.f,t:'ld',m:'Es para '+m.loaders[0]+' y tu instancia usa '+s.ld+'.'});
+   if(m.mc&&s.ver&&!mcRangeOk(m.mc,s.ver))out.push({f:m.f,t:'ver',m:'Pide Minecraft '+m.mc+' y tu instancia es '+s.ver+'.'});
+   const miss=m.deps.filter(d=>!all.has(d)&&!(hasFab&&/^fabric-/.test(d)));if(miss.length)out.push({f:m.f,t:'dep',m:'Puede faltarle: '+miss.slice(0,3).join(', ')+'.'});
+  });return out}
+
 const mcRt=()=>{if(S.view==='games'&&S.tab==='mods'&&$('#tabc'))renderTab()};
 const mcN=n=>n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' M':n>=1e3?Math.round(n/1e3)+' mil':String(n||0);
 const mcR=(p,q,src)=>winteerNative.mcReq({src:src||'mr',p,q});
@@ -5427,16 +5453,17 @@ async function mcInit(g){
   if(!s.ver)s.ver=(MC.vers&&MC.vers[0])||'1.21.1';
   save();MC.st=1;MC.gid=g.id;await mcFiles(g,1);
 }
-async function mcFiles(g,quiet){const s=mcSt(g);try{const o={};for(const [k] of MCK)o[k]=await winteerNative.mcList(s.root||'',k);MC.files=o}catch(e){MC.files={mod:[],shader:[],resourcepack:[]}}if(!quiet)mcRt()}
+async function mcFiles(g,quiet){const s=mcSt(g);try{const o={};for(const [k] of MCF)o[k]=await winteerNative.mcList(s.root||'',k);MC.files=o}catch(e){MC.files={mod:[],shader:[],resourcepack:[]}}try{const sc=await winteerNative.mcScan(s.root||'');MC.scan=Array.isArray(sc)?sc:[]}catch(e){MC.scan=[]}if(!quiet)mcRt()}
 async function mcLoad(g,more){
   const s=mcSt(g),L=s.ld,V=s.ver;if(!more){MC.off=0;MC.list=null}MC.res='load';mcRt();
   try{let items=[],tot=0;
-   if(MC.src==='mr'){const f=[['project_type:'+MC.kind]];if(V)f.push(['versions:'+V]);if(MC.kind==='mod'&&L)f.push(['categories:'+L]);if(MC.cat&&MC.kind==='mod')f.push(['categories:'+MC.cat]);
+   if(MC.src==='mr'){const f=[['project_type:'+MC.kind]];if(V)f.push(['versions:'+V]);if((MC.kind==='mod'||MC.kind==='modpack')&&L)f.push(['categories:'+L]);if(MC.cat&&MC.kind==='mod')f.push(['categories:'+MC.cat]);
     const idx=MC.q?'relevance':{pop:'downloads',rel:'relevance',new:'newest',upd:'updated'}[MC.so]||'relevance';
     const r=await mcR('/search',{query:MC.q,facets:JSON.stringify(f),index:idx,limit:'24',offset:String(MC.off)});
     if(!r.ok||!r.d||!Array.isArray(r.d.hits))throw 0;
     items=r.d.hits.map(h=>({k:'mr:'+h.project_id,src:'mr',kind:MC.kind,id:h.project_id,t:h.title,d:h.description,i:h.icon_url,a:h.author,n:h.downloads,u:'https://modrinth.com/'+h.project_type+'/'+h.slug}));tot=r.d.total_hits||0;
    }else{
+    if(MC.kind==='modpack'){MC.list=[];MC.res='ok';MC.more=0;mcRt();return}
     if(!MC.cf){MC.res='key';mcRt();return}
     const q={gameId:'432',classId:String(CFC[MC.kind]),pageSize:'24',index:String(MC.off),sortOrder:'desc',sortField:String(MC.q?1:{rel:2,pop:6,new:11,upd:3}[MC.so]||2)};
     if(MC.q)q.searchFilter=MC.q;if(V)q.gameVersion=V;if(MC.kind==='mod'&&L)q.modLoaderType=String(CFL[L]);
@@ -5484,21 +5511,58 @@ async function mcInstall(g,it,upd){
   }
   save();return{ok:true,got,skip};
 }
-async function mcCheck(g){
-  const s=mcSt(g);MC.upd={};MC.chk=1;mcRt();
+async function mcCheck(g,silent){
+  const s=mcSt(g);MC.upd={};MC.chk=1;s.chkT=Date.now();if(!silent)mcRt();
   await Promise.all(Object.entries(s.inst).map(async([k,e])=>{try{const rv=await mcPick({src:e.src,kind:e.kind,id:e.id},s);if(rv.ok&&String(rv.vid)!==String(e.v))MC.upd[k]=1}catch(x){}}));
-  MC.chk=0;MC.chkd=1;mcRt();
+  MC.chk=0;MC.chkd=1;save();mcRt();
 }
 const mcMsgE={nover:'No hay una versión de este mod para tu versión de Minecraft y tu cargador. Probá cambiar la versión arriba.',blocked:'El autor no permite bajarlo desde fuera de CurseForge.',hash:'La descarga vino dañada. Probá de nuevo.',net:'No pude conectarme. Revisá tu internet.',host:'Descarga bloqueada por seguridad.'};
+async function mcSwitch(g,id){const c=mcCt(g);if(!c.list.find(x=>x.id===id))return;c.act=id;save();MC.st=0;MC.info=null;MC.files=null;MC.scan=null;MC.upd={};MC.chkd=0;MC.res=null;MC.list=null;MC.msg='';renderTab()}
+async function mcMake(g,name,ver,ld,extra){const c=mcCt(g);let root='';try{root=await winteerNative.mcNewRoot(name)}catch(e){}
+  const id='i'+Date.now().toString(36);c.list.push(Object.assign({id,n:name,root,ver:ver||'',ld:ld||'',inst:{}},extra||{}));c.act=id;save();MC.st=0;MC.info=null;MC.files=null;MC.scan=null;MC.upd={};MC.chkd=0;MC.res=null;MC.list=null;return c.list[c.list.length-1]}
+function mcNewModal(){const g=gm(S.sel);if(!g)return;modal(`<h3 style="margin:0 0 8px">Nueva instancia</h3><p class="hint2" style="margin:0 0 12px">Una instancia es una copia separada de Minecraft con sus propios mods, versión y cargador. Usa la versión y el cargador que tenés elegidos ahora.</p><input class="txt" id="mc-nn" placeholder="Ej: Survival con shaders" style="width:100%;box-sizing:border-box"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="b2 g sm" onclick="this.closest('.modal').remove()">Cancelar</button><button class="b2 sm" data-a="mcnew2">Crear</button></div>`);setTimeout(()=>{const e=$('#mc-nn');e&&e.focus()},50)}
+async function mcPackGo(g,it){
+  if(MC.packing)return;MC.packing=1;MC.prog='Buscando la versión del pack…';MC.msg='';MC.busy[it.k]=1;renderTab();
+  try{
+   const r=await mcR('/project/'+it.id+'/version');const v=r.ok&&Array.isArray(r.d)&&r.d[0];
+   const f=v&&((v.files||[]).find(x=>x.primary)||(v.files||[])[0]);
+   if(!f||!/\.mrpack$/i.test(f.filename))throw new Error('nopack');
+   const inst=await mcMake(g,it.t,'','',{pack:{n:it.t,id:it.id,v:v.id}});
+   const o=await winteerNative.mcPack({root:inst.root,url:f.url,sha512:f.hashes&&f.hashes.sha512});
+   if(!o||!o.ok)throw new Error(o&&o.err||'net');
+   inst.ver=o.mc||inst.ver;inst.ld=o.ld||inst.ld;save();
+   MC.msg='«'+o.name+'» instalado en la instancia «'+inst.n+'» ('+o.count+' archivos'+(o.failed.length?', '+o.failed.length+' no se pudieron bajar: '+o.failed.slice(0,4).join(', '):'')+'). Para jugarlo, en tu launcher apuntá la carpeta del juego a: '+inst.root;
+   toast('Pack instalado');MC.tab='inst';
+  }catch(e){MC.msg='No pude instalar el pack ('+(e&&e.message==='nopack'?'este pack no trae archivo compatible':'revisá tu conexión')+').'}
+  MC.packing=0;delete MC.busy[it.k];MC.st=0;MC.info=null;MC.files=null;MC.res=null;MC.list=null;renderTab();
+}
+window.winteerNative&&winteerNative.onMcProg&&winteerNative.onMcProg(a=>{MC.prog=a.c;const e=$('#mc-prog');if(e)e.textContent=a.c});
+function mcCode(g){const s=mcSt(g);const m=Object.values(s.inst).filter(e=>!e.dep).map(e=>[e.src,String(e.id),e.kind,e.t]);return 'WTMC1:'+btoa(unescape(encodeURIComponent(JSON.stringify({n:s.n,v:s.ver,l:s.ld,m}))))}
+function mcShare(){const g=gm(S.sel);if(!g)return;const s=mcSt(g);if(!Object.keys(s.inst).length){toast('Instalá algo desde WINTEER primero');return}
+  modal(`<h3 style="margin:0 0 8px">Compartir tu lista</h3><p class="hint2" style="margin:0 0 12px">Mandale este código a quien quieras. Lo pega en «Importar código» y WINTEER le instala lo mismo (versión ${esc(s.ver)}, ${esc(s.ld)}).</p><textarea class="txt" id="mc-sc" readonly style="width:100%;box-sizing:border-box;height:110px">${esc(mcCode(g))}</textarea><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="b2 g sm" onclick="this.closest('.modal').remove()">Cerrar</button><button class="b2 sm" data-a="mccopy">Copiar</button></div>`)}
+function mcImportModal(){modal(`<h3 style="margin:0 0 8px">Importar código</h3><p class="hint2" style="margin:0 0 12px">Pegá el código que te pasaron. Se instala en una instancia nueva, sin tocar las tuyas.</p><textarea class="txt" id="mc-ic" placeholder="WTMC1:…" style="width:100%;box-sizing:border-box;height:110px"></textarea><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="b2 g sm" onclick="this.closest('.modal').remove()">Cancelar</button><button class="b2 sm" data-a="mcimport2">Instalar</button></div>`)}
+async function mcImport(g,code){
+  let d;try{if(!/^WTMC1:/.test(code))throw 0;d=JSON.parse(decodeURIComponent(escape(atob(code.slice(6)))));if(!d||!Array.isArray(d.m))throw 0}catch(e){toast('Ese código no es válido');return}
+  const m=d.m.slice(0,80).filter(x=>Array.isArray(x)&&/^(mr|cf)$/.test(x[0])&&/^[A-Za-z0-9]{1,20}$/.test(String(x[1]))&&/^(mod|shader|resourcepack)$/.test(x[2]));
+  if(!m.length){toast('El código no trae mods');return}
+  if(m.some(x=>x[0]==='cf')&&!MC.cf){toast('Este código usa CurseForge: primero pegá tu clave de CurseForge')}
+  MC.packing=1;MC.prog='Creando la instancia…';MC.tab='browse';await mcMake(g,'Importada: '+String(d.n||'lista').slice(0,40),String(d.v||'').slice(0,20),/^(fabric|forge|neoforge|quilt)$/.test(d.l)?d.l:'fabric');renderTab();
+  const bad=[];let ok=0;
+  for(const x of m){MC.prog='Instalando… '+(ok+bad.length+1)+'/'+m.length+' · '+x[3];const e=$('#mc-prog');if(e)e.textContent=MC.prog;
+    const r=await mcInstall(g,{k:x[0]+':'+x[1],src:x[0],kind:x[2],id:x[0]==='cf'?+x[1]:x[1],t:String(x[3]||''),i:''}).catch(()=>({ok:false}));if(r.ok)ok++;else bad.push(x[3])}
+  MC.packing=0;MC.msg=ok+' de '+m.length+' instalados'+(bad.length?'. No pude: '+bad.slice(0,5).join(', '):'.');MC.st=0;MC.info=null;MC.files=null;MC.res=null;MC.list=null;toast('Lista importada');renderTab();
+}
 function mcHTML(g){
   const s=mcSt(g);
   if(!MC.st||MC.gid!==g.id){if(!MC.ld){MC.ld=1;MC.gid=g.id;mcInit(g).finally(()=>{MC.ld=0;mcRt()})}return `<div class="pz-e">Preparando Minecraft…</div>`}
-  const inst=Object.keys(s.inst).length,nf=MC.files?MC.files.mod.length+MC.files.shader.length+MC.files.resourcepack.length:0;
+  const nu0=Object.keys(MC.upd).length,inst=Object.keys(s.inst).length,nf=MC.files?MC.files.mod.length+MC.files.shader.length+MC.files.resourcepack.length:0;
   if(MC.tab==='browse'&&MC.res===null&&MC.src&&!(MC.src==='cf'&&!MC.cf)&&!MC.rq){MC.rq=1;setTimeout(()=>{MC.rq=0;mcLoad(g)},0)}
+  if(!MC.chkd&&!MC.chk&&inst>0&&Date.now()-(s.chkT||0)>1800000){MC.chk=1;setTimeout(()=>mcCheck(g,1),50)}
   const opt=(arr,cur)=>arr.map(v=>`<option value="${esc(v)}" ${v===cur?'selected':''}>${esc(v)}</option>`).join('');
   const vers=(MC.vers&&MC.vers.length?MC.vers:[s.ver]);if(!vers.includes(s.ver))vers.unshift(s.ver);
+  const ct=mcCt(g);
   const top=`<div class="pz-h"><div class="pz-pr"><button class="cp ${MC.tab==='browse'?'on':''}" data-a="mctab" data-id="browse">Explorar</button><button class="cp ${MC.tab==='inst'?'on':''}" data-a="mctab" data-id="inst">Instalados<em>${nf}</em></button></div><div class="pz-ac"><button class="b2 g sm" data-a="mcopen">Abrir carpeta</button></div></div>
-   <div class="mc-bar"><label>Minecraft<select class="txt" data-s="mcver">${opt(vers,s.ver)}</select></label><label>Cargador<select class="txt" data-s="mcld">${MCLD.map(([k,l])=>`<option value="${k}" ${s.ld===k?'selected':''}>${l}</option>`).join('')}</select></label>
+   <div class="mc-bar"><label>Instancia<select class="txt" data-s="mcinst">${ct.list.map(x=>`<option value="${esc(x.id)}" ${x.id===ct.act?'selected':''}>${esc(x.n)}</option>`).join('')}</select></label><button class="b2 g sm" data-a="mcnew">+ Nueva</button><label>Minecraft<select class="txt" data-s="mcver">${opt(vers,s.ver)}</select></label><label>Cargador<select class="txt" data-s="mcld">${MCLD.map(([k,l])=>`<option value="${k}" ${s.ld===k?'selected':''}>${l}</option>`).join('')}</select></label>
     <span class="mc-dir" title="${esc(MC.info&&MC.info.root)}">${MC.info&&MC.info.exists?'':'⚠ '}${esc(((MC.info&&MC.info.root)||'').replace(/^.*[\\/](?=[^\\/]+[\\/][^\\/]+$)/,'…/'))}</span><button class="b2 g sm" data-a="mcdir">Cambiar carpeta</button></div>
    ${MC.info&&!MC.info.exists?`<div class="pz-ms"><b>No encontré tu carpeta de Minecraft</b><small>Elegí la carpeta que contiene «mods» (la de tu launcher o instancia). Si todavía no abriste Minecraft nunca, se crea sola al instalar.</small></div>`:''}`;
   if(MC.tab==='inst')return `<div class="pz">${top}${mcInstHTML(g,s)}</div>`;
@@ -5506,26 +5570,27 @@ function mcHTML(g){
   const so=[['rel','Destacados'],['pop','Más descargados'],['upd','Actualizados'],['new','Nuevos']].map(([k,l])=>`<button class="cp ${MC.so===k&&!MC.q?'on':''}" data-a="mcsort" data-id="${k}" ${MC.q?'disabled':''}>${l}</button>`).join('');
   const srcb=`<div class="mc-src"><button class="${MC.src==='mr'?'on':''}" data-a="mcsrc" data-id="mr">Modrinth</button><button class="${MC.src==='cf'?'on':''}" data-a="mcsrc" data-id="cf">CurseForge</button></div>`;
   const cats=MC.src==='mr'&&MC.kind==='mod'?`<div class="pz-pr mc-cats">${MCCAT.map(([k,l])=>`<button class="cp ${MC.cat===k?'on':''}" data-a="mccat" data-id="${k}">${l}</button>`).join('')}</div>`:'';
-  const card=x=>{const ins=s.inst[x.k],bz=MC.busy[x.k];return `<div class="mc-c"><div class="mc-ic">${x.i?`<img loading="lazy" decoding="async" src="${esc(x.i)}" alt="">`:`<b>${esc((x.t||'?')[0])}</b>`}</div><div class="mc-b"><b>${esc(x.t)}</b><small>${esc(x.a)}${x.a?' · ':''}${mcN(x.n)} descargas</small><p>${esc(x.d)}</p></div><div class="mc-x">${bz?`<button class="b2 sm" disabled>Instalando…</button>`:ins?`<button class="b2 g sm" disabled>✓ Instalado</button>`:`<button class="b2 sm" data-a="mcget" data-id="${esc(x.k)}">Instalar</button>`}</div></div>`};
+  const card=x=>{const ins=s.inst[x.k],bz=MC.busy[x.k];return `<div class="mc-c"><div class="mc-ic">${x.i?`<img loading="lazy" decoding="async" src="${esc(x.i)}" alt="">`:`<b>${esc((x.t||'?')[0])}</b>`}</div><div class="mc-b"><b>${esc(x.t)}</b><small>${esc(x.a)}${x.a?' · ':''}${mcN(x.n)} descargas</small><p>${esc(x.d)}</p></div><div class="mc-x">${bz?`<button class="b2 sm" disabled>Instalando…</button>`:ins?`<button class="b2 g sm" disabled>✓ Instalado</button>`:`<button class="b2 sm" data-a="${x.kind==='modpack'?'mcpack':'mcget'}" data-id="${esc(x.k)}">${x.kind==='modpack'?'Instalar pack':'Instalar'}</button>`}</div></div>`};
   let body;
   if(MC.res==='key')body=`<div class="pz-e"><b>Conectá CurseForge</b><span>CurseForge pide una clave gratuita para que apps como WINTEER puedan buscar. La creás una sola vez: entrá a console.curseforge.com, creá la clave («API Keys») y pegala acá. Queda guardada solo en tu PC. Si no querés, Modrinth tiene casi todo lo mismo sin clave.</span><div style="display:flex;gap:8px;width:100%;max-width:520px;margin-top:6px"><input class="txt" id="mc-key" placeholder="Clave de CurseForge" style="flex:1"><button class="b2 sm" data-a="mckey">Guardar</button></div><div style="display:flex;gap:8px"><button class="b2 g sm" data-a="mcweb">Abrir console.curseforge.com</button><button class="b2 g sm" data-a="mcsrc" data-id="mr">Usar Modrinth</button></div></div>`;
   else if(MC.res==='err')body=`<div class="pz-e"><b>No pude leer ${MC.src==='mr'?'Modrinth':'CurseForge'}</b><span>Revisá tu conexión.</span><button class="b2 sm" data-a="mcgo">Reintentar</button></div>`;
   else if(MC.list===null)body=`<div class="pz-e">Buscando…</div>`;
+  else if(!MC.list.length&&MC.src==='cf'&&MC.kind==='modpack')body=`<div class="pz-e"><b>Los modpacks se instalan desde Modrinth</b><span>Cambiá la fuente a Modrinth para verlos.</span><button class="b2 sm" data-a="mcsrc" data-id="mr">Usar Modrinth</button></div>`;
   else if(!MC.list.length)body=`<div class="pz-e"><b>No hay resultados</b><span>Para Minecraft ${esc(s.ver)}${MC.kind==='mod'?' con '+esc(s.ld):''}. Probá otra versión, otro cargador o la otra fuente.</span></div>`;
   else body=`<div class="mc-g">${MC.list.map(card).join('')}</div>${MC.more?`<div style="text-align:center;margin-top:8px"><button class="b2 sm" data-a="mcmore">Ver más</button></div>`:''}`;
-  return `<div class="pz">${top}<div class="pz-q"><input class="txt" id="mc-q" placeholder="Buscar ${MC.kind==='mod'?'mods':MC.kind==='shader'?'shaders':'paquetes de texturas'}…" value="${esc(MC.q)}"><button class="b2 sm" data-a="mcgo">Buscar</button>${srcb}</div>
-   <div class="pz-pr">${kinds}</div><div class="pz-pr">${so}</div>${cats}${MC.msg?`<div class="mc-msg">${esc(MC.msg)}</div>`:''}${body}
+  return `<div class="pz">${top}<div class="pz-q"><input class="txt" id="mc-q" placeholder="Buscar ${MC.kind==='mod'?'mods':MC.kind==='modpack'?'modpacks':MC.kind==='shader'?'shaders':'paquetes de texturas'}…" value="${esc(MC.q)}"><button class="b2 sm" data-a="mcgo">Buscar</button>${srcb}</div>
+   <div class="pz-pr">${kinds}</div><div class="pz-pr">${so}</div>${cats}${MC.packing?`<div class="mc-msg" id="mc-prog">${esc(MC.prog||'Preparando…')}</div>`:''}${nu0?`<div class="mc-msg">${nu0} mod${nu0>1?'s tienen':' tiene'} novedades. <a href="#" data-a="mctab" data-id="inst" style="color:inherit;text-decoration:underline">Ver y actualizar</a></div>`:''}${MC.msg?`<div class="mc-msg">${esc(MC.msg)}</div>`:''}${body}
    <div class="hint2">Instalar baja el archivo a tu carpeta de Minecraft junto con lo que necesita para funcionar. Para que un mod ande, abrí Minecraft con ${esc(MCLD.find(x=>x[0]===s.ld)[1])} ${esc(s.ver)}.</div></div>`;
 }
 function mcInstHTML(g,s){
-  const F=MC.files||{mod:[],shader:[],resourcepack:[]},by={};
+  const F=MC.files||{mod:[],shader:[],resourcepack:[]},by={},W=mcWarns(s),wm={};W.forEach(w=>{(wm[w.f]=wm[w.f]||[]).push(w.m)});
   Object.entries(s.inst).forEach(([k,e])=>{by[e.kind+'|'+e.f]=[k,e]});
   const nu=Object.keys(MC.upd).length;
   const sec=([kind,lab])=>{const L=F[kind]||[];if(!L.length)return '';return `<div class="mc-sec">${lab}<em>${L.length}</em></div><div class="pz-l">${L.map(f=>{const nm=f.f.replace(/\.disabled$/i,''),h=by[kind+'|'+nm],k=h&&h[0],e=h&&h[1];
-    return `<div class="pz-r ${f.off?'':'on'}"><div class="pz-p">${e&&e.i?`<img src="${esc(e.i)}" alt="">`:esc((nm[0]||'?').toUpperCase())}</div><div class="pz-b"><b>${esc(e?e.t:nm)}</b><small>${esc(nm)} · ${(f.size/1048576).toFixed(1)} MB${e?(e.dep?' · dependencia':' · instalado con WINTEER'):' · manual'}${f.off?' · desactivado':''}</small></div>
+    return `<div class="pz-r ${f.off?'':'on'}"><div class="pz-p">${e&&e.i?`<img src="${esc(e.i)}" alt="">`:esc((nm[0]||'?').toUpperCase())}</div><div class="pz-b"><b>${esc(e?e.t:nm)}</b><small>${esc(nm)} · ${(f.size/1048576).toFixed(1)} MB${e?(e.dep?' · dependencia':' · instalado con WINTEER'):' · manual'}${f.off?' · desactivado':''}</small>${wm[f.f]&&!f.off?`<small class="mc-wr">⚠ ${esc(wm[f.f].join(' '))}</small>`:''}</div>
      ${k&&MC.upd[k]?`<button class="b2 sm" data-a="mcupd" data-id="${esc(k)}">${MC.busy[k]?'…':'Actualizar'}</button>`:''}<button class="b2 g sm" data-a="mctog" data-id="${esc(kind)}" data-f="${esc(f.f)}">${f.off?'Activar':'Desactivar'}</button><button class="b2 g sm" data-a="mcdel" data-id="${esc(kind)}" data-f="${esc(f.f)}">Quitar</button></div>`}).join('')}</div>`};
-  const all=MCK.map(([k,l])=>sec([k,l])).join('');
-  return `<div class="pz-q" style="justify-content:flex-end;gap:8px">${Object.keys(s.inst).length?`<button class="b2 g sm" data-a="mccheck">${MC.chk?'Buscando…':'Buscar actualizaciones'}</button>`:''}${nu?`<button class="b2 sm" data-a="mcupall">Actualizar todo (${nu})</button>`:''}</div>${MC.chkd&&!nu&&!MC.chk?`<div class="mc-msg">Todo está al día.</div>`:''}${all||`<div class="pz-e"><b>Todavía no instalaste nada</b><span>Andá a «Explorar» y tocá «Instalar» en lo que te guste.</span></div>`}`;
+  const all=MCF.map(([k,l])=>sec([k,l])).join('');
+  return `${W.length?`<div class="mc-warn"><b>${W.length===1?'Un aviso':W.length+' avisos'} antes de jugar</b><small>Puede que el juego no abra o falle. Revisá lo marcado con ⚠ abajo.</small></div>`:(MC.files&&MC.files.mod.length?`<div class="mc-msg" style="background:rgba(124,240,168,.07);box-shadow:inset 0 0 0 1px rgba(124,240,168,.28)">Sin conflictos a la vista en tus mods.</div>`:'')}<div class="pz-q" style="justify-content:flex-end;gap:8px"><button class="b2 g sm" data-a="mcshare">Compartir lista</button><button class="b2 g sm" data-a="mcimport">Importar código</button>${Object.keys(s.inst).length?`<button class="b2 g sm" data-a="mccheck">${MC.chk?'Buscando…':'Buscar actualizaciones'}</button>`:''}${nu?`<button class="b2 sm" data-a="mcupall">Actualizar todo (${nu})</button>`:''}</div>${MC.chkd&&!nu&&!MC.chk?`<div class="mc-msg">Todo está al día.</div>`:''}${all||`<div class="pz-e"><b>Todavía no instalaste nada</b><span>Andá a «Explorar» y tocá «Instalar» en lo que te guste.</span></div>`}`;
 }
 Object.assign(A,{
  mctab:a=>{MC.tab=a.dataset.id;if(MC.tab==='inst'){const g=gm(S.sel);if(g)mcFiles(g);else renderTab()}else renderTab()},
@@ -5537,6 +5602,14 @@ Object.assign(A,{
  mcmore:()=>{const g=gm(S.sel);if(g)mcLoad(g,true)},
  mcver:a=>{const g=gm(S.sel);if(!g)return;mcSt(g).ver=a.value;save();MC.res=null;MC.list=null;MC.upd={};MC.chkd=0;renderTab()},
  mcld:a=>{const g=gm(S.sel);if(!g)return;mcSt(g).ld=a.value;save();MC.res=null;MC.list=null;MC.upd={};MC.chkd=0;renderTab()},
+ mcinst:a=>{const g=gm(S.sel);if(!g)return;mcSwitch(g,a.value)},
+ mcnew:()=>mcNewModal(),
+ mcnew2:async()=>{const g=gm(S.sel);if(!g)return;const n=(($('#mc-nn')||{}).value||'').trim();if(!n){toast('Ponele un nombre');return}const m=$('#mc-nn').closest('.modal');if(m)m.remove();await mcMake(g,n,mcSt(g).ver,mcSt(g).ld);renderTab()},
+ mcshare:()=>mcShare(),
+ mcimport:()=>mcImportModal(),
+ mcimport2:async()=>{const g=gm(S.sel);if(!g)return;const c=(($('#mc-ic')||{}).value||'').trim();const m=$('#mc-ic').closest('.modal');if(m)m.remove();await mcImport(g,c)},
+ mccopy:()=>{const el=$('#mc-sc');if(!el)return;el.select();try{document.execCommand('copy');toast('Código copiado')}catch(e){}},
+ mcpack:async a=>{const g=gm(S.sel);const it=(MC.list||[]).find(x=>x.k===a.dataset.id);if(g&&it)mcPackGo(g,it)},
  mcdir:async()=>{const g=gm(S.sel);if(!g)return;const p=await winteerNative.mcPick();if(!p)return;mcSt(g).root=p;save();MC.st=0;MC.info=null;MC.res=null;MC.list=null;renderTab()},
  mcopen:()=>{const g=gm(S.sel);if(g)winteerNative.mcOpen(mcSt(g).root||'',MC.tab==='inst'?'mod':MC.kind)},
  mckey:async()=>{const k=(($('#mc-key')||{}).value||'').trim();const r=await winteerNative.mcKeySet(k);if(r&&r.ok&&r.key){MC.cf=1;MC.res=null;toast('Clave guardada');renderTab()}else toast('Esa clave no parece válida')},
@@ -5553,7 +5626,94 @@ Object.assign(A,{
  mcupall:async()=>{const g=gm(S.sel);if(!g)return;const s=mcSt(g);let n=0;for(const k of Object.keys(MC.upd)){const e=s.inst[k];if(!e)continue;MC.busy[k]=1;renderTab();const r=await mcInstall(g,{k,src:e.src,kind:e.kind,id:e.id,t:e.t,i:e.i},1).catch(()=>({ok:false}));delete MC.busy[k];if(r.ok){delete MC.upd[k];n++}}toast(n+' mods actualizados');await mcFiles(g)}
 });
 document.addEventListener('keydown',e=>{if(e.target.id==='mc-q'&&e.key==='Enter'){e.preventDefault();A.mcgo()}if(e.target.id==='mc-key'&&e.key==='Enter'){e.preventDefault();A.mckey()}});
-document.addEventListener('change',e=>{const t=e.target;if(t&&t.tagName==='SELECT'&&t.dataset&&/^mc(ver|ld)$/.test(t.dataset.s||''))A[t.dataset.s](t)});
+/* ===== Nexus Mods (y selector de fuente para juegos genéricos) ===== */
+const NX={nxm:0,st:0,key:0,prem:0,user:'',games:null,gl:0,gid:null,so:'trending',q:'',list:null,res:null,busy:{},msg:'',src:'nx',ld:0};
+const nxNorm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const nxSt=g=>{const z=(ST.nx=ST.nx||{});return z[g.id]=z[g.id]||{}};
+const nxR=(p)=>winteerNative.nxReq({p});
+async function nxInit(){try{const r=await winteerNative.nxState();NX.key=!!r.key;NX.prem=!!r.prem;NX.user=r.user||''}catch(e){}try{NX.nxm=!!(await winteerNative.nxmState())}catch(e){}NX.st=1}
+async function nxmGo(r){toast('Bajando de Nexus…');try{const f=await nxR(`/games/${r.domain}/mods/${r.mod}/files/${r.file}.json`);if(!f.ok)throw new Error(f.err==='key'?'key':'x');const o=await winteerNative.nxGet({domain:r.domain,mod:r.mod,file:r.file,name:f.d&&f.d.file_name,key:r.key,expires:r.expires,extract:true});if(o&&o.ok){toast('Bajado: '+(f.d&&f.d.name||o.file)+' → Descargas / WINTEER Mods');}else toast('No pude bajar ese archivo de Nexus')}catch(e){toast(e&&e.message==='key'?'Conectá tu clave de Nexus en la pestaña Mods':'No pude bajar ese archivo de Nexus')}}
+if(window.winteerNative&&winteerNative.onNxm){winteerNative.onNxm(nxmGo);setTimeout(()=>{try{winteerNative.nxmReady()}catch(e){}},1500)}
+if(window.winteerNative&&winteerNative.nxState)nxInit();
+async function nxResolve(g,name){
+  NX.ld=1;const n=nxNorm(name||g.name);
+  try{if(!NX.games){const r=await nxR('/games.json');if(!r.ok||!Array.isArray(r.d)){if(r.err==='key'){NX.key=0}throw 0}NX.games=r.d}
+   const L=NX.games,best=L.find(x=>nxNorm(x.name)===n)||L.find(x=>{const y=nxNorm(x.name);return y&&n&&(y.startsWith(n)||n.startsWith(y))})||L.find(x=>{const y=nxNorm(x.name);return y&&n.length>3&&(y.includes(n)||n.includes(y))});
+   nxSt(g).d=best?best.domain_name:'';nxSt(g).n=best?best.name:(name||g.name);save();
+  }catch(e){NX.err=1}
+  NX.ld=0;NX.list=null;NX.res=null;mcRt();
+}
+async function nxLoad(g){
+  const s=nxSt(g);if(!s.d)return;NX.res='load';mcRt();
+  try{let items=[];
+   if(NX.q){
+    const r=await winteerNative.nxReq({gql:'query($f:ModsFilter,$c:Int){mods(filter:$f,count:$c){nodes{modId name summary pictureUrl downloads endorsements creator{name}}}}',vars:{f:{gameDomainName:[{value:s.d}],name:[{value:NX.q,op:'WILDCARD'}]},c:24}});
+    const nodes=r.ok&&r.d&&r.d.data&&r.d.data.mods&&r.d.data.mods.nodes;
+    if(Array.isArray(nodes))items=nodes.map(m=>({id:m.modId,t:m.name,d:m.summary,i:m.pictureUrl,a:m.creator&&m.creator.name||'',n:m.downloads}));
+    else{const all=[];for(const k of ['trending','latest_added','latest_updated']){const x=await nxR('/games/'+s.d+'/mods/'+k+'.json');if(x.ok&&Array.isArray(x.d))all.push(...x.d)}const q=nxNorm(NX.q),seen=new Set();items=all.filter(m=>{if(seen.has(m.mod_id))return false;seen.add(m.mod_id);return nxNorm(m.name).includes(q)}).map(nxMap);NX.msg='La búsqueda por texto de Nexus no respondió; te muestro coincidencias entre los mods más movidos.'}
+   }else{
+    const r=await nxR('/games/'+s.d+'/mods/'+NX.so+'.json');if(!r.ok||!Array.isArray(r.d)){NX.res=r.err==='key'?'key':'err';if(r.err==='key')NX.key=0;mcRt();return}
+    items=r.d.map(nxMap);
+   }
+   NX.list=items;NX.res='ok';
+  }catch(e){NX.res='err'}
+  mcRt();
+}
+const nxMap=m=>({id:m.mod_id,t:m.name,d:m.summary,i:m.picture_url,a:m.author||'',n:m.mod_downloads||0});
+function nxHTML(g){
+  if(!NX.st)return `<div class="pz-e">Cargando…</div>`;
+  if(NX.gid!==g.id){NX.gid=g.id;NX.list=null;NX.res=null;NX.q='';NX.msg=''}
+  if(!NX.key)return `<div class="pz-e"><b>Mods con Nexus Mods</b><span>Nexus tiene mods de miles de juegos. Para buscarlos desde WINTEER necesito tu clave personal (gratis): entrá a nexusmods.com, en tu cuenta andá a «Ajustes → API» y pedí la «Personal API Key». Pegala acá, queda guardada solo en tu PC.</span><div style="display:flex;gap:8px;width:100%;max-width:520px;margin-top:6px"><input class="txt" id="nx-key" placeholder="Personal API Key de Nexus" style="flex:1"><button class="b2 sm" data-a="nxkey">Guardar</button></div><button class="b2 g sm" data-a="nxweb">Abrir la página de la clave</button></div>`;
+  const s=nxSt(g);
+  if(s.d===undefined){if(!NX.ld)nxResolve(g);return `<div class="pz-e">Buscando «${esc(g.name)}» en Nexus…</div>`}
+  if(!s.d)return `<div class="pz-e"><b>No encontré «${esc(s.n||g.name)}» en Nexus</b><span>Puede que tenga otro nombre allá. Probá escribirlo como figura en Nexus.</span><div style="display:flex;gap:8px;width:100%;max-width:460px;margin-top:6px"><input class="txt" id="nx-name" placeholder="Nombre del juego en Nexus" value="${esc(s.n||'')}" style="flex:1"><button class="b2 sm" data-a="nxname">Buscar</button></div></div>`;
+  if(NX.res===null&&!NX.ld2){NX.ld2=1;setTimeout(()=>{NX.ld2=0;nxLoad(g)},0)}
+  const so=[['trending','En tendencia'],['latest_added','Nuevos'],['latest_updated','Actualizados']].map(([k,l])=>`<button class="cp ${NX.so===k&&!NX.q?'on':''}" data-a="nxsort" data-id="${k}" ${NX.q?'disabled':''}>${l}</button>`).join('');
+  const card=x=>{const bz=NX.busy[x.id],dn=s.done&&s.done[x.id];return `<div class="mc-c"><div class="mc-ic">${x.i?`<img loading="lazy" decoding="async" src="${esc(x.i)}" alt="">`:`<b>${esc((x.t||'?')[0])}</b>`}</div><div class="mc-b"><b>${esc(x.t)}</b><small>${esc(x.a)}${x.a?' · ':''}${mcN(x.n)} descargas</small><p>${esc(x.d)}</p></div><div class="mc-x">${bz?`<button class="b2 sm" disabled>Bajando…</button>`:dn?`<button class="b2 g sm" data-a="nxdir">✓ Bajado</button>`:`<button class="b2 sm" data-a="nxget" data-id="${x.id}">${NX.prem?'Descargar':'Ver en Nexus'}</button>`}</div></div>`};
+  const body=NX.res==='key'?`<div class="pz-e"><b>Nexus rechazó tu clave</b><span>Puede estar mal copiada o vencida.</span><button class="b2 sm" data-a="nxkeyreset">Cambiar la clave</button></div>`:NX.res==='err'?`<div class="pz-e"><b>No pude leer Nexus</b><button class="b2 sm" data-a="nxgo">Reintentar</button></div>`:NX.list===null?`<div class="pz-e">Buscando…</div>`:!NX.list.length?`<div class="pz-e"><b>No hay resultados</b></div>`:`<div class="mc-g">${NX.list.map(card).join('')}</div>`;
+  return `<div class="pz"><div class="pz-h"><div class="pz-pr"><b style="font-size:15px;align-self:center">Mods de ${esc(s.n||g.name)}</b><span class="hint2" style="align-self:center">Nexus Mods · ${esc(NX.user)}${NX.prem?' · Premium':''}</span></div><div class="pz-ac">${s.dir?'<button class="b2 g sm" data-a="nxdir">Abrir carpeta</button>':''}<button class="b2 g sm" data-a="nxbye">Salir</button></div></div>
+   <div class="pz-q"><input class="txt" id="nx-q" placeholder="Buscar mods de ${esc(s.n||g.name)}…" value="${esc(NX.q)}"><button class="b2 sm" data-a="nxgo">Buscar</button></div><div class="pz-pr">${so}</div>${NX.msg?`<div class="mc-msg">${esc(NX.msg)}</div>`:''}${body}
+   <label class="pz-au" style="margin-top:4px"><input type="checkbox" data-a="nxmtog" ${NX.nxm?'checked':''}> Usar WINTEER para el botón «Descarga con gestor» de Nexus (sin Premium)</label><div class="hint2">${NX.prem?'Con tu cuenta Premium WINTEER baja el archivo y lo descomprime en «Descargas → WINTEER Mods». Cómo se instala depende de cada juego.':'Sin Premium, Nexus exige confirmar cada descarga en su página: el botón te abre el mod ahí. Con Premium se baja directo desde WINTEER.'}</div></div>`;
+}
+function srcHTML(g){
+  const hasMio=!!(window.winteerNative&&winteerNative.mioReq);
+  const pills=`<div class="mc-src" style="display:inline-flex;margin-bottom:12px"><button class="${NX.src==='nx'?'on':''}" data-a="xsrc" data-id="nx">Nexus Mods</button>${hasMio?`<button class="${NX.src==='mio'?'on':''}" data-a="xsrc" data-id="mio">mod.io</button>`:''}</div>`;
+  return `<div>${pills}${NX.src==='mio'&&hasMio?miHTML(g):nxHTML(g)}</div>`;
+}
+Object.assign(A,{
+ xsrc:a=>{NX.src=a.dataset.id;renderTab()},
+ nxkey:async()=>{const k=(($('#nx-key')||{}).value||'').trim();const r=await winteerNative.nxKeySet(k);if(r&&r.ok&&r.key){NX.key=1;NX.prem=!!r.prem;NX.user=r.user||'';NX.res=null;NX.list=null;toast('Conectado a Nexus'+(r.prem?' (Premium)':''));renderTab()}else toast(r&&r.err==='net'?'No pude conectarme':'Esa clave no la aceptó Nexus')},
+ nxmtog:async a=>{const on=!!a.checked;try{await winteerNative.nxmSet(on)}catch(e){}NX.nxm=on;toast(on?'Listo: el botón «Descarga con gestor» abre WINTEER':'WINTEER ya no recibe esos botones')},
+ nxkeyreset:async()=>{await winteerNative.nxKeySet('');NX.key=0;NX.res=null;NX.list=null;renderTab()},
+ nxbye:async()=>{await winteerNative.nxKeySet('');NX.key=0;NX.prem=0;NX.res=null;NX.list=null;renderTab()},
+ nxweb:()=>window.open('https://www.nexusmods.com/settings/api-keys','_blank'),
+ nxname:()=>{const n=(($('#nx-name')||{}).value||'').trim();const g=gm(S.sel);if(n&&g)nxResolve(g,n)},
+ nxgo:()=>{const el=$('#nx-q');NX.q=el?el.value.trim():NX.q;NX.res=null;NX.list=null;NX.msg='';renderTab()},
+ nxsort:a=>{NX.so=a.dataset.id;NX.res=null;NX.list=null;NX.msg='';renderTab()},
+ nxdir:()=>{const g=gm(S.sel);const s=g&&nxSt(g);if(s&&s.dir)winteerNative.nxOpenDir(s.dir)},
+ nxget:async a=>{const g=gm(S.sel);if(!g)return;const s=nxSt(g),id=+a.dataset.id;
+   if(!NX.prem){window.open(`https://www.nexusmods.com/${s.d}/mods/${id}?tab=files`,'_blank');return}
+   NX.busy[id]=1;NX.msg='';renderTab();
+   try{const f=await nxR(`/games/${s.d}/mods/${id}/files.json`);const L=f.ok&&f.d&&f.d.files||[];
+    const main=L.filter(x=>x.category_name==='MAIN').sort((x,y)=>(y.uploaded_timestamp||0)-(x.uploaded_timestamp||0))[0]||L.filter(x=>x.is_primary)[0]||L.sort((x,y)=>(y.uploaded_timestamp||0)-(x.uploaded_timestamp||0))[0];
+    if(!main)throw 0;
+    const r=await winteerNative.nxGet({domain:s.d,mod:id,file:main.file_id,name:main.file_name,extract:true});
+    if(r&&r.ok){s.dir=r.dir;s.done=s.done||{};s.done[id]=1;save();toast('Bajado: '+(main.name||r.file))}else NX.msg=r&&r.err==='prem'?'Esto requiere Premium.':'No pude bajar ese archivo. Probá desde su página.';
+   }catch(e){NX.msg='No pude bajar ese archivo. Probá desde su página.'}
+   delete NX.busy[id];renderTab()}
+});
+document.addEventListener('keydown',e=>{if(e.target.id==='nx-q'&&e.key==='Enter'){e.preventDefault();A.nxgo()}if(e.target.id==='nx-key'&&e.key==='Enter'){e.preventDefault();A.nxkey()}});
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.tagName==='SELECT'&&t.dataset&&/^mc(ver|ld|inst)$/.test(t.dataset.s||''))A[t.dataset.s](t)});
+/* aviso de novedades de Minecraft al abrir WINTEER */
+async function mcAutoStart(){
+  try{if(!window.winteerNative||!winteerNative.mcReq||!ST.mc)return;let tot=0,name='';
+   for(const gid of Object.keys(ST.mc)){const g=G.find(x=>x.id===gid);if(!g)continue;const c=mcCt(g);
+    for(const s of c.list){const es=Object.values(s.inst||{});if(!es.length)continue;let n=0;
+     await Promise.all(es.map(async e=>{try{const rv=await mcPick({src:e.src,kind:e.kind,id:e.id},s);if(rv.ok&&String(rv.vid)!==String(e.v))n++}catch(x){}}));
+     if(n){tot+=n;name=name||s.n}}}
+   if(tot)toast(tot+' mod'+(tot>1?'s':'')+' de Minecraft tienen novedades. Abrí Mods → Instalados para actualizar.')
+  }catch(e){}}
+setTimeout(mcAutoStart,35000);
 /* ===== logros propios (juegos fuera de tiendas) ===== */
 const ggOwn=g=>!!g&&!isSteamG(g)&&!isEpicG(g)&&!isXbG(g);
 const GGX={c:3,r:8,e:18};
