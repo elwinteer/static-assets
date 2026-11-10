@@ -1,5 +1,5 @@
 const os = require('os');
-const { app, BrowserWindow, ipcMain, shell, protocol, net, dialog, Menu, nativeImage, Tray, globalShortcut, desktopCapturer, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, protocol, net, dialog, Menu, nativeImage, Tray, globalShortcut, desktopCapturer, screen, session } = require('electron');
 const path = require('path'), fs = require('fs'), crypto = require('crypto');
 app.commandLine.appendSwitch('autoplay-policy','no-user-gesture-required');
 app.commandLine.appendSwitch('disable-features','CalculateNativeWinOcclusion');
@@ -503,6 +503,118 @@ function listShots(id) {
 }
 
 const track = new Map();
+
+/* ---------- gestor de mods: Project Zomboid ---------- */
+const PZ_HOME = () => path.join(app.getPath('home'), 'Zomboid');
+function pzInfo(txt) { const o = {}; for (const l of String(txt).split(/\r?\n/)) { const x = /^\s*([A-Za-z0-9_]+)\s*=\s*(.*)$/.exec(l); if (x) { const k = x[1].toLowerCase(); if (!(k in o)) o[k] = x[2].trim(); } } return o; }
+function pzModAt(dir, wid, local) {
+  const cands = [path.join(dir, 'common')];
+  try { for (const e of fs.readdirSync(dir, { withFileTypes: true })) if (e.isDirectory() && /^\d/.test(e.name)) cands.push(path.join(dir, e.name)); } catch (e) {}
+  cands.sort((a, b) => (b.endsWith('common') ? 1 : 0) - (a.endsWith('common') ? 1 : 0)); cands.push(dir);
+  for (const d of cands) {
+    const f = path.join(d, 'mod.info'); if (!fs.existsSync(f)) continue;
+    try {
+      const o = pzInfo(fs.readFileSync(f, 'utf8')); if (!o.id) continue;
+      let poster = ''; const pn = o.poster || 'poster.png';
+      for (const b of [d, dir]) { const pp = path.join(b, pn); if (fs.existsSync(pp)) { poster = pathToFileURL(pp).href; break; } }
+      return { id: o.id, name: o.name || o.id, author: o.author || '', ver: o.modversion || '', wid: wid || '', local: !!local, poster, desc: String(o.description || '').slice(0, 240), req: String(o.require || '').split(',').map((s) => s.trim().replace(/^\\/, '')).filter(Boolean) };
+    } catch (e) {}
+  }
+  return null;
+}
+function pzActive() {
+  try {
+    const t = fs.readFileSync(path.join(PZ_HOME(), 'mods', 'default.txt'), 'utf8');
+    const b = /mods\s*\{([\s\S]*?)\}/.exec(t); if (!b) return [];
+    return [...b[1].matchAll(/^\s*mod\s*=\s*([^,\r\n]+?)\s*,?\s*$/gm)].map((x) => x[1].trim());
+  } catch (e) { return null; }
+}
+function pzScan(steamDir) {
+  const mods = [], seen = new Set();
+  const push = (x) => { if (x && !seen.has(x.id)) { seen.add(x.id); mods.push(x); } };
+  for (const lib of steamLibs(steamDir)) {
+    const base = path.join(lib, 'steamapps', 'workshop', 'content', '108600');
+    let ws = []; try { ws = fs.readdirSync(base); } catch (e) { continue; }
+    for (const w of ws) { const md = path.join(base, w, 'mods'); let ns = []; try { ns = fs.readdirSync(md); } catch (e) { continue; } for (const n of ns) push(pzModAt(path.join(md, n), w, false)); }
+  }
+  const lm = path.join(PZ_HOME(), 'mods'); let ln = []; try { ln = fs.readdirSync(lm); } catch (e) {}
+  for (const n of ln) { if (n.toLowerCase() === 'examplemod') continue; try { if (fs.statSync(path.join(lm, n)).isDirectory()) push(pzModAt(path.join(lm, n), '', true)); } catch (e) {} }
+  mods.sort((a, b) => a.name.localeCompare(b.name));
+  return { ok: true, mods, active: pzActive(), home: fs.existsSync(PZ_HOME()) };
+}
+async function pzApply(ids, steamDir) {
+  try {
+    const procs = await listProcs(); if (procs.some((p) => /projectzomboid/.test(p))) return { ok: false, err: 'run' };
+    ids = [...new Set((ids || []).map((s) => String(s).trim()).filter((s) => /^[\w.\-]+$/.test(s)))];
+    const f = path.join(PZ_HOME(), 'mods', 'default.txt'); fs.mkdirSync(path.dirname(f), { recursive: true });
+    let old = ''; try { old = fs.readFileSync(f, 'utf8'); } catch (e) {}
+    const cur = pzActive() || [], idx = new Map(cur.map((x, i) => [x, i]));
+    const info = new Map(pzScan(steamDir).mods.map((x) => [x.id, x]));
+    const sel = new Set(ids);
+    let ord = ids.slice().sort((a, b) => (idx.has(a) ? idx.get(a) : 1e6 + ids.indexOf(a)) - (idx.has(b) ? idx.get(b) : 1e6 + ids.indexOf(b)));
+    const out = [], st = new Set(), visit = (id) => { if (st.has(id)) return; st.add(id); const x = info.get(id); if (x) for (const r of x.req) if (sel.has(r)) visit(r); out.push(id); };
+    ord.forEach(visit);
+    const body = '\r\n' + out.map((i) => '    mod = ' + i + ',').join('\r\n') + '\r\n';
+    let text;
+    if (/mods\s*\{[\s\S]*?\}/.test(old)) text = old.replace(/(mods\s*\{)[\s\S]*?(\})/, (_m, a, b) => a + body + b);
+    else text = 'VERSION = 1,\r\n\r\nmods\r\n{' + body + '}\r\n\r\nmaps\r\n{\r\n}\r\n';
+    if (old) { try { fs.writeFileSync(f + '.bak-' + new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), old); } catch (e) {} }
+    const tmp = f + '.wt-tmp'; fs.writeFileSync(tmp, text); fs.renameSync(tmp, f);
+    return { ok: true, count: out.length, active: out };
+  } catch (e) { return { ok: false, err: String(e && e.message || e) }; }
+}
+function pzSearch(q, page) {
+  return new Promise((res) => {
+    let w = null, done = false;
+    const fin = (r) => { if (done) return; done = true; try { if (w && !w.isDestroyed()) w.destroy(); } catch (e) {} res(r); };
+    try {
+      w = new BrowserWindow({ show: false, width: 1200, height: 900, webPreferences: { partition: 'wt-pzsearch', sandbox: true, backgroundThrottling: false } });
+      const u = 'https://steamcommunity.com/workshop/browse/?appid=108600&searchtext=' + encodeURIComponent(String(q || '').slice(0, 80)) + '&browsesort=' + (q ? 'textsearch' : 'trend') + '&section=readytouseitems&actualsort=' + (q ? 'textsearch' : 'trend') + '&p=' + (Math.max(1, +page || 1)) + '&days=-1';
+      setTimeout(() => fin({ ok: false, err: 'timeout' }), 20000);
+      w.webContents.on('did-fail-load', (_e, c) => { if (c !== -3) fin({ ok: false, err: 'net' }); });
+      w.webContents.on('did-finish-load', async () => {
+        try {
+          await new Promise((r) => setTimeout(r, 900));
+          const items = await w.webContents.executeJavaScript(`(function(){var o=[],seen={};document.querySelectorAll('a[data-publishedfileid]').forEach(function(a){var id=a.getAttribute('data-publishedfileid');if(!id||seen[id])return;var c=a.closest('.workshopItem')||a.parentElement;var t=c&&c.querySelector('.workshopItemTitle');var im=c&&c.querySelector('img');var au=c&&c.querySelector('.workshopItemAuthorName a, .workshopItemAuthorName');var title=t?t.textContent.trim():'';if(!title)return;seen[id]=1;o.push({wid:id,t:title,img:im?(im.getAttribute('src')||''):'',a:au?au.textContent.trim():''})});return o})()`);
+          fin({ ok: true, items: (items || []).slice(0, 40).map((x) => ({ wid: String(x.wid).replace(/\D/g, ''), t: String(x.t).slice(0, 120), img: /^https:\/\//.test(x.img) ? x.img : '', a: String(x.a || '').slice(0, 60) })) });
+        } catch (e) { fin({ ok: false, err: 'parse' }); }
+      });
+      w.loadURL(u);
+    } catch (e) { fin({ ok: false, err: 'err' }); }
+  });
+}
+
+/* ---------- suscribirse a mods del Workshop con la cuenta de Steam ---------- */
+const PZ_PART = 'persist:wt-steamweb';
+async function swCookie(name) { try { const c = await session.fromPartition(PZ_PART).cookies.get({ url: 'https://steamcommunity.com', name }); return c && c.length ? c[0] : null; } catch (e) { return null; } }
+function swLogin() {
+  return new Promise((res) => {
+    let done = false, t = null, w = null;
+    const fin = (ok) => { if (done) return; done = true; clearInterval(t); try { if (w && !w.isDestroyed()) w.destroy(); } catch (e) {} res(ok); };
+    try {
+      w = new BrowserWindow({ width: 520, height: 780, autoHideMenuBar: true, title: 'Iniciar sesión en Steam', backgroundColor: '#111111', webPreferences: { partition: PZ_PART, contextIsolation: true, nodeIntegration: false, sandbox: true } });
+      t = setInterval(async () => { if (await swCookie('steamLoginSecure')) fin(true); }, 1200);
+      w.on('closed', () => fin(false));
+      w.loadURL('https://steamcommunity.com/login/home/?goto=' + encodeURIComponent('https://steamcommunity.com/app/108600/workshop/'));
+      setTimeout(() => fin(false), 5 * 60 * 1000);
+    } catch (e) { fin(false); }
+  });
+}
+async function pzSub(wid, retry) {
+  try {
+    wid = String(wid || ''); if (!/^\d{5,12}$/.test(wid)) return { ok: false, err: 'id' };
+    if (!(await swCookie('steamLoginSecure'))) { if (!(await swLogin())) return { ok: false, err: 'login' }; }
+    const ses = session.fromPartition(PZ_PART);
+    let sid = await swCookie('sessionid');
+    if (!sid) { try { await ses.fetch('https://steamcommunity.com/app/108600/workshop/'); } catch (e) {} sid = await swCookie('sessionid'); }
+    if (!sid) return { ok: false, err: 'sid' };
+    const r = await ses.fetch('https://steamcommunity.com/sharedfiles/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', Origin: 'https://steamcommunity.com', Referer: 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + wid, 'X-Requested-With': 'XMLHttpRequest' }, body: new URLSearchParams({ id: wid, appid: '108600', sessionid: sid.value }).toString() });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (j && (j.success === 1 || j.success === true)) return { ok: true };
+    if (!retry) { try { await ses.clearStorageData({ storages: ['cookies'] }); } catch (e) {} return pzSub(wid, true); }
+    return { ok: false, err: 'api', st: r.status };
+  } catch (e) { return { ok: false, err: 'net' }; }
+}
 
 /* ---------- ventana sin bordes para juegos que no la tienen ---------- */
 const BL_PS = 'JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnAAoAQQBkAGQALQBUAHkAcABlACAALQBBAHMAcwBlAG0AYgBsAHkATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVwBpAG4AZABvAHcAcwAuAEYAbwByAG0AcwAKAEEAZABkAC0AVAB5AHAAZQAgAEAAIgAKAHUAcwBpAG4AZwAgAFMAeQBzAHQAZQBtADsAdQBzAGkAbgBnACAAUwB5AHMAdABlAG0ALgBSAHUAbgB0AGkAbQBlAC4ASQBuAHQAZQByAG8AcABTAGUAcgB2AGkAYwBlAHMAOwAKAHAAdQBiAGwAaQBjACAAYwBsAGEAcwBzACAAVwBUAHsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGkAbgB0ACAARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoAEkAbgB0AFAAdAByACAAaAAsAGkAbgB0ACAAaQApADsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGkAbgB0ACAAUwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoAEkAbgB0AFAAdAByACAAaAAsAGkAbgB0ACAAaQAsAGkAbgB0ACAAdgApADsACgBbAEQAbABsAEkAbQBwAG8AcgB0ACgAIgB1AHMAZQByADMAMgAuAGQAbABsACIAKQBdAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGIAbwBvAGwAIABTAGUAdABXAGkAbgBkAG8AdwBQAG8AcwAoAEkAbgB0AFAAdAByACAAaAAsAEkAbgB0AFAAdAByACAAYQAsAGkAbgB0ACAAeAAsAGkAbgB0ACAAeQAsAGkAbgB0ACAAdwAsAGkAbgB0ACAAYwAsAHUAaQBuAHQAIABmACkAOwAKAFsARABsAGwASQBtAHAAbwByAHQAKAAiAHUAcwBlAHIAMwAyAC4AZABsAGwAIgApAF0AcAB1AGIAbABpAGMAIABzAHQAYQB0AGkAYwAgAGUAeAB0AGUAcgBuACAAYgBvAG8AbAAgAFMAaABvAHcAVwBpAG4AZABvAHcAKABJAG4AdABQAHQAcgAgAGgALABpAG4AdAAgAGMAKQA7AAoAWwBEAGwAbABJAG0AcABvAHIAdAAoACIAdQBzAGUAcgAzADIALgBkAGwAbAAiACkAXQBwAHUAYgBsAGkAYwAgAHMAdABhAHQAaQBjACAAZQB4AHQAZQByAG4AIABiAG8AbwBsACAAUwBlAHQAUAByAG8AYwBlAHMAcwBEAFAASQBBAHcAYQByAGUAKAApADsACgB9AAoAIgBAAAoAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAUAByAG8AYwBlAHMAcwBEAFAASQBBAHcAYQByAGUAKAApAAoAJABlAHgAPQAkAGUAbgB2ADoAVwBUAF8ARQBYAEUAOwAkAGQAaQByAHMAPQBAACgAKQA7AGkAZgAoACQAZQBuAHYAOgBXAFQAXwBEAEkAUgApAHsAJABkAGkAcgBzAD0AJABlAG4AdgA6AFcAVABfAEQASQBSAC4AUwBwAGwAaQB0ACgAJwB8ACcAKQB9AAoAJABuAD0AMAAKAGYAbwByAGUAYQBjAGgAKAAkAHAAIABpAG4AIAAoAEcAZQB0AC0AUAByAG8AYwBlAHMAcwAgAHwAIABXAGgAZQByAGUALQBPAGIAagBlAGMAdAAgAHsAIAAkAF8ALgBNAGEAaQBuAFcAaQBuAGQAbwB3AEgAYQBuAGQAbABlACAALQBuAGUAIAAwACAAfQApACkAewAKACAAIAAkAHAAYQA9ACQAbgB1AGwAbAA7AHQAcgB5AHsAJABwAGEAPQAkAHAALgBQAGEAdABoAC4AVABvAEwAbwB3AGUAcgAoACkAfQBjAGEAdABjAGgAewB9AAoAIAAgAGkAZgAoAC0AbgBvAHQAIAAkAHAAYQApAHsAYwBvAG4AdABpAG4AdQBlAH0ACgAgACAAJABoAGkAdAA9ACQAZgBhAGwAcwBlADsAaQBmACgAJABlAHgAIAAtAGEAbgBkACAAJABwAGEAIAAtAGUAcQAgACQAZQB4ACkAewAkAGgAaQB0AD0AJAB0AHIAdQBlAH0AOwBmAG8AcgBlAGEAYwBoACgAJABkACAAaQBuACAAJABkAGkAcgBzACkAewBpAGYAKAAkAGQAIAAtAGEAbgBkACAAJABwAGEALgBTAHQAYQByAHQAcwBXAGkAdABoACgAJABkACkAKQB7ACQAaABpAHQAPQAkAHQAcgB1AGUAfQB9AAoAIAAgAGkAZgAoAC0AbgBvAHQAIAAkAGgAaQB0ACkAewBjAG8AbgB0AGkAbgB1AGUAfQAKACAAIAAkAGgAPQAkAHAALgBNAGEAaQBuAFcAaQBuAGQAbwB3AEgAYQBuAGQAbABlAAoAIAAgAFsAdgBvAGkAZABdAFsAVwBUAF0AOgA6AFMAaABvAHcAVwBpAG4AZABvAHcAKAAkAGgALAA5ACkACgAgACAAJABzAD0AWwBXAFQAXQA6ADoARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMQA2ACkAOwAkAHMAPQAkAHMAIAAtAGIAYQBuAGQAIAAoAC0AYgBuAG8AdAAgADAAeABDAEYAMAAwADAAMAApADsAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMQA2ACwAJABzACkACgAgACAAJAB4AD0AWwBXAFQAXQA6ADoARwBlAHQAVwBpAG4AZABvAHcATABvAG4AZwAoACQAaAAsAC0AMgAwACkAOwAkAHgAPQAkAHgAIAAtAGIAYQBuAGQAIAAoAC0AYgBuAG8AdAAgADAAeAAyADAAMwAwADEAKQA7AFsAdgBvAGkAZABdAFsAVwBUAF0AOgA6AFMAZQB0AFcAaQBuAGQAbwB3AEwAbwBuAGcAKAAkAGgALAAtADIAMAAsACQAeAApAAoAIAAgACQAYgA9AFsAUwB5AHMAdABlAG0ALgBXAGkAbgBkAG8AdwBzAC4ARgBvAHIAbQBzAC4AUwBjAHIAZQBlAG4AXQA6ADoARgByAG8AbQBIAGEAbgBkAGwAZQAoACQAaAApAC4AQgBvAHUAbgBkAHMACgAgACAAWwB2AG8AaQBkAF0AWwBXAFQAXQA6ADoAUwBlAHQAVwBpAG4AZABvAHcAUABvAHMAKAAkAGgALABbAEkAbgB0AFAAdAByAF0AOgA6AFoAZQByAG8ALAAkAGIALgBYACwAJABiAC4AWQAsACQAYgAuAFcAaQBkAHQAaAAsACQAYgAuAEgAZQBpAGcAaAB0ACwAMAB4ADAAMAA2ADAAKQAKACAAIAAkAG4AKwArAAoAfQAKAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAKAAiAGQAbwBuAGUAIAAiACsAJABuACkA';
@@ -1270,6 +1382,11 @@ app.whenReady().then(() => {
     if (a.a === 'send') send({ type: 'ovfr', op: 'send', c: String(a.c || '').slice(0, 40), x: String(a.x || '').slice(0, 500) });
   } catch (e) {} });
   ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
+  ipcMain.handle('pzScan', (_e, sd) => { try { return pzScan(String(sd || '')); } catch (e) { return { ok: false, mods: [], active: [] }; } });
+  ipcMain.handle('pzApply', (_e, ids, sd) => pzApply(Array.isArray(ids) ? ids.slice(0, 600) : [], String(sd || '')));
+  ipcMain.handle('pzSearch', (_e, q, p) => pzSearch(q, p));
+  ipcMain.handle('pzSub', (_e, wid) => pzSub(wid));
+  ipcMain.handle('pzOpen', (_e, wid) => { try { if (/^\d{5,12}$/.test(String(wid))) shell.openExternal('steam://url/CommunityFilePage/' + wid); } catch (e) {} return true; });
   ipcMain.handle('clipDone', () => { clipBusy = false; return true; });
   ipcMain.handle('clipSave', (_e, o) => {
     try {
