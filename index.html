@@ -8887,10 +8887,10 @@ async function x3Dec(b,key){const r=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
 function x3Snap(){
   const p=S.playing&&gm(S.playing.id),v=visOn();
   const g=v?[]:G.filter(x=>!x.hide&&!vIs(x)).sort((a,b)=>lastTs(b)-lastTs(a)).slice(0,1500).map(x=>[String(x.id),x.name,+(+x.hours||0).toFixed(1),isSteamG(x)?x.app:0,instOf(x)?1:0,x.fav?1:0]);
-  return{t:Date.now(),n:'PC de '+(((ST.prof&&ST.prof.name)||ST.name)||'WINTEER'),g,p:p&&!v?[String(p.id),p.name]:null,k:X3.ack}}
+  return{t:Date.now(),n:'PC de '+(((ST.prof&&ST.prof.name)||ST.name)||'WINTEER'),g,p:p&&!v?[String(p.id),p.name]:null,d:X3.dr||[],k:X3.ack}}
 async function x3Push(force){
   const P=PHB();if(!P.k||!WN||X3.busy)return;
-  const s=x3Snap(),sig=JSON.stringify([s.g,s.p,s.k]);
+  const s=x3Snap(),sig=JSON.stringify([s.g,s.p,s.k,s.d]);
   if(!force&&sig===X3.sig&&Date.now()-X3.lt<60000)return;
   X3.busy=true;try{const I=await x3Ids(P.k);await fbSet(I.S,{d:await x3Enc(s,I.key),t:Date.now()},'winteer_chats');X3.sig=sig;X3.lt=Date.now()}catch(e){}X3.busy=false}
 async function x3Poll(){
@@ -8902,9 +8902,9 @@ function x3Cmd(c){
   const g=gm(c.id),done=m=>{X3.ack={ts:c.ts,m};x3Push(true)};
   if(!g||vIs(g)||visOn())return done('Ese juego no está disponible');
   if(c.a==='play'){if(S.playing)return done('Ya hay un juego en curso en la PC');toast('Desde el celular: abriendo '+g.name);S.sel=g.id;A.play();done('Abriendo '+g.name+' en la PC')}
-  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g)){location.href='steam://install/'+g.app;done('Instalando '+g.name+' en la PC');try{winteerNative.steamAutoInstall().then(r=>{if(r!=='ok')done(r==='timeout'?'Steam no abrió la ventana. Falta confirmar en la PC':'Falta confirmar la instalación en Steam')})}catch(e){}}else{S.sel=g.id;A.play();done('Mandé la instalación de '+g.name)}}
+  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g)){location.href='steam://install/'+g.app;done('Instalando '+g.name+' en la PC');try{winteerNative.steamAutoInstall(c.dr||'').then(r=>{if(r!=='ok')done(r==='timeout'?'Steam no abrió la ventana. Falta confirmar en la PC':'Falta confirmar la instalación en Steam')})}catch(e){}}else{S.sel=g.id;A.play();done('Mandé la instalación de '+g.name)}}
   else done('Pedido desconocido')}
-setTimeout(()=>x3Push(true),4000);setInterval(()=>x3Push(false),20000);setInterval(x3Poll,6000);
+(async()=>{try{X3.dr=await winteerNative.steamDrives()||[]}catch(e){}})();setTimeout(()=>x3Push(true),4000);setInterval(()=>x3Push(false),20000);setInterval(x3Poll,6000);
 /* QR */
 function qrMake(text){
   const bytes=[...new TextEncoder().encode(text)];

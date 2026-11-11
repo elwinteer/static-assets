@@ -2057,9 +2057,13 @@ async function aiAsk(o) {
 let PH = { srv: null, snap: { games: [], playing: null, name: '' }, err: '', fails: {} };
 const PHPORT = 8472;
 let SAI = false;
-function steamAutoInstall() {
+function steamDrives() {
+  try { return steamLibs().map(p => { const l = String(p)[0].toUpperCase(); let f = 0; try { const st = fs.statfsSync(p); f = Math.round(st.bavail * st.bsize / 1073741824); } catch (e) {} return [l, f]; }).filter((x, i, a) => /^[A-Z]$/.test(x[0]) && a.findIndex(y => y[0] === x[0]) === i); } catch (e) { return []; }
+}
+function steamAutoInstall(letter) {
   if (process.platform !== 'win32' || SAI) return Promise.resolve('busy');
   SAI = true;
+  const idx = letter ? steamDrives().findIndex(x => x[0] === String(letter).toUpperCase()) : -1;
   const ps = `
 Add-Type -TypeDefinition @"
 using System;using System.Text;using System.Runtime.InteropServices;
@@ -2070,21 +2074,34 @@ public class WtW{public delegate bool CB(IntPtr h,IntPtr l);
 [DllImport("user32.dll")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
 [DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);
 [DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();
+[DllImport("user32.dll")]public static extern bool GetWindowRect(IntPtr h,out RECT r);
+public struct RECT{public int L,T,R,B;}
+[DllImport("user32.dll")]public static extern bool SetCursorPos(int x,int y);
+[DllImport("user32.dll")]public static extern void mouse_event(uint f,int dx,int dy,uint d,UIntPtr e);
 public static IntPtr Find(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.StartsWith("Install")||t.StartsWith("Instalar")){uint pid;GetWindowThreadProcessId(h,out pid);try{var n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();if(n=="steam"||n=="steamwebhelper"){r=h;return false;}}catch{}}return true;},IntPtr.Zero);return r;}}
 "@
 Add-Type -AssemblyName System.Windows.Forms
+$idx=[int]$env:WT_IDX
 $end=(Get-Date).AddSeconds(25)
 while((Get-Date) -lt $end){
   $h=[WtW]::Find()
   if($h -ne [IntPtr]::Zero){
-    Start-Sleep -Milliseconds 900
+    Start-Sleep -Milliseconds 1200
     [void][WtW]::SetForegroundWindow($h);Start-Sleep -Milliseconds 500
-    if([WtW]::GetForegroundWindow() -eq $h){[System.Windows.Forms.SendKeys]::SendWait("{ENTER}");Write-Output 'ok';exit}
-    Write-Output 'nofocus';exit}
+    $f=[WtW]::GetForegroundWindow();$fp=0;[void][WtW]::GetWindowThreadProcessId($f,[ref]$fp)
+    $pn='';try{$pn=(Get-Process -Id $fp).ProcessName.ToLower()}catch{}
+    if($pn -ne 'steam' -and $pn -ne 'steamwebhelper'){Write-Output 'nofocus';exit}
+    if($idx -ge 0){
+      $r=New-Object WtW+RECT;[void][WtW]::GetWindowRect($h,[ref]$r)
+      $k=($r.R-$r.L)/582.0
+      $x=[int]($r.L+300*$k);$y=[int]($r.T+(250+50*$idx)*$k)
+      [void][WtW]::SetCursorPos($x,$y);Start-Sleep -Milliseconds 150
+      [WtW]::mouse_event(2,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 60;[WtW]::mouse_event(4,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 500}
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}");Write-Output 'ok';exit}
   Start-Sleep -Milliseconds 400}
 Write-Output 'timeout'`;
   return new Promise((res) => {
-    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 40000 }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
+    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 40000, env: Object.assign({}, process.env, { WT_IDX: String(idx) }) }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
     catch (e) { SAI = false; res('err'); }
   });
 }
@@ -2436,7 +2453,8 @@ app.whenReady().then(() => {
   ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('bkRead', (_e, d) => { try { return bkRead(d); } catch (e) { return { ok: false, err: 'bad' }; } });
   ipcMain.handle('lsvScan', async (_e, o) => { try { return await lsvScan(o || {}); } catch (e) { return { ok: false, err: 'net' }; } });
-  ipcMain.handle('steamAutoInstall', () => steamAutoInstall());
+  ipcMain.handle('steamAutoInstall', (_e, l) => steamAutoInstall(l));
+  ipcMain.handle('steamDrives', () => steamDrives());
   ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
