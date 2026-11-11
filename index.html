@@ -481,6 +481,7 @@ code{background:var(--card2);padding:2px 7px;border-radius:6px;font-size:12px}
 .set .sgrid>.row.f,.set .sgrid>:not(.row){grid-column:1/-1}
 .set .sgrid>.row.f{flex-wrap:wrap}
 .set .sgrid small{font-size:11.5px;margin-top:2px}
+.set .sgrid>.row small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .shd{grid-column:1/-1;margin:8px 2px 0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .shd:first-child{margin-top:0}
 details.mo{grid-column:1/-1}details.mo>summary{cursor:pointer;list-style:none;padding:11px 16px;border-radius:14px;background:rgba(255,255,255,.04);color:var(--muted);font-weight:600;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
@@ -3785,10 +3786,10 @@ function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString
   const cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir),n=Object.values((ST.tm&&ST.tm.g)||{}).filter(x=>x.paths&&x.paths.length).length;
   return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo en un único archivo que se sobrescribe: horas, logros, perfil, reseñas e imágenes. También guarda versiones de las partidas de tus juegos de Epic, Xbox, .exe y emulados${n?' ('+n+' con copias)':''}, que Ludusavi encuentra solo, y las restaurás desde la ficha de cada juego. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
   <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small><small style="display:block;margin-top:4px">${cloud?'Está en la nube: tus copias y partidas te siguen a cualquier PC.':'Recomendado: una carpeta de Google Drive, así todo queda en la nube y lo recuperás aunque cambies de PC.'}</small></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button><button class="b2 g" data-a="bkrest">Restaurar</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
-const STABS=[['look','Apariencia','flake'],['avi','Avisos y sonido','bolt'],['lib','Biblioteca','games'],['data','Sistema y datos','shield']];
+const STABS=[['gen','General','gear'],['look','Apariencia','flake'],['avi','Avisos y sonido','bell'],['lib','Biblioteca','games'],['ext','Extras','star'],['data','Copias y sistema','shield']];
 const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="sv" data-k="${k}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
 const badge=(ok,t1,t0)=>`<span class="bdg ${ok?'ok':''}">${ok?t1:t0}</span>`;
-const setT=()=>({fx:'look',per:'avi',pet:'avi',hit:'avi',frn:'avi',rew:'avi',me:'avi',con:'lib'})[S.stab]||S.stab||'avi';
+const setT=()=>{const t=({fx:'look',per:'avi',pet:'avi',hit:'avi',frn:'avi',rew:'avi',me:'avi',con:'lib'})[S.stab]||S.stab||'gen';return STABS.some(x=>x[0]===t)?t:'gen'};
 
 function lookPane(){const cur=(ST.fxm==='min')?'min':'lite',sea=(ST.sea==='off')?'off':SEAS[ST.sea]?'x':'auto',bg=ST.bgm||'tint';
   const ck='<svg class="lk-ck" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10"/><path d="M5.5 10.4l3 3 6-6.4"/></svg>';
@@ -3825,8 +3826,57 @@ function setX(t){const N=!!window.winteerNative;
   const SRC={look:[],avi:['hit','frn'],per:['me','rew'],pet:['pet'],lib:['lib','con'],data:['data']};
   {const body=rows.map(fl).join('');const ex=(SRC[t]||[]).flatMap(k=>R(k)).filter(r=>typeof r==='string'&&r.startsWith('<div class="row')&&!/id="sgk"|id="igid"|stat3|data-a="go"|data-a="rshit"|shtoggle|shkeyset|shfolder|bgsw/.test(r)&&!body.includes(r)&&!body.includes(fl(r)));if(ex.length)rows.push(more(ex,'Otros ajustes'))}
   return rows.map(fl).join('')}
+/* ===== Ajustes rediseñados: 6 pestañas, todo a la vista, sin desplegables ===== */
+(()=>{try{if(ST.tr===false)ST.tr=true;ST.trlAuto=true;ST.wtoast_on=true;if(ST.bk&&ST.bk.dir&&ST.bk.on===false)ST.bk.on=true}catch(e){}})();
+const sR=(t,d,c,f)=>`<div class="row${f?' f':''}"><div>${t}<small>${d}</small></div>${c||''}</div>`;
+const sSw=(a,on,k)=>`<button class="sw ${on?'on':''}" data-a="${a}"${k?` data-k="${k}"`:''}></button>`;
+const sH=t=>`<h4 class="shd">${t}</h4>`;
+function setPane(t){
+  const N=!!window.winteerNative,XR=N&&typeof x8Rows==='function'?x8Rows():[],xr=re=>XR.find(r=>typeof r==='string'&&re.test(r))||'';
+  if(N&&BGC&&BGC.win&&BGC.shots===false&&winteerNative.shotCfg)winteerNative.shotCfg({shots:true}).then(c=>{BGC=Object.assign(BGC,c)}).catch(()=>{});
+  if(t==='gen')return [
+    ...(N&&BGC.win?[sR('Segundo plano','Al cerrar la ventana, WINTEER sigue en la bandeja casi sin gastar recursos.',sSw('bgsw',BGC.bg,'bg')),
+      sR('Iniciar con Windows','Arranca solo y oculto. Necesita el segundo plano.',sSw('bgsw',BGC.auto,'auto')),
+      sR('Abrir el Modo mando con el mando','Botón Guía (o Atrás+Inicio 1 s), aunque WINTEER esté oculto.',sSw('bgsw',BGC.pad,'pad'))]:[]),
+    sR('Abrir WINTEER en','La pantalla con la que arranca.',segv('start',[['home','Inicio'],['games','Biblioteca']],ST.start||'home')),
+    xr(/x8sitog/),xr(/x8vis/),
+    ...(N&&BGC.win?[sR('Capturas y clips','Captura, clip de 10 s y carpeta, mientras jugás algo que no es de Steam.',`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g sm" data-a="shkeyset">Captura ${esc(BGC.shotKey||'F12')}</button><button class="b2 g sm" data-a="shkeyset" data-w="clip">Clip ${esc(BGC.clipKey||'F9')}</button><button class="b2 g sm" data-a="shfolder" data-id="">Abrir carpeta</button></div>`)]:[]),
+    sR('Tutorial','Un recorrido guiado por todas las pestañas.','<button class="b2 g" data-a="tutreset">Ver de nuevo</button>')];
+  if(t==='look')return [...lookPane(),sR('Restablecer apariencia','Vuelve tema, color y efectos a como venían. No toca tus datos.','<button class="b2 g" data-a="rsap">Restablecer</button>')];
+  if(t==='avi')return [
+    sR('Volumen de los hitos','Qué tan fuerte suena el aviso.',`<input type="range" id="hvol" min="0" max="1" step="0.05" value="${ST.hvol==null?.6:ST.hvol}">`),
+    sR('Probar un aviso de hito','Mirá y escuchá cada rareza.',`<div class="seg">${[['c','Común'],['r','Raro'],['e','Épico'],['l','Legendario']].map(([k,l])=>`<button data-a="hprobe" data-v="${k}">${l}</button>`).join('')}</div>`),
+    ...(typeof frSndPane==='function'?frSndPane():[]),
+    sH('Modo mando'),
+    sR('Música','Suena el tema del juego en el que estás parado. También con M o R3.',`<div style="display:flex;gap:10px;align-items:center"><input type="range" id="bpmv" min="0.05" max="1" step="0.05" value="${ST.bpMusV||.35}">${sSw('bpmus',ST.bpMus!==false)}</div>`),
+    sR('Tráilers y canciones','Se bajan solos y se ven y escuchan en el Modo mando. <span id="trl-n"></span>','<button class="b2" data-a="trldl">Descargar ahora</button>'),
+    sR('Teclado en pantalla','Con un campo de texto elegido, el botón que pongas abre un teclado manejado con el mando.',`<div style="display:flex;gap:10px;align-items:center"><b id="oskl" style="font-size:13px">${oskName()}</b><button class="b2 g" data-a="oskbind">Elegir botón</button>${sSw('oskon',ST.oskOn)}</div>`),
+    sR('Centro de mandos','Probá botones y palancas, deriva, vibración y zona muerta.','<button class="b2" data-a="ccopen">Abrir</button>')];
+  if(t==='lib'){const d=dupGroups().length,c=clnList().length;return N?[
+    sH('Cuentas'),
+    sR('Steam','Toda tu biblioteca, con préstamo familiar. <span id="imp-sta"></span>','<div style="display:flex;gap:8px"><button class="b2" data-a="acct" data-s="steam">Conectar</button><button class="b2 g" data-a="imp">Importar horas</button></div>'),
+    sR('Epic Games','Tu biblioteca completa o solo lo instalado. <span id="imp-epa"></span><span id="imp-ep"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="acct" data-s="epic">Conectar</button><button class="b2 g" data-a="acctcode">Usar código</button><button class="b2 g" data-a="impstore" data-s="epic">Instalados</button></div>'),
+    sR('Xbox / Game Pass','Los juegos de tu cuenta de Microsoft. <span id="imp-xba"></span><span id="imp-xb"></span>','<div style="display:flex;gap:8px"><button class="b2" data-a="acct" data-s="xbox">Conectar</button><button class="b2 g" data-a="impstore" data-s="xbox">Instalados</button></div>'),
+    sH('Información de los juegos'),
+    sR('Descargar datos','Descripciones, arte y duraciones se bajan solos; acá podés forzarlo. <span id="ifp"></span><span id="sgp"></span><span id="hlp"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="infoall">Información</button><button class="b2" data-a="sgall">Arte</button><button class="b2" data-a="hltball">Duraciones</button></div>'),
+    sR('Carpeta de Steam','Cambiala solo si tu Steam está en otro lugar.',`<input class="txt" id="sdir" style="width:240px" value="${esc(ST.steamDir||'C:\\Program Files (x86)\\Steam')}">`),
+    sH('Mantenimiento'),
+    sR('Juegos duplicados',d?d+' repetidos entre tiendas. Elegí con cuál quedarte.':'No hay juegos repetidos.',`<button class="b2" data-a="dupopen" ${d?'':'disabled'}>Revisar</button>`),
+    sR('Limpieza de juegos',c?c+' instalados sin jugar hace más de un mes.':'Nada para limpiar por ahora.',`<button class="b2" data-a="clnopen" ${c?'':'disabled'}>Ver</button>`)
+  ]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>']}
+  if(t==='ext')return N&&typeof emCfg==='function'?[(()=>{const c=emCfg(),n=G.filter(g=>g.emu).length,k=Object.keys(c.exe).length;return sR('Estación de emulación','Elegí la carpeta de ROMs y WINTEER detecta las consolas y abre cada juego con su emulador gratuito. '+(n?n+' juegos. ':'')+(k?k+' emulador'+(k===1?'':'es')+' listo'+(k===1?'':'s')+'.':'Todavía no hay emuladores.'),'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="x5dir">Agregar carpeta</button><button class="b2 g" data-a="x5scan">Escanear</button><button class="b2 g" data-a="x5emus">Emuladores</button></div>')})(),xr(/x5ra/),xr(/x3tog/),xr(/x7tog/)]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>'];
+  if(t==='data')return [
+    ...(N?[updCard()]:[]),
+    ...(N?[ (()=>{const b=ST.bk||{},cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir);x1Drive();
+      return sR('Carpeta de las copias',`${b.dir?esc(b.dir):'Todavía no elegiste una.'}<br>${cloud?'Está en la nube: te sigue a cualquier PC.':'Recomendado: una carpeta de Google Drive.'} Cada semana se guarda sola tu progreso y las partidas de tus juegos.`,`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button><button class="b2 g" data-a="bkrest">Restaurar</button></div>`,1)})(),bkRowHTML()]:[]),
+    ...(N?[sR('Espacio en disco','Imágenes, tráilers y música que WINTEER guarda en tu PC.','<b id="cinf" style="font-size:13px">calculando…</b>')]:[]),
+    sR('Exportar sagas','Guarda en tu escritorio tus sagas, portadas y logos.','<button class="b2" data-a="sgexport">Exportar</button>'),
+    sR('Limpiar caché de imágenes','Si una carátula quedó mal, la vuelve a buscar.','<button class="b2 g" data-a="clrimg">Limpiar</button>'),
+    sR('Recalcular hitos','Vuelve a calcular tus hitos si algo quedó raro.','<button class="b2 g" data-a="rshit">Recalcular</button>'),
+    sR('Restablecer biblioteca','Vuelve a la biblioteca de Steam y borra estados y notas.','<button class="b2 g" data-a="reset">Restablecer</button>')];
+  return []}
 V.settings=()=>{const t=setT();return `<div class="sx2"><nav class="stabs">${STABS.map(([k,l,i])=>`<button class="stab ${k===t?'on':''}" data-a="stab" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>
-  <section class="card set spane"><div class="sgrid">${setX(t)}</div></section></div>`};
+  <section class="card set spane"><div class="sgrid">${setPane(t).join('')}</div></section></div>`};
 
 /* ---------- navegación ---------- */
 function moveInd(){const a=$(`.nav a[data-v="${S.view}"]`),ind=$('#ind'),nw=$('.navwrap');if(!ind||!nw)return;const was=ind.style.opacity==='0'||ind.style.opacity==='';
@@ -8490,7 +8540,7 @@ async function bkWatch(){
   try{const b=ST.bk||{};if(!WN||!b.on||!b.dir)return;
     const r=await bkVerify(Date.now()-(b.vt||0)>30*864e5);
     const h=bkHealth();
-    if(h.s==='bad'&&Date.now()-(b.nt||0)>20*36e5){b.nt=Date.now();save();toast('Ojo con tus copias: '+h.t+' Revisalo en Ajustes, Biblioteca')}
+    if(h.s==='bad'&&Date.now()-(b.nt||0)>20*36e5){b.nt=Date.now();save();toast('Ojo con tus copias: '+h.t+' Revisalo en Ajustes, Copias y sistema')}
     if(S.view==='settings'){const e=$('#x8bkh');if(e)e.outerHTML=bkRowHTML()}
     return r}catch(e){}}
 function bkRowHTML(){const h=bkHealth(),c={ok:'#4ade80',warn:'#fbbf24',bad:'#f87171',off:'#94a3b8'}[h.s];
@@ -8673,7 +8723,7 @@ Object.assign(A,{
   x8sitog:a=>{ST.si=ST.si||{};ST.si.on=!ST.si.on;a.classList.toggle('on',ST.si.on);save()},
   x8sipick:a=>{let m=+a.dataset.m;if(m<0){m=Math.round(+($('#x8sim')||{}).value);if(!(m>=5&&m<=600)){toast('Poné entre 5 y 600 minutos');return}}
     ST.si=ST.si||{};ST.si.last=m;save();a.closest('.modal').remove();S.siPend=m;S.siGo=1;A.play()},
-  x8sioff:a=>{ST.si=ST.si||{};ST.si.on=false;save();a.closest('.modal').remove();toast('Listo. Podés volver a activarlo en Ajustes, Biblioteca');S.siGo=1;A.play()},
+  x8sioff:a=>{ST.si=ST.si||{};ST.si.on=false;save();a.closest('.modal').remove();toast('Listo. Podés volver a activarlo en Ajustes, General');S.siGo=1;A.play()},
   x8tb:()=>trOpen(),
   x8rj:()=>rjOpen(),
   x8rjskip:a=>{ST.rj=ST.rj||{};ST.rj.skip=ST.rj.skip||{};ST.rj.skip[a.dataset.id]=Date.now();save();RJC.t=0;a.closest('.x8r').remove();const h=$('#h2r');if(h&&S.view==='home'){const p=h.querySelector('[data-a=x8rj]');if(p){const n=rjList(true).length;if(n)p.textContent='Rejugar · '+n;else p.remove()}}},
@@ -8955,7 +9005,7 @@ async function x7Open(){
   const chips=['¿A qué juego me conviene jugar hoy?','Tengo una hora libre. ¿Qué me recomendás?','¿Cuál de mis juegos sin terminar vale más la pena retomar?'];
   $$('.modal').forEach(m=>m.remove());
   modal(`<div style="text-align:left"><h3>Preguntale a tu biblioteca</h3>
-  ${!ok?'<p class="hint2">No encuentro Ollama o un modelo instalado. Revisalo en Ajustes, Biblioteca.</p>':blk?'<p class="hint2">Hay un juego abierto: la IA queda bloqueada para no sacarle rendimiento. Probá cuando lo cierres.</p>':`<p class="hint2">Corre en tu PC con ${esc((ST.ai||{}).model||'')}, sin internet y ${(ST.ai||{}).cpu?'solo con el procesador (puede tardar uno o dos minutos)':'con la placa de video (suele tardar unos segundos)'}.</p>`}
+  ${!ok?'<p class="hint2">No encuentro Ollama o un modelo instalado. Revisalo en Ajustes, Extras.</p>':blk?'<p class="hint2">Hay un juego abierto: la IA queda bloqueada para no sacarle rendimiento. Probá cuando lo cierres.</p>':`<p class="hint2">Corre en tu PC con ${esc((ST.ai||{}).model||'')}, sin internet y ${(ST.ai||{}).cpu?'solo con el procesador (puede tardar uno o dos minutos)':'con la placa de video (suele tardar unos segundos)'}.</p>`}
   <div class="nj-fc">${chips.map(c=>`<button class="x6c" data-a="x7chip" data-q="${esc(c)}" ${ok&&!blk?'':'disabled'}>${esc(c)}</button>`).join('')}</div>
   <textarea id="x7q" class="txt" rows="2" maxlength="300" placeholder="Escribí tu pregunta…" ${ok&&!blk?'':'disabled'}></textarea>
   <div id="x7a" class="x7a"></div></div>
@@ -9001,7 +9051,7 @@ setInterval(()=>{try{const pl=S.playing&&gm(S.playing.id);if(!pl||!tmOk(pl))retu
 function tmTabHTML(g){
   const c=tmG(g.id),ps=(c&&c.paths)||[];
   setTimeout(()=>tmLoad(g.id),0);
-  return `<div class="tm"><div class="shh"><div><b>Máquina del tiempo</b><small>Guarda versiones de tus partidas para volver atrás si se rompe un save. Se copia sola antes de jugar, cada 30 minutos mientras jugás y al cerrar, dentro de la carpeta de tus copias de seguridad (Ajustes, Biblioteca).</small></div><button class="b2 g sm" data-a="tmopen" data-id="${g.id}">Abrir carpeta</button></div>
+  return `<div class="tm"><div class="shh"><div><b>Máquina del tiempo</b><small>Guarda versiones de tus partidas para volver atrás si se rompe un save. Se copia sola antes de jugar, cada 30 minutos mientras jugás y al cerrar, dentro de la carpeta de tus copias de seguridad (Ajustes, Copias y sistema).</small></div><button class="b2 g sm" data-a="tmopen" data-id="${g.id}">Abrir carpeta</button></div>
   <div class="lbl">Carpetas de partidas</div><div id="tmp">${ps.length?ps.map((p,i)=>`<div class="tm-r"><div class="tm-m"><b>${esc(p.split(/[\\/]/).slice(-2).join('\\'))}</b><small>${esc(p)}</small></div><button class="b2 g sm" data-a="tmrm" data-id="${g.id}" data-i="${i}">Quitar</button></div>`).join(''):'<p class="hint2">Todavía no elegiste dónde guarda sus partidas este juego.</p>'}</div>
   <div class="tm-b"><button class="b2" data-a="tmfind" data-id="${g.id}">Buscar carpeta</button><button class="b2 g" data-a="tmadd" data-id="${g.id}">Elegir carpeta</button>${ps.length?`<button class="b2 g" data-a="tmnow" data-id="${g.id}">Guardar copia ahora</button><button class="sw ${c.auto===false?'':'on'}" data-a="tmauto" data-id="${g.id}" title="Copias automáticas"></button><small>Automático</small>`:''}</div>
   ${c&&c.err?`<p class="hint2" style="color:#fca5a5">${esc(c.err)}</p>`:''}
@@ -9207,7 +9257,7 @@ function x5Import(){
     G.push({id,name:emName(x.p)||'Juego',hours:0,status:'',last:'',notes:'',inst:true,tags:['Emulador',EMSYS[s][0]],emu:{s,r:x.p}});n++}));
   X5.sc=null;save();$$('.modal').forEach(m=>m.remove());try{renderList()}catch(e){}toast(n?n+' juegos agregados a tu biblioteca':'No había nada nuevo')}
 /* lanzar */
-(()=>{const p=A.play;A.play=function(){const g=gm(S.sel);if(g&&g.emu&&!S.playing){if(!emExe(g)){toast(emFor(g.emu.s)?'No encuentro el emulador':'Falta configurar un emulador para '+EMSYS[g.emu.s][0]+' (Ajustes, Biblioteca, Emuladores)');return}}return p.apply(this,arguments)}})();
+(()=>{const p=A.play;A.play=function(){const g=gm(S.sel);if(g&&g.emu&&!S.playing){if(!emExe(g)){toast(emFor(g.emu.s)?'No encuentro el emulador':'Falta configurar un emulador para '+EMSYS[g.emu.s][0]+' (Ajustes, Extras)');return}}return p.apply(this,arguments)}})();
 /* pestaña del juego */
 function emTabHTML(g){
   const s=g.emu.s,id=emFor(s),ra=EMSYS[s]&&EMSYS[s][1];
@@ -9223,7 +9273,7 @@ async function x5LoadRA(g,force){
   const ra=EMSYS[g.emu.s]&&EMSYS[g.emu.s][1];if(!ra)return;const el=()=>$('#x5ra');
   let r=X5.ra[g.id];if(!r||force){try{r=await winteerNative.raGame({console:ra,name:g.name})}catch(e){r={ok:false,err:'net'}}if(r&&r.ok)X5.ra[g.id]=r}
   const e=el();if(!e||S.sel!==g.id)return;
-  if(!r.ok){const m={nocred:'Cargá tu usuario y la clave de RetroAchievements en Ajustes, Biblioteca.',auth:'El usuario o la clave de RetroAchievements no son correctos.',net:'No pude conectar con RetroAchievements. Probá de nuevo en un rato.',http:'RetroAchievements no respondió bien. Probá de nuevo.',nomatch:'RetroAchievements no tiene un juego con este nombre. Si lo renombrás igual que en su sitio, lo encuentra.'}[r.err]||'No se pudo leer RetroAchievements.';
+  if(!r.ok){const m={nocred:'Cargá tu usuario y la clave de RetroAchievements en Ajustes, Extras.',auth:'El usuario o la clave de RetroAchievements no son correctos.',net:'No pude conectar con RetroAchievements. Probá de nuevo en un rato.',http:'RetroAchievements no respondió bien. Probá de nuevo.',nomatch:'RetroAchievements no tiene un juego con este nombre. Si lo renombrás igual que en su sitio, lo encuentra.'}[r.err]||'No se pudo leer RetroAchievements.';
     e.innerHTML=`<p class="hint2">${m}</p>${r.err==='nocred'||r.err==='auth'?'<div class="tm-b"><button class="b2 sm" data-a="x5ra">Configurar</button></div>':'<div class="tm-b"><button class="b2 g sm" data-a="x5raref" data-id="'+g.id+'">Reintentar</button></div>'}`;return}
   e.innerHTML=`<div class="tm-r"><div class="tm-m"><b>${esc(r.title)}</b><small>${r.earned} de ${r.total} logros · ${r.pts} puntos${r.total?' · '+Math.round(r.earned/r.total*100)+'%':''}</small></div><button class="b2 g sm" data-a="x5raref" data-id="${g.id}">Actualizar</button></div>`+r.list.slice(0,40).map(a=>`<div class="tm-r" style="${a.e?'':'opacity:.55'}">${a.b?`<img src="https://media.retroachievements.org/Badge/${encodeURIComponent(a.b)}.png" style="width:44px;height:44px;border-radius:8px" alt="">`:''}<div class="tm-m"><b>${esc(a.t)}${a.p?' · '+a.p+' pts':''}</b><small style="white-space:normal">${esc(a.d||'')}${a.e?' · '+esc(String(a.e).slice(0,10)):''}</small></div></div>`).join('')}
 Object.assign(A,{
