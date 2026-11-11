@@ -1591,6 +1591,40 @@ async function startApp() {
   createWindow(); applyBg();
 }
 
+/* ===== IA local con Ollama: usa lo que ya esta instalado, solo CPU, se descarga de memoria al terminar y se bloquea con un juego abierto ===== */
+function ollamaReq(method, p, body, ms, ctl) {
+  return new Promise((resolve) => {
+    const http = require('http'); let done = false;
+    const fin = (r) => { if (!done) { done = true; resolve(r); } };
+    const data = body ? Buffer.from(JSON.stringify(body)) : null;
+    const req = http.request({ host: '127.0.0.1', port: 11434, path: p, method, headers: data ? { 'Content-Type': 'application/json', 'Content-Length': data.length } : {} }, (res) => {
+      let t = ''; res.setEncoding('utf8'); res.on('data', d => { t += d; if (t.length > 2e6) req.destroy(); }); res.on('end', () => fin({ status: res.statusCode, text: t }));
+    });
+    req.setTimeout(ms || 4000, () => { req.destroy(); fin({ status: 0, text: '', timeout: true }); });
+    req.on('error', () => fin({ status: 0, text: '' }));
+    if (ctl) ctl.kill = () => { try { req.destroy(); } catch (e) {} fin({ status: 0, text: '', aborted: true }); };
+    if (data) req.write(data); req.end();
+  });
+}
+async function aiStatus() {
+  const busy = track.size > 0;
+  const r = await ollamaReq('GET', '/api/tags', null, 2500);
+  if (r.status !== 200) return { ok: false, busy, models: [] };
+  let m = []; try { m = (JSON.parse(r.text).models || []).map(x => x.name).filter(Boolean); } catch (e) {}
+  return { ok: true, busy, models: m };
+}
+async function aiAsk(o) {
+  if (track.size > 0) return { ok: false, busy: true };
+  const model = String(o && o.model || '').slice(0, 80); if (!model) return { ok: false, err: 'Sin modelo' };
+  const ctl = {}, watch = setInterval(() => { if (track.size > 0 && ctl.kill) ctl.kill(); }, 1200);
+  const threads = Math.max(2, Math.floor(os.cpus().length / 2));
+  const r = await ollamaReq('POST', '/api/generate', { model, prompt: String(o.prompt || '').slice(0, 8000), system: String(o.system || '').slice(0, 2000), stream: false, keep_alive: 0, options: { num_gpu: 0, num_thread: threads, num_ctx: 2048, temperature: 0.7, num_predict: 400 } }, 180000, ctl);
+  clearInterval(watch);
+  if (r.aborted || track.size > 0) return { ok: false, busy: true };
+  if (r.status !== 200) return { ok: false, err: r.timeout ? 'Tardó demasiado. Probá con un modelo más chico' : 'Ollama no respondió' };
+  try { const j = JSON.parse(r.text); return { ok: true, text: String(j.response || '').trim() }; } catch (e) { return { ok: false, err: 'Respuesta inválida' }; }
+}
+
 /* ===== Tu PC en el celular (etapa 1): pagina web local para ver la biblioteca y mandar Jugar / Instalar ===== */
 let PH = { srv: null, snap: { games: [], playing: null, name: '' }, err: '', fails: {} };
 const PHPORT = 8472;
@@ -1921,6 +1955,8 @@ app.whenReady().then(() => {
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
   ipcMain.handle('shots', (_e, id) => listShots(id));
+  ipcMain.handle('aiStatus', () => aiStatus());
+  ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('phoneGet', () => phoneInfo());
   ipcMain.handle('phoneSet', (_e, o) => { const p = phoneCfg(); if (o && o.k === 'on') { p.on = !!o.v; saveCfg(); if (p.on) phoneStart(); else phoneStop(); } else if (o && o.k === 'pin') { p.pin = String(crypto.randomInt(0, 1e6)).padStart(6, '0'); p.tokens = []; saveCfg(); } return phoneInfo(); });
   ipcMain.handle('phoneSync', (_e, s) => { if (s && Array.isArray(s.games)) PH.snap = { games: s.games.slice(0, 1500), playing: s.playing || null, name: String(s.name || '').slice(0, 40) }; return true; });

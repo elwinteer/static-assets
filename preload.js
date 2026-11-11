@@ -50,6 +50,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   onBp: (f) => { ipcRenderer.on('bp', (_e, a) => { try { f(a) } catch (e) {} }) },
   installed: (d) => ipcRenderer.invoke('installed', d),
   shots: (id) => ipcRenderer.invoke('shots', id),
+  aiStatus: () => ipcRenderer.invoke('aiStatus'),
+  aiAsk: (o) => ipcRenderer.invoke('aiAsk', o),
   phoneGet: () => ipcRenderer.invoke('phoneGet'),
   phoneSet: (o) => ipcRenderer.invoke('phoneSet', o),
   phoneSync: (s) => ipcRenderer.invoke('phoneSync', s),

@@ -4383,7 +4383,7 @@ V.home=()=>{
   const h=new Date().getHours(),sal=rwGreet(h<6?'Buenas noches':h<12?'Buen día':h<20?'Buenas tardes':'Buenas noches'),fecha=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}),nm=(p&&p.name)||UN(),wn=wrapNew()[0];
   return `<div class="h2 ${S.h2t==='para'?'fix':''}" id="h2r"><header class="h2-top rise" style="--i:0"><div class="l"><small>${fecha}</small><h2>${sal}, ${esc(nm)}</h2></div>
    <div class="h2-tabs" id="h2tb">${H2T.map(([k,l])=>`<button class="${S.h2t===k?'on':''}" data-a="h2tab" data-v="${k}">${l}${k==='act'&&wn?'<i></i>':''}</button>`).join('')}</div>
-   <div class="r">${wn?`<button class="h2-pill wr" data-a="wplay" data-id="${wn.key}">🎁 Wrapped listo</button>`:''}${njPill()}${rjPill()}<button class="h2-pill" data-a="go" data-v="profile" title="Mi perfil">Nv ${L.l} · ${Math.round(L.x)} XP<span class="xb"><i style="width:${L.pct}%"></i></span></button><button class="h2-dice" data-a="rand" title="¿Qué juego hoy? Elegir uno al azar" aria-label="Elegir un juego al azar"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.6" cy="8.6" r="1.35"/><circle cx="15.4" cy="8.6" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.6" cy="15.4" r="1.35"/><circle cx="15.4" cy="15.4" r="1.35"/></svg></button></div></header>
+   <div class="r">${wn?`<button class="h2-pill wr" data-a="wplay" data-id="${wn.key}">🎁 Wrapped listo</button>`:''}${njPill()}${x7Pill()}${rjPill()}<button class="h2-pill" data-a="go" data-v="profile" title="Mi perfil">Nv ${L.l} · ${Math.round(L.x)} XP<span class="xb"><i style="width:${L.pct}%"></i></span></button><button class="h2-dice" data-a="rand" title="¿Qué juego hoy? Elegir uno al azar" aria-label="Elegir un juego al azar"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.6" cy="8.6" r="1.35"/><circle cx="15.4" cy="8.6" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.6" cy="15.4" r="1.35"/><circle cx="15.4" cy="15.4" r="1.35"/></svg></button></div></header>
    <div id="hbody" class="h2-body">${h2Body(S.h2t,S.h2t==='para')}</div></div>`};
 Object.assign(A,{
  h2tab:a=>{const t=a.dataset.v,was=S.h2t;S.h2t=t;$$('#h2tb button').forEach(b=>b.classList.toggle('on',b===a));const r=$('#h2r');if(r)r.classList.toggle('fix',t==='para');const b=$('#hbody');if(b){b.innerHTML=h2Body(t,t==='para'&&was!=='para'||t==='para');counters(b)}},
@@ -8650,7 +8650,7 @@ function visOpen(){
 const visAutoOn=g=>{const p=((ST.vis||{}).pick||{})[g.id];return (p===true||(p!==false&&x8Coop(g)))?1:0};
 
 /* ---------- ajustes ---------- */
-function x8Rows(){return [bkRowHTML(),...x3Rows(),
+function x8Rows(){return [bkRowHTML(),...x3Rows(),...x7Rows(),
   `<div class="row"><div>Sesión con intención<small>Antes de jugar te pregunto cuánto vas a jugar y te aviso 5 minutos antes. No cierra nada solo.</small></div><button class="sw ${siOn()?'on':''}" data-a="x8sitog"></button></div>`,
   `<div class="row"><div>Modo visita<small>${visOn()?'Activo ahora.':'Para cuando viene alguien: solo juegos para jugar acompañado y nadie sale al launcher sin tu código.'}</small></div><button class="b2" data-a="x8vis">${visOn()?'Administrar':'Configurar'}</button></div>`]}
 
@@ -8920,6 +8920,53 @@ Object.assign(A,{
 });
 
 /* ===/X3A=== */
+/* ===X7A=== */
+/* ---------- 7 · IA local con Ollama ---------- */
+let X7={st:null,busy:0};
+const x7On=()=>!!(ST.ai&&ST.ai.on)&&WN&&!!winteerNative.aiAsk;
+async function x7Refresh(){try{X7.st=await winteerNative.aiStatus()}catch(e){X7.st={ok:false,models:[]}}
+  const a=ST.ai=ST.ai||{};if(X7.st.ok&&X7.st.models.length&&!X7.st.models.includes(a.model)){a.model=X7.st.models[0];save()}return X7.st}
+setTimeout(()=>{if(x7On())x7Refresh()},5000);
+const x7Blocked=()=>!!S.playing||!!(X7.st&&X7.st.busy);
+function x7Ctx(){const n=new Date(),L=G.filter(g=>!g.hide&&!vIs(g)).sort((a,b)=>lastTs(b)-lastTs(a));
+  return `Hoy es ${n.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}, ${n.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})} hs.\nBiblioteca de ${L.length} juegos (los últimos jugados primero):\n`+L.slice(0,70).map(g=>`- ${g.name} | ${fh(g.hours)} | ${stOf(g)}${genresOf(g).length?' | '+genresOf(g).slice(0,2).join('/'):''}`).join('\n')}
+const X7SYS='Sos el asistente de WINTEER, un launcher de juegos. Respondé en español rioplatense, corto (máximo 8 líneas) y amable. Recomendá solo juegos que estén en la lista del usuario y no inventes datos.';
+function x7Rows(){
+  if(!WN||!winteerNative.aiAsk)return [];
+  const on=!!(ST.ai&&ST.ai.on),s=X7.st;
+  const r1=`<div class="row"><div>Asistente con IA local<small>Si tenés Ollama instalado, podés preguntarle a tu biblioteca qué jugar. Funciona sin internet, usa solo el procesador (nada de placa de video), no baja ni guarda nada y se bloquea mientras hay un juego abierto.</small></div><button class="sw ${on?'on':''}" data-a="x7tog"></button></div>`;
+  if(!on)return [r1];
+  const st=!s?'Buscando Ollama…':!s.ok?'No encuentro Ollama. Instalalo desde ollama.com y bajá un modelo chico (por ejemplo llama3.2:1b); WINTEER no descarga nada.':!s.models.length?'Ollama está, pero no tiene modelos instalados. Bajá uno chico desde Ollama; WINTEER no descarga nada.':'Modelo: <b>'+esc((ST.ai||{}).model||'')+'</b>';
+  return [r1,`<div class="row"><div>${st}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${s&&s.ok&&s.models.length>1?'<button class="b2 g" data-a="x7models">Cambiar modelo</button>':''}<button class="b2 g" data-a="x7check">Revisar</button>${s&&s.ok&&s.models.length?'<button class="b2" data-a="x7ask">Preguntar</button>':''}</div></div>`]}
+function x7Pill(){try{return x7On()&&X7.st&&X7.st.ok&&X7.st.models.length?'<button class="h2-pill" data-a="x7ask" style="white-space:nowrap" title="Preguntale a tu biblioteca (IA local)">Preguntar</button>':''}catch(e){return ''}}
+async function x7Open(){
+  await x7Refresh();const s=X7.st,blk=x7Blocked(),ok=s&&s.ok&&s.models.length;
+  const chips=['¿A qué juego me conviene jugar hoy?','Tengo una hora libre. ¿Qué me recomendás?','¿Cuál de mis juegos sin terminar vale más la pena retomar?'];
+  $$('.modal').forEach(m=>m.remove());
+  modal(`<div style="text-align:left"><h3>Preguntale a tu biblioteca</h3>
+  ${!ok?'<p class="hint2">No encuentro Ollama o un modelo instalado. Revisalo en Ajustes, Biblioteca.</p>':blk?'<p class="hint2">Hay un juego abierto: la IA queda bloqueada para no sacarle rendimiento. Probá cuando lo cierres.</p>':`<p class="hint2">Corre en tu PC con ${esc((ST.ai||{}).model||'')}, sin internet y solo con el procesador. Puede tardar un rato.</p>`}
+  <div class="nj-fc">${chips.map(c=>`<button class="x6c" data-a="x7chip" data-q="${esc(c)}" ${ok&&!blk?'':'disabled'}>${esc(c)}</button>`).join('')}</div>
+  <textarea id="x7q" class="txt" rows="2" maxlength="300" placeholder="Escribí tu pregunta…" ${ok&&!blk?'':'disabled'}></textarea>
+  <div id="x7a" class="x7a"></div></div>
+  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button><button class="hm-go" id="x7go" data-a="x7send" ${ok&&!blk?'':'disabled'}>Preguntar</button></div>`,'x8m x7m')}
+async function x7Send(){
+  const q=(($('#x7q')||{}).value||'').trim(),out=$('#x7a'),b=$('#x7go');if(!q||!out||X7.busy)return;
+  if(x7Blocked()){out.textContent='Hay un juego abierto: la IA está bloqueada.';return}
+  X7.busy=1;if(b)b.disabled=true;out.innerHTML='<span class="d">Pensando… en el procesador puede tardar uno o dos minutos.</span>';
+  let r;try{r=await winteerNative.aiAsk({model:(ST.ai||{}).model,system:X7SYS,prompt:x7Ctx()+'\n\nPregunta: '+q})}catch(e){r={ok:false,err:'No pude consultar a Ollama'}}
+  X7.busy=0;const o2=$('#x7a'),b2=$('#x7go');if(b2)b2.disabled=false;if(!o2)return;
+  o2.textContent=r.ok?(r.text||'No tuve respuesta.'):r.busy?'Se abrió un juego y frené la IA para no sacarle rendimiento.':(r.err||'No se pudo')}
+Object.assign(A,{
+  x7tog:async()=>{ST.ai=ST.ai||{};ST.ai.on=!ST.ai.on;save();if(ST.ai.on)await x7Refresh();if(S.view==='settings')go('settings')},
+  x7check:async()=>{await x7Refresh();if(S.view==='settings')go('settings')},
+  x7models:()=>{const ms=(X7.st&&X7.st.models)||[];$$('.modal').forEach(m=>m.remove());modal(`<div style="text-align:left"><h3>Elegí el modelo</h3><p class="hint2">Los más chicos responden más rápido en el procesador.</p>${ms.map(m=>`<button class="b2 g x9lk" data-a="x7pick" data-m="${esc(m)}"><b>${esc(m)}</b><small>${m===(ST.ai||{}).model?'En uso':''}</small></button>`).join('')}</div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`,'x8m')},
+  x7pick:a=>{ST.ai=ST.ai||{};ST.ai.model=a.dataset.m;save();$$('.modal').forEach(m=>m.remove());if(S.view==='settings')go('settings');toast('Modelo: '+a.dataset.m)},
+  x7ask:()=>x7Open(),
+  x7chip:a=>{const t=$('#x7q');if(t){t.value=a.dataset.q;x7Send()}},
+  x7send:()=>x7Send()
+});
+
+/* ===/X7A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
@@ -8955,6 +9002,8 @@ Object.assign(A,{
 .nj-ch{display:inline-block;margin:4px 6px 0 0;padding:2px 10px;border-radius:99px;background:rgba(255,255,255,.08);font-size:12px}.nj-ch.ok{background:rgba(74,222,128,.2);color:#86efac}.nj-ch.no{background:rgba(248,113,113,.18);color:#fca5a5}
 .nj-m2 .mb,.nj-m2{min-width:min(560px,92vw)}
 /*/cX2A*/
+/*cX7A*/.x7a{margin-top:12px;white-space:pre-wrap;line-height:1.5;font-size:14px;max-height:40vh;overflow:auto}.x7m .mb,.x7m{min-width:min(560px,92vw)}
+/*/cX7A*/
 </style>
 </body>
 </html>
