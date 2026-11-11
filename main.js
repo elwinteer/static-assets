@@ -1591,7 +1591,7 @@ async function startApp() {
   createWindow(); applyBg();
 }
 
-/* ===== IA local con Ollama: usa lo que ya esta instalado, solo CPU, se descarga de memoria al terminar y se bloquea con un juego abierto ===== */
+/* ===== IA local con Ollama: usa lo que ya esta instalado, placa de video por defecto, se descarga de memoria al terminar y se bloquea con un juego abierto ===== */
 function ollamaReq(method, p, body, ms, ctl) {
   return new Promise((resolve) => {
     const http = require('http'); let done = false;
@@ -1618,7 +1618,10 @@ async function aiAsk(o) {
   const model = String(o && o.model || '').slice(0, 80); if (!model) return { ok: false, err: 'Sin modelo' };
   const ctl = {}, watch = setInterval(() => { if (track.size > 0 && ctl.kill) ctl.kill(); }, 1200);
   const threads = Math.max(2, Math.floor(os.cpus().length / 2));
-  const r = await ollamaReq('POST', '/api/generate', { model, prompt: String(o.prompt || '').slice(0, 8000), system: String(o.system || '').slice(0, 2000), stream: false, keep_alive: 0, options: { num_gpu: 0, num_thread: threads, num_ctx: 2048, temperature: 0.7, num_predict: 400 } }, 180000, ctl);
+  const go = (cpu) => ollamaReq('POST', '/api/generate', { model, prompt: String(o.prompt || '').slice(0, 8000), system: String(o.system || '').slice(0, 2000), stream: false, keep_alive: 0, options: Object.assign({ num_thread: threads, num_ctx: 2048, temperature: 0.7, num_predict: 400 }, cpu ? { num_gpu: 0 } : {}) }, 180000, ctl);
+  /* por defecto usa la placa de video (no hay juego abierto, asi que no compite); si falla (poca memoria de video) reintenta con el procesador */
+  let r = await go(!!o.cpu);
+  if (!o.cpu && !r.aborted && r.status === 500 && track.size === 0) r = await go(true);
   clearInterval(watch);
   if (r.aborted || track.size > 0) return { ok: false, busy: true };
   if (r.status !== 200) return { ok: false, err: r.timeout ? 'Tardó demasiado. Probá con un modelo más chico' : 'Ollama no respondió' };
