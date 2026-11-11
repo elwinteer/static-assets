@@ -8997,7 +8997,7 @@ Object.assign(A,{
 /* ===/X7A=== */
 /* ===X1A=== */
 /* ---------- 1 · máquina del tiempo de partidas ---------- */
-const tmCfg=()=>{ST.tm=ST.tm||{dir:'',keep:20,g:{},ask:{}};ST.tm.g=ST.tm.g||{};ST.tm.ask=ST.tm.ask||{};const b=ST.bk&&ST.bk.dir;ST.tm.dir=b?b.replace(/[\\/]+$/,'')+(b.includes('\\')?'\\':'/')+'Partidas':'';return ST.tm};
+const tmCfg=()=>{ST.tm=ST.tm||{dir:'',keep:20,g:{},ask:{}};ST.tm.g=ST.tm.g||{};ST.tm.ask=ST.tm.ask||{};if(!(ST.tm.keep<=5))ST.tm.keep=5;const b=ST.bk&&ST.bk.dir;ST.tm.dir=b?b.replace(/[\\/]+$/,'')+(b.includes('\\')?'\\':'/')+'Partidas':'';return ST.tm};
 const tmG=id=>tmCfg().g[id]||null;
 const tmOk=g=>WN&&winteerNative.tmSnap&&g&&!isSteamG(g)&&!vIs(g);
 const tmFmtB=n=>n>=1e9?(n/1e9).toFixed(1)+' GB':n>=1e6?(n/1e6).toFixed(1)+' MB':n>=1e3?Math.round(n/1e3)+' KB':n+' B';
