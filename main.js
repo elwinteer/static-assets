@@ -2065,7 +2065,7 @@ function steamAutoInstall(letter) {
   SAI = true;
   const idx = letter ? steamDrives().findIndex(x => x[0] === String(letter).toUpperCase()) : -1;
   const ps = `
-Add-Type -TypeDefinition @"
+Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @"
 using System;using System.Text;using System.Runtime.InteropServices;
 public class WtW{public delegate bool CB(IntPtr h,IntPtr l);
 [DllImport("user32.dll")]public static extern bool EnumWindows(CB c,IntPtr l);
@@ -2073,13 +2073,29 @@ public class WtW{public delegate bool CB(IntPtr h,IntPtr l);
 [DllImport("user32.dll")]public static extern bool IsWindowVisible(IntPtr h);
 [DllImport("user32.dll")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
 [DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);
+[DllImport("user32.dll")]public static extern bool BringWindowToTop(IntPtr h);
+[DllImport("user32.dll")]public static extern bool ShowWindow(IntPtr h,int c);
 [DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();
+[DllImport("user32.dll")]public static extern bool SetProcessDPIAware();
+[DllImport("user32.dll")]public static extern void keybd_event(byte k,byte s,uint f,UIntPtr e);
 [DllImport("user32.dll")]public static extern bool GetWindowRect(IntPtr h,out RECT r);
-public struct RECT{public int L,T,R,B;}
 [DllImport("user32.dll")]public static extern bool SetCursorPos(int x,int y);
 [DllImport("user32.dll")]public static extern void mouse_event(uint f,int dx,int dy,uint d,UIntPtr e);
-public static IntPtr Find(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.StartsWith("Install")||t.StartsWith("Instalar")){uint pid;GetWindowThreadProcessId(h,out pid);try{var n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();if(n=="steam"||n=="steamwebhelper"){r=h;return false;}}catch{}}return true;},IntPtr.Zero);return r;}}
+public struct RECT{public int L,T,R,B;}
+public static IntPtr Find(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.StartsWith("Install")||t.StartsWith("Instalar")){uint pid;GetWindowThreadProcessId(h,out pid);try{var n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();if(n=="steam"||n=="steamwebhelper"){r=h;return false;}}catch{}}return true;},IntPtr.Zero);return r;}
+public static string Fg(){uint p;GetWindowThreadProcessId(GetForegroundWindow(),out p);try{return System.Diagnostics.Process.GetProcessById((int)p).ProcessName.ToLower();}catch{return "?";}}
+public static void Focus(IntPtr h){keybd_event(0x12,0,0,UIntPtr.Zero);keybd_event(0x12,0,2,UIntPtr.Zero);ShowWindow(h,9);BringWindowToTop(h);SetForegroundWindow(h);}
+public static void Click(int x,int y){SetCursorPos(x,y);System.Threading.Thread.Sleep(120);mouse_event(2,0,0,0,UIntPtr.Zero);System.Threading.Thread.Sleep(60);mouse_event(4,0,0,0,UIntPtr.Zero);}
+public static int[] Rows(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return new int[0];
+ using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
+ var bg=bmp.GetPixel(8,hh/2);double k=w/540.0;int x1=(int)(28*k),x2=w-(int)(36*k);
+ Func<System.Drawing.Color,bool> bar=c=>Math.Abs(c.R-bg.R)+Math.Abs(c.G-bg.G)+Math.Abs(c.B-bg.B)>45;
+ var o=new System.Collections.Generic.List<int>();int st=-1;
+ for(int y=0;y<=hh;y++){bool on=y<hh&&bar(bmp.GetPixel(x1,y))&&bar(bmp.GetPixel(x2,y));
+  if(on&&st<0)st=y;if(!on&&st>=0){int len=y-st;if(len>=30*k&&len<=64*k)o.Add(r.T+(st+y)/2);st=-1;}}
+ o.Add(r.L+(x1+x2)/2);return o.ToArray();}}}
 "@
+[void][WtW]::SetProcessDPIAware()
 Add-Type -AssemblyName System.Windows.Forms
 $idx=[int]$env:WT_IDX
 $end=(Get-Date).AddSeconds(25)
@@ -2087,16 +2103,15 @@ while((Get-Date) -lt $end){
   $h=[WtW]::Find()
   if($h -ne [IntPtr]::Zero){
     Start-Sleep -Milliseconds 1200
-    [void][WtW]::SetForegroundWindow($h);Start-Sleep -Milliseconds 500
-    $f=[WtW]::GetForegroundWindow();$fp=0;[void][WtW]::GetWindowThreadProcessId($f,[ref]$fp)
-    $pn='';try{$pn=(Get-Process -Id $fp).ProcessName.ToLower()}catch{}
-    if($pn -ne 'steam' -and $pn -ne 'steamwebhelper'){Write-Output 'nofocus';exit}
+    $okf=$false
+    for($i=0;$i -lt 4;$i++){[WtW]::Focus($h);Start-Sleep -Milliseconds 350;$p=[WtW]::Fg();if($p -eq 'steam' -or $p -eq 'steamwebhelper'){$okf=$true;break}}
+    if(-not $okf){Write-Output ('nofocus:'+[WtW]::Fg());exit}
     if($idx -ge 0){
-      $r=New-Object WtW+RECT;[void][WtW]::GetWindowRect($h,[ref]$r)
-      $k=($r.R-$r.L)/582.0
-      $x=[int]($r.L+300*$k);$y=[int]($r.T+(250+50*$idx)*$k)
-      [void][WtW]::SetCursorPos($x,$y);Start-Sleep -Milliseconds 150
-      [WtW]::mouse_event(2,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 60;[WtW]::mouse_event(4,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 500}
+      $rw=[WtW]::Rows($h)
+      if($rw.Length -lt 2){Write-Output 'norows';exit}
+      $n=$rw.Length-1
+      if($idx -ge $n){Write-Output 'nodrive';exit}
+      [WtW]::Click($rw[$n],$rw[$idx]);Start-Sleep -Milliseconds 500}
     [System.Windows.Forms.SendKeys]::SendWait("{ENTER}");Write-Output 'ok';exit}
   Start-Sleep -Milliseconds 400}
 Write-Output 'timeout'`;
