@@ -1902,6 +1902,13 @@ async function emInstall(id) {
   } catch (e) { return { ok: false, err: 'net' }; }
   finally { emBusy = false; }
 }
+
+function driveFind() {
+  const home = os.homedir(), c = [path.join(home, 'Google Drive'), path.join(home, 'Google Drive', 'Mi unidad'), path.join(home, 'Google Drive', 'My Drive')];
+  for (let i = 71; i <= 90; i++) { const L = String.fromCharCode(i) + ':\\'; for (const n of ['Mi unidad', 'My Drive']) c.push(L + n); }
+  for (const d of c) { try { if (fs.statSync(d).isDirectory()) return d; } catch (e) {} }
+  return '';
+}
 function emDetect(cat) {
   const e = tmEnv(), pf = [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], path.join(e.local, 'Programs'), path.join(e.home, 'Desktop'), path.join(e.home, 'Downloads'), e.docs, path.join(e.home, 'scoop', 'apps'), 'C:\\Emulators', 'D:\\Emulators', 'C:\\Emuladores', 'D:\\Emuladores', 'C:\\Games', 'D:\\Games', 'C:\\RetroArch', 'D:\\RetroArch'].filter(Boolean);
   const res = {}, rx = (cat || []).map(c => ({ id: c.id, re: new RegExp(c.re, 'i') })); let budget = 9000;
@@ -2351,6 +2358,7 @@ app.whenReady().then(() => {
   ipcMain.handle('worldOpen', (_e, p) => { try { if (fs.existsSync(p)) shell.showItemInFolder(path.join(p, '..', path.basename(p))); } catch (e) {} return true; });
   ipcMain.handle('emScan', (_e, o) => { try { return emScan(o || {}); } catch (e) { return []; } });
   ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
+  ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
   ipcMain.handle('emPick', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí el emulador'), properties: ['openFile'], filters: [{ name: 'Programa', extensions: ['exe'] }] }); return r.canceled ? '' : r.filePaths[0]; });

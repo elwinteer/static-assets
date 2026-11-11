@@ -3747,9 +3747,12 @@ V.wrapped=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="stack"><
   ${d.fb?'':`<section class="card rise" style="--i:3"><h3>Mes a mes${d.bm>=0?` · tu mes fuerte fue <span style="color:var(--a2)">${MN[d.bm]}</span>`:''}</h3><div class="mbars">${d.month.map((h,i)=>q&&(i<(q-1)*3||i>=q*3)?'':`<div class="mb2"><div class="mcol"><i style="--h:${h/mx*100}%;--d:${i}" title="${h.toFixed(1)} h"></i></div><span>${MN[i]}</span></div>`).join('')}</div></section>`}
   <section class="card rise" style="--i:4"><h3>Completados ${q?'en el '+QN[q]:'en '+S.wy}</h3>${d.done.length?`<div class="wdone">${d.done.map(g=>`<div class="wdc" data-a="open" data-id="${g.id}"><div class="cover"><img src="${art.wide(g)}" alt=""></div><b>${esc(g.name)}</b><small>${doneDate(g)?new Date(doneDate(g)).toLocaleDateString('es-AR'):'Sin fecha'}</small></div>`).join('')}</div>`:'<div class="empty">Ningún juego completado en este período… todavía.</div>'}</section></div>`};
 
-function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'todavía no hiciste ninguna';
-  return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo (horas, logros, perfil, reseñas y las imágenes que cargaste vos) en un único archivo que se sobrescribe, dentro de la carpeta que elijas. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
-  <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small></div><div style="display:flex;gap:10px"><button class="b2" data-a="bkpick">Elegir carpeta</button><button class="b2 g" data-a="bknow">Copiar ahora</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
+const X1D={p:null};
+function x1Drive(){if(!WN||!winteerNative.driveFind||X1D.p!==null)return;X1D.p='';winteerNative.driveFind().then(p=>{X1D.p=p||'';if(S.view==='settings'&&p)go('settings')}).catch(()=>{})}
+function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'todavía no hiciste ninguna';x1Drive();
+  const cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir),n=Object.values((ST.tm&&ST.tm.g)||{}).filter(x=>x.paths&&x.paths.length).length;
+  return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo (horas, logros, perfil, reseñas y las imágenes que cargaste vos) en un único archivo que se sobrescribe. Además, dentro de la misma carpeta, va guardando versiones de las partidas de tus juegos de Epic, Xbox, .exe y emulados${n?' ('+n+' con copias)':''} para que puedas volver atrás desde la ficha de cada juego. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
+  <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small><small style="display:block;margin-top:4px">${cloud?'Está en la nube: tus copias y partidas te siguen a cualquier PC.':'Recomendado: una carpeta de Google Drive, así todo queda en la nube y lo recuperás aunque cambies de PC.'}</small></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
 const STABS=[['look','Apariencia','flake'],['avi','Avisos y sonido','bolt'],['lib','Biblioteca','games'],['data','Sistema y datos','shield']];
 const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="sv" data-k="${k}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
 const badge=(ok,t1,t0)=>`<span class="bdg ${ok?'ok':''}">${ok?t1:t0}</span>`;
@@ -3978,7 +3981,9 @@ const A={
     const r=await winteerNative.exportFile({name:'WINTEER-sagas-export.json',json:JSON.stringify({sgx:ST.sgx||{},sghid:ST.sghid||[],sgc:JSON.parse(localStorage.getItem('winteer_sagas')||'null'),art,games:G.map(g=>({id:g.id,app:g.app,name:g.name}))})});
     toast(r&&r.ok?'Listo: WINTEER-sagas-export.json en tu escritorio':'No pude guardar el archivo')}catch(e){toast('No pude exportar')}a.textContent='Exportar'},
   bkpick:async()=>{const d=await winteerNative.pickDir();if(!d)return;ST.bk=ST.bk||{};ST.bk.dir=d;if(ST.bk.on===undefined)ST.bk.on=true;save();go('settings');toast('Carpeta elegida')},
-  bknow:async()=>{if(!ST.bk||!ST.bk.dir){toast('Primero elegí una carpeta');return}const r=await doBackup();toast(r?'Copia guardada en tu carpeta':'No pude guardar la copia')},
+  bkdrive:()=>{if(!X1D.p)return;const sep=X1D.p.includes('\\')?'\\':'/';ST.bk=ST.bk||{};ST.bk.dir=X1D.p.replace(/[\\/]+$/,'')+sep+'WINTEER';if(ST.bk.on===undefined)ST.bk.on=true;save();go('settings');toast('Las copias van a tu Google Drive')},
+  bknow:async()=>{if(!ST.bk||!ST.bk.dir){toast('Primero elegí una carpeta');return}const r=await doBackup();let ok=0;if(r&&winteerNative.tmSnap){const c=tmCfg();for(const id of Object.keys(c.g)){const q=c.g[id],g=gm(id);if(!g||!q.paths||!q.paths.length)continue;try{const t=await winteerNative.tmSnap({id:g.id,name:g.name,paths:q.paths,dir:c.dir,label:'Manual',keep:c.keep,force:true});if(t&&t.ok)ok++}catch(e){}}}
+    toast(r?'Copia guardada en tu carpeta'+(ok?' y partidas de '+ok+' juego'+(ok===1?'':'s'):''):'No pude guardar la copia')},
   impstore:async a=>{const s=a.dataset.s,lab=$('#imp-'+(s==='epic'?'ep':'xb'));a.textContent='Buscando…';
     const r=await (s==='epic'?winteerNative.scanEpic():winteerNative.scanXbox());a.textContent='Importar';
     if(!r.found){if(lab)lab.textContent=s==='epic'?'No encontré el launcher de Epic en esta PC.':'No pude leer los juegos de Xbox.';toast(s==='epic'?'No encontré Epic Games':'No encontré juegos de Xbox');return}
@@ -8972,7 +8977,7 @@ Object.assign(A,{
 /* ===/X7A=== */
 /* ===X1A=== */
 /* ---------- 1 · máquina del tiempo de partidas ---------- */
-const tmCfg=()=>{ST.tm=ST.tm||{dir:'',keep:20,g:{},ask:{}};ST.tm.g=ST.tm.g||{};ST.tm.ask=ST.tm.ask||{};return ST.tm};
+const tmCfg=()=>{ST.tm=ST.tm||{dir:'',keep:20,g:{},ask:{}};ST.tm.g=ST.tm.g||{};ST.tm.ask=ST.tm.ask||{};const b=ST.bk&&ST.bk.dir;ST.tm.dir=b?b.replace(/[\\/]+$/,'')+(b.includes('\\')?'\\':'/')+'Partidas':'';return ST.tm};
 const tmG=id=>tmCfg().g[id]||null;
 const tmOk=g=>WN&&winteerNative.tmSnap&&g&&!isSteamG(g)&&!vIs(g);
 const tmFmtB=n=>n>=1e9?(n/1e9).toFixed(1)+' GB':n>=1e6?(n/1e6).toFixed(1)+' MB':n>=1e3?Math.round(n/1e3)+' KB':n+' B';
@@ -8992,7 +8997,7 @@ setInterval(()=>{try{const pl=S.playing&&gm(S.playing.id);if(!pl||!tmOk(pl))retu
 function tmTabHTML(g){
   const c=tmG(g.id),ps=(c&&c.paths)||[];
   setTimeout(()=>tmLoad(g.id),0);
-  return `<div class="tm"><div class="shh"><div><b>Máquina del tiempo</b><small>Guarda versiones de tus partidas para volver atrás si se rompe un save. Se copia sola antes de jugar, cada 30 minutos mientras jugás y al cerrar. Para juegos de otras tiendas, .exe y emulados.</small></div><button class="b2 g sm" data-a="tmopen" data-id="${g.id}">Abrir carpeta</button></div>
+  return `<div class="tm"><div class="shh"><div><b>Máquina del tiempo</b><small>Guarda versiones de tus partidas para volver atrás si se rompe un save. Se copia sola antes de jugar, cada 30 minutos mientras jugás y al cerrar, dentro de la carpeta de tus copias de seguridad (Ajustes, Biblioteca).</small></div><button class="b2 g sm" data-a="tmopen" data-id="${g.id}">Abrir carpeta</button></div>
   <div class="lbl">Carpetas de partidas</div><div id="tmp">${ps.length?ps.map((p,i)=>`<div class="tm-r"><div class="tm-m"><b>${esc(p.split(/[\\/]/).slice(-2).join('\\'))}</b><small>${esc(p)}</small></div><button class="b2 g sm" data-a="tmrm" data-id="${g.id}" data-i="${i}">Quitar</button></div>`).join(''):'<p class="hint2">Todavía no elegiste dónde guarda sus partidas este juego.</p>'}</div>
   <div class="tm-b"><button class="b2" data-a="tmfind" data-id="${g.id}">Buscar carpeta</button><button class="b2 g" data-a="tmadd" data-id="${g.id}">Elegir carpeta</button>${ps.length?`<button class="b2 g" data-a="tmnow" data-id="${g.id}">Guardar copia ahora</button><button class="sw ${c.auto===false?'':'on'}" data-a="tmauto" data-id="${g.id}" title="Copias automáticas"></button><small>Automático</small>`:''}</div>
   ${c&&c.err?`<p class="hint2" style="color:#fca5a5">${esc(c.err)}</p>`:''}
@@ -9001,9 +9006,7 @@ async function tmLoad(id){
   const el=$('#tmv');if(!el||!WN)return;let l=[];try{l=await winteerNative.tmList({id,dir:tmCfg().dir})}catch(e){}TMV[id]=l;const e2=$('#tmv');if(!e2)return;
   e2.innerHTML=l.length?l.map(v=>`<div class="tm-r"><div class="tm-m"><b>${esc(tmWhen(v.t))}${v.pin?' · fijada':''}</b><small>${esc(v.label||'')} · ${v.files} archivo${v.files===1?'':'s'} · ${tmFmtB(v.size||0)}</small></div><div class="tm-a"><button class="b2 sm" data-a="tmrest" data-id="${id}" data-v="${esc(v.v)}">Restaurar</button><button class="b2 g sm" data-a="tmpin" data-id="${id}" data-v="${esc(v.v)}">${v.pin?'Soltar':'Fijar'}</button><button class="b2 g sm" data-a="tmdel" data-id="${id}" data-v="${esc(v.v)}">Borrar</button></div></div>`).join(''):'<p class="hint2">Todavía no hay copias. Elegí la carpeta de partidas y tocá Guardar copia ahora.</p>'}
 function tmRefreshTab(){if(S.view==='games'&&S.tab==='tm')renderTab()}
-function x1Rows(){
-  if(!WN||!winteerNative.tmSnap)return [];const c=tmCfg(),n=Object.values(c.g).filter(x=>x.paths&&x.paths.length).length;
-  return [`<div class="row"><div>Máquina del tiempo de partidas<small>Versiones de los saves de juegos de Epic, Xbox, .exe y emulados (Steam ya tiene su nube). ${n?n+' juego'+(n===1?'':'s')+' con copias. ':''}Carpeta de destino: <b>${esc(c.dir||'la de WINTEER (por defecto)')}</b>. Guarda hasta ${c.keep||20} versiones por juego.</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="tmdir">Elegir carpeta</button><button class="b2 g" data-a="tmopen" data-id="">Abrir</button></div></div>`]}
+function x1Rows(){return []}
 function tmCandModal(id,list,online){
   const g=gm(id);$$('.modal').forEach(m=>m.remove());
   modal(`<div style="text-align:left"><h3>Carpetas de partidas encontradas</h3><p class="hint2">Elegí las que son de <b>${esc(g.name)}</b>. Te muestro el tamaño y cuándo se tocaron por última vez.</p>
