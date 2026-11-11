@@ -1591,6 +1591,142 @@ async function startApp() {
   createWindow(); applyBg();
 }
 
+/* ===== Maquina del tiempo de partidas: copias con versiones de los saves (no Steam) ===== */
+const tmSan = id => String(id).replace(/[^\w.-]/g, '_');
+const tmRoot = d => (d && String(d).trim()) ? String(d) : path.join(app.getPath('userData'), 'partidas');
+const tmStamp = (d) => { const p = n => String(n).padStart(2, '0'); d = d || new Date(); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + '-' + p(d.getMinutes()) + '-' + p(d.getSeconds()); };
+function tmWalk(p, base, out, lim) {
+  let st; try { st = fs.lstatSync(p); } catch (e) { return out; }
+  if (st.isSymbolicLink()) return out;
+  if (st.isFile()) { out.push({ rel: base || path.basename(p), size: st.size, m: st.mtimeMs }); return out; }
+  if (!st.isDirectory()) return out;
+  let ls = []; try { ls = fs.readdirSync(p); } catch (e) { return out; }
+  for (const f of ls) { if (out.length > lim) break; tmWalk(path.join(p, f), (base ? base + '/' : '') + f, out, lim); }
+  return out;
+}
+function tmEnv(o) {
+  const e = process.env, home = e.USERPROFILE || os.homedir();
+  return Object.assign({ appdata: e.APPDATA || path.join(home, 'AppData', 'Roaming'), local: e.LOCALAPPDATA || path.join(home, 'AppData', 'Local'), docs: (() => { try { return app.getPath('documents'); } catch (x) { return path.join(home, 'Documents'); } })(), home, user: e.USERNAME || os.userInfo().username, pub: e.PUBLIC || 'C:\\Users\\Public', pdata: e.ProgramData || 'C:\\ProgramData' }, o || {});
+}
+const tmNorm = s => String(s || '').toLowerCase().replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/[^a-z0-9]/g, '');
+function tmGlob(p) {
+  const parts = p.replace(/\\/g, '/').split('/'); let cur = [parts[0] === '' ? '/' : parts[0]];
+  if (/^[A-Za-z]:$/.test(parts[0])) cur = [parts[0] + '/'];
+  for (let i = 1; i < parts.length; i++) {
+    const seg = parts[i]; if (seg === '') continue; const next = [];
+    if (/[*?]/.test(seg)) {
+      const re = new RegExp('^' + seg.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$', 'i');
+      for (const b of cur) { let ls = []; try { ls = fs.readdirSync(b); } catch (e) {} for (const f of ls) if (re.test(f)) next.push(path.join(b, f)); }
+    } else for (const b of cur) { const q = path.join(b, seg); if (fs.existsSync(q)) next.push(q); }
+    cur = next.slice(0, 40); if (!cur.length) break;
+  }
+  return cur;
+}
+/* lector minimo del manifiesto de Ludusavi (YAML): solo toma lo de los juegos pedidos */
+function lsParse(text, wanted, stores) {
+  const out = []; let cur = null, sec = '', ent = null, wb = null;
+  const unq = s => { s = s.trim(); if (s[0] === '"') { const m = s.match(/^"((?:[^"\\]|\\.)*)"/); return m ? m[1].replace(/\\(.)/g, '$1') : s; } if (s[0] === "'") { const m = s.match(/^'([^']*)'/); return m ? m[1] : s; } return s.replace(/:\s*(\{\}|)$/, '').trim(); };
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i].replace(/\r$/, ''); if (!ln || ln[0] === '#') continue;
+    const ind = ln.length - ln.trimStart().length, t = ln.trim();
+    if (ind === 0) { const k = unq(t.replace(/:\s*$/, '')); const nk = tmNorm(k); cur = wanted.has(nk) ? { name: k, files: [], install: [] } : null; if (cur) out.push(cur); sec = ''; ent = null; continue; }
+    if (!cur) continue;
+    if (ind === 2) { sec = t.startsWith('files:') ? 'files' : t.startsWith('installDir:') ? 'install' : ''; ent = null; continue; }
+    if (sec === 'install' && ind === 4) { cur.install.push(unq(t)); continue; }
+    if (sec !== 'files') continue;
+    if (ind === 4) { ent = { p: unq(t.replace(/:\s*$/, '')), tags: [], when: [] }; cur.files.push(ent); wb = null; continue; }
+    if (!ent) continue;
+    if (ind === 6) { wb = t.startsWith('tags:') ? 'tags' : t.startsWith('when:') ? 'when' : ''; continue; }
+    if (wb === 'tags' && t.startsWith('- ')) ent.tags.push(t.slice(2).trim());
+    else if (wb === 'when') { if (t.startsWith('- ')) { ent.when.push({}); const kv = t.slice(2).match(/^(\w+):\s*(.*)$/); if (kv) ent.when[ent.when.length - 1][kv[1]] = kv[2].trim(); } else { const kv = t.match(/^(\w+):\s*(.*)$/); if (kv && ent.when.length) ent.when[ent.when.length - 1][kv[1]] = kv[2].trim(); } }
+  }
+  return out.map(g => { g.files = g.files.filter(f => (!f.tags.length || f.tags.includes('save')) && (!f.when.length || f.when.some(w => (!w.os || w.os === 'windows') && (!w.store || stores.includes(w.store))))); return g; });
+}
+function lsExpand(pat, env, base, game) {
+  let p = pat; const map = { '<winAppData>': env.appdata, '<winLocalAppData>': env.local, '<winDocuments>': env.docs, '<winPublic>': env.pub, '<winProgramData>': env.pdata, '<home>': env.home, '<osUserName>': env.user, '<storeUserId>': '*', '<storeGameId>': '*', '<winLocalAppDataLow>': path.join(env.local, '..', 'LocalLow') };
+  if (base) { map['<base>'] = base; map['<root>'] = path.dirname(base); }
+  if (game) map['<game>'] = game;
+  for (const k of Object.keys(map)) p = p.split(k).join(map[k]);
+  return /<\w+>/.test(p) ? '' : p;
+}
+const tmDirSize = (p) => tmWalk(p, '', [], 60000).reduce((a, f) => a + f.size, 0);
+function tmFindHeur(o, env) {
+  const nm = String(o.name || ''), exe = String(o.exe || ''), base = exe ? path.dirname(exe) : '';
+  const names = [...new Set([nm, nm.replace(/[:™®©]/g, ''), nm.replace(/[^\w ]/g, '').trim(), exe ? path.basename(exe, path.extname(exe)).replace(/[-_ ]?(Win64|Win32|Shipping|x64|x86)/gi, '') : ''].filter(x => x && x.length > 2))];
+  const roots = [[path.join(env.docs, 'My Games'), 'Documentos/My Games'], [env.docs, 'Documentos'], [path.join(env.home, 'Saved Games'), 'Saved Games'], [env.local, 'AppData Local'], [env.appdata, 'AppData Roaming'], [path.join(env.local, '..', 'LocalLow'), 'AppData LocalLow']];
+  const out = [], seen = new Set(), add = (p, why) => { const k = p.toLowerCase(); if (seen.has(k)) return; try { if (!fs.existsSync(p)) return; } catch (e) { return; } seen.add(k); out.push({ p, why }); };
+  for (const [r, w] of roots) for (const n of names) {
+    add(path.join(r, n), w);
+    add(path.join(r, n, 'Saved', 'SaveGames'), w + ' (Unreal)'); add(path.join(r, n, 'Saved'), w + ' (Unreal)');
+  }
+  if (base) for (const s of ['Saves', 'Save', 'SaveGames', 'savegames', 'savedata', 'saves', 'Savegame']) add(path.join(base, s), 'Carpeta del juego');
+  return out;
+}
+async function tmFind(o) {
+  const env = tmEnv(), out = tmFindHeur(o, env);
+  const base = o.exe ? path.dirname(o.exe) : '';
+  try {
+    const mf = path.join(app.getPath('userData'), 'ludusavi.yaml'); let st = null; try { st = fs.statSync(mf); } catch (e) {}
+    if (o.online && (!st || Date.now() - st.mtimeMs > 30 * 864e5)) {
+      try { const r = await net.fetch('https://raw.githubusercontent.com/mtkennerly/ludusavi-manifest/master/data/manifest.yaml', { headers: { 'user-agent': UA } }); if (r.ok) { fs.writeFileSync(mf, await r.text()); st = fs.statSync(mf); } } catch (e) {}
+    }
+    if (st) {
+      const g = lsParse(fs.readFileSync(mf, 'utf8'), new Set([tmNorm(o.name)]), ['epic', 'microsoft', 'other']);
+      const seen = new Set(out.map(x => x.p.toLowerCase()));
+      for (const e of g) for (const f of e.files) for (const gm of (e.install.length ? e.install : [''])) {
+        const ex = lsExpand(f.p, env, base, gm); if (!ex) continue;
+        for (const q of tmGlob(ex)) { if (!seen.has(q.toLowerCase())) { seen.add(q.toLowerCase()); out.push({ p: q, why: 'Base de datos de partidas' }); } }
+      }
+    }
+  } catch (e) {}
+  return out.slice(0, 12).map(x => { const w = tmWalk(x.p, '', [], 5000); return Object.assign(x, { size: w.reduce((a, f) => a + f.size, 0), files: w.length, m: w.reduce((a, f) => Math.max(a, f.m), 0) }); }).filter(x => x.files > 0);
+}
+function tmVers(id, dir) {
+  const gd = path.join(tmRoot(dir), tmSan(id)), out = [];
+  let ls = []; try { ls = fs.readdirSync(gd); } catch (e) { return out; }
+  for (const v of ls) { if (!/^\d{4}-\d\d-\d\dT\d\d-\d\d-\d\d/.test(v)) continue; try { const m = JSON.parse(fs.readFileSync(path.join(gd, v, 'meta.json'), 'utf8')); out.push(Object.assign({ v }, m)); } catch (e) {} }
+  return out.sort((a, b) => b.t - a.t);
+}
+function tmSnap(o) {
+  const id = o.id, paths = (o.paths || []).map(String).filter(Boolean).slice(0, 8);
+  if (!id || !paths.length) return { ok: false, err: 'No hay carpetas de partidas elegidas' };
+  const lists = paths.map(p => tmWalk(p, '', [], 50000));
+  const tot = lists.flat(); if (!tot.length) return { ok: false, err: 'No encuentro archivos en la carpeta de partidas' };
+  const size = tot.reduce((a, f) => a + f.size, 0); if (size > 2e9 || tot.length > 50000) return { ok: false, err: 'La carpeta es demasiado grande para copiarla (más de 2 GB)' };
+  const sig = crypto.createHash('sha1').update(lists.map((l, i) => l.map(f => i + '|' + f.rel + '|' + f.size + '|' + Math.floor(f.m / 1000)).sort().join('\n')).join('##')).digest('hex');
+  const vers = tmVers(id, o.dir);
+  if (!o.force && vers[0] && vers[0].sig === sig) return { ok: true, skipped: true };
+  const root = tmRoot(o.dir), gd = path.join(root, tmSan(id)); let v = tmStamp(), n = 1; while (fs.existsSync(path.join(gd, v))) v = tmStamp() + '-' + (n++);
+  const vd = path.join(gd, v);
+  try {
+    fs.mkdirSync(vd, { recursive: true });
+    paths.forEach((p, i) => { let st; try { st = fs.statSync(p); } catch (e) { return; } if (st.isDirectory()) fs.cpSync(p, path.join(vd, 'p' + i), { recursive: true }); else { fs.mkdirSync(path.join(vd, 'p' + i), { recursive: true }); fs.copyFileSync(p, path.join(vd, 'p' + i, path.basename(p))); } });
+    fs.writeFileSync(path.join(vd, 'meta.json'), JSON.stringify({ t: Date.now(), label: String(o.label || 'Manual').slice(0, 40), paths, sig, size, files: tot.length, pin: false, kinds: paths.map(p => { try { return fs.statSync(p).isDirectory() ? 'd' : 'f'; } catch (e) { return 'd'; } }), name: String(o.name || '').slice(0, 80) }));
+  } catch (e) { try { fs.rmSync(vd, { recursive: true, force: true }); } catch (x) {} return { ok: false, err: /ENOSPC/.test(String(e.message)) ? 'El disco de destino está lleno' : /EPERM|EACCES/.test(String(e.message)) ? 'No hay permiso para escribir en la carpeta de destino' : String(e.message || e) }; }
+  const keep = Math.max(3, Math.min(100, +o.keep || 15)), all = tmVers(id, o.dir).filter(x => !x.pin);
+  all.slice(keep).forEach(x => { try { fs.rmSync(path.join(gd, x.v), { recursive: true, force: true }); } catch (e) {} });
+  return { ok: true, v };
+}
+function tmRestore(o) {
+  if (track.has(o.id)) return { ok: false, err: 'Cerrá el juego antes de restaurar' };
+  const vd = path.join(tmRoot(o.dir), tmSan(o.id), String(o.v || '').replace(/[^\w.-]/g, '_'));
+  let meta; try { meta = JSON.parse(fs.readFileSync(path.join(vd, 'meta.json'), 'utf8')); } catch (e) { return { ok: false, err: 'No encuentro esa versión' }; }
+  const safe = tmSnap({ id: o.id, paths: meta.paths, dir: o.dir, label: 'Antes de restaurar', force: true, keep: o.keep, name: meta.name });
+  if (!safe.ok && !/No encuentro archivos|No hay carpetas/.test(safe.err || '')) return { ok: false, err: 'No pude guardar una copia de seguridad antes: ' + safe.err };
+  try {
+    meta.paths.forEach((p, i) => {
+      const src = path.join(vd, 'p' + i); if (!fs.existsSync(src)) return;
+      const isDir = (meta.kinds || [])[i] !== 'f';
+      if (isDir) { fs.mkdirSync(p, { recursive: true }); for (const f of fs.readdirSync(p)) fs.rmSync(path.join(p, f), { recursive: true, force: true }); fs.cpSync(src, p, { recursive: true }); }
+      else { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.copyFileSync(path.join(src, fs.readdirSync(src)[0]), p); }
+    });
+  } catch (e) { return { ok: false, err: 'No pude restaurar: ' + String(e.message || e) + '. Tu copia de seguridad previa quedó guardada.' }; }
+  return { ok: true };
+}
+function tmDel(o) { const vd = path.join(tmRoot(o.dir), tmSan(o.id), String(o.v || '').replace(/[^\w.-]/g, '_')); if (!/\d{4}-\d\d-\d\dT/.test(path.basename(vd))) return { ok: false }; try { fs.rmSync(vd, { recursive: true, force: true }); return { ok: true }; } catch (e) { return { ok: false }; } }
+function tmPin(o) { const f = path.join(tmRoot(o.dir), tmSan(o.id), String(o.v || '').replace(/[^\w.-]/g, '_'), 'meta.json'); try { const m = JSON.parse(fs.readFileSync(f, 'utf8')); m.pin = !!o.pin; fs.writeFileSync(f, JSON.stringify(m)); return { ok: true }; } catch (e) { return { ok: false }; } }
+
 /* ===== IA local con Ollama: usa lo que ya esta instalado, placa de video por defecto, se descarga de memoria al terminar y se bloquea con un juego abierto ===== */
 function ollamaReq(method, p, body, ms, ctl) {
   return new Promise((resolve) => {
@@ -1958,6 +2094,14 @@ app.whenReady().then(() => {
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
   ipcMain.handle('shots', (_e, id) => listShots(id));
+  ipcMain.handle('tmFind', (_e, o) => tmFind({ name: String(o.name || ''), exe: String(o.exe || ''), online: !!o.online }));
+  ipcMain.handle('tmSnap', (_e, o) => { try { return tmSnap(o || {}); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
+  ipcMain.handle('tmList', (_e, o) => { try { return tmVers(o.id, o.dir); } catch (e) { return []; } });
+  ipcMain.handle('tmRestore', (_e, o) => { try { return tmRestore(o || {}); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
+  ipcMain.handle('tmDel', (_e, o) => tmDel(o || {}));
+  ipcMain.handle('tmPin', (_e, o) => tmPin(o || {}));
+  ipcMain.handle('tmOpen', (_e, o) => { const d = path.join(tmRoot(o.dir), o.id ? tmSan(o.id) : ''); try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} shell.openPath(d); return d; });
+  ipcMain.handle('tmPick', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí la carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
   ipcMain.handle('aiStatus', () => aiStatus());
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('phoneGet', () => phoneInfo());

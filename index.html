@@ -3601,8 +3601,8 @@ function shKey(e){const k=e.key;if(['Control','Shift','Alt','Meta'].includes(k))
 function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
-  if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
+  if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';if(S.tab==='tm'&&(!WN||isSteamG(g)||vIs(g)))S.tab='info';
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+(WN&&!isSteamG(g)&&!vIs(g)?tb('tm','Partidas'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
   {const dt=$('#detail');if(dt)dt.classList.toggle('modsfull',S.tab==='mods'&&(pzOf(g)||mcOf(g)||!!(window.winteerNative&&winteerNative.mioReq)))}
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
@@ -3612,6 +3612,7 @@ function renderTab(){
     h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):srcHTML(g);
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
+  }else if(S.tab==='tm'&&WN&&!isSteamG(g)){h=tmTabHTML(g)
   }else if(S.tab==='rv'){
     h=rvTabHTML(g)+`<div class="nt"><div class="lbl">Notas</div><textarea id="notes" rows="3" placeholder="Algo que quieras recordar de este juego…">${esc(g.notes||'')}</textarea></div>`;
   }else if(S.tab==='cg'){h=cgHTML(g)
@@ -8650,7 +8651,7 @@ function visOpen(){
 const visAutoOn=g=>{const p=((ST.vis||{}).pick||{})[g.id];return (p===true||(p!==false&&x8Coop(g)))?1:0};
 
 /* ---------- ajustes ---------- */
-function x8Rows(){return [bkRowHTML(),...x3Rows(),...x7Rows(),
+function x8Rows(){return [bkRowHTML(),...x1Rows(),...x3Rows(),...x7Rows(),
   `<div class="row"><div>Sesión con intención<small>Antes de jugar te pregunto cuánto vas a jugar y te aviso 5 minutos antes. No cierra nada solo.</small></div><button class="sw ${siOn()?'on':''}" data-a="x8sitog"></button></div>`,
   `<div class="row"><div>Modo visita<small>${visOn()?'Activo ahora.':'Para cuando viene alguien: solo juegos para jugar acompañado y nadie sale al launcher sin tu código.'}</small></div><button class="b2" data-a="x8vis">${visOn()?'Administrar':'Configurar'}</button></div>`]}
 
@@ -8968,6 +8969,68 @@ Object.assign(A,{
 });
 
 /* ===/X7A=== */
+/* ===X1A=== */
+/* ---------- 1 · máquina del tiempo de partidas ---------- */
+const tmCfg=()=>{ST.tm=ST.tm||{dir:'',keep:20,g:{},ask:{}};ST.tm.g=ST.tm.g||{};ST.tm.ask=ST.tm.ask||{};return ST.tm};
+const tmG=id=>tmCfg().g[id]||null;
+const tmOk=g=>WN&&winteerNative.tmSnap&&g&&!isSteamG(g)&&!vIs(g);
+const tmFmtB=n=>n>=1e9?(n/1e9).toFixed(1)+' GB':n>=1e6?(n/1e6).toFixed(1)+' MB':n>=1e3?Math.round(n/1e3)+' KB':n+' B';
+const tmWhen=t=>new Date(t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const TMV={};let TMERRT=0;
+async function tmAuto(g,label){
+  try{if(!tmOk(g))return;const c=tmG(g.id);if(!c||!c.paths||!c.paths.length||c.auto===false)return;
+    const r=await winteerNative.tmSnap({id:g.id,name:g.name,paths:c.paths,dir:tmCfg().dir,label,keep:tmCfg().keep});
+    c.last=Date.now();c.err=r&&r.ok?'':(r&&r.err)||'Error';save();
+    if(r&&!r.ok&&Date.now()-TMERRT>36e5){TMERRT=Date.now();toast('No pude copiar las partidas de '+g.name+': '+c.err)}
+    if(S.view==='games'&&S.sel===g.id&&S.tab==='tm')tmLoad(g.id)}catch(e){}}
+(()=>{const p=A.play;A.play=function(){const g=gm(S.sel),was=S.playing;const r=p.apply(this,arguments);try{if(g&&!was&&S.playing&&S.playing.id===g.id)tmAuto(g,'Antes de jugar')}catch(e){}return r}})();
+if(WN)winteerNative.onGame(ev=>{try{if(ev&&ev.type==='stopped'&&ev.id){const g=gm(ev.id);if(!g||!tmOk(g))return;const c=tmG(g.id);
+  if(c&&c.paths&&c.paths.length)tmAuto(g,'Al cerrar');
+  else{const k=tmCfg().ask;if(!k[g.id]){k[g.id]=Date.now();save();winteerNative.tmFind({name:g.name,exe:g.exe||''}).then(l=>{if(l&&l.length)toast('Encontré las partidas de '+g.name+'. Activá las copias en su ficha, pestaña Partidas')}).catch(()=>{})}}}}catch(e){}});
+setInterval(()=>{try{const pl=S.playing&&gm(S.playing.id);if(!pl||!tmOk(pl))return;const c=tmG(pl.id);if(!c||!c.paths||!c.paths.length||c.auto===false)return;if(Date.now()-(c.last||0)>30*6e4)tmAuto(pl,'Durante la partida')}catch(e){}},60000);
+function tmTabHTML(g){
+  const c=tmG(g.id),ps=(c&&c.paths)||[];
+  setTimeout(()=>tmLoad(g.id),0);
+  return `<div class="tm"><div class="shh"><div><b>Máquina del tiempo</b><small>Guarda versiones de tus partidas para volver atrás si se rompe un save. Se copia sola antes de jugar, cada 30 minutos mientras jugás y al cerrar. Para juegos de otras tiendas, .exe y emulados.</small></div><button class="b2 g sm" data-a="tmopen" data-id="${g.id}">Abrir carpeta</button></div>
+  <div class="lbl">Carpetas de partidas</div><div id="tmp">${ps.length?ps.map((p,i)=>`<div class="tm-r"><div class="tm-m"><b>${esc(p.split(/[\\/]/).slice(-2).join('\\'))}</b><small>${esc(p)}</small></div><button class="b2 g sm" data-a="tmrm" data-id="${g.id}" data-i="${i}">Quitar</button></div>`).join(''):'<p class="hint2">Todavía no elegiste dónde guarda sus partidas este juego.</p>'}</div>
+  <div class="tm-b"><button class="b2" data-a="tmfind" data-id="${g.id}">Buscar carpeta</button><button class="b2 g" data-a="tmadd" data-id="${g.id}">Elegir carpeta</button>${ps.length?`<button class="b2 g" data-a="tmnow" data-id="${g.id}">Guardar copia ahora</button><button class="sw ${c.auto===false?'':'on'}" data-a="tmauto" data-id="${g.id}" title="Copias automáticas"></button><small>Automático</small>`:''}</div>
+  ${c&&c.err?`<p class="hint2" style="color:#fca5a5">${esc(c.err)}</p>`:''}
+  <div class="lbl" style="margin-top:18px">Versiones guardadas</div><div id="tmv"><p class="hint2">Cargando…</p></div></div>`}
+async function tmLoad(id){
+  const el=$('#tmv');if(!el||!WN)return;let l=[];try{l=await winteerNative.tmList({id,dir:tmCfg().dir})}catch(e){}TMV[id]=l;const e2=$('#tmv');if(!e2)return;
+  e2.innerHTML=l.length?l.map(v=>`<div class="tm-r"><div class="tm-m"><b>${esc(tmWhen(v.t))}${v.pin?' · fijada':''}</b><small>${esc(v.label||'')} · ${v.files} archivo${v.files===1?'':'s'} · ${tmFmtB(v.size||0)}</small></div><div class="tm-a"><button class="b2 sm" data-a="tmrest" data-id="${id}" data-v="${esc(v.v)}">Restaurar</button><button class="b2 g sm" data-a="tmpin" data-id="${id}" data-v="${esc(v.v)}">${v.pin?'Soltar':'Fijar'}</button><button class="b2 g sm" data-a="tmdel" data-id="${id}" data-v="${esc(v.v)}">Borrar</button></div></div>`).join(''):'<p class="hint2">Todavía no hay copias. Elegí la carpeta de partidas y tocá Guardar copia ahora.</p>'}
+function tmRefreshTab(){if(S.view==='games'&&S.tab==='tm')renderTab()}
+function x1Rows(){
+  if(!WN||!winteerNative.tmSnap)return [];const c=tmCfg(),n=Object.values(c.g).filter(x=>x.paths&&x.paths.length).length;
+  return [`<div class="row"><div>Máquina del tiempo de partidas<small>Versiones de los saves de juegos de Epic, Xbox, .exe y emulados (Steam ya tiene su nube). ${n?n+' juego'+(n===1?'':'s')+' con copias. ':''}Carpeta de destino: <b>${esc(c.dir||'la de WINTEER (por defecto)')}</b>. Guarda hasta ${c.keep||20} versiones por juego.</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="tmdir">Elegir carpeta</button><button class="b2 g" data-a="tmopen" data-id="">Abrir</button></div></div>`]}
+function tmCandModal(id,list,online){
+  const g=gm(id);$$('.modal').forEach(m=>m.remove());
+  modal(`<div style="text-align:left"><h3>Carpetas de partidas encontradas</h3><p class="hint2">Elegí las que son de <b>${esc(g.name)}</b>. Te muestro el tamaño y cuándo se tocaron por última vez.</p>
+  ${list.length?list.map((x,i)=>`<label class="tm-c"><input type="checkbox" data-tmc="${i}" ${i===0?'checked':''}><span><b>${esc(x.p)}</b><small>${esc(x.why)} · ${x.files} archivo${x.files===1?'':'s'} · ${tmFmtB(x.size)} · ${tmWhen(x.m)}</small></span></label>`).join(''):`<p class="hint2">No encontré nada.${online?'':' Podés probar buscando en la base de datos de partidas (se descarga una vez) o elegir la carpeta a mano.'}</p>`}</div>
+  <div class="bs"><button class="b2 g" data-a="close">Cancelar</button>${online?'':`<button class="b2 g" data-a="tmfind2" data-id="${id}">Buscar en la base de datos</button>`}${list.length?`<button class="hm-go" data-a="tmuse" data-id="${id}">Usar las elegidas</button>`:''}</div>`,'x8m');
+  TMCAND=list}
+let TMCAND=[];
+function tmAddPaths(id,ps){const c=tmCfg();const o=c.g[id]=c.g[id]||{paths:[],auto:true};ps.forEach(p=>{if(!o.paths.includes(p))o.paths.push(p)});save();tmRefreshTab();const g=gm(id);if(g)tmAuto(g,'Manual')}
+Object.assign(A,{
+  tmfind:async a=>{const g=gm(a.dataset.id);if(!g)return;toast('Buscando…');let l=[];try{l=await winteerNative.tmFind({name:g.name,exe:g.exe||''})}catch(e){}tmCandModal(g.id,l||[],false)},
+  tmfind2:async a=>{const g=gm(a.dataset.id);if(!g)return;toast('Buscando en la base de datos…');let l=[];try{l=await winteerNative.tmFind({name:g.name,exe:g.exe||'',online:true})}catch(e){}tmCandModal(g.id,l||[],true)},
+  tmuse:a=>{const ps=[...document.querySelectorAll('[data-tmc]:checked')].map(i=>TMCAND[+i.dataset.tmc]&&TMCAND[+i.dataset.tmc].p).filter(Boolean);$$('.modal').forEach(m=>m.remove());if(ps.length)tmAddPaths(a.dataset.id,ps)},
+  tmadd:async a=>{const d=await winteerNative.tmPick('Elegí la carpeta donde el juego guarda las partidas');if(d)tmAddPaths(a.dataset.id,[d])},
+  tmrm:a=>{const o=tmG(a.dataset.id);if(!o)return;o.paths.splice(+a.dataset.i,1);save();tmRefreshTab()},
+  tmauto:a=>{const o=tmG(a.dataset.id);if(!o)return;o.auto=o.auto===false;save();a.classList.toggle('on',o.auto!==false)},
+  tmnow:async a=>{const g=gm(a.dataset.id),c=tmG(a.dataset.id);if(!g||!c)return;const r=await winteerNative.tmSnap({id:g.id,name:g.name,paths:c.paths,dir:tmCfg().dir,label:'Manual',keep:tmCfg().keep,force:true});c.last=Date.now();c.err=r&&r.ok?'':(r&&r.err)||'Error';save();toast(r&&r.ok?'Copia guardada':'No pude guardarla: '+c.err);tmRefreshTab()},
+  tmopen:a=>winteerNative.tmOpen({id:a.dataset.id||'',dir:tmCfg().dir}),
+  tmdir:async()=>{const d=await winteerNative.tmPick('Elegí la carpeta de destino de las partidas');if(!d)return;tmCfg().dir=d;save();if(S.view==='settings')go('settings');toast('Carpeta de destino elegida. Las copias nuevas van ahí')},
+  tmpin:async a=>{const v=(TMV[a.dataset.id]||[]).find(x=>x.v===a.dataset.v);await winteerNative.tmPin({id:a.dataset.id,v:a.dataset.v,dir:tmCfg().dir,pin:!(v&&v.pin)});tmLoad(a.dataset.id)},
+  tmdel:a=>{const v=(TMV[a.dataset.id]||[]).find(x=>x.v===a.dataset.v);if(!v)return;$$('.modal').forEach(m=>m.remove());modal(`<div style="text-align:left"><h3>¿Borrar esta copia?</h3><p>${esc(tmWhen(v.t))} · ${esc(v.label||'')}. No se puede deshacer.</p></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="hm-go" data-a="tmdel2" data-id="${a.dataset.id}" data-v="${esc(v.v)}">Borrar</button></div>`,'x8m')},
+  tmdel2:async a=>{$$('.modal').forEach(m=>m.remove());await winteerNative.tmDel({id:a.dataset.id,v:a.dataset.v,dir:tmCfg().dir});tmLoad(a.dataset.id)},
+  tmrest:a=>{const v=(TMV[a.dataset.id]||[]).find(x=>x.v===a.dataset.v),g=gm(a.dataset.id);if(!v||!g)return;
+    if(S.playing&&S.playing.id===g.id){toast('Cerrá el juego antes de restaurar');return}
+    $$('.modal').forEach(m=>m.remove());modal(`<div style="text-align:left"><h3>Volver a esta versión</h3><p>Vas a dejar las partidas de <b>${esc(g.name)}</b> como estaban el <b>${esc(tmWhen(v.t))}</b> (${esc(v.label||'')}).</p><p class="hint2">Se reemplaza el contenido de:<br>${(v.paths||[]).map(p=>esc(p)).join('<br>')}<br><br>Antes de restaurar guardo una copia de cómo está ahora, así podés volver a este momento.</p></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="hm-go" data-a="tmrest2" data-id="${g.id}" data-v="${esc(v.v)}">Restaurar</button></div>`,'x8m')},
+  tmrest2:async a=>{$$('.modal').forEach(m=>m.remove());const r=await winteerNative.tmRestore({id:a.dataset.id,v:a.dataset.v,dir:tmCfg().dir,keep:tmCfg().keep});toast(r&&r.ok?'Partidas restauradas':(r&&r.err)||'No se pudo restaurar');tmLoad(a.dataset.id)}
+});
+
+/* ===/X1A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
@@ -9005,6 +9068,10 @@ Object.assign(A,{
 /*/cX2A*/
 /*cX7A*/.x7a{margin-top:12px;white-space:pre-wrap;line-height:1.5;font-size:14px;max-height:40vh;overflow:auto}.x7m .mb,.x7m{min-width:min(560px,92vw)}
 /*/cX7A*/
+/*cX1A*/.tm .lbl{margin:14px 0 8px}.tm-r{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);margin-bottom:8px}.tm-m{flex:1;min-width:0}.tm-m b{display:block}.tm-m small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tm-a{display:flex;gap:6px;flex:none}.tm-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-b small{color:var(--muted)}
+.tm-c{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer}.tm-c input{margin-top:4px}.tm-c small{display:block;color:var(--muted);font-size:12px}.tm-c b{word-break:break-all;font-size:13px}
+/*/cX1A*/
 </style>
 </body>
 </html>
