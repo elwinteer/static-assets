@@ -3331,7 +3331,7 @@ function detEpicLater(){[20000,60000,180000].forEach(t=>setTimeout(detEpic,t))}
 async function detEpic(){if(!(window.winteerNative&&winteerNative.scanEpic))return;try{const r=await winteerNative.scanEpic();if(!r||!r.found)return;const m={};(r.list||[]).forEach(x=>m[x.id]=x);let ch=0;G.forEach(g=>{if(!isEpicG(g))return;const x=m[g.id],v=!!x;if(!!g.inst!==v){g.inst=v||undefined;ch++}if(x){if(x.exe&&g.exe!==x.exe){g.exe=x.exe;ch++}if(x.uri&&g.uri!==x.uri){g.uri=x.uri;ch++}}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}}catch(e){}}
 function launchGame(g){hcnt('play');
   if(pzOf(g)&&pzSt().auto&&pzProf()){const pp=pzProf();winteerNative.pzApply(pp.m,ST.steamDir||'').then(r=>{if(r&&r.ok)toast('Mods del perfil «'+pp.n+'» aplicados')}).catch(()=>{})}
-  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:g.name,exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:(isXbG(g)&&g.xexe)?'':(g.uri||''),shellApp:(isXbG(g)&&g.xexe)?'':(g.shellApp||''),borderless:!!g.bl}).then(r=>{S.trk=!!(r&&r.tracking)}).catch(()=>{S.trk=false});return}
+  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:g.name,exe:(g.emu?emExe(g):g.exe)||'',args:g.emu?emArgs(g):undefined,app:g.app||0,steamDir:ST.steamDir||'',uri:(isXbG(g)&&g.xexe)?'':(g.uri||''),shellApp:(isXbG(g)&&g.xexe)?'':(g.shellApp||''),borderless:!!g.bl}).then(r=>{S.trk=!!(r&&r.tracking)}).catch(()=>{S.trk=false});return}
   if(g.exe){const u='[InternetShortcut]\r\nURL=file:///'+g.exe.replace(/\\/g,'/')+'\r\n',a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u],{type:'text/plain'}));a.download=g.name.replace(/[^\w\- ]/g,'').trim()+'.url';document.body.appendChild(a);a.click();a.remove();toast('Abrí el acceso que se descargó para iniciar el juego (en la versión Electron se abre solo)');return}
   location.href=g.launch||('steam://rungameid/'+g.app)}
 
@@ -3601,8 +3601,8 @@ function shKey(e){const k=e.key;if(['Control','Shift','Alt','Meta'].includes(k))
 function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
-  if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';if(S.tab==='tm'&&(!WN||isSteamG(g)||vIs(g)))S.tab='info';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+(WN&&!isSteamG(g)&&!vIs(g)?tb('tm','Partidas'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
+  if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';if(S.tab==='tm'&&(!WN||isSteamG(g)||vIs(g)))S.tab='info';if(S.tab==='emu'&&!(WN&&g.emu))S.tab='info';
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+(WN&&!isSteamG(g)&&!vIs(g)?tb('tm','Partidas'):'')+(WN&&g.emu?tb('emu','Emulador'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
   {const dt=$('#detail');if(dt)dt.classList.toggle('modsfull',S.tab==='mods'&&(pzOf(g)||mcOf(g)||!!(window.winteerNative&&winteerNative.mioReq)))}
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
@@ -3613,6 +3613,7 @@ function renderTab(){
   }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='tm'&&WN&&!isSteamG(g)){h=tmTabHTML(g)
+  }else if(S.tab==='emu'&&WN&&g.emu){h=emTabHTML(g)
   }else if(S.tab==='rv'){
     h=rvTabHTML(g)+`<div class="nt"><div class="lbl">Notas</div><textarea id="notes" rows="3" placeholder="Algo que quieras recordar de este juego…">${esc(g.notes||'')}</textarea></div>`;
   }else if(S.tab==='cg'){h=cgHTML(g)
@@ -8651,7 +8652,7 @@ function visOpen(){
 const visAutoOn=g=>{const p=((ST.vis||{}).pick||{})[g.id];return (p===true||(p!==false&&x8Coop(g)))?1:0};
 
 /* ---------- ajustes ---------- */
-function x8Rows(){return [bkRowHTML(),...x1Rows(),...x3Rows(),...x7Rows(),
+function x8Rows(){return [bkRowHTML(),...x1Rows(),...x5Rows(),...x3Rows(),...x7Rows(),
   `<div class="row"><div>Sesión con intención<small>Antes de jugar te pregunto cuánto vas a jugar y te aviso 5 minutos antes. No cierra nada solo.</small></div><button class="sw ${siOn()?'on':''}" data-a="x8sitog"></button></div>`,
   `<div class="row"><div>Modo visita<small>${visOn()?'Activo ahora.':'Para cuando viene alguien: solo juegos para jugar acompañado y nadie sale al launcher sin tu código.'}</small></div><button class="b2" data-a="x8vis">${visOn()?'Administrar':'Configurar'}</button></div>`]}
 
@@ -9138,6 +9139,89 @@ Object.assign(A,{
 });
 
 /* ===/X4A=== */
+/* ===X5A=== */
+/* ---------- 5 · estación de emulación ---------- */
+const EMSYS={nes:['NES',7],snes:['Super Nintendo',3],gb:['Game Boy',4],gbc:['Game Boy Color',6],gba:['Game Boy Advance',5],n64:['Nintendo 64',2],nds:['Nintendo DS',18],gc:['GameCube',16],wii:['Wii',19],genesis:['Mega Drive',1],sms:['Master System',11],gg:['Game Gear',15],pce:['PC Engine',8],a26:['Atari 2600',25],ps1:['PlayStation',12],ps2:['PlayStation 2',21],psp:['PSP',41]};
+const EMEXT={nes:'nes',sfc:'snes',smc:'snes',gb:'gb',gbc:'gbc',gba:'gba',n64:'n64',z64:'n64',v64:'n64',nds:'nds',gcm:'gc',gcz:'gc',rvz:'gc',wbfs:'wii',wad:'wii',md:'genesis',gen:'genesis',smd:'genesis',sms:'sms',gg:'gg',pce:'pce',cso:'psp',a26:'a26'};
+const EMHINT=[[/ps2|playstation ?2/i,'ps2'],[/\bpsp\b/i,'psp'],[/ps1|psx|playstation(?! ?[23p])|ps ?one/i,'ps1'],[/game ?cube|\bngc\b|\bgc\b/i,'gc'],[/\bwii\b(?! ?u)/i,'wii'],[/\bnes\b|famicom/i,'nes'],[/snes|super nintendo|super famicom/i,'snes'],[/game ?boy ?advance|\bgba\b/i,'gba'],[/game ?boy ?color|\bgbc\b/i,'gbc'],[/game ?boy|\bgb\b/i,'gb'],[/n64|nintendo 64/i,'n64'],[/\bnds\b|nintendo ds/i,'nds'],[/mega ?drive|genesis/i,'genesis'],[/master ?system|\bsms\b/i,'sms']];
+const EMU={
+  dolphin:{n:'Dolphin',s:['gc','wii'],re:'^dolphin\\.exe$',url:'https://dolphin-emu.org/download/',a:r=>['-b','-e',r]},
+  pcsx2:{n:'PCSX2',s:['ps2'],re:'^pcsx2.*\\.exe$',url:'https://pcsx2.net/downloads/',a:r=>['-batch','--',r]},
+  duck:{n:'DuckStation',s:['ps1'],re:'^duckstation.*\\.exe$',url:'https://www.duckstation.org/',a:r=>['-batch','--',r]},
+  ppsspp:{n:'PPSSPP',s:['psp'],re:'^ppsspp.*\\.exe$',url:'https://www.ppsspp.org/download/',a:r=>[r]},
+  melon:{n:'melonDS',s:['nds'],re:'^melonds\\.exe$',url:'https://melonds.kuribo64.net/downloads.php',a:r=>[r]},
+  mgba:{n:'mGBA',s:['gba','gb','gbc'],re:'^mgba(-qt)?\\.exe$',url:'https://mgba.io/downloads.html',a:r=>[r]},
+  mesen:{n:'Mesen',s:['nes','snes'],re:'^mesen2?\\.exe$',url:'https://www.mesen.ca/',a:r=>[r]},
+  snes9x:{n:'Snes9x',s:['snes'],re:'^snes9x.*\\.exe$',url:'https://www.snes9x.com/downloads.php',a:r=>[r]},
+  pj64:{n:'Project64',s:['n64'],re:'^project64.*\\.exe$',url:'https://www.pj64-emu.com/',a:r=>[r]},
+  retro:{n:'RetroArch (varios sistemas)',s:['nes','snes','gb','gbc','gba','genesis','sms','gg','pce','a26','n64','nds','ps1'],re:'^retroarch\\.exe$',url:'https://www.retroarch.com/?page=platforms',a:(r,exe,sys)=>{const C={nes:'mesen',snes:'snes9x',gb:'gambatte',gbc:'gambatte',gba:'mgba',genesis:'genesis_plus_gx',sms:'genesis_plus_gx',gg:'genesis_plus_gx',pce:'mednafen_pce_fast',a26:'stella',n64:'mupen64plus_next',nds:'melonds',ps1:'beetle_psx_hw'};return ['-L',exe.replace(/[^\\/]+$/,'')+'cores\\'+(C[sys]||'mgba')+'_libretro.dll',r]}}
+};
+const emCfg=()=>{ST.em=ST.em||{dirs:[],exe:{},pref:{}};ST.em.dirs=ST.em.dirs||[];ST.em.exe=ST.em.exe||{};ST.em.pref=ST.em.pref||{};return ST.em};
+function emFor(sys){const c=emCfg(),p=c.pref[sys];if(p&&c.exe[p]&&EMU[p]&&EMU[p].s.includes(sys))return p;return Object.keys(EMU).find(id=>c.exe[id]&&EMU[id].s.includes(sys))||''}
+const emExe=g=>{const id=g.emu&&emFor(g.emu.s);return id?emCfg().exe[id]:''};
+const emArgs=g=>{const id=g.emu&&emFor(g.emu.s);return id?EMU[id].a(g.emu.r,emCfg().exe[id],g.emu.s):undefined};
+function emSysOf(x){if(EMEXT[x.ext])return EMEXT[x.ext];const h=EMHINT.find(([re])=>re.test(x.hint||''));if(h)return h[1];return x.ext==='cue'?'ps1':''}
+const emName=p=>p.replace(/^.*[\\/]/,'').replace(/\.[^.]+$/,'').replace(/\(.*?\)|\[.*?\]/g,' ').replace(/_/g,' ').replace(/\s+/g,' ').trim();
+function emHash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)}
+const emKnown=()=>new Set(G.filter(g=>g.emu).map(g=>g.emu.r.toLowerCase()));
+const X5={sc:null,ra:{},st:{}};
+function x5Rows(){
+  if(!WN||!winteerNative.emScan)return [];const c=emCfg(),n=G.filter(g=>g.emu).length,k=Object.keys(c.exe).length;
+  const ra=ST.ra&&ST.ra.u?'Usuario: <b>'+esc(ST.ra.u)+'</b>':'Sin configurar';
+  return [`<div class="row"><div>Estación de emulación<small>Juntá en WINTEER tus juegos de consolas retro. Elegís la carpeta de ROMs, WINTEER los detecta y los abre con el emulador gratuito que corresponde. ${c.dirs.length?c.dirs.length+' carpeta'+(c.dirs.length===1?'':'s')+'. ':''}${n?n+' juegos agregados. ':''}${k?k+' emulador'+(k===1?'':'es')+' listo'+(k===1?'':'s')+'.':'Todavía no hay emuladores configurados.'}</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="x5dir">Agregar carpeta</button><button class="b2 g" data-a="x5scan">Escanear</button><button class="b2 g" data-a="x5emus">Emuladores</button></div></div>`,
+  `<div class="row"><div>RetroAchievements<small>Mostrás tus logros de consolas retro en la ficha de cada juego. ${ra}. Necesitás tu usuario y la clave de la API que te da retroachievements.org en tu perfil.</small></div><button class="b2" data-a="x5ra">Configurar</button></div>`]}
+function x5EmusModal(){
+  const c=emCfg();$$('.modal').forEach(m=>m.remove());
+  modal(`<div style="text-align:left"><h3>Emuladores</h3><p class="hint2">Son gratuitos y los bajás de su página oficial. WINTEER no los descarga por vos: los instalás y le indicás dónde quedaron (o los busca solo).</p>
+  ${Object.keys(EMU).map(id=>{const e=EMU[id],p=c.exe[id];return `<div class="tm-r"><div class="tm-m"><b>${esc(e.n)}</b><small>${e.s.map(s=>EMSYS[s][0]).join(', ')}${p?' · '+esc(p):''}</small></div><div class="tm-a">${p?`<span class="ok" style="font-size:12px">Listo</span><button class="b2 g sm" data-a="x5clr" data-e="${id}">Quitar</button>`:`<a class="b2 sm" target="_blank" rel="noopener" href="${e.url}" style="text-decoration:none">Descargar</a>`}<button class="b2 g sm" data-a="x5pick" data-e="${id}">Elegir .exe</button></div></div>`}).join('')}</div>
+  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button><button class="hm-go" data-a="x5find">Buscar los instalados</button></div>`,'x8m x5m')}
+async function x5Scan(){
+  const c=emCfg();if(!c.dirs.length){toast('Primero agregá una carpeta con tus ROMs');return}
+  toast('Buscando juegos…');let l=[];try{l=await winteerNative.emScan({dirs:c.dirs})}catch(e){}
+  const known=emKnown(),by={},un=[];let have=0;
+  (l||[]).forEach(x=>{const s=emSysOf(x);if(!s){un.push(x);return}if(known.has(x.p.toLowerCase())){have++;return}(by[s]=by[s]||[]).push(Object.assign({s},x))});
+  X5.sc=by;$$('.modal').forEach(m=>m.remove());const keys=Object.keys(by),tot=keys.reduce((a,k)=>a+by[k].length,0);
+  modal(`<div style="text-align:left"><h3>Juegos encontrados</h3>${tot?`<p class="hint2">${tot} juego${tot===1?'':'s'} nuevo${tot===1?'':'s'}${have?' ('+have+' ya estaban)':''}.</p>${keys.map(k=>{const e=emFor(k);return `<div class="tm-r"><div class="tm-m"><b>${esc(EMSYS[k][0])}</b><small>${by[k].length} juego${by[k].length===1?'':'s'} · ${e?'se abre con '+esc(EMU[e].n):'falta configurar un emulador'}</small></div></div>`}).join('')}`:`<p class="hint2">${have?'Ya agregaste todo lo que encontré ('+have+').':'No encontré juegos en esas carpetas.'}</p>`}${un.length?`<p class="hint2">${un.length} archivo${un.length===1?'':'s'} (ISO, CHD, ZIP…) sin identificar: ponelos en carpetas con el nombre de la consola (por ejemplo PS2 o GameCube) para que los reconozca.</p>`:''}</div>
+  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button>${tot?`<button class="hm-go" data-a="x5import">Agregar ${tot}</button>`:''}</div>`,'x8m')}
+function x5Import(){
+  const by=X5.sc||{};let n=0;const ids=new Set(G.map(g=>g.id));
+  Object.keys(by).forEach(s=>by[s].forEach(x=>{let id='em'+emHash(x.p.toLowerCase());if(ids.has(id))return;ids.add(id);
+    G.push({id,name:emName(x.p)||'Juego',hours:0,status:'',last:'',notes:'',inst:true,tags:['Emulador',EMSYS[s][0]],emu:{s,r:x.p}});n++}));
+  X5.sc=null;save();$$('.modal').forEach(m=>m.remove());try{renderList()}catch(e){}toast(n?n+' juegos agregados a tu biblioteca':'No había nada nuevo')}
+/* lanzar */
+(()=>{const p=A.play;A.play=function(){const g=gm(S.sel);if(g&&g.emu&&!S.playing){if(!emExe(g)){toast(emFor(g.emu.s)?'No encuentro el emulador':'Falta configurar un emulador para '+EMSYS[g.emu.s][0]+' (Ajustes, Biblioteca, Emuladores)');return}}return p.apply(this,arguments)}})();
+/* pestaña del juego */
+function emTabHTML(g){
+  const s=g.emu.s,id=emFor(s),ra=EMSYS[s]&&EMSYS[s][1];
+  setTimeout(()=>{x5LoadStates(g);x5LoadRA(g)},0);
+  return `<div class="tm"><div class="shh"><div><b>${esc(EMSYS[s][0])}</b><small>${id?'Se abre con '+esc(EMU[id].n):'Todavía no hay emulador para este sistema'}. ${esc(g.emu.r)}</small></div><button class="b2 g sm" data-a="x5emus">Emuladores</button></div>
+  <div class="lbl">Estados guardados y partidas</div><div id="x5st"><p class="hint2">Buscando…</p></div>
+  <div class="lbl" style="margin-top:18px">RetroAchievements</div><div id="x5ra"><p class="hint2">${ra?'Cargando…':'RetroAchievements no cubre este sistema.'}</p></div></div>`}
+async function x5LoadStates(g){
+  let l=[];try{l=await winteerNative.emStates({exe:emExe(g),rom:g.emu.r})}catch(e){}X5.st[g.id]=l;const el=$('#x5st');if(!el||S.sel!==g.id)return;
+  const kind={state:'Estado guardado',save:'Partida del juego'};
+  el.innerHTML=l.length?l.map(x=>`<div class="tm-r">${x.thumb?`<img src="${x.thumb}" style="width:72px;height:48px;object-fit:cover;border-radius:8px" alt="">`:''}<div class="tm-m"><b>${esc(kind[x.kind]||'')} · ${esc(tmWhen(x.m))}</b><small>${esc(x.n)} · ${tmFmtB(x.size)}</small></div></div>`).join('')+`<div class="tm-b"><button class="b2 g sm" data-a="x5tm" data-id="${g.id}">Cuidar con la máquina del tiempo</button></div>`:'<p class="hint2">Todavía no encontré estados ni partidas guardadas de este juego. Aparecen cuando guardás desde el emulador.</p>'}
+async function x5LoadRA(g,force){
+  const ra=EMSYS[g.emu.s]&&EMSYS[g.emu.s][1];if(!ra)return;const el=()=>$('#x5ra');
+  let r=X5.ra[g.id];if(!r||force){try{r=await winteerNative.raGame({console:ra,name:g.name})}catch(e){r={ok:false,err:'net'}}if(r&&r.ok)X5.ra[g.id]=r}
+  const e=el();if(!e||S.sel!==g.id)return;
+  if(!r.ok){const m={nocred:'Cargá tu usuario y la clave de RetroAchievements en Ajustes, Biblioteca.',auth:'El usuario o la clave de RetroAchievements no son correctos.',net:'No pude conectar con RetroAchievements. Probá de nuevo en un rato.',http:'RetroAchievements no respondió bien. Probá de nuevo.',nomatch:'RetroAchievements no tiene un juego con este nombre. Si lo renombrás igual que en su sitio, lo encuentra.'}[r.err]||'No se pudo leer RetroAchievements.';
+    e.innerHTML=`<p class="hint2">${m}</p>${r.err==='nocred'||r.err==='auth'?'<div class="tm-b"><button class="b2 sm" data-a="x5ra">Configurar</button></div>':'<div class="tm-b"><button class="b2 g sm" data-a="x5raref" data-id="'+g.id+'">Reintentar</button></div>'}`;return}
+  e.innerHTML=`<div class="tm-r"><div class="tm-m"><b>${esc(r.title)}</b><small>${r.earned} de ${r.total} logros · ${r.pts} puntos${r.total?' · '+Math.round(r.earned/r.total*100)+'%':''}</small></div><button class="b2 g sm" data-a="x5raref" data-id="${g.id}">Actualizar</button></div>`+r.list.slice(0,40).map(a=>`<div class="tm-r" style="${a.e?'':'opacity:.55'}">${a.b?`<img src="https://media.retroachievements.org/Badge/${encodeURIComponent(a.b)}.png" style="width:44px;height:44px;border-radius:8px" alt="">`:''}<div class="tm-m"><b>${esc(a.t)}${a.p?' · '+a.p+' pts':''}</b><small style="white-space:normal">${esc(a.d||'')}${a.e?' · '+esc(String(a.e).slice(0,10)):''}</small></div></div>`).join('')}
+Object.assign(A,{
+  x5dir:async()=>{const d=await winteerNative.tmPick('Elegí la carpeta donde tenés tus ROMs');if(!d)return;const c=emCfg();if(!c.dirs.includes(d))c.dirs.push(d);save();if(S.view==='settings')go('settings');x5Scan()},
+  x5scan:()=>x5Scan(),x5import:()=>x5Import(),x5emus:()=>x5EmusModal(),
+  x5find:async()=>{toast('Buscando emuladores…');let r={};try{r=await winteerNative.emDetect(Object.keys(EMU).map(id=>({id,re:EMU[id].re})))}catch(e){}const c=emCfg();let n=0;Object.keys(r||{}).forEach(id=>{if(EMU[id]&&!c.exe[id]){c.exe[id]=r[id];n++}});save();x5EmusModal();toast(n?'Encontré '+n+' emulador'+(n===1?'':'es'):'No encontré emuladores nuevos')},
+  x5pick:async a=>{const p=await winteerNative.emPick('Elegí el programa de '+EMU[a.dataset.e].n);if(!p)return;emCfg().exe[a.dataset.e]=p;save();x5EmusModal()},
+  x5clr:a=>{delete emCfg().exe[a.dataset.e];save();x5EmusModal()},
+  x5ra:()=>{$$('.modal').forEach(m=>m.remove());modal(`<div style="text-align:left"><h3>RetroAchievements</h3><p class="hint2">En retroachievements.org, entrá a tu perfil, Settings, y copiá tu "Web API Key". La clave queda guardada solo en esta PC y se usa únicamente para pedirle tus logros a RetroAchievements.</p><input class="txt" id="x5u" placeholder="Usuario" value="${esc((ST.ra&&ST.ra.u)||'')}" autocomplete="off" style="margin-top:8px"><input class="txt" id="x5k" type="password" placeholder="Clave de la API" autocomplete="off" style="margin-top:8px"></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button>${ST.ra&&ST.ra.u?'<button class="b2 g" data-a="x5raoff">Quitar</button>':''}<button class="hm-go" data-a="x5rasave">Guardar</button></div>`,'x8m')},
+  x5rasave:async()=>{const u=(($('#x5u')||{}).value||'').trim(),k=(($('#x5k')||{}).value||'').trim();if(!u||!k){toast('Completá usuario y clave');return}try{await winteerNative.raSet({u,k})}catch(e){toast('No pude guardarlo');return}ST.ra={u};save();X5.ra={};$$('.modal').forEach(m=>m.remove());if(S.view==='settings')go('settings');toast('RetroAchievements configurado');if(S.view==='games'&&S.tab==='emu')renderTab()},
+  x5raoff:async()=>{try{await winteerNative.raSet({u:'',k:''})}catch(e){}ST.ra=null;save();X5.ra={};$$('.modal').forEach(m=>m.remove());if(S.view==='settings')go('settings')},
+  x5raref:a=>{const g=gm(a.dataset.id);if(g){delete X5.ra[g.id];$('#x5ra')&&($('#x5ra').innerHTML='<p class="hint2">Cargando…</p>');x5LoadRA(g,true)}},
+  x5tm:a=>{const g=gm(a.dataset.id),l=X5.st[a.dataset.id]||[];if(!g||!l.length)return;const rd=g.emu.r.replace(/[\\/][^\\/]+$/,''),ds=[...new Set(l.map(x=>{const d=x.p.replace(/[\\/][^\\/]+$/,'');return x.kind==='save'||d===rd?x.p:d}))].slice(0,6);tmAddPaths(g.id,ds);toast('Listo: se copian con la máquina del tiempo')}
+});
+
+/* ===/X5A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
@@ -9183,6 +9267,8 @@ Object.assign(A,{
 .x4b{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.x4b i{display:block;height:100%;background:linear-gradient(90deg,#7a72ff,#38bdf8);transition:width .3s}
 .x4r{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}.x4r button{border:1px solid rgba(255,255,255,.2);background:none;color:inherit;font:inherit;font-size:12px;padding:5px 12px;border-radius:99px;cursor:pointer}
 /*/cX4A*/
+/*cX5A*/.x5m .mb,.x5m{min-width:min(620px,92vw)}.x5m a.b2{display:inline-flex;align-items:center}
+/*/cX5A*/
 </style>
 </body>
 </html>

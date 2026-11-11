@@ -1815,6 +1815,89 @@ async function worldRecvClose(o) {
   return finish(await worldUnpack(r.file, null));
 }
 
+/* ===== Estacion de emulacion: detectar emuladores, escanear ROMs, estados guardados y RetroAchievements ===== */
+const EMROM = new Set(['nes', 'sfc', 'smc', 'gb', 'gbc', 'gba', 'n64', 'z64', 'v64', 'nds', 'gcm', 'gcz', 'rvz', 'wbfs', 'wad', 'md', 'gen', 'smd', 'sms', 'gg', 'pce', 'cso', 'iso', 'cue', 'chd', 'pbp', 'zip', 'a26', '32x']);
+function emScan(o) {
+  const out = [], seen = new Set(); let n = 0;
+  const walk = (d, rel, depth) => {
+    if (depth > 6 || n > 30000) return; let ls = []; try { ls = fs.readdirSync(d, { withFileTypes: true }); } catch (e) { return; }
+    for (const e of ls) {
+      if (++n > 30000) return; const p = path.join(d, e.name);
+      if (e.isDirectory()) { if (!/^(\$|\.|System Volume)/.test(e.name)) walk(p, rel + '/' + e.name, depth + 1); continue; }
+      const ext = path.extname(e.name).slice(1).toLowerCase(); if (!EMROM.has(ext)) continue;
+      let st; try { st = fs.statSync(p); } catch (x) { continue; }
+      if (st.size < 8 * 1024 && ext !== 'cue') continue;
+      const k = p.toLowerCase(); if (seen.has(k)) continue; seen.add(k); out.push({ p, ext, size: st.size, hint: rel });
+    }
+  };
+  for (const d of (o.dirs || []).slice(0, 8)) { try { if (fs.statSync(d).isDirectory()) walk(d, path.basename(d), 0); } catch (e) {} }
+  const cues = new Set(out.filter(x => x.ext === 'cue').map(x => x.p.slice(0, -4).toLowerCase()));
+  return out.filter(x => !(x.ext === 'bin' && cues.has(x.p.slice(0, -4).toLowerCase()))).slice(0, 5000);
+}
+function emDetect(cat) {
+  const e = tmEnv(), pf = [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], path.join(e.local, 'Programs'), path.join(e.home, 'Desktop'), path.join(e.home, 'Downloads'), e.docs, path.join(e.home, 'scoop', 'apps'), 'C:\\Emulators', 'D:\\Emulators', 'C:\\Emuladores', 'D:\\Emuladores', 'C:\\Games', 'D:\\Games', 'C:\\RetroArch', 'D:\\RetroArch'].filter(Boolean);
+  const res = {}, rx = (cat || []).map(c => ({ id: c.id, re: new RegExp(c.re, 'i') })); let budget = 9000;
+  const walk = (d, depth) => {
+    if (depth > 3 || budget <= 0) return; let ls = []; try { ls = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return; }
+    for (const f of ls) {
+      if (--budget <= 0) return; const p = path.join(d, f.name);
+      if (f.isDirectory()) { if (!/^(\.|node_modules|Windows|\$)/.test(f.name)) walk(p, depth + 1); }
+      else if (/\.exe$/i.test(f.name)) for (const r of rx) if (!res[r.id] && r.re.test(f.name)) res[r.id] = p;
+    }
+  };
+  for (const d of pf) walk(d, 0);
+  return res;
+}
+function emStates(o) {
+  const exe = String(o.exe || ''), rom = String(o.rom || ''), base = tmNorm(path.basename(rom, path.extname(rom)));
+  if (!base) return [];
+  const e = tmEnv(), roots = new Set([path.dirname(rom)]);
+  if (exe) { roots.add(path.dirname(exe)); const nm = path.basename(path.dirname(exe)); roots.add(path.join(e.appdata, nm)); roots.add(path.join(e.docs, nm)); roots.add(path.join(e.local, nm)); }
+  for (const x of ['Dolphin Emulator', 'PCSX2', 'DuckStation', 'PPSSPP', 'mGBA', 'Snes9x', 'melonDS', 'Mesen2', 'Mesen', 'RetroArch']) { roots.add(path.join(e.appdata, x)); roots.add(path.join(e.docs, x)); roots.add(path.join(e.docs, x, 'PSP')); }
+  const ST_RE = /^(state\d*|ss\d|mss|ml\d|\d{3}|p2s|ppst|s\d\d|savestate|sst|zst|st\d)$/i, SV_RE = /^(sav|srm|dsv|sa1|eep|fla|mcr|mc)$/i;
+  const out = [], seen = new Set(); let n = 0;
+  const walk = (d, depth) => {
+    if (depth > 3 || n > 8000) return; let ls = []; try { ls = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return; }
+    for (const f of ls) {
+      if (++n > 8000) return; const p = path.join(d, f.name);
+      if (f.isDirectory()) { walk(p, depth + 1); continue; }
+      const ext = path.extname(f.name).slice(1), nb = tmNorm(f.name.slice(0, f.name.length - ext.length - 1));
+      if (!nb.includes(base) && !tmNorm(f.name).includes(base)) continue;
+      const kind = ST_RE.test(ext) ? 'state' : SV_RE.test(ext) ? 'save' : ''; if (!kind) continue;
+      const k = p.toLowerCase(); if (seen.has(k)) continue; seen.add(k);
+      let st; try { st = fs.statSync(p); } catch (x) { continue; }
+      let thumb = ''; for (const t of [p + '.png', p.slice(0, p.length - ext.length - 1) + '.png']) { try { if (fs.existsSync(t)) { thumb = pathToFileURL(t).href; break; } } catch (x) {} }
+      out.push({ p, n: f.name, kind, size: st.size, m: st.mtimeMs, thumb });
+    }
+  };
+  for (const r of roots) walk(r, 0);
+  return out.sort((a, b) => b.m - a.m).slice(0, 60);
+}
+/* RetroAchievements: usuario y clave quedan solo en main */
+const RAC = { list: {}, game: {} };
+async function raApi(ep, q) {
+  const u = cfg.raUser, k = cfg.raKey; if (!u || !k) return { err: 'nocred' };
+  const url = 'https://retroachievements.org/API/' + ep + '.php?' + new URLSearchParams(Object.assign({ z: u, y: k }, q)).toString();
+  try { const r = await net.fetch(url, { headers: { 'user-agent': UA } }); if (r.status === 401 || r.status === 403) return { err: 'auth' }; if (!r.ok) return { err: 'http' }; return { data: await r.json() }; } catch (e) { return { err: 'net' }; }
+}
+const raNorm = s => String(s || '').toLowerCase().replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/~.*?~/g, ' ').replace(/\b(the|a|an)\b/g, ' ').replace(/[^a-z0-9]/g, '');
+async function raGame(o) {
+  const con = +o.console; if (!con) return { ok: false, err: 'nosys' };
+  if (!cfg.raUser || !cfg.raKey) return { ok: false, err: 'nocred' };
+  const ck = con + ':' + raNorm(o.name), hit = RAC.game[ck]; if (hit && Date.now() - hit.t < 10 * 6e4) return hit.r;
+  let L = RAC.list[con]; const lf = path.join(app.getPath('userData'), 'ra-list-' + con + '.json');
+  if (!L) { try { const st = fs.statSync(lf); if (Date.now() - st.mtimeMs < 7 * 864e5) L = JSON.parse(fs.readFileSync(lf, 'utf8')); } catch (e) {} }
+  if (!L) { const r = await raApi('API_GetGameList', { i: con, f: 1, h: 0 }); if (r.err) return { ok: false, err: r.err }; L = (Array.isArray(r.data) ? r.data : []).map(x => ({ id: x.ID, t: x.Title, n: x.NumAchievements || 0 })); try { fs.writeFileSync(lf, JSON.stringify(L)); } catch (e) {} }
+  RAC.list[con] = L;
+  const nm = raNorm(o.name); let g = L.find(x => raNorm(x.t) === nm && x.n > 0) || L.find(x => raNorm(x.t) === nm);
+  if (!g) { const c = L.filter(x => x.n > 0 && raNorm(x.t).startsWith(nm) && nm.length > 6); if (c.length === 1) g = c[0]; }
+  if (!g) return { ok: false, err: 'nomatch' };
+  const r = await raApi('API_GetGameInfoAndUserProgress', { g: g.id, u: cfg.raUser }); if (r.err) return { ok: false, err: r.err };
+  const d = r.data || {}, A = Object.values(d.Achievements || {}), list = A.map(a => ({ t: a.Title, d: a.Description, p: +a.Points || 0, e: a.DateEarnedHardcore || a.DateEarned || '', b: a.BadgeName })).sort((a, b) => (b.e ? 1 : 0) - (a.e ? 1 : 0) || String(b.e).localeCompare(String(a.e)));
+  const res = { ok: true, gid: g.id, title: d.Title || g.t, total: list.length, earned: list.filter(x => x.e).length, pts: list.filter(x => x.e).reduce((s, x) => s + x.p, 0), list: list.slice(0, 200) };
+  RAC.game[ck] = { t: Date.now(), r: res }; return res;
+}
+
 /* ===== IA local con Ollama: usa lo que ya esta instalado, placa de video por defecto, se descarga de memoria al terminar y se bloquea con un juego abierto ===== */
 function ollamaReq(method, p, body, ms, ctl) {
   return new Promise((resolve) => {
@@ -1934,7 +2017,7 @@ app.whenReady().then(() => {
     try {
       if (o.uri) await shell.openExternal(o.uri);
       else if (o.shellApp) { const c = spawn('explorer.exe', [o.shellApp], { detached: true, stdio: 'ignore' }); c.unref(); }
-      else if (o.exe) { const c = spawn(o.exe, [], { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore' }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref(); }
+      else if (o.exe) { const c = spawn(o.exe, Array.isArray(o.args) ? o.args.map(String).slice(0, 12) : [], { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore' }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref(); }
       else if (o.app) await shell.openExternal('steam://rungameid/' + o.app);
     } catch (e) { return { ok: false, err: String(e) }; }
     return { ok: true, tracking };
@@ -2198,6 +2281,12 @@ app.whenReady().then(() => {
   ipcMain.handle('worldRecvChunk', (_e, o) => { try { return worldRecvChunk(o || {}); } catch (e) { return false; } });
   ipcMain.handle('worldRecvClose', (_e, o) => worldRecvClose(o || {}));
   ipcMain.handle('worldOpen', (_e, p) => { try { if (fs.existsSync(p)) shell.showItemInFolder(path.join(p, '..', path.basename(p))); } catch (e) {} return true; });
+  ipcMain.handle('emScan', (_e, o) => { try { return emScan(o || {}); } catch (e) { return []; } });
+  ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
+  ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
+  ipcMain.handle('emPick', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí el emulador'), properties: ['openFile'], filters: [{ name: 'Programa', extensions: ['exe'] }] }); return r.canceled ? '' : r.filePaths[0]; });
+  ipcMain.handle('raSet', (_e, o) => { if (o && typeof o.u === 'string') { cfg.raUser = o.u.trim().slice(0, 40); if (o.k) cfg.raKey = String(o.k).trim().slice(0, 80); if (!cfg.raUser) { delete cfg.raKey; } saveCfg(); RAC.game = {}; } return { u: cfg.raUser || '', has: !!cfg.raKey }; });
+  ipcMain.handle('raGame', (_e, o) => raGame(o || {}));
   ipcMain.handle('aiStatus', () => aiStatus());
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('phoneGet', () => phoneInfo());
@@ -2317,7 +2406,7 @@ app.whenReady().then(() => {
   ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });;
   ipcMain.handle('winCtl', (_e, a) => { if (!win) return; if (a === 'min') win.minimize(); else if (a === 'max') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); } else if (a === 'close') win.close(); });
   ipcMain.handle('quit', () => { quitting = true; app.quit(); });
-  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; delete c.cfKey; delete c.nxKey; return c; });
+  ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; delete c.cfKey; delete c.nxKey; delete c.raKey; return c; });
   ipcMain.handle('cfgSet', (_e, o) => { if (o && ['bg', 'auto', 'pad'].includes(o.k)) { cfg[o.k] = !!o.v; if (o.k === 'bg' && !cfg.bg) cfg.auto = false; saveCfg(); applyBg(); } return cfg; });
   ipcMain.handle('toBg', () => { if (!win) return; fromBg = false; bgForGame = true; win.setFullScreen(false); if (cfg.bg) hideWin(); else win.minimize(); });
   ipcMain.handle('bpClosed', () => { if (fromBg && cfg.bg && win) { fromBg = false; win.setFullScreen(false); hideWin(); } fromBg = false; });
