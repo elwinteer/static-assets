@@ -1727,6 +1727,94 @@ function tmRestore(o) {
 function tmDel(o) { const vd = path.join(tmRoot(o.dir), tmSan(o.id), String(o.v || '').replace(/[^\w.-]/g, '_')); if (!/\d{4}-\d\d-\d\dT/.test(path.basename(vd))) return { ok: false }; try { fs.rmSync(vd, { recursive: true, force: true }); return { ok: true }; } catch (e) { return { ok: false }; } }
 function tmPin(o) { const f = path.join(tmRoot(o.dir), tmSan(o.id), String(o.v || '').replace(/[^\w.-]/g, '_'), 'meta.json'); try { const m = JSON.parse(fs.readFileSync(f, 'utf8')); m.pin = !!o.pin; fs.writeFileSync(f, JSON.stringify(m)); return { ok: true }; } catch (e) { return { ok: false }; } }
 
+/* ===== Pasarle el mundo: empaqueta una carpeta de partida, la recibe del otro lado y la desempaqueta ===== */
+const WTX = new Map(), WTR = new Map();
+const wtSan = s => String(s || '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '_').replace(/^\.+/, '').trim().slice(0, 80) || 'mundo';
+function wtRoots() { const e = tmEnv(); return { pz: path.join(e.home, 'Zomboid', 'Saves'), mc: path.join(e.appdata, '.minecraft', 'saves') }; }
+function worldList() {
+  const R = wtRoots(), out = [], dirs = p => { try { return fs.readdirSync(p, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name); } catch (e) { return []; } };
+  const add = (o) => { const w = tmWalk(o.dir, '', [], 4000); if (!w.length) return; out.push(Object.assign(o, { size: w.reduce((a, f) => a + f.size, 0), m: w.reduce((a, f) => Math.max(a, f.m), 0) })); };
+  for (const mode of dirs(R.pz)) for (const w of dirs(path.join(R.pz, mode))) add({ game: 'Project Zomboid', kind: 'pz', mode, name: w, dir: path.join(R.pz, mode, w) });
+  for (const w of dirs(R.mc)) add({ game: 'Minecraft', kind: 'mc', mode: '', name: w, dir: path.join(R.mc, w) });
+  return out.sort((a, b) => b.m - a.m).slice(0, 60);
+}
+async function worldPack(o) {
+  if (track.size > 0) return { ok: false, err: 'Cerrá el juego antes de empaquetar el mundo' };
+  const dir = String(o.dir || ''); let st; try { st = fs.statSync(dir); } catch (e) { return { ok: false, err: 'No encuentro esa carpeta' }; }
+  if (!st.isDirectory()) return { ok: false, err: 'Elegí una carpeta' };
+  const files = tmWalk(dir, '', [], 100000); if (!files.length) return { ok: false, err: 'La carpeta está vacía' };
+  const raw = files.reduce((a, f) => a + f.size, 0); if (raw > 1.5e9) return { ok: false, err: 'El mundo pesa más de 1,5 GB: es demasiado para mandarlo así' };
+  const id = crypto.randomBytes(6).toString('hex'), tmp = path.join(app.getPath('temp'), 'wt-' + id + '.gz');
+  const hdr = Buffer.from(JSON.stringify({ v: 1, name: wtSan(o.name || path.basename(dir)), kind: ['pz', 'mc'].includes(o.kind) ? o.kind : '', mode: wtSan(o.mode || ''), files: files.map(f => ({ p: f.rel, s: f.size })) })), len = Buffer.alloc(4); len.writeUInt32BE(hdr.length);
+  const gz = zlib.createGzip({ level: 3 }), out = fs.createWriteStream(tmp), hash = crypto.createHash('sha1');
+  gz.on('data', d => hash.update(d)); gz.pipe(out);
+  const done = new Promise((res, rej) => { out.on('finish', res); out.on('error', rej); gz.on('error', rej); });
+  try {
+    gz.write(len); gz.write(hdr);
+    for (const f of files) {
+      let n = 0; const fp = path.join(dir, ...f.rel.split('/'));
+      if (f.size > 0) await new Promise((res, rej) => { const rs = fs.createReadStream(fp, { start: 0, end: f.size - 1 }); rs.on('data', d => { n += d.length; }); rs.on('error', rej); rs.on('end', res); rs.pipe(gz, { end: false }); });
+      if (n !== f.size) throw new Error('El mundo cambió mientras lo empaquetaba. Cerrá el juego y probá de nuevo');
+    }
+    gz.end(); await done;
+  } catch (e) { try { gz.destroy(); out.destroy(); fs.unlinkSync(tmp); } catch (x) {} return { ok: false, err: String(e.message || e) }; }
+  const size = fs.statSync(tmp).size, sha = hash.digest('hex');
+  WTX.set(id, { file: tmp, size }); return { ok: true, id, size, raw, files: files.length, sha, name: wtSan(o.name || path.basename(dir)) };
+}
+function worldRead(o) { const x = WTX.get(o.id); if (!x) return null; const fd = fs.openSync(x.file, 'r'); try { const b = Buffer.alloc(Math.min(1 << 20, Math.max(0, +o.len || 0))); const n = fs.readSync(fd, b, 0, b.length, +o.off || 0); return b.subarray(0, n); } finally { fs.closeSync(fd); } }
+function worldDrop(id) { const x = WTX.get(id); if (x) { try { fs.unlinkSync(x.file); } catch (e) {} WTX.delete(id); } const r = WTR.get(id); if (r) { try { fs.closeSync(r.fd); } catch (e) {} try { fs.unlinkSync(r.file); } catch (e) {} WTR.delete(id); } return true; }
+function worldRecvOpen(o) { const id = String(o.id || '').replace(/[^\w]/g, ''); if (!id) return false; const file = path.join(app.getPath('temp'), 'wtr-' + id + '.gz'); WTR.set(id, { file, fd: fs.openSync(file, 'w'), n: 0 }); return true; }
+function worldRecvChunk(o) { const r = WTR.get(String(o.id)); if (!r) return false; const b = Buffer.from(o.buf); fs.writeSync(r.fd, b, 0, b.length); r.n += b.length; return true; }
+function worldUnpack(file, root) {
+  return new Promise((resolve) => {
+    let buf = Buffer.alloc(0), st = 0, hdr = null, fi = 0, left = 0, ws = null, dest = null, fail = '', total = 0;
+    const gu = zlib.createGunzip(), rs = fs.createReadStream(file);
+    const bail = (m) => { if (fail) return; fail = m; try { rs.destroy(); gu.destroy(); if (ws) ws.destroy(); } catch (e) {} resolve({ ok: false, err: m }); };
+    const next = () => { // abre el archivo siguiente (los vacios se crean aca)
+      while (hdr && fi < hdr.files.length) {
+        const f = hdr.files[fi], parts = String(f.p).split('/'); if (parts.some(p => !p || p === '..' || /[:\\]/.test(p) || path.isAbsolute(p))) { bail('Archivo con ruta inválida'); return false; }
+        const t = path.join(dest, ...parts); if (!t.startsWith(dest + path.sep)) { bail('Archivo con ruta inválida'); return false; }
+        fs.mkdirSync(path.dirname(t), { recursive: true });
+        if (f.s === 0) { fs.writeFileSync(t, ''); fi++; continue; }
+        ws = fs.createWriteStream(t); left = f.s; return true;
+      }
+      return false;
+    };
+    gu.on('data', chunk => {
+      if (fail) return; buf = buf.length ? Buffer.concat([buf, chunk]) : chunk;
+      for (;;) {
+        if (st === 0) { if (buf.length < 4) return; const n = buf.readUInt32BE(0); if (n > 8e6) return bail('Archivo dañado'); st = 1; hdr = { n }; buf = buf.subarray(4); }
+        if (st === 1) {
+          if (buf.length < hdr.n) return; let h; try { h = JSON.parse(buf.subarray(0, hdr.n).toString('utf8')); } catch (e) { return bail('Archivo dañado'); }
+          buf = buf.subarray(hdr.n); hdr = h; if (!Array.isArray(hdr.files) || hdr.files.length > 200000) return bail('Archivo dañado');
+          const R = wtRoots(), base = hdr.kind === 'pz' ? path.join(R.pz, wtSan(hdr.mode || 'Sandbox')) : hdr.kind === 'mc' ? R.mc : path.join(tmEnv().docs, 'WINTEER mundos');
+          fs.mkdirSync(base, { recursive: true }); let d = path.join(base, wtSan(hdr.name)), k = 0; while (fs.existsSync(d)) d = path.join(base, wtSan(hdr.name) + (k++ ? ' (recibido ' + k + ')' : ' (recibido)'));
+          fs.mkdirSync(d, { recursive: true }); dest = d; st = 2; if (!next()) { st = 3; }
+        }
+        if (st === 2) {
+          while (buf.length && ws) {
+            const take = Math.min(left, buf.length); ws.write(buf.subarray(0, take)); buf = buf.subarray(take); left -= take; total += take;
+            if (left === 0) { ws.end(); ws = null; fi++; if (!next()) { st = 3; } }
+          }
+          if (st === 2) return;
+        }
+        if (st === 3) return;
+      }
+    });
+    gu.on('end', () => { if (fail) return; const fin = () => resolve(hdr && fi >= hdr.files.length ? { ok: true, dest, files: hdr.files.length, kind: hdr.kind, name: hdr.name } : { ok: false, err: 'El archivo llegó incompleto' }); if (ws) { ws.on('finish', fin); } else fin(); });
+    gu.on('error', () => bail('Archivo dañado')); rs.on('error', () => bail('No pude leer lo recibido')); rs.pipe(gu);
+  });
+}
+async function worldRecvClose(o) {
+  const id = String(o.id || '').replace(/[^\w]/g, ''), r = WTR.get(id); if (!r) return { ok: false, err: 'No hay nada recibido' };
+  try { fs.closeSync(r.fd); } catch (e) {}
+  const finish = (x) => { try { fs.unlinkSync(r.file); } catch (e) {} WTR.delete(id); return x; };
+  if (r.n !== +o.size) return finish({ ok: false, err: 'Llegó incompleto (' + r.n + ' de ' + (+o.size) + ' bytes)' });
+  const h = crypto.createHash('sha1'); await new Promise((res) => fs.createReadStream(r.file).on('data', d => h.update(d)).on('end', res).on('error', res));
+  if (h.digest('hex') !== o.sha) return finish({ ok: false, err: 'Llegó dañado (no coincide la verificación)' });
+  return finish(await worldUnpack(r.file, null));
+}
+
 /* ===== IA local con Ollama: usa lo que ya esta instalado, placa de video por defecto, se descarga de memoria al terminar y se bloquea con un juego abierto ===== */
 function ollamaReq(method, p, body, ms, ctl) {
   return new Promise((resolve) => {
@@ -2102,6 +2190,14 @@ app.whenReady().then(() => {
   ipcMain.handle('tmPin', (_e, o) => tmPin(o || {}));
   ipcMain.handle('tmOpen', (_e, o) => { const d = path.join(tmRoot(o.dir), o.id ? tmSan(o.id) : ''); try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} shell.openPath(d); return d; });
   ipcMain.handle('tmPick', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí la carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
+  ipcMain.handle('worldList', () => { try { return worldList(); } catch (e) { return []; } });
+  ipcMain.handle('worldPack', (_e, o) => worldPack(o || {}));
+  ipcMain.handle('worldRead', (_e, o) => worldRead(o || {}));
+  ipcMain.handle('worldDrop', (_e, id) => worldDrop(String(id)));
+  ipcMain.handle('worldRecvOpen', (_e, o) => { try { return worldRecvOpen(o || {}); } catch (e) { return false; } });
+  ipcMain.handle('worldRecvChunk', (_e, o) => { try { return worldRecvChunk(o || {}); } catch (e) { return false; } });
+  ipcMain.handle('worldRecvClose', (_e, o) => worldRecvClose(o || {}));
+  ipcMain.handle('worldOpen', (_e, p) => { try { if (fs.existsSync(p)) shell.showItemInFolder(path.join(p, '..', path.basename(p))); } catch (e) {} return true; });
   ipcMain.handle('aiStatus', () => aiStatus());
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('phoneGet', () => phoneInfo());

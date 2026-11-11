@@ -8239,12 +8239,12 @@ async function frChatPull(c){try{const d=await fbGet(frTh(c),'winteer_chats');if
 function frPush(c){const ch=frCh(c);return fbSet(frMy(c),{m:ch.me||[],rx:ch.rx||{},rd:ch.rd||0,ty:ch.ty||0,rc:ch.rc||[],ts:Date.now()},'winteer_chats')}
 function frMsgs(c){const k=f=>f||[],ch=frCh(c);return [...k(ch.me).map(m=>({...m,me:1})),...k(ch.th)].sort((a,b)=>a.t-b.t)}
 const frFind=(c,t)=>frMsgs(c).find(m=>String(m.t)===String(t));
-const frSnip=m=>!m?'':m.d?'Mensaje eliminado':m.k==='img'?'Foto':m.k==='game'?'Juego: '+m.g:m.k==='inv'?'Invitación: '+m.g:m.k==='ans'?'Respuesta a invitación':String(m.x||'').slice(0,60);
+const frSnip=m=>!m?'':m.d?'Mensaje eliminado':m.k==='img'?'Foto':m.k==='game'?'Juego: '+m.g:m.k==='mods'?'Lista de mods':m.k==='wld'?'Mundo: '+((m.wt||{}).n||''):m.k==='inv'?'Invitación: '+m.g:m.k==='ans'?'Respuesta a invitación':String(m.x||'').slice(0,60);
 function frDropMsg(m){if(m&&m.k==='img'&&m.i&&!m.gone)fbDel(m.i,'winteer_media').catch(()=>{})}
 async function frSend(c,txt,o){o=o||{};const x=String(txt||'').trim().slice(0,500);if(!fbOn())return;const ch=frCh(c);
   if(o.edit){const m=(ch.me||[]).find(z=>String(z.t)===String(o.edit));if(!m||!x)return;m.x=x;m.e=1;save();frChatDraw(c);try{await frPush(c)}catch(e){toast('No pude guardar la edición')}return}
   if(!x&&!o.k)return;
-  const m={t:Date.now(),x};if(o.k)m.k=o.k;if(o.g)m.g=String(o.g).slice(0,80);if(o.i){m.i=o.i;m.w=o.w;m.h=o.h}if(o.r)m.r=o.r;if(o.q)m.q=o.q;if(o.a!==undefined)m.a=o.a;if(o.at)m.at=+o.at;if(o.ev)m.ev=String(o.ev).slice(0,24);if(o.wh)m.wh=o.wh.slice(0,6).map(z=>String(z).slice(0,30));
+  const m={t:Date.now(),x};if(o.k)m.k=o.k;if(o.g)m.g=String(o.g).slice(0,80);if(o.i){m.i=o.i;m.w=o.w;m.h=o.h}if(o.r)m.r=o.r;if(o.q)m.q=o.q;if(o.a!==undefined)m.a=o.a;if(o.mp&&JSON.stringify(o.mp).length<60000)m.mp=o.mp;if(o.wt)m.wt=o.wt;if(o.at)m.at=+o.at;if(o.ev)m.ev=String(o.ev).slice(0,24);if(o.wh)m.wh=o.wh.slice(0,6).map(z=>String(z).slice(0,30));
   const all=(ch.me||[]).concat([m]);all.slice(0,-150).forEach(frDropMsg);ch.me=all.slice(-150);ch.ty=0;save();frChatDraw(c,true);
   try{await frPush(c)}catch(e){toast('No pude enviar el mensaje. Revisá tu internet')}
   if(frId(c)==='DEMO000000')frBot(c,m)}
@@ -8265,7 +8265,7 @@ const FRX=['👍','❤️','😂','😮','😢','🔥'];
 function frMsgHTML(c,m,ms){const f=FR(),ch=frCh(c),me=!!m.me,nm=(f.c[c]||{}).name||'',pin=(ch.pins||[]).includes(m.t);let b='';
   if(m.d)b='<i class="fr-del">Mensaje eliminado</i>';
   else{if(m.r){const q=ms.find(z=>String(z.t)===String(m.r));b+=`<div class="fr-q">${q?`<b>${q.me?'Vos':esc(nm)}</b>${esc(frSnip(q))}`:'Mensaje anterior'}</div>`}
-    if(m.k==='img')b+=frImgHTML(m);else if(m.k==='game')b+=frGameHTML(c,m,me);else if(m.k==='inv')b+=frInvHTML(c,m,me,ms);
+    if(m.k==='img')b+=frImgHTML(m);else if(m.k==='game')b+=frGameHTML(c,m,me);else if(m.k==='inv')b+=frInvHTML(c,m,me,ms);else if(m.k==='mods')b+=x4ModsHTML(c,m,me);else if(m.k==='wld')b+=x4WldHTML(c,m,me);
     else if(m.k==='ans')b+=`<div class="fr-ans">${m.a?'✔ Aceptó jugar':'🕒 Más tarde para jugar'} <b>${esc(m.g||'')}</b></div>`;
     if(m.x)b+=`<span class="fr-tx">${esc(m.x).replace(/\n/g,'<br>')}</span>`}
   const seen=me&&(ch.thrd||0)>=m.t,mr=(ch.rx||{})[m.t],tr=(ch.thx||{})[m.t],cnt={};[mr,tr].forEach(e=>{if(e)cnt[e]=(cnt[e]||0)+1});
@@ -8304,7 +8304,7 @@ function frPing(kind){const f=FR();if(FRSND[f.snd]){try{const au=new Audio(FRSND
 function frToast(c,kind,body){if(visOn())return true;const f=FR();if(f.wn===false)return true;const d=f.c[c]||{},m=(FRM[c]||{}).d||{},ac=getComputedStyle(document.body).getPropertyValue('--a').trim();
   if(!document.hasFocus()&&window.winteerNative&&winteerNative.toast){winteerNative.toast({c,k:kind,n:d.name||'Amigo',b:body,pic:m.pic||'',ac});return true}
   if(!document.hasFocus()&&'Notification' in window){try{new Notification(d.name||'Amigo',{body,silent:true});return true}catch(e){}}return false}
-function frNotify(c,m){const f=FR();const nm=(f.c[c]||{}).name||'Amigo',tx=m.k==='img'?'📷 Te mandó una foto':m.k==='game'?'Te recomendó '+m.g:m.k==='inv'?'🎮 Te invita a jugar '+m.g+(m.at?' · '+njWhen(m.at):''):m.k==='ans'?(m.a?'✔ Aceptó jugar ':'🕒 Más tarde: ')+m.g:String(m.x||'').slice(0,100);
+function frNotify(c,m){const f=FR();const nm=(f.c[c]||{}).name||'Amigo',tx=m.k==='mods'?'Te pasó una lista de mods':m.k==='wld'?'Te quiere pasar un mundo':m.k==='img'?'📷 Te mandó una foto':m.k==='game'?'Te recomendó '+m.g:m.k==='inv'?'🎮 Te invita a jugar '+m.g+(m.at?' · '+njWhen(m.at):''):m.k==='ans'?(m.a?'✔ Aceptó jugar ':'🕒 Más tarde: ')+m.g:String(m.x||'').slice(0,100);
   frPing();if(!frToast(c,'Mensaje',tx))toast(nm+': '+tx)}
 async function frClean(){const f=FR();if(!fbOn())return;const lim=Date.now()-7*864e5;for(const c of f.list){const ch=frCh(c);let ch2=0;for(const m of (ch.me||[])){if(m.k==='img'&&!m.gone&&m.t<lim){try{await fbDel(m.i,'winteer_media')}catch(e){}m.gone=1;m.i='';ch2=1}}if(ch2){save();try{await frPush(c)}catch(e){}}}}
 function frGmTiles(q){const n=frN(q);return G.filter(g=>!g.hide&&(!n||frN(g.name).includes(n))).sort((a,b)=>(b.hours||0)-(a.hours||0)).slice(0,48).map(g=>`<button class="fr-tl ${S.frGs===g.id?'on':''}" data-a="frgpick" data-id="${g.id}" data-id2="${g.id}" title="${esc(g.name)}"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><span>${esc(g.name)}</span></button>`).join('')||'<small style="grid-column:1/-1;color:var(--muted)">Sin resultados</small>'}
@@ -8337,7 +8337,7 @@ function frMainHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
   return `<div class="fr-ph">${frAv(d,m,46)}<div class="fr-pi"><b>${esc(d.name)}</b><small>${frSub(d)}</small></div>
    <div class="fr-ha">${fbOn()?`<button class="fr-ib fr-call" data-a="frcall" title="Llamar a ${esc(d.name)}">${ic('phone')}<span>Llamar</span></button>`:''}${tab==='chat'&&(frCh(c).pins||[]).length?`<button class="fr-ib fr-pb ${S.frPinF?'on':''}" data-a="frpf" title="${S.frPinF?'Volver a todos los mensajes':'Ver mensajes fijados'}">${ic('pin')}<i>${(frCh(c).pins||[]).length}</i></button>`:''}</div>
    <div class="fr-tb">${[['chat','Chat'],['perfil','Perfil']].map(([k,l])=>`<button class="${tab===k?'on':''}" data-a="frtab" data-v="${k}">${l}</button>`).join('')}</div></div>
-   ${tab==='chat'?`<div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}<span>Foto</span></button><button class="fr-ab" data-a="frgm" data-v="rec" title="Recomendarle un juego con una nota">${ic('star')}<span>Recomendar</span></button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}<span>Invitar</span></button><button class="fr-ab" data-a="njnew" title="Armar una noche de juegos con hora"><span>Noche</span></button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">Enviar</button></div></div>`:frProfHTML(c,d,m)}`}
+   ${tab==='chat'?`<div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}<span>Foto</span></button><button class="fr-ab" data-a="frgm" data-v="rec" title="Recomendarle un juego con una nota">${ic('star')}<span>Recomendar</span></button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}<span>Invitar</span></button><button class="fr-ab" data-a="njnew" title="Armar una noche de juegos con hora"><span>Noche</span></button><button class="fr-ab" data-a="x4menu" title="Pasarle mods o el mundo a tu amigo"><span>Coop</span></button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">Enviar</button></div></div>`:frProfHTML(c,d,m)}`}
 function frProfHTML(c,d,m){const th=d.th||{},st=th.rgb?`--a:${th.a};--a2:${th.a2||th.a};--argb:${th.rgb}`:'',mine=new Map(G.map(g=>[frN(g.name),g]));
   S.frRp=S.frRp||{};const rv=d.rv||[];if(!(c in S.frRp)||(rv.length&&!rv[S.frRp[c]]))S.frRp[c]=rv.length?Math.floor(Math.random()*rv.length):-1;
   const x=d.avx&&typeof d.avx==='object'?avNorm(d.avx):null,bg=x?avItem('bg',x.bg):null,pt=d.pet&&d.pet.n?{...d.pet,name:d.pet.n,photo:'',ear:d.pet.ear||'down',pat:d.pet.pat||'none'}:null;
@@ -9031,6 +9031,113 @@ Object.assign(A,{
 });
 
 /* ===/X1A=== */
+/* ===X4A=== */
+/* ---------- 4 · coop sin dolores de cabeza: lista de mods compartida y "Pasarle el mundo" ---------- */
+const X4={cur:null};
+const x4Doc=(c,id,k)=>frPair(c)+'_wt_'+String(id).replace(/\W/g,'')+'_'+k;
+const x4MB=n=>n>=1e9?(n/1e9).toFixed(2)+' GB':(n/1e6).toFixed(n>=1e7?0:1)+' MB';
+const x4St=()=>{ST.x4=ST.x4||{};ST.x4.done=ST.x4.done||{};ST.x4.sent=ST.x4.sent||{};return ST.x4};
+const x4Nm=c=>(FR().c[c]||{}).name||'tu amigo';
+/* ----- tarjetas del chat ----- */
+function x4ModsHTML(c,m,me){const p=m.mp||{},st=x4St(),dn=st.done[m.t],cnt=p.k==='pz'?(p.m||[]).length:(p.cnt||0),g=p.k==='mc'?G.find(x=>mcOf(x)):G.find(x=>pzOf(x));
+  const act=me?'<span>Enviada</span>':dn?'<span class="ok">Importada</span>':`<div class="fr-iv"><button data-a="x4imp" data-c="${c}" data-t="${m.t}">Importar</button></div>`;
+  return `<div class="fr-gc inv"><div class="fr-gi">${frCover(g,p.k==='mc'?'Minecraft':'Project Zomboid')}</div><div><small>${me?'Le pasaste una lista de mods':'Te pasó una lista de mods'}</small><b>${esc(p.n||'Lista de mods')}</b><em class="nj-w">${cnt} mod${cnt===1?'':'s'} · ${p.k==='mc'?'Minecraft':'Project Zomboid'}</em></div></div><div class="fr-is">${act}</div>`}
+function x4WldHTML(c,m,me){const w=m.wt||{},st=x4St(),dn=st.done[m.t],g=G.find(x=>frN(x.name)===frN(m.g||''));
+  const act=me?(st.sent[w.id]==='ok'?'<span class="ok">Enviado</span>':'<span>Se manda cuando lo acepte</span>'):dn==='ok'?'<span class="ok">Recibido</span>':dn==='no'?'<span>Lo descartaste</span>':`<div class="fr-iv"><button data-a="x4recv" data-c="${c}" data-t="${m.t}">Recibir</button><button class="g" data-a="x4no" data-t="${m.t}">No</button></div>`;
+  return `<div class="fr-gc inv"><div class="fr-gi">${frCover(g,m.g||w.n)}</div><div><small>${me?'Le estás pasando un mundo':'Te quiere pasar un mundo'}</small><b>${esc(w.n||'Mundo')}</b><em class="nj-w">${esc(m.g||'Partida')} · ${x4MB(w.r||w.s||0)}</em></div></div><div class="fr-is">${act}</div>`}
+/* ----- menú y envío de listas de mods ----- */
+function x4Menu(){const c=S.frSel;if(!c){return}const d=FR().c[c]||{};$$('.modal').forEach(m=>m.remove());
+  modal(`<div style="text-align:left"><h3>Coop con ${esc(d.name||'tu amigo')}</h3><p class="hint2">Para jugar juntos sin pelearse con los mods ni con los archivos.</p>
+  <button class="b2 g x9lk" data-a="x4mods" style="margin-top:8px"><b>Pasarle mis mods</b><small>Lista de Project Zomboid o Minecraft</small></button>
+  <button class="b2 g x9lk" data-a="x4world" style="margin-top:8px"><b>Pasarle el mundo</b><small>Tu partida, de PC a PC</small></button></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`,'x8m')}
+function x4Packs(){const o=[];
+  try{const pg=G.find(pzOf);if(pg){const z=pzSt();z.profiles.forEach(p=>{if(p.m&&p.m.length)o.push({k:'pz',g:pg,n:p.n,cnt:p.m.length,mp:{k:'pz',n:p.n,m:p.m.slice(0,600).map(i=>[i,(p.w||{})[i]||(typeof pzById==='function'&&(pzById(i)||{}).wid)||''])}})})}}catch(e){}
+  try{const mg=G.find(mcOf);if(mg){const s=mcSt(mg);if(s&&s.inst){const code=mcCode(mg),cnt=Object.values(s.inst).filter(e=>!e.dep).length;if(cnt)o.push({k:'mc',g:mg,n:s.n,cnt,mp:{k:'mc',n:s.n,cnt,c:code}})}}}catch(e){}
+  return o}
+let X4P=[];
+function x4ModsPick(){const c=S.frSel;X4P=x4Packs();$$('.modal').forEach(m=>m.remove());
+  modal(`<div style="text-align:left"><h3>Pasarle mis mods</h3>${X4P.length?`<p class="hint2">Elegí la lista. ${esc(x4Nm(c))} la recibe en el chat y la importa con un toque.</p>${X4P.map((p,i)=>`<button class="b2 g x9lk" data-a="x4modsgo" data-i="${i}"><b>${esc(p.n)}</b><small>${p.k==='mc'?'Minecraft':'Project Zomboid'} · ${p.cnt} mods</small></button>`).join('')}`:'<p class="hint2">Todavía no tengo ninguna lista tuya. Abrí Project Zomboid o Minecraft en WINTEER, entrá a la pestaña Mods y armá la lista; después vuelve acá.</p>'}</div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`,'x8m')}
+function x4Import(c,t){const m=frFind(c,t);if(!m||!m.mp)return;const p=m.mp,st=x4St();
+  if(p.k==='pz'){try{const z=pzSt(),w={},ids=[];(p.m||[]).slice(0,600).forEach(x=>{const i=String(x[0]||'').replace(/[^\w.\-]/g,'');if(!i)return;ids.push(i);const k=String(x[1]||'').replace(/\D/g,'');if(k)w[i]=k});
+      z.profiles.push({id:'p'+Date.now().toString(36),n:String(p.n||'De mi amigo').slice(0,30),m:ids,w});z.cur=z.profiles[z.profiles.length-1].id;st.done[t]=1;save();frChatDraw(c);
+      const inst=new Set(((typeof PZS!=='undefined'&&PZS.mods)||[]).map(x=>x.id)),f=ids.filter(i=>!inst.has(i)).length;toast(inst.size?(f?'Lista importada. Te faltan '+f+' mods por instalar':'Lista importada: ya tenés todos los mods'):'Lista importada. Abrí Project Zomboid, pestaña Mods')}catch(e){toast('No pude importar la lista')}}
+  else if(p.k==='mc'){const g=G.find(mcOf);if(!g){toast('No tenés Minecraft en tu biblioteca');return}st.done[t]=1;save();frChatDraw(c);try{mcImport(g,String(p.c||''))}catch(e){toast('No pude importar la lista')}}}
+/* ----- Pasarle el mundo ----- */
+let X4W=[];
+async function x4WorldPick(){const c=S.frSel;if(!c)return;let l=[];try{l=await winteerNative.worldList()}catch(e){}X4W=l||[];$$('.modal').forEach(m=>m.remove());
+  modal(`<div style="text-align:left"><h3>Pasarle el mundo a ${esc(x4Nm(c))}</h3><p class="hint2">Los dos tienen que tener WINTEER abierto. Cerrá el juego antes de mandarlo. Se arma en un solo archivo y viaja directo de PC a PC, sin subirlo a ningún lado.</p>
+  ${X4W.length?X4W.slice(0,10).map((w,i)=>`<button class="b2 g x9lk" data-a="x4wgo" data-i="${i}"><b>${esc(w.name)}</b><small>${esc(w.game)}${w.mode?' · '+esc(w.mode):''} · ${x4MB(w.size)}</small></button>`).join(''):'<p class="hint2">No encontré mundos de Project Zomboid ni de Minecraft en esta PC.</p>'}
+  <button class="b2 g x9lk" data-a="x4wdir" style="margin-top:8px"><b>Elegir otra carpeta…</b><small>Cualquier partida</small></button></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button></div>`,'x8m')}
+function x4UI(){let p=$('#x4p');const k=X4.cur;if(!k){if(p)p.remove();return}
+  if(!p){p=document.createElement('div');p.id='x4p';p.className='x4p';document.body.appendChild(p)}
+  const pc=k.size?Math.min(100,Math.round(k.p*100)):0;
+  p.innerHTML=`<b>${k.dir==='s'?'Pasando el mundo a':'Recibiendo el mundo de'} ${esc(x4Nm(k.c))}</b><small>${esc(k.st||'')}</small><div class="x4b"><i style="width:${pc}%"></i></div><div class="x4r"><span>${k.p>0?pc+'%'+(k.sp?' · '+k.sp+' MB/s':''):''}</span><button data-a="x4cancel">Cancelar</button></div>`}
+function x4End(msg,ok){const k=X4.cur;X4.cur=null;if(k){try{k.dc&&k.dc.close()}catch(e){}try{k.pc&&k.pc.close()}catch(e){}[k.poll,k.to].forEach(t=>{clearInterval(t);clearTimeout(t)});
+    if(k.id){winteerNative.worldDrop(k.id).catch(()=>{});['o','a'].forEach(z=>fbDel(x4Doc(k.c,k.id,z),'winteer_chats').catch(()=>{}))}}x4UI();if(msg)toast(msg)}
+function x4Prog(k,n){const now=Date.now();k.p=k.size?n/k.size:0;if(!k.t0)k.t0=now;const s=(now-k.t0)/1000;k.sp=s>1?(n/1e6/s).toFixed(1):'';if(now-(k.lu||0)>250){k.lu=now;x4UI()}}
+async function x4Send(c,w){
+  if(!fbOn()){toast('Necesitás internet para mandarlo');return}if(X4.cur){toast('Ya hay un envío en curso');return}if(S.playing){toast('Cerrá el juego antes de mandar el mundo');return}
+  const k=X4.cur={dir:'s',c,id:'',st:'Empaquetando el mundo…',p:0,size:0};x4UI();
+  let pk;try{pk=await winteerNative.worldPack({dir:w.dir,name:w.name,kind:w.kind||'',mode:w.mode||''})}catch(e){pk={ok:false,err:'No pude empaquetarlo'}}
+  if(X4.cur!==k){if(pk&&pk.id)winteerNative.worldDrop(pk.id);return}
+  if(!pk.ok){x4End(pk.err||'No pude empaquetarlo');return}
+  k.id=pk.id;k.size=pk.size;k.sha=pk.sha;k.st='Conectando…';x4UI();
+  try{await clIceLoad();const pc=k.pc=new RTCPeerConnection(CLICE),dc=k.dc=pc.createDataChannel('w');dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=512*1024;
+    pc.onconnectionstatechange=()=>{if(X4.cur!==k)return;if(pc.connectionState==='failed')x4End('No pude conectar con '+x4Nm(c)+'. Puede ser la red de alguno de los dos');else if(pc.connectionState==='disconnected'){clearTimeout(k.dt);k.dt=setTimeout(()=>{if(X4.cur===k&&pc.connectionState!=='connected')x4End('Se perdió la conexión')},9000)}};
+    dc.onopen=()=>x4Stream(k);
+    dc.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}if(m.k==='ok'){x4St().sent[k.id]='ok';save();const n=x4Nm(c);x4End('Mundo enviado a '+n);try{frChatDraw(c)}catch(x){}}else if(m.k==='err')x4End('Del otro lado falló: '+(m.e||'error'))};
+    const off=await pc.createOffer();await pc.setLocalDescription(off);await clIceWait(pc);
+    await fbSet(x4Doc(c,k.id,'o'),{off:pc.localDescription.sdp,ts:Date.now()},'winteer_chats');
+    await frSend(c,'',{k:'wld',g:w.game||'',wt:{id:k.id,n:pk.name,s:pk.size,r:pk.raw,f:pk.files,sh:pk.sha,kd:w.kind||''}});
+    k.st='Esperando que '+x4Nm(c)+' lo acepte…';x4UI();
+    k.poll=setInterval(async()=>{if(X4.cur!==k||k.got)return;try{const d=await fbGet(x4Doc(c,k.id,'a'),'winteer_chats');if(d&&d.ans&&!k.got){k.got=1;k.st='Conectando con '+x4Nm(c)+'…';x4UI();await pc.setRemoteDescription({type:'answer',sdp:d.ans})}}catch(e){}},1500);
+    k.to=setTimeout(()=>{if(X4.cur===k&&!k.t0)x4End('No lo aceptó a tiempo. Podés mandarlo de nuevo')},10*60000)
+  }catch(e){x4End('No pude iniciar el envío. Revisá tu internet')}}
+async function x4Stream(k){
+  try{const dc=k.dc;k.t0=Date.now();k.st='Enviando…';dc.send(JSON.stringify({k:'h',size:k.size,sha:k.sha}));let off=0;
+    while(off<k.size){if(X4.cur!==k)return;const b=await winteerNative.worldRead({id:k.id,off,len:1<<20});if(!b||!b.length)throw new Error('lectura');
+      for(let i=0;i<b.length;i+=16384){while(dc.bufferedAmount>1<<20){if(X4.cur!==k||dc.readyState!=='open')return;await new Promise(r=>{dc.onbufferedamountlow=()=>{dc.onbufferedamountlow=null;r()};setTimeout(r,500)})}if(dc.readyState!=='open')throw new Error('cerrado');dc.send(b.subarray(i,i+16384))}
+      off+=b.length;x4Prog(k,off)}
+    while(dc.bufferedAmount>0&&dc.readyState==='open'&&X4.cur===k)await new Promise(r=>setTimeout(r,100));
+    dc.send(JSON.stringify({k:'e'}));k.st='Esperando confirmación…';k.p=1;x4UI()}catch(e){if(X4.cur===k)x4End('Se cortó el envío')}}
+async function x4Recv(c,t){
+  const m=frFind(c,t);if(!m||!m.wt)return;if(X4.cur){toast('Ya hay una transferencia en curso');return}
+  const w=m.wt,id=String(w.id||'').replace(/\W/g,'');if(!id)return;
+  const k=X4.cur={dir:'r',c,id,st:'Conectando…',p:0,size:+w.s||0,mt:t,buf:[],bn:0,chain:Promise.resolve(),n:0};x4UI();
+  try{const od=await fbGet(x4Doc(c,id,'o'),'winteer_chats');if(X4.cur!==k)return;if(!od||!od.off){x4End('Ya no está disponible. Pedile que lo mande de nuevo');return}
+    await clIceLoad();const pc=k.pc=new RTCPeerConnection(CLICE);
+    pc.onconnectionstatechange=()=>{if(X4.cur!==k)return;if(pc.connectionState==='failed')x4End('No pude conectar con '+x4Nm(c)+'. Puede ser la red de alguno de los dos');else if(pc.connectionState==='disconnected'){clearTimeout(k.dt);k.dt=setTimeout(()=>{if(X4.cur===k&&pc.connectionState!=='connected')x4End('Se perdió la conexión')},9000)}};
+    pc.ondatachannel=e=>{const dc=k.dc=e.channel;dc.binaryType='arraybuffer';dc.onmessage=ev=>x4Msg(k,ev)};
+    await pc.setRemoteDescription({type:'offer',sdp:od.off});const an=await pc.createAnswer();await pc.setLocalDescription(an);await clIceWait(pc);
+    await fbSet(x4Doc(c,id,'a'),{ans:pc.localDescription.sdp,ts:Date.now()},'winteer_chats');k.st='Esperando que empiece…';x4UI();
+    k.to=setTimeout(()=>{if(X4.cur===k&&!k.t0)x4End('No llegó nada. Pedile que lo mande de nuevo')},3*60000)
+  }catch(e){x4End('No pude conectar. Revisá tu internet')}}
+function x4Flush(k){if(!k.bn)return;const parts=k.buf;k.buf=[];const n=k.bn;k.bn=0;const all=new Uint8Array(n);let o=0;parts.forEach(p=>{all.set(p,o);o+=p.length});
+  k.chain=k.chain.then(()=>winteerNative.worldRecvChunk({id:k.id,buf:all}))}
+async function x4Msg(k,ev){
+  if(X4.cur!==k)return;
+  if(typeof ev.data==='string'){let m;try{m=JSON.parse(ev.data)}catch(e){return}
+    if(m.k==='h'){k.size=+m.size||k.size;k.sha=String(m.sha||'');k.h=1;k.t0=Date.now();k.st='Recibiendo…';const ok=await winteerNative.worldRecvOpen({id:k.id});if(!ok){x4End('No pude guardar lo recibido');return}x4UI()}
+    else if(m.k==='e'){x4Flush(k);k.st='Verificando y armando el mundo…';k.p=1;x4UI();await k.chain;
+      let r;try{r=await winteerNative.worldRecvClose({id:k.id,size:k.size,sha:k.sha})}catch(e){r={ok:false,err:'No pude armar el mundo'}}
+      try{k.dc.send(JSON.stringify(r.ok?{k:'ok'}:{k:'err',e:r.err}))}catch(e){}
+      const c=k.c,t=k.mt;if(r.ok){x4St().done[t]='ok';save();X4.cur=null;try{k.pc.close()}catch(e){}x4UI();try{frChatDraw(c)}catch(e){}x4Done(r)}else x4End(r.err||'No se pudo recibir')}}
+  else{k.buf.push(new Uint8Array(ev.data));k.bn+=ev.data.byteLength;k.n+=ev.data.byteLength;x4Prog(k,k.n);if(k.bn>=262144)x4Flush(k)}}
+function x4Done(r){const hint=r.kind==='pz'?'Abrí Project Zomboid y buscalo en tus partidas.':r.kind==='mc'?'Abrí Minecraft y buscalo en Un jugador.':'Copialo a donde tu juego guarda las partidas.';
+  $$('.modal').forEach(m=>m.remove());modal(`<div style="text-align:left"><h3>Mundo recibido</h3><p><b>${esc(r.name||'Mundo')}</b> quedó listo (${r.files} archivos).</p><p class="hint2">${esc(r.dest||'')}<br><br>${hint} No pisé ninguna partida tuya.</p></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button><button class="hm-go" data-a="x4open" data-p="${esc(r.dest||'')}">Abrir carpeta</button></div>`,'x8m')}
+Object.assign(A,{
+  x4menu:()=>x4Menu(),x4mods:()=>x4ModsPick(),x4world:()=>x4WorldPick(),
+  x4modsgo:a=>{const p=X4P[+a.dataset.i],c=S.frSel;if(!p||!c)return;$$('.modal').forEach(m=>m.remove());frSend(c,'',{k:'mods',g:p.g.name,mp:p.mp});toast('Lista enviada a '+x4Nm(c))},
+  x4imp:a=>x4Import(a.dataset.c,a.dataset.t),
+  x4wgo:a=>{const w=X4W[+a.dataset.i],c=S.frSel;if(!w||!c)return;$$('.modal').forEach(m=>m.remove());x4Send(c,w)},
+  x4wdir:async()=>{const c=S.frSel;const d=await winteerNative.tmPick('Elegí la carpeta de la partida que querés pasar');if(!d||!c)return;$$('.modal').forEach(m=>m.remove());x4Send(c,{dir:d,name:d.split(/[\\/]/).filter(Boolean).pop()||'mundo',game:''})},
+  x4recv:a=>x4Recv(a.dataset.c,a.dataset.t),
+  x4no:a=>{x4St().done[a.dataset.t]='no';save();if(S.frSel)frChatDraw(S.frSel)},
+  x4cancel:()=>x4End('Cancelado'),
+  x4open:a=>{try{winteerNative.worldOpen(a.dataset.p)}catch(e){}}
+});
+
+/* ===/X4A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
@@ -9072,6 +9179,10 @@ Object.assign(A,{
 .tm-a{display:flex;gap:6px;flex:none}.tm-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-b small{color:var(--muted)}
 .tm-c{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer}.tm-c input{margin-top:4px}.tm-c small{display:block;color:var(--muted);font-size:12px}.tm-c b{word-break:break-all;font-size:13px}
 /*/cX1A*/
+/*cX4A*/.x4p{position:fixed;right:20px;bottom:20px;width:320px;z-index:9000;padding:14px 16px;border-radius:16px;background:rgba(20,16,34,.96);border:1px solid rgba(255,255,255,.14);box-shadow:0 20px 50px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:8px}.x4p small{color:var(--muted)}
+.x4b{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.x4b i{display:block;height:100%;background:linear-gradient(90deg,#7a72ff,#38bdf8);transition:width .3s}
+.x4r{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}.x4r button{border:1px solid rgba(255,255,255,.2);background:none;color:inherit;font:inherit;font-size:12px;padding:5px 12px;border-radius:99px;cursor:pointer}
+/*/cX4A*/
 </style>
 </body>
 </html>
