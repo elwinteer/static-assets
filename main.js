@@ -1325,6 +1325,14 @@ function writeBackup({ dir, json }) {
   return f;
 }
 /* estado de la carpeta y del archivo de copias (sin escribir nada importante) */
+
+function bkRead(dir) {
+  const f = path.join(String(dir || ''), 'WINTEER-copia.json'); let st; try { st = fs.statSync(f); } catch (e) { return { ok: false, err: 'nofile' }; }
+  if (!st.size) return { ok: false, err: 'empty' };
+  let t; try { t = fs.readFileSync(f, 'utf8'); const j = JSON.parse(t); if (!j || !j.winteer2) return { ok: false, err: 'bad' }; } catch (e) { return { ok: false, err: 'bad' }; }
+  let games = 0; try { games = fs.readdirSync(path.join(dir, 'Partidas'), { withFileTypes: true }).filter(d => d.isDirectory()).length; } catch (e) {}
+  return { ok: true, json: t, mtime: st.mtimeMs, games };
+}
 function bkCheck({ dir, deep }) {
   const out = { ok: false, err: '', exists: false, bytes: 0, mtime: 0, free: -1, games: 0 };
   try {
@@ -2358,6 +2366,7 @@ app.whenReady().then(() => {
   ipcMain.handle('worldOpen', (_e, p) => { try { if (fs.existsSync(p)) shell.showItemInFolder(path.join(p, '..', path.basename(p))); } catch (e) {} return true; });
   ipcMain.handle('emScan', (_e, o) => { try { return emScan(o || {}); } catch (e) { return []; } });
   ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
+  ipcMain.handle('bkRead', (_e, d) => { try { return bkRead(d); } catch (e) { return { ok: false, err: 'bad' }; } });
   ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });

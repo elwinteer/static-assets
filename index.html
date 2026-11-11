@@ -3747,12 +3747,30 @@ V.wrapped=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="stack"><
   ${d.fb?'':`<section class="card rise" style="--i:3"><h3>Mes a mes${d.bm>=0?` · tu mes fuerte fue <span style="color:var(--a2)">${MN[d.bm]}</span>`:''}</h3><div class="mbars">${d.month.map((h,i)=>q&&(i<(q-1)*3||i>=q*3)?'':`<div class="mb2"><div class="mcol"><i style="--h:${h/mx*100}%;--d:${i}" title="${h.toFixed(1)} h"></i></div><span>${MN[i]}</span></div>`).join('')}</div></section>`}
   <section class="card rise" style="--i:4"><h3>Completados ${q?'en el '+QN[q]:'en '+S.wy}</h3>${d.done.length?`<div class="wdone">${d.done.map(g=>`<div class="wdc" data-a="open" data-id="${g.id}"><div class="cover"><img src="${art.wide(g)}" alt=""></div><b>${esc(g.name)}</b><small>${doneDate(g)?new Date(doneDate(g)).toLocaleDateString('es-AR'):'Sin fecha'}</small></div>`).join('')}</div>`:'<div class="empty">Ningún juego completado en este período… todavía.</div>'}</section></div>`};
 
+
+async function bkApplyJSON(j,dir){
+  if(!j||!j.winteer2)throw 0;
+  try{localStorage.setItem('winteer_prerestore',JSON.stringify({t:Date.now(),w:localStorage.getItem('winteer2')}))}catch(e){}
+  let w=j.winteer2;
+  if(dir){try{const o=JSON.parse(w);o.ST=o.ST||{};o.ST.bk=Object.assign({},o.ST.bk,{dir,on:true,err:''});w=JSON.stringify(o)}catch(e){}}
+  localStorage.setItem('winteer2',w);if(j.info)localStorage.setItem('winteer_info',j.info);if(j.good)localStorage.setItem('winteer_good',j.good);
+  let n=0;for(const k in (j.imgs||{})){try{await artPut(k,await (await fetch(j.imgs[k])).blob());n++}catch(e){}}
+  toast('Copia restaurada'+(n?` con ${n} imágenes`:'')+'. Recargando…');setTimeout(()=>location.reload(),900)}
+async function bkRestoreOpen(){
+  if(!WN||!winteerNative.bkRead){toast('Esto funciona en la app de escritorio');return}
+  const cand=[];if(ST.bk&&ST.bk.dir)cand.push(ST.bk.dir);if(X1D.p)cand.push(X1D.p.replace(/[\\/]+$/,'')+(X1D.p.includes('\\')?'\\':'/')+'WINTEER');
+  let hit=null,dir='';
+  for(const d of cand){let r;try{r=await winteerNative.bkRead(d)}catch(e){continue}if(r&&r.ok){hit=r;dir=d;break}}
+  if(!hit){const d=await winteerNative.pickDir();if(!d)return;let r;try{r=await winteerNative.bkRead(d)}catch(e){}
+    if(!r||!r.ok){toast(r&&r.err==='bad'?'La copia de esa carpeta está dañada':'No encontré una copia de WINTEER en esa carpeta');return}hit=r;dir=d}
+  window._bkR={j:hit.json,dir};
+  modal(`<div style="text-align:left"><h3>Restaurar desde mi copia</h3><p>Encontré tu copia en <b>${esc(dir)}</b>, guardada el ${new Date(hit.mtime).toLocaleString('es-AR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',hour12:false})} hs.${hit.games?` Ahí también están las partidas de ${hit.games} juego${hit.games===1?'':'s'}: después las restaurás desde la pestaña Partidas de cada uno.`:''}</p><p class="hint2">Reemplaza tus datos actuales por los de la copia (horas, logros, perfil, reseñas e imágenes). Antes guardo lo que tenés ahora por si te arrepentís.</p></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="hm-go" data-a="bkrestgo">Restaurar</button></div>`,'x8m')}
 const X1D={p:null};
 function x1Drive(){if(!WN||!winteerNative.driveFind||X1D.p!==null)return;X1D.p='';winteerNative.driveFind().then(p=>{X1D.p=p||'';if(S.view==='settings'&&p)go('settings')}).catch(()=>{})}
 function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'todavía no hiciste ninguna';x1Drive();
   const cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir),n=Object.values((ST.tm&&ST.tm.g)||{}).filter(x=>x.paths&&x.paths.length).length;
   return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo (horas, logros, perfil, reseñas y las imágenes que cargaste vos) en un único archivo que se sobrescribe. Además, dentro de la misma carpeta, va guardando versiones de las partidas de tus juegos de Epic, Xbox, .exe y emulados${n?' ('+n+' con copias)':''} para que puedas volver atrás desde la ficha de cada juego. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
-  <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small><small style="display:block;margin-top:4px">${cloud?'Está en la nube: tus copias y partidas te siguen a cualquier PC.':'Recomendado: una carpeta de Google Drive, así todo queda en la nube y lo recuperás aunque cambies de PC.'}</small></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
+  <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small><small style="display:block;margin-top:4px">${cloud?'Está en la nube: tus copias y partidas te siguen a cualquier PC.':'Recomendado: una carpeta de Google Drive, así todo queda en la nube y lo recuperás aunque cambies de PC.'}</small></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button><button class="b2 g" data-a="bkrest">Restaurar desde mi copia</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
 const STABS=[['look','Apariencia','flake'],['avi','Avisos y sonido','bolt'],['lib','Biblioteca','games'],['data','Sistema y datos','shield']];
 const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="sv" data-k="${k}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
 const badge=(ok,t1,t0)=>`<span class="bdg ${ok?'ok':''}">${ok?t1:t0}</span>`;
@@ -3819,7 +3837,7 @@ function go(v,o){if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){
     on('sgk','change',e=>{ST.key=e.target.value.trim();ST.sgdb={};G.forEach(g=>delete g._sg);sgFail=false;save()});
     on('uname','change',e=>{ST.name=e.target.value.trim()||'Jugador';if(ST.prof)ST.prof.name=ST.name;save();toast('Listo, '+ST.name);rp&&rp()});
     on('icecol','input',e=>{ST.ice=e.target.value;applyLook();save()});on('ccol','input',e=>{setAccent(e.target.value);$$('.col').forEach(c=>c.classList.remove('on'));save()});
-    on('bkf','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const j=JSON.parse(r.result);if(!j.winteer2)throw 0;localStorage.setItem('winteer2',j.winteer2);if(j.info)localStorage.setItem('winteer_info',j.info);if(j.good)localStorage.setItem('winteer_good',j.good);let n=0;for(const k in (j.imgs||{})){try{await artPut(k,await (await fetch(j.imgs[k])).blob());n++}catch(e){}}toast('Copia restaurada'+(n?` con ${n} imágenes`:'')+'. Recargando…');setTimeout(()=>location.reload(),900)}catch(x){toast('Ese archivo no es una copia de WINTEER')}};r.readAsText(f)})}
+    on('bkf','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{await bkApplyJSON(JSON.parse(r.result))}catch(x){toast('Ese archivo no es una copia de WINTEER')}};r.readAsText(f)})}
     if(window.winteerNative&&$('#cinf'))winteerNative.cacheInfo().then(c=>{const e=$('#cinf');if(e)e.innerHTML='Imágenes: <b>'+c.mb+' MB</b> ('+c.n+') · Trailers: <b>'+(c.tmb||0)+' MB</b> ('+(c.tn||0)+') · Música: <b>'+(c.mmb||0)+' MB</b> ('+(c.mn||0)+')'});
   counters(el);moveInd();if(v==='news')newsDraw();if(v==='vault')vRender();if(v==='games'){ST.newSeen=Date.now();save();scanBadge()}
 }
@@ -3981,6 +3999,8 @@ const A={
     const r=await winteerNative.exportFile({name:'WINTEER-sagas-export.json',json:JSON.stringify({sgx:ST.sgx||{},sghid:ST.sghid||[],sgc:JSON.parse(localStorage.getItem('winteer_sagas')||'null'),art,games:G.map(g=>({id:g.id,app:g.app,name:g.name}))})});
     toast(r&&r.ok?'Listo: WINTEER-sagas-export.json en tu escritorio':'No pude guardar el archivo')}catch(e){toast('No pude exportar')}a.textContent='Exportar'},
   bkpick:async()=>{const d=await winteerNative.pickDir();if(!d)return;ST.bk=ST.bk||{};ST.bk.dir=d;if(ST.bk.on===undefined)ST.bk.on=true;save();go('settings');toast('Carpeta elegida')},
+  bkrest:()=>{bkRestoreOpen()},
+  bkrestgo:async()=>{const x=window._bkR;if(!x)return;$$('.modal').forEach(m=>m.remove());try{await bkApplyJSON(JSON.parse(x.j),x.dir)}catch(e){toast('No pude restaurar la copia')}},
   bkdrive:()=>{if(!X1D.p)return;const sep=X1D.p.includes('\\')?'\\':'/';ST.bk=ST.bk||{};ST.bk.dir=X1D.p.replace(/[\\/]+$/,'')+sep+'WINTEER';if(ST.bk.on===undefined)ST.bk.on=true;save();go('settings');toast('Las copias van a tu Google Drive')},
   bknow:async()=>{if(!ST.bk||!ST.bk.dir){toast('Primero elegí una carpeta');return}const r=await doBackup();let ok=0;if(r&&winteerNative.tmSnap){const c=tmCfg();for(const id of Object.keys(c.g)){const q=c.g[id],g=gm(id);if(!g||!q.paths||!q.paths.length)continue;try{const t=await winteerNative.tmSnap({id:g.id,name:g.name,paths:q.paths,dir:c.dir,label:'Manual',keep:c.keep,force:true});if(t&&t.ok)ok++}catch(e){}}}
     toast(r?'Copia guardada en tu carpeta'+(ok?' y partidas de '+ok+' juego'+(ok===1?'':'s'):''):'No pude guardar la copia')},
