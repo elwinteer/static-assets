@@ -2086,6 +2086,15 @@ public static IntPtr Find(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindo
 public static string Fg(){uint p;GetWindowThreadProcessId(GetForegroundWindow(),out p);try{return System.Diagnostics.Process.GetProcessById((int)p).ProcessName.ToLower();}catch{return "?";}}
 public static void Focus(IntPtr h){keybd_event(0x12,0,0,UIntPtr.Zero);keybd_event(0x12,0,2,UIntPtr.Zero);ShowWindow(h,9);BringWindowToTop(h);SetForegroundWindow(h);}
 public static void Click(int x,int y){SetCursorPos(x,y);System.Threading.Thread.Sleep(120);mouse_event(2,0,0,0,UIntPtr.Zero);System.Threading.Thread.Sleep(60);mouse_event(4,0,0,0,UIntPtr.Zero);}
+public static int BtnY(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return -1;
+ using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
+ double k=w/540.0;int xb=(int)(w*0.42),x2=w-(int)(36*k);
+ Func<System.Drawing.Color,bool> bl=c=>c.B>180&&c.R<95&&c.G>70&&c.G<215;
+ int st=-1;for(int y=(int)(hh*0.35);y<=hh;y++){bool on=y<hh&&bl(bmp.GetPixel(xb,y))&&!bl(bmp.GetPixel(x2,y));
+  if(on&&st<0)st=y;if(!on&&st>=0){int len=y-st;if(len>=22*k&&len<=70*k)return r.T+(st+y)/2;st=-1;}}
+ return -1;}}
+public static int CenterX(IntPtr h){RECT r;GetWindowRect(h,out r);return r.L+(int)((r.R-r.L)*0.42);}
+public static void Wheel(IntPtr h){RECT r;GetWindowRect(h,out r);SetCursorPos((r.L+r.R)/2,(r.T+r.B)/2);System.Threading.Thread.Sleep(100);mouse_event(0x0800,0,0,unchecked((uint)(-480)),UIntPtr.Zero);}
 public static int[] Rows(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return new int[0];
  using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
  var bg=bmp.GetPixel(8,hh/2);double k=w/540.0;int x1=(int)(28*k),x2=w-(int)(36*k);
@@ -2112,7 +2121,10 @@ while((Get-Date) -lt $end){
       $n=$rw.Length-1
       if($idx -ge $n){Write-Output 'nodrive';exit}
       [WtW]::Click($rw[$n],$rw[$idx]);Start-Sleep -Milliseconds 500}
-    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}");Write-Output 'ok';exit}
+    $by=-1
+    for($t=0;$t -lt 5;$t++){$by=[WtW]::BtnY($h);if($by -gt 0){break};[WtW]::Wheel($h);Start-Sleep -Milliseconds 450}
+    if($by -gt 0){[WtW]::Click([WtW]::CenterX($h),$by);Write-Output 'ok';exit}
+    Write-Output 'nobtn';exit}
   Start-Sleep -Milliseconds 400}
 Write-Output 'timeout'`;
   return new Promise((res) => {
