@@ -1628,7 +1628,7 @@ app.whenReady().then(() => {
   });
   const TRL = path.join(app.getPath('userData'), 'trailers'), YTX = path.join(TRL, 'yt-dlp.exe'), YLOG = path.join(TRL, '_log.txt');
   const tlog = (m) => { try { fs.appendFileSync(YLOG, new Date().toISOString() + ' ' + m + '\n'); } catch (e) {} };
-  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; const QF = path.join(TRL, '_q1080'); if (!fs.existsSync(QF)) { for (const f of fs.readdirSync(TRL)) { const mm = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (mm && !fs.existsSync(path.join(TRL, mm[1] + '.cu'))) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} } } fs.writeFileSync(QF, '1'); } for (const f of fs.readdirSync(TRL)) { if (/\.none$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const m = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (m) o[m[1]] = m[2] === 'nx' ? '' : pathToFileURL(path.join(TRL, f)).href; if (/^\w+\.(m4a|na)$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const ma = f.match(/^(\w+)\.mu\.m4a$/); if (ma) o['a:' + ma[1]] = pathToFileURL(path.join(TRL, f)).href; const mk = f.match(/^(\w+)\.nm$/); if (mk) o['s:' + mk[1]] = ''; } return o; } catch (e) { return {}; } });
+  ipcMain.handle('trlList', () => { try { fs.mkdirSync(TRL, { recursive: true }); const o = {}; const QF = path.join(TRL, '_q1080'); if (!fs.existsSync(QF)) { for (const f of fs.readdirSync(TRL)) { const mm = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (mm && !fs.existsSync(path.join(TRL, mm[1] + '.cu'))) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} } } fs.writeFileSync(QF, '1'); } for (const f of fs.readdirSync(TRL)) { if (/\.none$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const m = f.match(/^(\w+)\.(mp4|webm|nx)$/); if (m) o[m[1]] = m[2] === 'nx' ? '' : pathToFileURL(path.join(TRL, f)).href; if (/^\w+\.(m4a|na)$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} continue; } const ma = f.match(/^(\w+)\.mu\.(m4a|mp3|ogg|wav|opus|aac)$/); if (ma) o['a:' + ma[1]] = pathToFileURL(path.join(TRL, f)).href; const mk = f.match(/^(\w+)\.nm$/); if (mk) o['s:' + mk[1]] = ''; } return o; } catch (e) { return {}; } });
   let ytReady = null;
   const ytEnsure = () => ytReady || (ytReady = (async () => {
     if (process.platform !== 'win32') throw new Error('solo Windows');
@@ -1687,19 +1687,66 @@ app.whenReady().then(() => {
       return { err: res.se.slice(-120) || 'sin resultado' };
     } catch (e) { tlog('error ' + String(e.message || e)); return { err: String(e.message || e) }; }
   });
+  /* canción propia del Modo mando */
+  const musClean = (key) => { try { for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.mu.') || f === key + '.nm') { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} } } catch (e) {} };
+  ipcMain.handle('musPick', async (_e, key) => {
+    try {
+      key = String(key || '').replace(/\W/g, ''); if (!key) return { err: 'sin clave' };
+      const r = await dialog.showOpenDialog(win, { title: 'Elegí la canción', properties: ['openFile'], filters: [{ name: 'Audio', extensions: ['mp3', 'm4a', 'aac', 'ogg', 'wav', 'opus'] }] });
+      if (r.canceled || !r.filePaths[0]) return { cancel: true };
+      fs.mkdirSync(TRL, { recursive: true }); musClean(key);
+      const ext = path.extname(r.filePaths[0]).slice(1).toLowerCase(), fin = path.join(TRL, key + '.mu.' + ext);
+      fs.copyFileSync(r.filePaths[0], fin);
+      return { url: pathToFileURL(fin).href };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('musUrl', async (_e, key, url) => {
+    try {
+      key = String(key || '').replace(/\W/g, ''); url = String(url || '').trim();
+      if (!key || !/^https?:\/\/(www\.|m\.|music\.)?(youtube\.com|youtu\.be)\//i.test(url)) return { err: 'Pegá un link de YouTube' };
+      fs.mkdirSync(TRL, { recursive: true }); await ytEnsure();
+      const tmpA = path.join(TRL, key + '.dl.m4a'); try { fs.unlinkSync(tmpA); } catch (e) {}
+      await new Promise((resolve) => require('child_process').execFile(YTX, [url, '--no-playlist', '--no-warnings', '-f', 'ba[ext=m4a]/ba[acodec^=mp4a]', '--max-filesize', '40M', '--socket-timeout', '20', '-o', tmpA], { timeout: 150000, windowsHide: true, maxBuffer: 4e6 }, () => resolve()));
+      if (!fs.existsSync(tmpA)) return { err: 'No pude bajar ese link' };
+      musClean(key);
+      const fin = path.join(TRL, key + '.mu.m4a'); fs.renameSync(tmpA, fin);
+      return { url: pathToFileURL(fin).href };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('musDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); musClean(key); fs.writeFileSync(path.join(TRL, key + '.nm'), ''); return true; } catch (e) { return false; } });
+  /* mantenimiento: mover un juego a otro disco (copia, verifica y recién después ofrece borrar el original) */
+  const dirBytes = (d, lim) => { let n = 0, t = Date.now(); const st = [d]; while (st.length) { const x = st.pop(); let es; try { es = fs.readdirSync(x, { withFileTypes: true }); } catch (e) { continue; } for (const e of es) { const p = path.join(x, e.name); if (e.isDirectory()) st.push(p); else { try { n += fs.statSync(p).size; } catch (e2) {} } } if (Date.now() - t > (lim || 20000)) return -1; } return n; };
+  ipcMain.handle('gmInfo', (_e, exe) => { try { const dir = path.dirname(String(exe || '')); if (!exe || !fs.existsSync(dir) || dir.length < 6 || /^[a-z]:\\?$/i.test(dir) || /windowsapps/i.test(dir)) return { none: true }; return { dir, bytes: dirBytes(dir, 25000) }; } catch (e) { return { none: true }; } });
+  ipcMain.handle('gmMove', async (_e, o) => {
+    try {
+      const from = String((o && o.from) || ''); if (!from || !fs.existsSync(from)) return { err: 'No encuentro la carpeta del juego' };
+      const r = await dialog.showOpenDialog(win, { title: 'Elegí el disco o carpeta de destino', properties: ['openDirectory', 'createDirectory'] });
+      if (r.canceled || !r.filePaths[0]) return { cancel: true };
+      const to = path.join(r.filePaths[0], path.basename(from));
+      if (path.resolve(to).toLowerCase().startsWith(path.resolve(from).toLowerCase())) return { err: 'El destino no puede estar dentro del juego' };
+      if (fs.existsSync(to)) return { err: 'Ya existe una carpeta con ese nombre en el destino' };
+      const need = dirBytes(from, 25000); try { const fsx = fs.statfsSync(r.filePaths[0]); if (need > 0 && fsx.bavail * fsx.bsize < need * 1.05) return { err: 'No hay espacio suficiente en ese disco' }; } catch (e) {}
+      await fs.promises.cp(from, to, { recursive: true });
+      const a = dirBytes(from, 60000), b = dirBytes(to, 60000);
+      if (a >= 0 && b >= 0 && a !== b) { try { await fs.promises.rm(to, { recursive: true, force: true }); } catch (e) {} return { err: 'La copia no quedó igual al original; no se cambió nada' }; }
+      return { from, to };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('gmRm', async (_e, dir) => { try { dir = String(dir || ''); if (dir.length < 8 || /^[a-z]:\\?$/i.test(dir) || /windows|program files$|system32/i.test(dir)) return false; await fs.promises.rm(dir, { recursive: true, force: true }); return true; } catch (e) { return false; } });
+  ipcMain.handle('gmOpen', (_e, p) => { try { shell.showItemInFolder(String(p || '')); return true; } catch (e) { return false; } });
   ipcMain.handle('trlPick', async (_e, key) => {
     try {
       key = String(key || '').replace(/\W/g, ''); if (!key) return { err: 'sin clave' };
       const r = await dialog.showOpenDialog(win, { title: 'Elegí el trailer', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mov', 'm4v'] }] });
       if (r.canceled || !r.filePaths[0]) return { cancel: true };
       fs.mkdirSync(TRL, { recursive: true });
-      for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.')) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
+      for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.') && !/\.(mu\.\w+|nm)$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
       const ext = (path.extname(r.filePaths[0]).slice(1).toLowerCase() === 'webm') ? 'webm' : 'mp4', fin = path.join(TRL, key + '.' + ext);
       fs.copyFileSync(r.filePaths[0], fin); fs.writeFileSync(path.join(TRL, key + '.cu'), '');
       return { url: pathToFileURL(fin).href };
     } catch (e) { return { err: String(e.message || e) }; }
   });
-  ipcMain.handle('trlDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.')) fs.unlinkSync(path.join(TRL, f)); fs.writeFileSync(path.join(TRL, key + '.nx'), ''); return true; } catch (e) { return false; } });
+  ipcMain.handle('trlDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.') && !/\.(mu\.\w+|nm)$/.test(f)) fs.unlinkSync(path.join(TRL, f)); fs.writeFileSync(path.join(TRL, key + '.nx'), ''); return true; } catch (e) { return false; } });
   ipcMain.handle('trlClear', () => { try { for (const f of fs.readdirSync(TRL)) if (f !== 'yt-dlp.exe') fs.unlinkSync(path.join(TRL, f)); } catch (e) {} return true; });
   ipcMain.handle('pickVideo', async () => {
     const r = await dialog.showOpenDialog(win, { title: 'Elegí el tráiler', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'mov'] }] });
@@ -1709,7 +1756,7 @@ app.whenReady().then(() => {
     const r = await dialog.showOpenDialog(win, { title: 'Elegí el juego', properties: ['openFile'], filters: [{ name: 'Programas', extensions: ['exe'] }] });
     return r.canceled ? '' : r.filePaths[0];
   });
-  ipcMain.handle('cacheInfo', () => { let n = 0, b = 0; try { for (const f of fs.readdirSync(CACHE)) { n++; b += fs.statSync(path.join(CACHE, f)).size; } } catch (e) {} let tn = 0, tb = 0; try { const td = path.join(app.getPath('userData'), 'trailers'); for (const f of fs.readdirSync(td)) { if (!/\.(mp4|webm)$/.test(f)) continue; tn++; tb += fs.statSync(path.join(td, f)).size; } } catch (e) {} let mn = 0, mb = 0; try { const td = path.join(app.getPath('userData'), 'trailers'); for (const f of fs.readdirSync(td)) { if (!/\.mu\.m4a$/.test(f)) continue; mn++; mb += fs.statSync(path.join(td, f)).size; } } catch (e) {} return { n, mb: Math.round(b / 1048576), dir: CACHE, tn, tmb: Math.round(tb / 1048576), mn, mmb: Math.round(mb / 1048576) }; });
+  ipcMain.handle('cacheInfo', () => { let n = 0, b = 0; try { for (const f of fs.readdirSync(CACHE)) { n++; b += fs.statSync(path.join(CACHE, f)).size; } } catch (e) {} let tn = 0, tb = 0; try { const td = path.join(app.getPath('userData'), 'trailers'); for (const f of fs.readdirSync(td)) { if (!/\.(mp4|webm)$/.test(f)) continue; tn++; tb += fs.statSync(path.join(td, f)).size; } } catch (e) {} let mn = 0, mb = 0; try { const td = path.join(app.getPath('userData'), 'trailers'); for (const f of fs.readdirSync(td)) { if (!/\.mu\.(m4a|mp3|ogg|wav|opus|aac)$/.test(f)) continue; mn++; mb += fs.statSync(path.join(td, f)).size; } } catch (e) {} return { n, mb: Math.round(b / 1048576), dir: CACHE, tn, tmb: Math.round(tb / 1048576), mn, mmb: Math.round(mb / 1048576) }; });
   ipcMain.handle('clearCache', () => { try { for (const f of fs.readdirSync(CACHE)) fs.unlinkSync(path.join(CACHE, f)); } catch (e) {} loadIdx(); bad.clear(); return true; });
   ipcMain.handle('scanEpic', async () => { try { return scanEpic(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('epicImport', async (_e, o) => { try { return await epicImport(o); } catch (e) { return { ok: false, err: 'Error inesperado con Epic', diag: String(e && e.message || e) }; } });
