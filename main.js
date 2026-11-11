@@ -2093,29 +2093,29 @@ function phoneStart() {
   srv.on('error', e => { PH.err = e && e.code === 'EADDRINUSE' ? 'El puerto ' + PHPORT + ' está ocupado' : String(e && e.message || e); PH.srv = null; });
   try { srv.listen(PHPORT, '0.0.0.0', () => { PH.srv = srv; }); PH.srv = srv; } catch (e) { PH.err = String(e.message || e); }
 }
-const PHONE_HTML = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0a12"><title>WINTEER</title><style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#0b0a12;color:#eee;font:15px/1.4 system-ui,sans-serif;padding:0 16px 90px}
-h1{font-size:18px;letter-spacing:.2em;margin:18px 0 4px}small,.d{color:#9a98ad}.top{position:sticky;top:0;background:#0b0a12;padding:10px 0;z-index:5}
-input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #2c2a40;background:#15132a;color:#fff;font:inherit}
-.chips{display:flex;gap:8px;margin:10px 0;overflow:auto}.chip{border:1px solid #2c2a40;background:#15132a;color:#ddd;border-radius:99px;padding:7px 14px;white-space:nowrap}.chip.on{background:#3b3590;border-color:#7a72ff;color:#fff}
-.now{margin:12px 0;padding:12px 14px;border-radius:14px;background:#1d3a2a;border:1px solid #2f7a52}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.c{background:#15132a;border-radius:14px;overflow:hidden;border:1px solid #232040}.c .i{aspect-ratio:460/215;background:#201d3a;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#5b55a8}.c .i img{width:100%;height:100%;object-fit:cover}.c div.t{padding:8px 10px}.c b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sheet{position:fixed;left:0;right:0;bottom:0;background:#191633;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(0,0,0,.6);z-index:9}
-.btn{display:block;width:100%;padding:14px;border-radius:14px;border:0;font:inherit;font-weight:700;margin-top:10px;background:#5b50ff;color:#fff}.btn.g{background:#26233f;color:#ddd}
-.msg{position:fixed;left:16px;right:16px;top:12px;padding:12px 14px;border-radius:12px;background:#2a2750;z-index:20;text-align:center}
+const PHONE_HTML = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0a0b"><title>WINTEER</title><style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#0a0a0b;color:#eee;font:15px/1.4 system-ui,sans-serif;padding:0 16px 90px}
+h1{font-size:18px;letter-spacing:.2em;margin:18px 0 4px}small,.d{color:#9a9aa2}.top{position:sticky;top:0;background:#0a0a0b;padding:10px 0;z-index:5}
+input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #2a2a2e;background:#161618;color:#fff;font:inherit}
+.chips{display:flex;gap:8px;margin:10px 0;overflow:auto}.chip{border:1px solid #2a2a2e;background:#161618;color:#ddd;border-radius:99px;padding:7px 14px;white-space:nowrap}.chip.on{background:#fff;border-color:#fff;color:#000}
+.now{margin:12px 0;padding:12px 14px;border-radius:14px;background:#16241c;border:1px solid #2a5a3d}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.c{background:#161618;border-radius:14px;overflow:hidden;border:1px solid #26262a}.c .i{aspect-ratio:460/215;background:#1d1d20;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#6b6b72}.c .i img{width:100%;height:100%;object-fit:cover}.c div.t{padding:8px 10px}.c b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#151517;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(0,0,0,.6);z-index:9}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;border:0;font:inherit;font-weight:700;margin-top:10px;background:#fff;color:#000}.btn.g{background:#242427;color:#ddd}
+.msg{position:fixed;left:16px;right:16px;top:12px;padding:12px 14px;border-radius:12px;background:#26262a;z-index:20;text-align:center}
 .pin{text-align:center;letter-spacing:.4em;font-size:26px}</style></head><body><div id="app"></div><script>
 var T=null,SN=null,F='all',Q='',SEL=null;try{T=localStorage.getItem('wt')}catch(e){}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function api(p,b){return fetch(p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json','X-T':T||''},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json()})}
 function msg(t){var m=document.createElement('div');m.className='msg';m.textContent=t;document.body.appendChild(m);setTimeout(function(){m.remove()},3200)}
-function login(){document.getElementById('app').innerHTML='<h1>WINTEER</h1><p class="d">Escribí el código de 6 números que aparece en tu PC (Ajustes, Mantenimiento).</p><input id="pin" class="pin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn" id="go">Entrar</button>';
+function login(){document.getElementById('app').innerHTML='<h1>WINTEER</h1><p class="d">Escribí el código de 6 números que aparece en tu PC (Ajustes, Extras).</p><input id="pin" class="pin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn" id="go">Entrar</button>';
  document.getElementById('go').onclick=function(){api('/api/login',{pin:document.getElementById('pin').value}).then(function(r){if(r.ok){T=r.t;try{localStorage.setItem('wt',T)}catch(e){}load()}else msg(r.err||'No pude entrar')})}}
 function load(){api('/api/lib').then(function(r){if(!r.ok){T=null;try{localStorage.removeItem('wt')}catch(e){}login();return}SN=r.snap;draw()}).catch(function(){msg('No encuentro la PC. Revisá que esté prendida y en el mismo wifi')})}
 function cover(g){return g.a>0?'<img loading="lazy" src="https://cdn.akamai.steamstatic.com/steam/apps/'+g.a+'/header.jpg" onerror="this.remove()">':''}
 function draw(){if(!SN)return;var q=Q.toLowerCase(),L=SN.games.filter(function(g){return(!q||g.n.toLowerCase().indexOf(q)>=0)&&(F==='all'||(F==='inst'&&g.i)||(F==='fav'&&g.f))});
  var h='<div class="top"><h1>WINTEER</h1><small>'+esc(SN.name||'Tu PC')+'</small><input id="q" placeholder="Buscar" value="'+esc(Q)+'"><div class="chips">'+[['all','Todos'],['inst','Instalados'],['fav','Favoritos']].map(function(c){return'<button class="chip '+(F===c[0]?'on':'')+'" data-f="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div></div>';
  if(SN.playing)h+='<div class="now"><small>Jugando ahora en la PC</small><br><b>'+esc(SN.playing.n)+'</b></div>';
- h+='<div class="grid">'+L.slice(0,200).map(function(g){return'<div class="c" data-id="'+esc(g.id)+'"><div class="i">'+cover(g)+esc(g.n[0]||'?')+'</div><div class="t"><b>'+esc(g.n)+'</b><small>'+(g.h>0?(g.h<1?Math.round(g.h*60)+' min':g.h.toFixed(1)+' h'):'Sin jugar')+(g.i?'':' · no instalado')+'</small></div></div>'}).join('')+'</div>'+(L.length?'':'<p class="d">No hay juegos con ese filtro.</p>');
+ h+='<div class="grid">'+L.slice(0,200).map(function(g){return'<div class="c" data-id="'+esc(g.id)+'"><div class="i">'+cover(g)+esc(g.n[0]||'?')+'</div><div class="t"><b>'+esc(g.n)+'</b><small>'+(g.h>0?(g.h<1?Math.round(g.h*60)+' min':(g.h>=10?Math.round(g.h):g.h.toFixed(1))+' h'):'Sin jugar')+(g.i?'':' · no instalado')+'</small></div></div>'}).join('')+'</div>'+(L.length?'':'<p class="d">No hay juegos con ese filtro.</p>');
  var app=document.getElementById('app'),act=document.activeElement&&document.activeElement.id==='q';app.innerHTML=h;var qi=document.getElementById('q');if(act){qi.focus();qi.setSelectionRange(Q.length,Q.length)}
  qi.oninput=function(){Q=qi.value;draw()};Array.prototype.forEach.call(app.querySelectorAll('.chip'),function(b){b.onclick=function(){F=b.dataset.f;draw()}});
  Array.prototype.forEach.call(app.querySelectorAll('.c'),function(c){c.onclick=function(){sheet(c.dataset.id)}})}
