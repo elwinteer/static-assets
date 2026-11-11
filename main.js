@@ -1264,7 +1264,32 @@ function writeBackup({ dir, json }) {
   const f = path.join(dir, 'WINTEER-copia.json'), tmp = f + '.tmp';
   fs.writeFileSync(tmp, json, 'utf8');
   fs.renameSync(tmp, f);
+  /* prueba de vida: se vuelve a leer lo que quedó en el disco y tiene que coincidir con lo que se mandó */
+  const back = fs.readFileSync(f, 'utf8');
+  if (back.length !== json.length) throw new Error('La copia quedó incompleta (se escribió ' + back.length + ' de ' + json.length + ' caracteres)');
+  JSON.parse(back);
   return f;
+}
+/* estado de la carpeta y del archivo de copias (sin escribir nada importante) */
+function bkCheck({ dir, deep }) {
+  const out = { ok: false, err: '', exists: false, bytes: 0, mtime: 0, free: -1, games: 0 };
+  try {
+    if (!dir) { out.err = 'No hay una carpeta de copias elegida'; return out; }
+    if (!fs.existsSync(dir)) { out.err = 'La carpeta de copias no existe (¿se desconectó el disco o el pendrive?)'; return out; }
+    try { const t = path.join(dir, '.wt-prueba'); fs.writeFileSync(t, 'x'); fs.unlinkSync(t); } catch (e) { out.err = 'No se puede escribir en la carpeta de copias'; return out; }
+    try { const s = fs.statfsSync(dir); out.free = Number(s.bavail) * Number(s.bsize); } catch (e) {}
+    const f = path.join(dir, 'WINTEER-copia.json');
+    if (!fs.existsSync(f)) { out.err = 'Todavía no hay ningún archivo de copia'; return out; }
+    const st = fs.statSync(f); out.exists = true; out.bytes = st.size; out.mtime = st.mtimeMs;
+    if (!st.size) { out.err = 'El archivo de copia está vacío'; return out; }
+    if (deep) {
+      let j; try { j = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { out.err = 'El archivo de copia está dañado y no se puede abrir'; return out; }
+      if (!j || typeof j !== 'object' || !j.winteer2) { out.err = 'El archivo de copia no tiene tus datos adentro'; return out; }
+      try { const s = JSON.parse(j.winteer2); out.games = Array.isArray(s.G) ? s.G.length : (Array.isArray(s.games) ? s.games.length : 0); } catch (e) { out.err = 'Los datos de la copia están dañados'; return out; }
+    }
+    if (out.free >= 0 && out.free < st.size * 3 + 50 * 1024 * 1024) { out.err = 'Queda poco lugar libre en el disco de las copias'; return out; }
+    out.ok = true; return out;
+  } catch (e) { out.err = String((e && e.message) || e).slice(0, 120); return out; }
 }
 
 /* ---------- IGDB (Twitch) ---------- */
@@ -1764,6 +1789,7 @@ app.whenReady().then(() => {
   ipcMain.handle('xboxImport', async () => { try { return await xboxImport(); } catch (e) { return { ok: false, err: 'Error inesperado con Xbox', diag: String(e && e.message || e) }; } });
   ipcMain.handle('scanXbox', async () => { try { return await scanXbox(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('pickDir', async () => { const r = await dialog.showOpenDialog(win, { title: 'Elegí la carpeta para las copias', properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
+  ipcMain.handle('bkCheck', async (_e, o) => bkCheck(o || {}));
   ipcMain.handle('writeBackup', async (_e, o) => { try { return { ok: true, file: writeBackup(o) }; } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
