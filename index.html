@@ -8679,6 +8679,83 @@ document.addEventListener('keydown',e=>{if(e.target&&e.target.id==='x8vc'&&e.key
 /* ---------- arranque ---------- */
 setTimeout(()=>{try{if(ST.vis&&ST.vis.on&&ST.vis.until&&Date.now()>=ST.vis.until){ST.vis.on=false;save()}if(visOn()&&WN&&!BP)bpOpen()}catch(e){}},2600);
 setTimeout(()=>{try{bkWatch()}catch(e){}},30000);setInterval(()=>{try{bkWatch()}catch(e){}},12*36e5);
+/* ===X9A=== */
+/* ---------- 8 · vincular con la tienda más tarde ---------- */
+const isStoreG=g=>isSteamG(g)||isEpicG(g)||isXbG(g);
+const lkKey=s=>String(s||'').toLowerCase().replace(/\(.*?\)|\[.*?\]/g,' ').replace(/\b(goty|game of the year|edition|deluxe|complete|remastered|definitive|ultimate|digital|standard|v?\d+(\.\d+)+)\b/g,' ').replace(/[^a-z0-9]/g,'');
+function lkScore(a,b){if(!a||!b)return 0;if(a===b)return 1;if(Math.min(a.length,b.length)>=5&&(a.startsWith(b)||b.startsWith(a)))return .8;return 0}
+function lkOthers(g){return G.filter(q=>q.id!==g.id&&!q.hide&&(isStoreG(g)?!isStoreG(q):isStoreG(q)))}
+function lkCands(g){const k=lkKey(g.name);return lkOthers(g).map(q=>[q,lkScore(k,lkKey(q.name))]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]||(b[0].hours||0)-(a[0].hours||0)).map(x=>x[0])}
+function lkRemap(s,d){
+  const sid=s.id,did=d.id,mapKey=(o,fn)=>{if(!o||o[sid]===undefined)return;if(o[did]===undefined)o[did]=o[sid];else if(fn)fn(o[did],o[sid]);delete o[sid]};
+  mapKey(ST.gg,(a,b)=>{for(const k in b)if(!a[k]||(a[k]<0&&b[k]>0))a[k]=b[k]});
+  mapKey(ST.gs,(a,b)=>{a.n=(a.n||0)+(b.n||0);a.days=[...new Set([...(a.days||[]),...(b.days||[])])];a.max=Math.max(a.max||0,b.max||0);a.ls=Math.max(a.ls||0,b.ls||0);a.back=(a.back||0)+(b.back||0)});
+  for(const k in (ST.gl||{})){const o=ST.gl[k];if(o&&o[sid]!==undefined){o[did]=(o[did]||0)+o[sid];delete o[sid]}}
+  (ST.ses||[]).forEach(x=>{if(String(x.g)===String(sid))x.g=did});
+  RV().forEach(r=>{if(String(r.gid)===String(sid))r.gid=did});
+  const p=PR();if(p&&Array.isArray(p.fav)){p.fav=[...new Set(p.fav.map(i=>String(i)===String(sid)?did:i))]}
+  try{const L=JSON.stringify(ST.ls||[]);if(L.includes(JSON.stringify(sid)))ST.ls=JSON.parse(L.split(JSON.stringify(sid)).join(JSON.stringify(did)))}catch(e){}
+  const X=ST.sgx;if(X){if(X.mv)mapKey(X.mv);if(X.yr){const a='g'+sid;if(X.yr[a]!==undefined){if(X.yr['g'+did]===undefined)X.yr['g'+did]=X.yr[a];delete X.yr[a]}}
+    if(X.ord)for(const c in X.ord){X.ord[c]=[...new Set((X.ord[c]||[]).map(k=>k==='g'+sid?'g'+did:k))]}}
+  if(ST.vis&&ST.vis.pick)mapKey(ST.vis.pick);
+  if(ST.rsm)delete ST.rsm[sid];if(ST.rj&&ST.rj.skip)delete ST.rj.skip[sid]}
+async function lkMerge(srcId,dstId){
+  const s=gS(srcId),d=gS(dstId);if(!s||!d||s===d)return false;
+  if(S.playing&&(String(S.playing.id)===String(s.id)||String(S.playing.id)===String(d.id))){toast('Cerrá el juego antes de vincular');return false}
+  try{localStorage.setItem('winteer_prelink',localStorage.getItem('winteer2')||'')}catch(e){}
+  const hs=+s.hours||0;
+  d.hours=(+d.hours||0)+hs;
+  if(lastTs(s)>lastTs(d))d.last=s.last;
+  if(s.status==='Terminado')d.status='Terminado';
+  if(s.doneAt&&(!d.doneAt||s.doneAt<d.doneAt))d.doneAt=s.doneAt;
+  if(!d.rate&&s.rate)d.rate=s.rate;
+  if(s.notes)d.notes=(d.notes?d.notes+'\n\n':'')+s.notes;
+  if(s.fav)d.fav=true;
+  if(!d.hl&&s.hl)d.hl=s.hl;
+  d.tags=[...new Set([...(d.tags||[]),...(s.tags||[]).filter(t=>t!=='Otras tiendas')])];
+  d.linked={n:s.name,h:hs,t:Date.now()};
+  lkRemap(s,d);
+  let ms=0;try{if(WN&&winteerNative.shotsMerge){const r=await winteerNative.shotsMerge({from:s.id,to:d.id});ms=(r&&r.n)||0}}catch(e){}
+  G=G.filter(x=>x!==s);
+  if(S.sel===s.id)S.sel=d.id;
+  save();try{RJC.t=0}catch(e){}
+  toast(`Vinculado: ${d.name}. Conserva ${fh(hs)} jugadas${ms?`, ${ms} capturas y clips`:''} y tus logros propios`);
+  return true}
+function lkRender(g,q){
+  const cs=lkCands(g),all=lkOthers(g),qq=lkKey(q||''),ex=new Set(cs.map(x=>x.id));
+  const more=(qq?all.filter(x=>!ex.has(x.id)&&lkKey(x.name).includes(qq)):[]).slice(0,8);
+  const row=x=>`<button class="b2 g x9lk" data-a="x9lkpick" data-id="${x.id}"><b>${esc(x.name)}</b><small>${isSteamG(x)?'Steam':isEpicG(x)?'Epic':isXbG(x)?'Xbox':'.exe'}${x.hours?' · '+fh(x.hours):''}</small></button>`;
+  return `${cs.length?`<p class="hint2" style="margin:8px 0 4px">Parecen ser el mismo juego:</p>${cs.slice(0,6).map(row).join('')}`:'<p class="hint2">No encontré un juego con el mismo nombre. Buscalo por nombre:</p>'}
+  <input class="txt" id="x9lq" placeholder="Buscar otro por nombre…" value="${esc(q||'')}" autocomplete="off" style="margin-top:10px">${more.length?`<div style="margin-top:6px">${more.map(row).join('')}</div>`:''}`}
+function lkOpen(id){
+  const g=gS(id);if(!g)return;const st=isStoreG(g);
+  modal(`<div style="text-align:left"><h3>Vincular con ${st?'tu versión de otra tienda':'la tienda'}</h3>
+  <p>${st?`Juntás <b>${esc(g.name)}</b> con una entrada que tenías aparte (.exe).`:`Si compraste <b>${esc(g.name)}</b>, lo juntás con su versión de la tienda y no perdés nada.`} Se conservan las horas, los logros propios, capturas, clips, reseñas, notas y favoritos.</p>
+  <div id="x9lkb">${lkRender(g,'')}</div></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button></div>`,'x8m');
+  S.lkSrc=id;const i=$('#x9lq');if(i)i.addEventListener('input',()=>{const b=$('#x9lkb');if(b){b.innerHTML=lkRender(g,i.value);const n=$('#x9lq');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}const nn=$('#x9lq');if(nn)nn.addEventListener('input',i.oninput||(()=>{}))}})}
+function lkConfirm(a,b){
+  // a = juego .exe (se absorbe), b = juego de tienda (queda)
+  modal(`<div style="text-align:left"><h3>¿Vincular estos dos?</h3>
+  <p><b>${esc(a.name)}</b> (${fh(a.hours)}) se junta con <b>${esc(b.name)}</b> (${fh(b.hours)}).</p>
+  <p class="hint2">Queda una sola entrada: <b>${esc(b.name)}</b>, con ${fh((+a.hours||0)+(+b.hours||0))} en total. Se pasan las capturas, clips, logros propios, reseñas, notas y favoritos, y la entrada .exe se saca de la biblioteca. Dejé una copia de seguridad de tus datos por las dudas.</p></div>
+  <div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="x9lkgo" data-a2="${a.id}" data-b2="${b.id}">Vincular</button></div>`,'x8m')}
+function lkSuggest(){
+  try{ST.lk=ST.lk||{seen:{}};const exes=G.filter(g=>!g.hide&&!isStoreG(g)&&g.exe&&((g.hours||0)>0||(g.status||'')!==''));
+    for(const g of exes){const k=lkKey(g.name);const m=G.find(q=>q.id!==g.id&&isStoreG(q)&&lkScore(k,lkKey(q.name))===1);
+      if(m&&!ST.lk.seen[g.id+'>'+m.id]){ST.lk.seen[g.id+'>'+m.id]=Date.now();save();toast(`Tenés ${g.name} como .exe y también en ${isSteamG(m)?'Steam':isEpicG(m)?'Epic':'Xbox'}. Podés vincularlos desde su ficha (botón Vincular)`);return}}}catch(e){}}
+setTimeout(()=>{try{lkSuggest()}catch(e){}},26000);setInterval(()=>{try{lkSuggest()}catch(e){}},6*36e5);
+(()=>{const r0=renderDetail;renderDetail=function(){const r=r0.apply(this,arguments);try{lkChip()}catch(e){}return r}})();
+function lkChip(){const g=gm(S.sel),d=$('#detail');if(!g||!d)return;const t=d.querySelector('.dtop');if(!t||t.querySelector('[data-a=x9lk]'))return;
+  const st=isStoreG(g),ok=st?G.some(q=>q.id!==g.id&&!q.hide&&!isStoreG(q)&&lkScore(lkKey(g.name),lkKey(q.name))>0):!!g.exe;
+  if(!ok)return;const b=document.createElement('button');b.className='chip btn2';b.dataset.a='x9lk';b.dataset.id=g.id;b.style.marginRight='8px';b.textContent='Vincular';t.insertBefore(b,t.querySelector('[data-a=edit]'))}
+Object.assign(A,{
+  x9lk:a=>lkOpen(a.dataset.id),
+  x9lkpick:a=>{const g=gS(S.lkSrc),o=gS(a.dataset.id);if(!g||!o)return;document.querySelectorAll('.modal').forEach(m=>m.remove());
+    const st=isStoreG(g);lkConfirm(st?o:g,st?g:o)},
+  x9lkgo:async a=>{const sid=a.dataset.a2,did=a.dataset.b2;a.textContent='Vinculando…';const ok=await lkMerge(sid,did);document.querySelectorAll('.modal').forEach(m=>m.remove());if(ok){try{if(S.view==='games'){S.sel=did;renderList();renderDetail(false)}}catch(e){}}}
+});
+
+/* ===/X9A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
@@ -8699,6 +8776,8 @@ setTimeout(()=>{try{bkWatch()}catch(e){}},30000);setInterval(()=>{try{bkWatch()}
 .x8dec{display:flex;flex-direction:column;gap:12px}.x8y{display:flex;gap:14px;align-items:center}.x8yl{width:108px;flex:none}.x8yl b{font-size:22px;font-weight:500;display:block}.x8yl small{color:var(--muted);font-size:11px}
 .x8yg{display:flex;gap:10px;flex:1;min-width:0}.x8yc{display:flex;gap:8px;align-items:center;background:var(--card2);border:0;border-radius:10px;padding:5px 10px 5px 5px;cursor:pointer;color:var(--text);min-width:0;flex:1 1 0;max-width:260px;text-align:left}.x8yc.top{outline:1px solid var(--a2)}.x8yc img{width:30px;height:42px;border-radius:5px;object-fit:cover;flex:none}.x8yc span{font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.x8yc small{display:block;color:var(--muted);font-size:10.5px}
 .x8vl{max-height:240px;overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:6px 10px}.x8vi{display:flex;gap:10px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer}
+/*cX9A*/.x9lk{display:flex;justify-content:space-between;align-items:center;width:100%;margin:4px 0;text-align:left}.x9lk small{opacity:.6;margin-left:12px;white-space:nowrap}
+/*/cX9A*/
 </style>
 </body>
 </html>

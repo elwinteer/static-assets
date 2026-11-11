@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   pickDir: () => ipcRenderer.invoke('pickDir'),
   writeBackup: (o) => ipcRenderer.invoke('writeBackup', o),
   bkCheck: (o) => ipcRenderer.invoke('bkCheck', o),
+  shotsMerge: (o) => ipcRenderer.invoke('shotsMerge', o),
   fullscreen: (on) => ipcRenderer.invoke('fullscreen', on),
   cfgGet: () => ipcRenderer.invoke('cfgGet'),
   cfgSet: (k, v) => ipcRenderer.invoke('cfgSet', { k, v }),

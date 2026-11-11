@@ -518,6 +518,22 @@ function listShots(id) {
   return out.sort((a, b) => b.t - a.t);
 }
 
+/* pasa las capturas y clips de una entrada a otra (vincular con la tienda) */
+function shotsMerge(from, to) {
+  const dir = id => path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_'));
+  const a = dir(from), b = dir(to);
+  if (a === b || !fs.existsSync(a)) return { ok: true, n: 0 };
+  fs.mkdirSync(b, { recursive: true });
+  let n = 0;
+  for (const f of fs.readdirSync(a)) {
+    const t = path.join(b, f);
+    if (fs.existsSync(t)) continue;
+    try { fs.renameSync(path.join(a, f), t); n++; } catch (e) { try { fs.copyFileSync(path.join(a, f), t); fs.unlinkSync(path.join(a, f)); n++; } catch (e2) {} }
+  }
+  try { fs.rmdirSync(a); } catch (e) {}
+  return { ok: true, n };
+}
+
 const track = new Map();
 
 /* ---------- gestor de mods: Project Zomboid ---------- */
@@ -1794,6 +1810,7 @@ app.whenReady().then(() => {
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
   ipcMain.handle('shots', (_e, id) => listShots(id));
+  ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('achToast', (_e, o) => { achToast(o); return true; });
   ipcMain.handle('clipSrc', async () => { try { const srcs = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 1, height: 1 } }); const d = screen.getPrimaryDisplay(); const x = srcs.find((q) => String(q.display_id) === String(d.id)) || srcs[0]; return x ? x.id : ''; } catch (e) { return ''; } });
   ipcMain.handle('ovData', (_e, o) => { try { o = o || {}; ovOpen({ id: String(o.id || ''), name: String(o.name || ''), items: Array.isArray(o.items) ? o.items : [], t: +o.t || 0, th: o.th || {} }); } catch (e) {} return true; });
