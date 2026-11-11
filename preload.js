@@ -79,6 +79,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   raGame: (o) => ipcRenderer.invoke('raGame', o),
   aiStatus: () => ipcRenderer.invoke('aiStatus'),
   aiAsk: (o) => ipcRenderer.invoke('aiAsk', o),
+  steamAutoInstall: () => ipcRenderer.invoke('steamAutoInstall'),
   phoneGet: () => ipcRenderer.invoke('phoneGet'),
   phoneSet: (o) => ipcRenderer.invoke('phoneSet', o),
   phoneSync: (s) => ipcRenderer.invoke('phoneSync', s),

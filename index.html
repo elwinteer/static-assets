@@ -8902,7 +8902,7 @@ function x3Cmd(c){
   const g=gm(c.id),done=m=>{X3.ack={ts:c.ts,m};x3Push(true)};
   if(!g||vIs(g)||visOn())return done('Ese juego no está disponible');
   if(c.a==='play'){if(S.playing)return done('Ya hay un juego en curso en la PC');toast('Desde el celular: abriendo '+g.name);S.sel=g.id;A.play();done('Abriendo '+g.name+' en la PC')}
-  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g))location.href='steam://install/'+g.app;else{S.sel=g.id;A.play()}done('Mandé la instalación de '+g.name)}
+  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g)){location.href='steam://install/'+g.app;done('Instalando '+g.name+' en la PC');try{winteerNative.steamAutoInstall().then(r=>{if(r!=='ok')done(r==='timeout'?'Steam no abrió la ventana. Falta confirmar en la PC':'Falta confirmar la instalación en Steam')})}catch(e){}}else{S.sel=g.id;A.play();done('Mandé la instalación de '+g.name)}}
   else done('Pedido desconocido')}
 setTimeout(()=>x3Push(true),4000);setInterval(()=>x3Push(false),20000);setInterval(x3Poll,6000);
 /* QR */

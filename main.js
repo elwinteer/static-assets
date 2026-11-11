@@ -2056,6 +2056,39 @@ async function aiAsk(o) {
 /* ===== Tu PC en el celular (etapa 1): pagina web local para ver la biblioteca y mandar Jugar / Instalar ===== */
 let PH = { srv: null, snap: { games: [], playing: null, name: '' }, err: '', fails: {} };
 const PHPORT = 8472;
+let SAI = false;
+function steamAutoInstall() {
+  if (process.platform !== 'win32' || SAI) return Promise.resolve('busy');
+  SAI = true;
+  const ps = `
+Add-Type -TypeDefinition @"
+using System;using System.Text;using System.Runtime.InteropServices;
+public class WtW{public delegate bool CB(IntPtr h,IntPtr l);
+[DllImport("user32.dll")]public static extern bool EnumWindows(CB c,IntPtr l);
+[DllImport("user32.dll")]public static extern int GetWindowText(IntPtr h,StringBuilder s,int n);
+[DllImport("user32.dll")]public static extern bool IsWindowVisible(IntPtr h);
+[DllImport("user32.dll")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
+[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);
+[DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();
+public static IntPtr Find(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.StartsWith("Install")||t.StartsWith("Instalar")){uint pid;GetWindowThreadProcessId(h,out pid);try{var n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();if(n=="steam"||n=="steamwebhelper"){r=h;return false;}}catch{}}return true;},IntPtr.Zero);return r;}}
+"@
+Add-Type -AssemblyName System.Windows.Forms
+$end=(Get-Date).AddSeconds(25)
+while((Get-Date) -lt $end){
+  $h=[WtW]::Find()
+  if($h -ne [IntPtr]::Zero){
+    Start-Sleep -Milliseconds 900
+    [void][WtW]::SetForegroundWindow($h);Start-Sleep -Milliseconds 500
+    if([WtW]::GetForegroundWindow() -eq $h){[System.Windows.Forms.SendKeys]::SendWait("{ENTER}");Write-Output 'ok';exit}
+    Write-Output 'nofocus';exit}
+  Start-Sleep -Milliseconds 400}
+Write-Output 'timeout'`;
+  return new Promise((res) => {
+    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 40000 }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
+    catch (e) { SAI = false; res('err'); }
+  });
+}
+
 function phoneCfg() { cfg.phone = Object.assign({ on: false, pin: '', tokens: [] }, cfg.phone || {}); if (!/^\d{6}$/.test(cfg.phone.pin)) { cfg.phone.pin = String(crypto.randomInt(0, 1e6)).padStart(6, '0'); saveCfg(); } return cfg.phone; }
 function lanIps() { const out = []; try { const ifs = os.networkInterfaces(); for (const k of Object.keys(ifs)) for (const a of ifs[k] || []) if (a.family === 'IPv4' && !a.internal && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(a.address)) out.push({ ip: a.address, mac: a.mac }); } catch (e) {} return out; }
 const isLan = a => { a = String(a || '').replace(/^::ffff:/, ''); return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.|169\.254\.)/.test(a) || a === '::1'; };
@@ -2403,6 +2436,7 @@ app.whenReady().then(() => {
   ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('bkRead', (_e, d) => { try { return bkRead(d); } catch (e) { return { ok: false, err: 'bad' }; } });
   ipcMain.handle('lsvScan', async (_e, o) => { try { return await lsvScan(o || {}); } catch (e) { return { ok: false, err: 'net' }; } });
+  ipcMain.handle('steamAutoInstall', () => steamAutoInstall());
   ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
