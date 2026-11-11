@@ -3765,11 +3765,25 @@ async function bkRestoreOpen(){
     if(!r||!r.ok){toast(r&&r.err==='bad'?'La copia de esa carpeta está dañada':'No encontré una copia de WINTEER en esa carpeta');return}hit=r;dir=d}
   window._bkR={j:hit.json,dir};
   modal(`<div style="text-align:left"><h3>Restaurar desde mi copia</h3><p>Encontré tu copia en <b>${esc(dir)}</b>, guardada el ${new Date(hit.mtime).toLocaleString('es-AR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',hour12:false})} hs.${hit.games?` Ahí también están las partidas de ${hit.games} juego${hit.games===1?'':'s'}: después las restaurás desde la pestaña Partidas de cada uno.`:''}</p><p class="hint2">Reemplaza tus datos actuales por los de la copia (horas, logros, perfil, reseñas e imágenes). Antes guardo lo que tenés ahora por si te arrepentís.</p></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="hm-go" data-a="bkrestgo">Restaurar</button></div>`,'x8m')}
+
+const lsvN=s=>String(s||'').toLowerCase().replace(/[™®©]/g,'').replace(/&/g,'and').replace(/\bthe\b/g,'').replace(/[^a-z0-9]/g,'');
+let lsvRun=false;
+async function lsvSync(force,quiet){
+  if(!WN||!winteerNative.lsvScan||lsvRun)return 0;lsvRun=true;let n=0;
+  try{const r=await winteerNative.lsvScan({force:!!force});if(!r||!r.ok){if(!quiet)toast('No pude buscar las partidas ahora');return 0}
+    const by={};(r.games||[]).forEach(x=>{by[lsvN(x.name)]=x});const c=tmCfg();
+    G.forEach(g=>{if(!tmOk(g))return;const q=c.g[g.id];if(q&&q.paths&&q.paths.length)return;const x=by[lsvN(g.name)];if(!x||!x.paths.length)return;
+      c.g[g.id]={paths:x.paths,auto:true,last:0,ls:1};n++});
+    ST.lsv=ST.lsv||{};ST.lsv.t=Date.now();save();
+    if(n){toast('Encontré las partidas de '+n+' juego'+(n===1?'':'s')+' y las voy a cuidar solas');if(S.view==='settings')go('settings')}
+    else if(!quiet)toast('No hay juegos nuevos con partidas para cuidar')}
+  catch(e){}finally{lsvRun=false}return n}
+if(WN)setTimeout(()=>{try{if(Date.now()-((ST.lsv&&ST.lsv.t)||0)>7*864e5)lsvSync(false,true)}catch(e){}},45000);
 const X1D={p:null};
 function x1Drive(){if(!WN||!winteerNative.driveFind||X1D.p!==null)return;X1D.p='';winteerNative.driveFind().then(p=>{X1D.p=p||'';if(S.view==='settings'&&p)go('settings')}).catch(()=>{})}
 function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'todavía no hiciste ninguna';x1Drive();
   const cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir),n=Object.values((ST.tm&&ST.tm.g)||{}).filter(x=>x.paths&&x.paths.length).length;
-  return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo (horas, logros, perfil, reseñas y las imágenes que cargaste vos) en un único archivo que se sobrescribe. Además, dentro de la misma carpeta, va guardando versiones de las partidas de tus juegos de Epic, Xbox, .exe y emulados${n?' ('+n+' con copias)':''} para que puedas volver atrás desde la ficha de cada juego. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
+  return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo (horas, logros, perfil, reseñas y las imágenes que cargaste vos) en un único archivo que se sobrescribe. Además, dentro de la misma carpeta, va guardando versiones de las partidas de tus juegos de Epic, Xbox, .exe y emulados${n?' ('+n+' con copias)':''}. Las encuentra solo con Ludusavi, que WINTEER baja y configura en silencio, y las restaurás desde la ficha de cada juego. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
   <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small><small style="display:block;margin-top:4px">${cloud?'Está en la nube: tus copias y partidas te siguen a cualquier PC.':'Recomendado: una carpeta de Google Drive, así todo queda en la nube y lo recuperás aunque cambies de PC.'}</small></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button><button class="b2 g" data-a="bkrest">Restaurar desde mi copia</button></div></div><div class="row"><div>Exportar sagas<small>Guarda en tu escritorio un archivo con tus sagas, portadas y logos.</small></div><div><button class="b2" data-a="sgexport">Exportar</button></div></div>`}
 const STABS=[['look','Apariencia','flake'],['avi','Avisos y sonido','bolt'],['lib','Biblioteca','games'],['data','Sistema y datos','shield']];
 const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="sv" data-k="${k}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
@@ -4002,7 +4016,7 @@ const A={
   bkrest:()=>{bkRestoreOpen()},
   bkrestgo:async()=>{const x=window._bkR;if(!x)return;$$('.modal').forEach(m=>m.remove());try{await bkApplyJSON(JSON.parse(x.j),x.dir)}catch(e){toast('No pude restaurar la copia')}},
   bkdrive:()=>{if(!X1D.p)return;const sep=X1D.p.includes('\\')?'\\':'/';ST.bk=ST.bk||{};ST.bk.dir=X1D.p.replace(/[\\/]+$/,'')+sep+'WINTEER';if(ST.bk.on===undefined)ST.bk.on=true;save();go('settings');toast('Las copias van a tu Google Drive')},
-  bknow:async()=>{if(!ST.bk||!ST.bk.dir){toast('Primero elegí una carpeta');return}const r=await doBackup();let ok=0;if(r&&winteerNative.tmSnap){const c=tmCfg();for(const id of Object.keys(c.g)){const q=c.g[id],g=gm(id);if(!g||!q.paths||!q.paths.length)continue;try{const t=await winteerNative.tmSnap({id:g.id,name:g.name,paths:q.paths,dir:c.dir,label:'Manual',keep:c.keep,force:true});if(t&&t.ok)ok++}catch(e){}}}
+  bknow:async()=>{if(!ST.bk||!ST.bk.dir){toast('Primero elegí una carpeta');return}await lsvSync(true,true);const r=await doBackup();let ok=0;if(r&&winteerNative.tmSnap){const c=tmCfg();for(const id of Object.keys(c.g)){const q=c.g[id],g=gm(id);if(!g||!q.paths||!q.paths.length)continue;try{const t=await winteerNative.tmSnap({id:g.id,name:g.name,paths:q.paths,dir:c.dir,label:'Manual',keep:c.keep,force:true});if(t&&t.ok)ok++}catch(e){}}}
     toast(r?'Copia guardada en tu carpeta'+(ok?' y partidas de '+ok+' juego'+(ok===1?'':'s'):''):'No pude guardar la copia')},
   impstore:async a=>{const s=a.dataset.s,lab=$('#imp-'+(s==='epic'?'ep':'xb'));a.textContent='Buscando…';
     const r=await (s==='epic'?winteerNative.scanEpic():winteerNative.scanXbox());a.textContent='Importar';

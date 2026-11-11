@@ -1852,6 +1852,7 @@ const EMSRC = {
   melon: { gh: 'melonDS-emu/melonDS', a: /windows-(x86_64|x64)\.zip$/i, bad: /arm/i, exe: /^melonds\.exe$/i },
   mgba: { gh: 'mgba-emu/mgba', a: /win64\.(zip|7z)$/i, bad: /arm|psp|wii/i, exe: /^mgba(-qt)?\.exe$/i },
   mesen: { gh: 'SourMesen/Mesen2', a: /windows\.zip$/i, bad: /aot|linux|mac/i, exe: /^mesen2?\.exe$/i },
+  ludusavi: { gh: 'mtkennerly/ludusavi', a: /win64\.zip$/i, bad: /portable|arm/i, exe: /^ludusavi\.exe$/i },
   snes9x: { gh: 'snes9x/snes9x', a: /win32-x64\.zip$/i, bad: /arm|debug/i, exe: /^snes9x.*\.exe$/i },
 };
 const EM_HOSTS = /^(github\.com|api\.github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com|dolphin-emu\.org|dl\.dolphin-emu\.org|www\.ppsspp\.org|ppsspp\.org)$/i;
@@ -1911,6 +1912,40 @@ async function emInstall(id) {
   finally { emBusy = false; }
 }
 
+
+/* Ludusavi: detecta dónde guarda cada juego instalado (se baja solo, en silencio) */
+let lsvCache = { t: 0, v: null };
+function lsvPaths(files) {
+  const GEN = /^(documents|my games|mis documentos|saved games|appdata|roaming|local|locallow|users|desktop|downloads|onedrive|program files|program files \(x86\)|steam|steamapps|common)$/i, out = [];
+  for (const f0 of files) {
+    const f = String(f0).replace(/\//g, path.sep), dir = path.dirname(f), parts = dir.split(path.sep).filter(Boolean);
+    out.push((parts.length < 4 || GEN.test(path.basename(dir))) ? f : dir);
+  }
+  const u = [...new Set(out)].sort((a, b) => a.length - b.length), keep = [];
+  for (const p of u) if (!keep.some(k => p === k || p.startsWith(k + path.sep))) keep.push(p);
+  return keep.slice(0, 40);
+}
+async function lsvScan(o) {
+  if (process.platform !== 'win32') return { ok: false, err: 'os' };
+  if (lsvCache.v && !(o && o.force) && Date.now() - lsvCache.t < 10 * 60000) return lsvCache.v;
+  const dir = path.join(app.getPath('userData'), 'emulators', 'ludusavi');
+  let exe = emFindExe(dir, /^ludusavi\.exe$/i);
+  if (!exe) { const r = await emInstall('ludusavi'); if (!r || !r.ok) return { ok: false, err: (r && r.err) || 'net' }; exe = r.exe; }
+  const cd = path.join(app.getPath('userData'), 'ludusavi-cfg'); fs.mkdirSync(cd, { recursive: true });
+  const cf = path.join(cd, 'config.yaml');
+  try {
+    const roots = steamLibs('').filter(l => { try { return fs.statSync(path.join(l, 'steamapps')).isDirectory(); } catch (e) { return false; } });
+    const y = ['manifest:', '  enable: true'].concat(roots.length ? ['roots:'].concat(roots.flatMap(l => ['  - path: "' + l.replace(/\\/g, '/') + '"', '    store: steam'])) : ['roots: []']);
+    fs.writeFileSync(cf, y.join('\n') + '\n', 'utf8');
+  } catch (e) {}
+  const out = await new Promise(res => execFile(exe, ['--config', cd, 'backup', '--preview', '--api', '--try-update'], { windowsHide: true, timeout: 180000, maxBuffer: 64 * 1024 * 1024 }, (err, so) => res(so ? String(so) : '')));
+  let j; try { j = JSON.parse(out); } catch (e) { return { ok: false, err: 'parse' }; }
+  const games = []; for (const k of Object.keys(j.games || {})) {
+    const g = j.games[k], fl = Object.keys((g && g.files) || {}); if (!fl.length) continue;
+    games.push({ name: k, paths: lsvPaths(fl) });
+  }
+  lsvCache = { t: Date.now(), v: { ok: true, games } }; return lsvCache.v;
+}
 function driveFind() {
   const home = os.homedir(), c = [path.join(home, 'Google Drive'), path.join(home, 'Google Drive', 'Mi unidad'), path.join(home, 'Google Drive', 'My Drive')];
   for (let i = 71; i <= 90; i++) { const L = String.fromCharCode(i) + ':\\'; for (const n of ['Mi unidad', 'My Drive']) c.push(L + n); }
@@ -2367,6 +2402,7 @@ app.whenReady().then(() => {
   ipcMain.handle('emScan', (_e, o) => { try { return emScan(o || {}); } catch (e) { return []; } });
   ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('bkRead', (_e, d) => { try { return bkRead(d); } catch (e) { return { ok: false, err: 'bad' }; } });
+  ipcMain.handle('lsvScan', async (_e, o) => { try { return await lsvScan(o || {}); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
