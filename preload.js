@@ -50,6 +50,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   onBp: (f) => { ipcRenderer.on('bp', (_e, a) => { try { f(a) } catch (e) {} }) },
   installed: (d) => ipcRenderer.invoke('installed', d),
   shots: (id) => ipcRenderer.invoke('shots', id),
+  shotScores: (id) => ipcRenderer.invoke('shotScores', id),
   shotDel: (id, n) => ipcRenderer.invoke('shotDel', id, n),
   shotFolder: (id) => ipcRenderer.invoke('shotFolder', id),
   shotCfg: (o) => ipcRenderer.invoke('shotCfg', o),

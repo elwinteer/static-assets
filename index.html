@@ -7597,6 +7597,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   if(d.pool.length>1){const mx=Math.max(1,d.pool[0][1]);add('#312e81,#be185d',`<div class="wm-k">TU TOP ${Math.min(5,d.pool.length)}</div><div class="wm-top">${d.pool.slice(0,5).map(([g,h],i)=>`<div class="wm-row" style="--r:${i};--w:${Math.max(8,h/mx*100)}%"><u></u><span>${i+1}</span><div class="th"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""></div><b>${esc(g.name)}</b><em>${fh(h)}</em></div>`).join('')}</div>`,7000)}
   const br=d.pool.map(x=>x[0]).filter(g=>+g.rate>=4).sort((a,b)=>(+b.rate)-(+a.rate)||0)[0];
   if(br)add('#7f1d1d,#ea580c',`<div class="wm-k">LO MEJOR CALIFICADO</div><div class="wm-3d"><img src="${art.grid(br)}" data-fb="${art.wide(br)}" alt=""></div><h2 class="wm-h2">${esc(br.name)}</h2><div class="wm-st">${stars(br.rate)}</div>`,6200);
+  try{const bs=x6Best(y,q);if(bs)add('#0b1020,#312e81',`<img class="wm-bg" src="${esc(bs.e.c?(bs.e.th||bs.e.f):(bs.e.f||bs.e.th))}" alt=""><div class="wm-fade"></div><div class="wm-k">${bs.e.c?'TU MEJOR CLIP':'TU MEJOR CAPTURA'}</div><h2 class="wm-h2">${esc(bs.g.name)}</h2><div class="wm-st">${'★'.repeat(bs.e.r)}</div>${bs.n>1?`<p class="wm-p">la mejor de ${bs.n} que destacaste</p>`:''}`,6200)}catch(e){}
   if(d.gen.length){const gm=Math.max(1,d.gen[0][1]);add('#064e3b,#0f766e',`<div class="wm-k">TUS GÉNEROS</div><h2 class="wm-h2">${esc(d.gen[0][0])}</h2><p class="wm-p">fue lo que más jugaste${d.gen[1]?', seguido de '+esc(d.gen[1][0])+(d.gen[2]?' y '+esc(d.gen[2][0]):''):''}.</p><div class="wm-gb">${d.gen.slice(0,5).map(([t,v],i)=>`<div style="--r:${i};--w:${Math.max(6,v/gm*100)}%;--n:${Math.max(.06,v/gm)}"><span>${esc(t)}</span><i></i></div>`).join('')}</div>`,6500)}
   if(!fb&&d.bm>=0){const mx=Math.max(1,...d.month);add('#7c2d12,#b45309',`<div class="wm-k">TU MES FUERTE</div><h2 class="wm-h2">${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][d.bm]}</h2><div class="wm-mb">${d.month.map((h,i)=>`<div><i style="--h:${h/mx*100}%;--d:${i}"></i><span>${MN[i][0]}</span></div>`).join('')}</div>`,6200)}
   if(d.done.length)add('#713f12,#ca8a04',`<div class="wm-k">TERMINASTE</div><div class="wm-bn">${cu(d.done.length)}<span>juego${d.done.length===1?'':'s'}</span></div><div class="wm-cv">${d.done.slice(0,8).map((g,i)=>`<img style="--r:${i}" src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`).join('')}</div>`,6500);
@@ -8698,6 +8699,7 @@ function lkRemap(s,d){
   const X=ST.sgx;if(X){if(X.mv)mapKey(X.mv);if(X.yr){const a='g'+sid;if(X.yr[a]!==undefined){if(X.yr['g'+did]===undefined)X.yr['g'+did]=X.yr[a];delete X.yr[a]}}
     if(X.ord)for(const c in X.ord){X.ord[c]=[...new Set((X.ord[c]||[]).map(k=>k==='g'+sid?'g'+did:k))]}}
   if(ST.vis&&ST.vis.pick)mapKey(ST.vis.pick);
+  try{x6Remap(s,d)}catch(e){}
   if(ST.rsm)delete ST.rsm[sid];if(ST.rj&&ST.rj.skip)delete ST.rj.skip[sid]}
 async function lkMerge(srcId,dstId){
   const s=gS(srcId),d=gS(dstId);if(!s||!d||s===d)return false;
@@ -8756,6 +8758,60 @@ Object.assign(A,{
 });
 
 /* ===/X9A=== */
+/* ===X6A=== */
+/* ---------- 6 · valoración de capturas y clips ---------- */
+const X6SC={},X6PEND={};let X6F='all',X6SUG=new Set();
+const x6k=(g,n)=>g+'|'+n;
+function x6R(){ST.shr=ST.shr||{};ST.shd=ST.shd||{}}
+function x6Get(n){const e=(ST.shr||{})[x6k(SHG,n)];return e?e.r:0}
+function x6Set(x,r){x6R();const k=x6k(SHG,x.n);
+  if(!r)delete ST.shr[k];else{ST.shr[k]={r,t:x.t,g:SHG,f:x.file,th:x.thumb,c:x.clip?1:0};delete ST.shd[k]}
+  save();x6Deco();if($('.shlb'))x6LbBar()}
+function x6Sug(){
+  const sc=X6SC[SHG];if(!sc||!SHL.length)return new Set();
+  const it=SHL.filter(x=>!x6Get(x.n)&&!(ST.shd||{})[x6k(SHG,x.n)]&&sc[x.n]>=0).map(x=>({x,s:sc[x.n]+(x.clip?12:0)})).filter(o=>o.s>=55).sort((a,b)=>b.s-a.s);
+  const keep=[];for(const o of it){if(keep.some(k=>Math.abs(k.x.t-o.x.t)<40000))continue;keep.push(o)}
+  const max=Math.min(6,Math.max(1,Math.ceil(SHL.length*.2)));
+  return new Set(keep.slice(0,max).map(o=>o.x.n))}
+function x6Deco(){
+  const el=$('#shg')||$('#vshg');if(!el||!SHL.length){const b=$('#x6bar');if(b)b.remove();return}
+  const sug=X6SUG=x6Sug(),nTop=SHL.filter(x=>x6Get(x.n)>=4).length;
+  let bar=$('#x6bar');if(!bar){bar=document.createElement('div');bar.id='x6bar';bar.className='x6bar';el.parentNode.insertBefore(bar,el)}
+  let vis=0;
+  el.querySelectorAll('.shc').forEach(c=>{const x=SHL[+c.dataset.i];if(!x)return;const r=x6Get(x.n),sg=sug.has(x.n);
+    c.querySelectorAll('.x6b').forEach(e=>e.remove());
+    if(r||sg){const b=document.createElement('span');b.className='x6b'+(r?'':' sg');b.textContent=r?'★'.repeat(r):'Sugerida';c.appendChild(b)}
+    const hide=(X6F==='top'&&r<4)||(X6F==='sug'&&!sg);c.style.display=hide?'none':'';if(!hide)vis++});
+  bar.innerHTML=[['all','Todas',SHL.length],['top','Destacadas',nTop],['sug','Sugeridas',sug.size]].map(([k,l,n])=>`<button class="x6c ${X6F===k?'on':''}" data-a="x6f" data-v="${k}">${l}${k!=='all'?' · '+n:''}</button>`).join('')+(vis?'':`<span class="hint2">${X6F==='top'?'Todavía no destacaste ninguna. Abrí una captura y poné estrellas (o apretá 1 a 5).':'No hay sugerencias por ahora.'}</span>`)}
+(()=>{const f0=shFill;shFill=async function(id){await f0.apply(this,arguments);try{x6Deco()}catch(e){}
+  if(!(window.winteerNative&&winteerNative.shotScores))return;
+  const miss=!X6SC[id]||SHL.some(x=>X6SC[id][x.n]===undefined);
+  if(!miss||X6PEND[id])return;X6PEND[id]=1;
+  try{X6SC[id]=(await winteerNative.shotScores(id))||{}}catch(e){X6SC[id]=X6SC[id]||{}}
+  X6PEND[id]=0;if(SHG===id){try{x6Deco();if($('.shlb'))x6LbBar()}catch(e){}}}})();
+(()=>{const l0=shLight;shLight=function(){l0.apply(this,arguments);try{x6LbBar()}catch(e){}}})();
+function x6LbBar(){const d=$('.shlb'),x=SHL[SHI];if(!d||!x)return;
+  let b=d.querySelector('.x6lb');if(!b){b=document.createElement('div');b.className='x6lb';d.appendChild(b)}
+  const r=x6Get(x.n),sg=!r&&X6SUG.has(x.n);
+  b.innerHTML=`<div class="x6st">${[1,2,3,4,5].map(i=>`<button class="x6s ${i<=r?'on':''}" data-a="x6r" data-v="${i}" title="${i} ${i===1?'estrella':'estrellas'}">★</button>`).join('')}</div>${sg?`<div class="x6sg"><span>Te la sugiero como destacada</span><button data-a="x6ok">Dejarla en 4 estrellas</button><button data-a="x6no">No, gracias</button></div>`:''}`}
+(()=>{const d0=A.shdel;A.shdel=function(){const x=SHL[SHI],k=x&&x6k(SHG,x.n);const r=d0.apply(this,arguments);if(k){try{delete (ST.shr||{})[k];delete (ST.shd||{})[k];save()}catch(e){}}return r}})();
+document.addEventListener('keydown',e=>{if(!$('.shlb')||e.ctrlKey||e.altKey||e.metaKey)return;const t=e.target;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
+  if(/^[0-5]$/.test(e.key)){const x=SHL[SHI];if(x){x6Set(x,+e.key);e.preventDefault()}}});
+function x6Best(y,q){
+  const E=Object.values(ST.shr||{}).filter(e=>e&&e.r>=3&&e.t&&!vIsId(e.g)&&gm(e.g)&&new Date(e.t).getFullYear()===y&&(!q||Math.ceil((new Date(e.t).getMonth()+1)/3)===q));
+  if(!E.length)return null;E.sort((a,b)=>b.r-a.r||b.t-a.t);return {e:E[0],n:E.length,g:gm(E[0].g)}}
+function x6Remap(s,d){
+  const san=i=>String(i).replace(/[^\w.-]/g,'_'),pre=String(s.id)+'|';
+  for(const T of ['shr','shd']){const o=ST[T];if(!o)continue;
+    for(const k of Object.keys(o)){if(!k.startsWith(pre))continue;const nk=d.id+'|'+k.slice(pre.length),v=o[k];delete o[k];if(o[nk]!==undefined)continue;
+      if(v&&typeof v==='object'){v.g=d.id;['f','th'].forEach(p=>{if(v[p])v[p]=v[p].split('/'+san(s.id)+'/').join('/'+san(d.id)+'/')})}o[nk]=v}}}
+Object.assign(A,{
+  x6r:a=>{const x=SHL[SHI];if(!x)return;const v=+a.dataset.v;x6Set(x,x6Get(x.n)===v?0:v)},
+  x6ok:()=>{const x=SHL[SHI];if(x)x6Set(x,4)},
+  x6no:()=>{const x=SHL[SHI];if(!x)return;x6R();ST.shd[x6k(SHG,x.n)]=1;save();x6Deco();x6LbBar()},
+  x6f:a=>{X6F=a.dataset.v;x6Deco()}});
+
+/* ===/X6A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
@@ -8778,6 +8834,13 @@ Object.assign(A,{
 .x8vl{max-height:240px;overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:6px 10px}.x8vi{display:flex;gap:10px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer}
 /*cX9A*/.x9lk{display:flex;justify-content:space-between;align-items:center;width:100%;margin:4px 0;text-align:left}.x9lk small{opacity:.6;margin-left:12px;white-space:nowrap}
 /*/cX9A*/
+/*cX6A*/.x6bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}.x6bar .hint2{margin-left:6px}
+.x6c{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-size:12.5px;font-weight:600;padding:6px 14px;border-radius:99px;cursor:pointer}.x6c.on{background:rgba(var(--argb),.28);border-color:rgba(var(--argb),.7)}
+.x6b{position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.65);color:#fde047;font-size:12px;letter-spacing:.08em;pointer-events:none;font-weight:700}.x6b.sg{color:#fff;letter-spacing:0;font-size:11px;background:rgba(var(--argb),.75)}
+.x6lb{position:absolute;left:50%;bottom:calc(3vh + 62px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2}
+.x6st{display:flex;gap:2px;padding:4px 10px;border-radius:99px;background:rgba(20,16,34,.9);border:1px solid rgba(255,255,255,.12)}.x6s{border:0;background:none;color:rgba(255,255,255,.3);font-size:26px;line-height:1;cursor:pointer;padding:2px 3px;transition:transform .15s,color .15s}.x6s.on{color:#fde047;text-shadow:0 0 12px rgba(253,224,71,.6)}.x6s:hover{transform:scale(1.2);color:#fde047}
+.x6sg{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 14px;border-radius:99px;background:rgba(20,16,34,.92);border:1px solid rgba(var(--argb),.6);font-size:12.5px;color:#fff;white-space:nowrap}.x6sg button{border:0;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:600;font-size:12.5px;padding:6px 12px;cursor:pointer}.x6sg button:hover{background:rgba(255,255,255,.22)}
+/*/cX6A*/
 </style>
 </body>
 </html>

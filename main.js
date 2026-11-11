@@ -518,6 +518,44 @@ function listShots(id) {
   return out.sort((a, b) => b.t - a.t);
 }
 
+/* puntaje visual de capturas y clips (para sugerir las mejores): contraste, detalle, color y exposicion */
+const SHSC = new Map();
+function shotScores(id) {
+  const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')), out = {};
+  let files = [];
+  try { files = fs.readdirSync(dir).filter(f => /^c?[\d-T]+\.(jpg|png|webm)$/.test(f)); } catch (e) { return out; }
+  for (const f of files) {
+    const tp = path.join(dir, f.replace(/\.(jpg|png|webm)$/, '.t.jpg'));
+    let mt = 0; try { mt = fs.statSync(tp).mtimeMs; } catch (e) { continue; }
+    const ck = tp + '|' + mt;
+    if (SHSC.has(ck)) { out[f] = SHSC.get(ck); continue; }
+    let sc = -1;
+    try {
+      const img = nativeImage.createFromPath(tp);
+      if (!img.isEmpty()) {
+        const r = img.resize({ width: 48, quality: 'good' }), sz = r.getSize(), bm = r.toBitmap(), w = sz.width, h = sz.height;
+        const L = new Float32Array(w * h); let sum = 0, col = 0;
+        for (let i = 0; i < w * h; i++) {
+          const b = bm[i * 4], g = bm[i * 4 + 1], rr = bm[i * 4 + 2];
+          L[i] = 0.299 * rr + 0.587 * g + 0.114 * b; sum += L[i]; col += Math.abs(rr - g) + Math.abs(g - b);
+        }
+        const n = w * h, mean = sum / n; let v = 0, ed = 0;
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          const i = y * w + x; v += (L[i] - mean) * (L[i] - mean);
+          if (x + 1 < w) ed += Math.abs(L[i] - L[i + 1]);
+          if (y + 1 < h) ed += Math.abs(L[i] - L[i + w]);
+        }
+        const sd = Math.sqrt(v / n), edge = ed / (2 * n), colr = col / n;
+        let s = 100 * (0.35 * Math.min(1, edge / 14) + 0.25 * Math.min(1, sd / 55) + 0.2 * Math.min(1, colr / 40) + 0.2 * (1 - Math.min(1, Math.abs(mean - 105) / 105)));
+        if (mean < 22 || sd < 9) s *= 0.3;
+        sc = Math.round(s);
+      }
+    } catch (e) {}
+    SHSC.set(ck, sc); out[f] = sc;
+  }
+  return out;
+}
+
 /* pasa las capturas y clips de una entrada a otra (vincular con la tienda) */
 function shotsMerge(from, to) {
   const dir = id => path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_'));
@@ -1810,6 +1848,7 @@ app.whenReady().then(() => {
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
   ipcMain.handle('shots', (_e, id) => listShots(id));
+  ipcMain.handle('shotScores', (_e, id) => { try { return shotScores(id); } catch (e) { return {}; } });
   ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('achToast', (_e, o) => { achToast(o); return true; });
   ipcMain.handle('clipSrc', async () => { try { const srcs = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 1, height: 1 } }); const d = screen.getPrimaryDisplay(); const x = srcs.find((q) => String(q.display_id) === String(d.id)) || srcs[0]; return x ? x.id : ''; } catch (e) { return ''; } });
