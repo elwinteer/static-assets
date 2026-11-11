@@ -1591,8 +1591,81 @@ async function startApp() {
   createWindow(); applyBg();
 }
 
+/* ===== Tu PC en el celular (etapa 1): pagina web local para ver la biblioteca y mandar Jugar / Instalar ===== */
+let PH = { srv: null, snap: { games: [], playing: null, name: '' }, err: '', fails: {} };
+const PHPORT = 8472;
+function phoneCfg() { cfg.phone = Object.assign({ on: false, pin: '', tokens: [] }, cfg.phone || {}); if (!/^\d{6}$/.test(cfg.phone.pin)) { cfg.phone.pin = String(crypto.randomInt(0, 1e6)).padStart(6, '0'); saveCfg(); } return cfg.phone; }
+function lanIps() { const out = []; try { const ifs = os.networkInterfaces(); for (const k of Object.keys(ifs)) for (const a of ifs[k] || []) if (a.family === 'IPv4' && !a.internal && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(a.address)) out.push({ ip: a.address, mac: a.mac }); } catch (e) {} return out; }
+const isLan = a => { a = String(a || '').replace(/^::ffff:/, ''); return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.|169\.254\.)/.test(a) || a === '::1'; };
+function phoneInfo() { const p = phoneCfg(), l = lanIps(); return { on: !!p.on, running: !!PH.srv, pin: p.pin, ip: l[0] ? l[0].ip : '', mac: l[0] ? l[0].mac : '', port: PHPORT, err: PH.err, devices: p.tokens.length }; }
+function phoneStop() { try { if (PH.srv) PH.srv.close(); } catch (e) {} PH.srv = null; }
+function phoneStart() {
+  phoneStop(); PH.err = '';
+  const http = require('http');
+  const srv = http.createServer((req, res) => {
+    const ip = req.socket.remoteAddress;
+    if (!isLan(ip)) { res.writeHead(403); res.end('Solo red local'); return; }
+    const json = (o, c) => { res.writeHead(c || 200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(o)); };
+    const p = phoneCfg(), tok = String(req.headers['x-t'] || ''), authed = tok && p.tokens.includes(tok);
+    if (req.method === 'GET' && (req.url === '/' || req.url.startsWith('/?'))) { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(PHONE_HTML); return; }
+    let body = ''; req.on('data', d => { body += d; if (body.length > 4000) req.destroy(); });
+    req.on('end', () => {
+      let b = {}; try { b = body ? JSON.parse(body) : {}; } catch (e) {}
+      if (req.url === '/api/login' && req.method === 'POST') {
+        const f = PH.fails[ip] = (PH.fails[ip] || []).filter(t => Date.now() - t < 60000);
+        if (f.length >= 5) return json({ ok: false, err: 'Demasiados intentos. Esperá un minuto.' }, 429);
+        if (String(b.pin) === p.pin) { const t = crypto.randomBytes(18).toString('hex'); p.tokens = p.tokens.concat([t]).slice(-8); saveCfg(); return json({ ok: true, t }); }
+        f.push(Date.now()); return json({ ok: false, err: 'Código incorrecto' }, 401);
+      }
+      if (!authed) return json({ ok: false, err: 'auth' }, 401);
+      if (req.url === '/api/lib') { const l = lanIps()[0] || {}; return json({ ok: true, snap: PH.snap, pc: { mac: l.mac || '' } }); }
+      if (req.url === '/api/cmd' && req.method === 'POST') {
+        if (!['play', 'install'].includes(b.a) || !b.id) return json({ ok: false, err: 'Comando inválido' }, 400);
+        if (!win || win.isDestroyed()) return json({ ok: false, err: 'WINTEER está cerrado en la PC' });
+        try { win.webContents.send('phone', { a: b.a, id: String(b.id) }); } catch (e) { return json({ ok: false, err: 'No pude avisarle a la PC' }); }
+        return json({ ok: true });
+      }
+      json({ ok: false, err: 'No existe' }, 404);
+    });
+  });
+  srv.on('error', e => { PH.err = e && e.code === 'EADDRINUSE' ? 'El puerto ' + PHPORT + ' está ocupado' : String(e && e.message || e); PH.srv = null; });
+  try { srv.listen(PHPORT, '0.0.0.0', () => { PH.srv = srv; }); PH.srv = srv; } catch (e) { PH.err = String(e.message || e); }
+}
+const PHONE_HTML = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0a12"><title>WINTEER</title><style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#0b0a12;color:#eee;font:15px/1.4 system-ui,sans-serif;padding:0 16px 90px}
+h1{font-size:18px;letter-spacing:.2em;margin:18px 0 4px}small,.d{color:#9a98ad}.top{position:sticky;top:0;background:#0b0a12;padding:10px 0;z-index:5}
+input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #2c2a40;background:#15132a;color:#fff;font:inherit}
+.chips{display:flex;gap:8px;margin:10px 0;overflow:auto}.chip{border:1px solid #2c2a40;background:#15132a;color:#ddd;border-radius:99px;padding:7px 14px;white-space:nowrap}.chip.on{background:#3b3590;border-color:#7a72ff;color:#fff}
+.now{margin:12px 0;padding:12px 14px;border-radius:14px;background:#1d3a2a;border:1px solid #2f7a52}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.c{background:#15132a;border-radius:14px;overflow:hidden;border:1px solid #232040}.c .i{aspect-ratio:460/215;background:#201d3a;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#5b55a8}.c .i img{width:100%;height:100%;object-fit:cover}.c div.t{padding:8px 10px}.c b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#191633;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(0,0,0,.6);z-index:9}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;border:0;font:inherit;font-weight:700;margin-top:10px;background:#5b50ff;color:#fff}.btn.g{background:#26233f;color:#ddd}
+.msg{position:fixed;left:16px;right:16px;top:12px;padding:12px 14px;border-radius:12px;background:#2a2750;z-index:20;text-align:center}
+.pin{text-align:center;letter-spacing:.4em;font-size:26px}</style></head><body><div id="app"></div><script>
+var T=null,SN=null,F='all',Q='',SEL=null;try{T=localStorage.getItem('wt')}catch(e){}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function api(p,b){return fetch(p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json','X-T':T||''},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json()})}
+function msg(t){var m=document.createElement('div');m.className='msg';m.textContent=t;document.body.appendChild(m);setTimeout(function(){m.remove()},3200)}
+function login(){document.getElementById('app').innerHTML='<h1>WINTEER</h1><p class="d">Escribí el código de 6 números que aparece en tu PC (Ajustes, Mantenimiento).</p><input id="pin" class="pin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn" id="go">Entrar</button>';
+ document.getElementById('go').onclick=function(){api('/api/login',{pin:document.getElementById('pin').value}).then(function(r){if(r.ok){T=r.t;try{localStorage.setItem('wt',T)}catch(e){}load()}else msg(r.err||'No pude entrar')})}}
+function load(){api('/api/lib').then(function(r){if(!r.ok){T=null;try{localStorage.removeItem('wt')}catch(e){}login();return}SN=r.snap;draw()}).catch(function(){msg('No encuentro la PC. Revisá que esté prendida y en el mismo wifi')})}
+function cover(g){return g.a>0?'<img loading="lazy" src="https://cdn.akamai.steamstatic.com/steam/apps/'+g.a+'/header.jpg" onerror="this.remove()">':''}
+function draw(){if(!SN)return;var q=Q.toLowerCase(),L=SN.games.filter(function(g){return(!q||g.n.toLowerCase().indexOf(q)>=0)&&(F==='all'||(F==='inst'&&g.i)||(F==='fav'&&g.f))});
+ var h='<div class="top"><h1>WINTEER</h1><small>'+esc(SN.name||'Tu PC')+'</small><input id="q" placeholder="Buscar" value="'+esc(Q)+'"><div class="chips">'+[['all','Todos'],['inst','Instalados'],['fav','Favoritos']].map(function(c){return'<button class="chip '+(F===c[0]?'on':'')+'" data-f="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div></div>';
+ if(SN.playing)h+='<div class="now"><small>Jugando ahora en la PC</small><br><b>'+esc(SN.playing.n)+'</b></div>';
+ h+='<div class="grid">'+L.slice(0,200).map(function(g){return'<div class="c" data-id="'+esc(g.id)+'"><div class="i">'+cover(g)+esc(g.n[0]||'?')+'</div><div class="t"><b>'+esc(g.n)+'</b><small>'+(g.h>0?(g.h<1?Math.round(g.h*60)+' min':g.h.toFixed(1)+' h'):'Sin jugar')+(g.i?'':' · no instalado')+'</small></div></div>'}).join('')+'</div>'+(L.length?'':'<p class="d">No hay juegos con ese filtro.</p>');
+ var app=document.getElementById('app'),act=document.activeElement&&document.activeElement.id==='q';app.innerHTML=h;var qi=document.getElementById('q');if(act){qi.focus();qi.setSelectionRange(Q.length,Q.length)}
+ qi.oninput=function(){Q=qi.value;draw()};Array.prototype.forEach.call(app.querySelectorAll('.chip'),function(b){b.onclick=function(){F=b.dataset.f;draw()}});
+ Array.prototype.forEach.call(app.querySelectorAll('.c'),function(c){c.onclick=function(){sheet(c.dataset.id)}})}
+function sheet(id){var g=SN.games.filter(function(x){return x.id===id})[0];if(!g)return;var s=document.createElement('div');s.className='sheet';
+ s.innerHTML='<b style="font-size:17px">'+esc(g.n)+'</b><br><small>'+(g.i?'Instalado':'No instalado')+'</small>'+(g.i?'<button class="btn" id="b1">Jugar en la PC</button>':'<button class="btn" id="b1">Instalar en la PC</button>')+'<button class="btn g" id="b2">Cerrar</button>';document.body.appendChild(s);
+ document.getElementById('b2').onclick=function(){s.remove()};document.getElementById('b1').onclick=function(){api('/api/cmd',{a:g.i?'play':'install',id:g.id}).then(function(r){s.remove();msg(r.ok?(g.i?'Mandado: se abre en la PC':'Mandado: se abre la tienda en la PC'):(r.err||'No se pudo'))}).catch(function(){s.remove();msg('No encuentro la PC')})}}
+if(T)load();else login();setInterval(function(){if(T&&!document.querySelector('.sheet')&&!(document.activeElement&&document.activeElement.id==='q'))api('/api/lib').then(function(r){if(r.ok){SN=r.snap;draw()}}).catch(function(){})},9000);
+</script></body></html>`;
+
 app.whenReady().then(() => {
   setupUpdater();
+  try { if (phoneCfg().on) phoneStart(); } catch (e) {}
   CACHE = path.join(app.getPath('userData'), 'imgcache'); loadIdx();
   protocol.handle('wimg', imgHandler);
   ipcMain.handle('launch', async (_e, o) => {
@@ -1848,6 +1921,9 @@ app.whenReady().then(() => {
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
   ipcMain.handle('installed', (_e, d) => { try { return installedApps(d); } catch (e) { return { ok: false, apps: [] }; } });
   ipcMain.handle('shots', (_e, id) => listShots(id));
+  ipcMain.handle('phoneGet', () => phoneInfo());
+  ipcMain.handle('phoneSet', (_e, o) => { const p = phoneCfg(); if (o && o.k === 'on') { p.on = !!o.v; saveCfg(); if (p.on) phoneStart(); else phoneStop(); } else if (o && o.k === 'pin') { p.pin = String(crypto.randomInt(0, 1e6)).padStart(6, '0'); p.tokens = []; saveCfg(); } return phoneInfo(); });
+  ipcMain.handle('phoneSync', (_e, s) => { if (s && Array.isArray(s.games)) PH.snap = { games: s.games.slice(0, 1500), playing: s.playing || null, name: String(s.name || '').slice(0, 40) }; return true; });
   ipcMain.handle('shotScores', (_e, id) => { try { return shotScores(id); } catch (e) { return {}; } });
   ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('achToast', (_e, o) => { achToast(o); return true; });

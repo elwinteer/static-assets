@@ -8650,7 +8650,7 @@ function visOpen(){
 const visAutoOn=g=>{const p=((ST.vis||{}).pick||{})[g.id];return (p===true||(p!==false&&x8Coop(g)))?1:0};
 
 /* ---------- ajustes ---------- */
-function x8Rows(){return [bkRowHTML(),
+function x8Rows(){return [bkRowHTML(),...x3Rows(),
   `<div class="row"><div>Sesión con intención<small>Antes de jugar te pregunto cuánto vas a jugar y te aviso 5 minutos antes. No cierra nada solo.</small></div><button class="sw ${siOn()?'on':''}" data-a="x8sitog"></button></div>`,
   `<div class="row"><div>Modo visita<small>${visOn()?'Activo ahora.':'Para cuando viene alguien: solo juegos para jugar acompañado y nadie sale al launcher sin tu código.'}</small></div><button class="b2" data-a="x8vis">${visOn()?'Administrar':'Configurar'}</button></div>`]}
 
@@ -8889,6 +8889,37 @@ Object.assign(A,{
 });
 
 /* ===/X2A=== */
+/* ===X3A=== */
+/* ---------- 3 · tu PC en el celular (etapa 1) ---------- */
+let X3={i:null};
+async function x3Info(){try{X3.i=(WN&&winteerNative.phoneGet)?await winteerNative.phoneGet():null}catch(e){X3.i=null}return X3.i}
+function x3Snap(){
+  const p=S.playing&&gm(S.playing.id);
+  const L=visOn()?[]:G.filter(g=>!g.hide&&!vIs(g)).sort((a,b)=>lastTs(b)-lastTs(a)).map(g=>({id:String(g.id),n:g.name,h:+(+g.hours||0).toFixed(1),a:isSteamG(g)?g.app:0,i:instOf(g)?1:0,f:g.fav?1:0}));
+  return {name:'PC de '+(((ST.prof&&ST.prof.name)||ST.name)||'WINTEER'),games:L,playing:p&&!visOn()?{id:String(p.id),n:p.name}:null}}
+function x3Push(){try{if(!WN||!winteerNative.phoneSync||!X3.i||!X3.i.on)return;winteerNative.phoneSync(x3Snap())}catch(e){}}
+setTimeout(async()=>{await x3Info();x3Push()},3500);setInterval(x3Push,15000);
+function x3Cmd(c){
+  const g=gm(c.id);if(!g||visOn())return;
+  if(c.a==='play'){if(S.playing){toast('Pedido del celular: ya hay un juego en curso');return}toast('Desde el celular: abriendo '+g.name);S.sel=g.id;A.play()}
+  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g))location.href='steam://install/'+g.app;else{S.sel=g.id;A.play()}}
+  setTimeout(x3Push,1500)}
+if(WN&&winteerNative.onPhone)winteerNative.onPhone(c=>{try{x3Cmd(c)}catch(e){}});
+function x3Rows(){
+  if(!WN||!(winteerNative.phoneGet))return [];
+  const i=X3.i||{},on=!!i.on;
+  const r1=`<div class="row"><div>Tu PC en el celular<small>Mirá tu biblioteca desde el celular (mismo wifi) y mandale Jugar o Instalar a la PC. Con un código de 6 números.</small></div><button class="sw ${on?'on':''}" data-a="x3tog"></button></div>`;
+  if(!on)return [r1];
+  const url=i.ip?`http://${i.ip}:${i.port}`:'';
+  const r2=`<div class="row"><div>${i.err?`<b>No pude prenderlo:</b> ${esc(i.err)}`:url?`En el celular abrí <b>${esc(url)}</b> y escribí el código <b style="letter-spacing:.2em">${esc(i.pin)}</b>`:'No encuentro tu red local. Conectá la PC al wifi.'}<small>${i.devices?i.devices+' celular'+(i.devices===1?'':'es')+' vinculado'+(i.devices===1?'':'s')+'. ':''}La primera vez Windows pregunta si permitís la red privada: decí que sí. Wake-on-LAN (prender la PC apagada) no se puede mandar desde el navegador del celular; hace falta otro aparato prendido o una app aparte.${i.mac?' Dirección de esta PC: '+esc(i.mac)+'.':''}</small></div><div style="display:flex;gap:8px;flex-wrap:wrap">${url?`<button class="b2" data-a="x3copy">Copiar enlace</button>`:''}<button class="b2 g" data-a="x3pin">Código nuevo</button></div></div>`;
+  return [r1,r2]}
+Object.assign(A,{
+  x3tog:async()=>{const on=!(X3.i&&X3.i.on);try{X3.i=await winteerNative.phoneSet({k:'on',v:on})}catch(e){toast('No pude cambiarlo');return}await new Promise(r=>setTimeout(r,400));await x3Info();x3Push();if(S.view==='settings')go('settings')},
+  x3pin:async()=>{if(!confirm('Al cambiar el código se desvinculan los celulares. ¿Seguro?'))return;try{X3.i=await winteerNative.phoneSet({k:'pin'})}catch(e){}if(S.view==='settings')go('settings');toast('Código nuevo listo')},
+  x3copy:()=>{const i=X3.i;if(!i||!i.ip)return;try{navigator.clipboard.writeText(`http://${i.ip}:${i.port}`);toast('Enlace copiado')}catch(e){toast('No pude copiar')}}
+});
+
+/* ===/X3A=== */
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
