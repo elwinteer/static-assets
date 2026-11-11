@@ -8892,10 +8892,10 @@ async function x3Push(force){
   const P=PHB();if(!P.k||!WN||X3.busy)return;
   const s=x3Snap(),sig=JSON.stringify([s.g,s.p,s.k]);
   if(!force&&sig===X3.sig&&Date.now()-X3.lt<60000)return;
-  X3.busy=true;try{const I=await x3Ids(P.k);await fbSet(I.S,{d:await x3Enc(s,I.key),t:Date.now()},'winteer_phone');X3.sig=sig;X3.lt=Date.now()}catch(e){}X3.busy=false}
+  X3.busy=true;try{const I=await x3Ids(P.k);await fbSet(I.S,{d:await x3Enc(s,I.key),t:Date.now()},'winteer_chats');X3.sig=sig;X3.lt=Date.now()}catch(e){}X3.busy=false}
 async function x3Poll(){
   const P=PHB();if(!P.k||X3.busy)return;
-  try{const I=await x3Ids(P.k),d=await fbGet(I.C,'winteer_phone');if(!d||!d.d)return;const c=await x3Dec(d.d,I.key);
+  try{const I=await x3Ids(P.k),d=await fbGet(I.C,'winteer_chats');if(!d||!d.d)return;const c=await x3Dec(d.d,I.key);
     if(!c||!c.ts||c.ts<=(P.last||0)||Math.abs(Date.now()-c.ts)>10*60000)return;
     P.last=c.ts;save();x3Cmd(c)}catch(e){}}
 function x3Cmd(c){
@@ -8961,7 +8961,7 @@ Object.assign(A,{
   x3link:async()=>{const P=PHB();P.k=x3Key();P.last=Date.now();save();X3.sig='';await x3Push(true);if(S.view==='settings')go('settings');x3Modal()},
   x3qr:()=>x3Modal(),
   x3close:()=>$$('.modal').forEach(m=>m.remove()),
-  x3unlink:async()=>{if(!confirm('El celular dejará de ver tu biblioteca. ¿Desvincular?'))return;const P=PHB();try{const I=await x3Ids(P.k);await fbDel(I.S,'winteer_phone');await fbDel(I.C,'winteer_phone')}catch(e){}delete P.k;delete P.last;X3.ack=null;X3.sig='';save();if(S.view==='settings')go('settings');toast('Celular desvinculado')},
+  x3unlink:async()=>{if(!confirm('El celular dejará de ver tu biblioteca. ¿Desvincular?'))return;const P=PHB();try{const I=await x3Ids(P.k);await fbDel(I.S,'winteer_chats');await fbDel(I.C,'winteer_chats')}catch(e){}delete P.k;delete P.last;X3.ack=null;X3.sig='';save();if(S.view==='settings')go('settings');toast('Celular desvinculado')},
   x3copy:()=>{const P=PHB();if(!P.k)return;try{navigator.clipboard.writeText(PHURL+'#'+P.k);toast('Enlace copiado')}catch(e){toast('No pude copiar')}}
 });
 /* ===/X3A=== */
