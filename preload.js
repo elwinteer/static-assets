@@ -68,6 +68,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   worldOpen: (p) => ipcRenderer.invoke('worldOpen', p),
   emScan: (o) => ipcRenderer.invoke('emScan', o),
   emDetect: (c) => ipcRenderer.invoke('emDetect', c),
+  emInstall: (id) => ipcRenderer.invoke('emInstall', id),
+  onEmProg: (f) => { ipcRenderer.on('emprog', (_e, a) => { try { f(a) } catch (e) {} }) },
   emStates: (o) => ipcRenderer.invoke('emStates', o),
   emPick: (t) => ipcRenderer.invoke('emPick', t),
   raSet: (o) => ipcRenderer.invoke('raSet', o),

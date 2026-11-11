@@ -9170,11 +9170,22 @@ function x5Rows(){
   const ra=ST.ra&&ST.ra.u?'Usuario: <b>'+esc(ST.ra.u)+'</b>':'Sin configurar';
   return [`<div class="row"><div>Estación de emulación<small>Juntá en WINTEER tus juegos de consolas retro. Elegís la carpeta de ROMs, WINTEER los detecta y los abre con el emulador gratuito que corresponde. ${c.dirs.length?c.dirs.length+' carpeta'+(c.dirs.length===1?'':'s')+'. ':''}${n?n+' juegos agregados. ':''}${k?k+' emulador'+(k===1?'':'es')+' listo'+(k===1?'':'s')+'.':'Todavía no hay emuladores configurados.'}</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="x5dir">Agregar carpeta</button><button class="b2 g" data-a="x5scan">Escanear</button><button class="b2 g" data-a="x5emus">Emuladores</button></div></div>`,
   `<div class="row"><div>RetroAchievements<small>Mostrás tus logros de consolas retro en la ficha de cada juego. ${ra}. Necesitás tu usuario y la clave de la API que te da retroachievements.org en tu perfil.</small></div><button class="b2" data-a="x5ra">Configurar</button></div>`]}
+const EMINST=['dolphin','pcsx2','duck','ppsspp','melon','mgba','mesen','snes9x'];
+const X5I={cur:'',msg:{}};
+if(WN&&winteerNative.onEmProg)winteerNative.onEmProg(a=>{X5I.msg[a.id]=(a.t||'')+(a.p<100?' '+a.p+'%':'');const el=$('#x5i-'+a.id);if(el)el.textContent=X5I.msg[a.id]});
+const x5Err={net:'No pude bajarlo. Revisá tu conexión y probá de nuevo.',src:'No encontré la descarga en la página oficial. Usá el botón Descargar.',busy:'Ya se está instalando otro.',big:'La descarga es demasiado grande.',x7z:'No pude descomprimirlo (formato 7z). Instalá 7-Zip o usá el botón Descargar.',unzip:'No pude descomprimirlo.',os:'Solo funciona en Windows.'};
+async function x5Install(id){
+  if(X5I.cur)return false;X5I.cur=id;X5I.msg[id]='Preparando';x5EmusRefresh();
+  let r={};try{r=await winteerNative.emInstall(id)}catch(e){}
+  X5I.cur='';delete X5I.msg[id];
+  if(r&&r.ok){emCfg().exe[id]=r.exe;save();toast(EMU[id].n+' listo');x5EmusRefresh();return true}
+  toast(x5Err[r&&r.err]||x5Err.net);x5EmusRefresh();return false}
+function x5EmusRefresh(){if($('.x5m'))x5EmusModal()}
 function x5EmusModal(){
-  const c=emCfg();$$('.modal').forEach(m=>m.remove());
-  modal(`<div style="text-align:left"><h3>Emuladores</h3><p class="hint2">Son gratuitos y los bajás de su página oficial. WINTEER no los descarga por vos: los instalás y le indicás dónde quedaron (o los busca solo).</p>
-  ${Object.keys(EMU).map(id=>{const e=EMU[id],p=c.exe[id];return `<div class="tm-r"><div class="tm-m"><b>${esc(e.n)}</b><small>${e.s.map(s=>EMSYS[s][0]).join(', ')}${p?' · '+esc(p):''}</small></div><div class="tm-a">${p?`<span class="ok" style="font-size:12px">Listo</span><button class="b2 g sm" data-a="x5clr" data-e="${id}">Quitar</button>`:`<a class="b2 sm" target="_blank" rel="noopener" href="${e.url}" style="text-decoration:none">Descargar</a>`}<button class="b2 g sm" data-a="x5pick" data-e="${id}">Elegir .exe</button></div></div>`}).join('')}</div>
-  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button><button class="hm-go" data-a="x5find">Buscar los instalados</button></div>`,'x8m x5m')}
+  const c=emCfg();$$('.modal').forEach(m=>m.remove());const busy=!!X5I.cur;
+  modal(`<div style="text-align:left"><h3>Emuladores</h3><p class="hint2">Son gratuitos. WINTEER los baja solo desde su página oficial, siempre la última versión, y los deja listos. Las BIOS o firmware de cada consola las ponés vos.</p>
+  ${Object.keys(EMU).map(id=>{const e=EMU[id],p=c.exe[id],can=EMINST.includes(id);return `<div class="tm-r"><div class="tm-m"><b>${esc(e.n)}</b><small>${e.s.map(s=>EMSYS[s][0]).join(', ')}${p?' · '+esc(p):''}</small></div><div class="tm-a">${X5I.cur===id?`<span class="hint2" id="x5i-${id}">${esc(X5I.msg[id]||'')}</span>`:p?`<span class="ok" style="font-size:12px">Listo</span><button class="b2 g sm" data-a="x5clr" data-e="${id}">Quitar</button>`:can?`<button class="b2 sm" data-a="x5inst" data-e="${id}"${busy?' disabled':''}>Instalar</button>`:`<a class="b2 sm" target="_blank" rel="noopener" href="${e.url}" style="text-decoration:none">Descargar</a>`}<button class="b2 g sm" data-a="x5pick" data-e="${id}">Elegir .exe</button></div></div>`}).join('')}</div>
+  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button><button class="b2 g" data-a="x5find">Buscar los instalados</button><button class="hm-go" data-a="x5install"${busy?' disabled':''}>Instalar todos</button></div>`,'x8m x5m')}
 async function x5Scan(){
   const c=emCfg();if(!c.dirs.length){toast('Primero agregá una carpeta con tus ROMs');return}
   toast('Buscando juegos…');let l=[];try{l=await winteerNative.emScan({dirs:c.dirs})}catch(e){}
@@ -9182,7 +9193,7 @@ async function x5Scan(){
   (l||[]).forEach(x=>{const s=emSysOf(x);if(!s){un.push(x);return}if(known.has(x.p.toLowerCase())){have++;return}(by[s]=by[s]||[]).push(Object.assign({s},x))});
   X5.sc=by;$$('.modal').forEach(m=>m.remove());const keys=Object.keys(by),tot=keys.reduce((a,k)=>a+by[k].length,0);
   modal(`<div style="text-align:left"><h3>Juegos encontrados</h3>${tot?`<p class="hint2">${tot} juego${tot===1?'':'s'} nuevo${tot===1?'':'s'}${have?' ('+have+' ya estaban)':''}.</p>${keys.map(k=>{const e=emFor(k);return `<div class="tm-r"><div class="tm-m"><b>${esc(EMSYS[k][0])}</b><small>${by[k].length} juego${by[k].length===1?'':'s'} · ${e?'se abre con '+esc(EMU[e].n):'falta configurar un emulador'}</small></div></div>`}).join('')}`:`<p class="hint2">${have?'Ya agregaste todo lo que encontré ('+have+').':'No encontré juegos en esas carpetas.'}</p>`}${un.length?`<p class="hint2">${un.length} archivo${un.length===1?'':'s'} (ISO, CHD, ZIP…) sin identificar: ponelos en carpetas con el nombre de la consola (por ejemplo PS2 o GameCube) para que los reconozca.</p>`:''}</div>
-  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button>${tot?`<button class="hm-go" data-a="x5import">Agregar ${tot}</button>`:''}</div>`,'x8m')}
+  <div class="bs"><button class="b2 g" data-a="close">Cerrar</button>${keys.some(k=>!emFor(k)&&EMINST.some(i=>EMU[i].s.includes(k)))?`<button class="b2" data-a="x5instmiss">Instalar emuladores que faltan</button>`:''}${tot?`<button class="hm-go" data-a="x5import">Agregar ${tot}</button>`:''}</div>`,'x8m')}
 function x5Import(){
   const by=X5.sc||{};let n=0;const ids=new Set(G.map(g=>g.id));
   Object.keys(by).forEach(s=>by[s].forEach(x=>{let id='em'+emHash(x.p.toLowerCase());if(ids.has(id))return;ids.add(id);
@@ -9211,6 +9222,10 @@ async function x5LoadRA(g,force){
 Object.assign(A,{
   x5dir:async()=>{const d=await winteerNative.tmPick('Elegí la carpeta donde tenés tus ROMs');if(!d)return;const c=emCfg();if(!c.dirs.includes(d))c.dirs.push(d);save();if(S.view==='settings')go('settings');x5Scan()},
   x5scan:()=>x5Scan(),x5import:()=>x5Import(),x5emus:()=>x5EmusModal(),
+  x5inst:a=>{x5Install(a.dataset.e)},
+  x5install:async()=>{for(const id of EMINST)if(!emCfg().exe[id]){if(!await x5Install(id))break}},
+  x5instmiss:async()=>{const need=[];Object.keys(X5.sc||{}).forEach(k=>{if(emFor(k))return;const i=EMINST.find(i=>EMU[i].s.includes(k)&&!need.includes(i));if(i&&!need.some(n=>EMU[n].s.includes(k)))need.push(i)});
+    if(!need.length)return;let ok=0;for(const id of need){toast('Instalando '+EMU[id].n+'…');if(await x5Install(id))ok++;else break}$$('.modal').forEach(m=>m.remove());if(ok)x5Scan()},
   x5find:async()=>{toast('Buscando emuladores…');let r={};try{r=await winteerNative.emDetect(Object.keys(EMU).map(id=>({id,re:EMU[id].re})))}catch(e){}const c=emCfg();let n=0;Object.keys(r||{}).forEach(id=>{if(EMU[id]&&!c.exe[id]){c.exe[id]=r[id];n++}});save();x5EmusModal();toast(n?'Encontré '+n+' emulador'+(n===1?'':'es'):'No encontré emuladores nuevos')},
   x5pick:async a=>{const p=await winteerNative.emPick('Elegí el programa de '+EMU[a.dataset.e].n);if(!p)return;emCfg().exe[a.dataset.e]=p;save();x5EmusModal()},
   x5clr:a=>{delete emCfg().exe[a.dataset.e];save();x5EmusModal()},

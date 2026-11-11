@@ -1834,6 +1834,74 @@ function emScan(o) {
   const cues = new Set(out.filter(x => x.ext === 'cue').map(x => x.p.slice(0, -4).toLowerCase()));
   return out.filter(x => !(x.ext === 'bin' && cues.has(x.p.slice(0, -4).toLowerCase()))).slice(0, 5000);
 }
+
+/* instalación de emuladores desde su página oficial */
+const EMSRC = {
+  dolphin: { page: 'https://dolphin-emu.org/download/', re: /https:\/\/dl\.dolphin-emu\.org\/(?:releases|builds)\/[^"'\s<>]+?x64\.7z/g, exe: /^dolphin\.exe$/i },
+  pcsx2: { gh: 'PCSX2/pcsx2', a: /windows-x64-Qt.*\.7z$/i, bad: /symbols|arm/i, exe: /^pcsx2.*\.exe$/i },
+  duck: { gh: 'stenzek/duckstation', a: /windows-x64.*\.zip$/i, bad: /symbols|arm|debug/i, exe: /^duckstation.*\.exe$/i },
+  ppsspp: { page: 'https://www.ppsspp.org/download/', re: /(?:https?:\/\/[^"'\s<>]*)?\/files\/[^"'\s<>]*ppsspp_win\.zip/g, exe: /^ppsspp.*\.exe$/i },
+  melon: { gh: 'melonDS-emu/melonDS', a: /windows-(x86_64|x64)\.zip$/i, bad: /arm/i, exe: /^melonds\.exe$/i },
+  mgba: { gh: 'mgba-emu/mgba', a: /win64\.(zip|7z)$/i, bad: /arm|psp|wii/i, exe: /^mgba(-qt)?\.exe$/i },
+  mesen: { gh: 'SourMesen/Mesen2', a: /windows\.zip$/i, bad: /aot|linux|mac/i, exe: /^mesen2?\.exe$/i },
+  snes9x: { gh: 'snes9x/snes9x', a: /win32-x64\.zip$/i, bad: /arm|debug/i, exe: /^snes9x.*\.exe$/i },
+};
+const EM_HOSTS = /^(github\.com|api\.github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com|dolphin-emu\.org|dl\.dolphin-emu\.org|www\.ppsspp\.org|ppsspp\.org)$/i;
+function emOk(u) { try { const x = new URL(u); return x.protocol === 'https:' && EM_HOSTS.test(x.hostname); } catch (e) { return false; } }
+function emFindExe(dir, re) {
+  let hit = ''; const walk = (d, depth) => {
+    if (hit || depth > 3) return; let ls = []; try { ls = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return; }
+    for (const f of ls) if (!f.isDirectory() && re.test(f.name)) { hit = path.join(d, f.name); return; }
+    for (const f of ls) if (f.isDirectory()) walk(path.join(d, f.name), depth + 1);
+  }; walk(dir, 0); return hit;
+}
+let emBusy = false;
+async function emInstall(id) {
+  const S = EMSRC[id]; if (!S) return { ok: false, err: 'src' };
+  if (process.platform !== 'win32') return { ok: false, err: 'os' };
+  if (emBusy) return { ok: false, err: 'busy' }; emBusy = true;
+  const prog = (p, t) => { try { if (win && !win.isDestroyed()) win.webContents.send('emprog', { id, p, t }); } catch (e) {} };
+  const H = { 'User-Agent': 'WINTEER/' + app.getVersion(), Accept: 'application/vnd.github+json' };
+  try {
+    prog(0, 'Buscando la última versión');
+    let url = '';
+    if (S.gh) {
+      const r = await net.fetch('https://api.github.com/repos/' + S.gh + '/releases/latest', { headers: H }); if (!r.ok) return { ok: false, err: 'net' };
+      const j = await r.json(); const as = (j.assets || []).filter(a => S.a.test(a.name) && !(S.bad && S.bad.test(a.name)));
+      as.sort((a, b) => (/\.zip$/i.test(a.name) ? 0 : 1) - (/\.zip$/i.test(b.name) ? 0 : 1));
+      url = as[0] && as[0].browser_download_url;
+    } else {
+      const r = await net.fetch(S.page, { headers: { 'User-Agent': 'Mozilla/5.0 WINTEER' } }); if (!r.ok) return { ok: false, err: 'net' };
+      const t = await r.text(); const ms = t.match(S.re) || []; let u = ms.find(x => /releases/.test(x)) || ms[0];
+      if (u && u.startsWith('/')) u = new URL(S.page).origin + u; url = u;
+    }
+    if (!url || !emOk(url)) return { ok: false, err: 'src' };
+    const ext = /\.7z($|\?)/i.test(url) ? '7z' : 'zip';
+    const base = path.join(app.getPath('userData'), 'emulators'), dir = path.join(base, id), tmpf = path.join(base, id + '.' + ext);
+    fs.mkdirSync(base, { recursive: true });
+    const r = await net.fetch(url, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+    if (!r.ok || !r.body) return { ok: false, err: 'net' };
+    const tot = Number(r.headers.get('content-length')) || 0; if (tot > 700 * 1024 * 1024) return { ok: false, err: 'big' };
+    const ws = fs.createWriteStream(tmpf); let got = 0, last = 0; const rd = r.body.getReader();
+    for (;;) {
+      const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > 700 * 1024 * 1024) { ws.destroy(); return { ok: false, err: 'big' }; }
+      if (!ws.write(Buffer.from(value))) await new Promise(res => ws.once('drain', res));
+      const now = Date.now(); if (now - last > 400) { last = now; prog(tot ? Math.round(got / tot * 90) : 50, 'Descargando'); }
+    }
+    await new Promise(res => ws.end(res));
+    prog(92, 'Descomprimiendo'); try { fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {} fs.mkdirSync(dir, { recursive: true });
+    const run = (cmd, args, env) => new Promise(res => execFile(cmd, args, { windowsHide: true, timeout: 300000, env: Object.assign({}, process.env, env || {}) }, err => res(!err)));
+    if (ext === 'zip') await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Expand-Archive -LiteralPath $env:WT_Z -DestinationPath $env:WT_D -Force'], { WT_Z: tmpf, WT_D: dir });
+    else {
+      await run(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'tar.exe'), ['-xf', tmpf, '-C', dir]);
+      if (!emFindExe(dir, S.exe)) for (const z of [path.join(process.env.ProgramFiles || '', '7-Zip', '7z.exe'), path.join(process.env['ProgramFiles(x86)'] || '', '7-Zip', '7z.exe')]) { if (fs.existsSync(z) && await run(z, ['x', '-y', '-o' + dir, tmpf])) break; }
+    }
+    try { fs.unlinkSync(tmpf); } catch (e) {}
+    const exe = emFindExe(dir, S.exe); if (!exe) return { ok: false, err: ext === '7z' ? 'x7z' : 'unzip', url };
+    prog(100, 'Listo'); return { ok: true, exe };
+  } catch (e) { return { ok: false, err: 'net' }; }
+  finally { emBusy = false; }
+}
 function emDetect(cat) {
   const e = tmEnv(), pf = [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], path.join(e.local, 'Programs'), path.join(e.home, 'Desktop'), path.join(e.home, 'Downloads'), e.docs, path.join(e.home, 'scoop', 'apps'), 'C:\\Emulators', 'D:\\Emulators', 'C:\\Emuladores', 'D:\\Emuladores', 'C:\\Games', 'D:\\Games', 'C:\\RetroArch', 'D:\\RetroArch'].filter(Boolean);
   const res = {}, rx = (cat || []).map(c => ({ id: c.id, re: new RegExp(c.re, 'i') })); let budget = 9000;
@@ -2282,6 +2350,7 @@ app.whenReady().then(() => {
   ipcMain.handle('worldRecvClose', (_e, o) => worldRecvClose(o || {}));
   ipcMain.handle('worldOpen', (_e, p) => { try { if (fs.existsSync(p)) shell.showItemInFolder(path.join(p, '..', path.basename(p))); } catch (e) {} return true; });
   ipcMain.handle('emScan', (_e, o) => { try { return emScan(o || {}); } catch (e) { return []; } });
+  ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
   ipcMain.handle('emPick', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí el emulador'), properties: ['openFile'], filters: [{ name: 'Programa', extensions: ['exe'] }] }); return r.canceled ? '' : r.filePaths[0]; });
