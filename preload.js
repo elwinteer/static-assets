@@ -78,6 +78,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   raSet: (o) => ipcRenderer.invoke('raSet', o),
   raGame: (o) => ipcRenderer.invoke('raGame', o),
   aiStatus: () => ipcRenderer.invoke('aiStatus'),
+  aiListen: () => ipcRenderer.invoke('aiListen'),
   aiSetup: (m) => ipcRenderer.invoke('aiSetup', m),
   onAiProg: (f) => { ipcRenderer.on('aiprog', (_e, a) => { try { f(a) } catch (e) {} }) },
   aiAsk: (o) => ipcRenderer.invoke('aiAsk', o),

@@ -2053,6 +2053,35 @@ async function aiAsk(o) {
   try { const j = JSON.parse(r.text); return { ok: true, text: String(j.response || '').trim() }; } catch (e) { return { ok: false, err: 'Respuesta inválida' }; }
 }
 
+/* ===== reconocimiento de voz de Windows (sin internet) para hablarle a la mascota ===== */
+let aiLis = false;
+function aiListen() {
+  if (process.platform !== 'win32') return Promise.resolve({ ok: false, err: 'os' });
+  if (aiLis) return Promise.resolve({ ok: false, err: 'busy' }); aiLis = true;
+  const ps = `
+[Console]::OutputEncoding=[Text.Encoding]::UTF8
+try{Add-Type -AssemblyName System.Speech}catch{Write-Output 'ERR:norec';exit}
+$rec=$null
+foreach($r in [System.Speech.Recognition.SpeechRecognitionEngine]::InstalledRecognizers()){if($r.Culture.TwoLetterISOLanguageName -eq 'es'){$rec=$r;break}}
+if($rec -eq $null){Write-Output 'ERR:norec';exit}
+try{
+  $e=New-Object System.Speech.Recognition.SpeechRecognitionEngine($rec)
+  $e.SetInputToDefaultAudioDevice()
+  $e.LoadGrammar((New-Object System.Speech.Recognition.DictationGrammar))
+  $e.InitialSilenceTimeout=[TimeSpan]::FromSeconds(6)
+  $e.EndSilenceTimeout=[TimeSpan]::FromSeconds(1)
+  $e.EndSilenceTimeoutAmbiguous=[TimeSpan]::FromSeconds(1.5)
+  $res=$e.Recognize([TimeSpan]::FromSeconds(14))
+  if($res -ne $null){Write-Output ('OK:'+$res.Text)}else{Write-Output 'OK:'}
+}catch{Write-Output 'ERR:mic'}`;
+  return new Promise((resolve) => {
+    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 25000 }, (err, out) => {
+      aiLis = false; const t = String(out || '').trim().split(/\r?\n/).pop() || '';
+      if (/^OK:/.test(t)) resolve({ ok: true, text: t.slice(3).trim() }); else if (/^ERR:/.test(t)) resolve({ ok: false, err: t.slice(4) }); else resolve({ ok: false, err: 'x' });
+    }); } catch (e) { aiLis = false; resolve({ ok: false, err: 'x' }); }
+  });
+}
+
 /* ===== IA local: instalacion automatica de Ollama + modelo (solo desde la pagina oficial) ===== */
 const OLL_HOSTS = /^(ollama\.com|www\.ollama\.com|github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/i;
 let aiBusy = false;
@@ -2413,6 +2442,7 @@ app.whenReady().then(() => {
   ipcMain.handle('raSet', (_e, o) => { if (o && typeof o.u === 'string') { cfg.raUser = o.u.trim().slice(0, 40); if (o.k) cfg.raKey = String(o.k).trim().slice(0, 80); if (!cfg.raUser) { delete cfg.raKey; } saveCfg(); RAC.game = {}; } return { u: cfg.raUser || '', has: !!cfg.raKey }; });
   ipcMain.handle('raGame', (_e, o) => raGame(o || {}));
   ipcMain.handle('aiStatus', () => aiStatus());
+  ipcMain.handle('aiListen', () => aiListen());
   ipcMain.handle('aiSetup', (_e, m) => aiSetup(m));
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('shotScores', (_e, id) => { try { return shotScores(id); } catch (e) { return {}; } });
