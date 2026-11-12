@@ -210,7 +210,7 @@ function recIcon(on) {
 /* ---------- grabacion con OBS (audio solo del juego, tiempo libre) ---------- */
 const OBS_PORT = 4477, OBS_SC = 'WINTEER';
 const OBS_HOSTS = /^(api\.github\.com|github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/i;
-let obsBusy = false, obsProc = null, obsWS = null, obsReq = new Map(), obsSeq = 0, obsRec = null, obsReady = false, obsPrep = null, obsLimitT = null;
+let obsBusyT = 0, obsBusy = false, obsProc = null, obsWS = null, obsReq = new Map(), obsSeq = 0, obsRec = null, obsReady = false, obsPrep = null, obsLimitT = null;
 function obsDir() { for (const b of [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], 'C:\\Program Files']) { if (!b) continue; const d = path.join(b, 'obs-studio', 'bin', '64bit'); if (fs.existsSync(path.join(d, 'obs64.exe'))) return d; } return ''; }
 function obsOn() { return cfg.obs !== false; }
 function obsActive() { return process.platform === 'win32' && obsOn() && !!obsDir() && !!curNonSteam(); }
@@ -254,6 +254,9 @@ async function obsGpuEnc() {
   return 'x264';
 }
 /* abre OBS escondido y lo deja listo */
+function obsLog(m) { try { const f = path.join(app.getPath('userData'), 'obs-wint.log'); try { if (fs.statSync(f).size > 200000) fs.writeFileSync(f, ''); } catch (e) {} fs.appendFileSync(f, new Date().toISOString() + ' ' + m + '\n'); } catch (e) {} }
+/* OBS pregunta si abrir en modo seguro cuando no se cerro bien: borramos la marca antes de abrirlo */
+function obsNoSafe() { try { fs.rmSync(path.join(process.env.APPDATA || '', 'obs-studio', '.sentinel'), { recursive: true, force: true }); } catch (e) {} }
 async function obsStart() {
   if (obsReady) return true;
   if (obsPrep) return obsPrep;
@@ -262,12 +265,12 @@ async function obsStart() {
       const dir = obsDir(); if (!dir) return false;
       if (await obsConnect()) { /* ya abierto */ }
       else {
-        obsWriteCfg();
+        obsWriteCfg(); obsNoSafe(); obsLog('abro OBS');
         obsProc = spawn(path.join(dir, 'obs64.exe'), ['--minimize-to-tray', '--disable-shutdown-check'], { cwd: dir, detached: false, stdio: 'ignore', windowsHide: false });
         obsProc.on('exit', () => { obsProc = null; obsClose(); });
         obsProc.on('error', () => { obsProc = null; });
         let ok = false; for (let i = 0; i < 30 && !ok; i++) { await new Promise(r => setTimeout(r, 1500)); ok = await obsConnect(); }
-        if (!ok) return false;
+        if (!ok) { obsLog('OBS no respondio por websocket'); return false; }
       }
       /* perfil y coleccion propios para no tocar los del usuario */
       let r = await obsCall('CreateProfile', { profileName: 'WINTEER' }); await obsCall('SetCurrentProfile', { profileName: 'WINTEER' });
@@ -280,7 +283,7 @@ async function obsStart() {
       try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1920), oh = Math.round(h * ow / w / 2) * 2; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 60, fpsDenominator: 1 }); } catch (e) {}
       await obsCall('CreateScene', { sceneName: OBS_SC }); await obsCall('SetCurrentProgramScene', { sceneName: OBS_SC });
       return true;
-    } catch (e) { return false; }
+    } catch (e) { obsLog('obsStart error ' + (e && e.message)); return false; }
     finally { obsPrep = null; }
   })();
   return obsPrep;
@@ -290,6 +293,7 @@ async function obsAim(cur) {
   let cands = [];
   if (cur.t.exe) cands = [path.win32.basename(String(cur.t.exe)).toLowerCase()];
   else if ((cur.t.dirs || []).length) { try { const ps = await listProcs(); cands = [...new Set(ps.filter(p => cur.t.dirs.some(d => String(p).toLowerCase().startsWith(String(d).toLowerCase()))).map(p => path.win32.basename(String(p)).toLowerCase()))]; } catch (e) {} }
+  obsLog('aim candidatos: ' + cands.join(','));
   if (!cands.length) return false;
   const inp = [['WINTEER video', 'game_capture', { capture_mode: 'window', capture_cursor: true, allow_transparency: false }], ['WINTEER audio', 'wasapi_process_output_capture', {}]];
   for (const [name, kind, st] of inp) {
@@ -303,24 +307,33 @@ async function obsAim(cur) {
     const it = items.find(x => cands.some(e => String(x.itemValue || '').toLowerCase().endsWith(':' + e) && !/crashhandler|crashreport|launcher|setup|unins/.test(e)));
     if (it) val = it.itemValue; else await new Promise(r => setTimeout(r, 1000));
   }
+  obsLog('aim ventana: ' + (val || 'NO ENCONTRADA'));
   if (!val) return false;
   await obsCall('SetInputSettings', { inputName: 'WINTEER video', inputSettings: { window: val, capture_mode: 'window' }, overlay: true });
   await obsCall('SetInputSettings', { inputName: 'WINTEER audio', inputSettings: { window: val }, overlay: true });
   return true;
 }
 async function obsToggle() {
-  if (obsBusy) return; obsBusy = true;
+  if (obsBusy && Date.now() - obsBusyT > 90000) { obsLog('obsBusy trabado, lo libero'); obsBusy = false; }
+  if (obsBusy) return; obsBusy = true; obsBusyT = Date.now();
   try {
     const cur = curNonSteam();
+    obsLog('tecla: rec=' + !!obsRec + ' juego=' + (cur ? cur.id : 'ninguno') + ' ws=' + obsReady);
     if (obsRec) { await obsStopRec(); return; }
     if (!cur) return;
     recIcon(true); clearTimeout(recTimer); recTimer = null;
-    if (!(await obsStart()) || !(await obsAim(cur))) { recIcon(false); shotToast(null, 'No pude preparar OBS', 'err', 'Probá de nuevo con el juego a la vista.'); return; }
+    let ok = false;
+    for (let i = 0; i < 2 && !ok; i++) {
+      if (i) { obsLog('reintento'); obsClose(); await new Promise(r => setTimeout(r, 1500)); }
+      ok = (await obsStart()) && (await obsAim(cur));
+    }
+    if (!ok) { recIcon(false); shotToast(null, 'No pude preparar OBS', 'err', 'Probá de nuevo con el juego a la vista.'); return; }
     const r = await obsCall('StartRecord', {}, 15000);
+    obsLog('StartRecord: ' + JSON.stringify(r && r.requestStatus));
     if (!obsOk(r)) { recIcon(false); shotToast(null, 'No pude empezar a grabar', 'err'); return; }
     obsRec = { id: cur.id, t: Date.now() };
     clearTimeout(obsLimitT); obsLimitT = setTimeout(() => { if (obsRec && !obsBusy) obsToggle(); }, 20 * 60000);
-  } catch (e) { recIcon(false); } finally { obsBusy = false; }
+  } catch (e) { obsLog('toggle error ' + (e && e.message)); recIcon(false); } finally { obsBusy = false; }
 }
 async function obsStopRec() {
   const rec = obsRec; obsRec = null; clearTimeout(obsLimitT); obsLimitT = null; if (!rec) return;
