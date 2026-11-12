@@ -3404,9 +3404,16 @@ body.light .fp2-hero,body.light .fp2-sc,body.light .fp2-rv,body.light .fp2-h{bac
 /* ===== perfil v5: mas tranquilo ===== */
 .fp2-hc{grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:76px 26px 22px}.fp2-hr{min-width:0}.fp2-ac{flex-direction:row}.fp2-ac .fp2-b{width:auto}
 .fp2-bio{margin-top:10px;font-size:14px;color:#cfcbe3;max-width:520px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.fp2-st{margin-bottom:22px;gap:12px}.fp2-sc{min-height:92px}
+.fp2-st{margin-bottom:22px;gap:12px}.fp2-sc{min-height:84px}
 .fp2-body .fp2-sec h4{margin-bottom:14px}
 @media(max-width:1000px){.fp2-hc{grid-template-columns:1fr}}
+/* ===== perfil v6 ===== */
+.fp2-rw{display:flex;flex-direction:column}.fp2-rw>div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px}.fp2-rw>div:last-child{border:0;padding-bottom:0}.fp2-rw span{color:var(--muted)}.fp2-rw b{font-weight:700;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp2-wv{display:flex;flex-direction:column}.fp2-mn{display:flex;align-items:center;gap:20px;flex:1}.fp2-rg.sm{width:92px;height:92px}.fp2-rg.sm b{font-size:21px;padding:0}.fp2-mn>div:last-child b{display:block;font-size:28px;font-weight:800;line-height:1.1}.fp2-mn>div:last-child span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.fp2-lk{margin-top:10px;border:0;cursor:pointer;font-family:inherit;font-weight:700;font-size:12.5px;color:var(--text);background:rgba(255,255,255,.09);padding:7px 14px;border-radius:10px;transition:.2s}.fp2-lk:hover{background:rgba(255,255,255,.16)}
+.fp2-gb u{display:inline-grid;place-items:center;width:16px;height:16px;margin-left:7px;border-radius:50%;background:rgba(34,197,94,.9);color:#fff;vertical-align:-3px;text-decoration:none}.fp2-gb u svg{width:10px;height:10px;stroke-width:3.2}
+.fp2-ft{display:flex;align-items:center;gap:7px;margin-top:14px;color:var(--muted);font-size:11.5px}.fp2-ft svg{width:13px;height:13px;color:#4ade80}
+.fp2-gb.hr>div{grid-template-columns:110px 1fr 46px}.fp2-gb.hr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fp2-gb.hr em{font-style:normal;font-size:12px;color:var(--muted);text-align:right}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -7994,7 +8001,7 @@ document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.clos
 document.addEventListener('dragend',()=>{dk=null;$$('.sgt.dg,.sgt.ov').forEach(o=>o.classList.remove('dg','ov'))});
 document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('.sgt[draggable=true]');if(!t||!dk)return;e.preventDefault();const cid=S.sgo,sg=sgBuild().find(x=>x.cid===cid);if(!sg||t.dataset.k===dk){dk=null;return}const ks=sg.mem.map(x=>x.k).filter(k=>k!==dk),j=ks.indexOf(t.dataset.k);ks.splice(j<0?ks.length:j,0,dk);sgX().ord[cid]=ks;dk=null;save();sgDraw()})})();
 document.addEventListener('input',e=>{if(e.target.id!=='sgq')return;const pos=e.target.selectionStart;S.sgq=e.target.value;S.sgp=0;sgDraw();const i=$('#sgq');if(i){i.focus();i.setSelectionRange(pos,pos)}});
-document.addEventListener('click',e=>{const p=$('#fpan');if(p&&!p.hidden&&!e.target.closest('#fpan,#fbtn')){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}const a=e.target.closest('[data-a]');if(a&&A[a.dataset.a])A[a.dataset.a](a)});document.addEventListener('input',e=>{if(e.target&&e.target.id==='fpq'){S.fpBq=e.target.value;S.fpBm=0;const c=S.frSel,d=FR().c[c];if(!d)return;const x=frCmp(d),myN=new Set(G.map(g=>frN(g.name))),co=new Set((d.lc?String(d.lc).split('\n'):[]).map(frN)),f=S.fpBf||'',q=fNrm(S.fpBq).trim();let L=x.fl.filter(n=>!q||fNrm(n).includes(q));if(f==='own')L=L.filter(n=>myN.has(frN(n)));else if(f==='no')L=L.filter(n=>!myN.has(frN(n)));else if(f==='co')L=L.filter(n=>co.has(frN(n)));const l=$('#fpbl'),k=$('#fpc');if(l)l.innerHTML=frLibList(L,myN,co);if(k)k.textContent=L.length+' de '+x.fl.length+' juegos'}if(e.target&&e.target.id==='fqs'){S.fq=e.target.value;const c=$('#fcats');if(c)c.innerHTML=fCats()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('#fpan');if(p&&!p.hidden){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}}});
+document.addEventListener('click',e=>{const p=$('#fpan');if(p&&!p.hidden&&!e.target.closest('#fpan,#fbtn')){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}const a=e.target.closest('[data-a]');if(a&&A[a.dataset.a])A[a.dataset.a](a)});document.addEventListener('input',e=>{if(e.target&&e.target.id==='fqs'){S.fq=e.target.value;const c=$('#fcats');if(c)c.innerHTML=fCats()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('#fpan');if(p&&!p.hidden){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}}});
 $$('.nav a[data-v]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.v)));
 document.addEventListener('input',e=>{if(e.target.id==='bpmv'){ST.bpMusV=+e.target.value;save();try{if(BP&&BP.ifr){const t=bpT(BP.ifr);clearInterval(t._fi);t.volume=Math.max(0,Math.min(1,ST.bpMusV))}}catch(er){}}if(e.target.id==='lq'){S.q=e.target.value;renderList()}});
 
@@ -8698,7 +8705,7 @@ function frMainHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
    <div class="fr-ha">${fbOn()?`<button class="fr-ib fr-call" data-a="frcall" title="Llamar a ${esc(d.name)}">${ic('phone')}<span>Llamar</span></button>`:''}${tab==='chat'&&(frCh(c).pins||[]).length?`<button class="fr-ib fr-pb ${S.frPinF?'on':''}" data-a="frpf" title="${S.frPinF?'Volver a todos los mensajes':'Ver mensajes fijados'}">${ic('pin')}<i>${(frCh(c).pins||[]).length}</i></button>`:''}</div>
    <div class="fr-tb">${[['chat','Chat'],['perfil','Perfil']].map(([k,l])=>`<button class="${tab===k?'on':''}" data-a="frtab" data-v="${k}">${l}</button>`).join('')}</div></div>
    ${tab==='chat'?`<div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}<span>Foto</span></button><button class="fr-ab" data-a="frgm" data-v="rec" title="Recomendarle un juego con una nota">${ic('star')}<span>Recomendar</span></button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}<span>Invitar</span></button><button class="fr-ab" data-a="njnew" title="Armar una noche de juegos con hora"><span>Noche</span></button><button class="fr-ab" data-a="x4menu" title="Pasarle mods o el mundo a tu amigo"><span>Coop</span></button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">Enviar</button></div></div>`:frProfHTML(c,d,m)}`}
-const FP_T=[['res','Resumen'],['gus','Gustos'],['lib','Biblioteca'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
+const FP_T=[['res','Resumen'],['gus','Gustos'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
 function frAgoL(d){return frOnl(d)?'En línea':d.gone?'Dejó de compartir':d.seen?'Visto '+frAgo(d.seen):'Desconectado'}
 function frCmp(d){const myN=new Set(G.map(g=>frN(g.name))),mp=PR()||{},mg=(mp.genres||[]).map(x=>String(x)),fg=(d.genres||[]).map(x=>String(x));
   const fl=d.lib?String(d.lib).split('\n').filter(Boolean):null,sh=fl?fl.filter(n=>myN.has(frN(n))):[];
@@ -8719,28 +8726,21 @@ function frHero(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),g0=d.now&&m
    <div class="fp2-hr"><div class="fp2-ac"><button class="fp2-b p" data-a="frtab" data-v="chat">Escribirle</button>${fbOn()?`<button class="fp2-b" data-a="frcall">${ic('phone')}Llamar</button>`:''}</div></div></div></section>`}
 function frStats(d){const n=d.n||0,dn=d.d||0,pc=n?Math.round(100*dn/n):0;
   const T=[['Horas jugadas',d.h||0,Math.round(totalH()),'clock'],['Juegos',n,G.length,'games'],['Completados',dn,doneN(),'check'],['Hitos',d.ga||0,gaN(),'trophy'],['Nivel',d.lv||1,lvlOf().l,'bolt']];
-  return `<div class="fp2-st">${T.map(([l,v,me,i,sub],k)=>`<div class="fp2-sc" style="--i:${k}"><u>${ic(i)}</u><b data-n="${v}">${v}</b><span>${l}</span><small>${l==='Completados'&&n?pc+'% · vos: '+me:'vos: '+me}</small></div>`).join('')}</div>`}
+  return `<div class="fp2-st">${T.map(([l,v,me,i,sub],k)=>`<div class="fp2-sc" style="--i:${k}"><u>${ic(i)}</u><b data-n="${v}">${v}</b><span>${l}</span></div>`).join('')}</div>`}
 function frCover(g,n){return g?`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`:`<b>${esc((n||'?')[0])}</b>`}
-function frLibList(L,myN,co){const mine=new Map(G.map(g=>[frN(g.name),g])),lim=S.fpBm?L.length:Math.min(L.length,60);
-  if(!L.length)return '<p class="fp2-em">No hay juegos con ese filtro.</p>';
-  return `<div class="fp2-gr lib">${L.slice(0,lim).map(n=>{const g=mine.get(frN(n)),h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%360;return `<div class="fp2-t sm" title="${esc(n)}" ${g?'':`style="background:linear-gradient(150deg,hsl(${h},45%,24%),hsl(${(h+50)%360},40%,12%))"`}>${g?frCover(g,n):`<b>${esc((n||'?')[0].toUpperCase())}</b>`}${g?'<span class="ok">'+ic('check')+'</span>':''}${co.has(frN(n))?'<span class="cp">Coop</span>':''}<em>${esc(n)}</em></div>`}).join('')}</div>${L.length>lim?`<button class="fp2-more" data-a="fpbm">Ver los ${L.length} juegos</button>`:''}`}
 function frPBody(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),t=S.fpT||'res',x=frCmp(d);
   if(t==='res'){
    const top=(d.top||[]).map((q,i)=>{const g=mine.get(frN(q.n));return `<div class="fp2-t" style="--i:${i}" title="${esc(q.n)}">${frCover(g,q.n)}<span>${i+1}</span><em>${esc(q.n)}<small>${q.h||0} h${g?' · lo tenés':''}</small></em></div>`}).join('');
-   return `${frStats(d)}<div class="fp2-sec"><h4>Top 5 favoritos</h4>${top?`<div class="fp2-top">${top}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div>`}
+   const n=d.n||0,avg=n?Math.round((d.h||0)/n*10)/10:0,pc=n?Math.round(100*(d.d||0)/n):0,tp=(d.top||[]).slice().sort((p,q)=>(q.h||0)-(p.h||0)),mx=Math.max(1,(tp[0]||{}).h||1);
+   const rows=[['Horas por juego',avg+' h'],['Terminados',pc+'%'],['Hitos por juego',n?(Math.round((d.ga||0)/n*10)/10)+'':'—'],['Más jugado',tp[0]?esc(tp[0].n):'—'],['Género favorito',(d.genres||[])[0]?esc(d.genres[0]):'—']];
+   return `${frStats(d)}<div class="fp2-sec"><h4>Top 5 favoritos</h4>${top?`<div class="fp2-top">${top}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div>
+   <div class="fp2-2"><div class="fp2-cd"><h4>En números</h4><div class="fp2-rw">${rows.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div></div>
+   <div class="fp2-cd fp2-wv"><h4>Con vos</h4>${x.sc==null?'<p class="fp2-em" style="margin:0">Todavía no hay datos para comparar.</p>':`<div class="fp2-mn"><div class="fp2-rg sm" style="--p:${x.sc}"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52"/><circle class="v" cx="60" cy="60" r="52" pathLength="100"/></svg><b>${x.sc}%</b></div><div><b>${x.fl?x.sh.length:x.gs.length}</b><span>${x.fl?'juegos en común':'géneros en común'}</span><button class="fp2-lk" data-a="fptab" data-v="com">Ver detalle</button></div></div>`}</div></div>`}
   if(t==='gus'){
-   const gn=(d.genres||[]).slice(0,6),mx=Math.max(1,gn.length),pt=d.pet&&d.pet.n?d.pet:null;
-   const lvP=pt?Math.floor(Math.sqrt((pt.xp||0)/20))+1:0,lo=pt?20*(lvP-1)*(lvP-1):0,hi=pt?20*lvP*lvP:1,pf=pt?Math.round(100*((pt.xp||0)-lo)/Math.max(1,hi-lo)):0;
-   const n=d.n||0,avg=n?Math.round((d.h||0)/n*10)/10:0,pc=n?Math.round(100*(d.d||0)/n):0;
-   return `<div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mx))}%;--i:${i}"><span>${esc(q)}</span><i><b></b></i></div>`).join('')}</div>`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
-   <div class="fp2-cd"><h4>Su ritmo</h4><div class="fp2-kv"><div><b>${avg}</b><span>horas por juego</span></div><div><b>${pc}%</b><span>terminados</span></div></div></div></div>
-   ${pt?`<div class="fp2-cd" style="margin-top:14px"><h4>Su mascota</h4><div class="fp2-pet"><u>${ic('star')}</u><div><b>${esc(pt.n)}</b><small>Nivel ${lvP}</small></div></div><div class="fp2-pb"><i><b style="--w:${pf}%"></b></i><small>${pf}% para el nivel ${lvP+1}</small></div></div>`:''}`}
-  if(t==='lib'){
-   const fl=x.fl;if(!fl)return `<p class="fp2-em">${esc(d.name)} no comparte su biblioteca.</p>`;
-   const myN=new Set(G.map(g=>frN(g.name))),co=new Set((d.lc?String(d.lc).split('\n'):[]).map(frN)),f=S.fpBf||'',q=fNrm(S.fpBq).trim();
-   let L=fl.filter(n=>!q||fNrm(n).includes(q));if(f==='own')L=L.filter(n=>myN.has(frN(n)));else if(f==='no')L=L.filter(n=>!myN.has(frN(n)));else if(f==='co')L=L.filter(n=>co.has(frN(n)));
-   return `<div class="fp2-lt"><div class="fsr fp2-sr">${ic('search')}<input id="fpq" placeholder="Buscar en su biblioteca…" value="${esc(S.fpBq||'')}" autocomplete="off" spellcheck="false"></div><div class="fp2-sg2">${[['','Todos'],['own','Los dos'],['no','Solo él/ella'],['co','Coop']].map(([k,l])=>`<button class="${f===k?'on':''}" data-a="fpbf" data-v="${k}">${l}</button>`).join('')}</div></div>
-   <div class="fp2-cnt" id="fpc">${L.length} de ${fl.length} juegos</div><div id="fpbl">${frLibList(L,myN,co)}</div>`}
+   const gn=(d.genres||[]).slice(0,6),mxg=Math.max(1,gn.length),mg=((PR()||{}).genres||[]).map(frN),tp=(d.top||[]).slice().sort((p,q)=>(q.h||0)-(p.h||0)),mx=Math.max(1,(tp[0]||{}).h||1);
+   return `<div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mxg))}%;--i:${i}"><span>${esc(q)}${mg.includes(frN(q))?'<u title="Vos también">'+ic('check')+'</u>':''}</span><i><b></b></i></div>`).join('')}</div>${x.gs.length?`<small class="fp2-ft">${ic('check')} Los que también jugás vos</small>`:''}`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
+   <div class="fp2-cd"><h4>Sus favoritos, por horas</h4>${tp.length?`<div class="fp2-gb hr">${tp.map((q,i)=>`<div style="--w:${Math.max(6,Math.round(100*(q.h||0)/mx))}%;--i:${i}"><span>${esc(q.n)}</span><i><b></b></i><em>${q.h||0} h</em></div>`).join('')}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div></div>
+   ${x.top.length?`<div class="fp2-cd" style="margin-top:14px"><h4>Para probar juntos</h4><p class="fp2-em" style="margin:0 0 12px">Sus favoritos que vos todavía no tenés</p><div class="fp2-ch">${x.top.map(q=>`<span><b>${esc(q.n)}</b>${q.h?` · ${q.h} h`:''}</span>`).join('')}</div></div>`:''}`}
   if(t==='com'){
    const sc=x.sc,ring=sc==null?'':`<div class="fp2-rg" style="--p:${sc}"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52"/><circle class="v" cx="60" cy="60" r="52" pathLength="100"/></svg><b data-n="${sc}" data-s="%">${sc}%</b><small>afinidad</small></div>`;
    const shg=x.sh.slice(0,18).map(n=>{const g=mine.get(frN(n));return `<div class="fp2-t sm" title="${esc(n)}">${frCover(g,n)}<em>${esc(n)}</em></div>`}).join('')+(x.sh.length>18?`<div class="fp2-t sm mo"><b>+${x.sh.length-18}</b></div>`:'');
@@ -8785,8 +8785,6 @@ Object.assign(A,{
  frsel:a=>{const c=a.dataset.id;S.frSel=c;S.frTab=S.frTab||'chat';const f=FR();f.sn[c]=Date.now();f.un[c]=0;save();frRender();frLoadM(c).then(()=>{if(S.frSel===c)frRender()});frChatPull(c).then(ch=>{if(ch)frChatDraw(c);frRead(c)})},
  fptab:a=>{S.fpT=a.dataset.v;const b=$('#fp-body');if(!b)return;document.querySelectorAll('#fp-tb button').forEach(x=>x.classList.toggle('on',x.dataset.v===S.fpT));{const tb=$('#fp-tb');if(tb)tb.style.setProperty('--k',Math.max(0,FP_T.findIndex(q=>q[0]===S.fpT)))}const f=FR(),c=S.frSel,d=f.c[c];b.innerHTML=frPBody(c,d,(FRM[c]||{}).d||{});b.classList.remove('in');void b.offsetWidth;b.classList.add('in');frProfFx()},
  fpar:a=>{S.fpAr=S.fpAr===a.dataset.v?'':a.dataset.v;S.fpAm=0;A.fptab({dataset:{v:'hit'}})},
- fpbf:a=>{S.fpBf=S.fpBf===a.dataset.v?'':a.dataset.v;S.fpBm=0;A.fptab({dataset:{v:'lib'}})},
- fpbm:()=>{S.fpBm=1;A.fptab({dataset:{v:'lib'}})},
  fpam:()=>{S.fpAm=!S.fpAm;A.fptab({dataset:{v:'hit'}})},
  frtab:a=>{S.frTab=a.dataset.v;if(S.frRp)delete S.frRp[S.frSel];frRender()},
  frsend:()=>{const t=$('#fr-txt');if(!t||!S.frSel)return;const c=S.frSel,v=t.value,p=S.frPend;
