@@ -1975,14 +1975,14 @@ function createWindow() {
   win.webContents.on('did-attach-webview', (_e, wc) => {
     try {
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
-      wc.setWindowOpenHandler(({ url, disposition }) => {
-        if (own(url)) { wsend({ st: 'newtab', url, fg: disposition !== 'background-tab' }); return { action: 'deny' }; }
+      wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
+        if (own(url)) { let ref = ''; try { ref = (referrer && referrer.url) || wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url, fg: disposition !== 'background-tab', ref }); return { action: 'deny' }; }
         if (!url || url === 'about:blank') return { action: 'allow', overrideBrowserWindowOptions: { show: false, width: 520, height: 420, skipTaskbar: true, autoHideMenuBar: true } };
         note('La página quiso abrir algo que no es una web (' + String(url).split(':')[0] + ':) y lo bloqueé'); return { action: 'deny' };
       });
       wc.on('did-create-window', (cw) => {
         const t = cw.webContents; let done = false;
-        const take = (u) => { if (done || !own(u)) return; done = true; wsend({ st: 'newtab', url: u, fg: true }); try { cw.destroy(); } catch (e) {} };
+        const take = (u) => { if (done || !own(u)) return; done = true; let ref = ''; try { ref = wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url: u, fg: true, ref }); try { cw.destroy(); } catch (e) {} };
         t.on('did-start-navigation', (_ev, u, _ip, main) => { if (main) take(u); });
         t.on('will-redirect', (_ev, u) => take(u));
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
