@@ -2043,7 +2043,7 @@ async function aiAsk(o) {
   const model = String(o && o.model || '').slice(0, 80); if (!model) return { ok: false, err: 'Sin modelo' };
   const ctl = {}, watch = setInterval(() => { if (track.size > 0 && ctl.kill) ctl.kill(); }, 1200);
   const threads = Math.max(2, Math.floor(os.cpus().length / 2));
-  const opts = (cpu) => Object.assign({ num_thread: threads, num_ctx: 8192, temperature: 0.6, top_p: 0.9, top_k: 40, repeat_penalty: 1.18, repeat_last_n: 256, presence_penalty: 0.4, frequency_penalty: 0.4, num_predict: 220 }, cpu ? { num_gpu: 0 } : {});
+  const opts = (cpu) => Object.assign({ num_thread: threads, num_ctx: 4096, temperature: 0.7, num_predict: 200 }, cpu ? { num_gpu: 0 } : {});
   const msgs = Array.isArray(o.messages) ? o.messages.slice(-30).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '').slice(0, 1500) })) : null;
   const go = (cpu) => msgs
     ? ollamaReq('POST', '/api/chat', { model, messages: [{ role: 'system', content: String(o.system || '').slice(0, 4000) }].concat(msgs), stream: false, keep_alive: 0, options: opts(cpu) }, 180000, ctl)
