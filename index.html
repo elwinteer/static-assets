@@ -3386,6 +3386,21 @@ body.light .fseg,body.light .fsr{background:rgba(40,28,90,.07)}
 @media(max-width:1250px){.fp2-st{grid-template-columns:repeat(3,1fr)}.fp2-top{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:1000px){.fr-prof.fp2{grid-template-columns:1fr}.fp2-l{position:relative}.fp2-sg{min-height:420px!important}.fp2-hg,.fp2-rr{grid-template-columns:1fr 1fr}.fp2-cm{flex-direction:column;align-items:flex-start}}
 body.light .fp2-hero,body.light .fp2-sc,body.light .fp2-rv,body.light .fp2-h{background:rgba(40,28,90,.05)}body.light .fp2-bio{color:#3d3a52}
+/* ===== perfil de amigo v4: simetria ===== */
+.fr-prof.fp2{grid-template-columns:300px minmax(0,1fr);align-items:stretch}
+.fp2-l{position:sticky;top:0;align-self:start;height:calc(100vh - 150px);min-height:540px;max-height:780px}.fp2-sg{height:100%;min-height:0!important}.fp2-sg>.avx{height:88%!important;max-height:560px}
+.fp2-hc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 28px;align-items:end;padding:92px 26px 24px}.fp2-hl{min-width:0}.fp2-hr{display:flex;flex-direction:column;align-items:stretch;gap:12px;min-width:190px}
+.fp2-hr .fp2-now{margin:0}.fp2-ac{margin:0;flex-direction:column}.fp2-ac .fp2-b{justify-content:center;width:100%}
+.fp2-st{grid-template-columns:repeat(5,minmax(0,1fr))}.fp2-sc{min-height:98px;justify-content:flex-end}.fp2-sc small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp2-tb{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);align-self:stretch;width:100%;padding:4px;gap:0;overflow:hidden}.fp2-tb i{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/var(--n));border-radius:12px;background:var(--a);box-shadow:0 4px 16px rgba(var(--argb),.38);transform:translateX(calc(var(--k)*100%));transition:transform .45s cubic-bezier(.3,1.2,.4,1)}
+.fp2-tb button{position:relative;z-index:1;padding:0 6px;text-align:center}.fp2-tb button.on{background:none!important;box-shadow:none!important}
+.fp2-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fp2-cd{padding:18px 20px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08)}.fp2-cd h4{margin:0 0 14px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}.fp2-cd .fp2-gb>div{grid-template-columns:96px 1fr}
+.fp2-pet{padding:0;background:none;border:0}.fp2-pb{margin-top:12px}.fp2-pb i{display:block;height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.fp2-pb b{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--a),var(--a2));animation:fp2bar .9s cubic-bezier(.2,.8,.2,1) .3s forwards}.fp2-pb small{display:block;margin-top:6px;color:var(--muted);font-size:11.5px}
+.fp2-kv{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fp2-kv b{display:block;font-size:24px;font-weight:800}.fp2-kv span{font-size:12px;color:var(--muted)}
+.fp2-lt{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.fp2-sr{flex:1;min-width:200px;margin:0}.fp2-sg2{display:flex;gap:4px;padding:3px;border-radius:13px;background:rgba(255,255,255,.06)}.fp2-sg2 button{border:0;cursor:pointer;font-family:inherit;font-weight:700;font-size:12px;color:var(--muted);background:transparent;height:30px;padding:0 13px;border-radius:10px;transition:.2s}.fp2-sg2 button:hover{color:var(--text)}.fp2-sg2 button.on{background:var(--a);color:var(--on-a)}
+.fp2-cnt{color:var(--muted);font-size:12px;margin:0 2px 10px}.fp2-gr.lib{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+.fp2-t .ok{position:absolute;top:7px;right:7px;left:auto;width:22px;height:22px;border-radius:50%;background:rgba(34,197,94,.9);color:#fff;display:grid;place-items:center}.fp2-t .ok svg{width:12px;height:12px;stroke-width:3}.fp2-t .cp{position:absolute;top:7px;left:7px;width:auto;height:auto;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:800;background:rgba(0,0,0,.72);color:#fff;backdrop-filter:blur(4px)}
+@media(max-width:1000px){.fp2-l{height:auto;min-height:0;max-height:none}.fp2-sg{min-height:420px!important}.fp2-hc{grid-template-columns:1fr}.fp2-hr{flex-direction:row;flex-wrap:wrap}.fp2-ac{flex-direction:row}.fp2-2{grid-template-columns:1fr}.fp2-st{grid-template-columns:repeat(3,1fr)}}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -7973,7 +7988,7 @@ document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.clos
 document.addEventListener('dragend',()=>{dk=null;$$('.sgt.dg,.sgt.ov').forEach(o=>o.classList.remove('dg','ov'))});
 document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('.sgt[draggable=true]');if(!t||!dk)return;e.preventDefault();const cid=S.sgo,sg=sgBuild().find(x=>x.cid===cid);if(!sg||t.dataset.k===dk){dk=null;return}const ks=sg.mem.map(x=>x.k).filter(k=>k!==dk),j=ks.indexOf(t.dataset.k);ks.splice(j<0?ks.length:j,0,dk);sgX().ord[cid]=ks;dk=null;save();sgDraw()})})();
 document.addEventListener('input',e=>{if(e.target.id!=='sgq')return;const pos=e.target.selectionStart;S.sgq=e.target.value;S.sgp=0;sgDraw();const i=$('#sgq');if(i){i.focus();i.setSelectionRange(pos,pos)}});
-document.addEventListener('click',e=>{const p=$('#fpan');if(p&&!p.hidden&&!e.target.closest('#fpan,#fbtn')){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}const a=e.target.closest('[data-a]');if(a&&A[a.dataset.a])A[a.dataset.a](a)});document.addEventListener('input',e=>{if(e.target&&e.target.id==='fqs'){S.fq=e.target.value;const c=$('#fcats');if(c)c.innerHTML=fCats()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('#fpan');if(p&&!p.hidden){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}}});
+document.addEventListener('click',e=>{const p=$('#fpan');if(p&&!p.hidden&&!e.target.closest('#fpan,#fbtn')){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}const a=e.target.closest('[data-a]');if(a&&A[a.dataset.a])A[a.dataset.a](a)});document.addEventListener('input',e=>{if(e.target&&e.target.id==='fpq'){S.fpBq=e.target.value;S.fpBm=0;const c=S.frSel,d=FR().c[c];if(!d)return;const x=frCmp(d),myN=new Set(G.map(g=>frN(g.name))),co=new Set((d.lc?String(d.lc).split('\n'):[]).map(frN)),f=S.fpBf||'',q=fNrm(S.fpBq).trim();let L=x.fl.filter(n=>!q||fNrm(n).includes(q));if(f==='own')L=L.filter(n=>myN.has(frN(n)));else if(f==='no')L=L.filter(n=>!myN.has(frN(n)));else if(f==='co')L=L.filter(n=>co.has(frN(n)));const l=$('#fpbl'),k=$('#fpc');if(l)l.innerHTML=frLibList(L,myN,co);if(k)k.textContent=L.length+' de '+x.fl.length+' juegos'}if(e.target&&e.target.id==='fqs'){S.fq=e.target.value;const c=$('#fcats');if(c)c.innerHTML=fCats()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('#fpan');if(p&&!p.hidden){p.hidden=true;const b=$('#fbtn');if(b)b.classList.remove('open')}}});
 $$('.nav a[data-v]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.v)));
 document.addEventListener('input',e=>{if(e.target.id==='bpmv'){ST.bpMusV=+e.target.value;save();try{if(BP&&BP.ifr){const t=bpT(BP.ifr);clearInterval(t._fi);t.volume=Math.max(0,Math.min(1,ST.bpMusV))}}catch(er){}}if(e.target.id==='lq'){S.q=e.target.value;renderList()}});
 
@@ -8677,7 +8692,7 @@ function frMainHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
    <div class="fr-ha">${fbOn()?`<button class="fr-ib fr-call" data-a="frcall" title="Llamar a ${esc(d.name)}">${ic('phone')}<span>Llamar</span></button>`:''}${tab==='chat'&&(frCh(c).pins||[]).length?`<button class="fr-ib fr-pb ${S.frPinF?'on':''}" data-a="frpf" title="${S.frPinF?'Volver a todos los mensajes':'Ver mensajes fijados'}">${ic('pin')}<i>${(frCh(c).pins||[]).length}</i></button>`:''}</div>
    <div class="fr-tb">${[['chat','Chat'],['perfil','Perfil']].map(([k,l])=>`<button class="${tab===k?'on':''}" data-a="frtab" data-v="${k}">${l}</button>`).join('')}</div></div>
    ${tab==='chat'?`<div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}<span>Foto</span></button><button class="fr-ab" data-a="frgm" data-v="rec" title="Recomendarle un juego con una nota">${ic('star')}<span>Recomendar</span></button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}<span>Invitar</span></button><button class="fr-ab" data-a="njnew" title="Armar una noche de juegos con hora"><span>Noche</span></button><button class="fr-ab" data-a="x4menu" title="Pasarle mods o el mundo a tu amigo"><span>Coop</span></button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">Enviar</button></div></div>`:frProfHTML(c,d,m)}`}
-const FP_T=[['res','Resumen'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
+const FP_T=[['res','Resumen'],['lib','Biblioteca'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
 function frAgoL(d){return frOnl(d)?'En línea':d.gone?'Dejó de compartir':d.seen?'Visto '+frAgo(d.seen):'Desconectado'}
 function frCmp(d){const myN=new Set(G.map(g=>frN(g.name))),mp=PR()||{},mg=(mp.genres||[]).map(x=>String(x)),fg=(d.genres||[]).map(x=>String(x));
   const fl=d.lib?String(d.lib).split('\n').filter(Boolean):null,sh=fl?fl.filter(n=>myN.has(frN(n))):[];
@@ -8691,24 +8706,34 @@ function frCmp(d){const myN=new Set(G.map(g=>frN(g.name))),mp=PR()||{},mg=(mp.ge
 function frHero(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),g0=d.now&&mine.get(frN(d.now)),on=frOnl(d);
   const gn=(d.genres||[]).slice(0,6).map(x=>`<span>${esc(x)}</span>`).join('');
   return `<section class="fp2-hero"><div class="fp2-ban">${frBan(d,m)}<i></i></div>
-   <div class="fp2-hc"><div class="fp2-nm"><h2>${esc(d.name)}</h2><span class="fp2-pr ${on?'on':''}"><i></i>${esc(frAgoL(d))}</span></div>
+   <div class="fp2-hc"><div class="fp2-hl"><div class="fp2-nm"><h2>${esc(d.name)}</h2><span class="fp2-pr ${on?'on':''}"><i></i>${esc(frAgoL(d))}</span></div>
    <div class="fp2-sb"><span>@${esc(d.handle||'')}</span><em>Nivel ${d.lv||1}${d.lt?' · '+esc(d.lt):''}</em></div>
-   ${d.bio?`<p class="fp2-bio">${esc(d.bio)}</p>`:''}
-   ${d.now&&on?`<div class="fp2-now">${g0?`<img src="${art.grid(g0)}" alt="">`:'<u></u>'}<div><small>Jugando ahora</small><b>${esc(d.now)}</b></div></div>`:''}
-   ${gn?`<div class="fp2-gn">${gn}</div>`:''}
-   <div class="fp2-ac"><button class="fp2-b p" data-a="frtab" data-v="chat">Escribirle</button>${fbOn()?`<button class="fp2-b" data-a="frcall">${ic('phone')}Llamar</button>`:''}</div></div></section>`}
+   ${d.bio?`<p class="fp2-bio">${esc(d.bio)}</p>`:''}${gn?`<div class="fp2-gn">${gn}</div>`:''}</div>
+   <div class="fp2-hr">${d.now&&on?`<div class="fp2-now">${g0?`<img src="${art.grid(g0)}" alt="">`:'<u></u>'}<div><small>Jugando ahora</small><b>${esc(d.now)}</b></div></div>`:''}
+   <div class="fp2-ac"><button class="fp2-b p" data-a="frtab" data-v="chat">Escribirle</button>${fbOn()?`<button class="fp2-b" data-a="frcall">${ic('phone')}Llamar</button>`:''}</div></div></div></section>`}
 function frStats(d){const n=d.n||0,dn=d.d||0,pc=n?Math.round(100*dn/n):0;
-  const T=[['Horas jugadas',d.h||0,Math.round(totalH()),'clock'],['Juegos',n,G.length,'games'],['Completados',dn,doneN(),'check',n?pc+'% de su biblioteca':''],['Hitos',d.ga||0,gaN(),'trophy'],['Nivel',d.lv||1,lvlOf().l,'bolt']];
-  return `<div class="fp2-st">${T.map(([l,v,me,i,sub],k)=>`<div class="fp2-sc" style="--i:${k}"><u>${ic(i)}</u><b data-n="${v}">${v}</b><span>${l}</span><small>${sub||('vos: '+me)}</small></div>`).join('')}</div>`}
+  const T=[['Horas jugadas',d.h||0,Math.round(totalH()),'clock'],['Juegos',n,G.length,'games'],['Completados',dn,doneN(),'check'],['Hitos',d.ga||0,gaN(),'trophy'],['Nivel',d.lv||1,lvlOf().l,'bolt']];
+  return `<div class="fp2-st">${T.map(([l,v,me,i,sub],k)=>`<div class="fp2-sc" style="--i:${k}"><u>${ic(i)}</u><b data-n="${v}">${v}</b><span>${l}</span><small>${l==='Completados'&&n?pc+'% · vos: '+me:'vos: '+me}</small></div>`).join('')}</div>`}
 function frCover(g,n){return g?`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`:`<b>${esc((n||'?')[0])}</b>`}
+function frLibList(L,myN,co){const mine=new Map(G.map(g=>[frN(g.name),g])),lim=S.fpBm?L.length:Math.min(L.length,60);
+  if(!L.length)return '<p class="fp2-em">No hay juegos con ese filtro.</p>';
+  return `<div class="fp2-gr lib">${L.slice(0,lim).map(n=>{const g=mine.get(frN(n)),h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%360;return `<div class="fp2-t sm" title="${esc(n)}" ${g?'':`style="background:linear-gradient(150deg,hsl(${h},45%,24%),hsl(${(h+50)%360},40%,12%))"`}>${g?frCover(g,n):`<b>${esc((n||'?')[0].toUpperCase())}</b>`}${g?'<span class="ok">'+ic('check')+'</span>':''}${co.has(frN(n))?'<span class="cp">Coop</span>':''}<em>${esc(n)}</em></div>`}).join('')}</div>${L.length>lim?`<button class="fp2-more" data-a="fpbm">Ver los ${L.length} juegos</button>`:''}`}
 function frPBody(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),t=S.fpT||'res',x=frCmp(d);
   if(t==='res'){
    const top=(d.top||[]).map((q,i)=>{const g=mine.get(frN(q.n));return `<div class="fp2-t" style="--i:${i}" title="${esc(q.n)}">${frCover(g,q.n)}<span>${i+1}</span><em>${esc(q.n)}<small>${q.h||0} h${g?' · lo tenés':''}</small></em></div>`}).join('');
-   const gn=(d.genres||[]).slice(0,6),mx=Math.max(1,gn.length);
-   const pt=d.pet&&d.pet.n?d.pet:null;
+   const gn=(d.genres||[]).slice(0,6),mx=Math.max(1,gn.length),pt=d.pet&&d.pet.n?d.pet:null;
+   const lvP=pt?Math.floor(Math.sqrt((pt.xp||0)/20))+1:0,lo=pt?20*(lvP-1)*(lvP-1):0,hi=pt?20*lvP*lvP:1,pf=pt?Math.round(100*((pt.xp||0)-lo)/Math.max(1,hi-lo)):0;
+   const n=d.n||0,avg=n?Math.round((d.h||0)/n*10)/10:0,pc=n?Math.round(100*(d.d||0)/n):0;
    return `<div class="fp2-sec"><h4>Top 5 favoritos</h4>${top?`<div class="fp2-top">${top}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div>
-   ${gn.length?`<div class="fp2-sec"><h4>Géneros que más juega</h4><div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mx))}%;--i:${i}"><span>${esc(q)}</span><i><b></b></i></div>`).join('')}</div></div>`:''}
-   ${pt?`<div class="fp2-sec"><h4>Su mascota</h4><div class="fp2-pet"><u>${ic('star')}</u><div><b>${esc(pt.n)}</b><small>Nivel ${Math.floor(Math.sqrt((pt.xp||0)/20))+1}</small></div></div></div>`:''}`}
+   <div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mx))}%;--i:${i}"><span>${esc(q)}</span><i><b></b></i></div>`).join('')}</div>`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
+   <div class="fp2-cd">${pt?`<h4>Su mascota</h4><div class="fp2-pet"><u>${ic('star')}</u><div><b>${esc(pt.n)}</b><small>Nivel ${lvP}</small></div></div><div class="fp2-pb"><i><b style="--w:${pf}%"></b></i><small>${pf}% para el nivel ${lvP+1}</small></div>`:'<h4>Su ritmo</h4><p class="fp2-em">Todavía no tiene mascota.</p>'}
+    <h4 style="margin-top:18px">Su ritmo</h4><div class="fp2-kv"><div><b>${avg}</b><span>horas por juego</span></div><div><b>${pc}%</b><span>terminados</span></div></div></div></div>`}
+  if(t==='lib'){
+   const fl=x.fl;if(!fl)return `<p class="fp2-em">${esc(d.name)} no comparte su biblioteca.</p>`;
+   const myN=new Set(G.map(g=>frN(g.name))),co=new Set((d.lc?String(d.lc).split('\n'):[]).map(frN)),f=S.fpBf||'',q=fNrm(S.fpBq).trim();
+   let L=fl.filter(n=>!q||fNrm(n).includes(q));if(f==='own')L=L.filter(n=>myN.has(frN(n)));else if(f==='no')L=L.filter(n=>!myN.has(frN(n)));else if(f==='co')L=L.filter(n=>co.has(frN(n)));
+   return `<div class="fp2-lt"><div class="fsr fp2-sr">${ic('search')}<input id="fpq" placeholder="Buscar en su biblioteca…" value="${esc(S.fpBq||'')}" autocomplete="off" spellcheck="false"></div><div class="fp2-sg2">${[['','Todos'],['own','Los dos'],['no','Solo él/ella'],['co','Coop']].map(([k,l])=>`<button class="${f===k?'on':''}" data-a="fpbf" data-v="${k}">${l}</button>`).join('')}</div></div>
+   <div class="fp2-cnt" id="fpc">${L.length} de ${fl.length} juegos</div><div id="fpbl">${frLibList(L,myN,co)}</div>`}
   if(t==='com'){
    const sc=x.sc,ring=sc==null?'':`<div class="fp2-rg" style="--p:${sc}"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52"/><circle class="v" cx="60" cy="60" r="52" pathLength="100"/></svg><b data-n="${sc}" data-s="%">${sc}%</b><small>afinidad</small></div>`;
    const shg=x.sh.slice(0,18).map(n=>{const g=mine.get(frN(n));return `<div class="fp2-t sm" title="${esc(n)}">${frCover(g,n)}<em>${esc(n)}</em></div>`}).join('')+(x.sh.length>18?`<div class="fp2-t sm mo"><b>+${x.sh.length-18}</b></div>`:'');
@@ -8735,7 +8760,7 @@ function frProfHTML(c,d,m){const th=d.th||{},st=th.rgb?`--a:${th.a};--a2:${th.a2
   const stage=`<div class="fq-st fp2-sg"><div class="fq-bg" style="background:${bg?bg[4]:'linear-gradient(160deg,rgba(var(--argb),.35),#0c0a16)'}">${bg&&bg[5]||''}</div>${x?avSVG(x,{cls:'avx-st'}):`<div class="fq-big">${frAv(d,m,150)}</div>`}${pt?`<div class="fq-pet">${pm}<span><b>${esc(pt.name)}</b> · Nivel ${Math.floor(Math.sqrt((pt.xp||0)/20))+1}</span></div>`:''}<div class="fq-lv">${d.lv||1}<small>Nivel</small></div></div>`;
   S.fpT=S.fpT||'res';
   return `<div class="fr-prof fp2" style="${st}"><div class="fp2-l">${stage}</div><div class="fp2-r">${frHero(c,d,m)}${frStats(d)}
-   <div class="fp2-tb" id="fp-tb">${FP_T.map(([k,l])=>`<button class="${S.fpT===k?'on':''}" data-a="fptab" data-v="${k}">${l}</button>`).join('')}</div><div class="fp2-body" id="fp-body">${frPBody(c,d,m)}</div></div></div>`}
+   <div class="fp2-tb" id="fp-tb" style="--n:${FP_T.length};--k:${Math.max(0,FP_T.findIndex(x=>x[0]===S.fpT))}"><i></i>${FP_T.map(([k,l])=>`<button class="${S.fpT===k?'on':''}" data-a="fptab" data-v="${k}">${l}</button>`).join('')}</div><div class="fp2-body" id="fp-body">${frPBody(c,d,m)}</div></div></div>`}
 function frRender(){const el=$('#view');if(!el||S.view!=='friends')return;const mp=$('#fr-main'),keep=$('#fr-txt')&&$('#fr-txt').value;if(mp){mp.innerHTML=frMainHTML();frList();frWire()}else go('friends');const t=$('#fr-txt');if(t&&keep)t.value=keep}
 function frWire(){setTimeout(frProfFx,30);const t=$('#fr-txt');if(t){t.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();A.frsend()}});t.addEventListener('input',()=>{t.style.height='auto';t.style.height=Math.min(110,t.scrollHeight)+'px';if(t.value.trim())frTyping()});t.addEventListener('paste',e=>{const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));if(it){e.preventDefault();frPick(it.getAsFile())}});const m=$('#fr-msgs');if(m)m.scrollTop=m.scrollHeight}
   const q=$('#fr-q');if(q)q.addEventListener('input',()=>{S.frQ=q.value;if(S.frSel)frChatDraw(S.frSel,true)})}
@@ -8751,8 +8776,10 @@ V.friends=()=>{const f=FR(),ok=fbOn();frCode();S.frTab=S.frTab||'chat';
     <div class="fr-li" id="fr-li">${frListHTML()}</div></aside><section class="fr-main" id="fr-main">${frMainHTML()}</section></div></div>`};
 Object.assign(A,{
  frsel:a=>{const c=a.dataset.id;S.frSel=c;S.frTab=S.frTab||'chat';const f=FR();f.sn[c]=Date.now();f.un[c]=0;save();frRender();frLoadM(c).then(()=>{if(S.frSel===c)frRender()});frChatPull(c).then(ch=>{if(ch)frChatDraw(c);frRead(c)})},
- fptab:a=>{S.fpT=a.dataset.v;const b=$('#fp-body');if(!b)return;document.querySelectorAll('#fp-tb button').forEach(x=>x.classList.toggle('on',x.dataset.v===S.fpT));const f=FR(),c=S.frSel,d=f.c[c];b.innerHTML=frPBody(c,d,(FRM[c]||{}).d||{});b.classList.remove('in');void b.offsetWidth;b.classList.add('in');frProfFx()},
+ fptab:a=>{S.fpT=a.dataset.v;const b=$('#fp-body');if(!b)return;document.querySelectorAll('#fp-tb button').forEach(x=>x.classList.toggle('on',x.dataset.v===S.fpT));{const tb=$('#fp-tb');if(tb)tb.style.setProperty('--k',Math.max(0,FP_T.findIndex(q=>q[0]===S.fpT)))}const f=FR(),c=S.frSel,d=f.c[c];b.innerHTML=frPBody(c,d,(FRM[c]||{}).d||{});b.classList.remove('in');void b.offsetWidth;b.classList.add('in');frProfFx()},
  fpar:a=>{S.fpAr=S.fpAr===a.dataset.v?'':a.dataset.v;S.fpAm=0;A.fptab({dataset:{v:'hit'}})},
+ fpbf:a=>{S.fpBf=S.fpBf===a.dataset.v?'':a.dataset.v;S.fpBm=0;A.fptab({dataset:{v:'lib'}})},
+ fpbm:()=>{S.fpBm=1;A.fptab({dataset:{v:'lib'}})},
  fpam:()=>{S.fpAm=!S.fpAm;A.fptab({dataset:{v:'hit'}})},
  frtab:a=>{S.frTab=a.dataset.v;if(S.frRp)delete S.frRp[S.frSel];frRender()},
  frsend:()=>{const t=$('#fr-txt');if(!t||!S.frSel)return;const c=S.frSel,v=t.value,p=S.frPend;
