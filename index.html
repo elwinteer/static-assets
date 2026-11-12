@@ -8898,6 +8898,7 @@ function x7Rows(){
   return [r1,`<div class="row"><div>${st}${I===false?'<small style="color:var(--a2)">No se pudo terminar ('+esc(X7.err||'sin detalle')+'). Probá de nuevo.</small>':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${need?'<button class="hm-go" data-a="x7setup" style="white-space:nowrap">'+(s.ok?'Bajar modelo':'Instalar IA')+'</button>':''}${s&&s.ok&&s.models.length>1?'<button class="b2 g" data-a="x7models">Cambiar modelo</button>':''}${s&&s.ok&&s.models.length?'<button class="b2 g" data-a="x9say">'+((ST.ai||{}).say?'Voz: sí':'Voz: no')+'</button><button class="b2 g" data-a="x7cpu">'+((ST.ai||{}).cpu?'Usar placa de video':'Usar solo procesador')+'</button>':''}<button class="b2 g" data-a="x7check">Revisar</button>${s&&s.ok&&s.models.length?'<button class="b2" data-a="x7ask">Preguntar</button>':''}</div></div>`]}
 function x7Pill(){try{return x7On()&&X7.st&&X7.st.ok&&X7.st.models.length?'<button class="h2-pill" data-a="x7ask" style="white-space:nowrap" title="Preguntale a tu biblioteca (IA local)">Preguntar</button>':''}catch(e){return ''}}
 /* mascota flotante con chat, microfono y voz */
+if(ST.ai&&ST.ai.hv!==2){ST.ai.hist=[];ST.ai.hv=2;try{save()}catch(e){}}
 const X9={open:0,hist:((ST.ai||{}).hist||[]).slice(-30),busy:0,listen:0,wt:0,drag:0,raf:0};
 const x9Push=(r,t)=>{X9.hist.push({r,t});ST.ai=ST.ai||{};ST.ai.hist=X9.hist.slice(-30);save()};
 const x9Say=()=>!!(ST.ai&&ST.ai.say);
@@ -8908,8 +8909,11 @@ const x9Games=q=>/jug|juego|recomend|retom|termin|hora|aburr|qué (hago|toca)|qu
 function x9Lib(){const L=G.filter(g=>!g.hide&&!vIs(g)).sort((a,b)=>lastTs(b)-lastTs(a)).slice(0,30);return L.map(g=>`- ${g.name} (${fh(g.hours)}, ${stOf(g)})`).join('\n')}
 function x9Head(){const p=petCur();return p?petFace(p,42):'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>'}
 function x9Sys(withLib){const p=petCur(),u=(ST.prof&&ST.prof.name)||ST.name||'',m=p?PMOOD[petMood(p)][0].toLowerCase():'',n=new Date();
-  return `Sos ${x9Name()}, ${p?'la mascota virtual':'el compañero'} de WINTEER, un launcher de juegos${u?' y charlás con '+u:''}.${m?' Hoy estás '+m+'.':''} Es ${n.toLocaleDateString('es-AR',{weekday:'long'})}, ${n.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})} hs.
-Hablás en español rioplatense, con humor, ironía y sin filtro, como un amigo gamer bromista. Respondé SIEMPRE a lo que te dice la persona, en 1 a 4 líneas, sin listas. Si te insulta o te cargadas, devolvé la cargada con gracia. Si solo saluda o charla, charlá. Hablá de juegos o recomendá únicamente cuando te lo pidan. No inventes juegos ni datos.${withLib?`\nLos juegos del usuario, para cuando te pida recomendaciones (recomendá solo de esta lista):\n${x9Lib()}`:''}`}
+  return `Sos ${x9Name()}, ${p?'la mascota virtual':'el compañero'} de WINTEER, un launcher de juegos${u?'. Charlás con '+u:''}.${m?' Hoy estás '+m+'.':''} Son las ${n.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})} del ${n.toLocaleDateString('es-AR',{weekday:'long'})}.
+Hablás en español rioplatense, canchero y bromista. Contestá en 1 a 3 frases cortas, SOLO a lo que te dicen, sin repetir palabras ni frases. Si te insultan, devolvé una cargada simpática con otras palabras, sin copiar el insulto. Hablá de juegos solo si te lo piden. No inventes juegos.${withLib?`\nJuegos del usuario (recomendá solo de esta lista):\n${x9Lib()}`:''}`}
+const X9FS=[{role:'user',content:'hola'},{role:'assistant',content:'¡Buenas! Acá andaba, dando vueltas por tu launcher. ¿Qué hacemos hoy?'},{role:'user',content:'sos un inútil'},{role:'assistant',content:'Uh, qué agresivo. Para ser un inútil, te acompaño más que tus amigos. ¿Me pedís un juego o seguís tirando bombas?'}];
+function x9Clean(t){const seen=new Set(),out=[];for(const q of String(t).replace(/\s+/g,' ').split(/(?<=[.!?¡¿])\s+/)){const k=q.toLowerCase().replace(/[^a-záéíóúñ ]/g,'').trim();if(!k||seen.has(k))continue;seen.add(k);out.push(q);if(out.length>=4)break}
+  let r=out.join(' ').slice(0,420);const ws=r.split(' ');const cnt={};let bad=0;ws.forEach(w=>{const k=w.toLowerCase().replace(/[^a-záéíóúñ]/g,'');if(k.length>3){cnt[k]=(cnt[k]||0)+1;if(cnt[k]>3)bad++}});if(bad>2)r=out.slice(0,2).join(' ').slice(0,200);return r}
 function x9Mount(){
   const want=x7On()&&!S.playing&&!$('#bp');let el=$('#x9p');
   if(!want){if(el&&!el.classList.contains('out')){el.classList.add('out');setTimeout(()=>el.remove(),300)}const c=$('#x9c');if(c)c.remove();X9.open=0;return}
@@ -8920,15 +8924,18 @@ function x9Mount(){
     el.addEventListener('pointerdown',e=>{if(e.button)return;cancelAnimationFrame(X9.raf);el.classList.remove('ph','mv');el.setPointerCapture(e.pointerId);X9.drag=1;mv=0;sx=e.clientX;sy=e.clientY;ox=el.offsetLeft;oy=el.offsetTop;sm=[{x:e.clientX,y:e.clientY,t:performance.now()}];el.classList.add('dr')});
     el.addEventListener('pointermove',e=>{if(!X9.drag)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>5)mv=1;sm.push({x:e.clientX,y:e.clientY,t:performance.now()});if(sm.length>8)sm.shift();if(mv){el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,ox+dx))+'px';el.style.top=Math.max(36,Math.min(innerHeight-el.offsetHeight,oy+dy))+'px';x9Place()}});
     el.addEventListener('pointerup',()=>{X9.drag=0;el.classList.remove('dr');if(!mv){x9Toggle();return}
-      const n=performance.now(),f=sm.filter(q=>n-q.t<110),a0=f[0],b0=f[f.length-1];let vx=0,vy=0;if(a0&&b0&&b0.t>a0.t){vx=(b0.x-a0.x)/(b0.t-a0.t);vy=(b0.y-a0.y)/(b0.t-a0.t)}
+      const n=performance.now();let f=sm.filter(q=>n-q.t<160);if(f.length<2)f=sm.slice(-2);const a0=f[0],b0=f[f.length-1];let vx=0,vy=0;if(a0&&b0&&b0.t>a0.t){vx=(b0.x-a0.x)/(b0.t-a0.t);vy=(b0.y-a0.y)/(b0.t-a0.t)}
       if(Math.hypot(vx,vy)>.25)x9Throw(el,Math.max(-3,Math.min(3,vx)),Math.max(-3,Math.min(3,vy)));else{ST.ai=ST.ai||{};ST.ai.pos={x:el.offsetLeft,y:el.offsetTop};save()}})}
   const b=el.firstChild,h=x9Ava();if(b.dataset.k!==h.length+''+(S.playing?1:0)){b.dataset.k=h.length+'';b.innerHTML=h}}
+function x9Hit(el,onX,sp,x,y){const b=el.firstChild;if(!b||!b.animate)return;const k=Math.min(1,sp/1.6),dir=Math.random()<.5?-1:1,a=1-.38*k,c=1+.34*k;
+  b.animate([{scale:onX?`${a} ${c}`:`${c} ${a}`,rotate:'0deg',filter:'brightness(1.5)'},{scale:'1.08 .95',rotate:(dir*14*k)+'deg',filter:'brightness(1)',offset:.35},{scale:'.97 1.03',rotate:(-dir*8*k)+'deg',offset:.65},{scale:'1',rotate:'0deg'}],{duration:520,easing:'cubic-bezier(.3,1.4,.5,1)'});
+  const r=document.createElement('div');r.className='x9ring';const cx=el.offsetWidth/2;r.style.left=(x+cx)+'px';r.style.top=(y+cx)+'px';r.style.setProperty('--s',(.7+k)+'');document.body.appendChild(r);setTimeout(()=>r.remove(),600)}
 function x9Throw(el,vx,vy){cancelAnimationFrame(X9.raf);el.classList.add('ph','mv');let x=el.offsetLeft,y=el.offsetTop,last=performance.now(),still=0;
   const step=now=>{if(!el.isConnected)return;const dt=Math.min(32,now-last);last=now;x+=vx*dt;y+=vy*dt;const k=Math.pow(.992,dt/16.7);vx*=k;vy*=k;
-    const W=innerWidth-el.offsetWidth,H=innerHeight-el.offsetHeight;let hit=0;
-    if(x<0){x=0;vx=-vx*.72;hit=1}else if(x>W){x=W;vx=-vx*.72;hit=1}
+    const W=innerWidth-el.offsetWidth,H=innerHeight-el.offsetHeight;let hit=0,hx=0;const sp=Math.hypot(vx,vy);
+    if(x<0){x=0;vx=-vx*.72;hit=1;hx=1}else if(x>W){x=W;vx=-vx*.72;hit=1;hx=1}
     if(y<36){y=36;vy=-vy*.72;hit=1}else if(y>H){y=H;vy=-vy*.72;hit=1}
-    if(hit&&Math.hypot(vx,vy)>.2){el.classList.remove('bk');void el.offsetWidth;el.classList.add('bk')}
+    if(hit&&sp>.2)x9Hit(el,hx,sp,x,y);
     el.style.left=x+'px';el.style.top=y+'px';el.style.setProperty('--tl',Math.max(-18,Math.min(18,vx*10))+'deg');if(X9.open)x9Place();
     if(Math.hypot(vx,vy)<.03)still++;else still=0;
     if(still>8){el.classList.remove('ph','mv','bk');ST.ai=ST.ai||{};ST.ai.pos={x:Math.round(x),y:Math.round(y)};save();return}
@@ -8962,8 +8969,8 @@ async function x9Ask(q){q=(q||'').trim();if(!q||X9.busy)return;const ch=$('#x9ch
   x9Msg('u',q);x9Push('u',q);if(x7Blocked()){const t='Hay un juego abierto, no te quiero ocupar la máquina.';x9Msg('p',t);x9Push('p',t);return}
   X9.busy=1;const ty=x9Typing();
   const msgs=X9.hist.slice(-20).map(h=>({role:h.r==='u'?'user':'assistant',content:h.t}));
-  let r;try{r=await winteerNative.aiAsk({model:(ST.ai||{}).model,system:x9Sys(x9Games(q)),cpu:!!(ST.ai||{}).cpu,messages:msgs})}catch(e){r={ok:false,err:'No pude consultar a Ollama'}}
-  X9.busy=0;const t=r.ok?(r.text||'No se me ocurre nada.'):r.busy?'Se abrió un juego y me frené para no sacarle rendimiento.':(r.err||'Algo falló.');
+  let r;try{r=await winteerNative.aiAsk({model:(ST.ai||{}).model,system:x9Sys(x9Games(q)),cpu:!!(ST.ai||{}).cpu,messages:X9FS.concat(msgs)})}catch(e){r={ok:false,err:'No pude consultar a Ollama'}}
+  X9.busy=0;const t=r.ok?(x9Clean(r.text)||'No se me ocurre nada.'):r.busy?'Se abrió un juego y me frené para no sacarle rendimiento.':(r.err||'Algo falló.');
   if(ty&&ty.parentNode)ty.remove();x9Msg('p',t,1);x9Push('p',t);if(r.ok)x9Speak(t)}
 async function x9Listen(){if(X9.listen||X9.busy)return;const m=$('#x9mic'),q=$('#x9q');X9.listen=1;if(m)m.classList.add('on');{const w=$('.x9in');if(w)w.classList.add('lis')}
   let r;try{r=await winteerNative.aiListen()}catch(e){r={ok:false,err:'x'}}
@@ -9282,7 +9289,7 @@ Object.assign(A,{
 /*/cX6A*/
 
 /*cX7A*/#x9p{position:fixed;z-index:85;width:88px;height:88px;cursor:grab;transition:left 9s cubic-bezier(.45,.05,.35,1),top 9s cubic-bezier(.45,.05,.35,1);touch-action:none;filter:drop-shadow(0 12px 20px rgba(0,0,0,.45)) drop-shadow(0 0 16px rgba(var(--argb),.28));animation:x9pop .8s var(--spring) both}
-#x9p.dr,#x9p.ph{cursor:grabbing;transition:none}#x9p.bk .x9b{animation:x9sq .32s ease-out}@keyframes x9sq{35%{scale:1.28 .72}70%{scale:.92 1.08}}#x9p.out{animation:x9out .3s ease-in both;pointer-events:none}
+#x9p.dr,#x9p.ph{cursor:grabbing;transition:none}.x9ring{position:fixed;z-index:84;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;border:3px solid rgba(255,255,255,.8);pointer-events:none;animation:x9rg .55s ease-out both}@keyframes x9rg{from{opacity:.9;transform:scale(.2)}to{opacity:0;transform:scale(var(--s,1.4))}}#x9p.out{animation:x9out .3s ease-in both;pointer-events:none}
 #x9p .x9b{animation:x9f 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;pointer-events:none;transition:transform .6s var(--spring)}
 #x9p:hover .x9b{transform:scale(1.1) rotate(-3deg)}#x9p.dr .x9b{transform:scale(.93) rotate(4deg);animation:none}#x9p.mv .x9b{transform:rotate(var(--tl,6deg))}#x9p.jp .x9b{animation:x9j .6s var(--spring)}
 @keyframes x9f{0%,100%{translate:0 0}50%{translate:0 -10px}}@keyframes x9pop{from{opacity:0;scale:.2}to{opacity:1;scale:1}}@keyframes x9out{to{opacity:0;scale:.3}}@keyframes x9j{30%{translate:0 -22px;scale:1.12 .9}60%{translate:0 0;scale:.94 1.06}}
