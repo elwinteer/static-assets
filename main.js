@@ -1213,6 +1213,18 @@ async function poll() {
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
+/* PCSX2 no abre .cue: le paso el .bin (o .iso) que dice adentro */
+function cueFix(exe, args) {
+  try {
+    if (!/pcsx2/i.test(path.basename(String(exe)))) return args;
+    return args.map((x) => {
+      if (!/\.cue$/i.test(x)) return x;
+      const t = fs.readFileSync(x, 'utf8'), m = /FILE\s+"([^"]+)"|FILE\s+(\S+)/i.exec(t);
+      const f = m && (m[1] || m[2]); if (!f) return x;
+      const p = path.resolve(path.dirname(x), f); return fs.existsSync(p) ? p : x;
+    });
+  } catch (e) { return args; }
+}
 function watch(o) {
   const sep = path.sep, dirs = [];
   let exe = '';
@@ -2358,7 +2370,7 @@ app.whenReady().then(() => {
     try {
       if (o.uri) await shell.openExternal(o.uri);
       else if (o.shellApp) { const c = spawn('explorer.exe', [o.shellApp], { detached: true, stdio: 'ignore' }); c.unref(); }
-      else if (o.exe) { const c = spawn(o.exe, Array.isArray(o.args) ? o.args.map(String).slice(0, 12) : [], { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore' }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref(); }
+      else if (o.exe) { const c = spawn(o.exe, cueFix(o.exe, Array.isArray(o.args) ? o.args.map(String).slice(0, 12) : []), { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore' }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref(); }
       else if (o.app) await shell.openExternal('steam://rungameid/' + o.app);
     } catch (e) { return { ok: false, err: String(e) }; }
     return { ok: true, tracking };
