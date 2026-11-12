@@ -2084,9 +2084,16 @@ async function aiSetup(model) {
       if (!exe) {
         send(0, 'Descargando Ollama');
         const dir = path.join(app.getPath('userData'), 'ollama'), setup = path.join(dir, 'OllamaSetup.exe'); fs.mkdirSync(dir, { recursive: true });
-        const r = await net.fetch('https://ollama.com/download/OllamaSetup.exe', { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
-        let host = ''; try { host = new URL(r.url).hostname; } catch (e) {}
-        if (!r.ok || !r.body || !OLL_HOSTS.test(host)) return { ok: false, err: 'net' };
+        let r = null, why = '';
+        for (const u of ['https://ollama.com/download/OllamaSetup.exe', 'https://github.com/ollama/ollama/releases/latest/download/OllamaSetup.exe']) {
+          try {
+            const x = await net.fetch(u, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+            let host = ''; try { host = new URL(x.url || u).hostname; } catch (e) {}
+            if (x.ok && x.body && OLL_HOSTS.test(host)) { r = x; break; }
+            why = 'http ' + x.status + ' ' + host;
+          } catch (e) { why = String(e && e.message || e).slice(0, 80); }
+        }
+        if (!r) return { ok: false, err: 'net', d: why };
         const tot = Number(r.headers.get('content-length')) || 0; if (tot > 3 * 1024 * 1024 * 1024) return { ok: false, err: 'big' };
         const ws = fs.createWriteStream(setup); let got = 0, last = 0; const rd = r.body.getReader();
         for (;;) {
@@ -2117,7 +2124,7 @@ async function aiSetup(model) {
     }
     send(100, 'Listo');
     return { ok: true };
-  } catch (e) { return { ok: false, err: 'x' }; }
+  } catch (e) { return { ok: false, err: 'x', d: String(e && e.message || e).slice(0, 80) }; }
   finally { aiBusy = false; }
 }
 
