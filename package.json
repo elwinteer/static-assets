@@ -69,6 +69,15 @@
         "repo": "static-assets",
         "releaseType": "release"
       }
+    ],
+    "extraResources": [
+      {
+        "from": "bin7z",
+        "to": "7z",
+        "filter": [
+          "**/*"
+        ]
+      }
     ]
   }
 }

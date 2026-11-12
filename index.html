@@ -3218,6 +3218,13 @@ body.bpon .pr-gr{height:44px}
 .wbw{height:100%;display:grid;place-items:center}.wbw .cd{width:min(480px,92%);padding:34px;border-radius:28px;background:var(--card);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);text-align:center}
 .wbw .gl{width:70px;height:70px;border-radius:22px;margin:0 auto 18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a2),var(--a3));color:var(--on-a);box-shadow:0 12px 34px rgba(var(--argb),.4)}.wbw .gl svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.8}
 .wbw h2{font-size:22px;margin-bottom:8px}.wbw p{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:18px}.wbw input{width:100%;height:48px;border-radius:14px;border:0;outline:0;padding:0 16px;background:rgba(0,0,0,.3);color:var(--text);font-size:15px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);margin-bottom:14px}
+.wdc.unz .wdbar i{background:linear-gradient(90deg,#60a5fa,#a5d8ff)}
+.wds input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:24px;padding:0;border-radius:24px;background:rgba(255,255,255,.14);box-shadow:none;position:relative;cursor:pointer;transition:background .3s}
+.wds input[type=checkbox]:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .35s var(--spring)}
+.wds input[type=checkbox]:checked{background:#4ade80}.wds input[type=checkbox]:checked:after{transform:translateX(18px)}
+.wdck{margin-top:14px;display:flex;flex-direction:column;gap:8px;overflow:hidden;max-height:140px;transition:max-height .4s var(--ease),opacity .3s,margin .3s}.wdck.off{max-height:0;opacity:0;margin-top:0;pointer-events:none}
+.wdck label{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);cursor:pointer;font-size:14px;margin:0;text-transform:none;letter-spacing:0;font-weight:500;color:var(--text);max-height:70px;transition:max-height .35s var(--ease),opacity .3s,padding .3s}
+.wdck label.off{max-height:0;opacity:0;padding-top:0;padding-bottom:0;pointer-events:none}.wdck small{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;font-weight:400}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -9530,16 +9537,17 @@ function webWire(){const wv=$('#wv');if(!wv||wv._w)return;wv._w=1;WBR.wv=wv;cons
   wv.addEventListener('did-stop-loading',()=>{pg&&pg.classList.remove('on');rl&&rl.classList.remove('spin');nav()});
   $('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();try{wv.loadURL(u)}catch(x){wv.src=u}});
   inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));wdDraw();wdBadge()}
-function wdBadge(){const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
+function wdBadge(){const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
 function wdIcon(d){return d.st==='done'?`<svg class="i tick" viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`:esc(wdX(d.name))}
 function wdSub(d){
-  if(d.st==='done')return 'Completada · '+wdB(d.size||d.got);
+  if(d.st==='done')return d.unz?'Descomprimida en una carpeta · '+wdB(d.size||d.got):d.uerr?'Descargada, pero no se pudo descomprimir: '+d.uerr:'Completada · '+wdB(d.size||d.got);
+  if(d.st==='unz')return 'Descomprimiendo… '+Math.round((d.mv||0)*100)+'%';
   if(d.st==='err')return d.msg||'Falló la descarga';
   if(d.st==='move')return 'Guardando en el disco elegido… '+Math.round((d.mv||0)*100)+'%';
   if(d.st==='pause')return 'En pausa · '+wdB(d.got)+(d.size>0?' de '+wdB(d.size):'');
   const rest=d.size>0&&d.speed>0?' · faltan '+wdT((d.size-d.got)/d.speed):'';
   return wdB(d.got)+(d.size>0?' de '+wdB(d.size):'')+(d.speed>0?' · '+wdB(d.speed)+'/s':'')+rest}
-function wdPct(d){if(d.st==='done')return 100;if(d.st==='move')return (d.mv||0)*100;return d.size>0?Math.min(100,d.got/d.size*100):0}
+function wdPct(d){if(d.st==='done')return 100;if(d.st==='move'||d.st==='unz')return (d.mv||0)*100;return d.size>0?Math.min(100,d.got/d.size*100):0}
 function wdCard(d,h){
   const run=d.st==='run',pa=d.st==='pause',dn=d.st==='done';
   const btn=(a,i,t)=>`<button data-a="${a}" data-id="${d.id}" title="${t}">${ic(i)}</button>`;
@@ -9560,9 +9568,12 @@ function wdAsk(){if(WDR.cur||!WDR.q.length)return;const id=WDR.q.shift(),d=WDR.l
      <label>Nombre del archivo</label><input id="wdn" value="${esc(d.name)}" spellcheck="false">
      <label>Guardar en</label><div class="wddr" id="wddr">${(dr||[]).map(x=>`<button class="wdk" data-a="wddrv" data-r="${esc(x.root)}"><b>Disco ${esc(x.root.slice(0,2))}</b><span>${wdB(x.free)} libres</span><div class="bar"><i style="width:${Math.round((1-x.free/x.total)*100)}%"></i></div></button>`).join('')}</div>
      <div class="wdpr"><input id="wdp" value="${esc(dir)}" spellcheck="false"><button class="b2 g" data-a="wdpick" style="padding:0 18px;height:44px">Elegir carpeta</button></div><div class="wdfree" id="wdfree"></div>
+     <div class="wdck" id="wdck"><label><input type="checkbox" id="wdu" ${c.unz===false?'':'checked'}><span>Descomprimir al terminar<small>En una carpeta con el nombre del archivo</small></span></label><label id="wdck2"><input type="checkbox" id="wdd" ${c.del?'checked':''}><span>Borrar el comprimido después</span></label></div>
      ${ext?`<div class="wdwn">Este archivo es un programa (${esc(wdX(d.name).toLowerCase())}). Instalalo solo si confiás en el sitio de donde lo bajaste.</div>`:''}
      <div class="wdft"><button class="b2 g" data-a="wdno">Cancelar</button><button class="hm-go" style="height:46px;padding:0 28px;font-size:15px" data-a="wdyes">${ic('wdl')} Descargar</button></div></div>`;
-    $('#app').appendChild(m);wdPathUi();$('#wdp').addEventListener('input',wdPathUi);setTimeout(()=>{const n=$('#wdn');if(n){n.focus();const e=d.name.lastIndexOf('.');n.setSelectionRange(0,e>0?e:d.name.length)}},350)})}
+    $('#app').appendChild(m);wdPathUi();wdArc();$('#wdp').addEventListener('input',wdPathUi);$('#wdn').addEventListener('input',wdArc);$('#wdu').addEventListener('change',wdArc);setTimeout(()=>{const n=$('#wdn');if(n){n.focus();const e=d.name.lastIndexOf('.');n.setSelectionRange(0,e>0?e:d.name.length)}},350)})}
+const wdIsArc=n=>/\.(zip|rar|7z|tar|gz|tgz|bz2|xz|cab)$/i.test(String(n||'').trim());
+function wdArc(){const n=$('#wdn'),k=$('#wdck');if(!n||!k)return;k.classList.toggle('off',!wdIsArc(n.value));const u=$('#wdu');$('#wdck2').classList.toggle('off',!(u&&u.checked))}
 let wdFT;function wdPathUi(){const p=$('#wdp');if(!p)return;const v=p.value.trim().toLowerCase();$$('.wdk').forEach(k=>k.classList.toggle('on',!!v&&v.startsWith(k.dataset.r.toLowerCase())));clearTimeout(wdFT);wdFT=setTimeout(async()=>{const d=WDR.l[WDR.cur],f=$('#wdfree');if(!f||!d)return;const fr=await winteerNative.webDl('free',{dir:p.value.trim()});if(!$('#wdfree'))return;if(fr<0){f.textContent='';f.classList.remove('bad');return}const bad=d.size>0&&fr<d.size+5e7;f.textContent=wdB(fr)+' libres en ese disco'+(bad?' · no alcanza para este archivo':'');f.classList.toggle('bad',bad)},180)}
 function wdShut(){const m=$('#wdm');if(m){m.classList.add('out');setTimeout(()=>m.remove(),280)}WDR.cur=0;setTimeout(wdAsk,330)}
 Object.assign(A,{
@@ -9579,8 +9590,8 @@ Object.assign(A,{
  wdpick:async()=>{const p=$('#wdp');const r=await winteerNative.webDl('pick',{dir:p.value});if(r){p.value=r;wdPathUi()}},
  wdno:()=>{const d=WDR.l[WDR.cur];if(d&&d.st==='ask'){winteerNative.webDl('cancel',{id:d.id});delete WDR.l[d.id]}wdShut()},
  wdyes:async()=>{const d=WDR.l[WDR.cur];if(!d)return wdShut();const dir=$('#wdp').value.trim();let name=($('#wdn').value||'').trim()||d.name;const oe=(d.name.match(/\.[A-Za-z0-9]{1,5}$/)||[''])[0];if(oe&&!/\.[A-Za-z0-9]{1,5}$/.test(name))name+=oe;
-   const r=await winteerNative.webDl('go',{id:d.id,dir,name});if(!r||!r.ok){const f=$('#wdfree');if(f){f.textContent=(r&&r.err)||'No pude empezar la descarga';f.classList.add('bad')}return}
-   d.name=r.name;d.path=r.path;d.st='run';d.t=Date.now();const c=webCfg();c.dir=dir;save();wdShut();WBR.open=1;const dw=$('#wbd');if(dw){wdDraw();dw.classList.add('on')}wdBadge()},
+   const unz=!!($('#wdu')&&$('#wdu').checked)&&wdIsArc(name),del=unz&&!!($('#wdd')&&$('#wdd').checked);const r=await winteerNative.webDl('go',{id:d.id,dir,name,unz,del});if(!r||!r.ok){const f=$('#wdfree');if(f){f.textContent=(r&&r.err)||'No pude empezar la descarga';f.classList.add('bad')}return}
+   d.name=r.name;d.path=r.path;d.st='run';d.t=Date.now();const c=webCfg();c.dir=dir;if(wdIsArc(name)){c.unz=!!($('#wdu')&&$('#wdu').checked);c.del=!!($('#wdd')&&$('#wdd').checked)}save();wdShut();WBR.open=1;const dw=$('#wbd');if(dw){wdDraw();dw.classList.add('on')}wdBadge()},
  wdpause:a=>winteerNative.webDl('pause',{id:+a.dataset.id}),wdres:a=>winteerNative.webDl('resume',{id:+a.dataset.id}),
  wdcan:a=>winteerNative.webDl('cancel',{id:+a.dataset.id}),
  wdshow:a=>{const d=WDR.l[a.dataset.id];const h=(webCfg().hist||[])[+String(a.dataset.id).slice(1)];winteerNative.webDl('show',{path:d?d.path:h&&h.p})},
@@ -9593,7 +9604,8 @@ if(WN&&winteerNative.onWebDl)winteerNative.onWebDl(m=>{
   const d=WDR.l[m.id];if(!d)return;
   if(m.st==='prog'||m.st==='pause'){const ch=(m.st==='pause'?'pause':'run')!==d.st;d.st=m.st==='pause'?'pause':'run';d.got=m.got||0;if(m.size>0)d.size=m.size;d.speed=m.speed||0;if(ch){wdDraw()}else wdTick(d);return}
   if(m.st==='moving'){const ch=d.st!=='move';d.st='move';d.mv=m.p||0;d.got=d.size||d.got;if(ch)wdDraw();else wdTick(d);wdBadge();return}
-  if(m.st==='done'){d.st='done';d.path=m.path;d.size=m.size||d.size;const c=webCfg();c.hist=[{n:d.name,p:m.path,s:d.size,t:Date.now()}].concat(c.hist||[]).slice(0,30);save();wdDraw();wdBadge();toast('Descarga completa: '+d.name);return}
+  if(m.st==='unz'){const ch=d.st!=='unz';d.st='unz';d.mv=m.p||0;if(ch)wdDraw();else wdTick(d);wdBadge();return}
+  if(m.st==='done'){d.st='done';d.path=m.path;d.size=m.size||d.size;d.unz=!!m.unz;d.uerr=m.unzErr||'';const c=webCfg();c.hist=[{n:d.name,p:m.path,s:d.size,t:Date.now()}].concat(c.hist||[]).slice(0,30);save();wdDraw();wdBadge();toast(d.unz?'Descomprimido: '+d.name:d.uerr?'Descargado, no se pudo descomprimir: '+d.name:'Descarga completa: '+d.name);return}
   if(m.st==='err'){d.st='err';d.msg=m.msg;wdDraw();wdBadge();return}
   if(m.st==='cancel'){delete WDR.l[m.id];wdDraw();wdBadge();return}
 });

@@ -18,6 +18,13 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Preparar 7-Zip (para descomprimir descargas)
+        shell: bash
+        run: |
+          mkdir -p bin7z
+          for f in 7z.exe 7z.dll; do cp "/c/Program Files/7-Zip/$f" bin7z/ 2>/dev/null || true; done
+          if [ ! -f bin7z/7z.exe ]; then choco install 7zip -y --no-progress; for f in 7z.exe 7z.dll; do cp "/c/Program Files/7-Zip/$f" bin7z/; done; fi
+          ls bin7z
       - name: Construir la beta (siempre una versión por encima de la oficial)
         run: |
           V=$(node -p "const v=require('./package.json').version.split('-')[0].split('.').map(Number);v[2]++;v.join('.')")

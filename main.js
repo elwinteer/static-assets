@@ -750,13 +750,14 @@ function shotToast(thumbPng, text, kind, sub2) {
     const d = screen.getPrimaryDisplay(), w = 410, h = 160, dur = kind === 'rec' ? 3200 : 3600;
     toastWin = new BrowserWindow({ width: w, height: h, x: d.workArea.x + d.workArea.width - w + 16, y: d.workArea.y - 16, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false, hasShadow: false, webPreferences: { sandbox: true } });
     toastWin.setAlwaysOnTop(true, 'screen-saver'); try { toastWin.setContentProtection(true); } catch (e) {} toastWin.setIgnoreMouseEvents(true);
-    const C = { shot: '#8ec5ff', clip: '#c4a4ff', rec: '#ff5d6c', err: '#ffb454' }[kind] || '#8ec5ff';
-    const T = { shot: 'Captura', clip: 'Clip', rec: 'Grabando', err: 'Aviso' }[kind] || 'Captura';
+    const C = { shot: '#8ec5ff', clip: '#c4a4ff', rec: '#ff5d6c', err: '#ffb454', dl: '#4ade80' }[kind] || '#8ec5ff';
+    const T = { shot: 'Captura', clip: 'Clip', rec: 'Grabando', err: 'Aviso', dl: 'Descarga' }[kind] || 'Captura';
     const I = {
       shot: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
       clip: '<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10.5 5-3v9l-5-3z"/>',
       rec: '<circle cx="12" cy="12" r="5" fill="currentColor"/><circle cx="12" cy="12" r="9"/>',
-      err: '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/>'
+      err: '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/>',
+      dl: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'
     }[kind] || '';
     const img = thumbPng ? `<div class="th"><img src="data:image/jpeg;base64,${thumbPng.toString('base64')}">${kind === 'clip' ? '<i></i>' : ''}</div>` : '';
     const sub = { shot: 'En la carpeta de este juego', clip: 'Listo en tu launcher', rec: 'Los próximos 10 segundos', err: 'Probá de nuevo' }[kind] || '';
@@ -1821,6 +1822,50 @@ function wdlMove(d) {
     } catch (e) { rej(e); }
   });
 }
+const UNZ_RE = /\.(zip|rar|7z|tar|gz|tgz|bz2|xz|cab)$/i;
+function z7Exe() {
+  const pf = [process.env.ProgramFiles, process.env['ProgramFiles(x86)']].filter(Boolean).map(p => path.join(p, '7-Zip', '7z.exe'));
+  for (const p of [path.join(process.resourcesPath || '', '7z', '7z.exe'), path.join(__dirname, 'bin7z', '7z.exe'), ...pf]) { try { if (fs.existsSync(p)) return p; } catch (e) {} }
+  return '';
+}
+function z7Run(archive, out, onP) {
+  return new Promise((res) => {
+    const exe = z7Exe(); let err = '';
+    let cp;
+    try {
+      if (exe) cp = spawn(exe, ['x', '-y', '-bsp1', '-aoa', '-o' + out, archive], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      else if (process.platform === 'win32' && /\.zip$/i.test(archive)) cp = spawn('tar', ['-xf', archive, '-C', out], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      else return res({ err: 'No encontré 7-Zip para descomprimir' });
+    } catch (e) { return res({ err: 'No pude abrir 7-Zip' }); }
+    let lp = -1;
+    cp.stdout.on('data', (c) => { const m = String(c).match(/(\d{1,3})%/g); if (m && onP) { const v = parseInt(m[m.length - 1], 10); if (v !== lp && v <= 100) { lp = v; onP(v / 100); } } });
+    cp.stderr.on('data', (c) => { err += String(c).slice(0, 400); });
+    cp.on('error', () => res({ err: 'No pude abrir 7-Zip' }));
+    cp.on('close', (code) => res(code === 0 || code === 1 ? { ok: 1 } : { err: /password|Wrong/i.test(err) ? 'El archivo tiene contraseña' : 'El archivo está dañado o no se pudo abrir' }));
+  });
+}
+async function wdlUnz(d, onP) {
+  const file = d.final, dir = path.dirname(file);
+  const base = path.basename(file).replace(/\.(tar\.(gz|bz2|xz)|tgz|zip|rar|7z|tar|gz|bz2|xz|cab)$/i, '');
+  let tmp = path.join(dir, '.wt-unz-' + d.id + '-' + Date.now());
+  const rm = (p) => { try { fs.rmSync(p, { recursive: true, force: true }); } catch (e) {} };
+  try {
+    fs.mkdirSync(tmp, { recursive: true });
+    let r = await z7Run(file, tmp, onP); if (!r.ok) throw new Error(r.err);
+    let ents = fs.readdirSync(tmp);
+    if (ents.length === 1 && /\.tar$/i.test(ents[0]) && !/\.tar$/i.test(path.basename(file))) {
+      const t2 = tmp + '-t'; fs.mkdirSync(t2, { recursive: true });
+      r = await z7Run(path.join(tmp, ents[0]), t2, onP); rm(tmp); tmp = t2; if (!r.ok) throw new Error(r.err);
+      ents = fs.readdirSync(tmp);
+    }
+    if (!ents.length) throw new Error('El archivo estaba vacío');
+    let src = tmp, name = base;
+    if (ents.length === 1 && fs.statSync(path.join(tmp, ents[0])).isDirectory()) { src = path.join(tmp, ents[0]); name = ents[0]; }
+    const dest = wdlUniq(dir, wdlSafe(name));
+    fs.renameSync(src, dest); if (src !== tmp) rm(tmp);
+    return { ok: 1, dest };
+  } catch (e) { rm(tmp); return { err: String((e && e.message) || e).slice(0, 120) }; }
+}
 function webInit() {
   if (webOk) return; webOk = true;
   const tmpDir = path.join(app.getPath('userData'), 'dl-tmp');
@@ -1847,8 +1892,17 @@ function webInit() {
       if (d.state === 'cancel' || st === 'cancelled') { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'cancel' }); return; }
       if (st !== 'completed' || !d.final) { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'err', msg: 'La descarga se cortó' }); return; }
       d.state = 'move'; wsend({ id, st: 'moving', p: 0 });
-      try { await wdlMove(d); WDL.delete(id); wsend({ id, st: 'done', path: d.final, size: (() => { try { return fs.statSync(d.final).size; } catch (e) { return 0; } })() }); }
-      catch (e) { WDL.delete(id); wsend({ id, st: 'err', msg: 'No pude guardar el archivo en esa carpeta' }); }
+      try { await wdlMove(d); } catch (e) { WDL.delete(id); wsend({ id, st: 'err', msg: 'No pude guardar el archivo en esa carpeta' }); return; }
+      let size = 0; try { size = fs.statSync(d.final).size; } catch (e) {}
+      let outPath = d.final, unz = 0, unzErr = '';
+      if (d.unz && UNZ_RE.test(d.final)) {
+        d.state = 'unz'; wsend({ id, st: 'unz', p: 0 });
+        const r = await wdlUnz(d, (p) => wsend({ id, st: 'unz', p }));
+        if (r.ok) { outPath = r.dest; unz = 1; if (d.del) { try { fs.unlinkSync(d.final); } catch (e) {} } } else unzErr = r.err || 'No pude descomprimir';
+      }
+      WDL.delete(id);
+      wsend({ id, st: 'done', path: outPath, size, unz, unzErr });
+      try { if (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused()) shotToast(null, d.name, 'dl', unz ? 'Descomprimido y listo' : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
     });
   });
   ipcMain.handle('webDl', async (_e, m, a) => {
@@ -1868,7 +1922,7 @@ function webInit() {
         try { fs.mkdirSync(dir, { recursive: true }); } catch (e) { return { err: 'No puedo usar esa carpeta' }; }
         const sz = d.item.getTotalBytes();
         if (sz > 0) { try { const s = fs.statfsSync(dir); if (s.bsize * s.bavail < sz + 5e7) return { err: 'No hay lugar suficiente en ese disco' }; } catch (e) {} }
-        d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
+        d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.unz = !!a.unz; d.del = !!(a.unz && a.del); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
         d.item.resume(); return { ok: 1, name: path.basename(d.final), path: d.final };
       }
       if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
