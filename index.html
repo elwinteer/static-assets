@@ -3596,8 +3596,12 @@ function infoHTML(g){
 let SHL=[],SHI=0,SHG='';
 async function shFill(id){SHG=id;let l=[];try{l=await winteerNative.shots(id)}catch(e){}SHL=l;const el=$('#shg')||$('#vshg');if(!el||(S.sel!==id&&S.vsel!==id))return;const n=$('#shn');if(n)n.textContent=l.length?l.length+(l.length===1?' elemento':' elementos'):'Capturas';
   el.innerHTML=l.length?l.map((x,i)=>`<div class="shc ${x.clip?'clp':''}" data-a="shview" data-i="${i}"><img loading="lazy" decoding="async" src="${x.thumb}" alt="">${x.clip?'<i class="shpl"></i>':''}</div>`).join(''):`<div class="shempty"><svg class="i" viewBox="0 0 24 24" style="width:34px;height:34px;opacity:.5"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Todavía no hay capturas</b><span>Abrí el juego desde WINTEER y apretá ${esc((BGC&&BGC.shotKey)||'F12')}.</span></div>`}
-function shLight(){const x=SHL[SHI];if(!x)return;$$('.shlb').forEach(e=>e.remove());const d=document.createElement('div');d.className='shlb';
-  d.innerHTML=`<div class="shlbb" data-a="shclose"></div>${x.clip?`<video src="${x.file}" controls autoplay loop style="position:relative;max-width:92vw;max-height:80vh;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.7)"></video>`:`<img src="${x.file}" alt="">`}<div class="shbar"><button data-a="shnav" data-v="-1">‹</button><span>${SHI+1} / ${SHL.length} · ${new Date(x.t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span><button data-a="shnav" data-v="1">›</button><i></i><button class="t" data-a="shbg">Usar de fondo</button><button class="t" data-a="shfolder" data-id="${SHG}">Carpeta</button><button class="t r" data-a="shdel">Eliminar</button><button data-a="shclose">✕</button></div>`;document.body.appendChild(d)}
+function shLight(){const x=SHL[SHI];if(!x)return;const had=$$('.shlb').length;$$('.shlb').forEach(e=>e.remove());const g=gm(SHG),d=document.createElement('div');d.className='shlb'+(had?' nr':'');
+  const dt=new Date(x.t).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  d.innerHTML=`<div class="shlbb" data-a="shclose"></div><div class="shtop"><div class="shtt"><b>${esc(g?g.name:'Captura')}</b><span>${x.clip?'Clip':'Captura'} · ${dt} · ${SHI+1} de ${SHL.length}</span></div><button class="shx" data-a="shclose" title="Cerrar">${ic('xx')}</button></div>${SHL.length>1?`<button class="shnv l" data-a="shnav" data-v="-1" title="Anterior">${ic('chl')}</button><button class="shnv r" data-a="shnav" data-v="1" title="Siguiente">${ic('chr')}</button>`:''}${x.clip?`<video src="${x.file}" controls autoplay loop></video>`:`<img src="${x.file}" alt="">`}<div class="shdock"><div class="x6lb"></div><i></i><div class="edtb"></div><i></i><div class="shacts"><button class="shact" data-a="shbg" title="Usar como fondo del juego">${ic('img')}<span>Usar de fondo</span></button><button class="shact" data-a="shfolder" data-id="${SHG}" title="Abrir la carpeta">${ic('folder')}<span>Carpeta</span></button><button class="shact r" data-a="shdel" title="Eliminar">${ic('trash')}<span>Eliminar</span></button></div></div>`;document.body.appendChild(d)}
+function shClose(){const d=$('.shlb');if(!d||d.classList.contains('out'))return;const v=d.querySelector('video');try{v&&v.pause()}catch(e){}d.classList.add('out');setTimeout(()=>{if(d.classList.contains('out'))d.remove()},280)}
+P.xx='<path d="M6 6l12 12M18 6L6 18"/>';P.chl='<path d="M15 5l-7 7 7 7"/>';P.chr='<path d="M9 5l7 7-7 7"/>';P.folder='<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>';
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!$('.shlb')||$('.modal'))return;const t=e.target;if(t&&/INPUT|TEXTAREA/.test(t.tagName))return;if($('.shlb.edm'))A.edexit();else shClose()});
 function shKey(e){const k=e.key;if(['Control','Shift','Alt','Meta'].includes(k))return '';let n=k.length===1?k.toUpperCase():({' ':'Space',ArrowUp:'Up',ArrowDown:'Down',ArrowLeft:'Left',ArrowRight:'Right',Escape:'',Enter:'Return',Insert:'Insert',Delete:'Delete',PrintScreen:'PrintScreen'}[k]??k);if(!n)return '';return [e.ctrlKey?'Ctrl':'',e.altKey?'Alt':'',e.shiftKey?'Shift':'',n].filter(Boolean).join('+')}
 function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
@@ -3978,7 +3982,7 @@ const A={
   accent:a=>{setAccent(a.dataset.id);$$('.col').forEach(c=>c.classList.toggle('on',c===a));save()},
   tinst:()=>{S.fs='Instalados';S.fc='';go('games',{q:''})},
   shview:a=>{SHI=+a.dataset.i;shLight()},
-  shclose:()=>$$('.shlb').forEach(e=>e.remove()),
+  shclose:()=>shClose(),
   shnav:a=>{SHI=(SHI+ +a.dataset.v+SHL.length)%SHL.length;shLight()},
   shfolder:a=>winteerNative.shotFolder(a.dataset.id||''),
   shdel:async()=>{const x=SHL[SHI];if(!x)return;await winteerNative.shotDel(SHG,x.n);SHL.splice(SHI,1);$$('.shlb').forEach(e=>e.remove());shFill(SHG);toast('Captura eliminada')},
@@ -8830,9 +8834,9 @@ function x6Deco(){
   X6PEND[id]=0;if(SHG===id){try{x6Deco();if($('.shlb'))x6LbBar()}catch(e){}}}})();
 (()=>{const l0=shLight;shLight=function(){l0.apply(this,arguments);try{x6LbBar()}catch(e){}}})();
 function x6LbBar(){const d=$('.shlb'),x=SHL[SHI];if(!d||!x)return;
-  let b=d.querySelector('.x6lb');if(!b){b=document.createElement('div');b.className='x6lb';d.appendChild(b)}
+  let b=d.querySelector('.x6lb');if(!b){b=document.createElement('div');b.className='x6lb';d.querySelector('.shdock')?d.querySelector('.shdock').prepend(b):d.appendChild(b)}
   const m=x6Get(x.n),au=m?0:x6Au(x),r=m||au;
-  b.innerHTML=`<div class="x6st ${au?'au':''}">${[1,2,3,4,5].map(i=>`<button class="x6s ${i<=r?'on':''}" data-a="x6r" data-v="${i}" title="${i} ${i===1?'estrella':'estrellas'}">★</button>`).join('')}</div>${au?'<div class="x6sg"><span>Puntaje automático · tocá una estrella para cambiarlo</span></div>':''}`}
+  b.innerHTML=`<div class="x6st ${au?'au':''}" title="${au?'Puntaje automático: tocá una estrella para cambiarlo':'Tu puntaje'}">${[1,2,3,4,5].map(i=>`<button class="x6s ${i<=r?'on':''}" data-a="x6r" data-v="${i}" title="${i} ${i===1?'estrella':'estrellas'}">★</button>`).join('')}</div>${au?'<span class="x6au">Auto</span>':''}`}
 (()=>{const d0=A.shdel;A.shdel=function(){const x=SHL[SHI],k=x&&x6k(SHG,x.n);const r=d0.apply(this,arguments);if(k){try{delete (ST.shr||{})[k];delete (ST.shd||{})[k];save()}catch(e){}}return r}})();
 document.addEventListener('keydown',e=>{if(!$('.shlb')||e.ctrlKey||e.altKey||e.metaKey)return;const t=e.target;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
   if(/^[0-5]$/.test(e.key)){const x=SHL[SHI];if(x){x6Set(x,+e.key);e.preventDefault()}}});
@@ -8872,11 +8876,11 @@ function edFF(){return new Promise(async res=>{try{const r=await winteerNative.f
 if(WN&&winteerNative.onFfProg)winteerNative.onFfProg(a=>{if(!a||a.p>=100||!a.t){sgStat('');return}sgStat(`<b>${esc(a.t)}</b><div style="margin:8px 0 6px;height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${a.p}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)});
 (()=>{const l0=shLight;shLight=function(){l0.apply(this,arguments);try{edBar()}catch(e){}}})();
 function edBar(){const d=$('.shlb'),x=SHL[SHI];if(!d||!x||!WN)return;let b=d.querySelector('.edtb');if(!b){b=document.createElement('div');b.className='edtb';d.appendChild(b)}
-  b.innerHTML=`<button class="edmain" data-a="${x.clip?'edtrim':'edimg'}">${ic(x.clip?'scissors':'pencil')}<span>${x.clip?'Recortar':'Editar'}</span></button><button class="edgb" data-a="edgear" title="Ajustes de esta ${x.clip?'grabación':'imagen'}">${ic('settings')}</button>`}
+  b.innerHTML=`<button class="shact pri" data-a="${x.clip?'edtrim':'edimg'}">${ic(x.clip?'scissors':'pencil')}<span>${x.clip?'Recortar clip':'Editar imagen'}</span></button><button class="shact g" data-a="edgear" title="Ajustes de esta ${x.clip?'grabación':'imagen'}">${ic('settings')}<span>Ajustes</span></button>`}
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='edrate'){const v=$('.shlb video');if(v)v.playbackRate=+e.target.value}});
 const edT=t=>{t=Math.max(0,t||0);return Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0')+'.'+Math.floor((t*10)%10)};
 const edHide=()=>{$$('.shlb').forEach(e=>e.remove())};
-function edDone(msg){$$('.shlb,.modal,.edgp').forEach(e=>e.remove());if(msg)toast(msg);shFill(SHG)}
+function edDone(msg){$$('.modal,.edgp').forEach(e=>e.remove());shClose();if(msg)toast(msg);shFill(SHG)}
 P.scissors='<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/>';
 P.pencil='<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>';
 P.arrowd='<path d="M5 19L19 5M9 5h10v10"/>';P.txt='<path d="M5 6V4h14v2M12 4v16M9 20h6"/>';P.undo='<path d="M3 7v6h6M3 13a9 9 0 1 0 3-6.7"/>';P.crop='<path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/>';
@@ -9395,7 +9399,7 @@ Object.assign(A,{
 .shlb video,.shlb>img{transition:max-height .5s var(--ease),max-width .5s var(--ease),margin .5s var(--ease)}
 .shlb.edm video{max-height:calc(100vh - 250px)!important;max-width:min(92vw,1280px)!important}
 .shlb.edm>img{display:none}
-.shlb.edm .shbar,.shlb.edm .x6lb,.shlb.edm .edtb,.shlb.edm .edgp{animation:none;opacity:0;pointer-events:none}
+.shlb.edm .shdock,.shlb.edm .shtop,.shlb.edm .shnv,.shlb.edm .edgp{animation:none;opacity:0;pointer-events:none}.shlb.edm .shdock{transform:translate(-50%,24px)}
 .shbar,.x6lb{transition:opacity .3s}
 .edcv{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:210px;animation:edcvin .5s var(--spring) both}
 @keyframes edcvin{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
@@ -9499,6 +9503,33 @@ body.dark #x9c{background:var(--gl),rgba(12,9,24,.86)}#x9c.out{animation:x9cout 
 /*/cX4A*/
 /*cX5A*/.x5m .mb,.x5m{min-width:min(620px,92vw)}.x5m a.b2{display:inline-flex;align-items:center}
 /*/cX5A*/
+
+.shlb{animation:shin .3s var(--ease) both}.shlb.nr,.shlb.nr .shlbb{animation:none}
+@keyframes shin{from{opacity:0}}
+.shlb .shlbb{background:radial-gradient(ellipse at 50% 38%,rgba(34,22,66,.82),rgba(4,3,10,.95));backdrop-filter:blur(16px)}
+.shlb>img,.shlb>video{position:relative;max-width:min(92vw,1500px);max-height:calc(100vh - 230px);border-radius:16px;box-shadow:0 30px 90px rgba(0,0,0,.75);animation:shmed .6s var(--spring) both}
+.shlb.nr>img,.shlb.nr>video{animation:shmed2 .3s var(--ease) both}
+@keyframes shmed{from{opacity:0;transform:scale(.88) translateY(26px)}to{opacity:1;transform:none}}
+@keyframes shmed2{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.shlb.out{animation:shout .28s var(--ease) both;pointer-events:none}@keyframes shout{to{opacity:0}}
+.shlb.out>img,.shlb.out>video{animation:shmo .28s var(--ease) both}@keyframes shmo{to{opacity:0;transform:scale(.94) translateY(14px)}}
+.shlb.out .shdock{animation:shdo .26s var(--ease) both}@keyframes shdo{to{opacity:0;transform:translate(-50%,28px)}}
+.shtop{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:54px 32px 40px;background:linear-gradient(180deg,rgba(4,3,10,.65),transparent);z-index:3;pointer-events:none;animation:shtp .5s var(--ease) .08s both;transition:opacity .3s}
+@keyframes shtp{from{opacity:0;transform:translateY(-14px)}}
+.shtt{min-width:0}.shtt b{display:block;font-size:18px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shtt span{font-size:12.5px;color:var(--muted)}
+.shx{pointer-events:auto;flex:none;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(20,16,34,.6);backdrop-filter:blur(10px);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .35s var(--spring),background .25s}.shx:hover{background:rgba(255,80,110,.5);transform:rotate(90deg)}
+.shnv{position:absolute;top:50%;margin-top:-26px;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(20,16,34,.6);backdrop-filter:blur(10px);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;transition:transform .35s var(--spring),background .25s,opacity .3s;animation:fade .5s .15s both}.shnv.l{left:28px}.shnv.r{right:28px}.shnv:hover{background:rgba(var(--argb),.75);transform:scale(1.1)}
+.shdock{position:absolute;left:50%;bottom:3vh;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:99px;background:rgba(20,16,34,.84);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.55);z-index:4;max-width:calc(100vw - 32px);animation:shdk .65s var(--spring) .1s both;transition:opacity .3s,transform .45s var(--ease)}
+@keyframes shdk{from{opacity:0;transform:translate(-50%,40px)}to{opacity:1;transform:translate(-50%,0)}}
+.shlb.nr .shdock,.shlb.nr .shtop,.shlb.nr .shnv{animation:none}
+.shdock>i{width:1px;height:24px;background:rgba(255,255,255,.14);flex:none}.shdock .edtb:empty,.shdock .edtb:empty+i{display:none}
+.shdock .x6lb{position:static;transform:none;flex-direction:row;align-items:center;gap:8px;padding:0 4px}.shdock .x6st{background:none;border:0;padding:0}.shdock .x6s{font-size:22px}
+.x6au{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.08)}
+.shdock .edtb{position:static;transform:none;animation:none;padding:0;background:none;border:0;backdrop-filter:none;display:flex;gap:6px}.shacts{display:flex;gap:6px}
+.shact{display:flex;align-items:center;gap:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13.5px;font-weight:500;padding:10px 16px;border-radius:99px;cursor:pointer;white-space:nowrap;transition:background .25s,transform .3s var(--spring)}.shact svg{font-size:17px;transition:transform .4s var(--spring)}.shact:hover{background:rgba(255,255,255,.17);transform:translateY(-2px)}.shact.pri{background:rgba(var(--argb),.8);font-weight:600}.shact.pri:hover{background:rgba(var(--argb),1)}.shact.g:hover svg{transform:rotate(60deg)}.shact.r{color:#ff8a9b}.shact.r:hover{background:rgba(255,80,110,.22)}
+.shlb .edgp{right:auto;top:auto;left:50%;bottom:calc(3vh + 82px);transform:translateX(-50%);animation:edpop2 .35s var(--spring) both}
+@keyframes edpop2{from{opacity:0;transform:translate(-50%,14px) scale(.96)}to{opacity:1;transform:translate(-50%,0)}}
+@media(max-width:980px){.shact span{display:none}.shact{padding:11px}.shnv{display:none}}
 </style>
 </body>
 </html>
