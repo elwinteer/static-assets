@@ -288,11 +288,25 @@ async function obsStart() {
   })();
   return obsPrep;
 }
+/* programa que tiene la ventana al frente (el juego, cuando se aprieta la tecla) */
+function fgExe() {
+  return new Promise((res) => {
+    if (process.platform !== 'win32') return res('');
+    const ps = "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class WFg{[DllImport(\"user32.dll\")]public static extern IntPtr GetForegroundWindow();[DllImport(\"user32.dll\")]public static extern int GetWindowThreadProcessId(IntPtr h,out int p);}';$p=0;[void][WFg]::GetWindowThreadProcessId([WFg]::GetForegroundWindow(),[ref]$p);(Get-Process -Id $p).Path";
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 12000 }, (err, out) => res(err ? '' : String(out || '').trim().toLowerCase()));
+  });
+}
 /* apunta la captura al juego que esta abierto */
 async function obsAim(cur) {
   let cands = [];
   if (cur.t.exe) cands = [path.win32.basename(String(cur.t.exe)).toLowerCase()];
   else if ((cur.t.dirs || []).length) { try { const ps = await listProcs(); cands = [...new Set(ps.filter(p => cur.t.dirs.some(d => String(p).toLowerCase().startsWith(String(d).toLowerCase()))).map(p => path.win32.basename(String(p)).toLowerCase()))]; } catch (e) {} }
+  try {
+    if (cur.t.edir && !cands.length) { const ps = await listProcs(); cands = [...new Set(ps.filter(p => String(p).toLowerCase().startsWith(cur.t.edir)).map(p => path.win32.basename(String(p)).toLowerCase()))]; }
+    const fg = await fgExe(), fb = fg ? path.win32.basename(fg) : '';
+    obsLog('aim al frente: ' + (fg || '?'));
+    if (fb && !/^(winteer|electron|explorer|obs64|chrome|msedge|firefox|steam|steamwebhelper|cmd|powershell|conhost|searchhost|applicationframehost|shellhost)\.exe$/.test(fb)) cands = [fb, ...cands.filter(x => x !== fb)];
+  } catch (e) {}
   obsLog('aim candidatos: ' + cands.join(','));
   if (!cands.length) return false;
   const inp = [['WINTEER video', 'game_capture', { capture_mode: 'window', capture_cursor: true, allow_transparency: false }], ['WINTEER audio', 'wasapi_process_output_capture', {}]];
@@ -304,7 +318,7 @@ async function obsAim(cur) {
   for (let i = 0; i < 6 && !val; i++) {
     const r = await obsCall('GetInputPropertiesListPropertyItems', { inputName: 'WINTEER video', propertyName: 'window' });
     const items = (r && r.responseData && r.responseData.propertyItems) || [];
-    const it = items.find(x => cands.some(e => String(x.itemValue || '').toLowerCase().endsWith(':' + e) && !/crashhandler|crashreport|launcher|setup|unins/.test(e)));
+    let it = null; for (const e of cands) { if (/crashhandler|crashreport|setup|unins/.test(e)) continue; it = items.find(x => String(x.itemValue || '').toLowerCase().endsWith(':' + e)); if (it) break; }
     if (it) val = it.itemValue; else await new Promise(r => setTimeout(r, 1000));
   }
   obsLog('aim ventana: ' + (val || 'NO ENCONTRADA'));
@@ -1288,7 +1302,7 @@ async function poll() {
   const need = [...track].some(([id, t]) => !t.app || sr.get(id) === null);
   const procs = need ? await listProcs() : [];
   for (const [id, t] of [...track]) {
-    const byProc = () => procs.some(p => t.exe ? p === t.exe : t.dirs.some(d => p.startsWith(d)));
+    const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
     if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
     else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); track.delete(id); syncShot(); backFromGame(); } }
@@ -1313,7 +1327,9 @@ function watch(o) {
   if (o.exe) { exe = norm(o.exe); }
   else if (o.app) { const d = installDir(o.app, o.steamDir); if (d) dirs.push(norm(d) + sep); }
   if (!exe && !dirs.length && !(o.app && process.platform === 'win32')) return false;
-  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
+  let edir = '';
+  if (exe) { try { const d = path.win32.dirname(exe); if (d.length > 3 && !/[\\/](program files( \(x86\))?|windows|system32|syswow64)$/i.test(d)) edir = d.replace(/[\\/]+$/, '') + sep; } catch (e) {} }
+  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, edir, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
   if (!poller) poller = setInterval(poll, 4000);
   setTimeout(poll, 1500);
   syncShot();
