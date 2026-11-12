@@ -174,11 +174,11 @@ const SHOTS = path.join(app.getPath('userData'), 'shots');
 let shotReg = '', shotBusy = false, toastWin = null;
 function curNonSteam() {
   let best = null;
-  for (const [id, t] of track) if (!t.app && t.started && (!best || t.started > best.t.started)) best = { id, t };
+  for (const [id, t] of track) if ((!t.app || cfg.stCap) && t.started && (!best || t.started > best.t.started)) best = { id, t };
   return best;
 }
 function syncShot() {
-  const want = cfg.shots && [...track.values()].some(t => !t.app);
+  const want = cfg.shots && [...track.values()].some(t => !t.app || cfg.stCap);
   try {
     if (shotReg && (!want || shotReg !== cfg.shotKey)) { globalShortcut.unregister(shotReg); shotReg = ''; }
     if (want && !shotReg) { if (globalShortcut.register(cfg.shotKey || 'F12', takeShot)) shotReg = cfg.shotKey || 'F12'; }
@@ -287,7 +287,10 @@ async function obsStart() {
 }
 /* apunta la captura al juego que esta abierto */
 async function obsAim(cur) {
-  const exe = path.win32.basename(String(cur.t.exe || '')).toLowerCase(); if (!exe) return false;
+  let cands = [];
+  if (cur.t.exe) cands = [path.win32.basename(String(cur.t.exe)).toLowerCase()];
+  else if ((cur.t.dirs || []).length) { try { const ps = await listProcs(); cands = [...new Set(ps.filter(p => cur.t.dirs.some(d => String(p).toLowerCase().startsWith(String(d).toLowerCase()))).map(p => path.win32.basename(String(p)).toLowerCase()))]; } catch (e) {} }
+  if (!cands.length) return false;
   const inp = [['WINTEER video', 'game_capture', { capture_mode: 'window', capture_cursor: true, allow_transparency: false }], ['WINTEER audio', 'wasapi_process_output_capture', {}]];
   for (const [name, kind, st] of inp) {
     const r = await obsCall('CreateInput', { sceneName: OBS_SC, inputName: name, inputKind: kind, inputSettings: st, sceneItemEnabled: true });
@@ -297,7 +300,7 @@ async function obsAim(cur) {
   for (let i = 0; i < 6 && !val; i++) {
     const r = await obsCall('GetInputPropertiesListPropertyItems', { inputName: 'WINTEER video', propertyName: 'window' });
     const items = (r && r.responseData && r.responseData.propertyItems) || [];
-    const it = items.find(x => String(x.itemValue || '').toLowerCase().endsWith(':' + exe));
+    const it = items.find(x => cands.some(e => String(x.itemValue || '').toLowerCase().endsWith(':' + e) && !/crashhandler|crashreport|launcher|setup|unins/.test(e)));
     if (it) val = it.itemValue; else await new Promise(r => setTimeout(r, 1000));
   }
   if (!val) return false;
@@ -2742,7 +2745,7 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|png|webm|mp4)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
-  ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey }; });
+  ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; if (o && typeof o.stCap === 'boolean') cfg.stCap = o.stCap; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey, stCap: !!cfg.stCap }; });
   ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })
   ipcMain.handle('scrSources', async () => {
     const srcs = await desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 320, height: 180 }, fetchWindowIcons: false });

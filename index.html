@@ -3603,7 +3603,7 @@ function renderTab(){
   const g=gm(S.sel),el=$('#tabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.tab===k?'on':''}" data-a="tab" data-id="${k}">${l}</button>`;
   if(S.tab==='resumen'||S.tab==='notes')S.tab='info';if(S.tab==='cg')S.tab='ach';if(S.tab==='tm'&&(!WN||isSteamG(g)||vIs(g)))S.tab='info';if(S.tab==='emu'&&!(WN&&g.emu))S.tab='info';
-  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&!isSteamG(g)?tb('shots','Capturas'):'')+(WN&&!isSteamG(g)&&!vIs(g)?tb('tm','Partidas'):'')+(WN&&g.emu?tb('emu','Emulador'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
+  $('.tabs').innerHTML=tb('info','Información')+tb('ach','Logros')+(WN&&(!isSteamG(g)||BGC.stCap)?tb('shots','Capturas'):'')+(WN&&!isSteamG(g)&&!vIs(g)?tb('tm','Partidas'):'')+(WN&&g.emu?tb('emu','Emulador'):'')+tb('rv','Diario')+(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq)?tb('mods','Mods'):'');
   {const dt=$('#detail');if(dt)dt.classList.toggle('modsfull',S.tab==='mods'&&(pzOf(g)||mcOf(g)||!!(window.winteerNative&&winteerNative.mioReq)))}
   let h='';
   if(S.tab==='info'){h=infoHTML(g);if(igOn()&&!okInfo(g)&&!IPEND[g.id]&&!IFAIL.has(g.id)){const id=g.id;loadInfo(g).then(()=>{if(S.tab==='info'&&S.sel===id&&$('#tabc'))renderTab()})}}
@@ -3611,7 +3611,7 @@ function renderTab(){
     h=`<div class="ach2"><div class="inf-c">${rankHTML(g)}</div><div class="inf-c">${cgHTML(g)}</div></div>`+(ggOwn(g)?`<div style="margin-top:14px">${ggHTML(g)}</div>`:'');
   }else if(S.tab==='mods'&&(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq))){
     h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):srcHTML(g);
-  }else if(S.tab==='shots'&&WN&&!isSteamG(g)){
+  }else if(S.tab==='shots'&&WN&&(!isSteamG(g)||BGC.stCap)){
     h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='tm'&&WN&&!isSteamG(g)){h=tmTabHTML(g)
   }else if(S.tab==='emu'&&WN&&g.emu){h=emTabHTML(g)
@@ -3840,8 +3840,9 @@ function setPane(t){
       sR('Abrir el Modo mando con el mando','Botón Guía (o Atrás+Inicio 1 s), aunque WINTEER esté oculto.',sSw('bgsw',BGC.pad,'pad'))]:[]),
     sR('Abrir WINTEER en','La pantalla con la que arranca.',segv('start',[['home','Inicio'],['games','Biblioteca']],ST.start||'home')),
     xr(/x8sitog/),xr(/x8vis/),
-    ...(N&&BGC.win?[sR('Capturas y clips','Captura, clip y carpeta, mientras jugás algo que no es de Steam.',`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g sm" data-a="shkeyset">Captura ${esc(BGC.shotKey||'F12')}</button><button class="b2 g sm" data-a="shkeyset" data-w="clip">Clip ${esc(BGC.clipKey||'F9')}</button><button class="b2 g sm" data-a="shfolder" data-id="">Abrir carpeta</button></div>`)]:[]),
+    ...(N&&BGC.win?[sR('Capturas y clips',(BGC.stCap?'Captura, clip y carpeta, en tus juegos de Steam y en los que no.':'Captura, clip y carpeta, mientras jugás algo que no es de Steam.'),`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g sm" data-a="shkeyset">Captura ${esc(BGC.shotKey||'F12')}</button><button class="b2 g sm" data-a="shkeyset" data-w="clip">Clip ${esc(BGC.clipKey||'F9')}</button><button class="b2 g sm" data-a="shfolder" data-id="">Abrir carpeta</button></div>`)]:[]),
     xr(/xoinst|xotog|xopt/),
+    ...(N&&BGC.win?[sR('Capturas, clips y overlay en juegos de Steam','Usá lo de WINTEER también en tus juegos de Steam, así no hace falta migrar nada. No lo uses en juegos con anti trampas.','<div style="display:flex;gap:8px;align-items:center"><button class="b2 g sm" data-a="stcaphelp">Cómo evitar choques</button><button class="sw '+(BGC.stCap?'on':'')+'" data-a="stcap"></button></div>')]:[]),
     sR('Tutorial','Un recorrido guiado por todas las pestañas.','<button class="b2 g" data-a="tutreset">Ver de nuevo</button>')];
   if(t==='look')return [...lookPane(),sR('Restablecer apariencia','Vuelve tema, color y efectos a como venían. No toca tus datos.','<button class="b2 g" data-a="rsap">Restablecer</button>')];
   if(t==='avi')return [
@@ -3982,6 +3983,10 @@ const A={
   shfolder:a=>winteerNative.shotFolder(a.dataset.id||''),
   shdel:async()=>{const x=SHL[SHI];if(!x)return;await winteerNative.shotDel(SHG,x.n);SHL.splice(SHI,1);$$('.shlb').forEach(e=>e.remove());shFill(SHG);toast('Captura eliminada')},
   shbg:async()=>{const x=SHL[SHI],g=gm(SHG);if(!x||!g)return;try{const b=await (await fetch(x.file)).blob(),key='c:'+g.id+':hero';await artPut(key,b);if(ART[key])URL.revokeObjectURL(ART[key]);ART[key]=URL.createObjectURL(b);save();$$('.shlb').forEach(e=>e.remove());if(S.view==='games')renderDetail(false);toast('Listo: ahora es el fondo de '+g.name)}catch(e){toast('No pude usar esa captura')}},
+  stcap:()=>{if(BGC.stCap){winteerNative.shotCfg({stCap:false}).then(c=>{BGC=Object.assign(BGC,c);go('settings')});return}
+    modal(`<h3>Antes de activarlo</h3><p class="hint2"><b>No lo uses en juegos con anti trampas</b> (Easy Anti-Cheat, BattlEye, Vanguard y parecidos, típicos de los online competitivos). Bloquean que se enganche la captura y en el peor caso el juego se puede quejar.</p><p class="hint2">Para que no se pisen con Steam, hay que apagar lo suyo. Te lo explico en dos minutos con el botón "Cómo evitar choques".</p><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="b2 g" data-a="mclose">Cancelar</button><button class="b2" data-a="stcapok">Activar</button></div>`)},
+  stcapok:()=>{$$('.modal').forEach(m=>m.remove());winteerNative.shotCfg({stCap:true}).then(c=>{BGC=Object.assign(BGC,c);go('settings');toast('Listo: ahora también funciona en juegos de Steam')})},
+  stcaphelp:()=>modal(`<h3>Que no se choque con Steam</h3><ol class="hint2" style="line-height:1.7;padding-left:20px;margin:6px 0 12px"><li>En Steam, andá a <b>Steam &gt; Configuración &gt; En el juego</b>.</li><li>Desmarcá <b>Habilitar la Interfaz de Steam durante el juego</b>. Esto apaga el overlay de Steam en todos los juegos.</li><li>Si preferís apagarlo solo en uno: clic derecho al juego &gt; <b>Propiedades &gt; General</b> y desmarcá lo mismo.</li><li>Mientras estés ahí, cambiá el <b>Atajo de capturas de pantalla</b> de Steam (por defecto F12) por otra tecla, o dejalo vacío. Así no choca con la captura de WINTEER.</li></ol><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="b2" data-a="mclose">Entendido</button></div>`),
   shtoggle:()=>winteerNative.shotCfg({shots:!BGC.shots}).then(c=>{BGC=Object.assign(BGC,c);go('settings')}),
   shkeyset:a=>{a.textContent='Apretá la tecla… (Esc cancela)';const h=e=>{e.preventDefault();e.stopPropagation();if(e.key==='Escape'){document.removeEventListener('keydown',h,true);go('settings');return}const k=shKey(e);if(!k)return;document.removeEventListener('keydown',h,true);const cl=a.dataset.w==='clip';winteerNative.shotCfg(cl?{clipKey:k}:{key:k}).then(c=>{BGC=Object.assign(BGC,c);go('settings');toast((cl?'Tecla de clip: ':'Tecla de captura: ')+k)})};document.addEventListener('keydown',h,true)},
   bgsw:a=>{const k=a.dataset.k;winteerNative.cfgSet(k,!BGC[k]).then(c=>{BGC=Object.assign(BGC,c);go('settings')})},
@@ -6907,7 +6912,7 @@ function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
   <div class="gl panel"><div class="tabs"></div><div id="vtabc"></div></div></div>`;vTab()}
 function vTab(){const g=vG(S.vsel),el=$('#vtabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.vtab===k?'on':''}" data-a="vtab" data-id="${k}">${l}</button>`;
-  const hasA=ggOwn(g),hasS=WN&&!isSteamG(g);if(!S.vtab||(S.vtab==='ach'&&!hasA)||(S.vtab==='shots'&&!hasS))S.vtab='res';
+  const hasA=ggOwn(g),hasS=WN&&(!isSteamG(g)||BGC.stCap);if(!S.vtab||(S.vtab==='ach'&&!hasA)||(S.vtab==='shots'&&!hasS))S.vtab='res';
   $('#vdetail .tabs').innerHTML=tb('res','Resumen')+(hasA?tb('ach','Logros'):'')+(hasS?tb('shots','Capturas'):'');
   $$('#vdetail .tabs .tab').forEach(b=>b.classList.toggle('on',b.dataset.id===S.vtab));
   let h='';
