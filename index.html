@@ -3300,6 +3300,28 @@ body.bpon .pr-gr{height:44px}
 .wdc .ac button,.wbdh button{border-radius:11px;width:34px;height:34px}.wdc .ac button svg,.wbdh button svg{width:17px;height:17px;stroke-width:1.9}
 .wdc .ac .tx{opacity:.8}
 .wbv webview{background:#fff}.wbem .bt .b2 svg{flex:none}
+/* --- marcadores --- */
+.wbem .orb>span{background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 38px rgba(var(--argb),.38),inset 0 1px 0 rgba(255,255,255,.22);color:var(--text);backdrop-filter:blur(6px)}
+.wbem .orb>span .wbgl{width:54px;height:54px;overflow:visible;color:rgb(var(--argb))}
+.wbgl .m1,.wbgl .m2{transform-box:fill-box;transform-origin:center;animation:wbsp 7s linear infinite}.wbgl .m2{animation-delay:-3.5s}
+@keyframes wbsp{0%{transform:scaleX(1)}50%{transform:scaleX(.04)}100%{transform:scaleX(1)}}
+.wbgl .orbit{transform-box:fill-box;transform-origin:center}
+.wbgl .sat{offset-path:ellipse(21.5px 7.5px at 24px 24px);animation:wbsat 5s linear infinite;transform-box:fill-box}
+@keyframes wbsat{to{offset-distance:100%}}
+.wbem .orb{width:92px;height:92px;margin-bottom:16px}.wbem .orb>span{width:62px;height:62px;border-radius:20px}
+.wbem .mk{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:560px;margin:22px 0 4px}
+.mkt{position:relative;width:104px;padding:14px 8px 10px;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.09);display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;opacity:0;transform:translateY(12px) scale(.96);animation:mkin .5s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*55ms + 120ms);transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,box-shadow .25s,background .25s}
+@keyframes mkin{to{opacity:1;transform:none}}
+.mkt:hover,.mkt:focus-visible{transform:translateY(-4px);border-color:rgba(var(--argb),.55);background:linear-gradient(160deg,rgba(var(--argb),.16),rgba(255,255,255,.04));box-shadow:0 14px 30px rgba(0,0,0,.35),0 0 0 1px rgba(var(--argb),.2);outline:none}
+.mkt:active{transform:translateY(-1px) scale(.97)}
+.mki{position:relative;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,var(--a2),var(--a3));box-shadow:0 8px 20px rgba(var(--argb),.3);color:var(--on-a)}
+.wbem .mki b{font-size:22px;font-weight:700;margin:0;letter-spacing:0;color:var(--on-a)}.wbem .mka .mki b{color:var(--muted)}.wbem .mkn{color:var(--text);max-width:92px;margin:0}.wbem .mka .mkn{color:var(--muted)}.mki img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:9px;background:#fff;border-radius:inherit;opacity:0;transition:opacity .3s}.mki.ok img{opacity:1}
+.mkn{font-size:12.5px;font-weight:600;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);margin:0;display:block}
+.mka{background:transparent;border-style:dashed;border-color:rgba(255,255,255,.18)}.mka .mki{background:rgba(255,255,255,.06);box-shadow:none;color:var(--muted)}.mka .mki b{font-size:26px;font-weight:300}.mka .mkn{color:var(--muted);font-weight:500}
+.mka:hover .mki{background:rgba(var(--argb),.2);color:var(--text)}
+.mkx{position:absolute;top:5px;right:5px;display:flex;gap:3px;opacity:0;transform:scale(.85);transition:opacity .2s,transform .2s}.mkt:hover .mkx{opacity:1;transform:none}
+.mkx button{width:22px;height:22px;border-radius:8px;border:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;cursor:pointer;padding:0}.mkx button:hover{background:rgba(var(--argb),.85)}.mkx svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2}
+body.light .mkt{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -9629,20 +9651,24 @@ function wbCloseTab(id){const c=webCfg(),i=(c.tabs||[]).findIndex(t=>t.id===id);
   if(!c.tabs.length){c.act='';save();wbTabsDraw();wbEnsureWv();return}
   if(was){c.act=(c.tabs[i]||c.tabs[i-1]).id;save();wbTabsDraw();wbGo(wbAct())}else{save();wbTabsDraw()}}
 function wbOpen(u){if(!wbAct())wbNewTab(u,true);else{const T=wbAct();wbGo({url:u});if(T){T.url=u;wbSave()}}}
+const WBG='<svg viewBox="0 0 48 48" class="wbgl"><defs><linearGradient id="wbgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".95"/><stop offset="1" stop-color="currentColor" stop-opacity=".55"/></linearGradient><clipPath id="wbgc"><circle cx="24" cy="24" r="16"/></clipPath></defs><circle cx="24" cy="24" r="16" fill="none" stroke="url(#wbgg)" stroke-width="2.2"/><g clip-path="url(#wbgc)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><ellipse class="m1" cx="24" cy="24" rx="16" ry="16"/><ellipse class="m2" cx="24" cy="24" rx="16" ry="16"/><path d="M6 17.5c11 4 25 4 36 0M6 30.5c11-4 25-4 36 0" opacity=".75"/><path d="M8 24h32" opacity=".5"/></g><ellipse class="orbit" cx="24" cy="24" rx="21.5" ry="7.5" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".45" transform="rotate(-24 24 24)"/><circle class="sat" cx="24" cy="24" r="2.3" fill="currentColor"/></svg>';
+const wbMarks=()=>{const c=webCfg();if(!Array.isArray(c.marks)){c.marks=c.home?[{id:wbId(),name:wbHost(c.home),url:c.home}]:[];save()}return c.marks};
+function wbFav(m){const h=wbHost(m.url)||'';const l=(m.name||h||'?').trim().charAt(0).toUpperCase();return `<span class="mki"><b>${esc(l)}</b><img alt="" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=128" onload="if(this.naturalWidth<24)this.remove();else this.parentNode.classList.add('ok')" onerror="this.remove()"></span>`}
+function wbMarksHTML(){const L=wbMarks();return L.map((m,i)=>`<div class="mkt" style="--i:${i}" data-a="wbmk" data-id="${m.id}" title="${esc(m.url)}" tabindex="0">${wbFav(m)}<span class="mkn">${esc(m.name||wbHost(m.url))}</span><span class="mkx"><button data-a="wbmed" data-id="${m.id}" title="Editar">${ic('edit')}</button><button data-a="wbmdel" data-id="${m.id}" title="Quitar">${ic('xx')}</button></span></div>`).join('')+`<div class="mkt mka" style="--i:${L.length}" data-a="wbmadd" tabindex="0"><span class="mki"><b>+</b></span><span class="mkn">Agregar</span></div>`}
+function wbMarksDraw(){const e=$('#wbmk');if(e)e.innerHTML=wbMarksHTML()}
 function wbBuild(root){const c=webCfg();
   root.innerHTML=`<div class="wbx"><div class="wbt">
    <div class="wbg"><button class="wbb dis" data-a="wbback" title="Atrás">${ic('chl')}</button><button class="wbb dis" data-a="wbfwd" title="Adelante">${ic('chr')}</button><button class="wbb" data-a="wbrel" id="wbrel" title="Recargar">${ic('wrl')}</button><button class="wbb" data-a="wbhome" title="Sitio predefinido">${ic('whm')}</button></div>
    <form class="wbu" id="wbf" autocomplete="off"><span class="wbl" id="wbl">${ic('wlk')}</span><input id="wbi" spellcheck="false" placeholder="Buscá o escribí una dirección"><i class="wbul"></i></form>
    <div class="wbg"><button class="wbb wbdlb" data-a="wbdl" id="wbdlb" title="Descargas">${ic('wdl')}<svg class="wbring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="pg" id="wbrp" cx="22" cy="22" r="19" pathLength="100"/></svg><i class="wbn" id="wbn"></i></button><button class="wbb" data-a="wbset" title="Ajustes del navegador">${ic('wgr')}</button></div></div>
    <div class="wbtb" id="wbtb">${wbTabsHTML()}</div>
-   <div class="wbv" id="wbv"><div class="wbld" id="wbpg"><i></i></div><div class="wbem" id="wbem"><div class="in"><div class="orb"><i></i><i></i><span>${ic('web')}</span></div><b>No hay pestañas abiertas</b><span class="sb">Así el navegador no gasta recursos. Abrí una cuando la necesites.</span><div class="bt"><button class="hm-go" data-a="wbnt">${ic('plus')} Nueva pestaña</button>${c.home?`<button class="b2 g" data-a="wbhome">${ic('whm')} Ir a ${esc(wbHost(c.home)||'tu sitio')}</button>`:''}</div></div></div>
+   <div class="wbv" id="wbv"><div class="wbld" id="wbpg"><i></i></div><div class="wbem" id="wbem"><div class="in"><div class="orb"><i></i><i></i><span>${WBG}</span></div><b>Tus sitios</b><span class="sb">Elegí uno para abrirlo en una pestaña. Sin pestañas abiertas el navegador no gasta recursos.</span><div class="mk" id="wbmk">${wbMarksHTML()}</div><div class="bt"><button class="b2 g" data-a="wbnt">${ic('plus')} Pestaña en blanco</button></div></div></div>
    <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside></div></div>`;
   const inp=$('#wbi');$('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();wbOpen(u)});
   inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));root.dataset.built=1;wdDraw();wdBadge()}
 function wbEnter(){clearTimeout(WBR.disc);const root=$('#wbroot');if(!root)return;
   if(!WN){root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Navegador</h2><p>Esta función está disponible en la app de escritorio de WINTEER.</p></div></div>`;return}
   const c=webCfg();wbTabsInit();try{if(c.dir)winteerNative.webDl('tmp',{dir:c.dir})}catch(e){}
-  if(!c.home&&!c.tabs.length){wbKill();root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Elegí tu sitio</h2><p>Escribí la página que querés que se abra siempre acá, por ejemplo la web de donde bajás tus mods. Después podés cambiarla cuando quieras desde el engranaje.</p><input id="wbfirst" placeholder="ejemplo.com" spellcheck="false"><button class="hm-go" style="width:100%;justify-content:center" data-a="wbfirst">Abrir</button></div></div>`;return}
   if(!root.dataset.built){wbKill();wbBuild(root)}else{wbTabsDraw();wdBadge()}
   if(!WBR.ads){WBR.ads=Promise.resolve().then(()=>winteerNative.webDl('ads',{on:c.ads!==false})).catch(()=>0);Promise.race([WBR.ads,new Promise(z=>setTimeout(z,6000))]).then(()=>{if(S.view==='web')wbEnsureWv()});return}
   wbEnsureWv();try{WBR.wv&&WBR.wv.setAudioMuted(false)}catch(e){}}
@@ -9710,6 +9736,14 @@ Object.assign(A,{
  wbtab:a=>wbSwitch(a.dataset.id),wbxt:a=>wbCloseTab(a.dataset.id),wbnt:()=>wbNewTab('',true),
  wbback:()=>{try{WBR.wv.goBack()}catch(e){}},wbfwd:()=>{try{WBR.wv.goForward()}catch(e){}},
  wbrel:()=>{try{WBR.wv.isLoading()?WBR.wv.stop():WBR.wv.reload()}catch(e){}},
+ wbmk:(e)=>{const m=wbMarks().find(x=>x.id===e.dataset.id);if(m)wbNewTab(m.url,true)},
+ wbmadd:()=>A.wbmed({dataset:{id:''}}),
+ wbmed:(e)=>{const m=wbMarks().find(x=>x.id===e.dataset.id)||{};const d=document.createElement('div');d.className='wdm';d.id='wdm';
+   d.innerHTML=`<div class="wds"><div class="hd"><div class="wdfi">${ic('whm')}</div><div><small>Marcadores</small><b>${m.id?'Editar sitio':'Agregar sitio'}</b></div></div><label>Dirección</label><input id="wbm-u" value="${esc(m.url||'')}" placeholder="ejemplo.com" spellcheck="false"><label>Nombre (opcional)</label><input id="wbm-n" value="${esc(m.name||'')}" placeholder="Como querés verlo" spellcheck="false" maxlength="24"><input type="hidden" id="wbm-i" value="${esc(m.id||'')}"><div class="wdft"><button class="b2 g" data-a="wdno">Cancelar</button><button class="hm-go" style="height:46px;padding:0 28px;font-size:15px" data-a="wbmsave">Guardar</button></div></div>`;$('#app').appendChild(d);setTimeout(()=>{const u=$('#wbm-u');u&&u.focus()},60);
+   d.addEventListener('keydown',ev=>{if(ev.key==='Enter')A.wbmsave()})},
+ wbmsave:()=>{const u=webNorm(($('#wbm-u')||{}).value);if(!u||/google\.com\/search/.test(u)){toast('Esa dirección no es válida');return}const n=(($('#wbm-n')||{}).value||'').trim(),id=($('#wbm-i')||{}).value,L=wbMarks();
+   if(id){const m=L.find(x=>x.id===id);if(m){m.url=u;m.name=n}}else{if(L.length>=24){toast('Ya tenés 24 sitios');return}L.push({id:wbId(),name:n,url:u})}save();wdShut();wbMarksDraw()},
+ wbmdel:(e)=>{const c=webCfg();c.marks=wbMarks().filter(x=>x.id!==e.dataset.id);save();wbMarksDraw()},
  wbhome:()=>{const h=webCfg().home;if(!h){A.wbset();return}if(!wbAct())wbNewTab(h,true);else wbOpen(h)},
  wbxall:()=>{const c=webCfg();c.tabs=[];c.act='';save();wbTabsDraw();wbEnsureWv();toast('Cerraste todas las pestañas: el navegador ya no gasta nada')},
  wbdl:()=>{WBR.open=!WBR.open;const d=$('#wbd');if(d){if(WBR.open)wdDraw();d.classList.toggle('on',WBR.open)}},
