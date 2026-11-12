@@ -1802,13 +1802,96 @@ function betaPage() {
   } catch (e) { return null; }
 }
 
+/* ---------- navegador + descargas ---------- */
+const WEB_PART = 'persist:wt-web';
+const WDL = new Map(); let wdlN = 0, webOk = false;
+const wsend = (m) => { if (win && !win.isDestroyed()) win.webContents.send('webdl', m); };
+const wdlSafe = (n) => { n = String(n || 'archivo').replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').replace(/[. ]+$/, '').trim(); return n || 'archivo'; };
+function wdlUniq(dir, name) { let p = path.join(dir, name); if (!fs.existsSync(p)) return p; const e = path.extname(name), b = path.basename(name, e); for (let i = 1; i < 500; i++) { p = path.join(dir, b + ' (' + i + ')' + e); if (!fs.existsSync(p)) return p; } return p; }
+function wdlMove(d) {
+  return new Promise((res, rej) => {
+    try { fs.mkdirSync(path.dirname(d.final), { recursive: true }); fs.renameSync(d.tmp, d.final); return res(); } catch (e) { if (!e || e.code !== 'EXDEV') return rej(e); }
+    try {
+      const tot = fs.statSync(d.tmp).size || 1; let got = 0, lt = 0;
+      const rs = fs.createReadStream(d.tmp), ws = fs.createWriteStream(d.final);
+      rs.on('data', (c) => { got += c.length; const n = Date.now(); if (n - lt > 250) { lt = n; wsend({ id: d.id, st: 'moving', p: got / tot }); } });
+      rs.on('error', rej); ws.on('error', rej);
+      ws.on('finish', () => { try { fs.unlinkSync(d.tmp); } catch (e) {} res(); });
+      rs.pipe(ws);
+    } catch (e) { rej(e); }
+  });
+}
+function webInit() {
+  if (webOk) return; webOk = true;
+  const tmpDir = path.join(app.getPath('userData'), 'dl-tmp');
+  try { fs.mkdirSync(tmpDir, { recursive: true }); for (const f of fs.readdirSync(tmpDir)) { try { fs.unlinkSync(path.join(tmpDir, f)); } catch (e) {} } } catch (e) {}
+  const ses = session.fromPartition(WEB_PART);
+  try { ses.setUserAgent(ses.getUserAgent().replace(/\s(Electron|winteer)\/[\d.]+/ig, '')); } catch (e) {}
+  try { ses.setPermissionRequestHandler((_wc, _p, cb) => cb(false)); } catch (e) {}
+  ses.on('will-download', (_e, item) => {
+    const id = ++wdlN, tmp = path.join(tmpDir, id + '-' + Date.now() + '.part');
+    item.setSavePath(tmp);
+    const d = { id, item, tmp, name: wdlSafe(item.getFilename()), state: 'ask', last: 0, lastT: Date.now(), speed: 0, final: '' };
+    WDL.set(id, d);
+    item.pause();
+    let host = ''; try { host = new URL(item.getURL()).hostname.replace(/^www\./, ''); } catch (e) {}
+    wsend({ id, st: 'ask', name: d.name, size: item.getTotalBytes(), host });
+    item.on('updated', (_ev, st) => {
+      if (d.state !== 'run') return;
+      const now = Date.now(); if (now - d.lastT < 250) return;
+      const got = item.getReceivedBytes(), dt = (now - d.lastT) / 1000, inst = dt > 0 ? (got - d.last) / dt : 0;
+      d.speed = d.speed ? d.speed * 0.7 + inst * 0.3 : inst; d.last = got; d.lastT = now;
+      wsend({ id, st: item.isPaused() ? 'pause' : 'prog', got, size: item.getTotalBytes(), speed: d.speed });
+    });
+    item.once('done', async (_ev, st) => {
+      if (d.state === 'cancel' || st === 'cancelled') { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'cancel' }); return; }
+      if (st !== 'completed' || !d.final) { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'err', msg: 'La descarga se cortó' }); return; }
+      d.state = 'move'; wsend({ id, st: 'moving', p: 0 });
+      try { await wdlMove(d); WDL.delete(id); wsend({ id, st: 'done', path: d.final, size: (() => { try { return fs.statSync(d.final).size; } catch (e) { return 0; } })() }); }
+      catch (e) { WDL.delete(id); wsend({ id, st: 'err', msg: 'No pude guardar el archivo en esa carpeta' }); }
+    });
+  });
+  ipcMain.handle('webDl', async (_e, m, a) => {
+    a = a || {};
+    try {
+      if (m === 'def') return app.getPath('downloads');
+      if (m === 'drives') {
+        const out = [];
+        for (const L of 'CDEFGHIJKLMNOPQRSTUVWXYZ') { const root = L + ':\\'; try { if (!fs.existsSync(root)) continue; const s = fs.statfsSync(root); const total = s.bsize * s.blocks, free = s.bsize * s.bavail; if (total > 0) out.push({ root, free, total }); } catch (e) {} }
+        return out;
+      }
+      if (m === 'free') { try { let p = String(a.dir || ''); while (p && !fs.existsSync(p)) { const up = path.dirname(p); if (up === p) break; p = up; } const s = fs.statfsSync(p); return s.bsize * s.bavail; } catch (e) { return -1; } }
+      if (m === 'pick') { const r = await dialog.showOpenDialog(win, { title: 'Elegí dónde guardar', defaultPath: a.dir || undefined, properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; }
+      if (m === 'go') {
+        const d = WDL.get(a.id); if (!d || d.state !== 'ask') return { err: 'La descarga ya no está disponible' };
+        const dir = String(a.dir || '').trim(); if (!dir) return { err: 'Elegí una carpeta' };
+        try { fs.mkdirSync(dir, { recursive: true }); } catch (e) { return { err: 'No puedo usar esa carpeta' }; }
+        const sz = d.item.getTotalBytes();
+        if (sz > 0) { try { const s = fs.statfsSync(dir); if (s.bsize * s.bavail < sz + 5e7) return { err: 'No hay lugar suficiente en ese disco' }; } catch (e) {} }
+        d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
+        d.item.resume(); return { ok: 1, name: path.basename(d.final), path: d.final };
+      }
+      if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
+      if (m === 'resume') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.lastT = Date.now(); d.last = d.item.getReceivedBytes(); d.item.resume(); wsend({ id: a.id, st: 'prog', got: d.last, size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
+      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; try { d.item.cancel(); } catch (e) {} } return 1; }
+      if (m === 'show') { if (a.path && fs.existsSync(a.path)) shell.showItemInFolder(a.path); return 1; }
+      if (m === 'open') { if (a.path && fs.existsSync(a.path)) await shell.openPath(a.path); return 1; }
+      if (m === 'exists') return !!(a.path && fs.existsSync(a.path));
+    } catch (e) { return { err: String(e && e.message || e) }; }
+    return 0;
+  });
+}
+
 /* ---------- ventana ---------- */
 function createWindow() {
+  webInit();
   win = new BrowserWindow({
     width: 1600, height: 940, minWidth: 1100, minHeight: 700, backgroundColor: '#07060f', show: false, autoHideMenuBar: true, frame: false, title: 'WINTEER',
     icon: path.join(__dirname, 'icon.png'),
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, spellcheck: false, backgroundThrottling: false },
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, spellcheck: false, backgroundThrottling: false, webviewTag: true },
   });
+  win.webContents.on('will-attach-webview', (_e, wp, params) => { delete wp.preload; delete wp.preloadURL; wp.nodeIntegration = false; wp.contextIsolation = true; wp.sandbox = true; params.partition = WEB_PART; });
+  win.webContents.on('did-attach-webview', (_e, wc) => { try { wc.setWindowOpenHandler(({ url }) => { if (/^https?:/i.test(url)) { try { wc.loadURL(url); } catch (e) {} } return { action: 'deny' }; }); } catch (e) {} });
   try {
     win.webContents.session.setDisplayMediaRequestHandler((_req, cb) => {
       desktopCapturer.getSources({ types: ['screen', 'window'] }).then(srcs => {

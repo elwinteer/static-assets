@@ -99,6 +99,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   obsState: () => ipcRenderer.invoke('obsState'),
   obsSetup: () => ipcRenderer.invoke('obsSetup'),
   obsSet: (on) => ipcRenderer.invoke('obsSet', on),
+  webDl: (m, a) => ipcRenderer.invoke('webDl', m, a),
+  onWebDl: (f) => { ipcRenderer.on('webdl', (_e, a) => { try { f(a) } catch (e) {} }) },
   onObsProg: (f) => { ipcRenderer.on('obsprog', (_e, a) => { try { f(a) } catch (e) {} }) },
   aiSetup: (m, f) => ipcRenderer.invoke('aiSetup', m, f),
   onAiProg: (f) => { ipcRenderer.on('aiprog', (_e, a) => { try { f(a) } catch (e) {} }) },
