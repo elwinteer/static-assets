@@ -8907,7 +8907,8 @@ function x9Sys(){const p=petCur(),u=(ST.prof&&ST.prof.name)||ST.name||'',m=p?PMO
   return `Sos ${x9Name()}, ${p?'la mascota virtual':'el compañero'} de WINTEER, un launcher de juegos${u?' y charlás con '+u:''}.${m?' Hoy estás '+m+'.':''} Hablás en español rioplatense, con humor, un poco de ironía y sin filtro, como un amigo gamer bromista. Respuestas cortas (máximo 5 líneas), sin listas largas. Recomendá solo juegos que estén en la lista del usuario y no inventes datos.`}
 function x9Mount(){
   const want=x7On()&&!S.playing&&!$('#bp');let el=$('#x9p');
-  if(!want){if(el)el.remove();const c=$('#x9c');if(c)c.remove();X9.open=0;return}
+  if(!want){if(el&&!el.classList.contains('out')){el.classList.add('out');setTimeout(()=>el.remove(),300)}const c=$('#x9c');if(c)c.remove();X9.open=0;return}
+  if(el&&el.classList.contains('out'))return
   if(!el){el=document.createElement('div');el.id='x9p';el.innerHTML='<div class="x9b"></div>';document.body.appendChild(el);
     const pos=(ST.ai||{}).pos;el.style.left=(pos?pos.x:innerWidth-120)+'px';el.style.top=(pos?pos.y:innerHeight-150)+'px';
     let sx=0,sy=0,ox=0,oy=0,mv=0;
@@ -8916,35 +8917,39 @@ function x9Mount(){
     el.addEventListener('pointerup',()=>{X9.drag=0;el.classList.remove('dr');if(mv){ST.ai=ST.ai||{};ST.ai.pos={x:el.offsetLeft,y:el.offsetTop};save()}else x9Toggle()})}
   const b=el.firstChild,h=x9Ava();if(b.dataset.k!==h.length+''+(S.playing?1:0)){b.dataset.k=h.length+'';b.innerHTML=h}}
 function x9Wander(){const el=$('#x9p');if(!el||X9.open||X9.drag||document.hidden||(ST.ai||{}).pos)return;
-  const x=60+Math.random()*(innerWidth-200),y=innerHeight-190+Math.random()*90;el.style.left=x+'px';el.style.top=Math.max(120,y)+'px'}
+  const x=60+Math.random()*(innerWidth-200),y=innerHeight-190+Math.random()*90;el.style.setProperty('--tl',(x>el.offsetLeft?7:-7)+'deg');el.classList.add('mv');el.style.left=x+'px';el.style.top=Math.max(120,y)+'px';setTimeout(()=>el.classList.remove('mv'),9000)}
 function x9Place(){const el=$('#x9p'),c=$('#x9c');if(!el||!c)return;const r=el.getBoundingClientRect(),W=Math.min(360,innerWidth-24);
-  c.style.width=W+'px';c.style.left=Math.max(12,Math.min(innerWidth-W-12,r.left+r.width/2-W+40))+'px';
-  if(r.top>420){c.style.top='auto';c.style.bottom=(innerHeight-r.top+6)+'px';c.style.maxHeight=Math.min(480,r.top-50)+'px'}else{c.style.bottom='auto';c.style.top=(r.bottom+6)+'px';c.style.maxHeight=Math.max(260,innerHeight-r.bottom-20)+'px'}}
-function x9Msg(r,t){const l=$('#x9l');if(!l)return;const d=document.createElement('div');d.className='x9m '+r;d.textContent=t;l.appendChild(d);l.scrollTop=l.scrollHeight;return d}
-function x9Toggle(){if(X9.open){const c=$('#x9c');if(c)c.remove();X9.open=0;try{speechSynthesis.cancel()}catch(e){}return}x9Open()}
+  c.style.width=W+'px';c.style.setProperty('--ox',Math.round(Math.max(0,Math.min(W,r.left+r.width/2-(Math.max(12,Math.min(innerWidth-W-12,r.left+r.width/2-W+40)))))/W*100)+'%');c.style.left=Math.max(12,Math.min(innerWidth-W-12,r.left+r.width/2-W+40))+'px';
+  c.style.setProperty('--oy',r.top>420?'100%':'0%');if(r.top>420){c.style.top='auto';c.style.bottom=(innerHeight-r.top+6)+'px';c.style.maxHeight=Math.min(480,r.top-50)+'px'}else{c.style.bottom='auto';c.style.top=(r.bottom+6)+'px';c.style.maxHeight=Math.max(260,innerHeight-r.bottom-20)+'px'}}
+function x9Msg(r,t,anim){const l=$('#x9l');if(!l)return;const d=document.createElement('div');d.className='x9m '+r;
+  if(r==='p'&&anim){const ws=t.split(/(\s+)/),n=ws.filter(x=>x.trim()).length,st=Math.min(34,1700/Math.max(n,1));let i=0;d.innerHTML=ws.map(w=>w.trim()?`<span class="w" style="animation-delay:${Math.round(i++*st)}ms">${esc(w)}</span>`:w).join('')}else d.textContent=t;
+  l.appendChild(d);x9Down();return d}
+function x9Down(){const l=$('#x9l');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
+function x9Typing(){const l=$('#x9l');if(!l)return;const d=document.createElement('div');d.className='x9m p ty';d.innerHTML='<i></i><i></i><i></i>';l.appendChild(d);x9Down();return d}
+function x9Toggle(){if(X9.open){const c=$('#x9c');if(c){c.classList.add('out');setTimeout(()=>c.remove(),250)}X9.open=0;try{speechSynthesis.cancel()}catch(e){}return}x9Open()}
 async function x9Open(){
   await x7Refresh();x9Mount();if(!$('#x9p'))return;const c0=$('#x9c');if(c0)c0.remove();
   const s=X7.st,ok=s&&s.ok&&s.models.length,blk=x7Blocked();
   const c=document.createElement('div');c.id='x9c';
-  c.innerHTML=`<div class="x9h"><div><b>${esc(x9Name())}</b><small>${ok?'Charlá conmigo o preguntame qué jugar':'Falta instalar la IA'}</small></div><div class="x9hb"><button data-x9="say" class="${x9Say()?'on':''}" title="Que me conteste en voz alta">${X9I.spk}</button><button data-x9="x" title="Cerrar">${X9I.x}</button></div></div><div class="x9l" id="x9l"></div>`+
-  (ok?`<div class="x9ch" id="x9ch">${['¿A qué juego me conviene jugar hoy?','Tengo una hora libre, ¿qué me recomendás?','Contame un chiste de gamers'].map(q=>`<button data-x9="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div><div class="x9in"><input id="x9q" maxlength="300" placeholder="Escribime…" autocomplete="off"><button data-x9="mic" id="x9mic" title="Hablame">${X9I.mic}</button><button data-x9="send" title="Enviar">${X9I.send}</button></div>`:`<div class="x9in" style="flex-direction:column;align-items:stretch"><button class="hm-go" data-a="x7setup">Instalar IA ahora</button><small style="opacity:.7;text-align:center">Un botón y listo. Tarda unos minutos.</small></div>`);
-  document.body.appendChild(c);X9.open=1;x9Place();
+  c.innerHTML=`<div class="x9h"><div class="x9av">${x9Ava()}</div><div class="x9t"><b>${esc(x9Name())}</b><small><i></i>${ok?'En línea':'Falta instalar la IA'}</small></div><div class="x9hb"><button data-x9="say" class="${x9Say()?'on':''}" title="Que me conteste en voz alta">${X9I.spk}</button><button data-x9="x" title="Cerrar">${X9I.x}</button></div></div><div class="x9l" id="x9l"></div>`+
+  (ok?`<div class="x9ch" id="x9ch">${['¿A qué juego me conviene jugar hoy?','Tengo una hora libre, ¿qué me recomendás?','Contame un chiste de gamers'].map(q=>`<button data-x9="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div><div class="x9in"><input id="x9q" maxlength="300" placeholder="Escribime…" autocomplete="off"><button data-x9="mic" id="x9mic" title="Hablame">${X9I.mic}</button><div class="x9wv"><i></i><i></i><i></i><i></i><i></i><span>Escuchando…</span></div><button data-x9="send" class="snd" title="Enviar">${X9I.send}</button></div>`:`<div class="x9in" style="flex-direction:column;align-items:stretch"><button class="hm-go" data-a="x7setup">Instalar IA ahora</button><small style="opacity:.7;text-align:center">Un botón y listo. Tarda unos minutos.</small></div>`);
+  document.body.appendChild(c);X9.open=1;x9Place();{const pe=$('#x9p');if(pe){pe.classList.remove('jp');void pe.offsetWidth;pe.classList.add('jp')}}
   c.addEventListener('click',e=>{const b=e.target.closest('[data-x9]');if(!b)return;const k=b.dataset.x9;
     if(k==='x')x9Toggle();else if(k==='say'){ST.ai=ST.ai||{};ST.ai.say=!ST.ai.say;save();b.classList.toggle('on',x9Say());if(!x9Say()){try{speechSynthesis.cancel()}catch(e){}}}
     else if(k==='chip')x9Ask(b.dataset.q);else if(k==='send'){const q=$('#x9q');if(q&&q.value.trim()){const v=q.value;q.value='';x9Ask(v)}}else if(k==='mic')x9Listen()});
   const q=$('#x9q');if(q){q.addEventListener('keydown',e=>{if(e.key==='Enter'&&q.value.trim()){const v=q.value;q.value='';x9Ask(v)}});q.focus()}
-  if(X9.hist.length)X9.hist.forEach(h=>x9Msg(h.r,h.t));else x9Msg('p',blk?'Hay un juego abierto, así que me quedo piola para no sacarle rendimiento.':'¡Buenas! Soy '+x9Name()+'. Preguntame lo que quieras, o tocá el micrófono y hablame.')}
+  if(X9.hist.length)X9.hist.forEach(h=>x9Msg(h.r,h.t));else x9Msg('p',blk?'Hay un juego abierto, así que me quedo piola para no sacarle rendimiento.':'¡Buenas! Soy '+x9Name()+'. Preguntame lo que quieras, o tocá el micrófono y hablame.',1)}
 function x9Speak(t){if(!x9Say()||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,'')),v=speechSynthesis.getVoices().find(x=>/^es-(AR|MX|US)/i.test(x.lang))||speechSynthesis.getVoices().find(x=>/^es/i.test(x.lang));if(v)u.voice=v;u.lang=v?v.lang:'es-AR';u.rate=1.05;speechSynthesis.speak(u)}catch(e){}}
 async function x9Ask(q){q=(q||'').trim();if(!q||X9.busy)return;const ch=$('#x9ch');if(ch)ch.remove();
   x9Msg('u',q);X9.hist.push({r:'u',t:q});if(x7Blocked()){const t='Hay un juego abierto, no te quiero ocupar la máquina.';x9Msg('p',t);X9.hist.push({r:'p',t});return}
-  X9.busy=1;const ty=x9Msg('p','…');ty.classList.add('ty');
+  X9.busy=1;const ty=x9Typing();
   const hist=X9.hist.slice(-9,-1).map(h=>(h.r==='u'?'Usuario: ':'Vos: ')+h.t).join('\n');
   let r;try{r=await winteerNative.aiAsk({model:(ST.ai||{}).model,system:x9Sys(),cpu:!!(ST.ai||{}).cpu,prompt:x7Ctx()+(hist?'\n\nConversación hasta ahora:\n'+hist:'')+'\n\nUsuario: '+q+'\nVos:'})}catch(e){r={ok:false,err:'No pude consultar a Ollama'}}
   X9.busy=0;const t=r.ok?(r.text||'No se me ocurre nada.'):r.busy?'Se abrió un juego y me frené para no sacarle rendimiento.':(r.err||'Algo falló.');
-  if(ty&&ty.parentNode){ty.classList.remove('ty');ty.textContent=t;const l=$('#x9l');if(l)l.scrollTop=l.scrollHeight}X9.hist.push({r:'p',t});if(r.ok)x9Speak(t)}
-async function x9Listen(){if(X9.listen||X9.busy)return;const m=$('#x9mic'),q=$('#x9q');X9.listen=1;if(m)m.classList.add('on');if(q)q.placeholder='Escuchando… hablá ahora';
+  if(ty&&ty.parentNode)ty.remove();x9Msg('p',t,1);X9.hist.push({r:'p',t});if(r.ok)x9Speak(t)}
+async function x9Listen(){if(X9.listen||X9.busy)return;const m=$('#x9mic'),q=$('#x9q');X9.listen=1;if(m)m.classList.add('on');{const w=$('.x9in');if(w)w.classList.add('lis')}
   let r;try{r=await winteerNative.aiListen()}catch(e){r={ok:false,err:'x'}}
-  X9.listen=0;const m2=$('#x9mic'),q2=$('#x9q');if(m2)m2.classList.remove('on');if(q2)q2.placeholder='Escribime…';
+  X9.listen=0;const m2=$('#x9mic'),q2=$('#x9q');if(m2)m2.classList.remove('on');{const w=$('.x9in');if(w)w.classList.remove('lis')}
   if(r.ok&&r.text){x9Ask(r.text)}else x9Msg('p',r.err==='norec'?'Tu Windows no tiene reconocimiento de voz en español. Se instala en Configuración, Hora e idioma, Voz.':r.err==='mic'?'No pude usar el micrófono. Revisá que Windows lo permita para apps de escritorio.':'No te escuché. Probá de nuevo.')}
 setInterval(x9Mount,2500);setTimeout(x9Mount,6500);setInterval(x9Wander,22000);
 if(WN&&winteerNative.onAiProg)winteerNative.onAiProg(a=>{if(!X7.inst)return;X7.inst={p:a.p,t:(a.t||'')+(a.p<100?' '+a.p+'%':'')};const t=$('#x7pt'),b=$('#x7pb');if(t)t.textContent=X7.inst.t;if(b)b.style.width=a.p+'%'});
@@ -9258,17 +9263,32 @@ Object.assign(A,{
 .x6sg{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 14px;border-radius:99px;background:rgba(20,16,34,.92);border:1px solid rgba(var(--argb),.6);font-size:12.5px;color:#fff;white-space:nowrap}.x6sg button{border:0;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:600;font-size:12.5px;padding:6px 12px;cursor:pointer}.x6sg button:hover{background:rgba(255,255,255,.22)}
 /*/cX6A*/
 
-/*cX7A*/#x9p{position:fixed;z-index:85;width:84px;height:84px;cursor:grab;transition:left 9s ease-in-out,top 9s ease-in-out;touch-action:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}#x9p.dr{cursor:grabbing;transition:none}#x9p .x9b{animation:x9f 3.6s ease-in-out infinite;display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;pointer-events:none}#x9p:hover .x9b{animation-duration:1.8s}
-@keyframes x9f{50%{transform:translateY(-9px) rotate(1.5deg)}}
-#x9c{position:fixed;z-index:86;display:flex;flex-direction:column;border-radius:22px;background:rgba(16,14,28,.94);backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;animation:x9i .35s cubic-bezier(.22,1,.36,1)}
-@keyframes x9i{from{opacity:0;transform:translateY(12px) scale(.97)}}
-.x9h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.07)}.x9h b{display:block;font-size:15px}.x9h small{opacity:.6;font-size:11.5px}.x9hb{display:flex;gap:6px}
-.x9hb button,.x9in button{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:.2s}.x9hb button:hover,.x9in button:hover{background:rgba(255,255,255,.16)}.x9hb button.on{background:#fff;color:#000}.x9in button.on{background:#ff5d5d;animation:x9r 1s infinite}
-@keyframes x9r{50%{box-shadow:0 0 0 7px rgba(255,93,93,.25)}}
-.x9l{flex:1;min-height:120px;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-.x9m{max-width:86%;padding:9px 12px;border-radius:16px;font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;animation:x9i .3s}.x9m.p{align-self:flex-start;background:rgba(255,255,255,.09);border-bottom-left-radius:5px}.x9m.u{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:5px}.x9m.ty{opacity:.6}
-.x9ch{display:flex;flex-direction:column;gap:6px;padding:0 14px 8px}.x9ch button{text-align:left;padding:8px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#ddd;font-size:12.5px;cursor:pointer}.x9ch button:hover{background:rgba(255,255,255,.12)}
-.x9in{display:flex;gap:8px;align-items:center;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,.07)}.x9in input{flex:1;min-width:0;padding:10px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:13.5px;outline:0}.x9in input:focus{border-color:rgba(255,255,255,.3)}
+/*cX7A*/#x9p{position:fixed;z-index:85;width:88px;height:88px;cursor:grab;transition:left 9s cubic-bezier(.45,.05,.35,1),top 9s cubic-bezier(.45,.05,.35,1);touch-action:none;filter:drop-shadow(0 12px 20px rgba(0,0,0,.45)) drop-shadow(0 0 16px rgba(var(--argb),.28));animation:x9pop .8s var(--spring) both}
+#x9p.dr{cursor:grabbing;transition:none}#x9p.out{animation:x9out .3s ease-in both;pointer-events:none}
+#x9p .x9b{animation:x9f 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;pointer-events:none;transition:transform .6s var(--spring)}
+#x9p:hover .x9b{transform:scale(1.1) rotate(-3deg)}#x9p.dr .x9b{transform:scale(.93) rotate(4deg);animation:none}#x9p.mv .x9b{transform:rotate(var(--tl,6deg))}#x9p.jp .x9b{animation:x9j .6s var(--spring)}
+@keyframes x9f{0%,100%{translate:0 0}50%{translate:0 -10px}}@keyframes x9pop{from{opacity:0;scale:.2}to{opacity:1;scale:1}}@keyframes x9out{to{opacity:0;scale:.3}}@keyframes x9j{30%{translate:0 -22px;scale:1.12 .9}60%{translate:0 0;scale:.94 1.06}}
+#x9c{position:fixed;z-index:86;display:flex;flex-direction:column;border-radius:28px;background:var(--gl),rgba(30,24,52,.62);backdrop-filter:blur(30px) saturate(1.9);box-shadow:var(--glb);overflow:hidden;transform-origin:var(--ox,90%) var(--oy,100%);animation:x9in .55s var(--spring) both}
+body.dark #x9c{background:var(--gl),rgba(12,9,24,.86)}#x9c.out{animation:x9cout .25s ease-in both;pointer-events:none}
+@keyframes x9in{from{opacity:0;transform:scale(.4) translateY(30px)}}@keyframes x9cout{to{opacity:0;transform:scale(.6) translateY(20px)}}
+.x9h{display:flex;align-items:center;gap:11px;padding:14px 14px 12px;background:linear-gradient(180deg,rgba(var(--argb),.16),transparent)}
+.x9av{width:42px;height:42px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;box-shadow:0 0 0 2px rgba(var(--argb),.45),0 0 18px rgba(var(--argb),.35)}.x9av>*{width:100%!important;height:100%!important}.x9av svg{width:70%!important;height:70%!important}
+.x9t{flex:1;min-width:0}.x9t b{display:block;font-size:15px;letter-spacing:.01em}.x9t small{display:flex;align-items:center;gap:6px;opacity:.7;font-size:11.5px}.x9t small i{width:7px;height:7px;border-radius:50%;background:#5df08a;box-shadow:0 0 8px #5df08a;animation:x9d 2s infinite}@keyframes x9d{50%{opacity:.35}}
+.x9hb{display:flex;gap:6px}.x9hb button,.x9in button{width:36px;height:36px;border-radius:50%;background:var(--card2);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:transform .3s var(--spring),background .25s,box-shadow .25s}
+.x9hb button:hover,.x9in button:hover{transform:scale(1.12);background:rgba(255,255,255,.2)}.x9hb button:active,.x9in button:active{transform:scale(.9)}.x9hb button.on{background:var(--a);color:var(--on-a);box-shadow:0 0 16px rgba(var(--argb),.55)}
+.x9in .snd{background:linear-gradient(135deg,var(--a2),var(--a) 55%,var(--a3));color:var(--on-a);box-shadow:0 6px 18px rgba(var(--argb),.45)}
+.x9l{flex:1;min-height:120px;overflow-y:auto;padding:10px 14px 6px;display:flex;flex-direction:column;gap:9px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent;-webkit-mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 10px),transparent)}
+.x9m{max-width:86%;padding:10px 14px;border-radius:20px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;animation:x9m .5s var(--spring) both}
+.x9m.p{align-self:flex-start;background:var(--card2);border-bottom-left-radius:6px;transform-origin:0 100%}.x9m.u{align-self:flex-end;background:linear-gradient(135deg,var(--a2),var(--a));color:var(--on-a);border-bottom-right-radius:6px;box-shadow:0 6px 18px rgba(var(--argb),.3);transform-origin:100% 100%}
+@keyframes x9m{from{opacity:0;transform:translateY(14px) scale(.85)}}
+.x9m .w{display:inline-block;animation:x9w .45s ease-out both}@keyframes x9w{from{opacity:0;transform:translateY(5px);filter:blur(3px)}}
+.x9m.ty{display:flex;gap:5px;padding:13px 16px}.x9m.ty i{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.5;animation:x9b 1.1s infinite}.x9m.ty i:nth-child(2){animation-delay:.15s}.x9m.ty i:nth-child(3){animation-delay:.3s}@keyframes x9b{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-6px);opacity:1}}
+.x9ch{display:flex;flex-direction:column;gap:7px;padding:2px 14px 10px}.x9ch button{text-align:left;padding:9px 13px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.09);color:#e6e3f4;font-size:12.5px;cursor:pointer;animation:x9m .55s var(--spring) both;transition:transform .3s var(--spring),border-color .25s,background .25s}.x9ch button:nth-child(2){animation-delay:.08s}.x9ch button:nth-child(3){animation-delay:.16s}.x9ch button:hover{transform:translateX(5px);border-color:rgba(var(--argb),.6);background:var(--card2)}
+.x9in{position:relative;display:flex;gap:8px;align-items:center;padding:10px 12px 13px;border-top:1px solid rgba(255,255,255,.07)}.x9in input{flex:1;min-width:0;height:38px;padding:0 15px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:var(--card);color:#fff;font:inherit;font-size:13.5px;outline:0;transition:border-color .25s,box-shadow .25s,background .25s}.x9in input:focus{border-color:rgba(var(--argb),.7);box-shadow:0 0 0 3px rgba(var(--argb),.18);background:var(--card2)}
+.x9in button.on{background:#ff5d6c;animation:x9r 1.1s infinite}@keyframes x9r{50%{box-shadow:0 0 0 9px rgba(255,93,108,.2)}}
+.x9wv{display:none;flex:1;height:38px;align-items:center;justify-content:center;gap:4px;border-radius:99px;background:var(--card)}.x9wv i{width:4px;height:8px;border-radius:3px;background:var(--a2);animation:x9v .9s ease-in-out infinite}.x9wv i:nth-child(2){animation-delay:.1s}.x9wv i:nth-child(3){animation-delay:.2s}.x9wv i:nth-child(4){animation-delay:.3s}.x9wv i:nth-child(5){animation-delay:.4s}.x9wv span{margin-left:8px;font-size:12px;opacity:.75}@keyframes x9v{50%{height:22px}}
+.x9in.lis .x9wv{display:flex}.x9in.lis input{display:none}
+@media(prefers-reduced-motion:reduce){#x9p,#x9p *,#x9c,#x9c *{animation:none!important;transition:none!important}}
 .x7bar{height:8px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:10px;overflow:hidden}.x7bar i{display:block;height:100%;background:#fff;border-radius:99px;transition:width .4s}
 .x7a{margin-top:12px;white-space:pre-wrap;line-height:1.5;font-size:14px;max-height:40vh;overflow:auto}.x7m .mb,.x7m{min-width:min(560px,92vw)}
 /*/cX7A*/
