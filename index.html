@@ -7033,7 +7033,7 @@ function petLife(){return;try{const now=Date.now();PETS();
   if(ch){save();try{petMini();if(petOn())go('pet')}catch(e){}}}catch(e){}}
 setTimeout(petLife,3000);
 function petDrop(p){const lc=p.lc||Date.now(),r=Math.max(0,864e5*((p.dk||0)+1)-(Date.now()-lc));return r}
-function petMood(p){petTick(p);const hr=new Date().getHours();if(hr>=23||hr<7)return 'sleepy';if(Math.min(p.food,p.joy,p.love)<45)return 'grumpy';if(p.ex&&Date.now()-p.ex<3e5)return 'excited';if(p.gd===pTK())return 'proud';return (p.food+p.joy+p.love)/3>=68?'happy':'ok'}
+function petMood(p){petTick(p);const hr=new Date().getHours();if(hr>=23||hr<7)return 'sleepy';if(p.ex&&Date.now()-p.ex<3e5)return 'excited';if(p.gd===pTK())return 'proud';return (p.food+p.joy+p.love)/3>=68?'happy':'ok'}
 const petBd=p=>{if(!p.bd)return false;const d=new Date();return p.bd===String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const petWalks=p=>Math.max(0,Math.min(6,Math.floor((LOGH()-(p.h0||0))/0.5)-(p.used||0)));
 
@@ -8898,13 +8898,15 @@ function x7Rows(){
   return [r1,`<div class="row"><div>${st}${I===false?'<small style="color:var(--a2)">No se pudo terminar ('+esc(X7.err||'sin detalle')+'). Probá de nuevo.</small>':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${need?'<button class="hm-go" data-a="x7setup" style="white-space:nowrap">'+(s.ok?'Bajar modelo':'Instalar IA')+'</button>':''}${s&&s.ok&&s.models.length>1?'<button class="b2 g" data-a="x7models">Cambiar modelo</button>':''}${s&&s.ok&&s.models.length?'<button class="b2 g" data-a="x9say">'+((ST.ai||{}).say?'Voz: sí':'Voz: no')+'</button><button class="b2 g" data-a="x7cpu">'+((ST.ai||{}).cpu?'Usar placa de video':'Usar solo procesador')+'</button>':''}<button class="b2 g" data-a="x7check">Revisar</button>${s&&s.ok&&s.models.length?'<button class="b2" data-a="x7ask">Preguntar</button>':''}</div></div>`]}
 function x7Pill(){try{return x7On()&&X7.st&&X7.st.ok&&X7.st.models.length?'<button class="h2-pill" data-a="x7ask" style="white-space:nowrap" title="Preguntale a tu biblioteca (IA local)">Preguntar</button>':''}catch(e){return ''}}
 /* mascota flotante con chat, microfono y voz */
-const X9={open:0,hist:[],busy:0,listen:0,wt:0,drag:0};
+const X9={open:0,hist:((ST.ai||{}).hist||[]).slice(-30),busy:0,listen:0,wt:0,drag:0,raf:0};
+const x9Push=(r,t)=>{X9.hist.push({r,t});ST.ai=ST.ai||{};ST.ai.hist=X9.hist.slice(-30);save()};
 const x9Say=()=>!!(ST.ai&&ST.ai.say);
 const x9Name=()=>{const p=petCur();return p?p.name:'Winter'};
-const X9I={mic:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',send:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',spk:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>',x:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
+const X9I={mic:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',send:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',spk:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>',trash:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/></svg>',x:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
 function x9Ava(){const p=petCur();return p?(p.photo?petFace(p,72):petSVG(p,petMood(p),{size:72,body:true})):'<span style="width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg></span>'}
 const x9Games=q=>/jug|juego|recomend|retom|termin|hora|aburr|qué (hago|toca)|que (hago|toca)|empez|probar|play|gam|pasar|viciar|vicio|hoy|esta noche|biblioteca|lista|genero|género|corto|largo/i.test(q);
 function x9Lib(){const L=G.filter(g=>!g.hide&&!vIs(g)).sort((a,b)=>lastTs(b)-lastTs(a)).slice(0,30);return L.map(g=>`- ${g.name} (${fh(g.hours)}, ${stOf(g)})`).join('\n')}
+function x9Head(){const p=petCur();return p?petFace(p,42):'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>'}
 function x9Sys(withLib){const p=petCur(),u=(ST.prof&&ST.prof.name)||ST.name||'',m=p?PMOOD[petMood(p)][0].toLowerCase():'',n=new Date();
   return `Sos ${x9Name()}, ${p?'la mascota virtual':'el compañero'} de WINTEER, un launcher de juegos${u?' y charlás con '+u:''}.${m?' Hoy estás '+m+'.':''} Es ${n.toLocaleDateString('es-AR',{weekday:'long'})}, ${n.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})} hs.
 Hablás en español rioplatense, con humor, ironía y sin filtro, como un amigo gamer bromista. Respondé SIEMPRE a lo que te dice la persona, en 1 a 4 líneas, sin listas. Si te insulta o te cargadas, devolvé la cargada con gracia. Si solo saluda o charla, charlá. Hablá de juegos o recomendá únicamente cuando te lo pidan. No inventes juegos ni datos.${withLib?`\nLos juegos del usuario, para cuando te pida recomendaciones (recomendá solo de esta lista):\n${x9Lib()}`:''}`}
@@ -8914,11 +8916,24 @@ function x9Mount(){
   if(el&&el.classList.contains('out'))return
   if(!el){el=document.createElement('div');el.id='x9p';el.innerHTML='<div class="x9b"></div>';document.body.appendChild(el);
     const pos=(ST.ai||{}).pos;el.style.left=(pos?pos.x:innerWidth-120)+'px';el.style.top=(pos?pos.y:innerHeight-150)+'px';
-    let sx=0,sy=0,ox=0,oy=0,mv=0;
-    el.addEventListener('pointerdown',e=>{if(e.button)return;el.setPointerCapture(e.pointerId);X9.drag=1;mv=0;sx=e.clientX;sy=e.clientY;ox=el.offsetLeft;oy=el.offsetTop;el.classList.add('dr')});
-    el.addEventListener('pointermove',e=>{if(!X9.drag)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>5)mv=1;if(mv){el.style.left=Math.max(0,Math.min(innerWidth-90,ox+dx))+'px';el.style.top=Math.max(36,Math.min(innerHeight-100,oy+dy))+'px';x9Place()}});
-    el.addEventListener('pointerup',()=>{X9.drag=0;el.classList.remove('dr');if(mv){ST.ai=ST.ai||{};ST.ai.pos={x:el.offsetLeft,y:el.offsetTop};save()}else x9Toggle()})}
+    let sx=0,sy=0,ox=0,oy=0,mv=0,sm=[];
+    el.addEventListener('pointerdown',e=>{if(e.button)return;cancelAnimationFrame(X9.raf);el.classList.remove('ph','mv');el.setPointerCapture(e.pointerId);X9.drag=1;mv=0;sx=e.clientX;sy=e.clientY;ox=el.offsetLeft;oy=el.offsetTop;sm=[{x:e.clientX,y:e.clientY,t:performance.now()}];el.classList.add('dr')});
+    el.addEventListener('pointermove',e=>{if(!X9.drag)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>5)mv=1;sm.push({x:e.clientX,y:e.clientY,t:performance.now()});if(sm.length>8)sm.shift();if(mv){el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,ox+dx))+'px';el.style.top=Math.max(36,Math.min(innerHeight-el.offsetHeight,oy+dy))+'px';x9Place()}});
+    el.addEventListener('pointerup',()=>{X9.drag=0;el.classList.remove('dr');if(!mv){x9Toggle();return}
+      const n=performance.now(),f=sm.filter(q=>n-q.t<110),a0=f[0],b0=f[f.length-1];let vx=0,vy=0;if(a0&&b0&&b0.t>a0.t){vx=(b0.x-a0.x)/(b0.t-a0.t);vy=(b0.y-a0.y)/(b0.t-a0.t)}
+      if(Math.hypot(vx,vy)>.25)x9Throw(el,Math.max(-3,Math.min(3,vx)),Math.max(-3,Math.min(3,vy)));else{ST.ai=ST.ai||{};ST.ai.pos={x:el.offsetLeft,y:el.offsetTop};save()}})}
   const b=el.firstChild,h=x9Ava();if(b.dataset.k!==h.length+''+(S.playing?1:0)){b.dataset.k=h.length+'';b.innerHTML=h}}
+function x9Throw(el,vx,vy){cancelAnimationFrame(X9.raf);el.classList.add('ph','mv');let x=el.offsetLeft,y=el.offsetTop,last=performance.now(),still=0;
+  const step=now=>{if(!el.isConnected)return;const dt=Math.min(32,now-last);last=now;x+=vx*dt;y+=vy*dt;const k=Math.pow(.992,dt/16.7);vx*=k;vy*=k;
+    const W=innerWidth-el.offsetWidth,H=innerHeight-el.offsetHeight;let hit=0;
+    if(x<0){x=0;vx=-vx*.72;hit=1}else if(x>W){x=W;vx=-vx*.72;hit=1}
+    if(y<36){y=36;vy=-vy*.72;hit=1}else if(y>H){y=H;vy=-vy*.72;hit=1}
+    if(hit&&Math.hypot(vx,vy)>.2){el.classList.remove('bk');void el.offsetWidth;el.classList.add('bk')}
+    el.style.left=x+'px';el.style.top=y+'px';el.style.setProperty('--tl',Math.max(-18,Math.min(18,vx*10))+'deg');if(X9.open)x9Place();
+    if(Math.hypot(vx,vy)<.03)still++;else still=0;
+    if(still>8){el.classList.remove('ph','mv','bk');ST.ai=ST.ai||{};ST.ai.pos={x:Math.round(x),y:Math.round(y)};save();return}
+    X9.raf=requestAnimationFrame(step)};
+  X9.raf=requestAnimationFrame(step)}
 function x9Wander(){const el=$('#x9p');if(!el||X9.open||X9.drag||document.hidden||(ST.ai||{}).pos)return;
   const x=60+Math.random()*(innerWidth-200),y=innerHeight-190+Math.random()*90;el.style.setProperty('--tl',(x>el.offsetLeft?7:-7)+'deg');el.classList.add('mv');el.style.left=x+'px';el.style.top=Math.max(120,y)+'px';setTimeout(()=>el.classList.remove('mv'),9000)}
 function x9Place(){const el=$('#x9p'),c=$('#x9c');if(!el||!c)return;const r=el.getBoundingClientRect(),W=Math.min(360,innerWidth-24);
@@ -8934,22 +8949,22 @@ async function x9Open(){
   await x7Refresh();x9Mount();if(!$('#x9p'))return;const c0=$('#x9c');if(c0)c0.remove();
   const s=X7.st,ok=s&&s.ok&&s.models.length,blk=x7Blocked();
   const c=document.createElement('div');c.id='x9c';
-  c.innerHTML=`<div class="x9h"><div class="x9av">${x9Ava()}</div><div class="x9t"><b>${esc(x9Name())}</b><small><i></i>${ok?'En línea':'Falta instalar la IA'}</small></div><div class="x9hb"><button data-x9="say" class="${x9Say()?'on':''}" title="Que me conteste en voz alta">${X9I.spk}</button><button data-x9="x" title="Cerrar">${X9I.x}</button></div></div><div class="x9l" id="x9l"></div>`+
+  c.innerHTML=`<div class="x9h"><div class="x9av">${x9Head()}</div><div class="x9t"><b>${esc(x9Name())}</b><small><i></i>${ok?'En línea':'Falta instalar la IA'}</small></div><div class="x9hb"><button data-x9="clr" title="Borrar la charla">${X9I.trash}</button><button data-x9="say" class="${x9Say()?'on':''}" title="Que me conteste en voz alta">${X9I.spk}</button><button data-x9="x" title="Cerrar">${X9I.x}</button></div></div><div class="x9l" id="x9l"></div>`+
   (ok?`<div class="x9ch" id="x9ch">${['¿A qué juego me conviene jugar hoy?','Tengo una hora libre, ¿qué me recomendás?','Contame un chiste de gamers'].map(q=>`<button data-x9="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div><div class="x9in"><input id="x9q" maxlength="300" placeholder="Escribime…" autocomplete="off"><button data-x9="mic" id="x9mic" title="Hablame">${X9I.mic}</button><div class="x9wv"><i></i><i></i><i></i><i></i><i></i><span>Escuchando…</span></div><button data-x9="send" class="snd" title="Enviar">${X9I.send}</button></div>`:`<div class="x9in" style="flex-direction:column;align-items:stretch"><button class="hm-go" data-a="x7setup">Instalar IA ahora</button><small style="opacity:.7;text-align:center">Un botón y listo. Tarda unos minutos.</small></div>`);
   document.body.appendChild(c);X9.open=1;x9Place();{const pe=$('#x9p');if(pe){pe.classList.remove('jp');void pe.offsetWidth;pe.classList.add('jp')}}
   c.addEventListener('click',e=>{const b=e.target.closest('[data-x9]');if(!b)return;const k=b.dataset.x9;
-    if(k==='x')x9Toggle();else if(k==='say'){ST.ai=ST.ai||{};ST.ai.say=!ST.ai.say;save();b.classList.toggle('on',x9Say());if(!x9Say()){try{speechSynthesis.cancel()}catch(e){}}}
+    if(k==='x')x9Toggle();else if(k==='clr'){X9.hist=[];ST.ai=ST.ai||{};ST.ai.hist=[];save();const l=$('#x9l');if(l)l.innerHTML='';x9Msg('p','Listo, borrón y cuenta nueva.',1)}else if(k==='say'){ST.ai=ST.ai||{};ST.ai.say=!ST.ai.say;save();b.classList.toggle('on',x9Say());if(!x9Say()){try{speechSynthesis.cancel()}catch(e){}}}
     else if(k==='chip')x9Ask(b.dataset.q);else if(k==='send'){const q=$('#x9q');if(q&&q.value.trim()){const v=q.value;q.value='';x9Ask(v)}}else if(k==='mic')x9Listen()});
   const q=$('#x9q');if(q){q.addEventListener('keydown',e=>{if(e.key==='Enter'&&q.value.trim()){const v=q.value;q.value='';x9Ask(v)}});q.focus()}
   if(X9.hist.length)X9.hist.forEach(h=>x9Msg(h.r,h.t));else x9Msg('p',blk?'Hay un juego abierto, así que me quedo piola para no sacarle rendimiento.':'¡Buenas! Soy '+x9Name()+'. Preguntame lo que quieras, o tocá el micrófono y hablame.',1)}
 function x9Speak(t){if(!x9Say()||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,'')),v=speechSynthesis.getVoices().find(x=>/^es-(AR|MX|US)/i.test(x.lang))||speechSynthesis.getVoices().find(x=>/^es/i.test(x.lang));if(v)u.voice=v;u.lang=v?v.lang:'es-AR';u.rate=1.05;speechSynthesis.speak(u)}catch(e){}}
 async function x9Ask(q){q=(q||'').trim();if(!q||X9.busy)return;const ch=$('#x9ch');if(ch)ch.remove();
-  x9Msg('u',q);X9.hist.push({r:'u',t:q});if(x7Blocked()){const t='Hay un juego abierto, no te quiero ocupar la máquina.';x9Msg('p',t);X9.hist.push({r:'p',t});return}
+  x9Msg('u',q);x9Push('u',q);if(x7Blocked()){const t='Hay un juego abierto, no te quiero ocupar la máquina.';x9Msg('p',t);x9Push('p',t);return}
   X9.busy=1;const ty=x9Typing();
-  const msgs=X9.hist.slice(-9).map(h=>({role:h.r==='u'?'user':'assistant',content:h.t}));
+  const msgs=X9.hist.slice(-20).map(h=>({role:h.r==='u'?'user':'assistant',content:h.t}));
   let r;try{r=await winteerNative.aiAsk({model:(ST.ai||{}).model,system:x9Sys(x9Games(q)),cpu:!!(ST.ai||{}).cpu,messages:msgs})}catch(e){r={ok:false,err:'No pude consultar a Ollama'}}
   X9.busy=0;const t=r.ok?(r.text||'No se me ocurre nada.'):r.busy?'Se abrió un juego y me frené para no sacarle rendimiento.':(r.err||'Algo falló.');
-  if(ty&&ty.parentNode)ty.remove();x9Msg('p',t,1);X9.hist.push({r:'p',t});if(r.ok)x9Speak(t)}
+  if(ty&&ty.parentNode)ty.remove();x9Msg('p',t,1);x9Push('p',t);if(r.ok)x9Speak(t)}
 async function x9Listen(){if(X9.listen||X9.busy)return;const m=$('#x9mic'),q=$('#x9q');X9.listen=1;if(m)m.classList.add('on');{const w=$('.x9in');if(w)w.classList.add('lis')}
   let r;try{r=await winteerNative.aiListen()}catch(e){r={ok:false,err:'x'}}
   X9.listen=0;const m2=$('#x9mic'),q2=$('#x9q');if(m2)m2.classList.remove('on');{const w=$('.x9in');if(w)w.classList.remove('lis')}
@@ -9267,7 +9282,7 @@ Object.assign(A,{
 /*/cX6A*/
 
 /*cX7A*/#x9p{position:fixed;z-index:85;width:88px;height:88px;cursor:grab;transition:left 9s cubic-bezier(.45,.05,.35,1),top 9s cubic-bezier(.45,.05,.35,1);touch-action:none;filter:drop-shadow(0 12px 20px rgba(0,0,0,.45)) drop-shadow(0 0 16px rgba(var(--argb),.28));animation:x9pop .8s var(--spring) both}
-#x9p.dr{cursor:grabbing;transition:none}#x9p.out{animation:x9out .3s ease-in both;pointer-events:none}
+#x9p.dr,#x9p.ph{cursor:grabbing;transition:none}#x9p.bk .x9b{animation:x9sq .32s ease-out}@keyframes x9sq{35%{scale:1.28 .72}70%{scale:.92 1.08}}#x9p.out{animation:x9out .3s ease-in both;pointer-events:none}
 #x9p .x9b{animation:x9f 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;pointer-events:none;transition:transform .6s var(--spring)}
 #x9p:hover .x9b{transform:scale(1.1) rotate(-3deg)}#x9p.dr .x9b{transform:scale(.93) rotate(4deg);animation:none}#x9p.mv .x9b{transform:rotate(var(--tl,6deg))}#x9p.jp .x9b{animation:x9j .6s var(--spring)}
 @keyframes x9f{0%,100%{translate:0 0}50%{translate:0 -10px}}@keyframes x9pop{from{opacity:0;scale:.2}to{opacity:1;scale:1}}@keyframes x9out{to{opacity:0;scale:.3}}@keyframes x9j{30%{translate:0 -22px;scale:1.12 .9}60%{translate:0 0;scale:.94 1.06}}
@@ -9275,7 +9290,7 @@ Object.assign(A,{
 body.dark #x9c{background:var(--gl),rgba(12,9,24,.86)}#x9c.out{animation:x9cout .25s ease-in both;pointer-events:none}
 @keyframes x9in{from{opacity:0;transform:scale(.4) translateY(30px)}}@keyframes x9cout{to{opacity:0;transform:scale(.6) translateY(20px)}}
 .x9h{display:flex;align-items:center;gap:11px;padding:14px 14px 12px;background:linear-gradient(180deg,rgba(var(--argb),.16),transparent)}
-.x9av{width:42px;height:42px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;box-shadow:0 0 0 2px rgba(var(--argb),.45),0 0 18px rgba(var(--argb),.35)}.x9av>*{width:100%!important;height:100%!important}.x9av svg{width:70%!important;height:70%!important}
+.x9av{width:42px;height:42px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;box-shadow:0 0 0 2px rgba(var(--argb),.45),0 0 18px rgba(var(--argb),.35)}.x9av>*{width:100%!important;height:100%!important}.x9av .pt-ph{object-fit:cover;border-radius:50%}.x9av>svg:not([viewBox^="0 0 24"]){transform:scale(1.25)}.x9av>svg[viewBox^="0 0 24"]{width:60%!important;height:60%!important}
 .x9t{flex:1;min-width:0}.x9t b{display:block;font-size:15px;letter-spacing:.01em}.x9t small{display:flex;align-items:center;gap:6px;opacity:.7;font-size:11.5px}.x9t small i{width:7px;height:7px;border-radius:50%;background:#5df08a;box-shadow:0 0 8px #5df08a;animation:x9d 2s infinite}@keyframes x9d{50%{opacity:.35}}
 .x9hb{display:flex;gap:6px}.x9hb button,.x9in button{width:36px;height:36px;border-radius:50%;background:var(--card2);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:transform .3s var(--spring),background .25s,box-shadow .25s}
 .x9hb button:hover,.x9in button:hover{transform:scale(1.12);background:rgba(255,255,255,.2)}.x9hb button:active,.x9in button:active{transform:scale(.9)}.x9hb button.on{background:var(--a);color:var(--on-a);box-shadow:0 0 16px rgba(var(--argb),.55)}
