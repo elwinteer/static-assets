@@ -2134,12 +2134,12 @@ while(((Get-Date)-$t0).TotalSeconds -lt 50){
       if($by -le 0){Write-Output 'nobtn';exit}
       [WtW]::Click([WtW]::CenterX($h,0.42),$by)
       $inst=$true;$e2=(Get-Date).AddSeconds(16)}}
-  if($acc -lt 3){
+  if($false){
     $eh=[WtW]::FindE()
     if($eh -ne [IntPtr]::Zero){Start-Sleep -Milliseconds 700;[WtW]::Focus($eh);Start-Sleep -Milliseconds 400
       $ey=[WtW]::BtnY($eh,0.66)
       if($ey -gt 0){[WtW]::Click([WtW]::CenterX($eh,0.66),$ey);$acc++;$lastAcc=Get-Date;Start-Sleep -Milliseconds 1200}}}
-  if($inst -and (Get-Date) -gt $e2 -and $acc -eq 0){break}
+  if($inst){break}
   if($acc -gt 0 -and ((Get-Date)-$lastAcc).TotalSeconds -gt 5){break}
   if(-not $inst -and $acc -eq 0 -and ((Get-Date)-$t0).TotalSeconds -gt 25){break}
   Start-Sleep -Milliseconds 500}
