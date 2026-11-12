@@ -3860,7 +3860,7 @@ function setPane(t){
     sR('Epic Games','Tu biblioteca completa o solo lo instalado. <span id="imp-epa"></span><span id="imp-ep"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="acct" data-s="epic">Conectar</button><button class="b2 g" data-a="acctcode">Usar código</button><button class="b2 g" data-a="impstore" data-s="epic">Instalados</button></div>'),
     sR('Xbox / Game Pass','Los juegos de tu cuenta de Microsoft. <span id="imp-xba"></span><span id="imp-xb"></span>','<div style="display:flex;gap:8px"><button class="b2" data-a="acct" data-s="xbox">Conectar</button><button class="b2 g" data-a="impstore" data-s="xbox">Instalados</button></div>'),
     sH('Información de los juegos'),
-    sR('Descargar datos','Descripciones, arte y duraciones se bajan solos; acá podés forzarlo. <span id="ifp"></span><span id="sgp"></span><span id="hlp"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="infoall">Información</button><button class="b2" data-a="sgall">Arte</button><button class="b2" data-a="hltball">Duraciones</button></div>'),
+    sR('Descargar datos','Descripciones, arte y duraciones se bajan solos; acá podés forzarlo. <span id="ifp"></span><span id="sgp"></span><span id="hlp"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="infoall">Información</button><button class="b2" data-a="sgall">Arte</button><button class="b2" data-a="hltball">Duraciones</button><button class="b2" data-a="trldl">Tráilers</button></div>'),
     sR('Carpeta de Steam','Cambiala solo si tu Steam está en otro lugar.',`<input class="txt" id="sdir" style="width:240px" value="${esc(ST.steamDir||'C:\\Program Files (x86)\\Steam')}">`),
     sH('Mantenimiento'),
     sR('Juegos duplicados',d?d+' repetidos entre tiendas. Elegí con cuál quedarte.':'No hay juegos repetidos.',`<button class="b2" data-a="dupopen" ${d?'':'disabled'}>Revisar</button>`),
@@ -8005,6 +8005,7 @@ async function autoSg(manual){if(!WN||!ST.useSgdb||!ST.key||ASG){if(manual&&ASG)
     P()}}
   await Promise.all([w(),w(),w()]);ASG=0;save();renderList();
   if(err){sgStat(`<b>Iconos de SteamGridDB</b><div style="margin-top:6px;color:#ff9aa8">${esc(err)}</div>`);setTimeout(()=>sgStat(''),9000)}
+  else if(tot&&n-none<=0){sgStat('');if(manual)toast('No se encontraron iconos nuevos')}
   else if(tot){sgStat(`<b>Listo</b><div style="margin-top:6px;opacity:.85">${n-none} iconos descargados${none?` · ${none} juegos sin icono`:''}. Reiniciá WINTEER.</div>`);setTimeout(()=>sgStat(''),9000)}
   else if(manual)toast('No había iconos pendientes')}
 let ATR=0;
@@ -8016,7 +8017,7 @@ async function autoTrl(manual){if(!WN||!winteerNative.trlGet||ATR)return;if(!man
     if(au){if(r&&r.aurl)TRX['a:'+ap]=r.aurl;else if(r&&(r.steam||r.noaud))TRX['s:'+ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P();continue}
     if(r&&r.url){TRX[ap]=r.url;ok++}else if(r&&r.none)TRX[ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P()}};
   await Promise.all([w(),w()]);ATR=0;await trlLoad();
-  sgStat(bad>=8?`<b>Trailers y música del Modo mando</b><div style="margin-top:6px;color:#ff9aa8">Se cortó la descarga. Se reintenta en el próximo arranque.${lerr?'<div style="opacity:.7;margin-top:4px;font-size:11px">'+esc(String(lerr).slice(0,90))+'</div>':''}</div>`:`<b>Listo</b><div style="margin-top:6px;opacity:.85">${ok} trailers nuevos. Las canciones se bajaron en segundo plano; ya suenan en el Modo mando.</div>`);setTimeout(()=>sgStat(''),8000)}
+  sgStat(bad>=8?`<b>Trailers y música del Modo mando</b><div style="margin-top:6px;color:#ff9aa8">Se cortó la descarga. Se reintenta en el próximo arranque.${lerr?'<div style="opacity:.7;margin-top:4px;font-size:11px">'+esc(String(lerr).slice(0,90))+'</div>':''}</div>`:ok<=0?'':`<b>Listo</b><div style="margin-top:6px;opacity:.85">${ok} trailers nuevos. Las canciones se bajaron en segundo plano; ya suenan en el Modo mando.</div>`);if(bad<8&&ok<=0){sgStat('');if(manual)toast('No había trailers nuevos para bajar')}else setTimeout(()=>sgStat(''),8000)}
 async function autoInfo(){if(!igOn()||AIN)return;AIN=1;const q=G.filter(g=>!okInfo(g)&&!IFAIL.has(g.id));let n=0;const P=()=>{const e=$('#ifp');if(e)e.textContent=`${n}/${q.length+n} juegos`};
   const w=async()=>{while(q.length&&igOn()){const g=q.shift();await loadInfo(g);n++;P()}};await Promise.all([w(),w()]);AIN=0;if(n&&S.view==='games'&&S.tab==='info'&&$('#tabc'))renderTab()}
 
