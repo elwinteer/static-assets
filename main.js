@@ -1879,18 +1879,37 @@ async function wdlUnz(d, onP) {
     return { ok: 1, dest };
   } catch (e) { rm(tmp); return { err: String((e && e.message) || e).slice(0, 120) }; }
 }
-let adB = null, adP = null, adOn = false;
+const AD_URLS = ['https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext', 'https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts'];
+let adHosts = new Set(['buzzonclick.com']), adOn = false, adLoaded = false, adP = null, adBlocked = 0;
+function adParse(txt) {
+  for (let ln of String(txt).split(/\r?\n/)) {
+    ln = ln.replace(/#.*/, '').trim(); if (!ln) continue;
+    const pt = ln.split(/\s+/); let h = '';
+    if (pt.length >= 2 && /^(0\.0\.0\.0|127\.0\.0\.1)$/.test(pt[0])) h = pt[1]; else if (pt.length === 1) h = pt[0];
+    h = h.toLowerCase(); if (/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/.test(h) && h !== 'localhost') adHosts.add(h);
+  }
+}
+const adHit = (h) => { h = String(h || '').toLowerCase(); for (let d = h; d && d.includes('.'); d = d.slice(d.indexOf('.') + 1)) { if (adHosts.has(d)) return true; } return false; };
+const adUrlHit = (u) => { try { return adOn && adHit(new URL(u).hostname); } catch (e) { return false; } };
+async function adLoad() {
+  const f = path.join(app.getPath('userData'), 'adhosts.txt');
+  try { const st = fs.statSync(f); if (Date.now() - st.mtimeMs < 7 * 864e5) { adParse(fs.readFileSync(f, 'utf8')); return; } } catch (e) {}
+  let all = '';
+  for (const u of AD_URLS) { try { const ac = new AbortController(), t = setTimeout(() => ac.abort(), 30000); const r = await net.fetch(u, { signal: ac.signal }); clearTimeout(t); if (r.ok) all += '\n' + await r.text(); } catch (e) {} }
+  if (all.length > 5000) { adParse(all); try { fs.writeFileSync(f, all); } catch (e) {} }
+  else { try { adParse(fs.readFileSync(f, 'utf8')); } catch (e) {} }
+}
 async function adSet(on) {
   const ses = session.fromPartition(WEB_PART);
   try {
     if (on) {
-      if (!adB) { if (!adP) adP = (async () => { const { ElectronBlocker } = require('@ghostery/adblocker-electron'); return await ElectronBlocker.fromPrebuiltAdsAndTracking(fetch, { path: path.join(app.getPath('userData'), 'adblock.bin'), read: fs.promises.readFile, write: fs.promises.writeFile }); })(); adB = await adP; }
-      if (!adOn) { adB.enableBlockingInSession(ses); adOn = true; }
-      return 1;
+      if (!adLoaded) { if (!adP) adP = adLoad().catch(() => {}); await adP; adLoaded = true; }
+      if (!adOn) { adOn = true; ses.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (d, cb) => { let hit = false; try { hit = adHit(new URL(d.url).hostname); } catch (e) {} if (hit) adBlocked++; cb({ cancel: hit }); }); }
+      return adHosts.size;
     }
-    if (adB && adOn) { adB.disableBlockingInSession(ses); adOn = false; }
+    if (adOn) { adOn = false; ses.webRequest.onBeforeRequest(null); }
     return 1;
-  } catch (e) { adP = null; adB = null; adOn = false; return 0; }
+  } catch (e) { adOn = false; return 0; }
 }
 function webInit() {
   if (webOk) return; webOk = true;
@@ -1936,6 +1955,7 @@ function webInit() {
     try {
       if (m === 'def') return app.getPath('downloads');
       if (m === 'ads') return await adSet(!!a.on);
+      if (m === 'adstat') return { on: adOn, n: adHosts.size, blocked: adBlocked };
       if (m === 'drives') {
         const out = [];
         for (const L of 'CDEFGHIJKLMNOPQRSTUVWXYZ') { const root = L + ':\\'; try { if (!fs.existsSync(root)) continue; const s = fs.statfsSync(root); const total = s.bsize * s.blocks, free = s.bsize * s.bavail; if (total > 0) out.push({ root, free, total }); } catch (e) {} }
@@ -1976,20 +1996,21 @@ function createWindow() {
     try {
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
+        if (own(url) && adUrlHit(url)) { adBlocked++; note('Bloqueé una ventana de anuncios (' + (() => { try { return new URL(url).hostname; } catch (e) { return ''; } })() + ')'); return { action: 'deny' }; }
         if (own(url)) { let ref = ''; try { ref = (referrer && referrer.url) || wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url, fg: disposition !== 'background-tab', ref }); return { action: 'deny' }; }
         if (!url || url === 'about:blank') return { action: 'allow', overrideBrowserWindowOptions: { show: false, width: 520, height: 420, skipTaskbar: true, autoHideMenuBar: true } };
         note('La página quiso abrir algo que no es una web (' + String(url).split(':')[0] + ':) y lo bloqueé'); return { action: 'deny' };
       });
       wc.on('did-create-window', (cw) => {
         const t = cw.webContents; let done = false;
-        const take = (u) => { if (done || !own(u)) return; done = true; let ref = ''; try { ref = wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url: u, fg: true, ref }); try { cw.destroy(); } catch (e) {} };
+        const take = (u) => { if (done || !own(u)) return; done = true; if (adUrlHit(u)) { adBlocked++; note('Bloqueé una ventana de anuncios'); try { cw.destroy(); } catch (e) {} return; } let ref = ''; try { ref = wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url: u, fg: true, ref }); try { cw.destroy(); } catch (e) {} };
         t.on('did-start-navigation', (_ev, u, _ip, main) => { if (main) take(u); });
         t.on('will-redirect', (_ev, u) => take(u));
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
       });
       const blockProto = (ev, u) => { if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
       wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
-      wc.on('did-fail-load', (_ev, code, desc, _u, main) => { if (main && code !== -3 && code !== 0) note('No pude abrir la página (' + String(desc || code) + ')'); });
+      wc.on('did-fail-load', (_ev, code, desc, _u, main) => { if (main && code === -20) note('Bloqueé una página de anuncios'); else if (main && code !== -3 && code !== 0) note('No pude abrir la página (' + String(desc || code) + ')'); });
     } catch (e) {}
   });
   try {

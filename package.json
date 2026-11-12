@@ -15,8 +15,7 @@
   },
   "dependencies": {
     "electron-updater": "6.3.9",
-    "ws": "8.18.0",
-    "@ghostery/adblocker-electron": "^2.0.0"
+    "ws": "8.18.0"
   },
   "devDependencies": {
     "electron": "33.2.1",
