@@ -587,7 +587,7 @@ body.light .set .sgrid>.row,body.light details.mo>summary{background:rgba(40,28,
 .bpbar{position:absolute;left:0;right:0;bottom:0;height:8.5vh;display:flex;align-items:center;padding:0 5vw;background:linear-gradient(0deg,rgba(5,4,11,.92),transparent);z-index:30}
 .bpkeys{display:flex;justify-content:space-between;width:100%;font-size:clamp(11px,1vw,14px);color:rgba(255,255,255,.78)}.bpkeys>div{display:flex;gap:2vw}.bpkeys>div:first-child{font-weight:600;color:#fff}.bpkeys span{display:flex;align-items:center;gap:7px}.bpkeys i{background:rgba(255,255,255,.2);color:#fff}
 .bpban{position:absolute;left:50%;top:11vh;transform:translate(-50%,-14px);opacity:0;z-index:40;padding:11px 24px;border-radius:999px;background:rgba(255,255,255,.95);color:#111;font-weight:700;font-size:clamp(13px,1.1vw,16px);transition:.5s cubic-bezier(.2,.8,.2,1);pointer-events:none;white-space:nowrap}.bpban.on{opacity:1;transform:translate(-50%,0)}
-.bpln{position:fixed;z-index:9100;border-radius:14px;overflow:hidden;background:#000;transition:left .6s cubic-bezier(.7,0,.2,1),top .6s cubic-bezier(.7,0,.2,1),width .6s cubic-bezier(.7,0,.2,1),height .6s cubic-bezier(.7,0,.2,1),border-radius .6s,opacity .5s}
+.bpln.off{opacity:0!important;transition:opacity .3s!important}.bpln{position:fixed;z-index:9100;border-radius:14px;overflow:hidden;background:#000;transition:left .6s cubic-bezier(.7,0,.2,1),top .6s cubic-bezier(.7,0,.2,1),width .6s cubic-bezier(.7,0,.2,1),height .6s cubic-bezier(.7,0,.2,1),border-radius .6s,opacity .5s}
 .bpln img{width:100%;height:100%;object-fit:cover}.bpln b{position:absolute;left:0;right:0;bottom:9vh;text-align:center;font-size:clamp(20px,2.4vw,38px);font-weight:700;opacity:0;transition:opacity .4s .35s;text-shadow:0 4px 24px #000}.bpln.go b{opacity:1}
 .bpln.go img{filter:blur(18px) brightness(.55);transform:scale(1.15);transition:filter .6s,transform .6s}
 body.light .bptabs{background:rgba(40,28,90,.07)}
@@ -8003,7 +8003,7 @@ async function autoSg(manual){if(!WN||!ST.useSgdb||!ST.key||ASG){if(manual&&ASG)
   const q=G.filter(g=>{const e=ST.sgdb[sgk(g)];return !e||e.icon===undefined});const tot=q.length;let n=0,bad=0,none=0,err='';
   const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Iconos de SteamGridDB</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos${none?` · ${none} sin icono`:''}</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};
   if(tot)P();
-  async function w(){while(q.length&&bad<6&&!err){const g=q.shift();
+  async function w(){while(q.length&&bad<6&&!err){await idleWait();const g=q.shift();
     try{const o=ST.sgdb[sgk(g)];const r=await sgget(g,B,H,!!o);ST.sgdb[sgk(g)]=o?Object.assign({},o,r):r;if(!r.icon)none++;n++;if(n%15===0){save();renderList()}}
     catch(e){if(e===401||e===403)err='La API key de SteamGridDB no es válida';else if(e===404){ST.sgdb[sgk(g)]=Object.assign({hero:'',logo:'',grid:''},ST.sgdb[sgk(g)],{icon:''});none++;n++}else{bad++;if(bad>=6)err='No pude conectar con SteamGridDB (código '+(e&&e.message||e)+')'}}
     P()}}
@@ -8017,17 +8017,19 @@ async function autoTrl(manual){if(!WN||!winteerNative.trlGet||ATR)return;if(!man
   const q=G.filter(g=>!g.hide&&(TRX[trk(g)]===undefined||(TRX['a:'+trk(g)]===undefined&&TRX['s:'+trk(g)]===undefined)));const tot=q.length;let n=0,ok=0,bad=0,lerr='';
   if(!tot){if(manual)toast('Ya tenés todos los trailers y canciones');return}ATR=1;
   const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Trailers y música del Modo mando</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos · ${ok} descargados</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};P();
-  const w=async()=>{while(q.length&&bad<8){const g=q.shift(),ap=trk(g);let r;const au=TRX[ap]!==undefined;try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
+  const w=async()=>{while(q.length&&bad<8){await idleWait();const g=q.shift(),ap=trk(g);let r;const au=TRX[ap]!==undefined;try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
     if(au){if(r&&r.aurl)TRX['a:'+ap]=r.aurl;else if(r&&(r.steam||r.noaud))TRX['s:'+ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P();continue}
     if(r&&r.url){TRX[ap]=r.url;ok++}else if(r&&r.none)TRX[ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P()}};
   await Promise.all([w(),w()]);ATR=0;await trlLoad();
   sgStat(bad>=8?`<b>Trailers y música del Modo mando</b><div style="margin-top:6px;color:#ff9aa8">Se cortó la descarga. Se reintenta en el próximo arranque.${lerr?'<div style="opacity:.7;margin-top:4px;font-size:11px">'+esc(String(lerr).slice(0,90))+'</div>':''}</div>`:ok<=0?'':`<b>Listo</b><div style="margin-top:6px;opacity:.85">${ok} trailers nuevos. Las canciones se bajaron en segundo plano; ya suenan en el Modo mando.</div>`);if(bad<8&&ok<=0){sgStat('');if(manual)toast('No había trailers nuevos para bajar')}else setTimeout(()=>sgStat(''),8000)}
 /* ---------- notas en segundo plano (no se muestran: solo mejoran las recomendaciones) ---------- */
 const scOf=g=>{const e=(ST.sc||{})[g.id];return e&&e.s!=null?e.s:null};
+/* mientras se juega, las descargas en segundo plano esperan para no gastar recursos */
+const idleWait=async()=>{let n=0;while(S.playing&&S.trk&&n++<4000)await new Promise(z=>setTimeout(z,10000))};
 let SCR=0;
 async function autoSc(){if(!WN||!winteerNative.scoreGet||SCR)return;SCR=1;const now=Date.now(),D=864e5;ST.sc=ST.sc||{};
   const q=G.filter(g=>g.app&&/^\d+$/.test(String(g.app))).filter(g=>{const e=ST.sc[g.id];return !e||(e.s==null?now-e.t>45*D:now-e.t>180*D)});
-  let n=0,bad=0;for(const g of q){let r;try{r=await winteerNative.scoreGet({app:g.app})}catch(e){r={err:1}}
+  let n=0,bad=0;for(const g of q){await idleWait();let r;try{r=await winteerNative.scoreGet({app:g.app})}catch(e){r={err:1}}
     if(r&&r.err){if(++bad>=6)break;await new Promise(z=>setTimeout(z,8000));continue}
     ST.sc[g.id]={s:r&&r.s!=null?r.s:null,t:now,src:(r&&r.src)||''};if(++n%10===0)save();await new Promise(z=>setTimeout(z,1500))}
   if(n)save();SCR=0}
@@ -8071,7 +8073,7 @@ Object.assign(A,{
     await Promise.all([w(),w()]);try{TRM.sizes=await winteerNative.trlSizes()||{}}catch(e){}await trlLoad();TRM.busy=0;tgRender();toast(ok?`Listo: instalé ${ok} ${ok===1?'trailer':'trailers'}`:'No encontré trailers para esos juegos')}
 });
 async function autoInfo(){if(!igOn()||AIN)return;AIN=1;const q=G.filter(g=>!okInfo(g)&&!IFAIL.has(g.id));let n=0;const P=()=>{const e=$('#ifp');if(e)e.textContent=`${n}/${q.length+n} juegos`};
-  const w=async()=>{while(q.length&&igOn()){const g=q.shift();await loadInfo(g);n++;P()}};await Promise.all([w(),w()]);AIN=0;if(n&&S.view==='games'&&S.tab==='info'&&$('#tabc'))renderTab()}
+  const w=async()=>{while(q.length&&igOn()){await idleWait();const g=q.shift();await loadInfo(g);n++;P()}};await Promise.all([w(),w()]);AIN=0;if(n&&S.view==='games'&&S.tab==='info'&&$('#tabc'))renderTab()}
 
 /* ---------- modo mando (pantalla completa, estilo consola) ---------- */
 let BP=null,BA=null;
@@ -8170,10 +8172,17 @@ function bpTab(d){if(!BP)return;if(BP.z!=='row')bpZone('row');const k=BPT.findIn
 function bpUp(){}
 function bpDown(){if(!BP||BP.busy)return;if(BP.z==='nav'){bpZone('row');bpSnd('nav')}}
 function bpBack(){if(!BP||BP.busy)return;if(BP.z==='nav'){bpZone('row');bpSnd('bk')}else{bpSnd('bk');if(visOn())visExit();else bpClose()}}
+/* corta ya mismo trailer y musica (sin fundido) */
+function bpTrKill(){if(!BP)return;clearTimeout(BP.vt);clearTimeout(BP.ft);const f=BP.ifr;BP.ifr=null;if(f){clearInterval(f._fi);try{f.pause();f.removeAttribute('src');f.load()}catch(e){}if(f._au){try{clearInterval(f._au._fi);f._au.pause();f._au.src=''}catch(e){}}f.remove()}}
 function bpAct(){if(!BP||BP.busy)return;if(BP.z==='nav'){bpNavGo(BPNV[BP.n][0]);return}const g=bpList()[BP.i];if(!g)return;
   if(S.playing&&S.playing.id===g.id){S.sel=g.id;A.play();setTimeout(bpRender,300);return}
   bpSnd('ok');bpRumble(.8,120);S.bpL={id:g.id,h:g.hours||0,r:rankOf(g)};BP.busy=1;
-  const t=BP.els.get(g.id),launch=()=>{A.hplay({dataset:{id:g.id}});if(WN&&winteerNative.toBg&&canPlay(g)){setTimeout(()=>{if(!BP)return;if(S.trk){S.fromBP=true;bpClose();winteerNative.toBg()}else{BP.busy=0;document.querySelectorAll('.bpln').forEach(x=>x.remove());bpRender()}},1500)}else setTimeout(()=>{if(BP){BP.busy=0;document.querySelectorAll('.bpln').forEach(x=>x.remove());bpRender()}},600)};
+  const bg=WN&&winteerNative.toBg&&canPlay(g);
+  if(bg)bpTrKill();
+  const back=()=>{if(!BP)return;BP.busy=0;BP.last=null;document.querySelectorAll('.bpln').forEach(x=>{x.classList.add('off');setTimeout(()=>x.remove(),350)});bpRender()};
+  const t=BP.els.get(g.id),launch=()=>{S.trk=null;A.hplay({dataset:{id:g.id}});
+    if(bg){let n=0;const iv=setInterval(()=>{if(!BP){clearInterval(iv);return}n++;if(S.trk){clearInterval(iv);S.fromBP=true;bpClose();winteerNative.toBg()}else if(S.trk===false||n>80){clearInterval(iv);back()}},150)}
+    else setTimeout(()=>{if(BP)back()},600)};
   if(t&&canPlay(g)){const r=t.getBoundingClientRect(),ln=document.createElement('div');ln.className='bpln';ln.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;ln.innerHTML=`<img src="${art.hero(g)}" alt=""><b>${esc(g.name)}</b>`;document.body.appendChild(ln);
     requestAnimationFrame(()=>requestAnimationFrame(()=>{ln.classList.add('go');ln.style.left=ln.style.top='0';ln.style.width='100vw';ln.style.height='100vh';ln.style.borderRadius='0'}));setTimeout(launch,700)}
   else launch()}
