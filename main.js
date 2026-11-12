@@ -2100,7 +2100,7 @@ public static int BtnY(IntPtr h,double xf){RECT r;GetWindowRect(h,out r);int w=r
  return -1;}}
 public static int CenterX(IntPtr h,double xf){RECT r;GetWindowRect(h,out r);return r.L+(int)((r.R-r.L)*xf);}
 public static string Seen="";
-public static IntPtr FindE(){IntPtr r=IntPtr.Zero;Seen="";EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.Length==0)return true;uint pid;GetWindowThreadProcessId(h,out pid);string n="";try{n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();}catch{return true;}if(n!="steam"&&n!="steamwebhelper")return true;var u=t.ToUpper();if(u=="STEAM"||u.StartsWith("INSTALL")||u.StartsWith("INSTALAR"))return true;RECT q;GetWindowRect(h,out q);int w=q.R-q.L,hh=q.B-q.T;if(w<400||w>1100||hh<250||hh>950)return true;if(Seen.Length<120)Seen+=t+";";if(r==IntPtr.Zero)r=h;return true;},IntPtr.Zero);return r;}
+public static IntPtr FindE(){IntPtr r=IntPtr.Zero;Seen="";EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.Length==0)return true;uint pid;GetWindowThreadProcessId(h,out pid);string n="";try{n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();}catch{return true;}if(n!="steam"&&n!="steamwebhelper")return true;var u=t.ToUpper();if(u=="STEAM"||u.StartsWith("INSTALL")||u.StartsWith("INSTALAR"))return true;RECT q;GetWindowRect(h,out q);int w=q.R-q.L,hh=q.B-q.T;if(Seen.Length<160)Seen+=t+" "+w+"x"+hh+";";if(w<400||w>1100||hh<250||hh>950)return true;if(r==IntPtr.Zero)r=h;return true;},IntPtr.Zero);return r;}
 public static void Wheel(IntPtr h){RECT r;GetWindowRect(h,out r);SetCursorPos((r.L+r.R)/2,(r.T+r.B)/2);System.Threading.Thread.Sleep(100);mouse_event(0x0800,0,0,unchecked((uint)(-480)),UIntPtr.Zero);}
 public static int[] Rows(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return new int[0];
  using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
@@ -2114,34 +2114,36 @@ public static int[] Rows(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,h
 [void][WtW]::SetProcessDPIAware()
 Add-Type -AssemblyName System.Windows.Forms
 $idx=[int]$env:WT_IDX
-$end=(Get-Date).AddSeconds(25)
-while((Get-Date) -lt $end){
-  $h=[WtW]::Find()
-  if($h -ne [IntPtr]::Zero){
-    Start-Sleep -Milliseconds 1200
-    $okf=$false
-    for($i=0;$i -lt 4;$i++){[WtW]::Focus($h);Start-Sleep -Milliseconds 350;$p=[WtW]::Fg();if($p -eq 'steam' -or $p -eq 'steamwebhelper'){$okf=$true;break}}
-    if(-not $okf){Write-Output ('nofocus:'+[WtW]::Fg());exit}
-    if($idx -ge 0){
-      $rw=[WtW]::Rows($h)
-      if($rw.Length -lt 2){Write-Output 'norows';exit}
-      $n=$rw.Length-1
-      if($idx -ge $n){Write-Output 'nodrive';exit}
-      [WtW]::Click($rw[$n],$rw[$idx]);Start-Sleep -Milliseconds 500}
-    $by=-1
-    for($t=0;$t -lt 5;$t++){$by=[WtW]::BtnY($h,0.42);if($by -gt 0){break};[WtW]::Wheel($h);Start-Sleep -Milliseconds 450}
-    if($by -le 0){Write-Output 'nobtn';exit}
-    [WtW]::Click([WtW]::CenterX($h,0.42),$by)
-    $e2=(Get-Date).AddSeconds(14);$acc=0
-    while((Get-Date) -lt $e2 -and $acc -lt 3){
-      Start-Sleep -Milliseconds 600
-      $eh=[WtW]::FindE()
-      if($eh -ne [IntPtr]::Zero){Start-Sleep -Milliseconds 700;[WtW]::Focus($eh);Start-Sleep -Milliseconds 400
-        $ey=[WtW]::BtnY($eh,0.66)
-        if($ey -gt 0){[WtW]::Click([WtW]::CenterX($eh,0.66),$ey);$acc++;Start-Sleep -Milliseconds 1200}}}
-    if($acc -eq 0){Write-Output ('ok|'+[WtW]::Seen)}else{Write-Output 'ok'};exit}
-  Start-Sleep -Milliseconds 400}
-Write-Output 'timeout'`;
+$t0=Get-Date;$inst=$false;$acc=0;$e2=$null;$lastAcc=$null
+while(((Get-Date)-$t0).TotalSeconds -lt 50){
+  if(-not $inst -and ((Get-Date)-$t0).TotalSeconds -lt 25){
+    $h=[WtW]::Find()
+    if($h -ne [IntPtr]::Zero){
+      Start-Sleep -Milliseconds 1200
+      $okf=$false
+      for($i=0;$i -lt 4;$i++){[WtW]::Focus($h);Start-Sleep -Milliseconds 350;$p=[WtW]::Fg();if($p -eq 'steam' -or $p -eq 'steamwebhelper'){$okf=$true;break}}
+      if(-not $okf){Write-Output ('nofocus:'+[WtW]::Fg());exit}
+      if($idx -ge 0){
+        $rw=[WtW]::Rows($h)
+        if($rw.Length -lt 2){Write-Output 'norows';exit}
+        $n=$rw.Length-1
+        if($idx -ge $n){Write-Output 'nodrive';exit}
+        [WtW]::Click($rw[$n],$rw[$idx]);Start-Sleep -Milliseconds 500}
+      $by=-1
+      for($t=0;$t -lt 5;$t++){$by=[WtW]::BtnY($h,0.42);if($by -gt 0){break};[WtW]::Wheel($h);Start-Sleep -Milliseconds 450}
+      if($by -le 0){Write-Output 'nobtn';exit}
+      [WtW]::Click([WtW]::CenterX($h,0.42),$by)
+      $inst=$true;$e2=(Get-Date).AddSeconds(16)}}
+  if($acc -lt 3){
+    $eh=[WtW]::FindE()
+    if($eh -ne [IntPtr]::Zero){Start-Sleep -Milliseconds 700;[WtW]::Focus($eh);Start-Sleep -Milliseconds 400
+      $ey=[WtW]::BtnY($eh,0.66)
+      if($ey -gt 0){[WtW]::Click([WtW]::CenterX($eh,0.66),$ey);$acc++;$lastAcc=Get-Date;Start-Sleep -Milliseconds 1200}}}
+  if($inst -and (Get-Date) -gt $e2 -and $acc -eq 0){break}
+  if($acc -gt 0 -and ((Get-Date)-$lastAcc).TotalSeconds -gt 5){break}
+  if(-not $inst -and $acc -eq 0 -and ((Get-Date)-$t0).TotalSeconds -gt 25){break}
+  Start-Sleep -Milliseconds 500}
+if($acc -gt 0){Write-Output 'ok'}elseif($inst){Write-Output ('ok|'+[WtW]::Seen)}else{Write-Output ('timeout|'+[WtW]::Seen)}`;
   return new Promise((res) => {
     try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 75000, env: Object.assign({}, process.env, { WT_IDX: String(idx) }) }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
     catch (e) { SAI = false; res('err'); }
