@@ -1305,7 +1305,7 @@ async function poll() {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
     if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
-    else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); track.delete(id); syncShot(); backFromGame(); } }
+    else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
@@ -1321,6 +1321,28 @@ function cueFix(exe, args) {
     });
   } catch (e) { return args; }
 }
+/* Football Life / PES 2021: el juego pierde el mapeo del mando si se abre con otro mando enchufado (o sin mando).
+   Guardamos el mapeo bueno y lo ponemos de nuevo antes de abrir el juego. Solo se toca si el archivo tiene el formato esperado. */
+const flIs = (n) => /football\s*life|efootball\s*pes|pes\s*20\d\d/i.test(String(n || ''));
+function flFiles() { try { const d = app.getPath('documents'); return [{ f: path.join(d, 'SPGAME', 'Football Life', 'settings.dat'), g: 'fl-mapeo-bueno.dat' }, { f: path.join(d, 'KONAMI', 'eFootball PES 2021 SEASON UPDATE', 'settings.dat'), g: 'fl-mapeo-bueno-pes.dat' }].filter((x) => fs.existsSync(x.f)); } catch (e) { return []; } }
+const flOk = (b) => b && b.length === 612 && b.slice(0, 4).toString('latin1') === 'WECF';
+const flHas = (b, o) => b.slice(o + 10, o + 14).toString('latin1') === 'DEST';
+function flHist(x) { try { const h = path.join(app.getPath('userData'), 'fl-hist'); fs.mkdirSync(h, { recursive: true }); fs.copyFileSync(x.f, path.join(h, new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19) + '-' + path.basename(path.dirname(x.f)).replace(/\W/g, '') + '.dat')); const l = fs.readdirSync(h).sort(); while (l.length > 20) fs.unlinkSync(path.join(h, l.shift())); } catch (e) {} }
+function flFix() {
+  try {
+    for (const x of flFiles()) {
+      const gp = path.join(app.getPath('userData'), x.g); if (!fs.existsSync(gp)) continue;
+      const g = fs.readFileSync(gp), c = fs.readFileSync(x.f); if (!flOk(g) || !flOk(c)) continue;
+      let ch = false;
+      for (const o of [100, 164]) {
+        if (!flHas(g, o)) continue;
+        if (!flHas(c, o)) { g.copy(c, o, o, o + 64); ch = true; }
+        else if (Buffer.compare(g.slice(o + 16, o + 64), c.slice(o + 16, o + 64)) !== 0) { g.copy(c, o + 16, o + 16, o + 64); ch = true; }
+      }
+      if (ch) { flHist(x); fs.writeFileSync(x.f, c); }
+    }
+  } catch (e) {}
+}
 function watch(o) {
   const sep = path.sep, dirs = [];
   let exe = '';
@@ -1329,7 +1351,7 @@ function watch(o) {
   if (!exe && !dirs.length && !(o.app && process.platform === 'win32')) return false;
   let edir = '';
   if (exe) { try { const d = path.win32.dirname(exe); if (d.length > 3 && !/[\\/](program files( \(x86\))?|windows|system32|syswow64)$/i.test(d)) edir = d.replace(/[\\/]+$/, '') + sep; } catch (e) {} }
-  track.set(o.id, { app: (!o.exe && o.app) ? o.app : 0, exe, edir, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
+  track.set(o.id, { name: String(o.name || ''), app: (!o.exe && o.app) ? o.app : 0, exe, edir, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
   if (!poller) poller = setInterval(poll, 4000);
   setTimeout(poll, 1500);
   syncShot();
@@ -2464,6 +2486,7 @@ app.whenReady().then(() => {
   CACHE = path.join(app.getPath('userData'), 'imgcache'); loadIdx();
   protocol.handle('wimg', imgHandler);
   ipcMain.handle('launch', async (_e, o) => {
+    if (flIs(o.name)) flFix();
     const tracking = watch(o);
     try {
       if (o.uri) await shell.openExternal(o.uri);
@@ -2693,6 +2716,8 @@ app.whenReady().then(() => {
       return { url: pathToFileURL(fin).href };
     } catch (e) { return { err: String(e.message || e) }; }
   });
+  ipcMain.handle('flInfo', () => { const f = flFiles(); return { found: f.length > 0, good: f.some((x) => fs.existsSync(path.join(app.getPath('userData'), x.g))) }; });
+  ipcMain.handle('flSave', () => { try { let n = 0; for (const x of flFiles()) { const b = fs.readFileSync(x.f); if (!flOk(b)) continue; fs.copyFileSync(x.f, path.join(app.getPath('userData'), x.g)); n++; } return { ok: n > 0, n }; } catch (e) { return { ok: false }; } });
   ipcMain.handle('trlSizes', () => { try { const o = {}; for (const f of fs.readdirSync(TRL)) { const m = f.match(/^(\w+)\.(mp4|webm)$/); if (m) { try { o[m[1]] = (o[m[1]] || 0) + fs.statSync(path.join(TRL, f)).size; } catch (e) {} } } return o; } catch (e) { return {}; } });
   ipcMain.handle('trlUnmark', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); for (const x of ['.nx', '.none']) { try { fs.unlinkSync(path.join(TRL, key + x)); } catch (e) {} } return true; } catch (e) { return false; } });
   /* notas en segundo plano: Metacritic que trae Steam y, si falta, el porcentaje de reseñas positivas de Steam */

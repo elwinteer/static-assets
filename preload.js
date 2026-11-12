@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   trlGet: (a) => ipcRenderer.invoke('trlGet', a),
   trlPick: (k) => ipcRenderer.invoke('trlPick', k),
   trlDel: (k) => ipcRenderer.invoke('trlDel', k),
+  flInfo: () => ipcRenderer.invoke('flInfo'),
+  flSave: () => ipcRenderer.invoke('flSave'),
   trlSizes: () => ipcRenderer.invoke('trlSizes'),
   trlUnmark: (k) => ipcRenderer.invoke('trlUnmark', k),
   scoreGet: (a) => ipcRenderer.invoke('scoreGet', a),
