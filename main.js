@@ -1911,6 +1911,7 @@ async function adSet(on) {
     return 1;
   } catch (e) { adOn = false; return 0; }
 }
+let wdlHint = '';
 function webInit() {
   if (webOk) return; webOk = true;
   const tmpDir = path.join(app.getPath('userData'), 'dl-tmp');
@@ -1919,7 +1920,8 @@ function webInit() {
   try { ses.setUserAgent(ses.getUserAgent().replace(/\s(Electron|winteer)\/[\d.]+/ig, '')); } catch (e) {}
   try { ses.setPermissionRequestHandler((_wc, _p, cb) => cb(false)); } catch (e) {}
   ses.on('will-download', (_e, item) => {
-    const id = ++wdlN, tmp = path.join(tmpDir, id + '-' + Date.now() + '.part');
+    let base = tmpDir; if (wdlHint) { try { fs.mkdirSync(wdlHint, { recursive: true }); fs.accessSync(wdlHint, fs.constants.W_OK); base = wdlHint; } catch (e) {} }
+    const id = ++wdlN, tmp = path.join(base, id + '-' + Date.now() + '.part');
     item.setSavePath(tmp);
     const d = { id, item, tmp, name: wdlSafe(item.getFilename()), state: 'ask', last: 0, lastT: Date.now(), speed: 0, final: '' };
     WDL.set(id, d);
@@ -1954,6 +1956,7 @@ function webInit() {
     a = a || {};
     try {
       if (m === 'def') return app.getPath('downloads');
+      if (m === 'tmp') { const d = String(a.dir || '').trim(); if (!d || !path.isAbsolute(d)) { wdlHint = ''; return 1; } const h = path.join(d, '.winteer-parts'); wdlHint = h; try { fs.mkdirSync(h, { recursive: true }); for (const f of fs.readdirSync(h)) { try { const fp = path.join(h, f); if (/\.part$/.test(f) && Date.now() - fs.statSync(fp).mtimeMs > 2 * 864e5) fs.unlinkSync(fp); } catch (e) {} } } catch (e) { wdlHint = ''; } return 1; }
       if (m === 'ads') return await adSet(!!a.on);
       if (m === 'adstat') return { on: adOn, n: adHosts.size, blocked: adBlocked };
       if (m === 'drives') {
