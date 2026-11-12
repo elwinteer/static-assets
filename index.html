@@ -3414,6 +3414,19 @@ body.light .fp2-hero,body.light .fp2-sc,body.light .fp2-rv,body.light .fp2-h{bac
 .fp2-gb u{display:inline-grid;place-items:center;width:16px;height:16px;margin-left:7px;border-radius:50%;background:rgba(34,197,94,.9);color:#fff;vertical-align:-3px;text-decoration:none}.fp2-gb u svg{width:10px;height:10px;stroke-width:3.2}
 .fp2-ft{display:flex;align-items:center;gap:7px;margin-top:14px;color:var(--muted);font-size:11.5px}.fp2-ft svg{width:13px;height:13px;color:#4ade80}
 .fp2-gb.hr>div{grid-template-columns:110px 1fr 46px}.fp2-gb.hr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fp2-gb.hr em{font-style:normal;font-size:12px;color:var(--muted);text-align:right}
+/* ===== perfil v7: detalles y animaciones ===== */
+.fp2-rg,.fp2-rg svg{overflow:visible}.fp2-tb{overflow:visible}
+.fp2-gb.gck>div{grid-template-columns:22px 104px 1fr}.fp2-gb .bx{width:20px;height:20px;border-radius:7px;border:1.6px solid rgba(255,255,255,.22);display:grid;place-items:center;color:#fff;transition:.3s cubic-bezier(.2,.8,.2,1)}.fp2-gb .bx svg,.fp2-ft .bx svg{width:12px;height:12px;stroke-width:3.4}.bx.on{background:#22c55e;border-color:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.45)}.fp2-gb .fp2-gl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp2-ft{gap:9px}.fp2-ft .bx{width:18px;height:18px;border-radius:6px;display:inline-grid;place-items:center;color:#fff;flex:none}
+.fp2-ban .pban img{animation:fp2dr 28s ease-in-out infinite alternate}@keyframes fp2dr{from{transform:scale(1.08) translate(0,0)}to{transform:scale(1.16) translate(-1.5%,-2%)}}
+.fp2-cd,.fp2-rv,.fp2-h,.fp2-sc,.fp2-rr button{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s,background .35s}
+.fp2-cd:hover,.fp2-sc:hover{transform:translateY(-3px);border-color:rgba(var(--argb),.35);box-shadow:0 14px 30px rgba(0,0,0,.3)}.fp2-rv:hover,.fp2-h:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.3)}
+.fp2-b{transition:transform .3s cubic-bezier(.2,.8,.2,1),background .25s,box-shadow .3s}.fp2-b:active{transform:scale(.96)}.fp2-tb button:active{transform:scale(.96)}
+.fr-prof.fp2{animation:fp2in .5s cubic-bezier(.2,.8,.2,1) both}
+.fp2-gb.hr b,.fp2-gb b{transform-origin:left}.fp2-lk,.fp2-more{transition:.25s cubic-bezier(.2,.8,.2,1)}.fp2-lk:hover{transform:translateX(3px)}
+.fp2.still,.fp2.still .fp2-hero,.fp2.still .fp2-sc,.fp2.still .fp2-body,.fp2.still .fp2-t,.fp2.still .fp2-h,.fp2.still .fp2-rv{animation:none;opacity:1}
+.fp2.still .fp2-gb b,.fp2.still .fp2-pb b{animation:none;width:var(--w)}.fp2.still .fp2-rg .v{animation:none;stroke-dashoffset:calc(100 - var(--p))}
+@media(prefers-reduced-motion:reduce){.fp2 *{animation-duration:.01s!important;animation-delay:0s!important;transition-duration:.01s!important}}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -8707,10 +8720,11 @@ function frMainHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
    ${tab==='chat'?`<div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}<span>Foto</span></button><button class="fr-ab" data-a="frgm" data-v="rec" title="Recomendarle un juego con una nota">${ic('star')}<span>Recomendar</span></button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}<span>Invitar</span></button><button class="fr-ab" data-a="njnew" title="Armar una noche de juegos con hora"><span>Noche</span></button><button class="fr-ab" data-a="x4menu" title="Pasarle mods o el mundo a tu amigo"><span>Coop</span></button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">Enviar</button></div></div>`:frProfHTML(c,d,m)}`}
 const FP_T=[['res','Resumen'],['gus','Gustos'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
 function frAgoL(d){return frOnl(d)?'En línea':d.gone?'Dejó de compartir':d.seen?'Visto '+frAgo(d.seen):'Desconectado'}
+function frMyGen(){const c={};G.forEach(g=>tagsOf(g).forEach(t=>c[t]=(c[t]||0)+1));return new Set([...Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).map(x=>frN(x[0])),...((PR()||{}).genres||[]).map(frN)])}
 function frCmp(d){const myN=new Set(G.map(g=>frN(g.name))),mp=PR()||{},mg=(mp.genres||[]).map(x=>String(x)),fg=(d.genres||[]).map(x=>String(x));
   const fl=d.lib?String(d.lib).split('\n').filter(Boolean):null,sh=fl?fl.filter(n=>myN.has(frN(n))):[];
   const myCo=new Set(G.filter(x8Coop).map(g=>frN(g.name))),co=(d.lc?String(d.lc).split('\n').filter(Boolean):[]).filter(n=>myCo.has(frN(n)));
-  const gs=fg.filter(x=>mg.some(y=>frN(y)===frN(x))),un=new Set([...fg.map(frN),...mg.map(frN)]).size;
+  const myG=frMyGen(),gs=fg.filter(x=>myG.has(frN(x))),un=new Set([...fg.map(frN),...myG]).size;
   const gj=un?gs.length/un:0;let sc=null;
   if(fl&&fl.length&&G.length){const m=Math.min(fl.length,G.length);sc=Math.round(100*(.65*Math.min(1,sh.length/Math.max(1,m*.25))+.35*Math.min(1,gj*1.6)))}
   else if(fg.length&&mg.length)sc=Math.round(100*Math.min(1,gj*1.6));
@@ -8737,8 +8751,8 @@ function frPBody(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),t=S.fpT||'
    <div class="fp2-2"><div class="fp2-cd"><h4>En números</h4><div class="fp2-rw">${rows.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div></div>
    <div class="fp2-cd fp2-wv"><h4>Con vos</h4>${x.sc==null?'<p class="fp2-em" style="margin:0">Todavía no hay datos para comparar.</p>':`<div class="fp2-mn"><div class="fp2-rg sm" style="--p:${x.sc}"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52"/><circle class="v" cx="60" cy="60" r="52" pathLength="100"/></svg><b>${x.sc}%</b></div><div><b>${x.fl?x.sh.length:x.gs.length}</b><span>${x.fl?'juegos en común':'géneros en común'}</span><button class="fp2-lk" data-a="fptab" data-v="com">Ver detalle</button></div></div>`}</div></div>`}
   if(t==='gus'){
-   const gn=(d.genres||[]).slice(0,6),mxg=Math.max(1,gn.length),mg=((PR()||{}).genres||[]).map(frN),tp=(d.top||[]).slice().sort((p,q)=>(q.h||0)-(p.h||0)),mx=Math.max(1,(tp[0]||{}).h||1);
-   return `<div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mxg))}%;--i:${i}"><span>${esc(q)}${mg.includes(frN(q))?'<u title="Vos también">'+ic('check')+'</u>':''}</span><i><b></b></i></div>`).join('')}</div>${x.gs.length?`<small class="fp2-ft">${ic('check')} Los que también jugás vos</small>`:''}`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
+   const gn=(d.genres||[]).slice(0,6),mxg=Math.max(1,gn.length),mg=[...frMyGen()],tp=(d.top||[]).slice().sort((p,q)=>(q.h||0)-(p.h||0)),mx=Math.max(1,(tp[0]||{}).h||1);
+   return `<div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb gck">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mxg))}%;--i:${i}"><span class="bx ${mg.includes(frN(q))?'on':''}" title="${mg.includes(frN(q))?'Vos también lo jugás':''}">${mg.includes(frN(q))?ic('check'):''}</span><span class="fp2-gl">${esc(q)}</span><i><b></b></i></div>`).join('')}</div><small class="fp2-ft"><span class="bx on">${ic('check')}</span> Los géneros que también jugás vos</small>`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
    <div class="fp2-cd"><h4>Sus favoritos, por horas</h4>${tp.length?`<div class="fp2-gb hr">${tp.map((q,i)=>`<div style="--w:${Math.max(6,Math.round(100*(q.h||0)/mx))}%;--i:${i}"><span>${esc(q.n)}</span><i><b></b></i><em>${q.h||0} h</em></div>`).join('')}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div></div>
    ${x.top.length?`<div class="fp2-cd" style="margin-top:14px"><h4>Para probar juntos</h4><p class="fp2-em" style="margin:0 0 12px">Sus favoritos que vos todavía no tenés</p><div class="fp2-ch">${x.top.map(q=>`<span><b>${esc(q.n)}</b>${q.h?` · ${q.h} h`:''}</span>`).join('')}</div></div>`:''}`}
   if(t==='com'){
@@ -8754,24 +8768,24 @@ function frPBody(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),t=S.fpT||'
    const L=d.ac||[],fl=S.fpAr||'',cnt={l:0,e:0,r:0,c:0};L.forEach(a=>{if(cnt[a.r]!=null)cnt[a.r]++});
    let V=fl?L.filter(a=>a.r===fl):L;const tot=V.length,sh=S.fpAm?V:V.slice(0,12);
    if(!L.length)return '<p class="fp2-em">No comparte sus hitos o todavía no tiene.</p>';
-   return `<div class="fp2-rr">${['l','e','r','c'].map(k=>`<button class="${fl===k?'on':''}" style="--c:${RAR[k][1]}" data-a="fpar" data-v="${k}"><b>${cnt[k]}</b><span>${RAR[k][0]}${k==='l'&&cnt[k]!==1?'s':k==='c'?'es':k==='e'?'s':'s'}</span></button>`).join('')}</div>
+   return `<div class="fp2-rr">${['l','e','r','c'].map(k=>`<button class="${fl===k?'on':''}" style="--c:${RAR[k][1]}" data-a="fpar" data-v="${k}"><b data-n="${cnt[k]}">${cnt[k]}</b><span>${RAR[k][0]}${k==='l'&&cnt[k]!==1?'s':k==='c'?'es':k==='e'?'s':'s'}</span></button>`).join('')}</div>
    <div class="fp2-hg">${sh.map((a,i)=>`<div class="fp2-h" style="--c:${(RAR[a.r]||RAR.c)[1]};--i:${Math.min(i,12)}"><u>${ic(a.i||'trophy')}</u><div><b>${esc(a.n)}</b>${a.d?`<small>${esc(a.d)}</small>`:''}</div><em>${esc((RAR[a.r]||RAR.c)[0])}</em></div>`).join('')}</div>
    ${tot>12?`<button class="fp2-more" data-a="fpam">${S.fpAm?'Ver menos':'Ver los '+tot+' hitos'}</button>`:''}`}
   const R=(d.rv||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(!R.length)return '<p class="fp2-em">No comparte reseñas o todavía no escribió ninguna.</p>';
   return `<div class="fp2-rl">${R.map((r,i)=>{const g=mine.get(frN(r.g));return `<div class="fp2-rv" style="--i:${Math.min(i,10)}"><div class="cv">${frCover(g,r.g)}</div><div><div class="fr-rh"><b>${esc(r.g)}</b>${starsHTML(r.r)}</div>${r.h?`<strong>${esc(r.h)}</strong>`:''}<p class="${r.s?'sp':''}" ${r.s?'data-a="frsp"':''}>${esc(r.t)}</p>${r.s?'<small class="fr-spt">Spoiler · tocá para ver</small>':''}</div></div>`}).join('')}</div>`}
-function frProfFx(){const root=document.querySelector('.fp2');if(!root)return;root.querySelectorAll('[data-n]').forEach(e=>{if(e.dataset.done)return;e.dataset.done=1;const v=+e.dataset.n||0,s=e.dataset.s||'',t0=performance.now(),D=900;const f=t=>{const k=Math.min(1,(t-t0)/D),p=1-Math.pow(1-k,3);e.textContent=Math.round(v*p).toLocaleString('es-AR')+s;if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
+function frProfFx(){const root=document.querySelector('.fp2');if(!root)return;const still=root.classList.contains('still');root.querySelectorAll('[data-n]').forEach(e=>{if(e.dataset.done)return;e.dataset.done=1;if(still){e.textContent=(+e.dataset.n||0).toLocaleString('es-AR')+(e.dataset.s||'');return}const v=+e.dataset.n||0,s=e.dataset.s||'',t0=performance.now(),D=900;const f=t=>{const k=Math.min(1,(t-t0)/D),p=1-Math.pow(1-k,3);e.textContent=Math.round(v*p).toLocaleString('es-AR')+s;if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
 function frProfHTML(c,d,m){const th=d.th||{},st=th.rgb?`--a:${th.a};--a2:${th.a2||th.a};--argb:${th.rgb}`:'';
   const x=d.avx&&typeof d.avx==='object'?avNorm(d.avx):null,bg=x?avItem('bg',x.bg):null,pt=d.pet&&d.pet.n?{...d.pet,name:d.pet.n,photo:'',ear:d.pet.ear||'down',pat:d.pet.pat||'none'}:null;
   let pm='';try{if(pt)pm=petSVG(pt,'',{size:150,body:true})}catch(e){pm=''}
   const stage=`<div class="fq-st fp2-sg"><div class="fq-bg" style="background:${bg?bg[4]:'linear-gradient(160deg,rgba(var(--argb),.35),#0c0a16)'}">${bg&&bg[5]||''}</div>${x?avSVG(x,{cls:'avx-st'}):`<div class="fq-big">${frAv(d,m,150)}</div>`}${pt?`<div class="fq-pet">${pm}<span><b>${esc(pt.name)}</b> · Nivel ${Math.floor(Math.sqrt((pt.xp||0)/20))+1}</span></div>`:''}<div class="fq-lv">${d.lv||1}<small>Nivel</small></div></div>`;
-  S.fpT=S.fpT||'res';
-  return `<div class="fr-prof fp2" style="${st}"><div class="fp2-l">${stage}</div><div class="fp2-r">${frHero(c,d,m)}
+  S.fpT=S.fpT||'res';const still=S.fpLast===c;S.fpLast=c;
+  return `<div class="fr-prof fp2${still?' still':''}" style="${st}"><div class="fp2-l">${stage}</div><div class="fp2-r">${frHero(c,d,m)}
    <div class="fp2-tb" id="fp-tb" style="--n:${FP_T.length};--k:${Math.max(0,FP_T.findIndex(x=>x[0]===S.fpT))}"><i></i>${FP_T.map(([k,l])=>`<button class="${S.fpT===k?'on':''}" data-a="fptab" data-v="${k}">${l}</button>`).join('')}</div><div class="fp2-body" id="fp-body">${frPBody(c,d,m)}</div></div></div>`}
 function frRender(){const el=$('#view');if(!el||S.view!=='friends')return;const mp=$('#fr-main'),keep=$('#fr-txt')&&$('#fr-txt').value;if(mp){mp.innerHTML=frMainHTML();frList();frWire()}else go('friends');const t=$('#fr-txt');if(t&&keep)t.value=keep}
 function frWire(){setTimeout(frProfFx,30);const t=$('#fr-txt');if(t){t.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();A.frsend()}});t.addEventListener('input',()=>{t.style.height='auto';t.style.height=Math.min(110,t.scrollHeight)+'px';if(t.value.trim())frTyping()});t.addEventListener('paste',e=>{const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));if(it){e.preventDefault();frPick(it.getAsFile())}});const m=$('#fr-msgs');if(m)m.scrollTop=m.scrollHeight}
   const q=$('#fr-q');if(q)q.addEventListener('input',()=>{S.frQ=q.value;if(S.frSel)frChatDraw(S.frSel,true)})}
-V.friends=()=>{const f=FR(),ok=fbOn();frCode();S.frTab=S.frTab||'chat';
+V.friends=()=>{S.fpLast=null;const f=FR(),ok=fbOn();frCode();S.frTab=S.frTab||'chat';
   if(Date.now()-(f.lastSync||0)>20000)setTimeout(()=>{frPub();frSync();frUnread()},60);
   if(S.frSel&&!f.list.includes(S.frSel))S.frSel=null;
   if(S.frSel){frLoadM(S.frSel).then(()=>{if(S.view==='friends'&&$('#fr-main')&&!document.querySelector('.modal'))frRender()});f.sn[S.frSel]=Date.now();f.un[S.frSel]=0;save();frBadge(Object.values(f.un).reduce((a,b)=>a+b,0))}
@@ -8783,7 +8797,7 @@ V.friends=()=>{const f=FR(),ok=fbOn();frCode();S.frTab=S.frTab||'chat';
     <div class="fr-li" id="fr-li">${frListHTML()}</div></aside><section class="fr-main" id="fr-main">${frMainHTML()}</section></div></div>`};
 Object.assign(A,{
  frsel:a=>{const c=a.dataset.id;S.frSel=c;S.frTab=S.frTab||'chat';const f=FR();f.sn[c]=Date.now();f.un[c]=0;save();frRender();frLoadM(c).then(()=>{if(S.frSel===c)frRender()});frChatPull(c).then(ch=>{if(ch)frChatDraw(c);frRead(c)})},
- fptab:a=>{S.fpT=a.dataset.v;const b=$('#fp-body');if(!b)return;document.querySelectorAll('#fp-tb button').forEach(x=>x.classList.toggle('on',x.dataset.v===S.fpT));{const tb=$('#fp-tb');if(tb)tb.style.setProperty('--k',Math.max(0,FP_T.findIndex(q=>q[0]===S.fpT)))}const f=FR(),c=S.frSel,d=f.c[c];b.innerHTML=frPBody(c,d,(FRM[c]||{}).d||{});b.classList.remove('in');void b.offsetWidth;b.classList.add('in');frProfFx()},
+ fptab:a=>{S.fpT=a.dataset.v;const b=$('#fp-body');if(!b)return;const rt=document.querySelector('.fp2');if(rt)rt.classList.remove('still');document.querySelectorAll('#fp-tb button').forEach(x=>x.classList.toggle('on',x.dataset.v===S.fpT));{const tb=$('#fp-tb');if(tb)tb.style.setProperty('--k',Math.max(0,FP_T.findIndex(q=>q[0]===S.fpT)))}const f=FR(),c=S.frSel,d=f.c[c];b.innerHTML=frPBody(c,d,(FRM[c]||{}).d||{});b.classList.remove('in');void b.offsetWidth;b.classList.add('in');frProfFx()},
  fpar:a=>{S.fpAr=S.fpAr===a.dataset.v?'':a.dataset.v;S.fpAm=0;A.fptab({dataset:{v:'hit'}})},
  fpam:()=>{S.fpAm=!S.fpAm;A.fptab({dataset:{v:'hit'}})},
  frtab:a=>{S.frTab=a.dataset.v;if(S.frRp)delete S.frRp[S.frSel];frRender()},
