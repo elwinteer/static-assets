@@ -1844,12 +1844,25 @@ function z7Run(archive, out, onP) {
     cp.on('close', (code) => res(code === 0 || code === 1 ? { ok: 1 } : { err: /password|Wrong/i.test(err) ? 'El archivo tiene contraseña' : 'El archivo está dañado o no se pudo abrir' }));
   });
 }
+const z7Sum = (txt) => { let t = 0; for (const b of String(txt).split(/\r?\n\r?\n/)) { if (/^Folder = \+/m.test(b) || /^Attributes = D/m.test(b)) continue; const m = b.match(/^Size = (\d+)/m); if (m) t += parseInt(m[1], 10); } return t; };
+function z7Size(archive) {
+  return new Promise((res) => {
+    const exe = z7Exe(); if (!exe) return res(0);
+    let out = '', cp; try { cp = spawn(exe, ['l', '-slt', archive], { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }); } catch (e) { return res(0); }
+    cp.stdout.on('data', (c) => { out += c; });
+    cp.on('error', () => res(0));
+    cp.on('close', () => res(z7Sum(out)));
+  });
+}
+const wdlFmt = (n) => n >= 1073741824 ? (n / 1073741824).toFixed(1) + ' GB' : Math.max(1, Math.round(n / 1048576)) + ' MB';
 async function wdlUnz(d, onP) {
   const file = d.final, dir = path.dirname(file);
   const base = path.basename(file).replace(/\.(tar\.(gz|bz2|xz)|tgz|zip|rar|7z|tar|gz|bz2|xz|cab)$/i, '');
   let tmp = path.join(dir, '.wt-unz-' + d.id + '-' + Date.now());
   const rm = (p) => { try { fs.rmSync(p, { recursive: true, force: true }); } catch (e) {} };
   try {
+    const need = await z7Size(file);
+    if (need > 0) { let free = -1; try { const st = fs.statfsSync(dir); free = st.bsize * st.bavail; } catch (e) {} if (free >= 0 && free < need + 5e7) throw new Error('No hay espacio para descomprimir: necesita ' + wdlFmt(need) + ' y quedan ' + wdlFmt(free)); }
     fs.mkdirSync(tmp, { recursive: true });
     let r = await z7Run(file, tmp, onP); if (!r.ok) throw new Error(r.err);
     let ents = fs.readdirSync(tmp);
