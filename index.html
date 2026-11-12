@@ -8877,7 +8877,7 @@ Object.assign(A,{
 /* ===X3A=== */
 /* ---------- 3 · tu PC en el celular (por internet, cifrado) ---------- */
 const PHURL='https://elwinteer.github.io/static-assets/p/';
-let X3={ack:null,last:0,sig:'',lt:0,busy:false};
+let X3={sz:{},ack:null,last:0,sig:'',lt:0,busy:false};
 const PHB=()=>{ST.ph=ST.ph||{};return ST.ph};
 function x3Key(){const a='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';let s='';crypto.getRandomValues(new Uint8Array(24)).forEach(x=>s+=a[x%32]);return s}
 const x3Hex=a=>[...a].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -8886,7 +8886,7 @@ async function x3Enc(o,key){const iv=crypto.getRandomValues(new Uint8Array(12)),
 async function x3Dec(b,key){const r=Uint8Array.from(atob(b),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:r.slice(0,12)},key,r.slice(12))))}
 function x3Snap(){
   const p=S.playing&&gm(S.playing.id),v=visOn();
-  const g=v?[]:G.filter(x=>!x.hide&&!vIs(x)).sort((a,b)=>lastTs(b)-lastTs(a)).slice(0,1500).map(x=>[String(x.id),x.name,+(+x.hours||0).toFixed(1),isSteamG(x)?x.app:0,instOf(x)?1:0,x.fav?1:0]);
+  const g=v?[]:G.filter(x=>!x.hide&&!vIs(x)).sort((a,b)=>lastTs(b)-lastTs(a)).slice(0,1500).map(x=>[String(x.id),x.name,+(+x.hours||0).toFixed(1),isSteamG(x)?x.app:0,instOf(x)?1:0,x.fav?1:0,isSteamG(x)?(X3.sz[x.app]||0):0]);
   return{t:Date.now(),n:'PC de '+(((ST.prof&&ST.prof.name)||ST.name)||'WINTEER'),g,p:p&&!v?[String(p.id),p.name]:null,d:X3.dr||[],k:X3.ack}}
 async function x3Push(force){
   const P=PHB();if(!P.k||!WN||X3.busy)return;
@@ -8902,9 +8902,9 @@ function x3Cmd(c){
   const g=gm(c.id),done=m=>{X3.ack={ts:c.ts,m};x3Push(true)};
   if(!g||vIs(g)||visOn())return done('Ese juego no está disponible');
   if(c.a==='play'){if(S.playing)return done('Ya hay un juego en curso en la PC');toast('Desde el celular: abriendo '+g.name);S.sel=g.id;A.play();done('Abriendo '+g.name+' en la PC')}
-  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g)){location.href='steam://install/'+g.app;done('Instalando '+g.name+' en la PC');try{winteerNative.steamAutoInstall(c.dr||'').then(r=>{if(r!=='ok')done('Falta confirmar en la PC ('+(r||'sin respuesta')+')')})}catch(e){}}else{S.sel=g.id;A.play();done('Mandé la instalación de '+g.name)}}
+  else if(c.a==='install'){toast('Desde el celular: instalando '+g.name);if(isSteamG(g)){location.href='steam://install/'+g.app;done('Instalando '+g.name+' en la PC');try{winteerNative.steamAutoInstall(c.dr||'').then(r=>{r=r||'';if(r==='ok')return;if(r.startsWith('ok|'))done('Instalando '+g.name+'. Sin acuerdo detectado'+(r.length>3?' (ventanas: '+r.slice(3)+')':''));else done('Falta confirmar en la PC ('+(r||'sin respuesta')+')')})}catch(e){}}else{S.sel=g.id;A.play();done('Mandé la instalación de '+g.name)}}
   else done('Pedido desconocido')}
-(async()=>{try{X3.dr=await winteerNative.steamDrives()||[]}catch(e){}})();setTimeout(()=>x3Push(true),4000);setInterval(()=>x3Push(false),20000);setInterval(x3Poll,6000);
+const x3Meta=async()=>{try{X3.dr=await winteerNative.steamDrives()||[];X3.sz=await winteerNative.steamSizes()||{}}catch(e){}};x3Meta();setInterval(()=>x3Meta().then(()=>x3Push(false)),120000);setTimeout(()=>x3Push(true),4000);setInterval(()=>x3Push(false),20000);setInterval(x3Poll,6000);
 /* QR */
 function qrMake(text){
   const bytes=[...new TextEncoder().encode(text)];

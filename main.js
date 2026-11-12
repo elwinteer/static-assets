@@ -2060,6 +2060,11 @@ let SAI = false;
 function steamDrives() {
   try { return steamLibs().map(p => { const l = String(p)[0].toUpperCase(); let f = 0; try { const st = fs.statfsSync(p); f = Math.round(st.bavail * st.bsize / 1073741824); } catch (e) {} return [l, f]; }).filter((x, i, a) => /^[A-Z]$/.test(x[0]) && a.findIndex(y => y[0] === x[0]) === i); } catch (e) { return []; }
 }
+function steamSizes() {
+  const o = {};
+  try { for (const l of steamLibs()) { const d = path.join(l, 'steamapps'); let fl = []; try { fl = fs.readdirSync(d); } catch (e) { continue; } for (const f of fl) { const m = f.match(/^appmanifest_(\d+)\.acf$/); if (!m) continue; try { const t = fs.readFileSync(path.join(d, f), 'utf8'), z = t.match(/"SizeOnDisk"\s+"(\d+)"/); if (z) o[m[1]] = Math.round(+z[1] / 1073741824 * 100) / 100; } catch (e) {} } } } catch (e) {}
+  return o;
+}
 function steamAutoInstall(letter) {
   if (process.platform !== 'win32' || SAI) return Promise.resolve('busy');
   SAI = true;
@@ -2094,7 +2099,8 @@ public static int BtnY(IntPtr h,double xf){RECT r;GetWindowRect(h,out r);int w=r
   if(on&&st<0)st=y;if(!on&&st>=0){int len=y-st;if(len>=22*k&&len<=70*k)return r.T+(st+y)/2;st=-1;}}
  return -1;}}
 public static int CenterX(IntPtr h,double xf){RECT r;GetWindowRect(h,out r);return r.L+(int)((r.R-r.L)*xf);}
-public static IntPtr FindE(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString().ToUpper();if(t.StartsWith("ALUF")||t.StartsWith("EULA")||t.StartsWith("ACUERDO")||t.StartsWith("LICENSE")||t.StartsWith("LICENCIA")){uint pid;GetWindowThreadProcessId(h,out pid);try{var n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();if(n=="steam"||n=="steamwebhelper"){r=h;return false;}}catch{}}return true;},IntPtr.Zero);return r;}
+public static string Seen="";
+public static IntPtr FindE(){IntPtr r=IntPtr.Zero;Seen="";EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.Length==0)return true;uint pid;GetWindowThreadProcessId(h,out pid);string n="";try{n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();}catch{return true;}if(n!="steam"&&n!="steamwebhelper")return true;var u=t.ToUpper();if(u=="STEAM"||u.StartsWith("INSTALL")||u.StartsWith("INSTALAR"))return true;RECT q;GetWindowRect(h,out q);int w=q.R-q.L,hh=q.B-q.T;if(w<400||w>1100||hh<250||hh>950)return true;if(Seen.Length<120)Seen+=t+";";if(r==IntPtr.Zero)r=h;return true;},IntPtr.Zero);return r;}
 public static void Wheel(IntPtr h){RECT r;GetWindowRect(h,out r);SetCursorPos((r.L+r.R)/2,(r.T+r.B)/2);System.Threading.Thread.Sleep(100);mouse_event(0x0800,0,0,unchecked((uint)(-480)),UIntPtr.Zero);}
 public static int[] Rows(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return new int[0];
  using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
@@ -2133,11 +2139,11 @@ while((Get-Date) -lt $end){
       if($eh -ne [IntPtr]::Zero){Start-Sleep -Milliseconds 700;[WtW]::Focus($eh);Start-Sleep -Milliseconds 400
         $ey=[WtW]::BtnY($eh,0.66)
         if($ey -gt 0){[WtW]::Click([WtW]::CenterX($eh,0.66),$ey);$acc++;Start-Sleep -Milliseconds 1200}}}
-    Write-Output 'ok';exit}
+    if($acc -eq 0){Write-Output ('ok|'+[WtW]::Seen)}else{Write-Output 'ok'};exit}
   Start-Sleep -Milliseconds 400}
 Write-Output 'timeout'`;
   return new Promise((res) => {
-    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 40000, env: Object.assign({}, process.env, { WT_IDX: String(idx) }) }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
+    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 75000, env: Object.assign({}, process.env, { WT_IDX: String(idx) }) }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
     catch (e) { SAI = false; res('err'); }
   });
 }
@@ -2491,6 +2497,7 @@ app.whenReady().then(() => {
   ipcMain.handle('lsvScan', async (_e, o) => { try { return await lsvScan(o || {}); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('steamAutoInstall', (_e, l) => steamAutoInstall(l));
   ipcMain.handle('steamDrives', () => steamDrives());
+  ipcMain.handle('steamSizes', () => steamSizes());
   ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });

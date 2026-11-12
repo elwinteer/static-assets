@@ -81,6 +81,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   aiAsk: (o) => ipcRenderer.invoke('aiAsk', o),
   steamAutoInstall: (l) => ipcRenderer.invoke('steamAutoInstall', l),
   steamDrives: () => ipcRenderer.invoke('steamDrives'),
+  steamSizes: () => ipcRenderer.invoke('steamSizes'),
   phoneGet: () => ipcRenderer.invoke('phoneGet'),
   phoneSet: (o) => ipcRenderer.invoke('phoneSet', o),
   phoneSync: (s) => ipcRenderer.invoke('phoneSync', s),
