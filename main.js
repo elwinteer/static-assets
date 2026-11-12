@@ -1323,7 +1323,7 @@ function cueFix(exe, args) {
 }
 /* Football Life / PES 2021: el juego pierde el mapeo del mando si se abre con otro mando enchufado (o sin mando).
    Guardamos el mapeo bueno y lo ponemos de nuevo antes de abrir el juego. Solo se toca si el archivo tiene el formato esperado. */
-const flIs = (n) => /football\s*life|efootball\s*pes|pes\s*20\d\d/i.test(String(n || ''));
+const flIs = (n) => /football\s*life|efootball\s*pes|pes\s*20\d\d|\bfl_?\d{4}\.exe/i.test(String(n || ''));
 function flFiles() { try { const d = app.getPath('documents'); return [{ f: path.join(d, 'SPGAME', 'Football Life', 'settings.dat'), g: 'fl-mapeo-bueno.dat' }, { f: path.join(d, 'KONAMI', 'eFootball PES 2021 SEASON UPDATE', 'settings.dat'), g: 'fl-mapeo-bueno-pes.dat' }].filter((x) => fs.existsSync(x.f)); } catch (e) { return []; } }
 const flOk = (b) => b && b.length === 612 && b.slice(0, 4).toString('latin1') === 'WECF';
 const flHas = (b, o) => b.slice(o + 10, o + 14).toString('latin1') === 'DEST';
@@ -1367,7 +1367,7 @@ function watch(o) {
   if (!exe && !dirs.length && !(o.app && process.platform === 'win32')) return false;
   let edir = '';
   if (exe) { try { const d = path.win32.dirname(exe); if (d.length > 3 && !/[\\/](program files( \(x86\))?|windows|system32|syswow64)$/i.test(d)) edir = d.replace(/[\\/]+$/, '') + sep; } catch (e) {} }
-  track.set(o.id, { name: String(o.name || ''), app: (!o.exe && o.app) ? o.app : 0, exe, edir, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
+  track.set(o.id, { name: String(o.name || '') + ' ' + (o.exe ? path.basename(String(o.exe)) : ''), app: (!o.exe && o.app) ? o.app : 0, exe, edir, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
   if (!poller) poller = setInterval(poll, 4000);
   setTimeout(poll, 1500);
   syncShot();
@@ -2502,13 +2502,13 @@ app.whenReady().then(() => {
   CACHE = path.join(app.getPath('userData'), 'imgcache'); loadIdx();
   protocol.handle('wimg', imgHandler);
   ipcMain.handle('launch', async (_e, o) => {
-    if (flIs(o.name)) flFix();
+    const flN = String(o.name || '') + ' ' + (o.exe ? path.basename(String(o.exe)) : ''); if (flIs(flN)) flFix();
     const tracking = watch(o);
     try {
       if (o.uri) await shell.openExternal(o.uri);
       else if (o.shellApp) { const c = spawn('explorer.exe', [o.shellApp], { detached: true, stdio: 'ignore' }); c.unref(); }
       else if (o.exe) {
-        const fl = flIs(o.name), env = fl ? Object.assign({}, process.env, { __COMPAT_LAYER: 'RunAsInvoker' }) : process.env;
+        const fl = flIs(String(o.name || '') + ' ' + path.basename(String(o.exe))), env = fl ? Object.assign({}, process.env, { __COMPAT_LAYER: 'RunAsInvoker' }) : process.env;
         if (fl) { try { const sp = flSider(o.exe); if (sp) { const ps = await listProcs(); if (!ps.some((q) => /[\\/]sider\.exe$/i.test(String(q)))) { const sc = spawn(sp, [], { cwd: path.dirname(sp), detached: true, stdio: 'ignore', env }); sc.on('error', () => {}); sc.unref(); await new Promise((r) => setTimeout(r, 2500)); } } } catch (e) {} }
         const c = spawn(o.exe, cueFix(o.exe, Array.isArray(o.args) ? o.args.map(String).slice(0, 12) : []), { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore', env }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref();
       }
