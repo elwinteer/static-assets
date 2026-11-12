@@ -1855,6 +1855,32 @@ function z7Size(archive) {
   });
 }
 const wdlFmt = (n) => n >= 1073741824 ? (n / 1073741824).toFixed(1) + ' GB' : Math.max(1, Math.round(n / 1048576)) + ' MB';
+const EXE_BAD = /unins|uninst|setup|install|redist|vc_?red|dxsetup|dxwebsetup|dotnet|netfx|crash|report|helper|updater|update\b|notif|oalinst|ue4prereq|cef(sub)?process|physx|7z|vulkan|dxcpl|ndp\d|windowsdesktop|sandbox|benchmark|config(ur)?\b|launcherhelper|easyanticheat|eac_|battleye|be_?service|webview2|msedge/i;
+const EXE_DIR_BAD = /^(_commonredist|commonredist|redist|redistributables?|directx|vcredist|dotnet|__installer|installer|_redist|support|prerequisites|crashpad|crashreport|3rdparty|thirdparty|engine|mono|monobleedingedge|_data)$/i;
+function wdlExes(root) {
+  const nrm = (x) => String(x || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const rn = nrm(path.basename(root).replace(/-steamrip\.com|steamrip/ig, ''));
+  const out = [];
+  const walk = (dir, depth) => {
+    let ents; try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return; }
+    for (const e of ents) {
+      const f = path.join(dir, e.name);
+      if (e.isDirectory()) { if (depth < 3 && !EXE_DIR_BAD.test(e.name) && !e.name.startsWith('.')) walk(f, depth + 1); continue; }
+      if (!/\.exe$/i.test(e.name) || EXE_BAD.test(e.name)) continue;
+      let size = 0; try { size = fs.statSync(f).size; } catch (x) { continue; }
+      if (size < 200 * 1024) continue;
+      const b = nrm(e.name.replace(/\.exe$/i, ''));
+      let sc = Math.log10(size) - depth * 0.35;
+      if (b.length >= 4 && rn && (rn.includes(b) || b.includes(rn))) sc += 2.2;
+      if (/-win(64|32)?-shipping\.exe$/i.test(e.name)) sc += 2;
+      out.push({ p: f, rel: path.relative(root, f), size, sc });
+    }
+  };
+  walk(root, 0);
+  out.sort((a, b) => b.sc - a.sc);
+  const pick = out.length === 1 || (out.length > 1 && out[0].sc - out[1].sc >= 1.2) ? out[0].p : '';
+  return { exes: out.slice(0, 8).map(({ p, rel, size }) => ({ p, rel, size })), pick };
+}
 async function wdlUnz(d, onP) {
   const file = d.final, dir = path.dirname(file);
   const base = path.basename(file).replace(/\.(tar\.(gz|bz2|xz)|tgz|zip|rar|7z|tar|gz|bz2|xz|cab)$/i, '');
@@ -1947,9 +1973,11 @@ function webInit() {
         const r = await wdlUnz(d, (p) => wsend({ id, st: 'unz', p }));
         if (r.ok) { outPath = r.dest; unz = 1; if (d.del) { try { fs.unlinkSync(d.final); } catch (e) {} } } else unzErr = r.err || 'No pude descomprimir';
       }
+      let ex = { exes: [], pick: '' };
+      if (unz && d.lib) { try { ex = wdlExes(outPath); } catch (e) {} }
       WDL.delete(id);
-      wsend({ id, st: 'done', path: outPath, size, unz, unzErr });
-      try { if (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused()) shotToast(null, d.name, 'dl', unz ? 'Descomprimido y listo' : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
+      wsend({ id, st: 'done', path: outPath, size, unz, unzErr, exes: ex.exes, pick: ex.pick, lib: !!d.lib });
+      try { if (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused()) shotToast(null, d.name, 'dl', unz ? (ex.pick ? 'Descomprimido y agregado a tu Biblioteca' : ex.exes.length ? 'Descomprimido · falta elegir el .exe' : 'Descomprimido y listo') : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
     });
   });
   ipcMain.handle('webDl', async (_e, m, a) => {
@@ -1972,7 +2000,7 @@ function webInit() {
         try { fs.mkdirSync(dir, { recursive: true }); } catch (e) { return { err: 'No puedo usar esa carpeta' }; }
         const sz = d.item.getTotalBytes();
         if (sz > 0) { try { const s = fs.statfsSync(dir); if (s.bsize * s.bavail < sz + 5e7) return { err: 'No hay lugar suficiente en ese disco' }; } catch (e) {} }
-        d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.unz = !!a.unz; d.del = !!(a.unz && a.del); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
+        d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.unz = !!a.unz; d.del = !!(a.unz && a.del); d.lib = !!(a.unz && a.lib); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
         d.item.resume(); return { ok: 1, name: path.basename(d.final), path: d.final };
       }
       if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
