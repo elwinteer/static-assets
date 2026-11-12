@@ -8821,6 +8821,9 @@ const X6SC={},X6PEND={};let X6F='all',X6SUG=new Set();
 const x6k=(g,n)=>g+'|'+n;
 function x6R(){ST.shr=ST.shr||{};ST.shd=ST.shd||{}}
 function x6Get(n){const e=(ST.shr||{})[x6k(SHG,n)];return e?e.r:0}
+/* estrellas automaticas (segun el puntaje visual); lo que pones a mano manda */
+function x6Au(x){const sc=X6SC[SHG];if(!sc||sc[x.n]===undefined||sc[x.n]<0)return 0;const s=sc[x.n]+(x.clip?12:0);return s>=80?5:s>=68?4:s>=55?3:s>=40?2:1}
+function x6Ef(x){return x6Get(x.n)||x6Au(x)}
 function x6Set(x,r){x6R();const k=x6k(SHG,x.n);
   if(!r)delete ST.shr[k];else{ST.shr[k]={r,t:x.t,g:SHG,f:x.file,th:x.thumb,c:x.clip?1:0};delete ST.shd[k]}
   save();x6Deco();if($('.shlb'))x6LbBar()}
@@ -8832,12 +8835,12 @@ function x6Sug(){
   return new Set(keep.slice(0,max).map(o=>o.x.n))}
 function x6Deco(){
   const el=$('#shg')||$('#vshg');if(!el||!SHL.length){const b=$('#x6bar');if(b)b.remove();return}
-  const sug=X6SUG=x6Sug(),nTop=SHL.filter(x=>x6Get(x.n)>=4).length;
+  const sug=X6SUG=x6Sug(),nTop=SHL.filter(x=>x6Ef(x)>=4).length;
   let bar=$('#x6bar');if(!bar){bar=document.createElement('div');bar.id='x6bar';bar.className='x6bar';el.parentNode.insertBefore(bar,el)}
   let vis=0;
-  el.querySelectorAll('.shc').forEach(c=>{const x=SHL[+c.dataset.i];if(!x)return;const r=x6Get(x.n),sg=sug.has(x.n);
+  el.querySelectorAll('.shc').forEach(c=>{const x=SHL[+c.dataset.i];if(!x)return;const m=x6Get(x.n),r=m||x6Au(x),sg=sug.has(x.n);
     c.querySelectorAll('.x6b').forEach(e=>e.remove());
-    if(r||sg){const b=document.createElement('span');b.className='x6b'+(r?'':' sg');b.textContent=r?'★'.repeat(r):'Sugerida';c.appendChild(b)}
+    if(r){const b=document.createElement('span');b.className='x6b'+(m?'':' au');b.textContent='★'.repeat(r);c.appendChild(b)}
     const hide=(X6F==='top'&&r<4)||(X6F==='sug'&&!sg);c.style.display=hide?'none':'';if(!hide)vis++});
   bar.innerHTML=[['all','Todas',SHL.length],['top','Destacadas',nTop],['sug','Sugeridas',sug.size]].map(([k,l,n])=>`<button class="x6c ${X6F===k?'on':''}" data-a="x6f" data-v="${k}">${l}${k!=='all'?' · '+n:''}</button>`).join('')+(vis?'':`<span class="hint2">${X6F==='top'?'Todavía no destacaste ninguna. Abrí una captura y poné estrellas (o apretá 1 a 5).':'No hay sugerencias por ahora.'}</span>`)}
 (()=>{const f0=shFill;shFill=async function(id){await f0.apply(this,arguments);try{x6Deco()}catch(e){}
@@ -8849,8 +8852,8 @@ function x6Deco(){
 (()=>{const l0=shLight;shLight=function(){l0.apply(this,arguments);try{x6LbBar()}catch(e){}}})();
 function x6LbBar(){const d=$('.shlb'),x=SHL[SHI];if(!d||!x)return;
   let b=d.querySelector('.x6lb');if(!b){b=document.createElement('div');b.className='x6lb';d.appendChild(b)}
-  const r=x6Get(x.n),sg=!r&&X6SUG.has(x.n);
-  b.innerHTML=`<div class="x6st">${[1,2,3,4,5].map(i=>`<button class="x6s ${i<=r?'on':''}" data-a="x6r" data-v="${i}" title="${i} ${i===1?'estrella':'estrellas'}">★</button>`).join('')}</div>${sg?`<div class="x6sg"><span>Te la sugiero como destacada</span><button data-a="x6ok">Dejarla en 4 estrellas</button><button data-a="x6no">No, gracias</button></div>`:''}`}
+  const m=x6Get(x.n),au=m?0:x6Au(x),r=m||au;
+  b.innerHTML=`<div class="x6st ${au?'au':''}">${[1,2,3,4,5].map(i=>`<button class="x6s ${i<=r?'on':''}" data-a="x6r" data-v="${i}" title="${i} ${i===1?'estrella':'estrellas'}">★</button>`).join('')}</div>${au?'<div class="x6sg"><span>Puntaje automático · tocá una estrella para cambiarlo</span></div>':''}`}
 (()=>{const d0=A.shdel;A.shdel=function(){const x=SHL[SHI],k=x&&x6k(SHG,x.n);const r=d0.apply(this,arguments);if(k){try{delete (ST.shr||{})[k];delete (ST.shd||{})[k];save()}catch(e){}}return r}})();
 document.addEventListener('keydown',e=>{if(!$('.shlb')||e.ctrlKey||e.altKey||e.metaKey)return;const t=e.target;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
   if(/^[0-5]$/.test(e.key)){const x=SHL[SHI];if(x){x6Set(x,+e.key);e.preventDefault()}}});
@@ -9285,7 +9288,7 @@ Object.assign(A,{
 /*/cX9A*/
 /*cX6A*/.x6bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}.x6bar .hint2{margin-left:6px}
 .x6c{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-size:12.5px;font-weight:600;padding:6px 14px;border-radius:99px;cursor:pointer}.x6c.on{background:rgba(var(--argb),.28);border-color:rgba(var(--argb),.7)}
-.x6b{position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.65);color:#fde047;font-size:12px;letter-spacing:.08em;pointer-events:none;font-weight:700}.x6b.sg{color:#fff;letter-spacing:0;font-size:11px;background:rgba(var(--argb),.75)}
+.x6b{position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.65);color:#fde047;font-size:12px;letter-spacing:.08em;pointer-events:none;font-weight:700}.x6b.au{opacity:.7;color:#cbd5e1}.x6st.au .x6s.on{color:#94a3b8}.x6b.sg{color:#fff;letter-spacing:0;font-size:11px;background:rgba(var(--argb),.75)}
 .x6lb{position:absolute;left:50%;bottom:calc(3vh + 62px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2}
 .x6st{display:flex;gap:2px;padding:4px 10px;border-radius:99px;background:rgba(20,16,34,.9);border:1px solid rgba(255,255,255,.12)}.x6s{border:0;background:none;color:rgba(255,255,255,.3);font-size:26px;line-height:1;cursor:pointer;padding:2px 3px;transition:transform .15s,color .15s}.x6s.on{color:#fde047;text-shadow:0 0 12px rgba(253,224,71,.6)}.x6s:hover{transform:scale(1.2);color:#fde047}
 .x6sg{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 14px;border-radius:99px;background:rgba(20,16,34,.92);border:1px solid rgba(var(--argb),.6);font-size:12.5px;color:#fff;white-space:nowrap}.x6sg button{border:0;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:600;font-size:12.5px;padding:6px 12px;cursor:pointer}.x6sg button:hover{background:rgba(255,255,255,.22)}
