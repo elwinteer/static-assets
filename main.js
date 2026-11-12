@@ -1879,6 +1879,19 @@ async function wdlUnz(d, onP) {
     return { ok: 1, dest };
   } catch (e) { rm(tmp); return { err: String((e && e.message) || e).slice(0, 120) }; }
 }
+let adB = null, adP = null, adOn = false;
+async function adSet(on) {
+  const ses = session.fromPartition(WEB_PART);
+  try {
+    if (on) {
+      if (!adB) { if (!adP) adP = (async () => { const { ElectronBlocker } = require('@ghostery/adblocker-electron'); return await ElectronBlocker.fromPrebuiltAdsAndTracking(fetch, { path: path.join(app.getPath('userData'), 'adblock.bin'), read: fs.promises.readFile, write: fs.promises.writeFile }); })(); adB = await adP; }
+      if (!adOn) { adB.enableBlockingInSession(ses); adOn = true; }
+      return 1;
+    }
+    if (adB && adOn) { adB.disableBlockingInSession(ses); adOn = false; }
+    return 1;
+  } catch (e) { adP = null; adB = null; adOn = false; return 0; }
+}
 function webInit() {
   if (webOk) return; webOk = true;
   const tmpDir = path.join(app.getPath('userData'), 'dl-tmp');
@@ -1922,6 +1935,7 @@ function webInit() {
     a = a || {};
     try {
       if (m === 'def') return app.getPath('downloads');
+      if (m === 'ads') return await adSet(!!a.on);
       if (m === 'drives') {
         const out = [];
         for (const L of 'CDEFGHIJKLMNOPQRSTUVWXYZ') { const root = L + ':\\'; try { if (!fs.existsSync(root)) continue; const s = fs.statfsSync(root); const total = s.bsize * s.blocks, free = s.bsize * s.bavail; if (total > 0) out.push({ root, free, total }); } catch (e) {} }
@@ -1961,14 +1975,14 @@ function createWindow() {
   win.webContents.on('did-attach-webview', (_e, wc) => {
     try {
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
-      wc.setWindowOpenHandler(({ url }) => {
-        if (own(url)) { try { wc.loadURL(url); } catch (e) {} return { action: 'deny' }; }
+      wc.setWindowOpenHandler(({ url, disposition }) => {
+        if (own(url)) { wsend({ st: 'newtab', url, fg: disposition !== 'background-tab' }); return { action: 'deny' }; }
         if (!url || url === 'about:blank') return { action: 'allow', overrideBrowserWindowOptions: { show: false, width: 520, height: 420, skipTaskbar: true, autoHideMenuBar: true } };
         note('La página quiso abrir algo que no es una web (' + String(url).split(':')[0] + ':) y lo bloqueé'); return { action: 'deny' };
       });
       wc.on('did-create-window', (cw) => {
         const t = cw.webContents; let done = false;
-        const take = (u) => { if (done || !own(u)) return; done = true; try { wc.loadURL(u); } catch (e) {} try { cw.destroy(); } catch (e) {} };
+        const take = (u) => { if (done || !own(u)) return; done = true; wsend({ st: 'newtab', url: u, fg: true }); try { cw.destroy(); } catch (e) {} };
         t.on('did-start-navigation', (_ev, u, _ip, main) => { if (main) take(u); });
         t.on('will-redirect', (_ev, u) => take(u));
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
