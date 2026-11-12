@@ -2154,6 +2154,7 @@ async function aiSetup(model, force) {
       send(75, 'Bajando el modelo ' + m);
       const r = await ollamaPull(m, (p) => send(75 + Math.round(p * 0.24), 'Bajando el modelo ' + m));
       if (!r.ok) return { ok: false, err: 'pull' };
+      if (force) { for (const x of st.models.filter(n => /^dolphin-mistral/.test(n))) { try { await ollamaReq('DELETE', '/api/delete', { name: x }, 20000); } catch (e) {} } }
     }
     send(100, 'Listo');
     return { ok: true };
