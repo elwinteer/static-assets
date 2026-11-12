@@ -1328,6 +1328,22 @@ function flFiles() { try { const d = app.getPath('documents'); return [{ f: path
 const flOk = (b) => b && b.length === 612 && b.slice(0, 4).toString('latin1') === 'WECF';
 const flHas = (b, o) => b.slice(o + 10, o + 14).toString('latin1') === 'DEST';
 function flHist(x) { try { const h = path.join(app.getPath('userData'), 'fl-hist'); fs.mkdirSync(h, { recursive: true }); fs.copyFileSync(x.f, path.join(h, new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19) + '-' + path.basename(path.dirname(x.f)).replace(/\W/g, '') + '.dat')); const l = fs.readdirSync(h).sort(); while (l.length > 20) fs.unlinkSync(path.join(h, l.shift())); } catch (e) {} }
+/* busca sider.exe cerca del juego (carpeta del juego, "sider addons", etc.) */
+function flSider(exe) {
+  try {
+    const roots = [path.dirname(exe), path.dirname(path.dirname(exe))], seen = new Set(); let n = 0;
+    for (const r of roots) {
+      const q = [[r, 0]];
+      while (q.length && n < 3000) {
+        const [d, k] = q.shift(); if (seen.has(d)) continue; seen.add(d);
+        let l = []; try { l = fs.readdirSync(d, { withFileTypes: true }); } catch (e) { continue; }
+        for (const e of l) { n++; if (e.isFile() && /^sider\.exe$/i.test(e.name)) return path.join(d, e.name); }
+        if (k < 3) for (const e of l) if (e.isDirectory() && !/^(node_modules|\$recycle\.bin|system volume information|save|replay|dt\d+|common)$/i.test(e.name)) q.push([path.join(d, e.name), k + 1]);
+      }
+    }
+  } catch (e) {}
+  return '';
+}
 function flFix() {
   try {
     for (const x of flFiles()) {
@@ -2491,7 +2507,11 @@ app.whenReady().then(() => {
     try {
       if (o.uri) await shell.openExternal(o.uri);
       else if (o.shellApp) { const c = spawn('explorer.exe', [o.shellApp], { detached: true, stdio: 'ignore' }); c.unref(); }
-      else if (o.exe) { const c = spawn(o.exe, cueFix(o.exe, Array.isArray(o.args) ? o.args.map(String).slice(0, 12) : []), { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore' }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref(); }
+      else if (o.exe) {
+        const fl = flIs(o.name), env = fl ? Object.assign({}, process.env, { __COMPAT_LAYER: 'RunAsInvoker' }) : process.env;
+        if (fl) { try { const sp = flSider(o.exe); if (sp) { const ps = await listProcs(); if (!ps.some((q) => /[\\/]sider\.exe$/i.test(String(q)))) { const sc = spawn(sp, [], { cwd: path.dirname(sp), detached: true, stdio: 'ignore', env }); sc.on('error', () => {}); sc.unref(); await new Promise((r) => setTimeout(r, 2500)); } } } catch (e) {} }
+        const c = spawn(o.exe, cueFix(o.exe, Array.isArray(o.args) ? o.args.map(String).slice(0, 12) : []), { cwd: path.dirname(o.exe), detached: true, stdio: 'ignore', env }); c.on('error', () => send({ type: 'never', id: o.id, err: 'No pude abrir el .exe' })); c.unref();
+      }
       else if (o.app) await shell.openExternal('steam://rungameid/' + o.app);
     } catch (e) { return { ok: false, err: String(e) }; }
     return { ok: true, tracking };
