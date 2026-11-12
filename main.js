@@ -2053,175 +2053,9 @@ async function aiAsk(o) {
   try { const j = JSON.parse(r.text); return { ok: true, text: String(j.response || '').trim() }; } catch (e) { return { ok: false, err: 'Respuesta inválida' }; }
 }
 
-/* ===== Tu PC en el celular (etapa 1): pagina web local para ver la biblioteca y mandar Jugar / Instalar ===== */
-let PH = { srv: null, snap: { games: [], playing: null, name: '' }, err: '', fails: {} };
-const PHPORT = 8472;
-let SAI = false;
-function steamDrives() {
-  try { return steamLibs().map(p => { const l = String(p)[0].toUpperCase(); let f = 0; try { const st = fs.statfsSync(p); f = Math.round(st.bavail * st.bsize / 1073741824); } catch (e) {} return [l, f]; }).filter((x, i, a) => /^[A-Z]$/.test(x[0]) && a.findIndex(y => y[0] === x[0]) === i); } catch (e) { return []; }
-}
-function steamSizes() {
-  const o = {};
-  try { for (const l of steamLibs()) { const d = path.join(l, 'steamapps'); let fl = []; try { fl = fs.readdirSync(d); } catch (e) { continue; } for (const f of fl) { const m = f.match(/^appmanifest_(\d+)\.acf$/); if (!m) continue; try { const t = fs.readFileSync(path.join(d, f), 'utf8'), z = t.match(/"SizeOnDisk"\s+"(\d+)"/); if (z) o[m[1]] = Math.round(+z[1] / 1073741824 * 100) / 100; } catch (e) {} } } } catch (e) {}
-  return o;
-}
-function steamAutoInstall(letter) {
-  if (process.platform !== 'win32' || SAI) return Promise.resolve('busy');
-  SAI = true;
-  const idx = letter ? steamDrives().findIndex(x => x[0] === String(letter).toUpperCase()) : -1;
-  const ps = `
-Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @"
-using System;using System.Text;using System.Runtime.InteropServices;
-public class WtW{public delegate bool CB(IntPtr h,IntPtr l);
-[DllImport("user32.dll")]public static extern bool EnumWindows(CB c,IntPtr l);
-[DllImport("user32.dll")]public static extern int GetWindowText(IntPtr h,StringBuilder s,int n);
-[DllImport("user32.dll")]public static extern bool IsWindowVisible(IntPtr h);
-[DllImport("user32.dll")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
-[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);
-[DllImport("user32.dll")]public static extern bool BringWindowToTop(IntPtr h);
-[DllImport("user32.dll")]public static extern bool ShowWindow(IntPtr h,int c);
-[DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();
-[DllImport("user32.dll")]public static extern bool SetProcessDPIAware();
-[DllImport("user32.dll")]public static extern void keybd_event(byte k,byte s,uint f,UIntPtr e);
-[DllImport("user32.dll")]public static extern bool GetWindowRect(IntPtr h,out RECT r);
-[DllImport("user32.dll")]public static extern bool SetCursorPos(int x,int y);
-[DllImport("user32.dll")]public static extern void mouse_event(uint f,int dx,int dy,uint d,UIntPtr e);
-public struct RECT{public int L,T,R,B;}
-public static IntPtr Find(){IntPtr r=IntPtr.Zero;EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.StartsWith("Install")||t.StartsWith("Instalar")){uint pid;GetWindowThreadProcessId(h,out pid);try{var n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();if(n=="steam"||n=="steamwebhelper"){r=h;return false;}}catch{}}return true;},IntPtr.Zero);return r;}
-public static string Fg(){uint p;GetWindowThreadProcessId(GetForegroundWindow(),out p);try{return System.Diagnostics.Process.GetProcessById((int)p).ProcessName.ToLower();}catch{return "?";}}
-public static void Focus(IntPtr h){keybd_event(0x12,0,0,UIntPtr.Zero);keybd_event(0x12,0,2,UIntPtr.Zero);ShowWindow(h,9);BringWindowToTop(h);SetForegroundWindow(h);}
-public static void Click(int x,int y){SetCursorPos(x,y);System.Threading.Thread.Sleep(120);mouse_event(2,0,0,0,UIntPtr.Zero);System.Threading.Thread.Sleep(60);mouse_event(4,0,0,0,UIntPtr.Zero);}
-public static int BtnY(IntPtr h,double xf){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return -1;
- using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
- double k=w/540.0;int xb=(int)(w*xf),x2=w-(int)(36*k);
- Func<System.Drawing.Color,bool> bl=c=>c.B>180&&c.R<95&&c.G>70&&c.G<215;
- int st=-1;for(int y=(int)(hh*0.35);y<=hh;y++){bool on=y<hh&&bl(bmp.GetPixel(xb,y))&&!bl(bmp.GetPixel(x2,y));
-  if(on&&st<0)st=y;if(!on&&st>=0){int len=y-st;if(len>=22*k&&len<=70*k)return r.T+(st+y)/2;st=-1;}}
- return -1;}}
-public static int CenterX(IntPtr h,double xf){RECT r;GetWindowRect(h,out r);return r.L+(int)((r.R-r.L)*xf);}
-public static string Seen="";
-public static IntPtr FindE(){IntPtr r=IntPtr.Zero;Seen="";EnumWindows((h,l)=>{if(!IsWindowVisible(h))return true;var sb=new StringBuilder(256);GetWindowText(h,sb,256);var t=sb.ToString();if(t.Length==0)return true;uint pid;GetWindowThreadProcessId(h,out pid);string n="";try{n=System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower();}catch{return true;}if(n!="steam"&&n!="steamwebhelper")return true;var u=t.ToUpper();if(u=="STEAM"||u.StartsWith("INSTALL")||u.StartsWith("INSTALAR"))return true;RECT q;GetWindowRect(h,out q);int w=q.R-q.L,hh=q.B-q.T;if(Seen.Length<160)Seen+=t+" "+w+"x"+hh+";";if(w<400||w>1100||hh<250||hh>950)return true;if(r==IntPtr.Zero)r=h;return true;},IntPtr.Zero);return r;}
-public static void Wheel(IntPtr h){RECT r;GetWindowRect(h,out r);SetCursorPos((r.L+r.R)/2,(r.T+r.B)/2);System.Threading.Thread.Sleep(100);mouse_event(0x0800,0,0,unchecked((uint)(-480)),UIntPtr.Zero);}
-public static int[] Rows(IntPtr h){RECT r;GetWindowRect(h,out r);int w=r.R-r.L,hh=r.B-r.T;if(w<200||hh<200)return new int[0];
- using(var bmp=new System.Drawing.Bitmap(w,hh)){using(var g=System.Drawing.Graphics.FromImage(bmp)){g.CopyFromScreen(r.L,r.T,0,0,new System.Drawing.Size(w,hh));}
- var bg=bmp.GetPixel(8,hh/2);double k=w/540.0;int x1=(int)(28*k),x2=w-(int)(36*k);
- Func<System.Drawing.Color,bool> bar=c=>Math.Abs(c.R-bg.R)+Math.Abs(c.G-bg.G)+Math.Abs(c.B-bg.B)>45;
- var o=new System.Collections.Generic.List<int>();int st=-1;
- for(int y=0;y<=hh;y++){bool on=y<hh&&bar(bmp.GetPixel(x1,y))&&bar(bmp.GetPixel(x2,y));
-  if(on&&st<0)st=y;if(!on&&st>=0){int len=y-st;if(len>=30*k&&len<=64*k)o.Add(r.T+(st+y)/2);st=-1;}}
- o.Add(r.L+(x1+x2)/2);return o.ToArray();}}}
-"@
-[void][WtW]::SetProcessDPIAware()
-Add-Type -AssemblyName System.Windows.Forms
-$idx=[int]$env:WT_IDX
-$t0=Get-Date;$inst=$false;$acc=0;$e2=$null;$lastAcc=$null
-while(((Get-Date)-$t0).TotalSeconds -lt 50){
-  if(-not $inst -and ((Get-Date)-$t0).TotalSeconds -lt 25){
-    $h=[WtW]::Find()
-    if($h -ne [IntPtr]::Zero){
-      Start-Sleep -Milliseconds 1200
-      $okf=$false
-      for($i=0;$i -lt 4;$i++){[WtW]::Focus($h);Start-Sleep -Milliseconds 350;$p=[WtW]::Fg();if($p -eq 'steam' -or $p -eq 'steamwebhelper'){$okf=$true;break}}
-      if(-not $okf){Write-Output ('nofocus:'+[WtW]::Fg());exit}
-      if($idx -ge 0){
-        $rw=[WtW]::Rows($h)
-        if($rw.Length -lt 2){Write-Output 'norows';exit}
-        $n=$rw.Length-1
-        if($idx -ge $n){Write-Output 'nodrive';exit}
-        [WtW]::Click($rw[$n],$rw[$idx]);Start-Sleep -Milliseconds 500}
-      $by=-1
-      for($t=0;$t -lt 5;$t++){$by=[WtW]::BtnY($h,0.42);if($by -gt 0){break};[WtW]::Wheel($h);Start-Sleep -Milliseconds 450}
-      if($by -le 0){Write-Output 'nobtn';exit}
-      [WtW]::Click([WtW]::CenterX($h,0.42),$by)
-      $inst=$true;$e2=(Get-Date).AddSeconds(16)}}
-  if($false){
-    $eh=[WtW]::FindE()
-    if($eh -ne [IntPtr]::Zero){Start-Sleep -Milliseconds 700;[WtW]::Focus($eh);Start-Sleep -Milliseconds 400
-      $ey=[WtW]::BtnY($eh,0.66)
-      if($ey -gt 0){[WtW]::Click([WtW]::CenterX($eh,0.66),$ey);$acc++;$lastAcc=Get-Date;Start-Sleep -Milliseconds 1200}}}
-  if($inst){break}
-  if($acc -gt 0 -and ((Get-Date)-$lastAcc).TotalSeconds -gt 5){break}
-  if(-not $inst -and $acc -eq 0 -and ((Get-Date)-$t0).TotalSeconds -gt 25){break}
-  Start-Sleep -Milliseconds 500}
-if($acc -gt 0){Write-Output 'ok'}elseif($inst){Write-Output ('ok|'+[WtW]::Seen)}else{Write-Output ('timeout|'+[WtW]::Seen)}`;
-  return new Promise((res) => {
-    try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true, timeout: 75000, env: Object.assign({}, process.env, { WT_IDX: String(idx) }) }, (err, out) => { SAI = false; res(err ? 'err' : String(out || '').trim()); }); }
-    catch (e) { SAI = false; res('err'); }
-  });
-}
-
-function phoneCfg() { cfg.phone = Object.assign({ on: false, pin: '', tokens: [] }, cfg.phone || {}); if (!/^\d{6}$/.test(cfg.phone.pin)) { cfg.phone.pin = String(crypto.randomInt(0, 1e6)).padStart(6, '0'); saveCfg(); } return cfg.phone; }
-function lanIps() { const out = []; try { const ifs = os.networkInterfaces(); for (const k of Object.keys(ifs)) for (const a of ifs[k] || []) if (a.family === 'IPv4' && !a.internal && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(a.address)) out.push({ ip: a.address, mac: a.mac }); } catch (e) {} return out; }
-const isLan = a => { a = String(a || '').replace(/^::ffff:/, ''); return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.|169\.254\.)/.test(a) || a === '::1'; };
-function phoneInfo() { const p = phoneCfg(), l = lanIps(); return { on: !!p.on, running: !!PH.srv, pin: p.pin, ip: l[0] ? l[0].ip : '', mac: l[0] ? l[0].mac : '', port: PHPORT, err: PH.err, devices: p.tokens.length }; }
-function phoneStop() { try { if (PH.srv) PH.srv.close(); } catch (e) {} PH.srv = null; }
-function phoneStart() {
-  phoneStop(); PH.err = '';
-  const http = require('http');
-  const srv = http.createServer((req, res) => {
-    const ip = req.socket.remoteAddress;
-    if (!isLan(ip)) { res.writeHead(403); res.end('Solo red local'); return; }
-    const json = (o, c) => { res.writeHead(c || 200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(o)); };
-    const p = phoneCfg(), tok = String(req.headers['x-t'] || ''), authed = tok && p.tokens.includes(tok);
-    if (req.method === 'GET' && (req.url === '/' || req.url.startsWith('/?'))) { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(PHONE_HTML); return; }
-    let body = ''; req.on('data', d => { body += d; if (body.length > 4000) req.destroy(); });
-    req.on('end', () => {
-      let b = {}; try { b = body ? JSON.parse(body) : {}; } catch (e) {}
-      if (req.url === '/api/login' && req.method === 'POST') {
-        const f = PH.fails[ip] = (PH.fails[ip] || []).filter(t => Date.now() - t < 60000);
-        if (f.length >= 5) return json({ ok: false, err: 'Demasiados intentos. Esperá un minuto.' }, 429);
-        if (String(b.pin) === p.pin) { const t = crypto.randomBytes(18).toString('hex'); p.tokens = p.tokens.concat([t]).slice(-8); saveCfg(); return json({ ok: true, t }); }
-        f.push(Date.now()); return json({ ok: false, err: 'Código incorrecto' }, 401);
-      }
-      if (!authed) return json({ ok: false, err: 'auth' }, 401);
-      if (req.url === '/api/lib') { const l = lanIps()[0] || {}; return json({ ok: true, snap: PH.snap, pc: { mac: l.mac || '' } }); }
-      if (req.url === '/api/cmd' && req.method === 'POST') {
-        if (!['play', 'install'].includes(b.a) || !b.id) return json({ ok: false, err: 'Comando inválido' }, 400);
-        if (!win || win.isDestroyed()) return json({ ok: false, err: 'WINTEER está cerrado en la PC' });
-        try { win.webContents.send('phone', { a: b.a, id: String(b.id) }); } catch (e) { return json({ ok: false, err: 'No pude avisarle a la PC' }); }
-        return json({ ok: true });
-      }
-      json({ ok: false, err: 'No existe' }, 404);
-    });
-  });
-  srv.on('error', e => { PH.err = e && e.code === 'EADDRINUSE' ? 'El puerto ' + PHPORT + ' está ocupado' : String(e && e.message || e); PH.srv = null; });
-  try { srv.listen(PHPORT, '0.0.0.0', () => { PH.srv = srv; }); PH.srv = srv; } catch (e) { PH.err = String(e.message || e); }
-}
-const PHONE_HTML = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0a0b"><title>WINTEER</title><style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#0a0a0b;color:#eee;font:15px/1.4 system-ui,sans-serif;padding:0 16px 90px}
-h1{font-size:18px;letter-spacing:.2em;margin:18px 0 4px}small,.d{color:#9a9aa2}.top{position:sticky;top:0;background:#0a0a0b;padding:10px 0;z-index:5}
-input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #2a2a2e;background:#161618;color:#fff;font:inherit}
-.chips{display:flex;gap:8px;margin:10px 0;overflow:auto}.chip{border:1px solid #2a2a2e;background:#161618;color:#ddd;border-radius:99px;padding:7px 14px;white-space:nowrap}.chip.on{background:#fff;border-color:#fff;color:#000}
-.now{margin:12px 0;padding:12px 14px;border-radius:14px;background:#16241c;border:1px solid #2a5a3d}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.c{background:#161618;border-radius:14px;overflow:hidden;border:1px solid #26262a}.c .i{aspect-ratio:460/215;background:#1d1d20;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#6b6b72}.c .i img{width:100%;height:100%;object-fit:cover}.c div.t{padding:8px 10px}.c b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sheet{position:fixed;left:0;right:0;bottom:0;background:#151517;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(0,0,0,.6);z-index:9}
-.btn{display:block;width:100%;padding:14px;border-radius:14px;border:0;font:inherit;font-weight:700;margin-top:10px;background:#fff;color:#000}.btn.g{background:#242427;color:#ddd}
-.msg{position:fixed;left:16px;right:16px;top:12px;padding:12px 14px;border-radius:12px;background:#26262a;z-index:20;text-align:center}
-.pin{text-align:center;letter-spacing:.4em;font-size:26px}</style></head><body><div id="app"></div><script>
-var T=null,SN=null,F='all',Q='',SEL=null;try{T=localStorage.getItem('wt')}catch(e){}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function api(p,b){return fetch(p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json','X-T':T||''},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json()})}
-function msg(t){var m=document.createElement('div');m.className='msg';m.textContent=t;document.body.appendChild(m);setTimeout(function(){m.remove()},3200)}
-function login(){document.getElementById('app').innerHTML='<h1>WINTEER</h1><p class="d">Escribí el código de 6 números que aparece en tu PC (Ajustes, Extras).</p><input id="pin" class="pin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn" id="go">Entrar</button>';
- document.getElementById('go').onclick=function(){api('/api/login',{pin:document.getElementById('pin').value}).then(function(r){if(r.ok){T=r.t;try{localStorage.setItem('wt',T)}catch(e){}load()}else msg(r.err||'No pude entrar')})}}
-function load(){api('/api/lib').then(function(r){if(!r.ok){T=null;try{localStorage.removeItem('wt')}catch(e){}login();return}SN=r.snap;draw()}).catch(function(){msg('No encuentro la PC. Revisá que esté prendida y en el mismo wifi')})}
-function cover(g){return g.a>0?'<img loading="lazy" src="https://cdn.akamai.steamstatic.com/steam/apps/'+g.a+'/header.jpg" onerror="this.remove()">':''}
-function draw(){if(!SN)return;var q=Q.toLowerCase(),L=SN.games.filter(function(g){return(!q||g.n.toLowerCase().indexOf(q)>=0)&&(F==='all'||(F==='inst'&&g.i)||(F==='fav'&&g.f))});
- var h='<div class="top"><h1>WINTEER</h1><small>'+esc(SN.name||'Tu PC')+'</small><input id="q" placeholder="Buscar" value="'+esc(Q)+'"><div class="chips">'+[['all','Todos'],['inst','Instalados'],['fav','Favoritos']].map(function(c){return'<button class="chip '+(F===c[0]?'on':'')+'" data-f="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div></div>';
- if(SN.playing)h+='<div class="now"><small>Jugando ahora en la PC</small><br><b>'+esc(SN.playing.n)+'</b></div>';
- h+='<div class="grid">'+L.slice(0,200).map(function(g){return'<div class="c" data-id="'+esc(g.id)+'"><div class="i">'+cover(g)+esc(g.n[0]||'?')+'</div><div class="t"><b>'+esc(g.n)+'</b><small>'+(g.h>0?(g.h<1?Math.round(g.h*60)+' min':(g.h>=10?Math.round(g.h):g.h.toFixed(1))+' h'):'Sin jugar')+(g.i?'':' · no instalado')+'</small></div></div>'}).join('')+'</div>'+(L.length?'':'<p class="d">No hay juegos con ese filtro.</p>');
- var app=document.getElementById('app'),act=document.activeElement&&document.activeElement.id==='q';app.innerHTML=h;var qi=document.getElementById('q');if(act){qi.focus();qi.setSelectionRange(Q.length,Q.length)}
- qi.oninput=function(){Q=qi.value;draw()};Array.prototype.forEach.call(app.querySelectorAll('.chip'),function(b){b.onclick=function(){F=b.dataset.f;draw()}});
- Array.prototype.forEach.call(app.querySelectorAll('.c'),function(c){c.onclick=function(){sheet(c.dataset.id)}})}
-function sheet(id){var g=SN.games.filter(function(x){return x.id===id})[0];if(!g)return;var s=document.createElement('div');s.className='sheet';
- s.innerHTML='<b style="font-size:17px">'+esc(g.n)+'</b><br><small>'+(g.i?'Instalado':'No instalado')+'</small>'+(g.i?'<button class="btn" id="b1">Jugar en la PC</button>':'<button class="btn" id="b1">Instalar en la PC</button>')+'<button class="btn g" id="b2">Cerrar</button>';document.body.appendChild(s);
- document.getElementById('b2').onclick=function(){s.remove()};document.getElementById('b1').onclick=function(){api('/api/cmd',{a:g.i?'play':'install',id:g.id}).then(function(r){s.remove();msg(r.ok?(g.i?'Mandado: se abre en la PC':'Mandado: se abre la tienda en la PC'):(r.err||'No se pudo'))}).catch(function(){s.remove();msg('No encuentro la PC')})}}
-if(T)load();else login();setInterval(function(){if(T&&!document.querySelector('.sheet')&&!(document.activeElement&&document.activeElement.id==='q'))api('/api/lib').then(function(r){if(r.ok){SN=r.snap;draw()}}).catch(function(){})},9000);
-</script></body></html>`;
 
 app.whenReady().then(() => {
   setupUpdater();
-  try { if (phoneCfg().on) phoneStart(); } catch (e) {}
   CACHE = path.join(app.getPath('userData'), 'imgcache'); loadIdx();
   protocol.handle('wimg', imgHandler);
   ipcMain.handle('launch', async (_e, o) => {
@@ -2497,9 +2331,6 @@ app.whenReady().then(() => {
   ipcMain.handle('emInstall', async (_e, id) => { try { return await emInstall(String(id)); } catch (e) { return { ok: false, err: 'net' }; } });
   ipcMain.handle('bkRead', (_e, d) => { try { return bkRead(d); } catch (e) { return { ok: false, err: 'bad' }; } });
   ipcMain.handle('lsvScan', async (_e, o) => { try { return await lsvScan(o || {}); } catch (e) { return { ok: false, err: 'net' }; } });
-  ipcMain.handle('steamAutoInstall', (_e, l) => steamAutoInstall(l));
-  ipcMain.handle('steamDrives', () => steamDrives());
-  ipcMain.handle('steamSizes', () => steamSizes());
   ipcMain.handle('driveFind', () => { try { return driveFind(); } catch (e) { return ''; } });
   ipcMain.handle('emDetect', (_e, c) => { try { return emDetect(Array.isArray(c) ? c.slice(0, 30) : []); } catch (e) { return {}; } });
   ipcMain.handle('emStates', (_e, o) => { try { return emStates(o || {}); } catch (e) { return []; } });
@@ -2508,9 +2339,6 @@ app.whenReady().then(() => {
   ipcMain.handle('raGame', (_e, o) => raGame(o || {}));
   ipcMain.handle('aiStatus', () => aiStatus());
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
-  ipcMain.handle('phoneGet', () => phoneInfo());
-  ipcMain.handle('phoneSet', (_e, o) => { const p = phoneCfg(); if (o && o.k === 'on') { p.on = !!o.v; saveCfg(); if (p.on) phoneStart(); else phoneStop(); } else if (o && o.k === 'pin') { p.pin = String(crypto.randomInt(0, 1e6)).padStart(6, '0'); p.tokens = []; saveCfg(); } return phoneInfo(); });
-  ipcMain.handle('phoneSync', (_e, s) => { if (s && Array.isArray(s.games)) PH.snap = { games: s.games.slice(0, 1500), playing: s.playing || null, name: String(s.name || '').slice(0, 40) }; return true; });
   ipcMain.handle('shotScores', (_e, id) => { try { return shotScores(id); } catch (e) { return {}; } });
   ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('achToast', (_e, o) => { achToast(o); return true; });
