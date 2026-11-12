@@ -8071,7 +8071,7 @@ async function autoSg(manual){if(!WN||!ST.useSgdb||!ST.key||ASG){if(manual&&ASG)
   const q=G.filter(g=>{const e=ST.sgdb[sgk(g)];return !e||e.icon===undefined});const tot=q.length;let n=0,bad=0,none=0,err='';
   const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Iconos de SteamGridDB</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos${none?` · ${none} sin icono`:''}</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};
   if(tot)P();
-  async function w(){while(q.length&&bad<6&&!err){await idleWait();const g=q.shift();
+  async function w(){while(q.length&&bad<6&&!err){await idleWait();const g=q.shift();if(!g)break;
     try{const o=ST.sgdb[sgk(g)];const r=await sgget(g,B,H,!!o);ST.sgdb[sgk(g)]=o?Object.assign({},o,r):r;if(!r.icon)none++;n++;if(n%15===0){save();renderList()}}
     catch(e){if(e===401||e===403)err='La API key de SteamGridDB no es válida';else if(e===404){ST.sgdb[sgk(g)]=Object.assign({hero:'',logo:'',grid:''},ST.sgdb[sgk(g)],{icon:''});none++;n++}else{bad++;if(bad>=6)err='No pude conectar con SteamGridDB (código '+(e&&e.message||e)+')'}}
     P()}}
@@ -8082,13 +8082,15 @@ async function autoSg(manual){if(!WN||!ST.useSgdb||!ST.key||ASG){if(manual&&ASG)
   else if(manual)toast('No había iconos pendientes')}
 let ATR=0;
 async function autoTrl(manual){if(!WN||!winteerNative.trlGet||ATR)return;if(!manual&&ST.trlAuto===false)return;await trlLoad();
-  const q=G.filter(g=>!g.hide&&(TRX[trk(g)]===undefined||(TRX['a:'+trk(g)]===undefined&&TRX['s:'+trk(g)]===undefined)));const tot=q.length;let n=0,ok=0,bad=0,lerr='';
+  ST.trlF=ST.trlF||{};const nowT=Date.now(),waitF=k=>{const f=ST.trlF[k];return !manual&&f&&nowT-f.t<Math.min(14,2*(f.n||1))*864e5};
+  const q=G.filter(g=>!g.hide&&(TRX[trk(g)]===undefined||(TRX['a:'+trk(g)]===undefined&&TRX['s:'+trk(g)]===undefined))&&!waitF(trk(g)));const tot=q.length;let n=0,ok=0,bad=0,lerr='';
   if(!tot){if(manual)toast('Ya tenés todos los trailers y canciones');return}ATR=1;
-  const P=()=>{const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Trailers y música del Modo mando</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos · ${ok} descargados</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};P();
-  const w=async()=>{while(q.length&&bad<8){await idleWait();const g=q.shift(),ap=trk(g);let r;const au=TRX[ap]!==undefined;try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
-    if(au){if(r&&r.aurl)TRX['a:'+ap]=r.aurl;else if(r&&(r.steam||r.noaud))TRX['s:'+ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P();continue}
-    if(r&&r.url){TRX[ap]=r.url;ok++}else if(r&&r.none)TRX[ap]='';else{bad++;lerr=(r&&r.err)||''}n++;P()}};
-  await Promise.all([w(),w()]);ATR=0;await trlLoad();
+  const P=()=>{if(!manual)return;const pc=tot?Math.round(n/tot*100):100;sgStat(`<b>Trailers y música del Modo mando</b><div style="margin:6px 0 8px;opacity:.8">${n} de ${tot} juegos · ${ok} descargados</div><div style="height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${pc}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)};P();
+  const w=async()=>{while(q.length&&bad<8){await idleWait();const g=q.shift();if(!g)break;const ap=trk(g);let r;const au=TRX[ap]!==undefined;try{r=await winteerNative.trlGet({key:ap,app:g.app||0,name:g.name,aud:au?1:0})}catch(e){r={err:1}}
+    const fl=()=>{const o=ST.trlF[ap]||{};ST.trlF[ap]={t:Date.now(),n:Math.min(7,(o.n||0)+1)}};
+    if(au){if(r&&r.aurl){TRX['a:'+ap]=r.aurl;delete ST.trlF[ap]}else if(r&&(r.steam||r.noaud)){TRX['s:'+ap]='';delete ST.trlF[ap]}else{bad++;lerr=(r&&r.err)||'';fl()}n++;P();continue}
+    if(r&&r.url){TRX[ap]=r.url;ok++;delete ST.trlF[ap]}else if(r&&r.none){TRX[ap]='';delete ST.trlF[ap]}else{bad++;lerr=(r&&r.err)||'';fl()}n++;P()}};
+  await Promise.all([w(),w()]);ATR=0;await trlLoad();save();if(!manual)return;
   sgStat(bad>=8?`<b>Trailers y música del Modo mando</b><div style="margin-top:6px;color:#ff9aa8">Se cortó la descarga. Se reintenta en el próximo arranque.${lerr?'<div style="opacity:.7;margin-top:4px;font-size:11px">'+esc(String(lerr).slice(0,90))+'</div>':''}</div>`:ok<=0?'':`<b>Listo</b><div style="margin-top:6px;opacity:.85">${ok} trailers nuevos. Las canciones se bajaron en segundo plano; ya suenan en el Modo mando.</div>`);if(bad<8&&ok<=0){sgStat('');if(manual)toast('No había trailers nuevos para bajar')}else setTimeout(()=>sgStat(''),8000)}
 /* ---------- notas en segundo plano (no se muestran: solo mejoran las recomendaciones) ---------- */
 const scOf=g=>{const e=(ST.sc||{})[g.id];return e&&e.s!=null?e.s:null};
@@ -8142,7 +8144,7 @@ Object.assign(A,{
     await Promise.all([w(),w()]);try{TRM.sizes=await winteerNative.trlSizes()||{}}catch(e){}await trlLoad();TRM.busy=0;tgRender();toast(ok?`Listo: instalé ${ok} ${ok===1?'trailer':'trailers'}`:'No encontré trailers para esos juegos')}
 });
 async function autoInfo(){if(!igOn()||AIN)return;AIN=1;const q=G.filter(g=>!okInfo(g)&&!IFAIL.has(g.id));let n=0;const P=()=>{const e=$('#ifp');if(e)e.textContent=`${n}/${q.length+n} juegos`};
-  const w=async()=>{while(q.length&&igOn()){await idleWait();const g=q.shift();await loadInfo(g);n++;P()}};await Promise.all([w(),w()]);AIN=0;if(n&&S.view==='games'&&S.tab==='info'&&$('#tabc'))renderTab()}
+  const w=async()=>{while(q.length&&igOn()){await idleWait();const g=q.shift();if(!g)break;await loadInfo(g);n++;P()}};await Promise.all([w(),w()]);AIN=0;if(n&&S.view==='games'&&S.tab==='info'&&$('#tabc'))renderTab()}
 
 /* ---------- modo mando (pantalla completa, estilo consola) ---------- */
 let BP=null,BA=null;
