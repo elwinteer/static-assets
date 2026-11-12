@@ -3232,6 +3232,11 @@ body.bpon .pr-gr{height:44px}
 .wbtab b{flex:1;min-width:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wbtab button{flex:none;width:24px;height:24px;border:0;border-radius:8px;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.6;transition:background .2s,opacity .2s}.wbtab button:hover{background:rgba(255,255,255,.18);opacity:1}.wbtab button svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .wbtn{flex:none;width:36px;height:36px;border:0;border-radius:12px;background:rgba(255,255,255,.05);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:background .25s,color .25s,transform .3s var(--spring)}.wbtn:hover{background:rgba(255,255,255,.12);color:var(--text);transform:scale(1.08)}.wbtn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+#wbroot{display:none;flex:1;min-height:0;padding:2px 4px 14px 2px}body.vweb #wbroot{display:flex;flex-direction:column;animation:viewIn .55s var(--ease) both}body.vweb #view{display:none}
+#wbroot .wbx{flex:1;min-height:0;height:auto}#wbroot .wbw{flex:1}
+.wbem{position:absolute;inset:0;z-index:3;display:grid;place-items:center;text-align:center;background:rgba(14,14,18,.97);color:var(--text);opacity:0;pointer-events:none;transition:opacity .35s}.wbem.on{opacity:1;pointer-events:auto}
+.wbem .gl{width:64px;height:64px;border-radius:20px;margin:0 auto 16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a2),var(--a3));color:var(--on-a)}.wbem .gl svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8}.wbem b{display:block;font-size:20px;margin-bottom:6px}.wbem span{display:block;color:var(--muted);font-size:14px;max-width:340px;margin:0 auto}
+.wbtn.wide{width:auto;padding:0 14px;font-size:12.5px;font-weight:600;white-space:nowrap}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -3275,7 +3280,7 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
   </aside>
 
   <main class="center">
-    <div id="view"></div>
+    <div id="view"></div><div id="wbroot"></div>
   </main>
 
   <aside class="right"><div class="inner" id="rp"></div></aside>
@@ -3968,7 +3973,7 @@ function moveInd(){const a=$(`.nav a[data-v="${S.view}"]`),ind=$('#ind'),nw=$('.
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
 function go(v,o){if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
-  document.body.classList.toggle('vset',v==='settings');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
+  document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
   {const t=$('#tinst');if(t)t.textContent=G.filter(instOf).length}
@@ -9529,40 +9534,54 @@ const wdX=n=>{const m=String(n||'').match(/\.([A-Za-z0-9]{1,5})$/);return m?m[1]
 function webNorm(t){t=String(t||'').trim();if(!t)return '';if(/^[a-z][a-z0-9+.-]*:\/\//i.test(t))return /^https?:/i.test(t)?t:'';if(!/\s/.test(t)&&(/^[\w-]+(\.[\w-]+)+(:\d+)?([\/?#].*)?$/.test(t)))return 'https://'+t;if(/^localhost(:\d+)?([\/?#].*)?$/.test(t))return 'http://'+t;return 'https://www.google.com/search?q='+encodeURIComponent(t)}
 const wbId=()=>'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const wbHost=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return ''}};
-function wbTabsInit(){const c=webCfg();if(!Array.isArray(c.tabs)||!c.tabs.length)c.tabs=c.home?[{id:wbId(),url:c.home,t:''}]:[];if(!c.tabs.some(t=>t.id===c.act))c.act=c.tabs[0]&&c.tabs[0].id}
+function wbTabsInit(){const c=webCfg();if(!Array.isArray(c.tabs))c.tabs=c.home?[{id:wbId(),url:c.home,t:''}]:[];if(!c.tabs.some(t=>t.id===c.act))c.act=c.tabs[0]?c.tabs[0].id:''}
 const wbAct=()=>{const c=webCfg();return (c.tabs||[]).find(t=>t.id===c.act)};
 const wbSave=()=>{clearTimeout(wbSave.t);wbSave.t=setTimeout(save,900)};
-function wbTabsHTML(){const c=webCfg();return (c.tabs||[]).map(t=>`<div class="wbtab ${t.id===c.act?'on':''}" data-a="wbtab" data-id="${t.id}" title="${esc(t.t||t.url||'')}">${t.fav?`<img src="${esc(t.fav)}" onerror="this.remove()">`:`<span class="d"></span>`}<b>${esc(t.t||wbHost(t.url)||'Nueva pestaña')}</b><button data-a="wbxt" data-id="${t.id}" title="Cerrar pestaña">${ic('xx')}</button></div>`).join('')+`<button class="wbtn" data-a="wbnt" title="Nueva pestaña">${ic('plus')}</button>`}
+function wbTabsHTML(){const c=webCfg();return (c.tabs||[]).map(t=>`<div class="wbtab ${t.id===c.act?'on':''}" data-a="wbtab" data-id="${t.id}" title="${esc(t.t||t.url||'')}">${t.fav?`<img src="${esc(t.fav)}" onerror="this.remove()">`:`<span class="d"></span>`}<b>${esc(t.t||wbHost(t.url)||'Nueva pestaña')}</b><button data-a="wbxt" data-id="${t.id}" title="Cerrar pestaña">${ic('xx')}</button></div>`).join('')+`<button class="wbtn" data-a="wbnt" title="Nueva pestaña">${ic('plus')}</button>`+((c.tabs||[]).length>1?`<button class="wbtn wide" data-a="wbxall" title="Cerrar todas las pestañas">Cerrar todas</button>`:'')}
 function wbTabsDraw(){const e=$('#wbtb');if(e)e.innerHTML=wbTabsHTML()}
-function wbGo(t){const wv=WBR.wv;if(!wv||!t)return;const i=$('#wbi');if(i)i.value=t.url||'';if(t.url){try{wv.loadURL(t.url)}catch(e){wv.src=t.url}}}
+function wbKill(){const wv=WBR.wv;if(wv){try{wv.remove()}catch(e){}WBR.wv=null}}
+function wbEnsureWv(){const box=$('#wbv'),em=$('#wbem');if(!box)return;const T=wbAct();
+  if(!T){wbKill();if(em)em.classList.add('on');const i=$('#wbi');if(i)i.value='';return}
+  if(em)em.classList.remove('on');if(WBR.wv)return;
+  const wv=document.createElement('webview');wv.id='wv';wv.setAttribute('partition','persist:wt-web');wv.setAttribute('allowpopups','');wv.setAttribute('src',T.url||webCfg().home||'https://www.google.com');box.insertBefore(wv,box.firstChild);WBR.wv=wv;WBR.pu=T.url;WBR.pt=Date.now();webWire(wv)}
+function wbGo(t){if(!t)return;const i=$('#wbi');if(i)i.value=t.url||'';if(!WBR.wv){wbEnsureWv();return}WBR.pu=t.url;WBR.pt=Date.now();try{WBR.wv.loadURL(t.url)}catch(e){WBR.wv.src=t.url}}
 function wbSwitch(id){const c=webCfg();if(c.act===id)return;const t=(c.tabs||[]).find(x=>x.id===id);if(!t)return;c.act=id;save();wbTabsDraw();wbGo(t)}
-function wbNewTab(url,fg){const c=webCfg();c.tabs=c.tabs||[];const ex=url&&c.tabs.find(t=>t.url===url);if(ex){if(fg)wbSwitch(ex.id);return}if(c.tabs.length>=14){toast('Ya tenés 14 pestañas, cerrá alguna');return}
-  const t={id:wbId(),url:url||c.home||'https://www.google.com',t:''};c.tabs.push(t);if(fg||!c.act)c.act=t.id;save();wbTabsDraw();if(fg||c.act===t.id)wbGo(t);setTimeout(()=>{const e=$('.wbtab.on');if(e)e.scrollIntoView({inline:'nearest'})},50)}
+function wbNewTab(url,fg){const c=webCfg();c.tabs=c.tabs||[];const ex=url&&c.tabs.find(t=>t.url===url);
+  if(ex){if(fg&&Date.now()-(WBR.nt||0)>3000)wbSwitch(ex.id);return}
+  if(c.tabs.length>=14){toast('Ya tenés 14 pestañas, cerrá alguna');return}
+  const t={id:wbId(),url:url||c.home||'https://www.google.com',t:''};c.tabs.push(t);const act=fg||!wbAct();if(act){c.act=t.id;WBR.nt=Date.now()}save();wbTabsDraw();if(act)wbGo(t);
+  setTimeout(()=>{const e=$('.wbtab.on');if(e)e.scrollIntoView({inline:'nearest'})},50)}
 function wbCloseTab(id){const c=webCfg(),i=(c.tabs||[]).findIndex(t=>t.id===id);if(i<0)return;const was=c.act===id;c.tabs.splice(i,1);
-  if(!c.tabs.length){c.tabs.push({id:wbId(),url:c.home||'https://www.google.com',t:''});c.act=c.tabs[0].id;save();wbTabsDraw();wbGo(c.tabs[0]);return}
+  if(!c.tabs.length){c.act='';save();wbTabsDraw();wbEnsureWv();return}
   if(was){c.act=(c.tabs[i]||c.tabs[i-1]).id;save();wbTabsDraw();wbGo(wbAct())}else{save();wbTabsDraw()}}
-V.web=()=>{
-  if(!WN)return `<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Navegador</h2><p>Esta función está disponible en la app de escritorio de WINTEER.</p></div></div>`;
-  const c=webCfg();wbTabsInit();const T0=wbAct(),u=(T0&&T0.url)||c.home;if(!WBR.ads){WBR.ads=1;setTimeout(()=>{try{winteerNative.webDl('ads',{on:c.ads!==false})}catch(e){}},200)}
-  if(!u)return `<div class="wbw rise"><div class="cd"><div class="gl">${ic('web')}</div><h2>Elegí tu sitio</h2><p>Escribí la página que querés que se abra siempre acá, por ejemplo la web de donde bajás tus mods. Después podés cambiarla cuando quieras desde el engranaje.</p><input id="wbfirst" placeholder="ejemplo.com" spellcheck="false"><button class="hm-go" style="width:100%;justify-content:center" data-a="wbfirst">Abrir</button></div></div>`;
-  setTimeout(webWire,40);
-  return `<div class="wbx rise"><div class="wbt">
+function wbOpen(u){if(!wbAct())wbNewTab(u,true);else{const T=wbAct();wbGo({url:u});if(T){T.url=u;wbSave()}}}
+function wbBuild(root){const c=webCfg();
+  root.innerHTML=`<div class="wbx"><div class="wbt">
    <button class="wbb dis" data-a="wbback" title="Atrás">${ic('chl')}</button><button class="wbb dis" data-a="wbfwd" title="Adelante">${ic('chr')}</button><button class="wbb" data-a="wbrel" id="wbrel" title="Recargar">${ic('wrl')}</button><button class="wbb" data-a="wbhome" title="Sitio predefinido">${ic('whm')}</button>
-   <form class="wbu" id="wbf" autocomplete="off">${ic('wlk')}<input id="wbi" spellcheck="false" placeholder="Buscá o escribí una dirección" value="${esc(u)}"></form>
+   <form class="wbu" id="wbf" autocomplete="off">${ic('wlk')}<input id="wbi" spellcheck="false" placeholder="Buscá o escribí una dirección"></form>
    <button class="wbb" data-a="wbdl" title="Descargas">${ic('wdl')}<i class="wbn" id="wbn"></i></button><button class="wbb" data-a="wbset" title="Ajustes del navegador">${ic('wgr')}</button></div>
    <div class="wbtb" id="wbtb">${wbTabsHTML()}</div>
    <div class="wbpg" id="wbpg"><i></i></div>
-   <div class="wbv"><webview id="wv" src="${esc(u)}" partition="${'persist:wt-web'}" allowpopups></webview>
-   <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside></div></div>`};
-function webWire(){const wv=$('#wv');if(!wv||wv._w)return;wv._w=1;WBR.wv=wv;const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
-  const nav=()=>{try{const u=wv.getURL();if(u&&u!=='about:blank'){const T=wbAct();if(T&&T.url!==u){T.url=u;wbSave()}if(document.activeElement!==inp)inp.value=u}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
+   <div class="wbv" id="wbv"><div class="wbem" id="wbem"><div><div class="gl">${ic('web')}</div><b>No hay pestañas abiertas</b><span>Así el navegador no gasta recursos. Abrí una nueva cuando la necesites.</span><button class="hm-go" data-a="wbnt" style="margin:16px auto 0">${ic('plus')} Nueva pestaña</button></div></div>
+   <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside></div></div>`;
+  const inp=$('#wbi');$('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();wbOpen(u)});
+  inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));root.dataset.built=1;wdDraw();wdBadge()}
+function wbEnter(){clearTimeout(WBR.disc);const root=$('#wbroot');if(!root)return;
+  if(!WN){root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Navegador</h2><p>Esta función está disponible en la app de escritorio de WINTEER.</p></div></div>`;return}
+  const c=webCfg();wbTabsInit();
+  if(!c.home&&!c.tabs.length){wbKill();root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Elegí tu sitio</h2><p>Escribí la página que querés que se abra siempre acá, por ejemplo la web de donde bajás tus mods. Después podés cambiarla cuando quieras desde el engranaje.</p><input id="wbfirst" placeholder="ejemplo.com" spellcheck="false"><button class="hm-go" style="width:100%;justify-content:center" data-a="wbfirst">Abrir</button></div></div>`;return}
+  if(!root.dataset.built){wbKill();wbBuild(root)}else{wbTabsDraw();wdBadge()}
+  if(!WBR.ads){WBR.ads=1;setTimeout(()=>{try{winteerNative.webDl('ads',{on:c.ads!==false})}catch(e){}},200)}
+  wbEnsureWv();try{WBR.wv&&WBR.wv.setAudioMuted(false)}catch(e){}}
+function wbLeave(){const wv=WBR.wv;try{wv&&wv.setAudioMuted(true)}catch(e){}clearTimeout(WBR.disc);WBR.disc=setTimeout(()=>{if(S.view!=='web')wbKill()},5*60e3)}
+V.web=()=>{setTimeout(wbEnter,0);return ''};
+function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
+  const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
   ['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>wv.addEventListener(e,nav));
   wv.addEventListener('did-start-loading',()=>{pg&&pg.classList.add('on');rl&&rl.classList.add('spin')});
   wv.addEventListener('did-stop-loading',()=>{pg&&pg.classList.remove('on');rl&&rl.classList.remove('spin');nav()});
-  $('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();try{wv.loadURL(u)}catch(x){wv.src=u}});
-  wv.addEventListener('page-title-updated',e=>{const T=wbAct();if(T&&e.title){T.t=e.title;wbTabsDraw();wbSave()}});
-  wv.addEventListener('page-favicon-updated',e=>{const T=wbAct();if(T&&e.favicons&&e.favicons[0]&&T.fav!==e.favicons[0]){T.fav=e.favicons[0];wbTabsDraw();wbSave()}});
-  inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));wdDraw();wdBadge()}
+  wv.addEventListener('page-title-updated',e=>{const T=wbAct();if(T&&e.title&&wv===WBR.wv){T.t=e.title;wbTabsDraw();wbSave()}});
+  wv.addEventListener('page-favicon-updated',e=>{const T=wbAct();if(T&&e.favicons&&e.favicons[0]&&T.fav!==e.favicons[0]&&wv===WBR.wv){T.fav=e.favicons[0];wbTabsDraw();wbSave()}})}
 function wdBadge(){const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
 function wdIcon(d){return d.st==='done'?`<svg class="i tick" viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`:esc(wdX(d.name))}
 function wdSub(d){
@@ -9607,7 +9626,8 @@ Object.assign(A,{
  wbtab:a=>wbSwitch(a.dataset.id),wbxt:a=>wbCloseTab(a.dataset.id),wbnt:()=>wbNewTab('',true),
  wbback:()=>{try{WBR.wv.goBack()}catch(e){}},wbfwd:()=>{try{WBR.wv.goForward()}catch(e){}},
  wbrel:()=>{try{WBR.wv.isLoading()?WBR.wv.stop():WBR.wv.reload()}catch(e){}},
- wbhome:()=>{const h=webCfg().home;if(!h){A.wbset();return}try{WBR.wv.loadURL(h)}catch(e){}},
+ wbhome:()=>{const h=webCfg().home;if(!h){A.wbset();return}if(!wbAct())wbNewTab(h,true);else wbOpen(h)},
+ wbxall:()=>{const c=webCfg();c.tabs=[];c.act='';save();wbTabsDraw();wbEnsureWv();toast('Cerraste todas las pestañas: el navegador ya no gasta nada')},
  wbdl:()=>{WBR.open=!WBR.open;const d=$('#wbd');if(d){if(WBR.open)wdDraw();d.classList.toggle('on',WBR.open)}},
  wbset:()=>{const c=webCfg();const m=document.createElement('div');m.className='wdm';m.id='wdm';
    m.innerHTML=`<div class="wds"><div class="hd"><div class="wdfi">${ic('wgr')}</div><div><small>Navegador</small><b>Ajustes</b></div></div><label>Sitio predefinido (se abre siempre este)</label><input id="wbs-h" value="${esc(c.home||'')}" placeholder="ejemplo.com" spellcheck="false"><label>Carpeta de descargas por defecto</label><div class="wdpr" style="margin-top:0"><input id="wbs-d" value="${esc(c.dir||'')}" placeholder="Si lo dejás vacío uso Descargas de Windows" spellcheck="false"><button class="b2 g" data-a="wbpd" style="padding:0 18px;height:44px">Elegir</button></div><div class="wdck" style="max-height:none;margin-top:16px"><label><input type="checkbox" id="wbs-a" ${c.ads===false?'':'checked'}><span>Bloquear anuncios y rastreadores<small>Menos ventanas emergentes y publicidad. Si una página de descarga no anda, probá apagarlo.</small></span></label></div><div class="wdft"><button class="b2 g" data-a="wdno">Cancelar</button><button class="hm-go" style="height:46px;padding:0 28px;font-size:15px" data-a="wbsave">Guardar</button></div></div>`;$('#app').appendChild(m)},
