@@ -3343,6 +3343,8 @@ body.light .mkt{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
 body.light .fseg,body.light .fsr{background:rgba(40,28,90,.07)}
 .wdcl{overflow-x:hidden}.wdce:hover{transform:none}
 .fpan{background:rgb(var(--pnrgb))!important}
+.mki.sm img{object-fit:contain;padding:24px;background:#fff;image-rendering:auto}
+.wbem .bt svg{margin:0!important;opacity:1!important;width:18px;height:18px}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -9684,7 +9686,9 @@ function wbCloseTab(id){const c=webCfg(),i=(c.tabs||[]).findIndex(t=>t.id===id);
 function wbOpen(u){if(!wbAct())wbNewTab(u,true);else{const T=wbAct();wbGo({url:u});if(T){T.url=u;wbSave()}}}
 const WBG='<svg viewBox="0 0 48 48" class="wbgl"><defs><linearGradient id="wbgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".95"/><stop offset="1" stop-color="currentColor" stop-opacity=".55"/></linearGradient><clipPath id="wbgc"><circle cx="24" cy="24" r="16"/></clipPath></defs><circle cx="24" cy="24" r="16" fill="none" stroke="url(#wbgg)" stroke-width="2.2"/><g clip-path="url(#wbgc)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><ellipse class="m1" cx="24" cy="24" rx="16" ry="16"/><ellipse class="m2" cx="24" cy="24" rx="16" ry="16"/><path d="M6 17.5c11 4 25 4 36 0M6 30.5c11-4 25-4 36 0" opacity=".75"/><path d="M8 24h32" opacity=".5"/></g><ellipse class="orbit" cx="24" cy="24" rx="21.5" ry="7.5" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".45" transform="rotate(-24 24 24)"/><circle class="sat" cx="24" cy="24" r="2.3" fill="currentColor"/></svg>';
 const wbMarks=()=>{const c=webCfg();if(!Array.isArray(c.marks)){c.marks=c.home?[{id:wbId(),name:wbHost(c.home),url:c.home}]:[];save()}return c.marks};
-function wbFav(m){const h=wbHost(m.url)||'';const l=(m.name||h||'?').trim().charAt(0).toUpperCase();return `<span class="mki"><b>${esc(l)}</b><img alt="" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=128" onload="if(this.naturalWidth<24)this.remove();else this.parentNode.classList.add('ok')" onerror="this.remove()"></span>`}
+function wbFavErr(i){const h=i.dataset.h,st=+(i.dataset.s||0);i.dataset.s=st+1;if(st<=0&&h)i.src='https://'+h+'/favicon.ico';else i.remove()}
+function wbFavOk(i){const st=+(i.dataset.s||0),w=i.naturalWidth;if(w<(st?14:24)){wbFavErr(i);return}const p=i.parentNode;if(w<48)p.classList.add('sm');p.classList.add('ok')}
+function wbFav(m){const h=wbHost(m.url)||'';const l=(m.name||h||'?').trim().charAt(0).toUpperCase();return `<span class="mki"><b>${esc(l)}</b><img alt="" data-h="${esc(h)}" src="${esc(m.fav||'https://www.google.com/s2/favicons?domain='+encodeURIComponent(h)+'&sz=128')}" onload="wbFavOk(this)" onerror="wbFavErr(this)"></span>`}
 function wbMarksHTML(){const L=wbMarks();return L.map((m,i)=>`<div class="mkt" style="--i:${i}" data-a="wbmk" data-id="${m.id}" title="${esc(m.url)}" tabindex="0">${wbFav(m)}<span class="mkn">${esc(m.name||wbHost(m.url))}</span></div>`).join('')+`<div class="mkt mka" style="--i:${L.length}" data-a="wbmadd" tabindex="0"><span class="mki"><b>+</b></span><span class="mkn">Agregar</span></div>`}
 function wbSetList(){const L=wbMarks();return L.length?L.map(m=>`<div class="wbsr"><span class="n">${esc(m.name||wbHost(m.url))}<small>${esc(wbHost(m.url))}</small></span><button class="b2 g" data-a="wbmed" data-id="${m.id}" data-set="1">Editar</button><button class="b2 g dn" data-a="wbmdel" data-id="${m.id}" data-set="1">Quitar</button></div>`).join(''):'<div class="wbsr"><span class="n"><small>Todavía no hay sitios. Agregalos desde la pantalla de pestañas.</small></span></div>'}
 function wbMarksDraw(){const e=$('#wbmk');if(e)e.innerHTML=wbMarksHTML()}
@@ -9712,7 +9716,7 @@ function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
   wv.addEventListener('did-start-loading',()=>{pg&&pg.classList.add('on');rl&&rl.classList.add('spin')});
   wv.addEventListener('did-stop-loading',()=>{pg&&pg.classList.remove('on');rl&&rl.classList.remove('spin');nav()});
   wv.addEventListener('page-title-updated',e=>{const T=wbAct();if(T&&e.title&&wv===WBR.wv){T.t=e.title;wbTabsDraw();wbSave()}});
-  wv.addEventListener('page-favicon-updated',e=>{const T=wbAct();if(T&&e.favicons&&e.favicons[0]&&T.fav!==e.favicons[0]&&wv===WBR.wv){T.fav=e.favicons[0];wbTabsDraw();wbSave()}})}
+  wv.addEventListener('page-favicon-updated',e=>{const T=wbAct();if(T&&e.favicons&&e.favicons[0]&&T.fav!==e.favicons[0]&&wv===WBR.wv){T.fav=e.favicons[0];const mk=wbMarks().find(m=>wbHost(m.url)===wbHost(T.url));if(mk&&mk.fav!==e.favicons[0]){mk.fav=e.favicons[0];wbMarksDraw()}wbTabsDraw();wbSave()}})}
 function wdBadge(){wdKick();const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
 function wdIcon(d){return d.st==='done'?`<svg class="i tick" viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`:esc(wdX(d.name))}
 function wdSub(d){

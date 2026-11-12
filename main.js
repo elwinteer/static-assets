@@ -1897,6 +1897,12 @@ async function wdlUnz(d, onP) {
       r = await z7Run(path.join(tmp, ents[0]), t2, onP); rm(tmp); tmp = t2; if (!r.ok) throw new Error(r.err);
       ents = fs.readdirSync(tmp);
     }
+    // Descartar lo que traen los repacks de SteamRIP y que no hace falta (redistribuibles, instrucciones, acceso directo a la web)
+    const JUNK = /^(_commonredist|read_?me_?instructions\.txt|.*steamrip.*\.(url|lnk|txt))$/i;
+    if (ents.some((n) => JUNK.test(n)) && ents.some((n) => !JUNK.test(n) && fs.statSync(path.join(tmp, n)).isDirectory())) {
+      for (const n of ents) if (JUNK.test(n)) rm(path.join(tmp, n));
+      ents = fs.readdirSync(tmp);
+    }
     if (!ents.length) throw new Error('El archivo estaba vacío');
     let src = tmp, name = base;
     if (ents.length === 1 && fs.statSync(path.join(tmp, ents[0])).isDirectory()) { src = path.join(tmp, ents[0]); name = ents[0]; }
