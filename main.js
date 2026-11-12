@@ -2043,14 +2043,18 @@ async function aiAsk(o) {
   const model = String(o && o.model || '').slice(0, 80); if (!model) return { ok: false, err: 'Sin modelo' };
   const ctl = {}, watch = setInterval(() => { if (track.size > 0 && ctl.kill) ctl.kill(); }, 1200);
   const threads = Math.max(2, Math.floor(os.cpus().length / 2));
-  const go = (cpu) => ollamaReq('POST', '/api/generate', { model, prompt: String(o.prompt || '').slice(0, 8000), system: String(o.system || '').slice(0, 2000), stream: false, keep_alive: 0, options: Object.assign({ num_thread: threads, num_ctx: 2048, temperature: 0.7, num_predict: 400 }, cpu ? { num_gpu: 0 } : {}) }, 180000, ctl);
+  const opts = (cpu) => Object.assign({ num_thread: threads, num_ctx: 4096, temperature: 0.8, num_predict: 300 }, cpu ? { num_gpu: 0 } : {});
+  const msgs = Array.isArray(o.messages) ? o.messages.slice(-12).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '').slice(0, 1500) })) : null;
+  const go = (cpu) => msgs
+    ? ollamaReq('POST', '/api/chat', { model, messages: [{ role: 'system', content: String(o.system || '').slice(0, 4000) }].concat(msgs), stream: false, keep_alive: 0, options: opts(cpu) }, 180000, ctl)
+    : ollamaReq('POST', '/api/generate', { model, prompt: String(o.prompt || '').slice(0, 8000), system: String(o.system || '').slice(0, 2000), stream: false, keep_alive: 0, options: opts(cpu) }, 180000, ctl);
   /* por defecto usa la placa de video (no hay juego abierto, asi que no compite); si falla (poca memoria de video) reintenta con el procesador */
   let r = await go(!!o.cpu);
   if (!o.cpu && !r.aborted && r.status === 500 && track.size === 0) r = await go(true);
   clearInterval(watch);
   if (r.aborted || track.size > 0) return { ok: false, busy: true };
   if (r.status !== 200) return { ok: false, err: r.timeout ? 'Tardó demasiado. Probá con un modelo más chico' : 'Ollama no respondió' };
-  try { const j = JSON.parse(r.text); return { ok: true, text: String(j.response || '').trim() }; } catch (e) { return { ok: false, err: 'Respuesta inválida' }; }
+  try { const j = JSON.parse(r.text); return { ok: true, text: String(j.response || (j.message && j.message.content) || '').trim() }; } catch (e) { return { ok: false, err: 'Respuesta inválida' }; }
 }
 
 /* ===== reconocimiento de voz de Windows (sin internet) para hablarle a la mascota ===== */
