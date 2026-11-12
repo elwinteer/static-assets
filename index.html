@@ -9603,6 +9603,7 @@ Object.assign(A,{
 });
 if(WN&&winteerNative.onWebDl)winteerNative.onWebDl(m=>{
   if(m.st==='ask'){WDR.l[m.id]={id:m.id,name:m.name,size:m.size,host:m.host,st:'ask',got:0,speed:0};WDR.q.push(m.id);wdAsk();return}
+  if(m.st==='note'){toast(m.msg);return}
   const d=WDR.l[m.id];if(!d)return;
   if(m.st==='prog'||m.st==='pause'){const ch=(m.st==='pause'?'pause':'run')!==d.st;d.st=m.st==='pause'?'pause':'run';d.got=m.got||0;if(m.size>0)d.size=m.size;d.speed=m.speed||0;if(ch){wdDraw()}else wdTick(d);return}
   if(m.st==='moving'){const ch=d.st!=='move';d.st='move';d.mv=m.p||0;d.got=d.size||d.got;if(ch)wdDraw();else wdTick(d);wdBadge();return}

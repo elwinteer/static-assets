@@ -1958,7 +1958,26 @@ function createWindow() {
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, spellcheck: false, backgroundThrottling: false, webviewTag: true },
   });
   win.webContents.on('will-attach-webview', (_e, wp, params) => { delete wp.preload; delete wp.preloadURL; wp.nodeIntegration = false; wp.contextIsolation = true; wp.sandbox = true; params.partition = WEB_PART; });
-  win.webContents.on('did-attach-webview', (_e, wc) => { try { wc.setWindowOpenHandler(({ url }) => { if (/^https?:/i.test(url)) { try { wc.loadURL(url); } catch (e) {} } return { action: 'deny' }; }); } catch (e) {} });
+  win.webContents.on('did-attach-webview', (_e, wc) => {
+    try {
+      const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
+      wc.setWindowOpenHandler(({ url }) => {
+        if (own(url)) { try { wc.loadURL(url); } catch (e) {} return { action: 'deny' }; }
+        if (!url || url === 'about:blank') return { action: 'allow', overrideBrowserWindowOptions: { show: false, width: 520, height: 420, skipTaskbar: true, autoHideMenuBar: true } };
+        note('La página quiso abrir algo que no es una web (' + String(url).split(':')[0] + ':) y lo bloqueé'); return { action: 'deny' };
+      });
+      wc.on('did-create-window', (cw) => {
+        const t = cw.webContents; let done = false;
+        const take = (u) => { if (done || !own(u)) return; done = true; try { wc.loadURL(u); } catch (e) {} try { cw.destroy(); } catch (e) {} };
+        t.on('did-start-navigation', (_ev, u, _ip, main) => { if (main) take(u); });
+        t.on('will-redirect', (_ev, u) => take(u));
+        setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
+      });
+      const blockProto = (ev, u) => { if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
+      wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
+      wc.on('did-fail-load', (_ev, code, desc, _u, main) => { if (main && code !== -3 && code !== 0) note('No pude abrir la página (' + String(desc || code) + ')'); });
+    } catch (e) {}
+  });
   try {
     win.webContents.session.setDisplayMediaRequestHandler((_req, cb) => {
       desktopCapturer.getSources({ types: ['screen', 'window'] }).then(srcs => {
