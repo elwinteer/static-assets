@@ -6054,7 +6054,7 @@ async function recClip(id){if(!WN||window.__rec)return;window.__rec=1;
     const mts=['video/webm;codecs=avc1,opus','video/webm;codecs=h264,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp8','video/webm'],mt=mts.find(m=>MediaRecorder.isTypeSupported(m)),hw=/avc1|h264/.test(mt||'');
     try{st.getVideoTracks()[0].contentHint='motion'}catch(e){}
     const vs=(()=>{try{return st.getVideoTracks()[0].getSettings()}catch(e){return{}}})(),info=(hw?'H.264':'VP8')+' · '+(vs.width||'?')+'×'+(vs.height||'?')+' · '+Math.round(vs.frameRate||0)+' fps';
-    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:hw?45e6:70e6,audioBitsPerSecond:192000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
+    const rc=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:hw?16e6:24e6,audioBitsPerSecond:128000}),ch=[];rc.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
     const wv=document.createElement('video');wv.muted=true;wv.srcObject=st;wv.play().catch(()=>{});
     await new Promise(res=>{let n=0,f=0;const fin=()=>{if(!f){f=1;res()}};if(wv.requestVideoFrameCallback){const cb=()=>{if(++n>=6)fin();else wv.requestVideoFrameCallback(cb)};wv.requestVideoFrameCallback(cb)}else setTimeout(fin,1200);setTimeout(fin,3000)});
     const done=new Promise(r=>{rc.onstop=r});rc.start(500);setTimeout(()=>{try{rc.stop()}catch(e){}},10000);
