@@ -14,7 +14,8 @@
     "release": "electron-builder --win nsis --publish always"
   },
   "dependencies": {
-    "electron-updater": "6.3.9"
+    "electron-updater": "6.3.9",
+    "ws": "8.18.0"
   },
   "devDependencies": {
     "electron": "33.2.1",

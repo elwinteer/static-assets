@@ -187,6 +187,7 @@ function syncShot() {
     if (clipReg && (!want || clipReg !== cfg.clipKey)) { globalShortcut.unregister(clipReg); clipReg = ''; }
     if (want && !clipReg) { if (globalShortcut.register(cfg.clipKey || 'F9', takeClip)) clipReg = cfg.clipKey || 'F9'; }
   } catch (e) {}
+  try { if (!want) obsStopAll(); else if (obsActive() && !obsRec) obsStart(); } catch (e) {}
 }
 let clipReg = '', clipBusy = false;
 let recWin = null, recTimer = null;
@@ -205,7 +206,189 @@ function recIcon(on) {
     recTimer = setTimeout(() => recIcon(false), 20000);
   } catch (e) {}
 }
+
+/* ---------- grabacion con OBS (audio solo del juego, tiempo libre) ---------- */
+const OBS_PORT = 4477, OBS_SC = 'WINTEER';
+const OBS_HOSTS = /^(api\.github\.com|github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/i;
+let obsBusy = false, obsProc = null, obsWS = null, obsReq = new Map(), obsSeq = 0, obsRec = null, obsReady = false, obsPrep = null, obsLimitT = null;
+function obsDir() { for (const b of [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], 'C:\\Program Files']) { if (!b) continue; const d = path.join(b, 'obs-studio', 'bin', '64bit'); if (fs.existsSync(path.join(d, 'obs64.exe'))) return d; } return ''; }
+function obsOn() { return cfg.obs !== false; }
+function obsActive() { return process.platform === 'win32' && obsOn() && !!obsDir() && !!curNonSteam(); }
+function obsCfgDir() { return path.join(process.env.APPDATA || '', 'obs-studio'); }
+function obsWriteCfg() {
+  const root = obsCfgDir(); fs.mkdirSync(path.join(root, 'plugin_config', 'obs-websocket'), { recursive: true });
+  const g = path.join(root, 'global.ini');
+  if (!fs.existsSync(g)) fs.writeFileSync(g, '[General]\r\nFirstRun=true\r\nLastVersion=520093696\r\nEnableAutoUpdates=false\r\n');
+  const wf = path.join(root, 'plugin_config', 'obs-websocket', 'config.json');
+  let j = {}; try { j = JSON.parse(fs.readFileSync(wf, 'utf8')); } catch (e) {}
+  Object.assign(j, { server_enabled: true, server_port: OBS_PORT, auth_required: false, alerts_enabled: false, first_load: false });
+  fs.writeFileSync(wf, JSON.stringify(j, null, 2));
+}
+function obsClose() { try { if (obsWS) obsWS.close(); } catch (e) {} obsWS = null; obsReady = false; for (const [, r] of obsReq) { try { r(null); } catch (e) {} } obsReq.clear(); }
+function obsConnect() {
+  return new Promise((resolve) => {
+    let ws; try { const WS = require('ws'); ws = new WS('ws://127.0.0.1:' + OBS_PORT); } catch (e) { resolve(false); return; }
+    let done = false; const fin = (v) => { if (!done) { done = true; resolve(v); } };
+    const t = setTimeout(() => { try { ws.terminate(); } catch (e) {} fin(false); }, 4000);
+    ws.on('message', (m) => {
+      let j; try { j = JSON.parse(m.toString()); } catch (e) { return; }
+      if (j.op === 0) { if (j.d && j.d.authentication) { try { ws.close(); } catch (e) {} fin(false); return; } ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, eventSubscriptions: 0 } })); }
+      else if (j.op === 2) { clearTimeout(t); obsWS = ws; obsReady = true; fin(true); }
+      else if (j.op === 7 && j.d) { const r = obsReq.get(j.d.requestId); if (r) { obsReq.delete(j.d.requestId); r(j.d); } }
+    });
+    ws.on('close', () => { if (obsWS === ws) { obsWS = null; obsReady = false; } fin(false); });
+    ws.on('error', () => { fin(false); });
+  });
+}
+function obsCall(type, data, ms) {
+  return new Promise((resolve) => {
+    if (!obsWS || !obsReady) { resolve(null); return; }
+    const id = 'w' + (++obsSeq), t = setTimeout(() => { obsReq.delete(id); resolve(null); }, ms || 8000);
+    obsReq.set(id, (d) => { clearTimeout(t); resolve(d); });
+    try { obsWS.send(JSON.stringify({ op: 6, d: { requestType: type, requestId: id, requestData: data || {} } })); } catch (e) { obsReq.delete(id); clearTimeout(t); resolve(null); }
+  });
+}
+const obsOk = (r) => !!(r && r.requestStatus && r.requestStatus.result);
+async function obsGpuEnc() {
+  try { const i = await app.getGPUInfo('basic'); const v = ((i.gpuDevice || []).find(d => d.active) || (i.gpuDevice || [])[0] || {}).vendorId; if (v === 0x10de) return 'nvenc'; if (v === 0x1002) return 'amd'; if (v === 0x8086) return 'qsv'; } catch (e) {}
+  return 'x264';
+}
+/* abre OBS escondido y lo deja listo */
+async function obsStart() {
+  if (obsReady) return true;
+  if (obsPrep) return obsPrep;
+  obsPrep = (async () => {
+    try {
+      const dir = obsDir(); if (!dir) return false;
+      if (await obsConnect()) { /* ya abierto */ }
+      else {
+        obsWriteCfg();
+        obsProc = spawn(path.join(dir, 'obs64.exe'), ['--minimize-to-tray', '--disable-shutdown-check'], { cwd: dir, detached: false, stdio: 'ignore', windowsHide: false });
+        obsProc.on('exit', () => { obsProc = null; obsClose(); });
+        obsProc.on('error', () => { obsProc = null; });
+        let ok = false; for (let i = 0; i < 30 && !ok; i++) { await new Promise(r => setTimeout(r, 1500)); ok = await obsConnect(); }
+        if (!ok) return false;
+      }
+      /* perfil y coleccion propios para no tocar los del usuario */
+      let r = await obsCall('CreateProfile', { profileName: 'WINTEER' }); await obsCall('SetCurrentProfile', { profileName: 'WINTEER' });
+      r = await obsCall('CreateSceneCollection', { sceneCollectionName: 'WINTEER' }); await obsCall('SetCurrentSceneCollection', { sceneCollectionName: 'WINTEER' });
+      await new Promise(r => setTimeout(r, 1200));
+      const enc = await obsGpuEnc(), P = (cat, name, v) => obsCall('SetProfileParameter', { parameterCategory: cat, parameterName: name, parameterValue: v });
+      await P('Output', 'Mode', 'Simple'); await P('SimpleOutput', 'RecQuality', 'Small'); await P('SimpleOutput', 'RecFormat2', 'mp4'); await P('SimpleOutput', 'RecEncoder', enc); await P('SimpleOutput', 'RecAudioEncoder', 'aac');
+      const rd = path.join(app.getPath('userData'), 'obsrec'); fs.mkdirSync(rd, { recursive: true });
+      await obsCall('SetRecordDirectory', { recordDirectory: rd });
+      try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1920), oh = Math.round(h * ow / w / 2) * 2; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 60, fpsDenominator: 1 }); } catch (e) {}
+      await obsCall('CreateScene', { sceneName: OBS_SC }); await obsCall('SetCurrentProgramScene', { sceneName: OBS_SC });
+      return true;
+    } catch (e) { return false; }
+    finally { obsPrep = null; }
+  })();
+  return obsPrep;
+}
+/* apunta la captura al juego que esta abierto */
+async function obsAim(cur) {
+  const exe = path.win32.basename(String(cur.t.exe || '')).toLowerCase(); if (!exe) return false;
+  const inp = [['WINTEER video', 'game_capture', { capture_mode: 'window', capture_cursor: true, allow_transparency: false }], ['WINTEER audio', 'wasapi_process_output_capture', {}]];
+  for (const [name, kind, st] of inp) {
+    const r = await obsCall('CreateInput', { sceneName: OBS_SC, inputName: name, inputKind: kind, inputSettings: st, sceneItemEnabled: true });
+    if (!obsOk(r) && !(r && r.requestStatus && r.requestStatus.code === 601)) { /* ya existe: sigue */ }
+  }
+  let val = '';
+  for (let i = 0; i < 6 && !val; i++) {
+    const r = await obsCall('GetInputPropertiesListPropertyItems', { inputName: 'WINTEER video', propertyName: 'window' });
+    const items = (r && r.responseData && r.responseData.propertyItems) || [];
+    const it = items.find(x => String(x.itemValue || '').toLowerCase().endsWith(':' + exe));
+    if (it) val = it.itemValue; else await new Promise(r => setTimeout(r, 1000));
+  }
+  if (!val) return false;
+  await obsCall('SetInputSettings', { inputName: 'WINTEER video', inputSettings: { window: val, capture_mode: 'window' }, overlay: true });
+  await obsCall('SetInputSettings', { inputName: 'WINTEER audio', inputSettings: { window: val }, overlay: true });
+  return true;
+}
+async function obsToggle() {
+  if (obsBusy) return; obsBusy = true;
+  try {
+    const cur = curNonSteam();
+    if (obsRec) { await obsStopRec(); return; }
+    if (!cur) return;
+    recIcon(true); clearTimeout(recTimer); recTimer = null;
+    if (!(await obsStart()) || !(await obsAim(cur))) { recIcon(false); shotToast(null, 'No pude preparar OBS', 'err', 'Probá de nuevo con el juego a la vista.'); return; }
+    const r = await obsCall('StartRecord', {}, 15000);
+    if (!obsOk(r)) { recIcon(false); shotToast(null, 'No pude empezar a grabar', 'err'); return; }
+    obsRec = { id: cur.id, t: Date.now() };
+    clearTimeout(obsLimitT); obsLimitT = setTimeout(() => { if (obsRec && !obsBusy) obsToggle(); }, 20 * 60000);
+  } catch (e) { recIcon(false); } finally { obsBusy = false; }
+}
+async function obsStopRec() {
+  const rec = obsRec; obsRec = null; clearTimeout(obsLimitT); obsLimitT = null; if (!rec) return;
+  let th = null;
+  try { const s = await obsCall('GetSourceScreenshot', { sourceName: OBS_SC, imageFormat: 'jpg', imageWidth: 640, imageHeight: 360, imageCompressionQuality: 85 }); const m = /^data:image\/\w+;base64,(.+)$/.exec((s && s.responseData && s.responseData.imageData) || ''); if (m) th = Buffer.from(m[1], 'base64'); } catch (e) {}
+  const r = await obsCall('StopRecord', {}, 30000); recIcon(false);
+  const src = r && r.responseData && r.responseData.outputPath;
+  if (!obsOk(r) || !src) { shotToast(null, 'No pude guardar el clip', 'err'); return; }
+  for (let i = 0; i < 20; i++) { try { const a = fs.statSync(src).size; await new Promise(q => setTimeout(q, 400)); if (fs.statSync(src).size === a && a > 0) break; } catch (e) { await new Promise(q => setTimeout(q, 400)); } }
+  try {
+    const dir = path.join(SHOTS, String(rec.id).replace(/[^\w.-]/g, '_')); fs.mkdirSync(dir, { recursive: true });
+    const stamp = 'c' + new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), file = path.join(dir, stamp + '.mp4');
+    try { fs.renameSync(src, file); } catch (e) { fs.copyFileSync(src, file); try { fs.unlinkSync(src); } catch (e2) {} }
+    if (!th) { try { const d = screen.getPrimaryDisplay(), ss = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 640, height: 360 } }); const x = ss.find(q => String(q.display_id) === String(d.id)) || ss[0]; if (x) th = x.thumbnail.toJPEG(82); } catch (e) {} }
+    if (th) fs.writeFileSync(path.join(dir, stamp + '.t.jpg'), th);
+    const secs = Math.max(1, Math.round((Date.now() - rec.t) / 1000)), mb = Math.max(1, Math.round(fs.statSync(file).size / 1048576));
+    shotToast(th, 'Clip guardado', 'clip', Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0') + ' · ' + mb + ' MB');
+    send({ type: 'shot', id: rec.id, clip: true });
+  } catch (e) { shotToast(null, 'No pude guardar el clip', 'err'); }
+}
+/* cierra OBS cuando termina el juego */
+async function obsStopAll(force) {
+  try { if (obsRec) await obsStopRec(); } catch (e) {}
+  if (!force && curNonSteam()) return;
+  obsClose(); try { if (obsProc) { const p = obsProc; obsProc = null; execFile('taskkill', ['/PID', String(p.pid), '/T'], { windowsHide: true }, () => {}); } } catch (e) {}
+}
+async function obsSetup() {
+  if (process.platform !== 'win32') return { ok: false, err: 'os' };
+  if (obsBusy) return { ok: false, err: 'busy' }; obsBusy = true;
+  const send = (p, t) => { try { if (win && !win.isDestroyed()) win.webContents.send('obsprog', { p, t }); } catch (e) {} };
+  try {
+    if (!obsDir()) {
+      send(0, 'Buscando OBS');
+      const api = await net.fetch('https://api.github.com/repos/obsproject/obs-studio/releases/latest', { headers: { 'User-Agent': 'WINTEER/' + app.getVersion(), Accept: 'application/vnd.github+json' } });
+      if (!api.ok) return { ok: false, err: 'net', d: 'api ' + api.status };
+      const rel = await api.json(), assets = (rel.assets || []).filter(a => /windows.*installer\.exe$/i.test(a.name || ''));
+      const a = assets.find(x => /x64/i.test(x.name)) || assets[0]; if (!a) return { ok: false, err: 'net', d: 'sin instalador' };
+      let host = ''; try { host = new URL(a.browser_download_url).hostname; } catch (e) {} if (!OBS_HOSTS.test(host)) return { ok: false, err: 'net', d: host };
+      const dir = path.join(app.getPath('userData'), 'obs'), setup = path.join(dir, 'OBS-Installer.exe'); fs.mkdirSync(dir, { recursive: true });
+      const r = await net.fetch(a.browser_download_url, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+      let h2 = ''; try { h2 = new URL(r.url || a.browser_download_url).hostname; } catch (e) {}
+      if (!r.ok || !r.body || !OBS_HOSTS.test(h2)) return { ok: false, err: 'net', d: 'http ' + r.status + ' ' + h2 };
+      const tot = Number(r.headers.get('content-length')) || a.size || 0; if (tot > 600 * 1024 * 1024) return { ok: false, err: 'big' };
+      const ws = fs.createWriteStream(setup), hash = require('crypto').createHash('sha256'); let got = 0, last = 0; const rd = r.body.getReader();
+      for (;;) {
+        const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > 600 * 1024 * 1024) { ws.destroy(); return { ok: false, err: 'big' }; }
+        const b = Buffer.from(value); hash.update(b); if (!ws.write(b)) await new Promise(q => ws.once('drain', q));
+        const now = Date.now(); if (now - last > 500) { last = now; send(tot ? Math.round(got / tot * 60) : 30, 'Descargando OBS'); }
+      }
+      await new Promise(q => ws.end(q));
+      if (got < 20 * 1024 * 1024) return { ok: false, err: 'net' };
+      send(62, 'Revisando que sea el instalador oficial');
+      const want = String(a.digest || '').replace(/^sha256:/i, '').toLowerCase();
+      if (want && want !== hash.digest('hex')) { try { fs.unlinkSync(setup); } catch (e) {} return { ok: false, err: 'sig' }; }
+      const sig = await new Promise((res) => { try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', '$s=Get-AuthenticodeSignature -LiteralPath $env:WT_F;Write-Output $s.Status.ToString()'], { windowsHide: true, timeout: 60000, env: Object.assign({}, process.env, { WT_F: setup }) }, (e, o) => res(String(o || ''))); } catch (e) { res(''); } });
+      if (/HashMismatch|NotTrusted/i.test(sig)) { try { fs.unlinkSync(setup); } catch (e) {} return { ok: false, err: 'sig' }; }
+      send(70, 'Instalando OBS (Windows te va a pedir permiso)');
+      await new Promise((res) => { try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Start-Process -FilePath $env:WT_F -ArgumentList "/S" -Verb RunAs -Wait'], { windowsHide: true, timeout: 15 * 60000, env: Object.assign({}, process.env, { WT_F: setup }) }, () => res()); } catch (e) { res(); } });
+      try { fs.unlinkSync(setup); } catch (e) {}
+      if (!obsDir()) return { ok: false, err: 'inst' };
+    }
+    send(90, 'Probando OBS');
+    cfg.obs = true; saveCfg();
+    send(100, 'Listo');
+    return { ok: true };
+  } catch (e) { return { ok: false, err: 'x', d: String(e && e.message || e).slice(0, 80) }; }
+  finally { obsBusy = false; }
+}
+
 function takeClip() {
+  if (obsActive()) { obsToggle(); return; }
   if (clipBusy) return;
   const cur = curNonSteam(); if (!cur) return;
   clipBusy = true; setTimeout(() => { clipBusy = false; }, 25000);
@@ -513,7 +696,7 @@ async function takeShot() {
 }
 function listShots(id) {
   const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')), out = [];
-  try { for (const f of fs.readdirSync(dir)) if (/^c[\d-T]+\.webm$/.test(f)) out.push({ n: f, clip: true, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.webm$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
+  try { for (const f of fs.readdirSync(dir)) if (/^c[\d-T]+\.(webm|mp4)$/.test(f)) out.push({ n: f, clip: true, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.(webm|mp4)$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
   try { for (const f of fs.readdirSync(dir)) if (/^[\d-T]+\.(jpg|png)$/.test(f)) out.push({ n: f, file: pathToFileURL(path.join(dir, f)).href, thumb: pathToFileURL(path.join(dir, f.replace(/\.(jpg|png)$/, '.t.jpg'))).href, t: fs.statSync(path.join(dir, f)).mtimeMs }); } catch (e) {}
   return out.sort((a, b) => b.t - a.t);
 }
@@ -523,9 +706,9 @@ const SHSC = new Map();
 function shotScores(id) {
   const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')), out = {};
   let files = [];
-  try { files = fs.readdirSync(dir).filter(f => /^c?[\d-T]+\.(jpg|png|webm)$/.test(f)); } catch (e) { return out; }
+  try { files = fs.readdirSync(dir).filter(f => /^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(f)); } catch (e) { return out; }
   for (const f of files) {
-    const tp = path.join(dir, f.replace(/\.(jpg|png|webm)$/, '.t.jpg'));
+    const tp = path.join(dir, f.replace(/\.(jpg|png|webm|mp4)$/, '.t.jpg'));
     let mt = 0; try { mt = fs.statSync(tp).mtimeMs; } catch (e) { continue; }
     const ck = tp + '|' + mt;
     if (SHSC.has(ck)) { out[f] = SHSC.get(ck); continue; }
@@ -2465,7 +2648,7 @@ app.whenReady().then(() => {
     if (a.a === 'sel') send({ type: 'ovfr', op: 'sel', c: String(a.c || '').slice(0, 40) });
     if (a.a === 'send') send({ type: 'ovfr', op: 'send', c: String(a.c || '').slice(0, 40), x: String(a.x || '').slice(0, 500) });
   } catch (e) {} });
-  ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
+  ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
   ipcMain.handle('pzScan', (_e, sd) => { try { return pzScan(String(sd || '')); } catch (e) { return { ok: false, mods: [], active: [] }; } });
   ipcMain.handle('pzApply', (_e, ids, sd) => pzApply(Array.isArray(ids) ? ids.slice(0, 600) : [], String(sd || '')));
   ipcMain.handle('pzSearch', (_e, q, p, so, tg, app) => pzSearch(q, p, String(so || ''), !!tg, app));
@@ -2539,8 +2722,12 @@ app.whenReady().then(() => {
     } catch (e) { panicProc = null; }
   };
   app.on('will-quit', panicStop);
+  app.on('will-quit', () => { try { obsStopAll(true); } catch (e) {} });
   ipcMain.handle('vpanicArm', (_e, on) => { try { if (on) panicStart(); else { panicStop(); panicBack(); } } catch (e) {} return { on: !!panicProc }; });
   ipcMain.handle('vpanicNow', () => { panicDo(); return true; });
+  ipcMain.handle('obsState', () => ({ ok: process.platform === 'win32', inst: !!obsDir(), on: obsOn() }));
+  ipcMain.handle('obsSetup', () => obsSetup());
+  ipcMain.handle('obsSet', (_e, on) => { cfg.obs = !!on; saveCfg(); if (!on) obsStopAll(true); return { on: obsOn() }; });
   ipcMain.handle('clipRec', (_e, on) => { recIcon(!!on); return true; });
   ipcMain.handle('clipSave', (_e, o) => {
     try {
@@ -2553,7 +2740,7 @@ app.whenReady().then(() => {
       return { ok: true, file: pathToFileURL(file).href };
     } catch (e) { clipBusy = false; return { ok: false }; }
   });
-  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|png|webm)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|png|webm)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
+  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|png|webm|mp4)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
   ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey }; });
   ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })
