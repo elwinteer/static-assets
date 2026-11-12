@@ -8108,13 +8108,16 @@ async function autoTrl(manual){if(!WN||!winteerNative.trlGet||ATR)return;if(!man
 const scOf=g=>{const e=(ST.sc||{})[g.id];return e&&e.s!=null?e.s:null};
 /* mientras se juega, las descargas en segundo plano esperan para no gastar recursos */
 const idleWait=async()=>{let n=0;while(S.playing&&S.trk&&n++<4000)await new Promise(z=>setTimeout(z,10000))};
-let SCR=0;
-async function autoSc(){if(!WN||!winteerNative.scoreGet||SCR)return;SCR=1;const now=Date.now(),D=864e5;ST.sc=ST.sc||{};
-  const q=G.filter(g=>g.app&&/^\d+$/.test(String(g.app))).filter(g=>{const e=ST.sc[g.id];return !e||(e.s==null?now-e.t>45*D:now-e.t>180*D)});
-  let n=0,bad=0;for(const g of q){await idleWait();let r;try{r=await winteerNative.scoreGet({app:g.app})}catch(e){r={err:1}}
-    if(r&&r.err){if(++bad>=6)break;await new Promise(z=>setTimeout(z,8000));continue}
-    ST.sc[g.id]={s:r&&r.s!=null?r.s:null,t:now,src:(r&&r.src)||''};if(++n%10===0)save();await new Promise(z=>setTimeout(z,1500))}
-  if(n)save();SCR=0}
+let SCR=0;const SCS={tot:0};
+const scSteam=()=>G.filter(g=>g.app&&/^\d+$/.test(String(g.app)));
+const scCov=()=>{const L=scSteam();return {have:L.filter(g=>(ST.sc||{})[g.id]).length,tot:L.length}};
+async function autoSc(){if(!WN||!winteerNative.scoreGet||SCR)return;SCR=1;const now=Date.now(),D=864e5,sl=ms=>new Promise(z=>setTimeout(z,ms));ST.sc=ST.sc||{};
+  const q=scSteam().filter(g=>{const e=ST.sc[g.id];return !e||(e.s==null?now-e.t>45*D:now-e.t>180*D)});
+  let n=0,fails=0,back=20000,again=false;
+  for(let i=0;i<q.length;){const g=q[i];await idleWait();let r;try{r=await winteerNative.scoreGet({app:g.app})}catch(e){r={err:'x'}}
+    if(r&&r.err){if(++fails>=5){again=true;break}await sl(back);back=Math.min(back*2,300000);continue}
+    fails=0;back=20000;ST.sc[g.id]={s:r&&r.s!=null?r.s:null,t:Date.now(),src:(r&&r.src)||''};i++;if(++n%10===0)save();await sl(2500)}
+  if(n)save();SCR=0;if(again)setTimeout(()=>{try{autoSc()}catch(e){}},15*60e3)}
 P.tick='<polyline points="5 12.5 10 17.5 19 7"/>';
 /* ---------- administrar trailers ---------- */
 const TRM={q:'',f:'all',sel:new Set(),sizes:{},cf:0,busy:0};
@@ -8124,9 +8127,10 @@ const tgLow=()=>G.filter(g=>tgHas(g)&&scOf(g)!==null&&scOf(g)<70);
 function tgList(){const q=TRM.q.trim().toLowerCase();return G.filter(g=>(!q||g.name.toLowerCase().includes(q))&&(TRM.f==='all'||(TRM.f==='on')===tgHas(g))).sort((a,b)=>(tgHas(b)-tgHas(a))||((TRM.sizes[trk(b)]||0)-(TRM.sizes[trk(a)]||0))||a.name.localeCompare(b.name))}
 function tgCard(g,i){const on=tgHas(g),sz=TRM.sizes[trk(g)]||0;return `<div class="tgc ${on?'has':''} ${TRM.sel.has(g.id)?'sel':''}" data-a="tgsel" data-id="${g.id}" style="--i:${Math.min(i,28)}"><div class="im"><img loading="lazy" src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><i class="ck">${ic('tick')}</i>${on?`<span class="sz">${sz?tgB(sz):'Instalado'}</span>`:''}</div><b>${esc(g.name)}</b></div>`}
 function tgRender(){const el=$('#tgg');if(!el)return;const L=tgList();el.innerHTML=L.length?L.map(tgCard).join(''):'<p class="tgem">No hay juegos para mostrar con este filtro.</p>';tgBar();
-  const inst=G.filter(tgHas),tot=inst.reduce((a,g)=>a+(TRM.sizes[trk(g)]||0),0),h=$('#tgsub');if(h)h.textContent=inst.length+' de '+G.length+' juegos con trailer'+(tot?' · ocupan '+tgB(tot):'');
-  const lw=tgLow(),c=$('#tglow');if(c){c.querySelector('em').textContent=lw.length;c.classList.toggle('on',lw.length>0&&lw.every(g=>TRM.sel.has(g.id)))}
+  tgInfo();
   $$('.tgf button').forEach(b=>b.classList.toggle('on',b.dataset.v===TRM.f))}
+function tgInfo(){const inst=G.filter(tgHas),tot=inst.reduce((a,g)=>a+(TRM.sizes[trk(g)]||0),0),h=$('#tgsub'),cv=scCov();if(h)h.textContent=inst.length+' de '+G.length+' juegos con trailer'+(tot?' · ocupan '+tgB(tot):'')+(cv.tot&&cv.have<cv.tot?' · buscando notas: '+cv.have+' de '+cv.tot:'');
+  const lw=tgLow(),c=$('#tglow');if(c){c.querySelector('em').textContent=lw.length;c.classList.toggle('on',lw.length>0&&lw.every(g=>TRM.sel.has(g.id)))}}
 function tgBar(){const b=$('#tgbar');if(!b)return;const S2=[...TRM.sel].map(gm).filter(Boolean),has=S2.filter(tgHas),no=S2.length-has.length,fr=has.reduce((a,g)=>a+(TRM.sizes[trk(g)]||0),0);
   b.classList.toggle('show',S2.length>0||TRM.busy);if(TRM.busy)return;
   $('#tgbt').innerHTML=`<b>${S2.length}</b> ${S2.length===1?'seleccionado':'seleccionados'}${fr?` · liberás <b>${tgB(fr)}</b>`:''}`;
@@ -8134,7 +8138,7 @@ function tgBar(){const b=$('#tgbar');if(!b)return;const S2=[...TRM.sel].map(gm).
 async function tgOpen(){if($('.tgg'))return;await trlLoad();TRM.q='';TRM.f='all';TRM.sel=new Set();TRM.cf=0;TRM.busy=0;try{TRM.sizes=await winteerNative.trlSizes()||{}}catch(e){TRM.sizes={}}
   const d=document.createElement('div');d.className='tgg';d.innerHTML=`<div class="tgbg" data-a="tgclose"></div><div class="tgw"><div class="tgh"><div><h2>Trailers de tus juegos</h2><span id="tgsub"></span></div><button class="shx" data-a="tgclose" title="Cerrar">${ic('xx')}</button></div>
   <div class="tgt"><label class="tgs">${ic('search')}<input id="tgq" placeholder="Buscar un juego…" autocomplete="off"></label><div class="tgf">${[['all','Todos'],['on','Con trailer'],['off','Sin trailer']].map(([k,l])=>`<button data-a="tgf" data-v="${k}" class="${k==='all'?'on':''}">${l}</button>`).join('')}</div><button class="tgk" id="tglow" data-a="tglow"><i>${ic('tick')}</i>Juegos poco valorados <em>0</em></button><button class="tgk" data-a="tgall"><i>${ic('tick')}</i>Seleccionar todos</button><button class="tgk tgx" data-a="tgnone">Limpiar</button></div>
-  <div class="tggr" id="tgg"></div></div><div class="tgbar" id="tgbar"><div id="tgbt"></div><div class="tgbb"><button class="b2 g tgdel" id="tgdel" data-a="tgdel"></button><button class="b2" id="tgins" data-a="tgins"></button></div></div>`;document.body.appendChild(d);tgRender()}
+  <div class="tggr" id="tgg"></div></div><div class="tgbar" id="tgbar"><div id="tgbt"></div><div class="tgbb"><button class="b2 g tgdel" id="tgdel" data-a="tgdel"></button><button class="b2" id="tgins" data-a="tgins"></button></div></div>`;document.body.appendChild(d);tgRender();try{autoSc()}catch(e){}clearInterval(TRM.pt);TRM.pt=setInterval(()=>{if(!$('.tgg')){clearInterval(TRM.pt);return}tgInfo()},8000)}
 function tgClose(){const d=$('.tgg');if(!d||d.classList.contains('out'))return;d.classList.add('out');setTimeout(()=>d.remove(),300)}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='tgq'){TRM.q=e.target.value;tgRender()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.tgg')&&!$('.modal')){const t=e.target;if(t&&t.id==='tgq'&&t.value){t.value='';TRM.q='';tgRender();return}tgClose()}});
@@ -8143,7 +8147,7 @@ Object.assign(A,{
   tgopen:()=>tgOpen(),tgclose:()=>tgClose(),
   tgsel:a=>{const id=a.dataset.id;if(TRM.busy)return;if(TRM.sel.has(id))TRM.sel.delete(id);else TRM.sel.add(id);a.classList.toggle('sel',TRM.sel.has(id));TRM.cf=0;tgBar();const lw=tgLow(),c=$('#tglow');if(c)c.classList.toggle('on',lw.length>0&&lw.every(g=>TRM.sel.has(g.id)))},
   tgf:a=>{TRM.f=a.dataset.v;tgRender()},
-  tglow:()=>{if(TRM.busy)return;const lw=tgLow();if(!lw.length){toast('Todavía no hay juegos poco valorados con trailer instalado');return}const all=lw.every(g=>TRM.sel.has(g.id));lw.forEach(g=>all?TRM.sel.delete(g.id):TRM.sel.add(g.id));TRM.cf=0;if(!all&&TRM.f==='off')TRM.f='all';tgRender()},
+  tglow:()=>{if(TRM.busy)return;const lw=tgLow();if(!lw.length){const cv=scCov();toast(cv.have<cv.tot*.9?`Todavía estoy buscando las notas (${cv.have} de ${cv.tot} juegos). Probá en un rato.`:'Ninguno de tus juegos con trailer tiene una nota baja');return}const all=lw.every(g=>TRM.sel.has(g.id));lw.forEach(g=>all?TRM.sel.delete(g.id):TRM.sel.add(g.id));TRM.cf=0;if(!all&&TRM.f==='off')TRM.f='all';tgRender()},
   tgall:()=>{if(TRM.busy)return;tgList().forEach(g=>TRM.sel.add(g.id));TRM.cf=0;tgRender()},
   tgnone:()=>{TRM.sel.clear();TRM.cf=0;tgRender()},
   tgdel:async()=>{if(TRM.busy)return;const L=[...TRM.sel].map(gm).filter(g=>g&&tgHas(g));if(!L.length)return;

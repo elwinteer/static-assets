@@ -2924,19 +2924,20 @@ app.whenReady().then(() => {
   ipcMain.handle('trlSizes', () => { try { const o = {}; for (const f of fs.readdirSync(TRL)) { const m = f.match(/^(\w+)\.(mp4|webm)$/); if (m) { try { o[m[1]] = (o[m[1]] || 0) + fs.statSync(path.join(TRL, f)).size; } catch (e) {} } } return o; } catch (e) { return {}; } });
   ipcMain.handle('trlUnmark', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); for (const x of ['.nx', '.none']) { try { fs.unlinkSync(path.join(TRL, key + x)); } catch (e) {} } return true; } catch (e) { return false; } });
   /* notas en segundo plano: Metacritic que trae Steam y, si falta, el porcentaje de reseñas positivas de Steam */
+  const scLog = (a, m) => { try { const f = path.join(app.getPath('userData'), 'score.log'); try { if (fs.statSync(f).size > 60000) fs.unlinkSync(f); } catch (e) {} fs.appendFileSync(f, new Date().toISOString() + ' ' + a + ' ' + m + '\n'); } catch (e) {} };
   ipcMain.handle('scoreGet', async (_e, o) => {
     try {
       const app_ = String((o && o.app) || '').replace(/\D/g, ''); if (!app_) return { none: 1 };
       const r = await net.fetch('https://store.steampowered.com/api/appdetails?appids=' + app_ + '&filters=metacritic');
-      if (!r.ok) return { err: 'http' + r.status };
+      if (!r.ok) { scLog(app_, 'appdetails ' + r.status); return { err: 'http' + r.status }; }
       const j = await r.json(), d = j && j[app_] && j[app_].data, ms = d && d.metacritic && Number(d.metacritic.score);
       if (ms > 0) return { s: Math.round(ms), src: 'm' };
       const r2 = await net.fetch('https://store.steampowered.com/appreviews/' + app_ + '?json=1&language=all&purchase_type=all&num_per_page=0');
-      if (!r2.ok) return { err: 'http' + r2.status };
+      if (!r2.ok) { scLog(app_, 'appreviews ' + r2.status); return { err: 'http' + r2.status }; }
       const j2 = await r2.json(), q = j2 && j2.query_summary, tp = q ? q.total_positive : 0, tn = q ? q.total_negative : 0;
       if (tp + tn >= 25) return { s: Math.round(tp / (tp + tn) * 100), src: 'u' };
       return { none: 1 };
-    } catch (e) { return { err: String(e.message || e) }; }
+    } catch (e) { scLog('-', String(e.message || e)); return { err: String(e.message || e) }; }
   });
   ipcMain.handle('trlDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.') && !/\.(mu\.\w+|nm)$/.test(f)) fs.unlinkSync(path.join(TRL, f)); fs.writeFileSync(path.join(TRL, key + '.nx'), ''); return true; } catch (e) { return false; } });
   ipcMain.handle('trlClear', () => { try { for (const f of fs.readdirSync(TRL)) if (f !== 'yt-dlp.exe') fs.unlinkSync(path.join(TRL, f)); } catch (e) {} return true; });
