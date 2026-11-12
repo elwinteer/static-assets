@@ -8886,7 +8886,7 @@ setTimeout(()=>{if(x7On())x7Refresh()},5000);
 const x7Blocked=()=>!!S.playing||!!(X7.st&&X7.st.busy);
 function x7Ctx(){const n=new Date(),L=G.filter(g=>!g.hide&&!vIs(g)).sort((a,b)=>lastTs(b)-lastTs(a));
   return `Hoy es ${n.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}, ${n.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})} hs.\nBiblioteca de ${L.length} juegos (los últimos jugados primero):\n`+L.slice(0,70).map(g=>`- ${g.name} | ${fh(g.hours)} | ${stOf(g)}${genresOf(g).length?' | '+genresOf(g).slice(0,2).join('/'):''}`).join('\n')}
-const X7SYS='Sos el asistente de WINTEER, un launcher de juegos. Respondé en español rioplatense, corto (máximo 8 líneas) y amable. Recomendá solo juegos que estén en la lista del usuario y no inventes datos.';
+const X7SYS='Sos el asistente de WINTEER, un launcher de juegos. Hablás en español rioplatense, con humor, un poco de ironía y sin filtro, como un amigo gamer bromista. Respuestas cortas (máximo 8 líneas). Recomendá solo juegos que estén en la lista del usuario y no inventes datos.';
 function x7Rows(){
   if(!WN||!winteerNative.aiAsk)return [];
   const on=!!(ST.ai&&ST.ai.on),s=X7.st;
@@ -8894,7 +8894,7 @@ function x7Rows(){
   if(!on)return [r1];
   const need=!!s&&(!s.ok||!s.models.length),I=X7.inst;
   if(I)return [r1,`<div class="row"><div><b id="x7pt">${esc(I.t||'Preparando')}</b><small>Esto tarda unos minutos y podés seguir usando WINTEER. Baja todo de las páginas oficiales.</small><div class="x7bar"><i id="x7pb" style="width:${I.p||0}%"></i></div></div></div>`];
-  const st=!s?'Buscando Ollama…':!s.ok?'<b>Falta instalar la IA.</b> Un botón y WINTEER hace todo solo: baja Ollama (cerca de 1 GB) y un modelo (cerca de 4,7 GB) de las páginas oficiales.':!s.models.length?'<b>Falta bajar un modelo.</b> Un botón y WINTEER lo baja solo (cerca de 4,7 GB).':'Modelo: <b>'+esc((ST.ai||{}).model||'')+'</b>';
+  const st=!s?'Buscando Ollama…':!s.ok?'<b>Falta instalar la IA.</b> Un botón y WINTEER hace todo solo: baja Ollama (cerca de 1 GB) y un modelo (cerca de 4 GB) de las páginas oficiales.':!s.models.length?'<b>Falta bajar un modelo.</b> Un botón y WINTEER lo baja solo (cerca de 4 GB).':'Modelo: <b>'+esc((ST.ai||{}).model||'')+'</b>';
   return [r1,`<div class="row"><div>${st}${I===false?'<small style="color:var(--a2)">No se pudo terminar. Revisá tu internet y probá de nuevo.</small>':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${need?'<button class="hm-go" data-a="x7setup" style="white-space:nowrap">'+(s.ok?'Bajar modelo':'Instalar IA')+'</button>':''}${s&&s.ok&&s.models.length>1?'<button class="b2 g" data-a="x7models">Cambiar modelo</button>':''}${s&&s.ok&&s.models.length?'<button class="b2 g" data-a="x7cpu">'+((ST.ai||{}).cpu?'Usar placa de video':'Usar solo procesador')+'</button>':''}<button class="b2 g" data-a="x7check">Revisar</button>${s&&s.ok&&s.models.length?'<button class="b2" data-a="x7ask">Preguntar</button>':''}</div></div>`]}
 function x7Pill(){try{return x7On()&&X7.st&&X7.st.ok&&X7.st.models.length?'<button class="h2-pill" data-a="x7ask" style="white-space:nowrap" title="Preguntale a tu biblioteca (IA local)">Preguntar</button>':''}catch(e){return ''}}
 async function x7Open(){

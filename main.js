@@ -2110,7 +2110,7 @@ async function aiSetup(model) {
       if (!st.ok) return { ok: false, err: 'start' };
     }
     if (!st.models.length) {
-      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'llama3.2:3b' : 'qwen2.5:7b')).slice(0, 60);
+      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'dolphin-phi' : 'dolphin-mistral')).slice(0, 60);
       send(75, 'Bajando el modelo ' + m);
       const r = await ollamaPull(m, (p) => send(75 + Math.round(p * 0.24), 'Bajando el modelo ' + m));
       if (!r.ok) return { ok: false, err: 'pull' };
