@@ -8756,18 +8756,21 @@ async function lkMerge(srcId,dstId){
   save();try{RJC.t=0}catch(e){}
   toast(`Vinculado: ${d.name}. Conserva ${fh(hs)} jugadas${ms?`, ${ms} capturas y clips`:''} y tus logros propios`);
   return true}
+const lkSt=x=>isSteamG(x)?'Steam':isEpicG(x)?'Epic':isXbG(x)?'Xbox':'.exe';
+const lkRow=x=>`<button class="lkr" data-a="x9lkpick" data-id="${x.id}">${thumb(x)}<span class="lkn"><b>${esc(x.name)}</b><small>${x.hours?fh(x.hours)+' jugadas':'Sin horas'}</small></span><em>${lkSt(x)}</em><svg class="i lkgo" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>`;
 function lkRender(g,q){
   const cs=lkCands(g),all=lkOthers(g),qq=lkKey(q||''),ex=new Set(cs.map(x=>x.id));
   const more=(qq?all.filter(x=>!ex.has(x.id)&&lkKey(x.name).includes(qq)):[]).slice(0,8);
-  const row=x=>`<button class="b2 g x9lk" data-a="x9lkpick" data-id="${x.id}"><b>${esc(x.name)}</b><small>${isSteamG(x)?'Steam':isEpicG(x)?'Epic':isXbG(x)?'Xbox':'.exe'}${x.hours?' · '+fh(x.hours):''}</small></button>`;
-  return `${cs.length?`<p class="hint2" style="margin:8px 0 4px">Parecen ser el mismo juego:</p>${cs.slice(0,6).map(row).join('')}`:'<p class="hint2">No encontré un juego con el mismo nombre. Buscalo por nombre:</p>'}
-  <input class="txt" id="x9lq" placeholder="Buscar otro por nombre…" value="${esc(q||'')}" autocomplete="off" style="margin-top:10px">${more.length?`<div style="margin-top:6px">${more.map(row).join('')}</div>`:''}`}
+  return `${more.length?`<div class="lkl">${more.map(lkRow).join('')}</div>`:(qq?'<p class="lkne">No encontré ningún juego con ese nombre.</p>':'')}`}
 function lkOpen(id){
-  const g=gS(id);if(!g)return;const st=isStoreG(g);
-  modal(`<div style="text-align:left"><h3>Vincular con ${st?'tu versión de otra tienda':'la tienda'}</h3>
+  const g=gS(id);if(!g)return;const st=isStoreG(g),cs=lkCands(g).slice(0,6);
+  modal(`<div class="lk"><div class="lkh"><span class="lkic"><svg class="i" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></span><div><h3>Vincular con ${st?'tu versión de otra tienda':'la tienda'}</h3><small>${esc(g.name)}</small></div></div>
   <p>${st?`Juntás <b>${esc(g.name)}</b> con una entrada que tenías aparte (.exe).`:`Si compraste <b>${esc(g.name)}</b>, lo juntás con su versión de la tienda y no perdés nada.`} Se conservan las horas, los logros propios, capturas, clips, reseñas, notas y favoritos.</p>
-  <div id="x9lkb">${lkRender(g,'')}</div></div><div class="bs"><button class="b2 g" data-a="close">Cancelar</button></div>`,'x8m');
-  S.lkSrc=id;const i=$('#x9lq');if(i)i.addEventListener('input',()=>{const b=$('#x9lkb');if(b){b.innerHTML=lkRender(g,i.value);const n=$('#x9lq');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}const nn=$('#x9lq');if(nn)nn.addEventListener('input',i.oninput||(()=>{}))}})}
+  ${cs.length?`<div class="lkt">Parecen ser el mismo juego</div><div class="lkl">${cs.map(lkRow).join('')}</div>`:'<div class="lkne">No encontré un juego con el mismo nombre. Buscalo por nombre.</div>'}
+  <div class="lks">${ic('search')}<input id="x9lq" placeholder="Buscar otro por nombre…" autocomplete="off"></div>
+  <div id="x9lkb">${lkRender(g,'')}</div>
+  <div class="lkf"><button class="b2 g" data-a="close">Cancelar</button></div></div>`,'x8m');
+  S.lkSrc=id;const i=$('#x9lq');if(i)i.addEventListener('input',()=>{const b=$('#x9lkb');if(b)b.innerHTML=lkRender(g,i.value)})}
 function lkConfirm(a,b){
   // a = juego .exe (se absorbe), b = juego de tienda (queda)
   modal(`<div style="text-align:left"><h3>¿Vincular estos dos?</h3>
@@ -9259,6 +9262,18 @@ Object.assign(A,{
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.lk{text-align:left}.lkh{display:flex;gap:14px;align-items:center;margin-bottom:6px}.lkh h3{margin:0;font-size:20px}.lkh small{color:var(--muted);font-size:13px}
+.lkic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background:linear-gradient(135deg,rgba(var(--argb),.75),rgba(var(--argb),.25));flex-shrink:0}
+.lk p{margin:12px 0 16px}.lkt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.lkl{display:flex;flex-direction:column;gap:8px;max-height:230px;overflow:auto;padding:2px}
+.lkr{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid rgba(255,255,255,.08);background:var(--card2);color:var(--text);border-radius:14px;padding:8px 12px 8px 8px;transition:transform .25s var(--ease),border-color .25s,background .25s}
+.lkr:hover{transform:translateX(3px);border-color:rgba(var(--argb),.6);background:rgba(var(--argb),.14)}
+.lkr .th{width:44px;height:44px;border-radius:10px;flex-shrink:0}.lkn{flex:1;min-width:0;display:flex;flex-direction:column}.lkn b{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lkn small{color:var(--muted);font-size:12px}
+.lkr em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;padding:3px 9px;border-radius:99px;background:rgba(var(--argb),.25);color:#fff}.lkgo{color:var(--muted);font-size:16px}
+.lkne{color:var(--muted);font-size:13px;padding:10px 12px;border-radius:12px;background:var(--card2);margin-bottom:4px}
+.lks{display:flex;align-items:center;gap:10px;margin-top:14px;height:44px;padding:0 14px;border-radius:14px;background:var(--card2);border:1px solid rgba(255,255,255,.08);color:var(--muted);transition:border-color .25s}
+.lks:focus-within{border-color:rgba(var(--argb),.7)}.lks input{flex:1;border:0;outline:0;background:none;color:var(--text);font:inherit;font-size:14px;min-width:0}
+#x9lkb{margin-top:10px}#x9lkb .lkl{max-height:170px}.lkf{display:flex;justify-content:flex-end;margin-top:20px}
 .mb.x8m{max-width:460px}.mb.x8w{max-width:620px;width:92vw}
 .x8opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 8px}.x8opts .b2{justify-content:center}
 .x8cust{display:flex;gap:8px;align-items:center;margin-top:6px}.x8cust .txt{flex:1;text-align:center}
