@@ -3855,7 +3855,7 @@ function setPane(t){
     ...(typeof frSndPane==='function'?frSndPane():[]),
     sH('Modo mando'),
     sR('Música','Suena el tema del juego en el que estás parado. También con M o R3.',`<div style="display:flex;gap:10px;align-items:center"><input type="range" id="bpmv" min="0.05" max="1" step="0.05" value="${ST.bpMusV||.35}">${sSw('bpmus',ST.bpMus!==false)}</div>`),
-    sR('Tráilers y canciones','Se bajan solos y se ven y escuchan en el Modo mando. <span id="trl-n"></span>','<button class="b2" data-a="trldl">Descargar ahora</button>'),
+    sR('Tráilers y canciones','Se bajan solos y se ven y escuchan en el Modo mando. <span id="trl-n"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g" data-a="tgopen">Administrar</button><button class="b2" data-a="trldl">Descargar ahora</button></div>'),
     sR('Teclado en pantalla','Con un campo de texto elegido, el botón que pongas abre un teclado manejado con el mando.',`<div style="display:flex;gap:10px;align-items:center"><b id="oskl" style="font-size:13px">${oskName()}</b><button class="b2 g" data-a="oskbind">Elegir botón</button>${sSw('oskon',ST.oskOn)}</div>`),
     sR('Centro de mandos','Probá botones y palancas, deriva, vibración y zona muerta.','<button class="b2" data-a="ccopen">Abrir</button>')];
   if(t==='lib'){const d=dupGroups().length,c=clnList().length;return N?[
@@ -3864,7 +3864,7 @@ function setPane(t){
     sR('Epic Games','Tu biblioteca completa o solo lo instalado. <span id="imp-epa"></span><span id="imp-ep"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="acct" data-s="epic">Conectar</button><button class="b2 g" data-a="acctcode">Usar código</button><button class="b2 g" data-a="impstore" data-s="epic">Instalados</button></div>'),
     sR('Xbox / Game Pass','Los juegos de tu cuenta de Microsoft. <span id="imp-xba"></span><span id="imp-xb"></span>','<div style="display:flex;gap:8px"><button class="b2" data-a="acct" data-s="xbox">Conectar</button><button class="b2 g" data-a="impstore" data-s="xbox">Instalados</button></div>'),
     sH('Información de los juegos'),
-    sR('Descargar datos','Descripciones, arte y duraciones se bajan solos; acá podés forzarlo. <span id="ifp"></span><span id="sgp"></span><span id="hlp"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="infoall">Información</button><button class="b2" data-a="sgall">Arte</button><button class="b2" data-a="hltball">Duraciones</button><button class="b2" data-a="trldl">Tráilers</button></div>'),
+    sR('Descargar datos','Descripciones, arte y duraciones se bajan solos; acá podés forzarlo. <span id="ifp"></span><span id="sgp"></span><span id="hlp"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="infoall">Información</button><button class="b2" data-a="sgall">Arte</button><button class="b2" data-a="hltball">Duraciones</button><button class="b2" data-a="trldl">Tráilers</button><button class="b2 g" data-a="tgopen">Administrar tráilers</button></div>'),
     sR('Carpeta de Steam','Cambiala solo si tu Steam está en otro lugar.',`<input class="txt" id="sdir" style="width:240px" value="${esc(ST.steamDir||'C:\\Program Files (x86)\\Steam')}">`),
     sH('Mantenimiento'),
     sR('Juegos duplicados',d?d+' repetidos entre tiendas. Elegí con cuál quedarte.':'No hay juegos repetidos.',`<button class="b2" data-a="dupopen" ${d?'':'disabled'}>Revisar</button>`),
