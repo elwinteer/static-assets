@@ -2043,7 +2043,7 @@ async function aiAsk(o) {
   const model = String(o && o.model || '').slice(0, 80); if (!model) return { ok: false, err: 'Sin modelo' };
   const ctl = {}, watch = setInterval(() => { if (track.size > 0 && ctl.kill) ctl.kill(); }, 1200);
   const threads = Math.max(2, Math.floor(os.cpus().length / 2));
-  const opts = (cpu) => Object.assign({ num_thread: threads, num_ctx: 8192, temperature: 0.7, top_p: 0.9, top_k: 40, repeat_penalty: 1.18, repeat_last_n: 256, presence_penalty: 0.4, frequency_penalty: 0.4, num_predict: 220 }, cpu ? { num_gpu: 0 } : {});
+  const opts = (cpu) => Object.assign({ num_thread: threads, num_ctx: 8192, temperature: 0.8, top_p: 0.92, top_k: 40, repeat_penalty: 1.18, repeat_last_n: 256, presence_penalty: 0.4, frequency_penalty: 0.4, num_predict: 220 }, cpu ? { num_gpu: 0 } : {});
   const msgs = Array.isArray(o.messages) ? o.messages.slice(-30).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '').slice(0, 1500) })) : null;
   const go = (cpu) => msgs
     ? ollamaReq('POST', '/api/chat', { model, messages: [{ role: 'system', content: String(o.system || '').slice(0, 4000) }].concat(msgs), stream: false, keep_alive: 0, options: opts(cpu) }, 180000, ctl)
@@ -2106,7 +2106,7 @@ function ollamaPull(model, prog) {
     req.write(data); req.end();
   });
 }
-async function aiSetup(model) {
+async function aiSetup(model, force) {
   if (process.platform !== 'win32') return { ok: false, err: 'os' };
   if (aiBusy) return { ok: false, err: 'busy' }; aiBusy = true;
   const send = (p, t) => { try { if (win && !win.isDestroyed()) win.webContents.send('aiprog', { p, t }); } catch (e) {} };
@@ -2149,8 +2149,8 @@ async function aiSetup(model) {
       if (!st.ok) { try { spawn(exe, ['serve'], { detached: true, stdio: 'ignore', windowsHide: true }).unref(); } catch (e) {} for (let i = 0; i < 25 && !(st = await aiStatus()).ok; i++) await new Promise(r => setTimeout(r, 1500)); }
       if (!st.ok) return { ok: false, err: 'start' };
     }
-    if (!st.models.length) {
-      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'dolphin-phi' : 'dolphin-mistral')).slice(0, 60);
+    if (!st.models.length || (force && model && !st.models.some(x => x.startsWith(String(model))))) {
+      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'dolphin-phi' : 'dolphin3')).slice(0, 60);
       send(75, 'Bajando el modelo ' + m);
       const r = await ollamaPull(m, (p) => send(75 + Math.round(p * 0.24), 'Bajando el modelo ' + m));
       if (!r.ok) return { ok: false, err: 'pull' };
@@ -2447,7 +2447,7 @@ app.whenReady().then(() => {
   ipcMain.handle('raGame', (_e, o) => raGame(o || {}));
   ipcMain.handle('aiStatus', () => aiStatus());
   ipcMain.handle('aiListen', () => aiListen());
-  ipcMain.handle('aiSetup', (_e, m) => aiSetup(m));
+  ipcMain.handle('aiSetup', (_e, m, f) => aiSetup(m, f));
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('shotScores', (_e, id) => { try { return shotScores(id); } catch (e) { return {}; } });
   ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
