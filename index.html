@@ -8878,7 +8878,7 @@ Object.assign(A,{
 
 /* ===X7A=== */
 /* ---------- 7 · IA local con Ollama ---------- */
-let X7={st:null,busy:0};
+let X7={st:null,busy:0,inst:null};
 const x7On=()=>!!(ST.ai&&ST.ai.on)&&WN&&!!winteerNative.aiAsk;
 async function x7Refresh(){try{X7.st=await winteerNative.aiStatus()}catch(e){X7.st={ok:false,models:[]}}
   const a=ST.ai=ST.ai||{};if(X7.st.ok&&X7.st.models.length&&!X7.st.models.includes(a.model)){a.model=X7.st.models[0];save()}return X7.st}
@@ -8890,17 +8890,19 @@ const X7SYS='Sos el asistente de WINTEER, un launcher de juegos. Respondé en es
 function x7Rows(){
   if(!WN||!winteerNative.aiAsk)return [];
   const on=!!(ST.ai&&ST.ai.on),s=X7.st;
-  const r1=`<div class="row"><div>Asistente con IA local<small>Si tenés Ollama instalado, podés preguntarle a tu biblioteca qué jugar. Funciona sin internet, usa la placa de video para responder rápido (se libera apenas termina), no baja ni guarda nada y se bloquea mientras hay un juego abierto.</small></div><button class="sw ${on?'on':''}" data-a="x7tog"></button></div>`;
+  const r1=`<div class="row"><div>Asistente con IA local<small>Preguntale a tu biblioteca qué jugar. Funciona sin internet, usa la placa de video para responder rápido (se libera apenas termina) y se bloquea mientras hay un juego abierto.</small></div><button class="sw ${on?'on':''}" data-a="x7tog"></button></div>`;
   if(!on)return [r1];
-  const st=!s?'Buscando Ollama…':!s.ok?'No encuentro Ollama. Instalalo desde ollama.com y bajá un modelo chico (por ejemplo llama3.2:1b); WINTEER no descarga nada.':!s.models.length?'Ollama está, pero no tiene modelos instalados. Bajá uno chico desde Ollama; WINTEER no descarga nada.':'Modelo: <b>'+esc((ST.ai||{}).model||'')+'</b>';
-  return [r1,`<div class="row"><div>${st}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${s&&s.ok&&s.models.length>1?'<button class="b2 g" data-a="x7models">Cambiar modelo</button>':''}<button class="b2 g" data-a="x7cpu">${(ST.ai||{}).cpu?'Usar placa de video':'Usar solo procesador'}</button><button class="b2 g" data-a="x7check">Revisar</button>${s&&s.ok&&s.models.length?'<button class="b2" data-a="x7ask">Preguntar</button>':''}</div></div>`]}
+  const need=!!s&&(!s.ok||!s.models.length),I=X7.inst;
+  if(I)return [r1,`<div class="row"><div><b id="x7pt">${esc(I.t||'Preparando')}</b><small>Esto tarda unos minutos y podés seguir usando WINTEER. Baja todo de las páginas oficiales.</small><div class="x7bar"><i id="x7pb" style="width:${I.p||0}%"></i></div></div></div>`];
+  const st=!s?'Buscando Ollama…':!s.ok?'<b>Falta instalar la IA.</b> Un botón y WINTEER hace todo solo: baja Ollama (cerca de 1 GB) y un modelo (cerca de 4,7 GB) de las páginas oficiales.':!s.models.length?'<b>Falta bajar un modelo.</b> Un botón y WINTEER lo baja solo (cerca de 4,7 GB).':'Modelo: <b>'+esc((ST.ai||{}).model||'')+'</b>';
+  return [r1,`<div class="row"><div>${st}${I===false?'<small style="color:var(--a2)">No se pudo terminar. Revisá tu internet y probá de nuevo.</small>':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${need?'<button class="hm-go" data-a="x7setup" style="white-space:nowrap">'+(s.ok?'Bajar modelo':'Instalar IA')+'</button>':''}${s&&s.ok&&s.models.length>1?'<button class="b2 g" data-a="x7models">Cambiar modelo</button>':''}${s&&s.ok&&s.models.length?'<button class="b2 g" data-a="x7cpu">'+((ST.ai||{}).cpu?'Usar placa de video':'Usar solo procesador')+'</button>':''}<button class="b2 g" data-a="x7check">Revisar</button>${s&&s.ok&&s.models.length?'<button class="b2" data-a="x7ask">Preguntar</button>':''}</div></div>`]}
 function x7Pill(){try{return x7On()&&X7.st&&X7.st.ok&&X7.st.models.length?'<button class="h2-pill" data-a="x7ask" style="white-space:nowrap" title="Preguntale a tu biblioteca (IA local)">Preguntar</button>':''}catch(e){return ''}}
 async function x7Open(){
   await x7Refresh();const s=X7.st,blk=x7Blocked(),ok=s&&s.ok&&s.models.length;
   const chips=['¿A qué juego me conviene jugar hoy?','Tengo una hora libre. ¿Qué me recomendás?','¿Cuál de mis juegos sin terminar vale más la pena retomar?'];
   $$('.modal').forEach(m=>m.remove());
   modal(`<div style="text-align:left"><h3>Preguntale a tu biblioteca</h3>
-  ${!ok?'<p class="hint2">No encuentro Ollama o un modelo instalado. Revisalo en Ajustes, Extras.</p>':blk?'<p class="hint2">Hay un juego abierto: la IA queda bloqueada para no sacarle rendimiento. Probá cuando lo cierres.</p>':`<p class="hint2">Corre en tu PC con ${esc((ST.ai||{}).model||'')}, sin internet y ${(ST.ai||{}).cpu?'solo con el procesador (puede tardar uno o dos minutos)':'con la placa de video (suele tardar unos segundos)'}.</p>`}
+  ${!ok?'<p class="hint2">Falta instalar la IA. Se hace con un botón y tarda unos minutos.</p><button class="hm-go" data-a="x7setup" style="margin:6px 0 10px">Instalar IA ahora</button>':blk?'<p class="hint2">Hay un juego abierto: la IA queda bloqueada para no sacarle rendimiento. Probá cuando lo cierres.</p>':`<p class="hint2">Corre en tu PC con ${esc((ST.ai||{}).model||'')}, sin internet y ${(ST.ai||{}).cpu?'solo con el procesador (puede tardar uno o dos minutos)':'con la placa de video (suele tardar unos segundos)'}.</p>`}
   <div class="nj-fc">${chips.map(c=>`<button class="x6c" data-a="x7chip" data-q="${esc(c)}" ${ok&&!blk?'':'disabled'}>${esc(c)}</button>`).join('')}</div>
   <textarea id="x7q" class="txt" rows="2" maxlength="300" placeholder="Escribí tu pregunta…" ${ok&&!blk?'':'disabled'}></textarea>
   <div id="x7a" class="x7a"></div></div>
@@ -8912,12 +8914,17 @@ async function x7Send(){
   let r;try{r=await winteerNative.aiAsk({model:(ST.ai||{}).model,system:X7SYS,cpu:!!(ST.ai||{}).cpu,prompt:x7Ctx()+'\n\nPregunta: '+q})}catch(e){r={ok:false,err:'No pude consultar a Ollama'}}
   X7.busy=0;const o2=$('#x7a'),b2=$('#x7go');if(b2)b2.disabled=false;if(!o2)return;
   o2.textContent=r.ok?(r.text||'No tuve respuesta.'):r.busy?'Se abrió un juego y frené la IA para no sacarle rendimiento.':(r.err||'No se pudo')}
+if(WN&&winteerNative.onAiProg)winteerNative.onAiProg(a=>{if(!X7.inst)return;X7.inst={p:a.p,t:(a.t||'')+(a.p<100?' '+a.p+'%':'')};const t=$('#x7pt'),b=$('#x7pb');if(t)t.textContent=X7.inst.t;if(b)b.style.width=a.p+'%'});
 Object.assign(A,{
   x7tog:async()=>{ST.ai=ST.ai||{};ST.ai.on=!ST.ai.on;save();if(ST.ai.on)await x7Refresh();if(S.view==='settings')go('settings')},
   x7cpu:()=>{ST.ai=ST.ai||{};ST.ai.cpu=!ST.ai.cpu;save();if(S.view==='settings')go('settings');toast(ST.ai.cpu?'Ahora usa solo el procesador':'Ahora usa la placa de video')},
   x7check:async()=>{await x7Refresh();if(S.view==='settings')go('settings')},
   x7models:()=>{const ms=(X7.st&&X7.st.models)||[];$$('.modal').forEach(m=>m.remove());modal(`<div style="text-align:left"><h3>Elegí el modelo</h3><p class="hint2">Los más chicos responden más rápido en el procesador.</p>${ms.map(m=>`<button class="b2 g x9lk" data-a="x7pick" data-m="${esc(m)}"><b>${esc(m)}</b><small>${m===(ST.ai||{}).model?'En uso':''}</small></button>`).join('')}</div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`,'x8m')},
   x7pick:a=>{ST.ai=ST.ai||{};ST.ai.model=a.dataset.m;save();$$('.modal').forEach(m=>m.remove());if(S.view==='settings')go('settings');toast('Modelo: '+a.dataset.m)},
+  x7setup:async()=>{if(X7.inst)return;$$('.modal').forEach(m=>m.remove());X7.inst={p:0,t:'Preparando'};if(S.view==='settings')go('settings');else toast('Instalando la IA. Mirá el avance en Ajustes, Extras');
+    let r;try{r=await winteerNative.aiSetup((ST.ai||{}).model||'')}catch(e){r={ok:false}}
+    X7.inst=r.ok?null:false;if(!ST.ai)ST.ai={};await x7Refresh();if(S.view==='settings')go('settings');
+    if(r.ok)toast('IA lista. Ya podés preguntarle a tu biblioteca');else if(r.err==='sig')toast('El instalador no pasó la verificación. No lo ejecuté');else if(r.err==='busy')toast('Ya se está instalando');},
   x7ask:()=>x7Open(),
   x7chip:a=>{const t=$('#x7q');if(t){t.value=a.dataset.q;x7Send()}},
   x7send:()=>x7Send()
@@ -9219,7 +9226,8 @@ Object.assign(A,{
 .x6sg{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 14px;border-radius:99px;background:rgba(20,16,34,.92);border:1px solid rgba(var(--argb),.6);font-size:12.5px;color:#fff;white-space:nowrap}.x6sg button{border:0;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:600;font-size:12.5px;padding:6px 12px;cursor:pointer}.x6sg button:hover{background:rgba(255,255,255,.22)}
 /*/cX6A*/
 
-/*cX7A*/.x7a{margin-top:12px;white-space:pre-wrap;line-height:1.5;font-size:14px;max-height:40vh;overflow:auto}.x7m .mb,.x7m{min-width:min(560px,92vw)}
+/*cX7A*/.x7bar{height:8px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:10px;overflow:hidden}.x7bar i{display:block;height:100%;background:#fff;border-radius:99px;transition:width .4s}
+.x7a{margin-top:12px;white-space:pre-wrap;line-height:1.5;font-size:14px;max-height:40vh;overflow:auto}.x7m .mb,.x7m{min-width:min(560px,92vw)}
 /*/cX7A*/
 /*cX1A*/.tm .lbl{margin:14px 0 8px}.tm-r{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);margin-bottom:8px}.tm-m{flex:1;min-width:0}.tm-m b{display:block}.tm-m small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tm-a{display:flex;gap:6px;flex:none}.tm-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-b small{color:var(--muted)}

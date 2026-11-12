@@ -2053,6 +2053,74 @@ async function aiAsk(o) {
   try { const j = JSON.parse(r.text); return { ok: true, text: String(j.response || '').trim() }; } catch (e) { return { ok: false, err: 'Respuesta inválida' }; }
 }
 
+/* ===== IA local: instalacion automatica de Ollama + modelo (solo desde la pagina oficial) ===== */
+const OLL_HOSTS = /^(ollama\.com|www\.ollama\.com|github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/i;
+let aiBusy = false;
+function ollamaExe() { const c = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Ollama', 'ollama.exe'); return fs.existsSync(c) ? c : ''; }
+function ollamaPull(model, prog) {
+  return new Promise((resolve) => {
+    const http = require('http'); let done = false, buf = '';
+    const fin = (r) => { if (!done) { done = true; resolve(r); } };
+    const data = Buffer.from(JSON.stringify({ name: model, stream: true }));
+    const req = http.request({ host: '127.0.0.1', port: 11434, path: '/api/pull', method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': data.length } }, (res) => {
+      if (res.statusCode !== 200) { fin({ ok: false }); return; }
+      res.setEncoding('utf8');
+      res.on('data', (d) => { buf += d; let i; while ((i = buf.indexOf('\n')) >= 0) { const l = buf.slice(0, i); buf = buf.slice(i + 1); try { const j = JSON.parse(l); if (j.error) { fin({ ok: false }); } else if (j.total && j.completed) prog(Math.round(j.completed / j.total * 100)); } catch (e) {} } });
+      res.on('end', () => fin({ ok: true }));
+    });
+    req.setTimeout(120000, () => { req.destroy(); fin({ ok: false }); });
+    req.on('error', () => fin({ ok: false }));
+    req.write(data); req.end();
+  });
+}
+async function aiSetup(model) {
+  if (process.platform !== 'win32') return { ok: false, err: 'os' };
+  if (aiBusy) return { ok: false, err: 'busy' }; aiBusy = true;
+  const send = (p, t) => { try { if (win && !win.isDestroyed()) win.webContents.send('aiprog', { p, t }); } catch (e) {} };
+  try {
+    let st = await aiStatus();
+    if (!st.ok) {
+      let exe = ollamaExe();
+      if (!exe) {
+        send(0, 'Descargando Ollama');
+        const dir = path.join(app.getPath('userData'), 'ollama'), setup = path.join(dir, 'OllamaSetup.exe'); fs.mkdirSync(dir, { recursive: true });
+        const r = await net.fetch('https://ollama.com/download/OllamaSetup.exe', { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+        let host = ''; try { host = new URL(r.url).hostname; } catch (e) {}
+        if (!r.ok || !r.body || !OLL_HOSTS.test(host)) return { ok: false, err: 'net' };
+        const tot = Number(r.headers.get('content-length')) || 0; if (tot > 3 * 1024 * 1024 * 1024) return { ok: false, err: 'big' };
+        const ws = fs.createWriteStream(setup); let got = 0, last = 0; const rd = r.body.getReader();
+        for (;;) {
+          const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > 3 * 1024 * 1024 * 1024) { ws.destroy(); return { ok: false, err: 'big' }; }
+          if (!ws.write(Buffer.from(value))) await new Promise(res => ws.once('drain', res));
+          const now = Date.now(); if (now - last > 500) { last = now; send(tot ? Math.round(got / tot * 40) : 20, 'Descargando Ollama'); }
+        }
+        await new Promise(res => ws.end(res));
+        if (got < 20 * 1024 * 1024) return { ok: false, err: 'net' };
+        send(41, 'Revisando que sea el instalador oficial');
+        const sig = await new Promise((res) => { try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', '$s=Get-AuthenticodeSignature -LiteralPath $env:WT_F;Write-Output ($s.Status.ToString()+"|"+$s.SignerCertificate.Subject)'], { windowsHide: true, timeout: 30000, env: Object.assign({}, process.env, { WT_F: setup }) }, (e, o) => res(String(o || ''))); } catch (e) { res(''); } });
+        if (/^HashMismatch|^NotTrusted/i.test(sig) || (/^Valid/i.test(sig) && !/ollama/i.test(sig))) { try { fs.unlinkSync(setup); } catch (e) {} return { ok: false, err: 'sig' }; }
+        send(45, 'Instalando Ollama');
+        await new Promise((res) => { try { execFile(setup, ['/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-'], { windowsHide: true, timeout: 15 * 60000 }, () => res()); } catch (e) { res(); } });
+        try { fs.unlinkSync(setup); } catch (e) {}
+        exe = ollamaExe(); if (!exe) return { ok: false, err: 'inst' };
+      }
+      send(70, 'Iniciando Ollama');
+      for (let i = 0; i < 20 && !(st = await aiStatus()).ok; i++) await new Promise(r => setTimeout(r, 1500));
+      if (!st.ok) { try { spawn(exe, ['serve'], { detached: true, stdio: 'ignore', windowsHide: true }).unref(); } catch (e) {} for (let i = 0; i < 25 && !(st = await aiStatus()).ok; i++) await new Promise(r => setTimeout(r, 1500)); }
+      if (!st.ok) return { ok: false, err: 'start' };
+    }
+    if (!st.models.length) {
+      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'llama3.2:3b' : 'qwen2.5:7b')).slice(0, 60);
+      send(75, 'Bajando el modelo ' + m);
+      const r = await ollamaPull(m, (p) => send(75 + Math.round(p * 0.24), 'Bajando el modelo ' + m));
+      if (!r.ok) return { ok: false, err: 'pull' };
+    }
+    send(100, 'Listo');
+    return { ok: true };
+  } catch (e) { return { ok: false, err: 'x' }; }
+  finally { aiBusy = false; }
+}
+
 
 app.whenReady().then(() => {
   setupUpdater();
@@ -2338,6 +2406,7 @@ app.whenReady().then(() => {
   ipcMain.handle('raSet', (_e, o) => { if (o && typeof o.u === 'string') { cfg.raUser = o.u.trim().slice(0, 40); if (o.k) cfg.raKey = String(o.k).trim().slice(0, 80); if (!cfg.raUser) { delete cfg.raKey; } saveCfg(); RAC.game = {}; } return { u: cfg.raUser || '', has: !!cfg.raKey }; });
   ipcMain.handle('raGame', (_e, o) => raGame(o || {}));
   ipcMain.handle('aiStatus', () => aiStatus());
+  ipcMain.handle('aiSetup', (_e, m) => aiSetup(m));
   ipcMain.handle('aiAsk', (_e, o) => aiAsk(o));
   ipcMain.handle('shotScores', (_e, id) => { try { return shotScores(id); } catch (e) { return {}; } });
   ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
