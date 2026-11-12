@@ -2150,11 +2150,11 @@ async function aiSetup(model, force) {
       if (!st.ok) return { ok: false, err: 'start' };
     }
     if (!st.models.length || (force && model && !st.models.some(x => x.startsWith(String(model))))) {
-      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'dolphin-phi' : 'dolphin3')).slice(0, 60);
+      const m = String(model || (os.totalmem() < 12 * 1024 * 1024 * 1024 ? 'dolphin-phi' : 'huihui_ai/dolphin3-abliterated')).slice(0, 60);
       send(75, 'Bajando el modelo ' + m);
       const r = await ollamaPull(m, (p) => send(75 + Math.round(p * 0.24), 'Bajando el modelo ' + m));
       if (!r.ok) return { ok: false, err: 'pull' };
-      if (force) { for (const x of st.models.filter(n => /^dolphin-mistral/.test(n))) { try { await ollamaReq('DELETE', '/api/delete', { name: x }, 20000); } catch (e) {} } }
+      if (force) { for (const x of st.models.filter(n => /^(dolphin-mistral|dolphin3(:|$))/.test(n))) { try { await ollamaReq('DELETE', '/api/delete', { name: x }, 20000); } catch (e) {} } }
     }
     send(100, 'Listo');
     return { ok: true };
