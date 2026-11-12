@@ -81,6 +81,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   aiListen: () => ipcRenderer.invoke('aiListen'),
   ffReady: () => ipcRenderer.invoke('ffReady'),
   ffEnsure: () => ipcRenderer.invoke('ffEnsure'),
+  ffFilm: (o) => ipcRenderer.invoke('ffFilm', o),
   ffTrim: (o) => ipcRenderer.invoke('ffTrim', o),
   ffFrame: (o) => ipcRenderer.invoke('ffFrame', o),
   ffCompress: (o) => ipcRenderer.invoke('ffCompress', o),

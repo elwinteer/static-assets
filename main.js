@@ -2818,6 +2818,12 @@ app.whenReady().then(() => {
     const s = shStamp(dir, '', 'png'), f = path.join(dir, s + '.png'); fs.writeFileSync(f, Buffer.from(m[2], 'base64')); shMkThumb(f, path.join(dir, s + '.t.jpg'));
     return { ok: true, n: s + '.png' }; } catch (e) { return { ok: false }; } });
   ipcMain.handle('imgCopy', (_e, data) => { try { const im = nativeImage.createFromDataURL(String(data || '')); if (im.isEmpty()) return false; clipboard.writeImage(im); return true; } catch (e) { return false; } });
+  ipcMain.handle('ffFilm', async (_e, o) => { try {
+    o = o || {}; const src = shFile(o.id, o.n); if (!src || !/\.(webm|mp4)$/.test(src) || !ffExe()) return '';
+    const cnt = Math.max(4, Math.min(40, Math.round(Number(o.count)) || 14)); let d = Number(o.dur) || 0; if (!(d > 0)) d = (await ffProbe(src)).dur; if (!(d > 0)) return '';
+    const out = path.join(app.getPath('temp'), 'wt-film-' + Date.now() + '.jpg');
+    const r = await ffRun(['-i', src, '-vf', 'fps=' + (cnt / d * 1.03).toFixed(4) + ',scale=-2:90,tile=' + cnt + 'x1:padding=0', '-frames:v', '1', '-q:v', '5', out]);
+    if (!r.ok || !fs.existsSync(out)) return ''; const b = fs.readFileSync(out); try { fs.unlinkSync(out); } catch (e) {} return 'data:image/jpeg;base64,' + b.toString('base64'); } catch (e) { return ''; } });
   ipcMain.handle('ffTrim', async (_e, o) => { try {
     o = o || {}; const src = shFile(o.id, o.n); if (!src || !/\.(webm|mp4)$/.test(src)) return { ok: false };
     const s = ffNum(o.s), e = ffNum(o.e); if (e - s < 0.3) return { ok: false, err: 'short' };
