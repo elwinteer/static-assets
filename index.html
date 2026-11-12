@@ -3237,6 +3237,69 @@ body.bpon .pr-gr{height:44px}
 .wbem{position:absolute;inset:0;z-index:3;display:grid;place-items:center;text-align:center;background:rgba(14,14,18,.97);color:var(--text);opacity:0;pointer-events:none;transition:opacity .35s}.wbem.on{opacity:1;pointer-events:auto}
 .wbem .gl{width:64px;height:64px;border-radius:20px;margin:0 auto 16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a2),var(--a3));color:var(--on-a)}.wbem .gl svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8}.wbem b{display:block;font-size:20px;margin-bottom:6px}.wbem span{display:block;color:var(--muted);font-size:14px;max-width:340px;margin:0 auto}
 .wbtn.wide{width:auto;padding:0 14px;font-size:12.5px;font-weight:600;white-space:nowrap}
+
+/* --- navegador v2 --- */
+#wbroot .wbx{gap:10px}
+.wbt{gap:10px;padding:7px 8px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.04));backdrop-filter:blur(18px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(255,255,255,.07),0 10px 30px rgba(0,0,0,.35)}
+.wbg{display:flex;gap:2px;padding:3px;border-radius:16px;background:rgba(0,0,0,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);flex:none}
+.wbb{width:36px;height:36px;border-radius:12px}.wbb svg{width:19px;height:19px;stroke-width:1.75}
+.wbb:hover{background:rgba(255,255,255,.12);transform:none}.wbb:active{transform:scale(.9)}
+.wbb.spin svg{animation:wbsp .9s cubic-bezier(.5,.1,.5,.9) infinite}
+.wbu{height:42px;padding:0 6px 0 14px;border-radius:15px;position:relative;overflow:hidden;background:rgba(0,0,0,.32)}
+.wbu:focus-within{box-shadow:inset 0 0 0 1px rgba(var(--argb),.5),0 0 0 4px rgba(var(--argb),.1)}
+.wbl{display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:8px;background:rgba(74,222,128,.12)}.wbl svg{width:14px;height:14px;stroke:#6ee7a0;stroke-width:2.1}
+.wbl.bad{background:rgba(251,191,36,.14)}.wbl.bad svg{stroke:#fbbf24}
+.wbu input{font-size:14px;letter-spacing:.1px}
+.wbul{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--a2),transparent);transform:scaleX(0);transition:transform .45s var(--ease)}.wbu:focus-within .wbul{transform:scaleX(1)}
+.wbdlb .wbring{position:absolute;inset:2px;width:auto;height:auto;transform:rotate(-90deg);opacity:0;transition:opacity .3s;pointer-events:none}
+.wbb .wbring circle{fill:none;stroke:rgba(255,255,255,.14);stroke-width:2}.wbb .wbring .pg{stroke:var(--a2);stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .25s linear}
+.wbdlb.busy .wbring{opacity:1}.wbdlb.busy>svg.i,.wbdlb.busy>svg:first-child{animation:wbbob 1.6s ease-in-out infinite}@keyframes wbbob{50%{transform:translateY(2px)}}
+.wbn{top:1px;right:0;background:var(--a2)}
+/* pestañas */
+.wbtb{gap:7px;margin:0;padding:1px 2px 3px;mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.wbtab{height:38px;flex:0 1 200px;padding:0 6px 0 11px;border-radius:13px 13px 13px 13px;background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);position:relative;overflow:hidden;animation:wbti .5s var(--ease) both}
+@keyframes wbti{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
+.wbtab:after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:2px;background:var(--a2);transform:scaleX(0);transition:transform .4s var(--ease)}
+.wbtab.on{background:linear-gradient(180deg,rgba(var(--argb),.2),rgba(var(--argb),.08));box-shadow:inset 0 0 0 1px rgba(var(--argb),.35),0 6px 18px rgba(0,0,0,.3)}.wbtab.on:after{transform:scaleX(1)}
+.wbtab img,.wbtab .d{width:17px;height:17px;border-radius:5px;object-fit:cover}.wbtab .d{background:linear-gradient(135deg,rgba(255,255,255,.3),rgba(255,255,255,.1))}
+.wbtab button{width:22px;height:22px;opacity:0;transform:scale(.8);transition:opacity .2s,transform .25s var(--spring),background .2s}.wbtab:hover button,.wbtab.on button{opacity:.7;transform:none}
+.wbtn{width:38px;height:38px;border-radius:13px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}.wbtn:hover{transform:rotate(90deg)}.wbtn.wide{width:auto;height:38px}.wbtn.wide:hover{transform:none}
+/* pantalla */
+.wbv{border-radius:24px;background:#0d0d11;box-shadow:0 22px 60px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.1)}
+.wbld{position:absolute;left:0;right:0;top:0;height:3px;z-index:6;overflow:hidden;opacity:0;transition:opacity .3s;pointer-events:none}.wbld.on{opacity:1}
+.wbld i{display:block;height:100%;width:34%;background:linear-gradient(90deg,transparent,var(--a2),transparent);animation:wbld 1.15s var(--ease) infinite}
+.wbem{background:radial-gradient(70% 60% at 50% 38%,rgba(var(--argb),.16),transparent 70%),linear-gradient(180deg,#101014,#0b0b0e)}
+.wbem:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:38px 38px;-webkit-mask:radial-gradient(60% 60% at 50% 45%,#000,transparent);mask:radial-gradient(60% 60% at 50% 45%,#000,transparent)}
+.wbem .in{position:relative;display:flex;flex-direction:column;align-items:center;padding:20px}
+.wbem .orb{position:relative;width:104px;height:104px;display:grid;place-items:center;margin-bottom:22px;color:var(--on-a)}
+.wbem .orb>span{position:relative;display:grid;max-width:none;margin:0;color:var(--on-a);place-items:center;width:68px;height:68px;border-radius:22px;background:linear-gradient(140deg,var(--a2),var(--a3));box-shadow:0 14px 38px rgba(var(--argb),.45);animation:wbfl 4.5s ease-in-out infinite}
+.wbem .orb>span svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.wbem .orb i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(var(--argb),.35);animation:wbor 3.6s ease-out infinite}.wbem .orb i+i{animation-delay:1.8s}
+@keyframes wbor{from{transform:scale(.62);opacity:.9}to{transform:scale(1.35);opacity:0}}@keyframes wbfl{50%{transform:translateY(-6px)}}
+.wbem b{font-size:21px;letter-spacing:.2px;margin-bottom:7px}.wbem .sb{max-width:330px;line-height:1.5}
+.wbem .bt{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center}.wbem .bt .hm-go{margin:0!important;height:46px;font-size:14.5px;padding:0 22px}.wbem .bt .b2{height:46px;display:flex;align-items:center;gap:8px;padding:0 20px;border-radius:16px}.wbem .bt svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+/* panel de descargas */
+.wbd{border-radius:22px;background:linear-gradient(180deg,rgba(30,30,38,.9),rgba(14,14,18,.92))}
+.wbdh{padding:18px 16px 12px}.wbdh b{font-size:17px}
+.wbem2{margin:auto;text-align:center;color:var(--muted);font-size:13.5px;padding:34px 22px;line-height:1.5}.wbem2 svg{width:42px;height:42px;fill:none;stroke:currentColor;stroke-width:1.5;opacity:.55;display:block;margin:0 auto 12px}.wbem2 b{display:block;color:var(--text);font-size:15.5px;margin-bottom:5px}
+.wdc{padding:14px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.04));transition:background .4s,box-shadow .4s}
+@keyframes wdin{from{opacity:0;transform:translateX(30px) scale(.97)}60%{opacity:1}to{opacity:1;transform:none}}
+.wdc .r1{gap:12px}.wdfi{width:44px;height:44px;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.wdc .pc{flex:none;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);min-width:42px;text-align:right}.wdc .pc .ok{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#4ade80;color:#06210f;animation:wdpop .55s var(--spring) both}.wdc .pc .ok svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+@keyframes wdpop{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
+.wdbar{height:8px;margin:13px 0 4px;border-radius:8px;background:rgba(255,255,255,.09);box-shadow:inset 0 1px 2px rgba(0,0,0,.35);overflow:hidden;position:relative}
+.wdbar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:8px;background:linear-gradient(90deg,var(--a3),var(--a2));transition:none;overflow:hidden;box-shadow:0 0 14px rgba(var(--argb),.5)}
+.wdbar i:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.22) 0 7px,transparent 7px 14px);background-size:28px 100%;animation:wdst 1.1s linear infinite;opacity:.55}
+.wdbar i:after{content:"";position:absolute;right:0;top:0;bottom:0;width:22px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7));animation:wdhd 1.9s ease-in-out infinite}
+@keyframes wdst{to{background-position:28px 0}}@keyframes wdhd{50%{opacity:.35}}
+.wdc.pause .wdbar i{filter:saturate(.2) brightness(.8);box-shadow:none}.wdc.pause .wdbar i:before,.wdc.pause .wdbar i:after{animation-play-state:paused}
+.wdc.done .wdbar i,.wdc.err .wdbar i{transition:background .7s}.wdc.done .wdbar i:before,.wdc.done .wdbar i:after,.wdc.err .wdbar i:before,.wdc.err .wdbar i:after{display:none}
+.wdc.done .wdbar i{background:linear-gradient(90deg,#22c55e,#4ade80);box-shadow:0 0 14px rgba(74,222,128,.45)}
+.wdc.move .wdbar i,.wdc.unz .wdbar i{background:linear-gradient(90deg,#f59e0b,#fde68a);box-shadow:0 0 14px rgba(251,191,36,.4)}.wdc.unz .wdbar i{background:linear-gradient(90deg,#3b82f6,#a5d8ff);box-shadow:0 0 14px rgba(96,165,250,.45)}
+.wdc.err .wdbar i{background:#f87171;width:100%!important}
+.wdc .ac button,.wbdh button{border-radius:11px;width:34px;height:34px}.wdc .ac button svg,.wbdh button svg{width:17px;height:17px;stroke-width:1.9}
+.wdc .ac .tx{opacity:.8}
+.wbv webview{background:#fff}.wbem .bt .b2 svg{flex:none}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -9526,10 +9589,15 @@ Object.assign(A,{
 
 /* ===/X5A=== */
 /* ---------- navegador + descargas ---------- */
-P.web='<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>';
-P.wdl='<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>';P.wrl='<path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/>';P.whm='<path d="M4 11l8-7 8 7M6 10v10h12V10"/>';
-P.wgr='<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>';
-P.wps='<path d="M9 5v14M15 5v14"/>';P.wpl='<path d="M7 4.5v15l12-7.5z"/>';P.wfd='<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>';P.wex='<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>';P.wlk='<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>';
+P.web='<circle cx="12" cy="12" r="9"/><path d="M3.2 9.5h17.6M3.2 14.5h17.6"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9z"/>';
+P.wdl='<path d="M12 3.5v11"/><path d="M7.6 10.6 12 15l4.4-4.4"/><path d="M4.5 16.2v1.9a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-1.9"/>';
+P.wrl='<path d="M19.6 12.2a7.6 7.6 0 1 1-2.3-5.5"/><path d="M19.8 4.2v4.4h-4.4"/>';
+P.whm='<path d="M4 11.2 12 4.2l8 7"/><path d="M6.2 9.8v8.7a1.6 1.6 0 0 0 1.6 1.6H10v-4.8h4v4.8h2.2a1.6 1.6 0 0 0 1.6-1.6V9.8"/>';
+P.wgr='<circle cx="12" cy="12" r="3.1"/><path d="M19.4 13.6a7.8 7.8 0 0 0 0-3.2l1.8-1.4-1.9-3.3-2.1.9a7.6 7.6 0 0 0-2.8-1.6L14 3h-3.9l-.4 2.6a7.6 7.6 0 0 0-2.8 1.6l-2.1-.9L2.9 9.6l1.8 1.4a7.8 7.8 0 0 0 0 3.2l-1.8 1.4 1.9 3.3 2.1-.9a7.6 7.6 0 0 0 2.8 1.6l.4 2.6H14l.4-2.6a7.6 7.6 0 0 0 2.8-1.6l2.1.9 1.9-3.3z" transform="translate(.3 0)"/>';
+P.wps='<rect x="6.5" y="5" width="3.8" height="14" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.7" y="5" width="3.8" height="14" rx="1.4" fill="currentColor" stroke="none"/>';
+P.wpl='<path d="M8.2 5.6v12.8a.9.9 0 0 0 1.4.8l10-6.4a.9.9 0 0 0 0-1.5l-10-6.4a.9.9 0 0 0-1.4.7z" fill="currentColor" stroke="none"/>';
+P.wul='<rect x="5" y="11" width="14" height="9.4" rx="2.4"/><path d="M8.2 11V8.2a3.8 3.8 0 0 1 7.2-1.7"/>';P.wlk='<rect x="5" y="11" width="14" height="9.4" rx="2.4"/><path d="M8.2 11V8.2a3.8 3.8 0 0 1 7.6 0V11"/>';
+P.wfd='<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>';P.wex='<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>';
 const WBR={url:'',wv:null,open:0},WDR={l:{},q:[],cur:0};
 const webCfg=()=>(ST.web=ST.web||{home:'',dir:'',hist:[]});
 const wdB=n=>{n=+n||0;if(n>=1073741824)return (n/1073741824).toFixed(n>=1.07e10?1:2)+' GB';if(n>=1048576)return (n/1048576).toFixed(n>=1.05e8?0:1)+' MB';if(n>=1024)return Math.round(n/1024)+' KB';return n+' B'};
@@ -9541,8 +9609,10 @@ const wbHost=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){re
 function wbTabsInit(){const c=webCfg();if(!Array.isArray(c.tabs))c.tabs=c.home?[{id:wbId(),url:c.home,t:''}]:[];if(!c.tabs.some(t=>t.id===c.act))c.act=c.tabs[0]?c.tabs[0].id:''}
 const wbAct=()=>{const c=webCfg();return (c.tabs||[]).find(t=>t.id===c.act)};
 const wbSave=()=>{clearTimeout(wbSave.t);wbSave.t=setTimeout(save,900)};
-function wbTabsHTML(){const c=webCfg();return (c.tabs||[]).map(t=>`<div class="wbtab ${t.id===c.act?'on':''}" data-a="wbtab" data-id="${t.id}" title="${esc(t.t||t.url||'')}">${t.fav?`<img src="${esc(t.fav)}" onerror="this.remove()">`:`<span class="d"></span>`}<b>${esc(t.t||wbHost(t.url)||'Nueva pestaña')}</b><button data-a="wbxt" data-id="${t.id}" title="Cerrar pestaña">${ic('xx')}</button></div>`).join('')+`<button class="wbtn" data-a="wbnt" title="Nueva pestaña">${ic('plus')}</button>`+((c.tabs||[]).length>1?`<button class="wbtn wide" data-a="wbxall" title="Cerrar todas las pestañas">Cerrar todas</button>`:'')}
+function wbTabsHTML(){const c=webCfg(),tb=c.tabs||[];return tb.map(t=>`<div class="wbtab ${t.id===c.act?'on':''}" data-a="wbtab" data-id="${t.id}" title="${esc(t.t||t.url||'')}">${t.fav?`<img src="${esc(t.fav)}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'d'}))">`:`<span class="d"></span>`}<b>${esc(t.t||wbHost(t.url)||'Nueva pestaña')}</b><button data-a="wbxt" data-id="${t.id}" title="Cerrar pestaña">${ic('xx')}</button></div>`).join('')+`<button class="wbtn" data-a="wbnt" title="Nueva pestaña">${ic('plus')}</button>`+(tb.length>1?`<button class="wbtn wide" data-a="wbxall" title="Cerrar todas las pestañas">Cerrar todas</button>`:'')}
 function wbTabsDraw(){const e=$('#wbtb');if(e)e.innerHTML=wbTabsHTML()}
+function wbStrip(){const b=$('#wbtb'),e=$('.wbtab.on');if(!b||!e)return;const l=e.offsetLeft-b.offsetLeft,r=l+e.offsetWidth;if(l<b.scrollLeft)b.scrollTo({left:l-8,behavior:'smooth'});else if(r>b.scrollLeft+b.clientWidth)b.scrollTo({left:r-b.clientWidth+8,behavior:'smooth'})}
+{const ap=document.getElementById('app');if(ap)ap.addEventListener('scroll',()=>{if(ap.scrollTop)ap.scrollTop=0},{passive:true})}
 function wbKill(){const wv=WBR.wv;if(wv){try{wv.remove()}catch(e){}WBR.wv=null}}
 function wbEnsureWv(){const box=$('#wbv'),em=$('#wbem');if(!box)return;const T=wbAct();
   if(!T){wbKill();if(em)em.classList.add('on');const i=$('#wbi');if(i)i.value='';return}
@@ -9554,19 +9624,18 @@ function wbNewTab(url,fg,ref){const c=webCfg();c.tabs=c.tabs||[];const ex=url&&c
   if(ex){if(fg&&Date.now()-(WBR.nt||0)>3000)wbSwitch(ex.id);return}
   if(c.tabs.length>=14){toast('Ya tenés 14 pestañas, cerrá alguna');return}
   const t={id:wbId(),url:url||c.home||'https://www.google.com',t:''};if(ref&&/^https?:/i.test(ref))t.ref=ref;c.tabs.push(t);const act=fg||!wbAct();if(act){c.act=t.id;WBR.nt=Date.now()}save();wbTabsDraw();if(act)wbGo(t);
-  setTimeout(()=>{const e=$('.wbtab.on');if(e)e.scrollIntoView({inline:'nearest'})},50)}
+  setTimeout(wbStrip,60)}
 function wbCloseTab(id){const c=webCfg(),i=(c.tabs||[]).findIndex(t=>t.id===id);if(i<0)return;const was=c.act===id;c.tabs.splice(i,1);
   if(!c.tabs.length){c.act='';save();wbTabsDraw();wbEnsureWv();return}
   if(was){c.act=(c.tabs[i]||c.tabs[i-1]).id;save();wbTabsDraw();wbGo(wbAct())}else{save();wbTabsDraw()}}
 function wbOpen(u){if(!wbAct())wbNewTab(u,true);else{const T=wbAct();wbGo({url:u});if(T){T.url=u;wbSave()}}}
 function wbBuild(root){const c=webCfg();
   root.innerHTML=`<div class="wbx"><div class="wbt">
-   <button class="wbb dis" data-a="wbback" title="Atrás">${ic('chl')}</button><button class="wbb dis" data-a="wbfwd" title="Adelante">${ic('chr')}</button><button class="wbb" data-a="wbrel" id="wbrel" title="Recargar">${ic('wrl')}</button><button class="wbb" data-a="wbhome" title="Sitio predefinido">${ic('whm')}</button>
-   <form class="wbu" id="wbf" autocomplete="off">${ic('wlk')}<input id="wbi" spellcheck="false" placeholder="Buscá o escribí una dirección"></form>
-   <button class="wbb" data-a="wbdl" title="Descargas">${ic('wdl')}<i class="wbn" id="wbn"></i></button><button class="wbb" data-a="wbset" title="Ajustes del navegador">${ic('wgr')}</button></div>
+   <div class="wbg"><button class="wbb dis" data-a="wbback" title="Atrás">${ic('chl')}</button><button class="wbb dis" data-a="wbfwd" title="Adelante">${ic('chr')}</button><button class="wbb" data-a="wbrel" id="wbrel" title="Recargar">${ic('wrl')}</button><button class="wbb" data-a="wbhome" title="Sitio predefinido">${ic('whm')}</button></div>
+   <form class="wbu" id="wbf" autocomplete="off"><span class="wbl" id="wbl">${ic('wlk')}</span><input id="wbi" spellcheck="false" placeholder="Buscá o escribí una dirección"><i class="wbul"></i></form>
+   <div class="wbg"><button class="wbb wbdlb" data-a="wbdl" id="wbdlb" title="Descargas">${ic('wdl')}<svg class="wbring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="pg" id="wbrp" cx="22" cy="22" r="19" pathLength="100"/></svg><i class="wbn" id="wbn"></i></button><button class="wbb" data-a="wbset" title="Ajustes del navegador">${ic('wgr')}</button></div></div>
    <div class="wbtb" id="wbtb">${wbTabsHTML()}</div>
-   <div class="wbpg" id="wbpg"><i></i></div>
-   <div class="wbv" id="wbv"><div class="wbem" id="wbem"><div><div class="gl">${ic('web')}</div><b>No hay pestañas abiertas</b><span>Así el navegador no gasta recursos. Abrí una nueva cuando la necesites.</span><button class="hm-go" data-a="wbnt" style="margin:16px auto 0">${ic('plus')} Nueva pestaña</button></div></div>
+   <div class="wbv" id="wbv"><div class="wbld" id="wbpg"><i></i></div><div class="wbem" id="wbem"><div class="in"><div class="orb"><i></i><i></i><span>${ic('web')}</span></div><b>No hay pestañas abiertas</b><span class="sb">Así el navegador no gasta recursos. Abrí una cuando la necesites.</span><div class="bt"><button class="hm-go" data-a="wbnt">${ic('plus')} Nueva pestaña</button>${c.home?`<button class="b2 g" data-a="wbhome">${ic('whm')} Ir a ${esc(wbHost(c.home)||'tu sitio')}</button>`:''}</div></div></div>
    <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside></div></div>`;
   const inp=$('#wbi');$('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();wbOpen(u)});
   inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));root.dataset.built=1;wdDraw();wdBadge()}
@@ -9580,13 +9649,13 @@ function wbEnter(){clearTimeout(WBR.disc);const root=$('#wbroot');if(!root)retur
 function wbLeave(){const wv=WBR.wv;try{wv&&wv.setAudioMuted(true)}catch(e){}clearTimeout(WBR.disc);WBR.disc=setTimeout(()=>{if(S.view!=='web')wbKill()},5*60e3)}
 V.web=()=>{setTimeout(wbEnter,0);return ''};
 function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
-  const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
+  const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u;const lk=$('#wbl');if(lk){const sec=/^https:/i.test(u);lk.classList.toggle('bad',!sec);lk.innerHTML=ic(sec?'wlk':'wul')}}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
   ['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>wv.addEventListener(e,nav));
   wv.addEventListener('did-start-loading',()=>{pg&&pg.classList.add('on');rl&&rl.classList.add('spin')});
   wv.addEventListener('did-stop-loading',()=>{pg&&pg.classList.remove('on');rl&&rl.classList.remove('spin');nav()});
   wv.addEventListener('page-title-updated',e=>{const T=wbAct();if(T&&e.title&&wv===WBR.wv){T.t=e.title;wbTabsDraw();wbSave()}});
   wv.addEventListener('page-favicon-updated',e=>{const T=wbAct();if(T&&e.favicons&&e.favicons[0]&&T.fav!==e.favicons[0]&&wv===WBR.wv){T.fav=e.favicons[0];wbTabsDraw();wbSave()}})}
-function wdBadge(){const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
+function wdBadge(){wdKick();const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
 function wdIcon(d){return d.st==='done'?`<svg class="i tick" viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`:esc(wdX(d.name))}
 function wdSub(d){
   if(d.st==='done')return d.unz?'Descomprimida en una carpeta · '+wdB(d.size||d.got):d.uerr?'Descargada, pero no se pudo descomprimir: '+d.uerr:'Completada · '+wdB(d.size||d.got);
@@ -9600,13 +9669,24 @@ function wdPct(d){if(d.st==='done')return 100;if(d.st==='move'||d.st==='unz')ret
 function wdCard(d,h){
   const run=d.st==='run',pa=d.st==='pause',dn=d.st==='done';
   const btn=(a,i,t)=>`<button data-a="${a}" data-id="${d.id}" title="${t}">${ic(i)}</button>`;
-  return `<div class="wdc ${d.st}" id="wdc-${d.id}" ${h?'style="animation:none"':''}><div class="r1"><div class="wdfi">${wdIcon(d)}</div><div class="nm"><b>${esc(d.name)}</b><span id="wds-${d.id}">${esc(wdSub(d))}</span></div></div>
-   <div class="wdbar"><i id="wdp-${d.id}" style="width:${wdPct(d)}%"></i></div>
+  if(d.disp==null)d.disp=wdPct(d);
+  const pc=dn?`<span class="ok">${ic('tick')}</span>`:d.st==='err'?'':`${Math.round(d.disp)}%`;
+  return `<div class="wdc ${d.st}" id="wdc-${d.id}" ${(h||d._sh)?'style="animation:none"':''}><div class="r1"><div class="wdfi">${wdIcon(d)}</div><div class="nm"><b>${esc(d.name)}</b><span id="wds-${d.id}">${esc(wdSub(d))}</span></div><div class="pc" id="wdpc-${d.id}">${pc}</div></div>
+   <div class="wdbar"><i id="wdp-${d.id}" style="width:${d.disp}%"></i></div>
    <div class="ac"><div class="tx">${d.host?esc(d.host):''}</div>${run?btn('wdpause','wps','Pausar'):''}${pa?btn('wdres','wpl','Reanudar'):''}${(run||pa)?btn('wdcan','xx','Cancelar'):''}${dn?btn('wdshow','wfd','Mostrar en la carpeta')+btn('wdopen','wex','Abrir'):''}${(d.st==='err')?btn('wdrm','xx','Quitar'):''}</div></div>`}
 function wdDraw(){const el=$('#wbd');if(!el)return;const act=Object.values(WDR.l).filter(d=>d.st!=='ask').sort((a,b)=>b.id-a.id);const have=new Set(act.map(d=>d.path));const hist=(webCfg().hist||[]).map((h,i)=>({id:'h'+i,name:h.n,st:'done',size:h.s,host:h.p,path:h.p,_h:1})).filter(h=>!have.has(h.path));
   const all=act.concat(hist);
-  el.innerHTML=`<div class="wbdh"><div><b>Descargas</b><small>${act.length?act.length+' en esta sesión':'Tus archivos descargados'}</small></div><div style="display:flex;gap:6px">${hist.length?`<button data-a="wdclr" title="Borrar el historial (no borra los archivos)" style="width:auto;padding:0 12px;font-size:12.5px">Limpiar</button>`:''}<button data-a="wbdl" title="Cerrar">${ic('chr')}</button></div></div><div class="wbdl">${all.length?all.map(d=>wdCard(d,d._h)).join(''):`<div class="wbem">${ic('wdl')}Cuando bajes algo desde una página, te pregunto dónde guardarlo y acá ves cómo avanza.</div>`}</div>`}
-function wdTick(d){const p=$('#wdp-'+d.id),s=$('#wds-'+d.id);if(p)p.style.width=wdPct(d)+'%';if(s)s.textContent=wdSub(d)}
+  el.innerHTML=`<div class="wbdh"><div><b>Descargas</b><small>${act.length?act.length+(act.length===1?' en esta sesión':' en esta sesión'):'Tus archivos descargados'}</small></div><div style="display:flex;gap:6px">${hist.length?`<button data-a="wdclr" title="Borrar el historial (no borra los archivos)" style="width:auto;padding:0 12px;font-size:12.5px">Limpiar</button>`:''}<button data-a="wbdl" title="Cerrar">${ic('chr')}</button></div></div><div class="wbdl">${all.length?all.map(d=>wdCard(d,d._h)).join(''):`<div class="wbem2">${ic('wdl')}<b>Todavía no bajaste nada</b>Cuando bajes algo desde una página, te pregunto dónde guardarlo y acá ves cómo avanza.</div>`}</div>`;
+  act.forEach(d=>{d._sh=1});wdKick()}
+let wdRaf=0;
+function wdKick(){if(!wdRaf)wdRaf=requestAnimationFrame(wdLoop)}
+function wdLoop(){wdRaf=0;let more=false,tot=0,n=0;
+  Object.values(WDR.l).forEach(d=>{if(d.st==='ask')return;const t=wdPct(d);if(d.disp==null)d.disp=t;const df=t-d.disp;if(Math.abs(df)>.05){d.disp+=df*.12;more=true}else d.disp=t;
+    const p=$('#wdp-'+d.id);if(p)p.style.width=d.disp+'%';const c=$('#wdpc-'+d.id);if(c&&d.st!=='done'&&d.st!=='err')c.textContent=Math.round(d.disp)+'%';
+    if(d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz'){tot+=d.disp;n++}});
+  const r=$('#wbrp'),b=$('#wbdlb');if(r){r.style.strokeDashoffset=100-(n?tot/n:0)}if(b)b.classList.toggle('busy',n>0);
+  if(more||n>0&&false)wdRaf=requestAnimationFrame(wdLoop)}
+function wdTick(d){const s=$('#wds-'+d.id);if(s)s.textContent=wdSub(d);wdKick()}
 function wdCls(d){const c=$('#wdc-'+d.id);if(c)c.className='wdc '+d.st}
 function wdAsk(){if(WDR.cur||!WDR.q.length)return;const id=WDR.q.shift(),d=WDR.l[id];if(!d)return wdAsk();WDR.cur=id;
   Promise.all([winteerNative.webDl('drives'),winteerNative.webDl('def')]).then(([dr,def])=>{
