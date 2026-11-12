@@ -3401,6 +3401,12 @@ body.light .fp2-hero,body.light .fp2-sc,body.light .fp2-rv,body.light .fp2-h{bac
 .fp2-cnt{color:var(--muted);font-size:12px;margin:0 2px 10px}.fp2-gr.lib{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
 .fp2-t .ok{position:absolute;top:7px;right:7px;left:auto;width:22px;height:22px;border-radius:50%;background:rgba(34,197,94,.9);color:#fff;display:grid;place-items:center}.fp2-t .ok svg{width:12px;height:12px;stroke-width:3}.fp2-t .cp{position:absolute;top:7px;left:7px;width:auto;height:auto;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:800;background:rgba(0,0,0,.72);color:#fff;backdrop-filter:blur(4px)}
 @media(max-width:1000px){.fp2-l{height:auto;min-height:0;max-height:none}.fp2-sg{min-height:420px!important}.fp2-hc{grid-template-columns:1fr}.fp2-hr{flex-direction:row;flex-wrap:wrap}.fp2-ac{flex-direction:row}.fp2-2{grid-template-columns:1fr}.fp2-st{grid-template-columns:repeat(3,1fr)}}
+/* ===== perfil v5: mas tranquilo ===== */
+.fp2-hc{grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:76px 26px 22px}.fp2-hr{min-width:0}.fp2-ac{flex-direction:row}.fp2-ac .fp2-b{width:auto}
+.fp2-bio{margin-top:10px;font-size:14px;color:#cfcbe3;max-width:520px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fp2-st{margin-bottom:22px;gap:12px}.fp2-sc{min-height:92px}
+.fp2-body .fp2-sec h4{margin-bottom:14px}
+@media(max-width:1000px){.fp2-hc{grid-template-columns:1fr}}
 body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu{background:rgba(40,28,90,.07)}
 </style>
 </head>
@@ -8692,7 +8698,7 @@ function frMainHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
    <div class="fr-ha">${fbOn()?`<button class="fr-ib fr-call" data-a="frcall" title="Llamar a ${esc(d.name)}">${ic('phone')}<span>Llamar</span></button>`:''}${tab==='chat'&&(frCh(c).pins||[]).length?`<button class="fr-ib fr-pb ${S.frPinF?'on':''}" data-a="frpf" title="${S.frPinF?'Volver a todos los mensajes':'Ver mensajes fijados'}">${ic('pin')}<i>${(frCh(c).pins||[]).length}</i></button>`:''}</div>
    <div class="fr-tb">${[['chat','Chat'],['perfil','Perfil']].map(([k,l])=>`<button class="${tab===k?'on':''}" data-a="frtab" data-v="${k}">${l}</button>`).join('')}</div></div>
    ${tab==='chat'?`<div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}<span>Foto</span></button><button class="fr-ab" data-a="frgm" data-v="rec" title="Recomendarle un juego con una nota">${ic('star')}<span>Recomendar</span></button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}<span>Invitar</span></button><button class="fr-ab" data-a="njnew" title="Armar una noche de juegos con hora"><span>Noche</span></button><button class="fr-ab" data-a="x4menu" title="Pasarle mods o el mundo a tu amigo"><span>Coop</span></button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">Enviar</button></div></div>`:frProfHTML(c,d,m)}`}
-const FP_T=[['res','Resumen'],['lib','Biblioteca'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
+const FP_T=[['res','Resumen'],['gus','Gustos'],['lib','Biblioteca'],['com','En común'],['hit','Hitos'],['rev','Reseñas']];
 function frAgoL(d){return frOnl(d)?'En línea':d.gone?'Dejó de compartir':d.seen?'Visto '+frAgo(d.seen):'Desconectado'}
 function frCmp(d){const myN=new Set(G.map(g=>frN(g.name))),mp=PR()||{},mg=(mp.genres||[]).map(x=>String(x)),fg=(d.genres||[]).map(x=>String(x));
   const fl=d.lib?String(d.lib).split('\n').filter(Boolean):null,sh=fl?fl.filter(n=>myN.has(frN(n))):[];
@@ -8705,12 +8711,12 @@ function frCmp(d){const myN=new Set(G.map(g=>frN(g.name))),mp=PR()||{},mg=(mp.ge
   return{fl,sh,co,gs,sc,top}}
 function frHero(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),g0=d.now&&mine.get(frN(d.now)),on=frOnl(d);
   const gn=(d.genres||[]).slice(0,6).map(x=>`<span>${esc(x)}</span>`).join('');
+  const pl=d.now&&on;
   return `<section class="fp2-hero"><div class="fp2-ban">${frBan(d,m)}<i></i></div>
-   <div class="fp2-hc"><div class="fp2-hl"><div class="fp2-nm"><h2>${esc(d.name)}</h2><span class="fp2-pr ${on?'on':''}"><i></i>${esc(frAgoL(d))}</span></div>
+   <div class="fp2-hc"><div class="fp2-hl"><div class="fp2-nm"><h2>${esc(d.name)}</h2><span class="fp2-pr ${on?'on':''}"><i></i>${pl?'Jugando '+esc(d.now):esc(frAgoL(d))}</span></div>
    <div class="fp2-sb"><span>@${esc(d.handle||'')}</span><em>Nivel ${d.lv||1}${d.lt?' · '+esc(d.lt):''}</em></div>
-   ${d.bio?`<p class="fp2-bio">${esc(d.bio)}</p>`:''}${gn?`<div class="fp2-gn">${gn}</div>`:''}</div>
-   <div class="fp2-hr">${d.now&&on?`<div class="fp2-now">${g0?`<img src="${art.grid(g0)}" alt="">`:'<u></u>'}<div><small>Jugando ahora</small><b>${esc(d.now)}</b></div></div>`:''}
-   <div class="fp2-ac"><button class="fp2-b p" data-a="frtab" data-v="chat">Escribirle</button>${fbOn()?`<button class="fp2-b" data-a="frcall">${ic('phone')}Llamar</button>`:''}</div></div></div></section>`}
+   ${d.bio?`<p class="fp2-bio">${esc(d.bio)}</p>`:''}</div>
+   <div class="fp2-hr"><div class="fp2-ac"><button class="fp2-b p" data-a="frtab" data-v="chat">Escribirle</button>${fbOn()?`<button class="fp2-b" data-a="frcall">${ic('phone')}Llamar</button>`:''}</div></div></div></section>`}
 function frStats(d){const n=d.n||0,dn=d.d||0,pc=n?Math.round(100*dn/n):0;
   const T=[['Horas jugadas',d.h||0,Math.round(totalH()),'clock'],['Juegos',n,G.length,'games'],['Completados',dn,doneN(),'check'],['Hitos',d.ga||0,gaN(),'trophy'],['Nivel',d.lv||1,lvlOf().l,'bolt']];
   return `<div class="fp2-st">${T.map(([l,v,me,i,sub],k)=>`<div class="fp2-sc" style="--i:${k}"><u>${ic(i)}</u><b data-n="${v}">${v}</b><span>${l}</span><small>${l==='Completados'&&n?pc+'% · vos: '+me:'vos: '+me}</small></div>`).join('')}</div>`}
@@ -8721,13 +8727,14 @@ function frLibList(L,myN,co){const mine=new Map(G.map(g=>[frN(g.name),g])),lim=S
 function frPBody(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),t=S.fpT||'res',x=frCmp(d);
   if(t==='res'){
    const top=(d.top||[]).map((q,i)=>{const g=mine.get(frN(q.n));return `<div class="fp2-t" style="--i:${i}" title="${esc(q.n)}">${frCover(g,q.n)}<span>${i+1}</span><em>${esc(q.n)}<small>${q.h||0} h${g?' · lo tenés':''}</small></em></div>`}).join('');
+   return `${frStats(d)}<div class="fp2-sec"><h4>Top 5 favoritos</h4>${top?`<div class="fp2-top">${top}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div>`}
+  if(t==='gus'){
    const gn=(d.genres||[]).slice(0,6),mx=Math.max(1,gn.length),pt=d.pet&&d.pet.n?d.pet:null;
    const lvP=pt?Math.floor(Math.sqrt((pt.xp||0)/20))+1:0,lo=pt?20*(lvP-1)*(lvP-1):0,hi=pt?20*lvP*lvP:1,pf=pt?Math.round(100*((pt.xp||0)-lo)/Math.max(1,hi-lo)):0;
    const n=d.n||0,avg=n?Math.round((d.h||0)/n*10)/10:0,pc=n?Math.round(100*(d.d||0)/n):0;
-   return `<div class="fp2-sec"><h4>Top 5 favoritos</h4>${top?`<div class="fp2-top">${top}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div>
-   <div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mx))}%;--i:${i}"><span>${esc(q)}</span><i><b></b></i></div>`).join('')}</div>`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
-   <div class="fp2-cd">${pt?`<h4>Su mascota</h4><div class="fp2-pet"><u>${ic('star')}</u><div><b>${esc(pt.n)}</b><small>Nivel ${lvP}</small></div></div><div class="fp2-pb"><i><b style="--w:${pf}%"></b></i><small>${pf}% para el nivel ${lvP+1}</small></div>`:'<h4>Su ritmo</h4><p class="fp2-em">Todavía no tiene mascota.</p>'}
-    <h4 style="margin-top:18px">Su ritmo</h4><div class="fp2-kv"><div><b>${avg}</b><span>horas por juego</span></div><div><b>${pc}%</b><span>terminados</span></div></div></div></div>`}
+   return `<div class="fp2-2"><div class="fp2-cd"><h4>Géneros que más juega</h4>${gn.length?`<div class="fp2-gb">${gn.map((q,i)=>`<div style="--w:${Math.round(100-i*(55/mx))}%;--i:${i}"><span>${esc(q)}</span><i><b></b></i></div>`).join('')}</div>`:'<p class="fp2-em">Sin géneros todavía.</p>'}</div>
+   <div class="fp2-cd"><h4>Su ritmo</h4><div class="fp2-kv"><div><b>${avg}</b><span>horas por juego</span></div><div><b>${pc}%</b><span>terminados</span></div></div></div></div>
+   ${pt?`<div class="fp2-cd" style="margin-top:14px"><h4>Su mascota</h4><div class="fp2-pet"><u>${ic('star')}</u><div><b>${esc(pt.n)}</b><small>Nivel ${lvP}</small></div></div><div class="fp2-pb"><i><b style="--w:${pf}%"></b></i><small>${pf}% para el nivel ${lvP+1}</small></div></div>`:''}`}
   if(t==='lib'){
    const fl=x.fl;if(!fl)return `<p class="fp2-em">${esc(d.name)} no comparte su biblioteca.</p>`;
    const myN=new Set(G.map(g=>frN(g.name))),co=new Set((d.lc?String(d.lc).split('\n'):[]).map(frN)),f=S.fpBf||'',q=fNrm(S.fpBq).trim();
@@ -8759,7 +8766,7 @@ function frProfHTML(c,d,m){const th=d.th||{},st=th.rgb?`--a:${th.a};--a2:${th.a2
   let pm='';try{if(pt)pm=petSVG(pt,'',{size:150,body:true})}catch(e){pm=''}
   const stage=`<div class="fq-st fp2-sg"><div class="fq-bg" style="background:${bg?bg[4]:'linear-gradient(160deg,rgba(var(--argb),.35),#0c0a16)'}">${bg&&bg[5]||''}</div>${x?avSVG(x,{cls:'avx-st'}):`<div class="fq-big">${frAv(d,m,150)}</div>`}${pt?`<div class="fq-pet">${pm}<span><b>${esc(pt.name)}</b> · Nivel ${Math.floor(Math.sqrt((pt.xp||0)/20))+1}</span></div>`:''}<div class="fq-lv">${d.lv||1}<small>Nivel</small></div></div>`;
   S.fpT=S.fpT||'res';
-  return `<div class="fr-prof fp2" style="${st}"><div class="fp2-l">${stage}</div><div class="fp2-r">${frHero(c,d,m)}${frStats(d)}
+  return `<div class="fr-prof fp2" style="${st}"><div class="fp2-l">${stage}</div><div class="fp2-r">${frHero(c,d,m)}
    <div class="fp2-tb" id="fp-tb" style="--n:${FP_T.length};--k:${Math.max(0,FP_T.findIndex(x=>x[0]===S.fpT))}"><i></i>${FP_T.map(([k,l])=>`<button class="${S.fpT===k?'on':''}" data-a="fptab" data-v="${k}">${l}</button>`).join('')}</div><div class="fp2-body" id="fp-body">${frPBody(c,d,m)}</div></div></div>`}
 function frRender(){const el=$('#view');if(!el||S.view!=='friends')return;const mp=$('#fr-main'),keep=$('#fr-txt')&&$('#fr-txt').value;if(mp){mp.innerHTML=frMainHTML();frList();frWire()}else go('friends');const t=$('#fr-txt');if(t&&keep)t.value=keep}
 function frWire(){setTimeout(frProfFx,30);const t=$('#fr-txt');if(t){t.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();A.frsend()}});t.addEventListener('input',()=>{t.style.height='auto';t.style.height=Math.min(110,t.scrollHeight)+'px';if(t.value.trim())frTyping()});t.addEventListener('paste',e=>{const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));if(it){e.preventDefault();frPick(it.getAsFile())}});const m=$('#fr-msgs');if(m)m.scrollTop=m.scrollHeight}
