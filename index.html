@@ -3612,7 +3612,7 @@ function renderTab(){
   }else if(S.tab==='mods'&&(pzOf(g)||mcOf(g)||(window.winteerNative&&winteerNative.mioReq))){
     h=pzOf(g)?pzHTML(g):mcOf(g)?mcHTML(g):srcHTML(g);
   }else if(S.tab==='shots'&&WN&&(!isSteamG(g)||BGC.stCap)){
-    h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
+    h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> ${XO&&XO.st&&XO.st.inst&&XO.st.on?'para empezar y cortar un clip (dura lo que quieras)':'para un clip de 10 segundos'}, mientras jugás desde WINTEER. Se guarda el monitor principal.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="shg"><div class="hint2">Cargando…</div></div>`;shFill(g.id);
   }else if(S.tab==='tm'&&WN&&!isSteamG(g)){h=tmTabHTML(g)
   }else if(S.tab==='emu'&&WN&&g.emu){h=emTabHTML(g)
   }else if(S.tab==='rv'){
@@ -6916,7 +6916,7 @@ function vTab(){const g=vG(S.vsel),el=$('#vtabc');if(!g||!el)return;
   $$('#vdetail .tabs .tab').forEach(b=>b.classList.toggle('on',b.dataset.id===S.vtab));
   let h='';
   if(S.vtab==='ach'){h=vggHTML(g)}
-  else if(S.vtab==='shots'){h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> para un clip de 10 segundos, mientras jugás desde acá.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="vshg"><div class="hint2">Cargando…</div></div>`;shFill(g.id)}
+  else if(S.vtab==='shots'){h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> ${XO&&XO.st&&XO.st.inst&&XO.st.on?'para empezar y cortar un clip (dura lo que quieras)':'para un clip de 10 segundos'}, mientras jugás desde acá.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="vshg"><div class="hint2">Cargando…</div></div>`;shFill(g.id)}
   else{const L=vL(),ss=L.ses.filter(s=>s.g===g.id).slice(-8).reverse();
     h=`<div class="two"><div><div class="lbl">Estado</div><div class="chips"><button class="cp done-b ${g.status==='Terminado'?'on':''}" data-a="vdone" data-id="${g.id}">${ic('trophy')} Completado</button></div>
     <div class="nt" style="margin-top:16px"><div class="lbl">Notas</div><textarea id="vnotes" rows="5" placeholder="Algo que quieras recordar…">${esc(g.notes||'')}</textarea></div></div>
@@ -8820,8 +8820,8 @@ function x6Deco(){
   el.querySelectorAll('.shc').forEach(c=>{const x=SHL[+c.dataset.i];if(!x)return;const m=x6Get(x.n),r=m||x6Au(x),sg=sug.has(x.n);
     c.querySelectorAll('.x6b').forEach(e=>e.remove());
     if(r){const b=document.createElement('span');b.className='x6b'+(m?'':' au');b.textContent='★'.repeat(r);c.appendChild(b)}
-    const hide=(X6F==='top'&&r<4)||(X6F==='sug'&&!sg);c.style.display=hide?'none':'';if(!hide)vis++});
-  bar.innerHTML=[['all','Todas',SHL.length],['top','Destacadas',nTop],['sug','Sugeridas',sug.size]].map(([k,l,n])=>`<button class="x6c ${X6F===k?'on':''}" data-a="x6f" data-v="${k}">${l}${k!=='all'?' · '+n:''}</button>`).join('')+(vis?'':`<span class="hint2">${X6F==='top'?'Todavía no destacaste ninguna. Abrí una captura y poné estrellas (o apretá 1 a 5).':'No hay sugerencias por ahora.'}</span>`)}
+    const hide=(X6F==='top'&&r<4)||(X6F==='sug'&&!sg)||(/^tag:/.test(X6F)&&!x6TagsOf(x).includes(X6F.slice(4)));c.style.display=hide?'none':'';if(!hide)vis++});
+  bar.innerHTML=[['all','Todas',SHL.length],['top','Destacadas',nTop],['sug','Sugeridas',sug.size]].map(([k,l,n])=>`<button class="x6c ${X6F===k?'on':''}" data-a="x6f" data-v="${k}">${l}${k!=='all'?' · '+n:''}</button>`).join('')+edBarX()+(vis?'':`<span class="hint2">${X6F==='top'?'Todavía no destacaste ninguna. Abrí una captura y poné estrellas (o apretá 1 a 5).':'No hay sugerencias por ahora.'}</span>`)}
 (()=>{const f0=shFill;shFill=async function(id){await f0.apply(this,arguments);try{x6Deco()}catch(e){}
   if(!(window.winteerNative&&winteerNative.shotScores))return;
   const miss=!X6SC[id]||SHL.some(x=>X6SC[id][x.n]===undefined);
@@ -8857,6 +8857,88 @@ Object.assign(A,{
 /* ===X7A=== */
 /* ---------- 7 · IA local con Ollama ---------- */
 
+
+/* ---------- 9 · editor de capturas y clips: recortar, dibujar, comprimir, GIF, etiquetas, resumen ---------- */
+const ED={t:null,x:null,g:null,n:null};
+const ED2={tool:'crop',stack:[],drag:null};
+function x6TagsOf(x){const e=(ST.sht||{})[x6k(SHG,x.n)];return e&&e.tags?e.tags:[]}
+function x6TagSet(x,tags){ST.sht=ST.sht||{};const k=x6k(SHG,x.n);if(!tags.length)delete ST.sht[k];else ST.sht[k]={tags,g:SHG,n:x.n,f:x.file,th:x.thumb,c:x.clip?1:0};save()}
+function x6AllTags(){const s=new Set();Object.values(ST.sht||{}).forEach(e=>(e.tags||[]).forEach(t=>s.add(t)));return [...s].sort((a,b)=>a.localeCompare(b))}
+function edBarX(){
+  const mine=new Set();SHL.forEach(x=>x6TagsOf(x).forEach(t=>mine.add(t)));
+  return [...mine].sort().map(t=>`<button class="x6c ${X6F==='tag:'+t?'on':''}" data-a="x6f" data-v="tag:${esc(t)}">${esc(t)}</button>`).join('')+
+   (Object.keys(ST.sht||{}).length?'<button class="x6c" data-a="edal">Álbumes</button>':'')+(WN&&winteerNative.ffHighlight&&SHL.some(x=>x.clip)||Object.values(ST.shr||{}).some(e=>e&&e.c)?'<button class="x6c" data-a="edhl">Resumen del año</button>':'')}
+function edFF(){return new Promise(async res=>{try{const r=await winteerNative.ffReady();if(r&&r.ok)return res(true);toast('Preparando el editor, un momento…');const e=await winteerNative.ffEnsure();sgStat('');if(!(e&&e.ok))toast('No pude preparar el editor. Revisá tu conexión.');res(!!(e&&e.ok))}catch(e){res(false)}})}
+if(WN&&winteerNative.onFfProg)winteerNative.onFfProg(a=>{if(!a||a.p>=100||!a.t){sgStat('');return}sgStat(`<b>${esc(a.t)}</b><div style="margin:8px 0 6px;height:5px;border-radius:5px;background:rgba(255,255,255,.15)"><i style="display:block;height:100%;width:${a.p}%;border-radius:5px;background:var(--a,#8b5cf6)"></i></div>`)});
+(()=>{const l0=shLight;shLight=function(){l0.apply(this,arguments);try{edBar()}catch(e){}}})();
+function edBar(){const d=$('.shlb'),x=SHL[SHI];if(!d||!x||!WN)return;let b=d.querySelector('.edtb');if(!b){b=document.createElement('div');b.className='edtb';d.appendChild(b)}
+  const tg=x6TagsOf(x).length;
+  b.innerHTML=(x.clip?`<button data-a="edtrim">Recortar</button><button data-a="edframe">Guardar cuadro</button><button data-a="edcomp">Comprimir</button><button data-a="edgif">GIF</button><i></i><button data-a="edstep" data-v="-1">−1 cuadro</button><button data-a="edstep" data-v="1">+1 cuadro</button><select id="edrate" title="Velocidad"><option value="0.25">0.25x</option><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select><i></i>`:`<button data-a="edimg">Editar</button><button data-a="edcopy">Copiar</button><i></i>`)+`<button data-a="edtag">Etiquetas${tg?' · '+tg:''}</button>`}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='edrate'){const v=$('.shlb video');if(v)v.playbackRate=+e.target.value}});
+const edT=t=>{t=Math.max(0,t||0);return Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0')+'.'+Math.floor((t*10)%10)};
+const edHide=()=>{$$('.shlb').forEach(e=>e.remove())};
+function edDone(msg){$$('.shlb').forEach(e=>e.remove());$$('.modal').forEach(m=>m.remove());if(msg)toast(msg);shFill(SHG)}
+Object.assign(A,{
+  edstep:a=>{const v=$('.shlb video');if(!v)return;v.pause();v.currentTime=Math.max(0,v.currentTime+(+a.dataset.v)/30)},
+  edframe:async()=>{const x=SHL[SHI],v=$('.shlb video');if(!x||!v)return;const t=v.currentTime;if(!await edFF())return;const r=await winteerNative.ffFrame({id:SHG,n:x.n,t});if(r&&r.ok)edDone('Guardé ese cuadro como captura');else toast('No pude sacar el cuadro')},
+  edgif:async()=>{const x=SHL[SHI],v=$('.shlb video');if(!x||!v)return;const s=v.currentTime;if(!await edFF())return;toast('Armando el GIF de 8 segundos…');const r=await winteerNative.ffGif({id:SHG,n:x.n,s,e:s+8});toast(r&&r.ok?'GIF listo ('+r.mb+' MB). Te lo mostré en la carpeta':'No pude armar el GIF')},
+  edcomp:()=>{const x=SHL[SHI];if(!x)return;edHide();modal(`<div class="ed"><h3>Comprimir clip</h3><p class="hint2">Crea una copia más chica en la carpeta «WINTEER clips» de tu escritorio. El clip original no se toca.</p><div class="edb"><button class="b2" data-a="edcompgo" data-mb="10">Discord (10 MB)</button><button class="b2" data-a="edcompgo" data-mb="16">WhatsApp (16 MB)</button><button class="b2" data-a="edcompgo" data-mb="50">50 MB</button></div><div class="edf"><button class="b2 g" data-a="close">Cancelar</button></div></div>`,'x8m')},
+  edcompgo:async a=>{const x=SHL[SHI];if(!x)return;const mb=+a.dataset.mb;$$('.modal').forEach(m=>m.remove());if(!await edFF())return;toast('Comprimiendo… podés seguir usando WINTEER');const r=await winteerNative.ffCompress({id:SHG,n:x.n,mb});toast(r&&r.ok?'Listo: quedó en '+r.mb+' MB. Te lo mostré en la carpeta':'No pude comprimir el clip')},
+  edtrim:async()=>{const x=SHL[SHI];if(!x||!x.clip)return;if(!await edFF())return;const v0=$('.shlb video');try{v0&&v0.pause()}catch(e){}edHide();
+    ED.x=x;ED.t={s:0,e:0,d:0};
+    modal(`<div class="ed"><h3>Recortar clip</h3><video id="edv" src="${x.file}" muted preload="auto"></video><div class="edr"><span>Inicio <b id="eds">0:00.0</b></span><input type="range" id="edsi" min="0" max="1000" value="0"><span>Final <b id="ede">0:00.0</b></span><input type="range" id="edei" min="0" max="1000" value="1000"></div><div class="edb"><button class="b2 g" data-a="edmk" data-v="s">Inicio aquí</button><button class="b2 g" data-a="edmk" data-v="e">Final aquí</button><button class="b2 g" data-a="edprev">Vista previa</button></div><div class="edf"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="edtrimgo">Guardar recorte</button></div></div>`,'x8m edw');
+    const v=$('#edv'),si=$('#edsi'),ei=$('#edei');
+    const upd=()=>{$('#eds').textContent=edT(ED.t.s);$('#ede').textContent=edT(ED.t.e)};
+    const setup=d=>{ED.t.d=d;ED.t.s=0;ED.t.e=d;upd()};
+    v.addEventListener('loadedmetadata',()=>{if(isFinite(v.duration)&&v.duration>0)setup(v.duration);else{v.currentTime=1e7;v.addEventListener('timeupdate',function f(){if(isFinite(v.duration)){v.removeEventListener('timeupdate',f);const d=v.duration;v.currentTime=0;setup(d)}})}});
+    si.addEventListener('input',()=>{if(!ED.t.d)return;ED.t.s=Math.min(si.value/1000*ED.t.d,ED.t.e-.3);if(ED.t.s<0)ED.t.s=0;si.value=Math.round(ED.t.s/ED.t.d*1000);v.currentTime=ED.t.s;upd()});
+    ei.addEventListener('input',()=>{if(!ED.t.d)return;ED.t.e=Math.max(ei.value/1000*ED.t.d,ED.t.s+.3);if(ED.t.e>ED.t.d)ED.t.e=ED.t.d;ei.value=Math.round(ED.t.e/ED.t.d*1000);v.currentTime=ED.t.e;upd()})},
+  edmk:a=>{const v=$('#edv');if(!v||!ED.t||!ED.t.d)return;const t=v.currentTime;if(a.dataset.v==='s'){ED.t.s=Math.min(t,ED.t.e-.3);$('#edsi').value=Math.round(Math.max(0,ED.t.s)/ED.t.d*1000)}else{ED.t.e=Math.max(t,ED.t.s+.3);$('#edei').value=Math.round(ED.t.e/ED.t.d*1000)}$('#eds').textContent=edT(ED.t.s);$('#ede').textContent=edT(ED.t.e)},
+  edprev:()=>{const v=$('#edv');if(!v||!ED.t)return;v.currentTime=ED.t.s;v.play().catch(()=>{});v.ontimeupdate=()=>{if(v.currentTime>=ED.t.e){v.pause();v.ontimeupdate=null}}},
+  edtrimgo:async()=>{const x=ED.x;if(!x||!ED.t||!ED.t.d)return;const {s,e}=ED.t;if(e-s<.3){toast('El recorte es muy corto');return}$$('.modal').forEach(m=>m.remove());toast('Recortando…');const r=await winteerNative.ffTrim({id:SHG,n:x.n,s,e});if(r&&r.ok)edDone('Listo: guardé el recorte como un clip nuevo');else toast('No pude recortar el clip')},
+  edcopy:async()=>{const x=SHL[SHI];if(!x)return;const d=await winteerNative.shotRead(SHG,x.n);if(d&&await winteerNative.imgCopy(d))toast('Imagen copiada. Pegala donde quieras');else toast('No pude copiar la imagen')},
+  edimg:async()=>{const x=SHL[SHI];if(!x||x.clip)return;const d=await winteerNative.shotRead(SHG,x.n);if(!d){toast('No pude abrir la imagen');return}
+    edHide();ED.g=gm(SHG);ED2.tool='crop';ED2.stack=[];ED2.drag=null;
+    modal(`<div class="ed"><div class="edtl"><button class="b2 on" data-a="edtool" data-v="crop">Recortar</button><button class="b2 g" data-a="edtool" data-v="pen">Lápiz</button><button class="b2 g" data-a="edtool" data-v="arrow">Flecha</button><button class="b2 g" data-a="edtool" data-v="text">Texto</button><input type="color" id="edcol" value="#ff3b3b" title="Color"><input type="range" id="edw" min="2" max="24" value="6" title="Grosor"><button class="b2 g" data-a="edundo">Deshacer</button><label class="edck"><input type="checkbox" id="edwm"> Nombre del juego</label></div><div class="edcv" id="edcv"><div class="edst"><canvas id="edc"></canvas><canvas id="edo"></canvas></div></div><div class="edf"><button class="b2 g" data-a="close">Cancelar</button><button class="b2 g" data-a="edimgcopy">Copiar</button><button class="b2" data-a="edimgsave">Guardar copia</button></div></div>`,'x8m edwx');
+    const im=new Image();im.onload=()=>{const c=$('#edc'),o=$('#edo');if(!c)return;c.width=o.width=im.naturalWidth;c.height=o.height=im.naturalHeight;c.getContext('2d').drawImage(im,0,0);edBind()};im.src=d},
+  edtool:a=>{ED2.tool=a.dataset.v;$$('.edtl [data-a=edtool]').forEach(b=>{b.classList.toggle('on',b===a);b.classList.toggle('g',b!==a)})},
+  edundo:()=>{const c=$('#edc'),o=$('#edo'),sn=ED2.stack.pop();if(!c||!sn)return;c.width=o.width=sn.width;c.height=o.height=sn.height;c.getContext('2d').putImageData(sn,0,0)},
+  edimgcopy:async()=>{const d=edFinal();if(d&&await winteerNative.imgCopy(d))toast('Imagen copiada. Pegala donde quieras');else toast('No pude copiar la imagen')},
+  edimgsave:async()=>{const d=edFinal();if(!d)return;const r=await winteerNative.shotSaveImg({id:SHG,data:d});if(r&&r.ok)edDone('Listo: guardé la imagen como una captura nueva');else toast('No pude guardar la imagen')},
+  edtag:()=>{const x=SHL[SHI];if(!x)return;ED.x=x;edHide();edTagUI()},
+  edtagt:a=>{const x=ED.x;if(!x)return;const t=a.dataset.v,cur=x6TagsOf(x).slice(),i=cur.indexOf(t);if(i>=0)cur.splice(i,1);else cur.push(t);x6TagSet(x,cur);edTagUI()},
+  edtagadd:()=>{const x=ED.x,i=$('#edtn');if(!x||!i)return;const t=i.value.trim().slice(0,24);if(!t)return;const cur=x6TagsOf(x).slice();if(!cur.includes(t))cur.push(t);x6TagSet(x,cur);edTagUI()},
+  edtagok:()=>{$$('.modal').forEach(m=>m.remove());x6Deco();if(SHL[SHI])shLight()},
+  edal:()=>{const by={};Object.values(ST.sht||{}).forEach(e=>{if(!e||!gm(e.g)||vIsId(e.g))return;(e.tags||[]).forEach(t=>{(by[t]=by[t]||[]).push(e)})});const ks=Object.keys(by).sort((a,b)=>a.localeCompare(b));
+    modal(`<div class="ed"><h3>Álbumes</h3>${ks.length?ks.map(t=>`<div class="edal"><b>${esc(t)}</b><span>${by[t].length}</span><div class="edth">${by[t].slice(0,8).map(e=>`<img src="${esc(e.th||e.f)}" data-a="edalo" data-id="${esc(e.g)}" data-v="${esc(t)}" alt="">`).join('')}</div></div>`).join(''):'<p class="hint2">Todavía no hay álbumes. Abrí una captura y tocá Etiquetas.</p>'}<div class="edf"><button class="b2" data-a="close">Cerrar</button></div></div>`,'x8m edw')},
+  edalo:a=>{const id=a.dataset.id,t=a.dataset.v;$$('.modal').forEach(m=>m.remove());X6F='tag:'+t;go('games',{sel:id,q:''});setTimeout(()=>{S.tab='shots';try{renderTab()}catch(e){}},80)},
+  edhl:async()=>{const y=new Date().getFullYear(),it=Object.entries(ST.shr||{}).filter(([k,e])=>e&&e.c&&e.r>=4&&e.t&&new Date(e.t).getFullYear()===y&&gm(e.g)&&!vIsId(e.g)).sort((a,b)=>a[1].t-b[1].t).map(([k,e])=>({id:e.g,n:k.slice(String(e.g).length+1)}));
+    if(!it.length){toast('Poné 4 o 5 estrellas a algunos clips de este año y armo el resumen');return}
+    if(!await edFF())return;toast('Armando tu resumen de '+it.length+' clips… podés seguir usando WINTEER');const r=await winteerNative.ffHighlight({items:it,name:'WINTEER resumen '+y});toast(r&&r.ok?'Resumen listo en la carpeta «WINTEER clips» de tu escritorio':'No pude armar el resumen')}});
+function edTagUI(){const x=ED.x;if(!x)return;const mine=x6TagsOf(x),all=[...new Set([...x6AllTags(),...mine])];$$('.modal').forEach(m=>m.remove());
+  modal(`<div class="ed"><h3>Etiquetas</h3><p class="hint2">Juntá capturas y clips en álbumes, aunque sean de juegos distintos.</p><div class="edtg">${all.map(t=>`<button class="x6c ${mine.includes(t)?'on':''}" data-a="edtagt" data-v="${esc(t)}">${esc(t)}</button>`).join('')||'<span class="hint2">Todavía no tenés etiquetas.</span>'}</div><div class="lks" style="margin-top:12px"><input id="edtn" placeholder="Nueva etiqueta…" maxlength="24" autocomplete="off"><button class="b2 g sm" data-a="edtagadd">Agregar</button></div><div class="edf"><button class="b2" data-a="edtagok">Listo</button></div></div>`,'x8m');
+  const i=$('#edtn');if(i)i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();A.edtagadd()}})}
+function edFinal(){const c=$('#edc');if(!c)return '';const f=document.createElement('canvas');f.width=c.width;f.height=c.height;const x=f.getContext('2d');x.drawImage(c,0,0);
+  if($('#edwm')&&$('#edwm').checked&&ED.g){const sz=Math.max(16,Math.round(f.width/50)),pad=Math.round(sz*.6);x.font='600 '+sz+'px Inter,Segoe UI,sans-serif';const w=x.measureText(ED.g.name).width;x.fillStyle='rgba(0,0,0,.55)';x.beginPath();x.roundRect(pad,f.height-sz-pad*2.2,w+pad*2,sz+pad*1.4,sz*.5);x.fill();x.fillStyle='#fff';x.textBaseline='middle';x.fillText(ED.g.name,pad*2,f.height-sz/2-pad*1.5)}
+  try{return f.toDataURL('image/png')}catch(e){return ''}}
+function edBind(){const c=$('#edc'),o=$('#edo');if(!c||!o)return;
+  const pt=e=>{const r=o.getBoundingClientRect();return{x:(e.clientX-r.left)*o.width/r.width,y:(e.clientY-r.top)*o.height/r.height}};
+  const col=()=>$('#edcol').value,wd=()=>+$('#edw').value*(o.width/900);
+  const snap=()=>{ED2.stack.push(c.getContext('2d').getImageData(0,0,c.width,c.height));if(ED2.stack.length>20)ED2.stack.shift()};
+  const arrow=(x,a,b)=>{x.strokeStyle=x.fillStyle=col();x.lineWidth=wd();x.lineCap='round';const ang=Math.atan2(b.y-a.y,b.x-a.x),h=wd()*4;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x-Math.cos(ang)*h*.6,b.y-Math.sin(ang)*h*.6);x.stroke();x.beginPath();x.moveTo(b.x,b.y);x.lineTo(b.x-h*Math.cos(ang-.45),b.y-h*Math.sin(ang-.45));x.lineTo(b.x-h*Math.cos(ang+.45),b.y-h*Math.sin(ang+.45));x.closePath();x.fill()};
+  o.addEventListener('pointerdown',e=>{const p=pt(e);if(ED2.tool==='text'){edText(e,p,c,snap,wd,col);return}o.setPointerCapture(e.pointerId);ED2.drag={a:p,l:p};if(ED2.tool==='pen'){snap();const x=c.getContext('2d');x.strokeStyle=col();x.lineWidth=wd();x.lineCap=x.lineJoin='round';x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x+.01,p.y);x.stroke()}});
+  o.addEventListener('pointermove',e=>{const d=ED2.drag;if(!d)return;const p=pt(e),ox=o.getContext('2d');
+    if(ED2.tool==='pen'){const x=c.getContext('2d');x.beginPath();x.moveTo(d.l.x,d.l.y);x.lineTo(p.x,p.y);x.stroke();d.l=p}
+    else{ox.clearRect(0,0,o.width,o.height);if(ED2.tool==='crop'){const rx=Math.min(d.a.x,p.x),ry=Math.min(d.a.y,p.y),rw=Math.abs(p.x-d.a.x),rh=Math.abs(p.y-d.a.y);ox.fillStyle='rgba(0,0,0,.55)';ox.fillRect(0,0,o.width,o.height);ox.clearRect(rx,ry,rw,rh);ox.strokeStyle='#fff';ox.lineWidth=Math.max(2,o.width/600);ox.setLineDash([10,8]);ox.strokeRect(rx,ry,rw,rh);ox.setLineDash([])}else if(ED2.tool==='arrow')arrow(ox,d.a,p)}d.l=p});
+  const end=e=>{const d=ED2.drag;if(!d)return;ED2.drag=null;const p=pt(e),ox=o.getContext('2d');ox.clearRect(0,0,o.width,o.height);
+    if(ED2.tool==='crop'){const rx=Math.round(Math.max(0,Math.min(d.a.x,p.x))),ry=Math.round(Math.max(0,Math.min(d.a.y,p.y))),rw=Math.round(Math.min(c.width-rx,Math.abs(p.x-d.a.x))),rh=Math.round(Math.min(c.height-ry,Math.abs(p.y-d.a.y)));if(rw>12&&rh>12){snap();const x=c.getContext('2d'),im=x.getImageData(rx,ry,rw,rh);c.width=o.width=rw;c.height=o.height=rh;c.getContext('2d').putImageData(im,0,0)}}
+    else if(ED2.tool==='arrow'&&Math.hypot(p.x-d.a.x,p.y-d.a.y)>8){snap();arrow(c.getContext('2d'),d.a,p)}};
+  o.addEventListener('pointerup',end);o.addEventListener('pointercancel',()=>{ED2.drag=null;o.getContext('2d').clearRect(0,0,o.width,o.height)})}
+function edText(e,p,c,snap,wd,col){const box=$('#edcv');if(!box)return;$$('#edcv .edti').forEach(i=>i.remove());const r=box.getBoundingClientRect(),i=document.createElement('input');i.className='edti';i.style.left=(e.clientX-r.left)+'px';i.style.top=(e.clientY-r.top-14)+'px';i.style.color=col();box.appendChild(i);setTimeout(()=>i.focus(),0);let done=0;
+  const fin=()=>{if(done)return;done=1;const t=i.value.trim();i.remove();if(!t)return;snap();const x=c.getContext('2d'),sz=Math.round(wd()*3.2+16);x.font='700 '+sz+'px Inter,Segoe UI,sans-serif';x.textBaseline='middle';x.lineWidth=Math.max(3,sz/7);x.strokeStyle='rgba(0,0,0,.85)';x.lineJoin='round';x.strokeText(t,p.x,p.y);x.fillStyle=col();x.fillText(t,p.x,p.y)};
+  i.addEventListener('keydown',k=>{if(k.key==='Enter'){k.preventDefault();fin()}else if(k.key==='Escape'){done=1;i.remove()}});i.addEventListener('blur',fin)}
+(()=>{const d0=A.shdel;A.shdel=function(){const x=SHL[SHI],k=x&&x6k(SHG,x.n);const r=d0.apply(this,arguments);if(k){try{delete (ST.sht||{})[k];save()}catch(e){}}return r}})();
+
 /* grabacion de clips con OBS */
 let XO={st:null,ld:0,inst:null,err:''};
 function xoRows(){
@@ -8866,6 +8948,7 @@ function xoRows(){
   if(XO.inst)return [`<div class="row"><div><b id="xopt">${esc(XO.inst.t||'Preparando')}</b><small>Baja OBS de la página oficial. Windows te va a pedir permiso una vez para instalarlo.</small><div class="x7bar"><i id="xopb" style="width:${XO.inst.p||0}%"></i></div></div></div>`];
   if(!s.inst)return [`<div class="row"><div>Clips con OBS<small>Un botón y WINTEER instala OBS (unos 150 MB, de la página oficial) y lo configura solo. Los clips duran lo que quieras, graban solo el audio del juego y pesan poco porque comprime con tu placa de video.${XO.err?'<br><span style="color:var(--a2)">No se pudo terminar ('+esc(XO.err)+'). Probá de nuevo.</span>':''}</small></div><button class="hm-go" data-a="xoinst" style="white-space:nowrap">Instalar OBS</button></div>`];
   return [`<div class="row"><div>Clips con OBS<small>Con el atajo de clip empezás a grabar y con el mismo atajo cortás. Graba solo el audio del juego. OBS se abre solo, escondido, mientras jugás algo que no es de Steam.</small></div><button class="sw ${s.on?'on':''}" data-a="xotog"></button></div>`]}
+if(WN&&winteerNative.obsState)winteerNative.obsState().then(s=>{if(!XO.st)XO.st=s}).catch(()=>{});
 if(WN&&winteerNative.onObsProg)winteerNative.onObsProg(a=>{if(!XO.inst)return;XO.inst={p:a.p,t:(a.t||'')+(a.p<100?' '+a.p+'%':'')};const t=$('#xopt'),b=$('#xopb');if(t)t.textContent=XO.inst.t;if(b)b.style.width=a.p+'%'});
 Object.assign(A,{
   xoinst:async()=>{if(XO.inst)return;XO.inst={p:0,t:'Preparando'};XO.err='';go('settings');
@@ -9274,6 +9357,16 @@ Object.assign(A,{
 .lks{display:flex;align-items:center;gap:10px;margin-top:14px;height:44px;padding:0 14px;border-radius:14px;background:var(--card2);border:1px solid rgba(255,255,255,.08);color:var(--muted);transition:border-color .25s}
 .lks:focus-within{border-color:rgba(var(--argb),.7)}.lks input{flex:1;border:0;outline:0;background:none;color:var(--text);font:inherit;font-size:14px;min-width:0}
 #x9lkb{margin-top:10px}#x9lkb .lkl{max-height:170px}.lkf{display:flex;justify-content:flex-end;margin-top:20px}
+.edtb{position:absolute;left:50%;top:3vh;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:99px;background:rgba(20,16,34,.9);border:1px solid rgba(255,255,255,.12);font-size:13px;color:#fff;z-index:2;flex-wrap:wrap;justify-content:center;max-width:94vw}
+.edtb button,.edtb select{border:0;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:13px;padding:7px 14px;border-radius:99px;cursor:pointer}.edtb button:hover{background:rgba(var(--argb),.5)}.edtb select{padding:7px 10px}.edtb select option{color:#000}.edtb i{width:1px;height:20px;background:rgba(255,255,255,.15)}
+.ed{text-align:left}.ed h3{margin:0 0 10px}.ed video{width:100%;border-radius:14px;background:#000;max-height:46vh}
+.edr{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;margin:14px 0 6px;font-size:13px;color:var(--muted)}.edr b{color:var(--text);font-variant-numeric:tabular-nums}.edr input{width:100%}
+.edb{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.edf{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.mb.x8m.edw{max-width:640px;width:92vw}.mb.x8m.edwx{max-width:900px;width:94vw}
+.edtl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.edtl .b2.on{background:rgba(var(--argb),.55);color:#fff}.edtl input[type=color]{width:38px;height:34px;border:0;border-radius:10px;background:none;padding:0}.edck{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-left:auto}
+.edcv{position:relative;display:flex;justify-content:center;background:rgba(0,0,0,.35);border-radius:14px;padding:8px;overflow:hidden}.edst{position:relative;display:inline-block;line-height:0}.edst canvas{max-width:100%;max-height:62vh;border-radius:6px}.edst #edo{position:absolute;left:0;top:0;width:100%;height:100%;touch-action:none;cursor:crosshair;background:none}
+.edst #edc{display:block}.edti{position:absolute;z-index:3;background:rgba(0,0,0,.45);border:1px dashed #fff;border-radius:6px;font:700 20px Inter,sans-serif;padding:2px 6px;outline:0;min-width:120px}
+.edtg{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.edal{margin:12px 0}.edal b{font-size:15px}.edal span{color:var(--muted);font-size:12px;margin-left:8px}.edth{display:flex;gap:6px;margin-top:6px;overflow:auto}.edth img{width:84px;height:48px;object-fit:cover;border-radius:8px;cursor:pointer;flex-shrink:0}.edth img:hover{outline:2px solid rgba(var(--argb),.8)}
 .mb.x8m{max-width:460px}.mb.x8w{max-width:620px;width:92vw}
 .x8opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 8px}.x8opts .b2{justify-content:center}
 .x8cust{display:flex;gap:8px;align-items:center;margin-top:6px}.x8cust .txt{flex:1;text-align:center}

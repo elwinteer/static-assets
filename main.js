@@ -1,5 +1,5 @@
 const os = require('os');
-const { app, BrowserWindow, ipcMain, shell, protocol, net, dialog, Menu, nativeImage, Tray, globalShortcut, desktopCapturer, screen, session } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, protocol, net, dialog, Menu, nativeImage, Tray, globalShortcut, desktopCapturer, screen, session, clipboard } = require('electron');
 const path = require('path'), fs = require('fs'), crypto = require('crypto');
 app.commandLine.appendSwitch('autoplay-policy','no-user-gesture-required');
 app.commandLine.appendSwitch('disable-features','CalculateNativeWinOcclusion');
@@ -382,13 +382,82 @@ async function obsSetup() {
       try { fs.unlinkSync(setup); } catch (e) {}
       if (!obsDir()) return { ok: false, err: 'inst' };
     }
-    send(90, 'Probando OBS');
+    send(88, 'Terminando de configurar'); try { await ffInstall((p) => send(88 + Math.round(p * 0.1), 'Terminando de configurar')); } catch (e) {}
+    send(98, 'Probando OBS');
     cfg.obs = true; saveCfg();
     send(100, 'Listo');
     return { ok: true };
   } catch (e) { return { ok: false, err: 'x', d: String(e && e.message || e).slice(0, 80) }; }
   finally { obsBusy = false; }
 }
+
+
+/* ---------- ffmpeg: se baja en silencio junto con OBS; recorta, comprime y arma resumenes ---------- */
+const FFD = () => path.join(app.getPath('userData'), 'ffmpeg');
+const ffExe = () => { const p = path.join(FFD(), 'ffmpeg.exe'); return fs.existsSync(p) ? p : ''; };
+let ffInstP = null;
+function ffSend(p, t) { try { if (win && !win.isDestroyed()) win.webContents.send('ffprog', { p, t }); } catch (e) {} }
+function ffInstall(prog) {
+  if (ffExe()) return Promise.resolve(true);
+  if (process.platform !== 'win32') return Promise.resolve(false);
+  if (ffInstP) return ffInstP;
+  ffInstP = (async () => {
+    try {
+      prog(0, 'Preparando el editor');
+      const api = await net.fetch('https://api.github.com/repos/GyanD/codexffmpeg/releases/latest', { headers: { 'User-Agent': 'WINTEER/' + app.getVersion(), Accept: 'application/vnd.github+json' } });
+      if (!api.ok) return false;
+      const rel = await api.json(), a = (rel.assets || []).find(x => /essentials_build\.zip$/i.test(x.name || '')); if (!a) return false;
+      let host = ''; try { host = new URL(a.browser_download_url).hostname; } catch (e) {} if (!OBS_HOSTS.test(host)) return false;
+      fs.mkdirSync(FFD(), { recursive: true }); const zip = path.join(FFD(), 'ff.zip');
+      const r = await net.fetch(a.browser_download_url, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+      let h2 = ''; try { h2 = new URL(r.url || a.browser_download_url).hostname; } catch (e) {}
+      if (!r.ok || !r.body || !OBS_HOSTS.test(h2)) return false;
+      const tot = Number(r.headers.get('content-length')) || a.size || 0; if (tot > 400 * 1024 * 1024) return false;
+      const ws = fs.createWriteStream(zip), hash = require('crypto').createHash('sha256'); let got = 0, last = 0; const rd = r.body.getReader();
+      for (;;) {
+        const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > 400 * 1024 * 1024) { ws.destroy(); return false; }
+        const b = Buffer.from(value); hash.update(b); if (!ws.write(b)) await new Promise(q => ws.once('drain', q));
+        const now = Date.now(); if (now - last > 600) { last = now; prog(tot ? Math.round(got / tot * 90) : 40, 'Preparando el editor'); }
+      }
+      await new Promise(q => ws.end(q));
+      const want = String(a.digest || '').replace(/^sha256:/i, '').toLowerCase();
+      if (got < 5 * 1024 * 1024 || (want && want !== hash.digest('hex'))) { try { fs.unlinkSync(zip); } catch (e) {} return false; }
+      prog(93, 'Preparando el editor');
+      await new Promise((res) => { try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', "Add-Type -A System.IO.Compression.FileSystem; $z=[IO.Compression.ZipFile]::OpenRead($env:FF_Z); try{$e=$z.Entries|Where-Object{$_.FullName -like '*/bin/ffmpeg.exe'}|Select-Object -First 1; [IO.Compression.ZipFileExtensions]::ExtractToFile($e,$env:FF_O,$true)}finally{$z.Dispose()}"], { windowsHide: true, timeout: 120000, env: Object.assign({}, process.env, { FF_Z: zip, FF_O: path.join(FFD(), 'ffmpeg.exe') }) }, () => res()); } catch (e) { res(); } });
+      try { fs.unlinkSync(zip); } catch (e) {}
+      return !!ffExe();
+    } catch (e) { return false; }
+    finally { ffInstP = null; }
+  })();
+  return ffInstP;
+}
+function ffRun(args, dur, prog) {
+  return new Promise((resolve) => {
+    const exe = ffExe(); if (!exe) { resolve({ ok: false, err: 'noff' }); return; }
+    let err = '', lastP = -1;
+    let c; try { c = spawn(exe, ['-hide_banner', '-y', '-nostats', '-progress', 'pipe:1', ...args], { windowsHide: true }); } catch (e) { resolve({ ok: false, err: 'spawn' }); return; }
+    c.stdout.on('data', (d) => { if (!prog || !dur) return; const m = /out_time_(?:us|ms)=(\d+)/.exec(String(d)); if (m) { const p = Math.min(99, Math.round(Number(m[1]) / 1e6 / dur * 100)); if (p !== lastP) { lastP = p; prog(p); } } });
+    c.stderr.on('data', (d) => { err = (err + String(d)).slice(-1500); });
+    const t = setTimeout(() => { try { c.kill(); } catch (e) {} }, 40 * 60000);
+    c.on('error', () => { clearTimeout(t); resolve({ ok: false, err: 'run' }); });
+    c.on('close', (code) => { clearTimeout(t); resolve({ ok: code === 0, err: err }); });
+  });
+}
+function ffProbe(file) {
+  return new Promise((resolve) => {
+    const exe = ffExe(); if (!exe) { resolve({ dur: 0, audio: false }); return; }
+    execFile(exe, ['-hide_banner', '-i', file], { windowsHide: true, timeout: 30000 }, (e, o, se) => {
+      const t = String(se || ''), m = /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(t);
+      resolve({ dur: m ? (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) : 0, audio: /Stream #.*Audio:/.test(t) });
+    });
+  });
+}
+const shSafe = (id) => String(id).replace(/[^\w.-]/g, '_');
+function shFile(id, n) { if (!/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(String(n))) return ''; const p = path.join(SHOTS, shSafe(id), String(n)); return fs.existsSync(p) ? p : ''; }
+function shStamp(dir, pre, ext) { let t = Date.now(); for (let i = 0; i < 60; i++) { const s = pre + new Date(t + i * 1000).toISOString().replace(/[:.]/g, '-').slice(0, 19); if (!fs.existsSync(path.join(dir, s + '.' + ext))) return s; } return pre + Date.now(); }
+function shMkThumb(file, tfile) { try { const im = nativeImage.createFromPath(file); if (!im.isEmpty()) fs.writeFileSync(tfile, im.resize({ width: 640 }).toJPEG(85)); } catch (e) {} }
+function outDir() { const d = path.join(app.getPath('desktop'), 'WINTEER clips'); fs.mkdirSync(d, { recursive: true }); return d; }
+const ffNum = (x, mx) => { x = Number(x); return isFinite(x) && x >= 0 && x < (mx || 86400) ? x : 0; };
 
 function takeClip() {
   if (obsActive()) { obsToggle(); return; }
@@ -2740,6 +2809,64 @@ app.whenReady().then(() => {
   app.on('will-quit', () => { try { obsStopAll(true); } catch (e) {} });
   ipcMain.handle('vpanicArm', (_e, on) => { try { if (on) panicStart(); else { panicStop(); panicBack(); } } catch (e) {} return { on: !!panicProc }; });
   ipcMain.handle('vpanicNow', () => { panicDo(); return true; });
+  ipcMain.handle('ffReady', () => ({ ok: !!ffExe() }));
+  ipcMain.handle('ffEnsure', async () => ({ ok: !!(await ffInstall(ffSend)) }));
+  ipcMain.handle('shotRead', (_e, id, n) => { try { const f = shFile(id, n); if (!f || !/\.(jpg|png)$/.test(f)) return ''; const b = fs.readFileSync(f); if (b.length > 40 * 1024 * 1024) return ''; return 'data:image/' + (/\.png$/.test(f) ? 'png' : 'jpeg') + ';base64,' + b.toString('base64'); } catch (e) { return ''; } });
+  ipcMain.handle('shotSaveImg', (_e, o) => { try {
+    o = o || {}; const m = /^data:image\/(png|jpeg);base64,(.+)$/.exec(o.data || ''); if (!m) return { ok: false };
+    const dir = path.join(SHOTS, shSafe(o.id)); fs.mkdirSync(dir, { recursive: true });
+    const s = shStamp(dir, '', 'png'), f = path.join(dir, s + '.png'); fs.writeFileSync(f, Buffer.from(m[2], 'base64')); shMkThumb(f, path.join(dir, s + '.t.jpg'));
+    return { ok: true, n: s + '.png' }; } catch (e) { return { ok: false }; } });
+  ipcMain.handle('imgCopy', (_e, data) => { try { const im = nativeImage.createFromDataURL(String(data || '')); if (im.isEmpty()) return false; clipboard.writeImage(im); return true; } catch (e) { return false; } });
+  ipcMain.handle('ffTrim', async (_e, o) => { try {
+    o = o || {}; const src = shFile(o.id, o.n); if (!src || !/\.(webm|mp4)$/.test(src)) return { ok: false };
+    const s = ffNum(o.s), e = ffNum(o.e); if (e - s < 0.3) return { ok: false, err: 'short' };
+    const dir = path.dirname(src), ext = path.extname(src).slice(1), st = shStamp(dir, 'c', ext), out = path.join(dir, st + '.' + ext);
+    ffSend(5, 'Recortando');
+    const r = await ffRun(['-ss', String(s), '-i', src, '-t', String(e - s), '-c', 'copy', '-avoid_negative_ts', 'make_zero', out], e - s, (p) => ffSend(p, 'Recortando'));
+    if (!r.ok || !fs.existsSync(out)) { try { fs.unlinkSync(out); } catch (x) {} ffSend(100, ''); return { ok: false, err: 'ff' }; }
+    await ffRun(['-ss', String(Math.min(1, (e - s) / 2)), '-i', out, '-frames:v', '1', '-vf', 'scale=640:-2', '-q:v', '3', path.join(dir, st + '.t.jpg')]);
+    ffSend(100, ''); return { ok: true, n: st + '.' + ext }; } catch (e) { ffSend(100, ''); return { ok: false }; } });
+  ipcMain.handle('ffFrame', async (_e, o) => { try {
+    o = o || {}; const src = shFile(o.id, o.n); if (!src || !/\.(webm|mp4)$/.test(src)) return { ok: false };
+    const dir = path.dirname(src), st = shStamp(dir, '', 'png'), out = path.join(dir, st + '.png');
+    const r = await ffRun(['-ss', String(ffNum(o.t)), '-i', src, '-frames:v', '1', out]);
+    if (!r.ok || !fs.existsSync(out)) return { ok: false }; shMkThumb(out, path.join(dir, st + '.t.jpg')); return { ok: true, n: st + '.png' }; } catch (e) { return { ok: false }; } });
+  ipcMain.handle('ffCompress', async (_e, o) => { try {
+    o = o || {}; const src = shFile(o.id, o.n); if (!src || !/\.(webm|mp4)$/.test(src)) return { ok: false };
+    const mb = Math.max(2, Math.min(200, Number(o.mb) || 10)), pr = await ffProbe(src); if (!pr.dur) return { ok: false, err: 'dur' };
+    const vb = Math.max(150, Math.floor(mb * 8192 * 0.9 / pr.dur - 128)), h = mb <= 12 ? 720 : 1080;
+    const out = path.join(outDir(), 'WINTEER-clip-' + new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19) + '-' + mb + 'MB.mp4');
+    const args = ['-i', src, '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', vb + 'k', '-maxrate', Math.round(vb * 1.3) + 'k', '-bufsize', vb * 2 + 'k', '-vf', "scale=-2:'min(" + h + ",ih)'", '-pix_fmt', 'yuv420p', '-movflags', '+faststart'];
+    if (pr.audio) args.push('-c:a', 'aac', '-b:a', '128k'); else args.push('-an');
+    args.push(out); ffSend(2, 'Comprimiendo');
+    const r = await ffRun(args, pr.dur, (p) => ffSend(p, 'Comprimiendo')); ffSend(100, '');
+    if (!r.ok || !fs.existsSync(out)) return { ok: false, err: 'ff' }; shell.showItemInFolder(out);
+    return { ok: true, mb: Math.round(fs.statSync(out).size / 1048576 * 10) / 10 }; } catch (e) { ffSend(100, ''); return { ok: false }; } });
+  ipcMain.handle('ffGif', async (_e, o) => { try {
+    o = o || {}; const src = shFile(o.id, o.n); if (!src || !/\.(webm|mp4)$/.test(src)) return { ok: false };
+    const s = ffNum(o.s), d = Math.max(0.5, Math.min(20, ffNum(o.e) - s || 8));
+    const out = path.join(outDir(), 'WINTEER-' + new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19) + '.gif'); ffSend(3, 'Armando el GIF');
+    const r = await ffRun(['-ss', String(s), '-t', String(d), '-i', src, '-vf', 'fps=15,scale=480:-1:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse', out], d, (p) => ffSend(p, 'Armando el GIF')); ffSend(100, '');
+    if (!r.ok || !fs.existsSync(out)) return { ok: false, err: 'ff' }; shell.showItemInFolder(out);
+    return { ok: true, mb: Math.round(fs.statSync(out).size / 1048576 * 10) / 10 }; } catch (e) { ffSend(100, ''); return { ok: false }; } });
+  ipcMain.handle('ffHighlight', async (_e, o) => { try {
+    o = o || {}; const items = (Array.isArray(o.items) ? o.items : []).slice(0, 24).map(x => ({ f: shFile(x && x.id, x && x.n) })).filter(x => x.f && /\.(webm|mp4)$/.test(x.f));
+    if (!items.length) return { ok: false, err: 'none' };
+    const MAXC = 20; let tot = 0; const inp = [], fl = [], lab = [];
+    for (let i = 0; i < items.length; i++) { const pr = await ffProbe(items[i].f), d = Math.max(1, Math.min(MAXC, pr.dur || MAXC)); items[i].d = d; items[i].a = pr.audio; tot += d; }
+    let k = 0;
+    items.forEach((x, i) => {
+      inp.push('-t', String(x.d), '-i', x.f); const vi = k++;
+      fl.push('[' + vi + ':v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,fps=30,setsar=1,format=yuv420p[v' + i + ']');
+      if (x.a) fl.push('[' + vi + ':a]aresample=48000,aformat=channel_layouts=stereo[a' + i + ']');
+      else { inp.push('-f', 'lavfi', '-t', String(x.d), '-i', 'anullsrc=r=48000:cl=stereo'); fl.push('[' + (k++) + ':a]aformat=channel_layouts=stereo[a' + i + ']'); }
+      lab.push('[v' + i + '][a' + i + ']');
+    });
+    fl.push(lab.join('') + 'concat=n=' + items.length + ':v=1:a=1[v][a]');
+    const out = path.join(outDir(), String(o.name || 'WINTEER resumen').replace(/[^\w .-]/g, '').slice(0, 40) + '.mp4'); ffSend(2, 'Armando el resumen');
+    const r = await ffRun([...inp, '-filter_complex', fl.join(';'), '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '21', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', out], tot, (p) => ffSend(p, 'Armando el resumen')); ffSend(100, '');
+    if (!r.ok || !fs.existsSync(out)) return { ok: false, err: 'ff' }; shell.showItemInFolder(out); return { ok: true, n: items.length }; } catch (e) { ffSend(100, ''); return { ok: false }; } });
   ipcMain.handle('obsState', () => ({ ok: process.platform === 'win32', inst: !!obsDir(), on: obsOn() }));
   ipcMain.handle('obsSetup', () => obsSetup());
   ipcMain.handle('obsSet', (_e, on) => { cfg.obs = !!on; saveCfg(); if (!on) obsStopAll(true); return { on: obsOn() }; });
