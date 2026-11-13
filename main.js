@@ -2964,6 +2964,34 @@ app.whenReady().then(() => {
     } catch (e) { return { err: String(e.message || e) }; }
   });
   ipcMain.handle('gmRm', async (_e, dir) => { try { dir = String(dir || ''); if (dir.length < 8 || /^[a-z]:\\?$/i.test(dir) || /windows|program files$|system32/i.test(dir)) return false; await fs.promises.rm(dir, { recursive: true, force: true }); return true; } catch (e) { return false; } });
+  /* ---------- base de LaunchBox (cajas de consola) ---------- */
+  const LB = require('./lb.js'); const LBD = () => path.join(app.getPath('userData'), 'lb'); let LBI = null, LBBusy = false;
+  const lbSend = (m) => { if (win && !win.isDestroyed()) win.webContents.send('lbp', m); };
+  const lbLoad = () => { if (LBI) return LBI; try { LBI = JSON.parse(fs.readFileSync(path.join(LBD(), 'index.json'), 'utf8')); } catch (e) { LBI = null; } return LBI; };
+  async function lbBuild() {
+    if (LBBusy) return { ok: false, err: 'Ya se está bajando.' }; LBBusy = true;
+    const dir = LBD(), zip = path.join(dir, 'Metadata.zip'), xml = path.join(dir, 'Metadata.xml');
+    try {
+      fs.mkdirSync(dir, { recursive: true }); lbSend({ st: 'dl', p: 0 });
+      const r = await net.fetch('https://gamesdb.launchbox-app.com/Metadata.zip', { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() }, redirect: 'follow' });
+      if (!r.ok || !r.body) throw new Error('No pude bajar la base de LaunchBox (' + r.status + ').');
+      const tot = +r.headers.get('content-length') || 0; let got = 0, lt = 0; const ws = fs.createWriteStream(zip), rd = r.body.getReader();
+      for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (!ws.write(value)) await new Promise((o) => ws.once('drain', o)); const t = Date.now(); if (t - lt > 300) { lt = t; lbSend({ st: 'dl', p: tot ? got / tot : 0, mb: Math.round(got / 1048576) }); } }
+      await new Promise((o) => ws.end(o));
+      lbSend({ st: 'unz' });
+      try { fs.unlinkSync(xml); } catch (e) {}
+      await new Promise((res) => { try { execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', "Add-Type -A System.IO.Compression.FileSystem; $z=[IO.Compression.ZipFile]::OpenRead($env:LB_Z); try{$e=$z.Entries|Where-Object{$_.Name -eq 'Metadata.xml'}|Select-Object -First 1; [IO.Compression.ZipFileExtensions]::ExtractToFile($e,$env:LB_O,$true)}finally{$z.Dispose()}"], { windowsHide: true, timeout: 10 * 60000, env: Object.assign({}, process.env, { LB_Z: zip, LB_O: xml }) }, () => res()); } catch (e) { res(); } });
+      if (!fs.existsSync(xml)) throw new Error('No pude abrir el archivo de LaunchBox.');
+      const idx = await LB.parse(xml, (p) => lbSend({ st: 'idx', p }));
+      fs.writeFileSync(path.join(dir, 'index.json'), JSON.stringify(idx)); LBI = idx;
+      try { fs.unlinkSync(zip); } catch (e) {} try { fs.unlinkSync(xml); } catch (e) {}
+      lbSend({ st: 'ok' }); return { ok: true, n: Object.keys(idx.n).length };
+    } catch (e) { lbSend({ st: 'err', msg: String(e && e.message || e) }); return { ok: false, err: String(e && e.message || e) }; }
+    finally { LBBusy = false; }
+  }
+  ipcMain.handle('lbStatus', () => { const I = lbLoad(); return { ready: !!I, n: I ? Object.keys(I.n).length : 0, busy: LBBusy }; });
+  ipcMain.handle('lbBuild', () => lbBuild());
+  ipcMain.handle('lbFind', (_e, o) => { try { return LB.find(lbLoad(), o || {}); } catch (e) { return null; } });
   ipcMain.handle('openUrl', (_e, u) => { try { if (/^https:\/\//i.test(String(u || ''))) { shell.openExternal(String(u)); return true; } } catch (e) {} return false; });
   ipcMain.handle('gmOpen', (_e, p) => { try { shell.showItemInFolder(String(p || '')); return true; } catch (e) { return false; } });
   ipcMain.handle('trlPick', async (_e, key) => {
