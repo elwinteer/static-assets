@@ -2968,8 +2968,27 @@ app.whenReady().then(() => {
   });
   /* fondos de video del Modo mando: carpeta "fondos" dentro de la carpeta de datos */
   const FONDOS = () => { const d = path.join(app.getPath('userData'), 'fondos'); try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} return d; };
-  ipcMain.handle('fondosList', () => { try { const d = FONDOS(); return fs.readdirSync(d).filter(f => /\.(mp4|webm|mkv|mov)$/i.test(f)).sort().map(f => ({ n: f.replace(/\.[^.]+$/, ''), f, u: pathToFileURL(path.join(d, f)).href })); } catch (e) { return []; } });
+  const FOFI = () => app.isPackaged ? path.join(process.resourcesPath, 'fondos') : path.join(__dirname, 'fondos');
+  const FVID = /\.(mp4|webm|mkv|mov)$/i;
+  function fondosAll() {
+    const out = [], sizes = new Set();
+    try { for (const f of fs.readdirSync(FOFI()).filter(x => FVID.test(x)).sort()) { const p = path.join(FOFI(), f); sizes.add(fs.statSync(p).size); const pj = p.replace(/\.[^.]+$/, '.jpg'); out.push({ n: f.replace(/\.[^.]+$/, ''), f, k: 'o:' + f, o: 1, u: pathToFileURL(p).href, p: fs.existsSync(pj) ? pathToFileURL(pj).href : '' }); } } catch (e) {}
+    try { for (const f of fs.readdirSync(FONDOS()).filter(x => FVID.test(x)).sort()) { const p = path.join(FONDOS(), f); if (sizes.has(fs.statSync(p).size)) continue; out.push({ n: f.replace(/\.[^.]+$/, ''), f, k: 'u:' + f, o: 0, u: pathToFileURL(p).href }); } } catch (e) {}
+    return out;
+  }
+  ipcMain.handle('fondosList', () => fondosAll());
   ipcMain.handle('fondosOpen', async () => { try { await shell.openPath(FONDOS()); } catch (e) {} return true; });
+  ipcMain.handle('fondosAdd', async () => {
+    try {
+      const r = await dialog.showOpenDialog(win, { title: 'Elegí un video para el fondo', properties: ['openFile'], filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'mov'] }] });
+      if (r.canceled || !r.filePaths[0]) return { list: fondosAll() };
+      const src = r.filePaths[0]; let name = path.basename(src).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_'), dst = path.join(FONDOS(), name);
+      for (let i = 1; fs.existsSync(dst) && i < 99; i++) dst = path.join(FONDOS(), name.replace(/(\.[^.]+)$/, ' (' + i + ')$1'));
+      fs.copyFileSync(src, dst);
+      return { list: fondosAll(), pick: 'u:' + path.basename(dst) };
+    } catch (e) { return { list: fondosAll() }; }
+  });
+  ipcMain.handle('fondosDel', (_e, k) => { try { k = String(k || ''); if (k.startsWith('u:')) { const f = path.basename(k.slice(2)); fs.unlinkSync(path.join(FONDOS(), f)); } } catch (e) {} return fondosAll(); });
   ipcMain.handle('trlDiscard', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); fs.unlinkSync(path.join(TRL, key + '.pv.mp4')); } catch (e) {} return true; });
   ipcMain.handle('musDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); musClean(key); fs.writeFileSync(path.join(TRL, key + '.nm'), ''); return true; } catch (e) { return false; } });
   /* mantenimiento: mover un juego a otro disco (copia, verifica y recién después ofrece borrar el original) */

@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   trlDiscard: (k) => ipcRenderer.invoke('trlDiscard', k),
   fondosList: () => ipcRenderer.invoke('fondosList'),
   fondosOpen: () => ipcRenderer.invoke('fondosOpen'),
+  fondosAdd: () => ipcRenderer.invoke('fondosAdd'),
+  fondosDel: (k) => ipcRenderer.invoke('fondosDel', k),
   musDel: (k) => ipcRenderer.invoke('musDel', k),
   gmInfo: (e) => ipcRenderer.invoke('gmInfo', e),
   gmMove: (o) => ipcRenderer.invoke('gmMove', o),
