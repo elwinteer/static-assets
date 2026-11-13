@@ -8617,7 +8617,9 @@ function ssGet(g){ST.ss=ST.ss||{};const c=ST.ss[g.id];if(c&&(c.ok||Date.now()-c.
     }catch(e){return {ok:0,err:e.message||'No pude conectar con ScreenScraper.',back:[],side:[],disc:[],man:[]}}});
   SSP=run.catch(()=>{}).then(()=>new Promise(r=>setTimeout(r,1300)));return run}
 const SSU=x=>x?(typeof x==='string'?x:x.u):'',SSRG={wor:'Mundo',us:'USA',eu:'Europa',jp:'Japón',uk:'Reino Unido',fr:'Francia',de:'Alemania',ss:'Genérica'};
-function cjArt(g){const s=(ST.ss||{})[g.id]||{},c=(ST.cov2||{})[g.id]||{},l=(ST.lbx||{})[g.id]||{};return {back:c.back||SSU((s.back||[])[0])||SSU((l.back||[])[0]),side:c.side||SSU((s.side||[])[0])||SSU((l.side||[])[0]),disc:c.disc||SSU((s.disc||[])[0])||SSU((l.disc||[])[0]),man:c.man||SSU((s.man||[])[0])}}
+function cjArt(g){const s=(ST.ss||{})[g.id]||{},c=(ST.cov2||{})[g.id]||{},l=(ST.lbx||{})[g.id]||{};return {back:c.back||SSU((s.back||[])[0])||SSU((l.back||[])[0]),side:c.side||SSU((s.side||[])[0])||SSU((l.side||[])[0]),disc:c.disc||SSU((s.disc||[])[0])||SSU((l.disc||[])[0]),man:c.man||SSU((s.man||[])[0]),manf:c.manf||''}}
+function cjManOpen(A){if(A.manf&&window.winteerNative&&winteerNative.openPath)winteerNative.openPath(A.manf);else if(A.man){if(window.winteerNative&&winteerNative.openUrl)winteerNative.openUrl(A.man);else window.open(A.man)}}
+async function cjManDl(g,id){bpBan('Bajando el manual…',5000);const r=await winteerNative.manGet({id,name:g.name}).catch(e=>({ok:false,err:e.message}));ST.cov2=ST.cov2||{};const c=ST.cov2[g.id]=ST.cov2[g.id]||{};if(r&&r.ok){c.manf=r.path;c.man='';save();bpBan('Manual guardado en tu PC',2800);cjArtRefresh(g)}else bpBan((r&&r.err)||'No pude bajar el manual',3400)}
 function cjArtRefresh(g){const b=BP&&BP.cj;if(!b)return;const c=b.els.get(g.id),n=c&&c.querySelector('.cjb');if(n)n.outerHTML=cjCaseHTML(g)}
 
 async function stGet(g){ST.stx=ST.stx||{};if(ST.stx[g.id]||!window.winteerNative||!g.app)return ST.stx[g.id];
@@ -8644,15 +8646,15 @@ function cjRender(){const b=BP&&BP.cj;if(!b)return;const L=cjList(),el=b.el;b.i=
   for(const [id,c] of b.els)if(!keep.has(id)){c.style.opacity=0;b.els.delete(id);setTimeout(()=>c.remove(),400)}
   const inf=el.querySelector('.cjinfo');
   if(!g){inf.querySelector('h2').textContent='No hay juegos de esta consola';inf.querySelector('p').textContent='Probá otra con LB / RB';return}
-  inf.querySelector('h2').textContent=g.name;inf.querySelector('p').textContent=[CJP[pl][0],g.hours>0?fh(g.hours)+' jugadas':'Sin jugar',/^sin /i.test(stOf(g)||'')?'':stOf(g),cjArt(g).man?'Manual':''].filter(Boolean).join(' · ');
+  inf.querySelector('h2').textContent=g.name;inf.querySelector('p').textContent=[CJP[pl][0],g.hours>0?fh(g.hours)+' jugadas':'Sin jugar',/^sin /i.test(stOf(g)||'')?'':stOf(g),(cjArt(g).man||cjArt(g).manf)?'Manual':''].filter(Boolean).join(' · ');
   inf.classList.remove('nx');void inf.offsetWidth;inf.classList.add('nx');cjSsAuto(g)}
 function cjMove(d){const b=BP.cj,L=cjList();if(!L.length)return;const n=Math.max(0,Math.min(L.length-1,b.i+d));if(n===b.i)return;b.i=n;b.flip=0;bpSnd('nav');bpRumble(.15,20);cjRender()}
 function cjFlip(){const b=BP.cj;if(!cjList()[b.i])return;b.flip=b.flip?0:1;bpSnd('tab');cjRender()}
 function cjCase(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='shelf')return;b.mode='open';const A=cjArt(g),pl=cjPl(g),P=CJP[pl],info=INFO[g.id]||{},lt=lastTs(g),dk=cjLum(P[1])>.6;
   const rows=[['Plataforma',P[0]],['Desarrollador',info.dev||'—'],['Géneros',(info.gen||[]).slice(0,3).join(', ')||'—'],['Tiempo jugado',g.hours>0?fh(g.hours):'Sin jugar'],['Última vez',lt?new Date(lt).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'Nunca'],['Estado',stOf(g)]];
   const o=document.createElement('div');o.className='cjo';o.style.cssText=`--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}`;
-  o.innerHTML=`<div class="cjcase"><div class="cjl"><div class="cjman"><small>Manual</small><h3>${esc(g.name)}</h3><div class="cjmi">${rows.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div><p>${esc(bpDesc(info.d)||'')}</p>${A.man?'<button class="cjmb">Ver manual real</button>':''}<em>WINTEER</em></div></div><div class="cjrr"><div class="cjdisc${A.disc?' real':''}"><img src="${esc(A.disc||cjCov(g))}" data-fb="${cjCov(g)}" alt=""><i></i><b></b></div><u>${esc(P[0])}</u></div></div><div class="cjot"><small>Caja abierta</small><h2>${esc(g.name)}</h2></div>`;
-  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){if(window.winteerNative&&winteerNative.openUrl)winteerNative.openUrl(A.man);else window.open(A.man);return}if(e.target.closest('.cjman')){cjMan();return}if(e.target.closest('.cjdisc'))cjPlay();else if(!e.target.closest('.cjcase'))cjShut()});
+  o.innerHTML=`<div class="cjcase"><div class="cjl"><div class="cjman"><small>Manual</small><h3>${esc(g.name)}</h3><div class="cjmi">${rows.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div><p>${esc(bpDesc(info.d)||'')}</p>${A.man||A.manf?'<button class="cjmb">Ver manual real</button>':''}<em>WINTEER</em></div></div><div class="cjrr"><div class="cjdisc${A.disc?' real':''}"><img src="${esc(A.disc||cjCov(g))}" data-fb="${cjCov(g)}" alt=""><i></i><b></b></div><u>${esc(P[0])}</u></div></div><div class="cjot"><small>Caja abierta</small><h2>${esc(g.name)}</h2></div>`;
+  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){cjManOpen(A);return}if(e.target.closest('.cjman')){cjMan();return}if(e.target.closest('.cjdisc'))cjPlay();else if(!e.target.closest('.cjcase'))cjShut()});
   b.el.appendChild(o);b.o=o;requestAnimationFrame(()=>o.classList.add('on'));bpSnd('ok');bpRumble(.4,60);cjKeys()}
 
 function cjRows(g){const P=CJP[cjPl(g)],info=INFO[g.id]||{},lt=lastTs(g),X=(ST.stx||{})[g.id]||{};return [['Plataforma',P[0]],['Desarrollador',info.dev||'—'],['Editor',X.pub||'—'],['Salida',X.rel||'—'],['Géneros',(info.gen||[]).slice(0,3).join(', ')||'—'],['Tiempo jugado',g.hours>0?fh(g.hours):'Sin jugar'],['Última vez',lt?new Date(lt).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'Nunca'],['Estado',stOf(g)]]}
@@ -8663,13 +8665,13 @@ function cjInsp(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='shelf')return;b
 function cjInspT(){const b=BP.cj,c=b&&b.n&&b.n.querySelector('.cjbig');if(c)c.style.transform=`rotateY(${b.ir}deg) scale(${b.iz})`}
 function cjInspX(){const b=BP.cj;if(!b||!b.n)return;const o=b.n;b.n=null;b.mode='shelf';b.el.classList.remove('insp');o.classList.remove('on');setTimeout(()=>o.remove(),400);bpSnd('bk');cjKeys()}
 function cjManPages(g){const P=CJP[cjPl(g)],info=INFO[g.id]||{},X=(ST.stx||{})[g.id]||{},A=cjArt(g),sh=X.sh||[];
-  const man=A.man?'<button class="cjmb">Ver manual real</button>':'';
+  const man=A.man||A.manf?'<button class="cjmb">Ver manual real</button>':'';
   return [
    [`<div class="cjpc"><img src="${esc(cjCov(g))}" alt=""><h3>${esc(g.name)}</h3><small>${esc(P[0])}</small></div>`,`<small>Datos</small><div class="cjmi">${cjRows(g).map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>${man}`],
    [`<small>Descripción</small><p class="cjpd">${esc(bpDesc(info.d)||'Todavía no hay descripción para este juego.')}</p>`,`<small>Capturas</small>${sh.length?`<div class="cjps">${sh.slice(0,4).map(u=>`<img src="${esc(u)}" alt="">`).join('')}</div>`:`<div class="cjps"><img src="${esc(art.wide(g))}" alt=""></div>`}`],
    [`<small>Requisitos del sistema</small><p class="cjpd" style="white-space:pre-line">${esc(X.rq||'Sin datos de requisitos para este juego.')}</p>`,`<small>Tu progreso</small><p class="cjpd">${g.hours>0?'Llevás '+esc(fh(g.hours))+' jugadas.':'Todavía no lo jugaste.'}</p><em class="cjpe">WINTEER</em>`]]}
 function cjMan(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='open')return;b.mode='man';b.mp=0;b.mg=g;const o=document.createElement('div');o.className='cjmv';b.m=o;if(b.o)b.o.style.opacity=0;
-  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){const u=cjArt(g).man;if(u){if(window.winteerNative&&winteerNative.openUrl)winteerNative.openUrl(u);else window.open(u)}return}if(!e.target.closest('.cjbook'))cjManX()});
+  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){cjManOpen(cjArt(g));return}if(!e.target.closest('.cjbook'))cjManX()});
   b.el.appendChild(o);cjManDraw(0);requestAnimationFrame(()=>o.classList.add('on'));bpSnd('ok');cjKeys()}
 function cjManDraw(dir){const b=BP.cj,o=b.m,pg=cjManPages(b.mg),n=pg.length,[l,r]=pg[b.mp];
   o.innerHTML=`<div class="cjbook"><div class="cjpl">${l}</div><div class="cjpr ${dir?'fl':''}" data-d="${dir}">${r}</div></div><div class="cjot"><small>Páginas ${b.mp*2+1}-${b.mp*2+2} de ${n*2}</small><h2>${esc(b.mg.name)}</h2></div>`}
@@ -8697,11 +8699,11 @@ async function cjPickT(t){const b=BP.cj,g=b&&cjList()[b.i];if(!b||!b.p||!g)retur
     if(ssOn()&&live()){const q=await ssGet(g);if(live()&&q&&q.front&&q.front.length){q.front.forEach((x,i)=>b.pl.push({u:SSU(x),t:SSU(x),n:'ScreenScraper · '+(SSRG[x.r]||'Sin región')}));cjPickDraw(g)}}return}
   b.pl=[{u:'',t:'',n:'Automática'}];cjPickDraw(g);
   if(!LBST)await lbRefresh();
-  if(!ssOn()&&!(LBST&&LBST.ready)){msg('Para traer arte real bajá la base de LaunchBox en Ajustes → Conexiones.');return}
-  msg('Buscando arte…');const [s,l]=await Promise.all([ssOn()?ssGet(g):null,lbGet(g)]);if(!live())return;
-  const L=[...((s&&s[t])||[]).map(x=>({u:SSU(x),n:'ScreenScraper · '+(SSRG[x.r]||'Sin región')})),...((l&&l[t])||[]).map(x=>({u:x.u,n:'LaunchBox · '+(x.r||'Sin región')}))];
+  if(t!=='man'&&!ssOn()&&!(LBST&&LBST.ready)){msg('Para traer arte real bajá la base de LaunchBox en Ajustes → Conexiones.');return}
+  msg(t==='man'?'Buscando manuales…':'Buscando arte…');const [s,l,ia]=await Promise.all([ssOn()?ssGet(g):null,t==='man'?null:lbGet(g),t==='man'&&winteerNative.manSearch?winteerNative.manSearch(sgClean(g.name)).catch(()=>[]):[]]);if(!live())return;
+  const L=[...((s&&s[t])||[]).map(x=>({u:SSU(x),n:'ScreenScraper · '+(SSRG[x.r]||'Sin región')})),...((l&&l[t])||[]).map(x=>({u:x.u,n:'LaunchBox · '+(x.r||'Sin región')})),...(ia||[]).map(x=>({u:'ia:'+x.id,n:'Archive.org · '+x.title}))];
   L.forEach(x=>b.pl.push({u:x.u,t:x.u,n:x.n}));
-  msg(L.length?(L.length===1?'1 opción':L.length+' opciones'):(s&&s.err)||'No encontré este arte para este juego.');cjPickDraw(g)}
+  msg(L.length?(L.length===1?'1 opción':L.length+' opciones'):(s&&s.err)||(t==='man'?'No encontré manuales de este juego.':'No encontré este arte para este juego.'));cjPickDraw(g)}
 function cjPickDraw(g){const b=BP.cj;if(!b||!b.p)return;const cur=(b.pt&&b.pt!=='front'?((ST.cov2||{})[g.id]||{})[b.pt]:(ST.cov||{})[g.id])||'';
   b.p.querySelector('.cjpg').innerHTML=b.pl.map((x,i)=>`<div class="cjpi ${i===b.pi?'f':''} ${x.u===cur?'cur':''}" data-i="${i}" style="--i:${Math.min(i,14)}">${b.pt==='man'?`<em class="cjpa">${x.u?'PDF':'Automático'}</em>`:(x.t||!b.pt||b.pt==='front')?`<img src="${x.t||art.grid(g,1)}" data-fb="${art.wide(g)}" alt="" loading="lazy">`:'<em class="cjpa">Automático</em>'}<span>${esc(x.n||'')}</span></div>`).join('');
   const f=b.p.querySelector('.cjpi.f');if(f)f.scrollIntoView({block:'nearest'});cjPickPrev(g)}
@@ -8710,7 +8712,7 @@ function cjPickPrev(g){const b=BP.cj;if(!b||!b.p)return;const x=b.pl[b.pi]||{},t
   c.style.transform=t==='disc'?'none':`rotateY(${t==='back'?194:t==='side'?64:14}deg)`;
   b.p.querySelector('.cjpvn').textContent=x.n||'';b.p.querySelector('.cjpvs').textContent=x.u?'Así queda si lo elegís':'Sigue el estilo del estante'}
 function cjPickMove(d){const b=BP.cj,n=b.pl.length,cols=Math.max(1,Math.floor((b.p.querySelector('.cjpg').clientWidth+16)/(((b.p.querySelector('.cjpi')||{}).offsetWidth||innerHeight*.2)+16)));let i=b.pi+(d==='l'?-1:d==='r'?1:d==='u'?-cols:cols);i=Math.max(0,Math.min(n-1,i));if(i===b.pi)return;b.pi=i;bpSnd('nav');b.p.querySelectorAll('.cjpi').forEach((e,k)=>e.classList.toggle('f',k===i));cjPickPrev(cjList()[b.i]);const f=b.p.querySelector('.cjpi.f');if(f)f.scrollIntoView({block:'nearest',behavior:'smooth'})}
-function cjPickOk(){const b=BP.cj,g=cjList()[b.i],x=b.pl[b.pi];if(!g||!x)return;if(b.pt&&b.pt!=='front'){ST.cov2=ST.cov2||{};const c=ST.cov2[g.id]=ST.cov2[g.id]||{};if(x.u)c[b.pt]=x.u;else delete c[b.pt];save();cjArtRefresh(g);bpBan(x.u?'Arte cambiado':'Arte automático',1800);cjPickX();return}ST.cov=ST.cov||{};if(x.u)ST.cov[g.id]=x.u;else delete ST.cov[g.id];save();const c=b.els.get(g.id);if(c){const im=c.querySelector('.cjf img');if(im)im.src=cjCov(g)}bpBan(x.u?'Carátula cambiada':'Carátula original',1800);cjPickX()}
+function cjPickOk(){const b=BP.cj,g=cjList()[b.i],x=b.pl[b.pi];if(!g||!x)return;if(b.pt==='man'&&/^ia:/.test(x.u||'')){cjPickX();cjManDl(g,x.u.slice(3));return}if(b.pt&&b.pt!=='front'){ST.cov2=ST.cov2||{};const c=ST.cov2[g.id]=ST.cov2[g.id]||{};if(x.u)c[b.pt]=x.u;else delete c[b.pt];save();cjArtRefresh(g);bpBan(x.u?'Arte cambiado':'Arte automático',1800);cjPickX();return}ST.cov=ST.cov||{};if(x.u)ST.cov[g.id]=x.u;else delete ST.cov[g.id];save();const c=b.els.get(g.id);if(c){const im=c.querySelector('.cjf img');if(im)im.src=cjCov(g)}bpBan(x.u?'Carátula cambiada':'Carátula original',1800);cjPickX()}
 function cjPickX(){const b=BP.cj;if(!b||!b.p)return;const o=b.p;b.p=null;b.mode='shelf';o.classList.remove('on');setTimeout(()=>o.remove(),400);bpSnd('bk');cjKeys()}
 /* una sola entrada para teclado y mando: l r u d a b x y lb rb rt */
 function cjIn(k){const b=BP&&BP.cj;if(!b)return;

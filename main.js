@@ -2992,6 +2992,34 @@ app.whenReady().then(() => {
   ipcMain.handle('lbStatus', () => { const I = lbLoad(); return { ready: !!I, n: I ? Object.keys(I.n).length : 0, busy: LBBusy }; });
   ipcMain.handle('lbBuild', () => lbBuild());
   ipcMain.handle('lbFind', (_e, o) => { try { return LB.find(lbLoad(), o || {}); } catch (e) { return null; } });
+  /* ---------- manuales (Archive.org) ---------- */
+  const MND = () => path.join(app.getPath('userData'), 'manuals');
+  const IAH = { 'User-Agent': 'WINTEER/' + app.getVersion() };
+  ipcMain.handle('manSearch', async (_e, name) => {
+    try {
+      const nm = String(name || '').replace(/[()"\\:]/g, ' ').replace(/\s+/g, ' ').trim(); if (!nm) return [];
+      const q = '(' + nm + ') AND manual AND mediatype:(texts)';
+      const r = await net.fetch('https://archive.org/advancedsearch.php?q=' + encodeURIComponent(q) + '&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=downloads&rows=15&sort%5B%5D=downloads+desc&output=json', { headers: IAH });
+      if (!r.ok) return [];
+      const j = await r.json(); return ((j.response && j.response.docs) || []).map((d) => ({ id: d.identifier, title: String(d.title || d.identifier) })).filter((d) => d.id);
+    } catch (e) { return []; }
+  });
+  ipcMain.handle('manGet', async (_e, o) => {
+    try {
+      const id = String((o && o.id) || '').replace(/[^A-Za-z0-9._-]/g, ''); if (!id) return { ok: false, err: 'Manual inválido.' };
+      const mr = await net.fetch('https://archive.org/metadata/' + id, { headers: IAH }); if (!mr.ok) return { ok: false, err: 'Archive.org no respondió.' };
+      const mj = await mr.json(), pdfs = ((mj && mj.files) || []).filter((f) => /\.pdf$/i.test(f.name || '') && +f.size < 200 * 1048576).sort((x, y) => (+y.size || 0) - (+x.size || 0));
+      if (!pdfs.length) return { ok: false, err: 'Este ítem no trae un PDF.' };
+      const r = await net.fetch('https://archive.org/download/' + id + '/' + encodeURIComponent(pdfs[0].name), { headers: IAH, redirect: 'follow' });
+      if (!r.ok || !r.body) return { ok: false, err: 'No pude bajar el PDF.' };
+      fs.mkdirSync(MND(), { recursive: true });
+      const fn = String((o && o.name) || id).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').replace(/[. ]+$/, '').trim() || id, dest = path.join(MND(), fn + ' - manual.pdf');
+      const ws = fs.createWriteStream(dest), rd = r.body.getReader();
+      for (;;) { const { done, value } = await rd.read(); if (done) break; if (!ws.write(value)) await new Promise((k) => ws.once('drain', k)); }
+      await new Promise((k) => ws.end(k)); return { ok: true, path: dest };
+    } catch (e) { return { ok: false, err: 'No pude bajar el manual.' }; }
+  });
+  ipcMain.handle('openPath', async (_e, p) => { try { const f = path.resolve(String(p || '')); if (!f.startsWith(MND() + path.sep) || !fs.existsSync(f)) return false; await shell.openPath(f); return true; } catch (e) { return false; } });
   ipcMain.handle('openUrl', (_e, u) => { try { if (/^https:\/\//i.test(String(u || ''))) { shell.openExternal(String(u)); return true; } } catch (e) {} return false; });
   ipcMain.handle('gmOpen', (_e, p) => { try { shell.showItemInFolder(String(p || '')); return true; } catch (e) { return false; } });
   ipcMain.handle('trlPick', async (_e, key) => {
