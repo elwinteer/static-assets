@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   gmMove: (o) => ipcRenderer.invoke('gmMove', o),
   gmRm: (d) => ipcRenderer.invoke('gmRm', d),
   gmOpen: (p) => ipcRenderer.invoke('gmOpen', p),
+  openUrl: (u) => ipcRenderer.invoke('openUrl', u),
   trlClear: () => ipcRenderer.invoke('trlClear'),
   igdbSagas: (o) => ipcRenderer.invoke('igdbSagas', o),
   igdbSagaGames: (o) => ipcRenderer.invoke('igdbSagaGames', o),

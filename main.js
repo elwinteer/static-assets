@@ -2964,6 +2964,7 @@ app.whenReady().then(() => {
     } catch (e) { return { err: String(e.message || e) }; }
   });
   ipcMain.handle('gmRm', async (_e, dir) => { try { dir = String(dir || ''); if (dir.length < 8 || /^[a-z]:\\?$/i.test(dir) || /windows|program files$|system32/i.test(dir)) return false; await fs.promises.rm(dir, { recursive: true, force: true }); return true; } catch (e) { return false; } });
+  ipcMain.handle('openUrl', (_e, u) => { try { if (/^https:\/\//i.test(String(u || ''))) { shell.openExternal(String(u)); return true; } } catch (e) {} return false; });
   ipcMain.handle('gmOpen', (_e, p) => { try { shell.showItemInFolder(String(p || '')); return true; } catch (e) { return false; } });
   ipcMain.handle('trlPick', async (_e, key) => {
     try {
