@@ -1154,6 +1154,14 @@ body.scr #list .it,body.scr #view .game,body.scr #view .gc{pointer-events:none!i
 .edtabs button{position:relative;z-index:1;display:flex;align-items:center;gap:8px;border:0;background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:10px 18px 14px;cursor:pointer;transition:color .2s}.edtabs button.on{color:#fff}.edtabs .i{width:16px;height:16px}
 .edind{position:absolute;bottom:-1px;left:0;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--a),var(--a2));transition:transform .35s cubic-bezier(.3,.9,.3,1),width .35s cubic-bezier(.3,.9,.3,1)}
 .edb{flex:1;min-height:0;overflow:auto;padding:6px 28px 20px}
+.edim{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;padding-top:16px}.edim.drop{outline:2px dashed var(--a2);outline-offset:6px;border-radius:14px}
+.edpv{position:relative;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:#101018;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 14px 34px rgba(0,0,0,.45);align-self:start}.edpv img{display:block}.pv-h{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.pv-s{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.82),rgba(0,0,0,.15) 60%,rgba(0,0,0,.35))}.pv-c{position:absolute;left:6%;bottom:8%;height:62%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.2)}.pv-c img{width:100%;height:100%;object-fit:cover}.pv-l{position:absolute;left:35%;right:6%;bottom:10%;height:26%;display:flex;align-items:center}.pv-l img{max-height:100%;max-width:100%;object-fit:contain;object-position:left;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6))}.pv-l b{font-size:clamp(16px,2vw,26px);font-weight:800}.pv-i{position:absolute;top:5%;right:4%;width:11%;aspect-ratio:1;border-radius:22%;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.25)}.pv-i img{width:100%;height:100%;object-fit:cover}
+.edpc{min-width:0;display:flex;flex-direction:column;gap:10px}.edkc{display:flex;gap:6px;flex-wrap:wrap}.edkc button{border:0;font:inherit;font-weight:700;font-size:13px;color:var(--muted);padding:8px 16px;border-radius:99px;background:rgba(255,255,255,.07);cursor:pointer;transition:.2s;position:relative}.edkc button:hover{color:#fff}.edkc button.on{background:#fff;color:#111}.edkc button.mine::after{content:'';position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--a2)}
+.edkh{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}.edkh span{flex:1}
+.edkg{display:grid;grid-template-columns:repeat(var(--c,5),minmax(0,1fr));gap:8px;max-height:360px;overflow:auto;padding:4px;scrollbar-width:thin}.ed-t{position:relative;aspect-ratio:var(--ar,2/3);border:0;border-radius:10px;overflow:hidden;padding:0;background:#17132a;cursor:pointer;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);transition:transform .2s}.ed-t:hover{transform:translateY(-2px)}.ed-t img{width:100%;height:100%;object-fit:cover;display:block}.ed-t.o{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(255,255,255,.06);font:inherit}.ed-t.o b{font-size:13px}.ed-t.o small{font-size:11px;color:var(--muted)}.ed-t.on{box-shadow:0 0 0 3px #fff}.ed-t.ld{opacity:.5}.ed-t em{position:absolute;top:4px;right:4px;font-style:normal;font-size:10px;font-weight:800;padding:2px 6px;border-radius:99px;background:rgba(0,0,0,.65)}
+.edsh{margin:26px 0 0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700}
+@media(max-width:900px){.edim{grid-template-columns:1fr}}
+
 .edp{display:none}.edp.on{display:block;animation:rup .35s both}
 .edb label{display:block;font-size:12px;color:var(--muted);margin-top:14px}.edb .txt{width:100%;margin-top:6px;display:block}
 .edb .two2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -8216,27 +8224,47 @@ function intro(){
 /* ---------- inicio ---------- */
 /* ---------- editar juego ---------- */
 let EP={},EG=null,EST='',EFAV=false,ERATE=0,EH='grid';
+/* editor de imágenes del juego: vista previa en vivo + opciones de SteamGridDB */
+let EDI={k:'grid',sel:{},u:{}};const EKP=[['grid','Carátula'],['hero','Fondo'],['logo','Logo'],['icon','Icono'],['wide','Banner']],EKA={grid:[5,'2/3'],hero:[3,'3.1/1'],logo:[4,'16/9'],icon:[6,'1/1'],wide:[3,'460/215']};
+function edUrl(k){const p=EP[k];if(p){if(!EDI.u[k]||EDI.u[k].b!==p)EDI.u[k]={b:p,u:URL.createObjectURL(p)};return EDI.u[k].u}return p===null?autoImg(k):(hasC(k)?ART['c:'+EG.id+':'+k]:autoImg(k))}
+function edPrev(){const v=$('#edpv');if(!v)return;const g=EG;v.innerHTML=`<img class="pv-h" src="${edUrl('hero')}" alt=""><div class="pv-s"></div><div class="pv-c"><img src="${edUrl('grid')}" alt=""></div><div class="pv-l"><img src="${edUrl('logo')}" alt="" onerror="this.style.display='none'"><b>${esc(g.name)}</b></div><div class="pv-i"><img src="${edUrl('icon')}" alt=""></div>`;
+  const l=$('.pv-l img');if(l){l.addEventListener('load',()=>{const b=$('.pv-l b');if(b)b.style.display='none'});l.addEventListener('error',()=>{const b=$('.pv-l b');if(b)b.style.display=''})}
+  $$('#edkc button').forEach(b=>b.classList.toggle('mine',!!EP[b.dataset.v]||(EP[b.dataset.v]===undefined&&hasC(b.dataset.v))));edMark()}
+function edMark(){const k=EDI.k,own=EP[k]?true:(EP[k]===undefined&&hasC(k));$$('#edkg [data-n]').forEach(t=>{const n=t.dataset.n;t.classList.toggle('on',n==='0'?!own:(EDI.sel[k]===t.dataset.u))})}
+async function edKind(k){EDI.k=k;EH=k==='wide'?'wide':k;$$('#edkc button').forEach(b=>b.classList.toggle('on',b.dataset.v===k));const g=EG,box=$('#edkg'),t=$('#edkt');if(!box)return;
+  const [cols,ar]=EKA[k];box.style.setProperty('--c',cols);box.style.setProperty('--ar',ar);t.textContent='Buscando opciones…';
+  const base=`<button type="button" class="ed-t o" data-a="edset" data-n="0"><b>Original</b><small>Automática</small></button><button type="button" class="ed-t o" data-a="edpick" data-id="${k}"><b>Subir</b><small>Tu archivo</small></button>`;box.innerHTML=base;edMark();
+  if(!ST.key){t.textContent='Falta la clave de SteamGridDB para ver opciones. También podés subir tu archivo, arrastrarlo o pegarlo.';return}
+  let L=[];try{L=await bpCvFetch(g,k)}catch(e){L=[]}if(EDI.k!==k||!$('#edkg'))return;
+  if(!L.length){t.textContent='No encontré opciones online. Podés subir tu archivo, arrastrarlo o pegarlo.';return}
+  t.textContent='Tocá una opción para probarla. Se guarda con «Guardar cambios».';
+  box.insertAdjacentHTML('beforeend',L.map((x,i)=>`<button type="button" class="ed-t" data-a="edset" data-n="${i+1}" data-u="${esc(x.u)}"><img src="${esc(wi(x.t))}" alt="" loading="lazy">${x.q?`<em>${x.q}</em>`:''}</button>`).join(''));edMark()}
+Object.assign(A,{
+ edk:a=>edKind(a.dataset.v),edpick:a=>$('#ef-'+a.dataset.id).click(),
+ edset:async a=>{const k=EDI.k;if(a.dataset.n==='0'){EP[k]=null;if(k==='grid')EP.icon=null;EDI.sel[k]=null;paintEP();return}
+   a.classList.add('ld');try{const b=await sgImgBlob(a.dataset.u);EP[k]=await shrink(b,k==='hero'?'wall':k);if(k==='grid')EP.icon=await shrink(b,'icon');EDI.sel[k]=a.dataset.u;paintEP()}catch(e){toast('No pude bajar esa imagen')}a.classList.remove('ld')}});
+
 const EK=[['icon','Icono','Lista de la izquierda'],['grid','Carátula','Vertical'],['hero','Fondo','Imagen grande de arriba'],['logo','Logo','Sobre el fondo'],['wide','Banner','Tarjetas de Inicio']];
 const hasC=k=>!!ART['c:'+EG.id+':'+k];
 const autoImg=k=>k==='icon'?(sg(EG).icon||art.grid(EG,true)):art[k](EG,true);
-function paintEP(){EK.forEach(([k])=>{const el=$('#ep-'+k);if(!el)return;
+function paintEP(){try{edPrev()}catch(e){}EK.forEach(([k])=>{const el=$('#ep-'+k);if(!el)return;
   const p=EP[k],own=p?true:(p===undefined&&hasC(k));
   const u=p?URL.createObjectURL(p):(p===null?autoImg(k):(hasC(k)?ART['c:'+EG.id+':'+k]:autoImg(k)));
   el.innerHTML=`<img src="${u}" alt="">`;
   const st=$('#es-'+k);if(st){st.textContent=p?'Nueva (sin guardar)':own?'Personalizada':'Automática';st.className='es'+(own?' on':'')}
   const cb=$('#ec-'+k);if(cb)cb.style.display=own?'':'none'})}
 async function setEP(k,fl){try{EP[k]=await shrink(fl,k);paintEP()}catch(x){toast('No pude leer esa imagen')}}
-let ET='gen';function etabInd(){const t=$('.edtabs'),on=t&&t.querySelector('button.on'),i=t&&t.querySelector('.edind');if(on&&i){i.style.width=on.offsetWidth+'px';i.style.transform=`translateX(${on.offsetLeft}px)`}}
-function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='gen';EST=g.status==='Terminado'?'Terminado':'';EFAV=!!g.fav;ERATE=g.rate||0;
+let ET='img';function etabInd(){const t=$('.edtabs'),on=t&&t.querySelector('button.on'),i=t&&t.querySelector('.edind');if(on&&i){i.style.width=on.offsetWidth+'px';i.style.transform=`translateX(${on.offsetLeft}px)`}}
+function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',sel:{},u:{}};EST=g.status==='Terminado'?'Terminado':'';EFAV=!!g.fav;ERATE=g.rate||0;
   const used={};G.forEach(x=>(x.tags||[]).forEach(t=>used[t]=(used[t]||0)+1));
-  const sug=[...Object.entries(used).sort((a,b)=>b[1]-a[1]).map(x=>x[0]),'relajante','con amigos','historia','pixel art','co-op','joya oculta','favorito de siempre'].filter((t,i,a)=>a.indexOf(t)===i&&!(g.tags||[]).includes(t)).slice(0,8);
-  const TB=[['gen','General','edit'],['img','Imágenes','img'],['play','Juego','play'],['adv','Avanzado','shield']];
+  const sug=[...Object.entries(used).sort((a,b)=>b[1]-a[1]).map(x=>x[0])].filter((t,i,a)=>a.indexOf(t)===i&&!(g.tags||[]).includes(t)).slice(0,8);
+  const TB=[['img','Imágenes','img'],['gen','Datos','edit'],['play','Juego','play']];
   modal(`<div class="edh"><div class="edhb"><img id="edhi" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div><div class="edhs"></div>
       <div class="edhc"><div class="edhv"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""></div><div class="edht"><small>Editando</small><h3 id="edhn">${esc(g.name)}</h3><span>${stOf(g)} · ${fh(g.hours)}${g.app?' · AppID '+g.app:''}</span></div>
       </div><button class="edx" data-a="close" aria-label="Cerrar">✕</button></div>
-    <nav class="edtabs">${TB.map(([k,l,i])=>`<button class="${k==='gen'?'on':''}" data-a="etab" data-v="${k}">${ic(i)}${l}</button>`).join('')}<i class="edind"></i></nav>
+    <nav class="edtabs">${TB.map(([k,l,i])=>`<button class="${k==='img'?'on':''}" data-a="etab" data-v="${k}">${ic(i)}${l}</button>`).join('')}<i class="edind"></i></nav>
     <div class="edb">
-     <section class="edp on" data-p="gen">
+     <section class="edp" data-p="gen">
       <label>Nombre<input class="txt" id="e-name" value="${esc(g.name)}"></label>
       <div class="two2"><label>Horas jugadas<div class="hrs"><button type="button" data-a="ehadj" data-v="-1">−1</button><input class="txt" id="e-h" type="number" step="0.1" min="0" value="${(g.hours||0).toFixed(1)}"><button type="button" data-a="ehadj" data-v="1">+1</button><button type="button" data-a="ehadj" data-v="10">+10</button></div></label>
       <label>Fecha en que lo completaste<input class="txt" id="e-dd" type="date" value="${g.doneAt?new Date(g.doneAt-new Date(g.doneAt).getTimezoneOffset()*6e4).toISOString().slice(0,10):''}"></label></div>
@@ -8246,9 +8274,7 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='gen';EST=g.status==
       ${sug.length?`<div class="sugs">${sug.map(t=>`<button type="button" data-a="etag" data-v="${esc(t)}">+ ${esc(t)}</button>`).join('')}</div>`:''}
       <label>Duración (HowLongToBeat), en horas</label><div class="two2" style="grid-template-columns:repeat(3,1fr)"><input class="txt" id="e-hm" type="number" step="0.5" min="0" placeholder="Historia" value="${(g.hl&&g.hl.m)||''}"><input class="txt" id="e-he" type="number" step="0.5" min="0" placeholder="+ Extras" value="${(g.hl&&g.hl.e)||''}"><input class="txt" id="e-hc" type="number" step="0.5" min="0" placeholder="Platino" value="${(g.hl&&g.hl.c)||''}"></div>
      </section>
-     <section class="edp" data-p="img"><div class="imgtop"><span class="hint" style="display:block;flex:1;color:var(--muted);font-size:12.5px">Tocá una imagen para cambiarla, arrastrá un archivo encima o pegalo con Ctrl+V.</span><button type="button" class="b2 g sm" data-a="eclrall">Volver todas a automáticas</button></div>
-      <div class="egrid">${EK.map(([k,l,d])=>`<div class="er" data-k="${k}"><div class="ep k-${k}" id="ep-${k}" data-a="epick" data-id="${k}"></div><div class="erm"><b>${l}</b><small>${d}</small><span class="es" id="es-${k}"></span><div class="eb"><button class="b2 g sm" data-a="epick" data-id="${k}">Cambiar</button><button class="b2 g sm" id="ec-${k}" data-a="eclr" data-id="${k}">Quitar</button></div></div><input type="file" accept="image/*" hidden id="ef-${k}"></div>`).join('')}</div>
-     </section>
+     <section class="edp on" data-p="img"><div class="edim" id="edimg"><div class="edpv" id="edpv"></div><div class="edpc"><div class="edkc" id="edkc">${EKP.map(([k,l])=>`<button data-a="edk" data-v="${k}" class="${k==='grid'?'on':''}">${l}</button>`).join('')}</div><div class="edkh"><span id="edkt"></span><button type="button" class="b2 g sm" data-a="eclrall">Restaurar todo</button></div><div class="edkg" id="edkg"></div></div>${EK.map(([k])=>`<input type="file" accept="image/*" hidden id="ef-${k}">`).join('')}</div></section>
      <section class="edp" data-p="play">
       <label>Instalación<select class="txt" id="e-im"><option value="">Automática${isSteamG(g)?': detectar en Steam'+(g.inst?' (instalado ahora)':' (no instalado)'):': según el ejecutable ('+(g.exe&&g.inst!==false?'instalado':'no instalado')+')'}</option><option value="1" ${g.instM===true?'selected':''}>Instalado</option><option value="0" ${g.instM===false?'selected':''}>Desinstalado</option></select></label>
       ${g.exe!==undefined||isXbG(g)?`<label>Ejecutable del juego (.exe)${isXbG(g)?'<span class="hint" style="display:block;margin:4px 0 6px">Si el juego abre con otro .exe, elegilo acá: la entrada sigue siendo la misma y conserva horas, logros y capturas. '+(g.xexe?'Ahora usa uno elegido por vos. Para volver al automático, borrá el campo.':'')+'</span>':''}<div class="exr"><input class="txt" id="e-ex" value="${esc(g.exe||'')}" placeholder="C:\\Juegos\\MiJuego\\juego.exe">${window.winteerNative?'<button type="button" class="b2 sm" data-a="epickexe">Buscar en carpeta…</button>':''}</div></label>`:''}
@@ -8258,8 +8284,7 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='gen';EST=g.status==
       ${window.winteerNative&&winteerNative.gmMove?(isSteamG(g)?`<label>Disco del juego<div class="exr"><span class="hint" style="flex:1;margin:0">En Steam se mueve desde Propiedades, Archivos instalados, Mover carpeta de instalación.</span><button type="button" class="b2 sm" data-a="egmsteam">Abrir en Steam</button></div></label>`:(g.exe&&!isXbG(g)?`<label>Disco del juego<div class="exr"><span class="hint" id="e-gd" style="flex:1;margin:0">Copia el juego a otro disco, lo verifica y recién después te deja borrar el original.</span><button type="button" class="b2 sm" data-a="egmmove">Mover a otro disco…</button></div></label>`:'')):''}
       <label>Enlace de inicio (opcional)<input class="txt" id="e-l" placeholder="steam://rungameid/${g.app}" value="${esc(g.launch||'')}"></label>
       <p class="hint" style="margin-top:8px">Si lo dejás vacío, WINTEER usa su forma normal de abrir el juego.</p>
-     </section>
-     <section class="edp" data-p="adv">
+      <h4 class="edsh">Avanzado</h4>
       <label>AppID de Steam<input class="txt" id="e-app" type="number" value="${g.app||''}"></label>
       <p class="hint" style="margin-top:8px">Cambiarlo vuelve a buscar las imágenes y datos del juego con ese número.</p>
       <div class="danger"><div><b>Quitar de la biblioteca</b><small>Se borra de WINTEER con sus horas y notas. No se desinstala.</small></div><button class="b2 g sm" data-a="edelm" style="color:#ff8aa0">Quitar</button></div>
@@ -8268,11 +8293,10 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='gen';EST=g.status==
     <div class="edf"><small>Esc para cerrar sin guardar</small><div><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="esave">Guardar cambios</button></div></div>`,'wide2');
   const en=$('#e-name');if(en)en.addEventListener('input',()=>{const h=$('#edhn');if(h)h.textContent=en.value||g.name});
   etabInd();
-  paintEP();EH='grid';
+  paintEP();EH='grid';edKind('grid');
   EK.forEach(([k])=>$('#ef-'+k).addEventListener('change',e=>{const fl=e.target.files[0];if(fl)setEP(k,fl);e.target.value=''}));
-  $$('.er').forEach(r=>{const k=r.dataset.k;r.addEventListener('mouseenter',()=>{EH=k});
-    r.addEventListener('dragover',e=>{e.preventDefault();r.classList.add('drop')});r.addEventListener('dragleave',()=>r.classList.remove('drop'));
-    r.addEventListener('drop',e=>{e.preventDefault();r.classList.remove('drop');const fl=e.dataTransfer.files[0];if(fl&&/^image\//.test(fl.type))setEP(k,fl)})})}
+  const im=$('#edimg');if(im){im.addEventListener('dragover',e=>{e.preventDefault();im.classList.add('drop')});im.addEventListener('dragleave',()=>im.classList.remove('drop'));
+    im.addEventListener('drop',e=>{e.preventDefault();im.classList.remove('drop');const fl=e.dataTransfer.files[0];if(fl&&/^image\//.test(fl.type))setEP(EDI.k,fl)})}}
 document.addEventListener('paste',e=>{if(!$('.mb.wide2'))return;const it=[...(e.clipboardData||{}).items||[]].find(i=>/^image\//.test(i.type));if(!it)return;e.preventDefault();setEP(EH,it.getAsFile());toast('Imagen pegada en: '+(EK.find(x=>x[0]===EH)||[])[1])});
 function ctxClose(){const c=$('#ctx');if(c)c.remove()}
 document.addEventListener('contextmenu',e=>{const el=e.target.closest('.it[data-id],.game[data-id]');if(!el){ctxClose();return}
@@ -8656,6 +8680,8 @@ async function bpCvFetch(g,kind){const ck=g.id+':'+kind;if(BPCV[ck])return BPCV[
   let d=[];
   if(kind==='grid')d=await get('grids/'+gid+'?dimensions=600x900&nsfw=false&humor=false&types=static');
   else if(kind==='logo')d=await get('logos/'+gid+'?types=static&mimes=image/png,image/webp&nsfw=false&humor=false');
+  else if(kind==='icon')d=await get('icons/'+gid+'?types=static&nsfw=false&humor=false');
+  else if(kind==='wide')d=await get('grids/'+gid+'?dimensions=920x430,460x215&nsfw=false&humor=false&types=static');
   else{d=await get('heroes/'+gid+'?dimensions=3840x1240&nsfw=false&humor=false&types=static');if(d.length<3)d=d.concat(await get('heroes/'+gid+'?dimensions=1920x620&nsfw=false&humor=false&types=static'))}
   const o=d.slice(0,14).map(x=>({t:x.thumb||x.url,u:x.url,q:kind==='hero'?((x.width||0)>=3000?'4K':'HD'):''}));BPCV[ck]=o;return o}
 const BPCC={grid:[7,'2/3'],logo:[4,'16/9'],hero:[3,'3.1/1']};
