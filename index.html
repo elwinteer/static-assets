@@ -540,12 +540,13 @@ body.light .set .sgrid>.row,body.light details.mo>summary{background:rgba(40,28,
 .bpsh{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,4,11,.7) 0%,rgba(5,4,11,.3) 36%,transparent 62%),linear-gradient(180deg,rgba(5,4,11,.7),transparent 22%,transparent 48%,rgba(5,4,11,.96) 86%)}
 .bptop{position:absolute;left:4vw;right:4vw;top:3vh;display:flex;align-items:center;gap:2vw;z-index:30;animation:bpdown .7s cubic-bezier(.2,.8,.2,1) both}
 @keyframes bpdown{from{opacity:0;transform:translateY(-16px)}}
-.bpnav{display:flex;gap:6px;flex:1}
+.bpwho{flex:1;display:flex;align-items:center;gap:1.1vh;min-width:0}.bpwho b{display:block;font-size:clamp(14px,1.3vw,19px);font-weight:700;color:#fff;line-height:1.15}.bpwho small{display:flex;align-items:center;gap:6px;font-size:clamp(11px,.9vw,13px);color:rgba(255,255,255,.6)}.bpwho small::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e}
+.bpnav{display:flex;gap:4px;flex:none;justify-content:center}.bpnav button{position:relative}.bpnav button::after{content:'';position:absolute;left:18px;right:18px;bottom:3px;height:2px;border-radius:2px;background:#fff;transform:scaleX(0);transition:transform .35s cubic-bezier(.2,.8,.2,1)}.bpnav button.cur::after{transform:scaleX(1)}.bpnav button.cur{color:#fff}
 .bpnav button{border:0;font:inherit;font-size:clamp(13px,1.2vw,17px);font-weight:600;color:rgba(255,255,255,.62);background:none;padding:9px 18px;border-radius:999px;cursor:pointer;transition:background .25s,color .25s,transform .25s}
 .bpnav button:hover{color:#fff}.bpnav button.f{background:#fff;color:#111;transform:scale(1.07);box-shadow:0 8px 26px rgba(var(--argb),.5)}
-.bpr{display:flex;align-items:center;gap:1.4vw;font-size:clamp(12px,1vw,14px);color:rgba(255,255,255,.75)}
+.bpr{flex:1;justify-content:flex-end;display:flex;align-items:center;white-space:nowrap;gap:1.4vw;font-size:clamp(12px,1vw,14px);color:rgba(255,255,255,.75)}
 .bppad{display:flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}.bppad i{width:8px;height:8px;border-radius:50%;background:#64748b}.bppad.on i{background:#22c55e;box-shadow:0 0 9px #22c55e}
-.bplv{padding:6px 13px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-weight:600}
+.bplv{white-space:nowrap;padding:6px 13px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-weight:600}
 .bpclk{font-size:clamp(20px,2vw,30px);font-weight:300;letter-spacing:.05em;color:#fff}
 .bpr .avatar{width:40px;height:40px;font-size:17px}
 .bphero{position:absolute;left:5vw;bottom:calc(41.5vh + 7vh);width:46vw;z-index:20}
@@ -8380,12 +8381,12 @@ function bpBan(t,ms){if(!BP)return;const b=BP.el.querySelector('.bpban');b.textC
 function bpHints(){if(!BP)return;const p=BP.padOn,k=(a,b)=>`<span><i>${p?padLbl(a):b}</i> `;
   BP.el.querySelector('.bpkeys').innerHTML=`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Categoría</span>${k('LT','T')}Trailer</span>${k('X','/')}Buscar</span>${k('R3','M')}Música</span>${k('RT','R')}Sorpréndeme</span></div>`}
 function bpPadUi(){if(!BP)return;const e=BP.el.querySelector('.bppad');e.classList.toggle('on',!!BP.padOn);e.querySelector('b').textContent=BP.padOn?((()=>{const q=padNow();return q&&padCfg(q).n})()||'Mando conectado'):'Teclado y mouse'}
-function bpTop(){if(!BP)return;const d=new Date();BP.el.querySelector('.bpclk').textContent=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});try{BP.el.querySelector('.bplv').textContent='Nv '+lvlOf().l}catch(e){}bpPadUi()}
+function bpTop(){if(!BP)return;const d=new Date();{const w=BP.el.querySelector('.bpwho small');if(w)w.textContent=S.playing?'Jugando':'En línea'}BP.el.querySelector('.bpclk').textContent=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});try{BP.el.querySelector('.bplv').textContent='Nv '+lvlOf().l}catch(e){}bpPadUi()}
 function bpZone(z){if(!BP||BP.z===z)return;BP.z=z;BP.el.querySelectorAll('.bpnav button').forEach((b,i)=>b.classList.toggle('f',z==='nav'&&i===BP.n));bpHints()}
 function bpOpen(){if(BP)return;hcnt('bp');const rec=G.some(g=>lastTs(g)>0),L0=S.bpL;
   const el=document.createElement('div');el.id='bp';
   el.innerHTML=`<div class="bpbg"><img alt=""><img alt=""></div><div class="bpsh"></div>
-   <div class="bptop"><div class="bpnav"></div><div class="bpr"><span class="bppad"><i></i><b></b></span><span class="bplv"></span><span class="bpclk"></span>${avHTML(PR(),40)}</div></div>
+   <div class="bptop"><div class="bpwho">${avHTML(PR(),46)}<div><b>${esc((PR()||{}).name||UN()||'')}</b><small></small></div></div><div class="bpnav">${BPNV.map(([k,l])=>`<button data-k="${k}" class="${k==='games'?'cur':''}">${l}</button>`).join('')}</div><div class="bpr"><span class="bppad"><i></i><b></b></span><span class="bplv"></span><span class="bpclk"></span></div></div>
    <div class="bphero"><div class="bpkick"></div><h1></h1><div class="bpm"></div><div class="bpd"></div><div class="bpbtn"></div></div>
    <div class="bpst"></div>
    <div class="bpcats"><i>LB</i>${BPT.map(([k,l])=>`<button data-k="${k}">${l}</button>`).join('')}<i>RB</i></div>
@@ -8394,6 +8395,7 @@ function bpOpen(){if(BP)return;hcnt('bp');const rec=G.some(g=>lastTs(g)>0),L0=S.
   el.querySelector('.bpcats').addEventListener('click',e=>{const b=e.target.closest('button');if(b)bpTabSet(b.dataset.k)});
   el.querySelector('.bprow').addEventListener('click',e=>{const c=e.target.closest('.bpc');if(!c)return;const j=bpList().findIndex(g=>g.id===c.dataset.id);if(j===BP.i)bpAct();else{BP.i=j;bpSnd('nav');bpRender()}});
   el.querySelector('.bphero').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.b==='p')bpAct();else if(b.dataset.b==='f')bpFav()});
+  el.querySelector('.bpnav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)bpNavGo(b.dataset.k)});
   BP.clk=setInterval(bpTop,2000);
   try{const ps=[...navigator.getGamepads()].filter(Boolean);if(ps.length){BP.padOn=true;BP.pi=ps[0].index}}catch(e){}
   if(L0){const L=bpList(),j=L.findIndex(g=>g.id===L0.id);if(j>=0)BP.i=j}
