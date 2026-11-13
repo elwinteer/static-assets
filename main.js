@@ -2966,6 +2966,10 @@ app.whenReady().then(() => {
       return { url: pathToFileURL(fin).href };
     } catch (e) { return { err: String(e.message || e) }; }
   });
+  /* fondos de video del Modo mando: carpeta "fondos" dentro de la carpeta de datos */
+  const FONDOS = () => { const d = path.join(app.getPath('userData'), 'fondos'); try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} return d; };
+  ipcMain.handle('fondosList', () => { try { const d = FONDOS(); return fs.readdirSync(d).filter(f => /\.(mp4|webm|mkv|mov)$/i.test(f)).sort().map(f => ({ n: f.replace(/\.[^.]+$/, ''), f, u: pathToFileURL(path.join(d, f)).href })); } catch (e) { return []; } });
+  ipcMain.handle('fondosOpen', async () => { try { await shell.openPath(FONDOS()); } catch (e) {} return true; });
   ipcMain.handle('trlDiscard', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); fs.unlinkSync(path.join(TRL, key + '.pv.mp4')); } catch (e) {} return true; });
   ipcMain.handle('musDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); musClean(key); fs.writeFileSync(path.join(TRL, key + '.nm'), ''); return true; } catch (e) { return false; } });
   /* mantenimiento: mover un juego a otro disco (copia, verifica y recién después ofrece borrar el original) */

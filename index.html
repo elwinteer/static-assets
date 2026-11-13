@@ -536,6 +536,8 @@ body.light .set .sgrid>.row,body.light details.mo>summary{background:rgba(0,0,0,
 .bpbg{position:absolute;inset:0;overflow:hidden;background:#060608}
 .bpbg>img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;filter:brightness(.66) saturate(1.15);animation:bpdrift 26s ease-in-out infinite alternate;will-change:opacity,transform}.bpbg>img.on{opacity:1}
 @keyframes bpdrift{from{transform:scale(1.02) translate(-1%,-.6%)}to{transform:scale(1.1) translate(1%,.6%)}}
+.bpvl{display:flex;flex-wrap:wrap;gap:8px;max-width:62%;justify-content:flex-end}.bpvl .on{background:#fff;color:#000}
+.bpvv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;pointer-events:none;background:#060608}#bp.vbg .bpvv{opacity:1}#bp.vbg .bpbg{opacity:0}
 .bpbg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;pointer-events:none;filter:brightness(.92)}.bpbg video.on{opacity:1}
 .bpsh{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,4,11,.7) 0%,rgba(5,4,11,.3) 36%,transparent 62%),linear-gradient(180deg,rgba(5,4,11,.7),transparent 22%,transparent 48%,rgba(5,4,11,.96) 86%)}
 #bp.fic .bphero,#bp.fic .bpcats,#bp.fic .bprow{opacity:0;pointer-events:none}.bphero,.bpcats,.bprow{transition-property:opacity;transition-duration:.35s}
@@ -4146,7 +4148,7 @@ function bkRows(){const b=ST.bk||{},f=b.last?new Date(b.last).toLocaleDateString
   const cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir),n=Object.values((ST.tm&&ST.tm.g)||{}).filter(x=>x.paths&&x.paths.length).length;
   return `<div class="row"><div>Copia de seguridad automática<small>Una vez por semana, en silencio, guarda todo en un único archivo que se sobrescribe: horas, logros, perfil, reseñas e imágenes. También guarda versiones de las partidas de tus juegos de Epic, Xbox, .exe y emulados${n?' ('+n+' con copias)':''}, que Ludusavi encuentra solo, y las restaurás desde la ficha de cada juego. Última copia: <b>${f}</b>.</small></div><button class="sw ${b.on?'on':''}" data-a="bkauto"></button></div>
   <div class="row"><div>Carpeta de las copias<small id="bkdir">${b.dir?esc(b.dir):'Todavía no elegiste una carpeta.'}</small><small style="display:block;margin-top:4px">${cloud?'Está en la nube: tus copias y partidas te siguen a cualquier PC.':'Recomendado: una carpeta de Google Drive, así todo queda en la nube y lo recuperás aunque cambies de PC.'}</small></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button><button class="b2 g" data-a="bkrest">Restaurar</button></div></div>`}
-const STABS=[['gen','General','gear'],['look','Apariencia','flake'],['avi','Avisos y sonido','bell'],['lib','Biblioteca','games'],['ext','Extras','star'],['data','Copias y sistema','shield']];
+const STABS=[['gen','General','gear'],['look','Apariencia','flake'],['avi','Avisos y sonido','bell'],['lib','Biblioteca','games'],['mando','Modo mando','games'],['ext','Extras','star'],['data','Copias y sistema','shield']];
 const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="sv" data-k="${k}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
 const badge=(ok,t1,t0)=>`<span class="bdg ${ok?'ok':''}">${ok?t1:t0}</span>`;
 const setT=()=>{const t=({fx:'look',per:'avi',pet:'avi',hit:'avi',frn:'avi',rew:'avi',me:'avi',con:'lib'})[S.stab]||S.stab||'gen';return STABS.some(x=>x[0]===t)?t:'gen'};
@@ -4191,6 +4193,9 @@ function setX(t){const N=!!window.winteerNative;
 const sR=(t,d,c,f)=>`<div class="row${f?' f':''}"><div>${t}<small>${d}</small></div>${c||''}</div>`;
 const sSw=(a,on,k)=>`<button class="sw ${on?'on':''}" data-a="${a}"${k?` data-k="${k}"`:''}></button>`;
 const sH=t=>`<h4 class="shd">${t}</h4>`;
+const segv0=(a,o,cur)=>`<div class="seg">${o.map(([v,l])=>`<button data-a="${a}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
+let BPVL=[];const bpvLoad=async()=>{try{if(window.winteerNative&&winteerNative.fondosList)BPVL=await winteerNative.fondosList()||[]}catch(e){}};bpvLoad();
+const _x=0;/**/
 function setPane(t){
   const N=!!window.winteerNative,XR=N&&typeof x8Rows==='function'?x8Rows():[],xr=re=>XR.find(r=>typeof r==='string'&&re.test(r))||'';
   if(N&&BGC&&BGC.win&&BGC.shots===false&&winteerNative.shotCfg)winteerNative.shotCfg({shots:true}).then(c=>{BGC=Object.assign(BGC,c)}).catch(()=>{});
@@ -4226,6 +4231,14 @@ function setPane(t){
     sR('Juegos duplicados',d?d+' repetidos entre tiendas. Elegí con cuál quedarte.':'No hay juegos repetidos.',`<button class="b2" data-a="dupopen" ${d?'':'disabled'}>Revisar</button>`),
     sR('Limpieza de juegos',c?c+' instalados sin jugar hace más de un mes.':'Nada para limpiar por ahora.',`<button class="b2" data-a="clnopen" ${c?'':'disabled'}>Ver</button>`)
   ]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>']}
+  if(t==='mando'){const L=BPVL,cur=bpvPick();return [
+    sH('Fondo de video'),
+    sR('Fondo de video','Se ve detrás de Inicio, Sagas, Amigos, Estadísticas y Ajustes del Modo mando. La Biblioteca sigue con el arte de cada juego.',sSw('bpvon',ST.bpvOn!==false)),
+    sR('Cómo se elige','Al azar cambia solo cuando termina cada video.',segv0('bpvm',[['rot','Al azar'],['uno','Uno fijo']],ST.bpvM||'rot')),
+    sR('Brillo del video','Más bajo hace que se lea mejor lo de arriba.',segv0('bpvd',[['.45','Suave'],['.65','Normal'],['.9','Fuerte']],String(ST.bpvB||'.65'))),
+    sH('Videos'),
+    ...(L.length?[`<div class="row f"><div>Elegí cuál<small>${L.length} videos en la carpeta. Con "Al azar" se usan todos.</small></div><div class="bpvl">${L.map(v=>`<button class="b2 sm ${cur&&cur.f===v.f&&ST.bpvM==='uno'?'on':''}" data-a="bpvf" data-v="${esc(v.f)}">${esc(v.n)}</button>`).join('')}</div></div>`]:[sR('Sin videos todavía','Poné videos .mp4 o .webm en la carpeta de fondos y aparecen acá.','')]),
+    sR('Carpeta de videos','Copiá ahí los videos que quieras usar de fondo.','<div style="display:flex;gap:8px"><button class="b2" data-a="bpvdir">Abrir carpeta</button><button class="b2 g" data-a="bpvrel">Actualizar</button></div>')]}
   if(t==='ext')return N&&typeof emCfg==='function'?[(()=>{const c=emCfg(),n=G.filter(g=>g.emu).length,k=Object.keys(c.exe).length;return sR('Estación de emulación','Elegí la carpeta de ROMs y WINTEER detecta las consolas y abre cada juego con su emulador gratuito. '+(n?n+' juegos. ':'')+(k?k+' emulador'+(k===1?'':'es')+' listo'+(k===1?'':'s')+'.':'Todavía no hay emuladores.'),'<div style="display:flex;gap:8px;flex-wrap:nowrap"><button class="b2" data-a="x5dir">Agregar carpeta</button><button class="b2 g" data-a="x5scan">Escanear</button><button class="b2 g" data-a="x5emus">Emuladores</button></div>',1)})(),xr(/x5ra/),...(typeof x7Rows==='function'?x7Rows():[])]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>'];
   if(t==='data')return [
     ...(N?[updCard()]:[]),
@@ -8439,6 +8452,12 @@ document.addEventListener('input',e=>{if(e.target&&e.target.id==='tgq'){TRM.q=e.
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.tgg')&&!$('.modal')){const t=e.target;if(t&&t.id==='tgq'&&t.value){t.value='';TRM.q='';tgRender();return}tgClose()}});
 Object.assign(A,{
   flsave:async()=>{const r=await winteerNative.flSave();toast(r&&r.ok?'Guardé el mapeo actual como el bueno':'No encontré el archivo del juego')},
+  bpvon:a=>{ST.bpvOn=ST.bpvOn===false;save();a.classList.toggle('on',ST.bpvOn!==false);bpvSync()},
+  bpvm:a=>{ST.bpvM=a.dataset.v;save();$$('[data-a="bpvm"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync(1);if(S.view==='settings')go('settings')},
+  bpvd:a=>{ST.bpvB=a.dataset.v;save();$$('[data-a="bpvd"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync()},
+  bpvf:a=>{ST.bpvF=a.dataset.v;ST.bpvM='uno';save();bpvSync(1);go('settings')},
+  bpvdir:()=>{try{winteerNative.fondosOpen()}catch(e){}},
+  bpvrel:async()=>{await bpvLoad();toast(BPVL.length+' videos');go('settings')},
   tgopen:()=>tgOpen(),tgclose:()=>tgClose(),
   tgsel:a=>{const id=a.dataset.id;if(TRM.busy)return;if(TRM.sel.has(id))TRM.sel.delete(id);else TRM.sel.add(id);a.classList.toggle('sel',TRM.sel.has(id));TRM.cf=0;tgBar();const lw=tgLow(),c=$('#tglow');if(c)c.classList.toggle('on',lw.length>0&&lw.every(g=>TRM.sel.has(g.id)))},
   tgf:a=>{TRM.f=a.dataset.v;tgRender()},
@@ -8477,11 +8496,11 @@ function bpBan(t,ms){if(!BP)return;const b=BP.el.querySelector('.bpban');b.textC
 function bpHints(){if(!BP)return;const p=BP.padOn,k=(a,b)=>`<span><i>${p?padLbl(a):b}</i> `;
   BP.el.querySelector('.bpkeys').innerHTML=BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.cv?`<div>${k('A','Enter')}Usar esta</span>${k('B','Esc')}Cerrar</span></div><div>${k('LB RB','Q E')}Carátula, logo, fondo</span></div>`:BP.nr?`<div>${k('B','Esc')}Volver</span></div><div><span>↑ ↓ Leer</span></div>`:(BP.sec==='home'&&!BP.fic)?`<div>${k('A','Enter')}Abrir</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Noticia</span></div>`:(BP.sec==='friends'&&!BP.fic)?`<div>${k('A','Enter')}Seleccionar</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span><span><i>${p?'RS':'Re Pág'}</i> Desplazar</span></div>`:((BP.sec==='sagas'||BP.sec==='settings'||BP.sec==='stats')&&!BP.fic)?`<div>${k('A','Enter')}Seleccionar</span>${k('B','Esc')}${S.sgo?'Volver':'Salir'}</span></div><div>${k('LB RB','Q E')}Sección</span><span><i>${p?'RS':'Re Pág'}</i> Desplazar</span></div>`:BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.fic?`<div>${k('A','Enter')}Jugar</span>${k('X','X')}Editar</span>${k('B','Esc')}Volver</span></div>`:`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Categoría</span>${k('X','/')}Buscar</span></div>`}
 function bpPadUi(){if(!BP)return;const e=BP.el.querySelector('.bppad');e.classList.toggle('on',!!BP.padOn);e.querySelector('b').textContent=BP.padOn?((()=>{const q=padNow();return q&&padCfg(q).n})()||'Mando conectado'):'Teclado y mouse'}
-function bpTop(){if(!BP)return;const d=new Date();{const w=BP.el.querySelector('.bpwho small');if(w)w.textContent=S.playing?'Jugando':'En línea'}BP.el.querySelector('.bpclk').textContent=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});try{BP.el.querySelector('.bplv').textContent='Nv '+lvlOf().l}catch(e){}bpPadUi()}
+function bpTop(){if(!BP)return;try{bpvSync()}catch(e){}const d=new Date();{const w=BP.el.querySelector('.bpwho small');if(w)w.textContent=S.playing?'Jugando':'En línea'}BP.el.querySelector('.bpclk').textContent=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});try{BP.el.querySelector('.bplv').textContent='Nv '+lvlOf().l}catch(e){}bpPadUi()}
 function bpZone(z){if(!BP||BP.z===z)return;BP.z=z;BP.el.querySelectorAll('.bpnav button').forEach((b,i)=>b.classList.toggle('f',z==='nav'&&i===BP.n));bpHints()}
 function bpOpen(){if(BP)return;hcnt('bp');const rec=G.some(g=>lastTs(g)>0),L0=S.bpL;
   const el=document.createElement('div');el.id='bp';
-  el.innerHTML=`<div class="bpbg"><img alt=""><img alt=""></div><div class="bpsh"></div>
+  el.innerHTML=`<div class="bpbg"><img alt=""><img alt=""></div><video class="bpvv" muted playsinline></video><div class="bpsh"></div>
    <div class="bptop"><div class="bpwho">${avHTML(PR(),46)}<div><b>${esc((PR()||{}).name||UN()||'')}</b><small></small></div></div><div class="bpnav">${BPNV.map(([k,l])=>`<button data-k="${k}" class="${k==='home'?'cur':''}">${l}</button>`).join('')}</div><div class="bpr"><span class="bppad"><i></i><b></b></span><span class="bplv"></span><span class="bpclk"></span></div></div>
    <div class="bphero"></div>
    <div class="bpst"></div>
@@ -8497,12 +8516,19 @@ function bpOpen(){if(BP)return;hcnt('bp');const rec=G.some(g=>lastTs(g)>0),L0=S.
   try{const ps=[...navigator.getGamepads()].filter(Boolean);if(ps.length){BP.padOn=true;BP.pi=ps[0].index}}catch(e){}
   if(L0){const L=bpList(),j=L.findIndex(g=>g.id===L0.id);if(j>=0)BP.i=j}
   if(WN&&winteerNative.fullscreen)winteerNative.fullscreen(true);
-  bpTop();bpHints();bpRender();bpHomeDraw();requestAnimationFrame(()=>el.classList.add('on'));bpSnd('open');
+  bpvLoad().then(()=>bpvSync(1));setTimeout(()=>bpvSync(1),700);bpTop();bpHints();bpRender();bpHomeDraw();requestAnimationFrame(()=>el.classList.add('on'));bpSnd('open');
   if(!visOn()&&!L0)bpWelOpen();
   try{const rd=()=>{if(BP&&BP.sec==='home'&&!BP.nr)bpHomeDraw()};Promise.resolve(newsFetch()).finally(rd);Promise.resolve(worldFetch()).finally(()=>setTimeout(rd,300))}catch(e){}
   if(L0){const g=G.find(x=>x.id===L0.id);S.bpL=null;if(g){const dh=Math.max(0,(g.hours||0)-L0.h),r=rankOf(g);setTimeout(()=>bpBan(`${g.name} · +${fh(dh)}`+(r>L0.r?` · ¡Subiste a ${RK[r][0]}!`:'')),700)}}}
 function bpClose(){if(!BP)return;try{if(BP.ifr){const f=BP.ifr;bpFade(f,0,350,()=>{try{f.pause();if(f._au)f._au.pause()}catch(e){}})}}catch(e){}document.body.classList.remove('bpon');if(WN&&winteerNative.bpClosed)winteerNative.bpClosed();const e=BP.el;clearInterval(BP.clk);clearTimeout(BP.vt);clearTimeout(BP.ft);clearTimeout(BP.bt);BP=null;e.classList.remove('on');document.querySelectorAll('.bpln').forEach(x=>x.remove());setTimeout(()=>e.remove(),450);if(WN&&winteerNative.fullscreen)winteerNative.fullscreen(false)}
 const bpToggle=()=>BP?(visOn()?visExit():bpClose()):bpOpen();
+function bpvPick(){const L=BPVL;if(!L.length)return null;if(ST.bpvM==='uno'){return L.find(v=>v.f===ST.bpvF)||L[0]}
+  const o=BP&&BP.vcur?L.filter(v=>v.f!==BP.vcur):L;return o[Math.floor(Math.random()*o.length)]||L[0]}
+function bpvSync(force){if(!BP||!BP.el)return;const v=BP.el.querySelector('.bpvv');if(!v)return;const on=ST.bpvOn!==false&&BPVL.length&&BP.sec!=='lib';BP.el.classList.toggle('vbg',!!on);v.style.filter='brightness('+(ST.bpvB||.65)+')';
+  if(!on){try{v.pause()}catch(e){}return}
+  const need=force||!v.src||(ST.bpvM==='uno'&&BP.vcur!==(bpvPick()||{}).f);
+  if(need){const p=bpvPick();if(!p)return;BP.vcur=p.f;v.src=p.u;v.muted=true;v.onended=()=>{BP.vcur&&bpvSync(1)};v.onerror=()=>{BPVL=BPVL.filter(x=>x.f!==BP.vcur);setTimeout(()=>bpvSync(1),200)}}
+  v.play().catch(()=>{})}
 function bpBg(g){const imgs=BP.el.querySelectorAll('.bpbg>img'),u=g?art.hero(g):'';if(BP.bgu===u)return;BP.bgu=u;if(!u){imgs.forEach(i=>i.classList.remove('on'));return}
   const nx=imgs[1-BP.bg],cur=imgs[BP.bg];const tk=BP.bgt=(BP.bgt||0)+1;
   nx.onload=()=>{if(!BP||BP.bgt!==tk)return;nx.classList.add('on');cur.classList.remove('on');BP.bg=1-BP.bg};
@@ -8559,7 +8585,7 @@ function bpSecStep(d){if(BP&&BP.cv){bpCvKind(d);return}if(!BP||BP.busy||BP.fic||
 function bpNavPick(k){if(!BP)return;if(k==='home'||k==='games'||k==='sagas'||k==='friends'||k==='settings'||k==='stats'){bpSecGo(k==='home'?'home':k==='sagas'?'sagas':k==='friends'?'friends':k==='settings'?'settings':k==='stats'?'stats':'lib')}else bpNavGo(k)}
 function bpNewsL(){try{return newsItems().slice(0,8)}catch(e){return[]}}
 function bpNewsW(){try{return(((NW&&NW.w)||{}).items||[]).slice(0,8)}catch(e){return[]}}
-function bpSecGo(sec){if(!BP||BP.sec===sec&&BP.z==='row'){if(BP&&BP.z==='nav')bpZone('row');return}BP.sec=sec;BP.el.classList.toggle('home',sec==='home');BP.el.classList.toggle('sag',sec==='sagas'||sec==='friends'||sec==='settings'||sec==='stats');BP.el.classList.toggle('fri',sec==='friends');BP.els.forEach(c=>c.remove());BP.els.clear();BP.el.querySelectorAll('.bpnav button').forEach(b=>b.classList.toggle('cur',b.dataset.k===({home:'home',lib:'games',sagas:'sagas',friends:'friends',settings:'settings',stats:'stats'}[sec])));bpZone('row');bpSnd('tab');bpRumble(.25,40);
+function bpSecGo(sec){if(!BP||BP.sec===sec&&BP.z==='row'){if(BP&&BP.z==='nav')bpZone('row');return}BP.sec=sec;BP.el.classList.toggle('home',sec==='home');BP.el.classList.toggle('sag',sec==='sagas'||sec==='friends'||sec==='settings'||sec==='stats');BP.el.classList.toggle('fri',sec==='friends');BP.els.forEach(c=>c.remove());BP.els.clear();BP.el.querySelectorAll('.bpnav button').forEach(b=>b.classList.toggle('cur',b.dataset.k===({home:'home',lib:'games',sagas:'sagas',friends:'friends',settings:'settings',stats:'stats'}[sec])));bpZone('row');bpSnd('tab');bpRumble(.25,40);bpvSync();
   if(sec==='home'){bpTrOff();bpHomeDraw()}else{BP.last=null;if(sec==='sagas')bpSgOpen();else if(sec==='friends')bpFrOpen();else if(sec==='settings'||sec==='stats')bpStOpen();else bpRender()}bpHints()}
 function bpHomeCard(side){const L=side?bpNewsW():bpNewsL(),i=side?BP.hri:BP.hli,x=L[i];if(!L.length)return`<div class="hne"><b>${side?'Todavía no hay noticias del mundo gamer':'Todavía no hay noticias de tus juegos'}</b><small>Aparecen solas cuando hay novedades.</small></div>`;
   const im=side?x.im:art.wide(x.g),fb=side?'':art.grid(x.g),tt=esc(x.te||x.t||''),sm=side?esc((x.s||'')+' · '+relDay(x.d)):esc(x.g.name+' · '+relDay(x.d)),tg=(!side&&x.patch)?'<em>Parche</em>':'';
