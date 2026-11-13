@@ -2739,6 +2739,8 @@ async function aiSetup(model, force) {
 
 
 app.whenReady().then(() => {
+  /* limpieza unica: restos de LaunchBox y manuales de una version beta anterior */
+  try { for (const n of ['lb', 'manuals']) { const d = path.join(app.getPath('userData'), n); if (fs.existsSync(d)) fs.rmSync(d, { recursive: true, force: true }); } } catch (e) {}
   setupUpdater();
   CACHE = path.join(app.getPath('userData'), 'imgcache'); loadIdx();
   protocol.handle('wimg', imgHandler);
