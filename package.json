@@ -32,7 +32,6 @@
     "files": [
       "main.js",
       "preload.js",
-      "lb.js",
       "index.html",
       "icon.ico",
       "icon.png",
