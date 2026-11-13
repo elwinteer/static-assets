@@ -3496,6 +3496,7 @@ body.light .fp2-hero,body.light .fp2-sc,body.light .fp2-rv,body.light .fp2-h{bac
 .cjrow::before{content:'';position:absolute;left:50%;top:-14vh;width:80vh;height:calc(var(--h)*1.6);transform:translateX(-50%);background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.05) 55%,transparent);clip-path:polygon(41% 0,59% 0,92% 100%,8% 100%);filter:blur(1.4vh);mix-blend-mode:screen;opacity:.7;pointer-events:none;z-index:-1}
 .cj::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(125% 95% at 50% 46%,transparent 52%,rgba(0,0,0,.6)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E")}
 .cjbig{--sh:34}
+.cjf.full{padding:0}.cjf.full>u{display:none}.cjf.full img{border-radius:.6vh;box-shadow:none;object-fit:cover}
 .cjk.real{padding:0}.cjk.real>*:not(.cjbk){display:none}.cjk.real img.cjbk{display:block;width:100%;height:100%;aspect-ratio:auto;object-fit:cover;border-radius:0}
 .cjs.real{background-size:100% 100%;background-position:center}.cjs.real>*{display:none}
 .cjdisc.real{background:none;box-shadow:none;filter:drop-shadow(0 1.2vh 2vh rgba(0,0,0,.55))}.cjdisc.real img{object-fit:contain}.cjdisc.real b{display:none}
@@ -8584,7 +8585,9 @@ const CJP={pc:['PC','#141a26','#3b82f6'],ps1:['PlayStation','#d9dbe1','#64748b']
 const CJS={pc:[1.42,.105],ps1:[1.0,.075],ps2:[1.4,.1],psp:[1.72,.13],gc:[1.3,.1],wii:[1.4,.1],n64:[1.3,.22],snes:[1.15,.18],nes:[1.25,.16],gb:[1.35,.13],gbc:[1.35,.13],gba:[1.4,.12],nds:[1.35,.1],genesis:[1.4,.1],sms:[1.4,.1],gg:[1.4,.1],pce:[1.0,.1],a26:[1.1,.1],x360:[1.4,.1],ps3:[1.4,.1],ps4:[1.4,.1],switch:[1.65,.06],wiiu:[1.4,.1],'3ds':[1.65,.06]};
 const cjShape=g=>{const q=CJS[cjPl(g)]||CJS.pc;return `--h:calc(var(--w)*${q[0]});--t:calc(var(--w)*${q[1]})`};
 const cjPl=g=>(g.emu&&g.emu.s&&CJP[g.emu.s])?g.emu.s:'pc';
-const cjCov=g=>(ST.cov||{})[g.id]||art.grid(g);
+const cjFrontAuto=g=>{const f=SSU((((ST.ss||{})[g.id]||{}).front||[])[0])||SSU((((ST.lbx||{})[g.id]||{}).front||[])[0]);return f?{u:f,full:true}:{u:art.grid(g),full:false}};
+const cjFront=g=>{const c=(ST.cov||{})[g.id];return c?{u:c,full:!!(ST.covf||{})[g.id]}:cjFrontAuto(g)};
+const cjCov=g=>cjFront(g).u;
 const cjLum=h=>{const n=parseInt(h.slice(1),16);return (.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255))/255};
 function cjTabs(){const s=new Set(G.filter(g=>!g.hide).map(cjPl));return ['all',...Object.keys(CJP).filter(k=>s.has(k))]}
 function cjList(){const b=BP.cj;return G.filter(g=>!g.hide&&(!visOn()||visOk(g))&&(b.tab==='all'||cjPl(g)===b.tab)).sort((a,c)=>a.name.localeCompare(c.name))}
@@ -8648,8 +8651,8 @@ let SST,STT;function cjSsAuto(g){clearTimeout(SST);clearTimeout(STT);clearTimeou
   if(!ssOn())return;const s=(ST.ss||{})[g.id];if(s&&(s.ok||Date.now()-s.at<216e5))return;
   SST=setTimeout(async()=>{await ssGet(g);if(BP&&BP.cj)cjArtRefresh(g)},900)}
 function cjCaseHTML(g,ov){const pl=cjPl(g),P=CJP[pl],info=INFO[g.id]||{},dk=cjLum(P[1])>.6,A=cjArt(g),X=(ST.stx||{})[g.id]||{};
-  if(ov)for(const k in ov){if(k!=='front')A[k]=ov[k]||SSU((((ST.ss||{})[g.id]||{})[k]||[])[0])||SSU((((ST.lbx||{})[g.id]||{})[k]||[])[0])}const fr=ov&&('front' in ov)?(ov.front||art.grid(g)):cjCov(g);
-  return `<div class="cjb" style="--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}"><div class="cjf"><u>${esc(P[0])}</u><img src="${esc(fr)}" data-fb="${art.wide(g)}" alt=""><s></s></div><div class="cjs${A.side?' real':''}"${A.side?` style="background-image:url('${esc(A.side)}')"`:''}><b>${esc(g.name)}</b><u>${esc(P[0])}</u></div><div class="cjr"></div><div class="cjk${A.back?' real':''}">${A.back?`<img class="cjbk" src="${esc(A.back)}" alt="">`:''}<img src="${art.wide(g)}" alt=""><h5>${esc(g.name)}</h5><p>${esc(bpDesc(info.d)||'Sin descripción todavía.')}</p>${X.sh&&X.sh.length?`<div class="cjsh">${X.sh.slice(0,3).map(u=>`<img src="${esc(u)}" alt="">`).join('')}</div>`:''}${X.rq?`<span class="cjrq"><b>Requisitos mínimos</b>${esc(X.rq)}</span>`:''}<u>${esc(P[0])}</u><i class="cjbc"></i></div></div>`}
+  if(ov)for(const k in ov){if(k!=='front')A[k]=ov[k]||SSU((((ST.ss||{})[g.id]||{})[k]||[])[0])||SSU((((ST.lbx||{})[g.id]||{})[k]||[])[0])}const FF=ov&&('front' in ov)?(ov.front?{u:ov.front,full:!!ov.full}:cjFrontAuto(g)):cjFront(g),fr=FF.u;
+  return `<div class="cjb" style="--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}"><div class="cjf${FF.full?' full':''}"><u>${esc(P[0])}</u><img src="${esc(fr)}" data-fb="${art.wide(g)}" alt=""><s></s></div><div class="cjs${A.side?' real':''}"${A.side?` style="background-image:url('${esc(A.side)}')"`:''}><b>${esc(g.name)}</b><u>${esc(P[0])}</u></div><div class="cjr"></div><div class="cjk${A.back?' real':''}">${A.back?`<img class="cjbk" src="${esc(A.back)}" alt="">`:''}<img src="${art.wide(g)}" alt=""><h5>${esc(g.name)}</h5><p>${esc(bpDesc(info.d)||'Sin descripción todavía.')}</p>${X.sh&&X.sh.length?`<div class="cjsh">${X.sh.slice(0,3).map(u=>`<img src="${esc(u)}" alt="">`).join('')}</div>`:''}${X.rq?`<span class="cjrq"><b>Requisitos mínimos</b>${esc(X.rq)}</span>`:''}<u>${esc(P[0])}</u><i class="cjbc"></i></div></div>`}
 function cjRender(){const b=BP&&BP.cj;if(!b)return;const L=cjList(),el=b.el;b.i=Math.max(0,Math.min(b.i,L.length-1));const tabs=cjTabs();
   el.querySelector('.cjtabs').innerHTML=`<i>LB</i>${tabs.map(k=>`<button class="${b.tab===k?'on':''}" data-k="${k}">${k==='all'?'Todas':esc(CJP[k][0])}</button>`).join('')}<i>RB</i>`;
   const g=L[b.i],pl=g?cjPl(g):(b.tab==='all'?'pc':b.tab);el.style.setProperty('--bc',CJP[pl][2]);
@@ -8702,7 +8705,7 @@ async function cjPick(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='shelf')re
 async function cjPickT(t){const b=BP.cj,g=b&&cjList()[b.i];if(!b||!b.p||!g)return;const o=b.p;b.pt=t;b.pi=0;b.pk='';
   {const c2=(ST.cov2||{})[g.id]||{},own=k=>k==='front'?!!(ST.cov||{})[g.id]:!!c2[k];o.querySelector('.cjpt').innerHTML=CJT.map(([k,n])=>`<button class="${k===t?'on':''}" data-t="${k}"><b>${n}</b><i>${own(k)?'Elegido por vos':'Sigue el estante'}</i></button>`).join('')}o.querySelector('.cjpg').dataset.t=t;
   const msg=m=>{const e=o.querySelector('.cjpm');if(e)e.textContent=m},live=()=>BP&&BP.cj&&BP.cj.p===o&&b.pt===t;
-  if(t==='front'){b.pl=[{u:'',t:'',n:'Original'}];cjPickDraw(g);
+  if(t==='front'){b.pl=[{u:'',t:'',n:'Automática'}];cjPickDraw(g);
     if(!ST.key){msg('Para bajar más carátulas cargá tu clave de SteamGridDB en Ajustes.');return}
     msg('Buscando carátulas…');
     try{const gid=await sgdbGid(g);if(!live())return;if(!gid){msg('No encontré este juego en SteamGridDB.');return}
@@ -8710,8 +8713,8 @@ async function cjPickT(t){const b=BP.cj,g=b&&cjList()[b.i];if(!b||!b.p||!g)retur
       if(!live())return;if(!r.ok){msg(r.status===401||r.status===403?'La clave de SteamGridDB no es válida.':'No pude conectar con SteamGridDB.');return}
       const j=await r.json();if(!live())return;(j.data||[]).forEach(x=>b.pl.push({u:x.url,t:x.thumb||x.url,n:(x.author&&x.author.name)||''}));
       msg(b.pl.length>1?(b.pl.length-1)+' carátulas de SteamGridDB':'No hay carátulas alternativas para este juego.');cjPickDraw(g)}catch(e){if(live())msg('No pude conectar con SteamGridDB.')}
-    {const l=await lbGet(g);if(live()&&l&&l.front&&l.front.length){l.front.forEach(x=>b.pl.push({u:x.u,t:x.u,n:'LaunchBox · '+(x.r||'Sin región')}));cjPickDraw(g)}}
-    if(ssOn()&&live()){const q=await ssGet(g);if(live()&&q&&q.front&&q.front.length){q.front.forEach((x,i)=>b.pl.push({u:SSU(x),t:SSU(x),n:'ScreenScraper · '+(SSRG[x.r]||'Sin región')}));cjPickDraw(g)}}return}
+    {const l=await lbGet(g);if(live()&&l&&l.front&&l.front.length){l.front.forEach(x=>b.pl.push({u:x.u,t:x.u,full:1,n:'LaunchBox · '+(x.r||'Sin región')}));cjPickDraw(g)}}
+    if(ssOn()&&live()){const q=await ssGet(g);if(live()&&q&&q.front&&q.front.length){q.front.forEach((x,i)=>b.pl.push({u:SSU(x),t:SSU(x),full:1,n:'ScreenScraper · '+(SSRG[x.r]||'Sin región')}));cjPickDraw(g)}}return}
   b.pl=[{u:'',t:'',n:'Automática'}];cjPickDraw(g);
   if(!LBST)await lbRefresh();
   if(t!=='man'&&!ssOn()&&!(LBST&&LBST.ready)){msg('Para traer arte real bajá la base de LaunchBox en Ajustes → Conexiones.');return}
@@ -8723,11 +8726,11 @@ function cjPickDraw(g){const b=BP.cj;if(!b||!b.p)return;const cur=(b.pt&&b.pt!==
   b.p.querySelector('.cjpg').innerHTML=b.pl.map((x,i)=>`<div class="cjpi ${i===b.pi?'f':''} ${x.u===cur?'cur':''}" data-i="${i}" style="--i:${Math.min(i,14)}">${b.pt==='man'?`<em class="cjpa">${x.u?'PDF':'Automático'}</em>`:(x.t||!b.pt||b.pt==='front')?`<img src="${x.t||art.grid(g,1)}" data-fb="${art.wide(g)}" alt="" loading="lazy">`:'<em class="cjpa">Automático</em>'}<span>${esc(x.n||'')}</span></div>`).join('');
   const f=b.p.querySelector('.cjpi.f');if(f)f.scrollIntoView({block:'nearest'});cjPickPrev(g)}
 function cjPickPrev(g){const b=BP.cj;if(!b||!b.p)return;const x=b.pl[b.pi]||{},t=b.pt||'front',c=b.p.querySelector('.cjbig');if(!c)return;
-  const key=t+'|'+(x.u||'');if(b.pk!==key){b.pk=key;c.innerHTML=t==='disc'&&(x.u||cjArt(g).disc)?`<div class="cjdisc real cjpvd"><img src="${esc(x.u||cjArt(g).disc)}" alt=""></div>`:cjCaseHTML(g,t==='man'?null:{[t]:x.u||''})}
+  const key=t+'|'+(x.u||'');if(b.pk!==key){b.pk=key;c.innerHTML=t==='disc'&&(x.u||cjArt(g).disc)?`<div class="cjdisc real cjpvd"><img src="${esc(x.u||cjArt(g).disc)}" alt=""></div>`:cjCaseHTML(g,t==='man'?null:t==='front'?{front:x.u||'',full:x.full}:{[t]:x.u||''})}
   c.style.transform=t==='disc'?'none':`rotateY(${t==='back'?194:t==='side'?64:14}deg)`;
   b.p.querySelector('.cjpvn').textContent=x.n||'';b.p.querySelector('.cjpvs').textContent=x.u?'Así queda si lo elegís':'Sigue el estilo del estante'}
 function cjPickMove(d){const b=BP.cj,n=b.pl.length,cols=Math.max(1,Math.floor((b.p.querySelector('.cjpg').clientWidth+16)/(((b.p.querySelector('.cjpi')||{}).offsetWidth||innerHeight*.2)+16)));let i=b.pi+(d==='l'?-1:d==='r'?1:d==='u'?-cols:cols);i=Math.max(0,Math.min(n-1,i));if(i===b.pi)return;b.pi=i;bpSnd('nav');b.p.querySelectorAll('.cjpi').forEach((e,k)=>e.classList.toggle('f',k===i));cjPickPrev(cjList()[b.i]);const f=b.p.querySelector('.cjpi.f');if(f)f.scrollIntoView({block:'nearest',behavior:'smooth'})}
-function cjPickOk(){const b=BP.cj,g=cjList()[b.i],x=b.pl[b.pi];if(!g||!x)return;if(b.pt==='man'&&/^ia:/.test(x.u||'')){cjPickX();cjManDl(g,x.u.slice(3));return}if(b.pt&&b.pt!=='front'){ST.cov2=ST.cov2||{};const c=ST.cov2[g.id]=ST.cov2[g.id]||{};if(x.u)c[b.pt]=x.u;else delete c[b.pt];save();cjArtRefresh(g);bpBan(x.u?'Arte cambiado':'Arte automático',1800);cjPickX();return}ST.cov=ST.cov||{};if(x.u)ST.cov[g.id]=x.u;else delete ST.cov[g.id];save();const c=b.els.get(g.id);if(c){const im=c.querySelector('.cjf img');if(im)im.src=cjCov(g)}bpBan(x.u?'Carátula cambiada':'Carátula original',1800);cjPickX()}
+function cjPickOk(){const b=BP.cj,g=cjList()[b.i],x=b.pl[b.pi];if(!g||!x)return;if(b.pt==='man'&&/^ia:/.test(x.u||'')){cjPickX();cjManDl(g,x.u.slice(3));return}if(b.pt&&b.pt!=='front'){ST.cov2=ST.cov2||{};const c=ST.cov2[g.id]=ST.cov2[g.id]||{};if(x.u)c[b.pt]=x.u;else delete c[b.pt];save();cjArtRefresh(g);bpBan(x.u?'Arte cambiado':'Arte automático',1800);cjPickX();return}ST.cov=ST.cov||{};ST.covf=ST.covf||{};if(x.u){ST.cov[g.id]=x.u;if(x.full)ST.covf[g.id]=1;else delete ST.covf[g.id]}else{delete ST.cov[g.id];delete ST.covf[g.id]}save();cjArtRefresh(g);bpBan(x.u?'Carátula cambiada':'Carátula automática',1800);cjPickX()}
 function cjPickX(){const b=BP.cj;if(!b||!b.p)return;const o=b.p;b.p=null;b.mode='shelf';o.classList.remove('on');setTimeout(()=>o.remove(),400);bpSnd('bk');cjKeys()}
 /* una sola entrada para teclado y mando: l r u d a b x y lb rb rt */
 function cjIn(k){const b=BP&&BP.cj;if(!b)return;
