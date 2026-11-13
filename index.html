@@ -552,10 +552,10 @@ body.light .set .sgrid>.row,body.light details.mo>summary{background:rgba(40,28,
 #bp.sag .bphero,#bp.sag .bpcats,#bp.sag .bprow{opacity:0;pointer-events:none}#bp.sag .bpsh{background:rgba(5,4,11,.8)}
 .bpsgv [data-a=sgedit],.bpsgv [data-a=sgadd],.bpsgv [data-a=sgsync],.bpsgv [data-a=sgdel2]{display:none!important}
 .bpsgv .bpf{outline:.4vh solid #fff;outline-offset:.5vh;box-shadow:0 0 4vh rgba(255,255,255,.25)}.bpsgv .sgp:hover,.bpsgv .sgt:hover{transform:none}.bpsgv .sgp.bpf{transform:translateY(-.6vh) scale(1.02)}
-.bpcv h2{margin:0 0 .6vh;font-size:3.4vh;font-weight:800}.bpcv p{margin:0 0 3vh;font-size:1.7vh;color:rgba(255,255,255,.65)}
+.bpcv h2{margin:0 0 .6vh;font-size:3.4vh;font-weight:800;display:flex;gap:2.4vh}.bpcv h2 span{color:rgba(255,255,255,.38);transition:color .3s}.bpcv h2 span.on{color:#fff}.bpcv p{margin:0 0 3vh;font-size:1.7vh;color:rgba(255,255,255,.65)}
 .bpcvr{position:relative;height:42vh;overflow:hidden;margin:0 -5vw}.bpcvt{position:absolute;left:5vw;bottom:2vh;height:0;width:0;transition:transform .5s cubic-bezier(.22,1,.36,1)}
-.bpcvi{position:absolute;bottom:0;left:0;height:30vh;aspect-ratio:2/3;border-radius:1.6vh;overflow:hidden;background:#17132a;box-shadow:0 1.4vh 3vh -.6vh rgba(0,0,0,.65);transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .4s;transform-origin:50% 100%;opacity:.62}.bpcvi.sel{opacity:1;transform:scale(1.13);box-shadow:0 0 0 .4vh rgba(255,255,255,.96),0 0 4vh rgba(255,255,255,.25),0 2.6vh 6vh -.8vh rgba(0,0,0,.85)}
-.bpcvi img{width:100%;height:100%;object-fit:cover;display:block}.bpcvi i{position:absolute;left:1vh;top:1vh;font-style:normal;font-size:1.25vh;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.5vh 1.2vh;border-radius:99px;background:rgba(10,16,40,.88);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.bpcvi{position:absolute;bottom:0;left:0;border-radius:1.6vh;overflow:hidden;background:#17132a;box-shadow:0 1.4vh 3vh -.6vh rgba(0,0,0,.65);transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .4s;transform-origin:50% 100%;opacity:.62}.bpcvi.sel{opacity:1;transform:scale(1.13);box-shadow:0 0 0 .4vh rgba(255,255,255,.96),0 0 4vh rgba(255,255,255,.25),0 2.6vh 6vh -.8vh rgba(0,0,0,.85)}
+.bpcvi img{width:100%;height:100%;object-fit:cover;display:block}.k-logo .bpcvi{background:linear-gradient(135deg,#2a2745,#14122a)}.k-logo .bpcvi img{object-fit:contain;padding:8%}.bpcvi b{position:absolute;right:1vh;top:1vh;font-size:1.2vh;font-weight:800;padding:.4vh 1vh;border-radius:99px;background:rgba(10,16,40,.88);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}.bpcvi i{position:absolute;left:1vh;top:1vh;font-style:normal;font-size:1.25vh;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.5vh 1.2vh;border-radius:99px;background:rgba(10,16,40,.88);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
 .bpcvi.cur::after{content:"EN USO";position:absolute;left:1vh;bottom:1vh;font-size:1.2vh;font-weight:800;letter-spacing:.08em;padding:.5vh 1.2vh;border-radius:99px;background:#fff;color:#111}
 .bpcvm{display:flex;align-items:center;height:30vh;font-size:2vh;color:rgba(255,255,255,.7)}
 .fcd{margin:0;font-size:1.55vh;line-height:1.5;color:rgba(255,255,255,.78);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -8090,7 +8090,7 @@ async function artDel(k){const d=await idb();return new Promise(res=>{const t=d.
 async function loadArt(){try{const d=await idb();await new Promise(res=>{const st=d.transaction('art').objectStore('art'),rq=st.openCursor();
   rq.onsuccess=()=>{const c=rq.result;if(c){ART[c.key]=URL.createObjectURL(c.value);c.continue()}else res()};rq.onerror=()=>res()})}catch(e){}}
 async function shrink(file,kind){
-  const W={hero:1400,grid:400,sgc:600,wide:460,logo:560,icon:128}[kind]||800;
+  const W={hero:1400,wall:2560,grid:400,sgc:600,wide:460,logo:560,icon:128}[kind]||800;
   const bmp=await createImageBitmap(file),w=Math.min(W,bmp.width),h=Math.max(1,Math.round(bmp.height*w/bmp.width));
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bmp,0,0,w,h);if(bmp.close)bmp.close();
   return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),(kind==='logo'||kind==='icon')?'image/webp':'image/jpeg',.86))}
@@ -8428,7 +8428,7 @@ function bpSnd(k){if(ST.bpSnd===false)return;try{BA=BA||new(window.AudioContext|
 function bpRumble(m,d){try{if(!BP||BP.pi==null)return;const p=navigator.getGamepads()[BP.pi],a=p&&p.vibrationActuator;if(a&&a.playEffect)a.playEffect('dual-rumble',{duration:d||40,strongMagnitude:m*.4,weakMagnitude:m})}catch(e){}}
 function bpBan(t,ms){if(!BP)return;const b=BP.el.querySelector('.bpban');b.textContent=t;b.classList.add('on');clearTimeout(BP.bt);BP.bt=setTimeout(()=>b.classList.remove('on'),ms||2800)}
 function bpHints(){if(!BP)return;const p=BP.padOn,k=(a,b)=>`<span><i>${p?padLbl(a):b}</i> `;
-  BP.el.querySelector('.bpkeys').innerHTML=BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.cv?`<div>${k('A','Enter')}Usar esta</span>${k('B','Esc')}Cerrar</span></div><div><span>← → Elegir</span></div>`:BP.nr?`<div>${k('B','Esc')}Volver</span></div><div><span>↑ ↓ Leer</span></div>`:(BP.sec==='home'&&!BP.fic)?`<div>${k('A','Enter')}Abrir</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Noticia</span></div>`:(BP.sec==='sagas'&&!BP.fic)?`<div>${k('A','Enter')}Seleccionar</span>${k('B','Esc')}${S.sgo?'Volver':'Salir'}</span></div><div>${k('LB RB','Q E')}Sección</span></div>`:BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.fic?`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('X','X')}Carátula</span>${k('B','Esc')}Volver</span></div>`:`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Categoría</span>${k('X','/')}Buscar</span></div>`}
+  BP.el.querySelector('.bpkeys').innerHTML=BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.cv?`<div>${k('A','Enter')}Usar esta</span>${k('B','Esc')}Cerrar</span></div><div><span>← → Elegir</span>${k('LB RB','Q E')}Carátula, logo, fondo</span></div>`:BP.nr?`<div>${k('B','Esc')}Volver</span></div><div><span>↑ ↓ Leer</span></div>`:(BP.sec==='home'&&!BP.fic)?`<div>${k('A','Enter')}Abrir</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Noticia</span></div>`:(BP.sec==='sagas'&&!BP.fic)?`<div>${k('A','Enter')}Seleccionar</span>${k('B','Esc')}${S.sgo?'Volver':'Salir'}</span></div><div>${k('LB RB','Q E')}Sección</span></div>`:BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.fic?`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('X','X')}Carátula</span>${k('B','Esc')}Volver</span></div>`:`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Categoría</span>${k('X','/')}Buscar</span></div>`}
 function bpPadUi(){if(!BP)return;const e=BP.el.querySelector('.bppad');e.classList.toggle('on',!!BP.padOn);e.querySelector('b').textContent=BP.padOn?((()=>{const q=padNow();return q&&padCfg(q).n})()||'Mando conectado'):'Teclado y mouse'}
 function bpTop(){if(!BP)return;const d=new Date();{const w=BP.el.querySelector('.bpwho small');if(w)w.textContent=S.playing?'Jugando':'En línea'}BP.el.querySelector('.bpclk').textContent=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});try{BP.el.querySelector('.bplv').textContent='Nv '+lvlOf().l}catch(e){}bpPadUi()}
 function bpZone(z){if(!BP||BP.z===z)return;BP.z=z;BP.el.querySelectorAll('.bpnav button').forEach((b,i)=>b.classList.toggle('f',z==='nav'&&i===BP.n));bpHints()}
@@ -8506,9 +8506,9 @@ function bpMove(d){if(BP&&BP.cv){bpCvMove(d);return}if(!BP||BP.busy||BP.fic||BP.
   BP.i=j;bpSnd('nav');bpRumble(.15,18);bpRender()}
 function el_spin(on){if(BP)BP.el.querySelector('.bprow').classList.toggle('bpspin',!!on)}
 function bpTabSet(k){if(!BP||BP.tab===k||BP.fic||BP.wel||BP.sec==='home'||BP.sec==='sagas')return;BP.tab=k;BP.i=0;BP.last=null;BP.spin=(BP.spin||0)+1;bpSnd('tab');bpRumble(.3,40);const r=BP.el.querySelector('.bprow');r.classList.remove('bpsw');void r.offsetWidth;r.classList.add('bpsw');bpRender()}
-function bpTab(d){if(!BP||BP.fic||BP.wel||BP.cv||BP.sec==='sagas')return;if(BP.sec==='home'){if(!BP.nr)bpHomeItem(d);return}if(BP.z!=='row')bpZone('row');const k=BPT.findIndex(x=>x[0]===BP.tab);bpTabSet(BPT[(k+d+BPT.length)%BPT.length][0])}
+function bpTab(d){if(BP&&BP.cv){bpCvKind(d);return}if(!BP||BP.fic||BP.wel||BP.sec==='sagas')return;if(BP.sec==='home'){if(!BP.nr)bpHomeItem(d);return}if(BP.z!=='row')bpZone('row');const k=BPT.findIndex(x=>x[0]===BP.tab);bpTabSet(BPT[(k+d+BPT.length)%BPT.length][0])}
 function bpUp(){if(BP&&BP.cv)return;if(BP&&BP.sec==='sagas'&&BP.z==='row'&&!BP.fic&&!BP.nr&&bpSgNav('up'))return;if(BP&&BP.nr){const t=BP.nr.querySelector('.nrt');if(t)t.scrollBy({top:-innerHeight*.12,behavior:'smooth'});return}if(!BP||BP.busy||BP.fic||BP.wel||BP.z==='nav')return;BP.n=BP.sec==='home'?0:BP.sec==='sagas'?2:1;bpZone('nav');bpSnd('nav')}
-function bpSecStep(d){if(!BP||BP.busy||BP.fic||BP.wel||BP.nr||BP.cv)return;const O=['home','lib','sagas'],t=O[Math.max(0,Math.min(2,O.indexOf(BP.sec)+d))];if(BP.sec===t&&BP.z==='row'){bpRumble(.3,30);bpSnd('bk');return}bpSecGo(t)}
+function bpSecStep(d){if(BP&&BP.cv){bpCvKind(d);return}if(!BP||BP.busy||BP.fic||BP.wel||BP.nr)return;const O=['home','lib','sagas'],t=O[Math.max(0,Math.min(2,O.indexOf(BP.sec)+d))];if(BP.sec===t&&BP.z==='row'){bpRumble(.3,30);bpSnd('bk');return}bpSecGo(t)}
 function bpNavPick(k){if(!BP)return;if(k==='home'||k==='games'||k==='sagas'){bpSecGo(k==='home'?'home':k==='sagas'?'sagas':'lib')}else bpNavGo(k)}
 function bpNewsL(){try{return newsItems().slice(0,8)}catch(e){return[]}}
 function bpNewsW(){try{return(((NW&&NW.w)||{}).items||[]).slice(0,8)}catch(e){return[]}}
@@ -8571,34 +8571,49 @@ function bpSgAct(){const f=BP.el.querySelector('.bpsgv .bpf');if(!f)return;const
   if(a==='sgplay'){const n=sg&&sg.next;if(n&&n.g)bpFicOpen(n.g);return}
   bpSnd('ok');bpRumble(.25,30);if(A[a])A[a](f);bpHints()}
 function bpSgBack(){bpSnd('bk');A.sgback();bpHints()}
-/* carátulas: menú dentro de la ficha */
-const BPCV={};
-async function bpCvFetch(g){if(BPCV[g.id])return BPCV[g.id];const H={headers:{Authorization:'Bearer '+ST.key}},B='https://www.steamgriddb.com/api/v2/';
-  const gid=await sgdbGid(g);if(!gid)return [];const r=await nf(B+'grids/'+gid+'?dimensions=600x900&nsfw=false&humor=false&types=static',H);if(!r.ok)return [];const j=await r.json();
-  const o=(j.data||[]).filter(d=>d.url).slice(0,14).map(d=>({t:d.thumb||d.url,u:d.url}));BPCV[g.id]=o;return o}
+/* carátulas, logos y fondos: menú dentro de la ficha */
+const BPCV={},BPCK=[['grid','Carátula'],['logo','Logo'],['hero','Fondo']];
+async function bpCvFetch(g,kind){const ck=g.id+':'+kind;if(BPCV[ck])return BPCV[ck];const H={headers:{Authorization:'Bearer '+ST.key}},B='https://www.steamgriddb.com/api/v2/',gid=await sgdbGid(g);if(!gid)return [];
+  const get=async q=>{const r=await nf(B+q,H);if(!r.ok)return [];const j=await r.json();return (j.data||[]).filter(d=>d.url)};
+  let d=[];
+  if(kind==='grid')d=await get('grids/'+gid+'?dimensions=600x900&nsfw=false&humor=false&types=static');
+  else if(kind==='logo')d=await get('logos/'+gid+'?types=static&mimes=image/png,image/webp&nsfw=false&humor=false');
+  else{d=await get('heroes/'+gid+'?dimensions=3840x1240&nsfw=false&humor=false&types=static');if(d.length<3)d=d.concat(await get('heroes/'+gid+'?dimensions=1920x620&nsfw=false&humor=false&types=static'))}
+  const o=d.slice(0,14).map(x=>({t:x.thumb||x.url,u:x.url,q:kind==='hero'?((x.width||0)>=3000?'4K':'HD'):''}));BPCV[ck]=o;return o}
+function bpCvDims(kind){const H=innerHeight,h=kind==='grid'?H*.3:kind==='logo'?H*.17:H*.13;return{h,w:kind==='grid'?h*2/3:kind==='logo'?h*16/9:h*3.1}}
 function bpCvOpen(){if(!BP||!BP.fic||BP.cv||BP.busy)return;const g=bpCur();if(!g)return;
-  const o=document.createElement('div');o.className='bpcv';o.innerHTML='<h2>Carátula</h2><p></p><div class="bpcvr"><div class="bpcvt"></div></div>';BP.el.appendChild(o);
-  BP.cv={g,el:o,list:[],i:1,load:true,err:''};BP.el.classList.add('cvo');bpSnd('ok');bpHints();requestAnimationFrame(()=>requestAnimationFrame(()=>o.classList.add('on')));bpCvDraw();
-  (async()=>{try{if(!ST.key)throw 'key';const l=await bpCvFetch(g);if(!BP||!BP.cv||BP.cv.g!==g)return;BP.cv.list=l;if(!l.length)BP.cv.err='No encontré carátulas para este juego'}catch(e){if(BP&&BP.cv)BP.cv.err=e==='key'?'Falta la clave de SteamGridDB en Ajustes, Conexiones':'No pude conectar con SteamGridDB'}
-    if(BP&&BP.cv&&BP.cv.g===g){BP.cv.load=false;BP.cv.i=BP.cv.list.length?1:0;bpCvDraw()}})()}
-function bpCvDraw(){const c=BP&&BP.cv;if(!c)return;const o=c.el,g=c.g,H=innerHeight,w=H*.3*2/3,gap=H*.03,step=w+gap;
-  o.querySelector('p').textContent=g.name;const trk=o.querySelector('.bpcvt'),r=o.querySelector('.bpcvr');
-  if(c.load||c.err){trk.innerHTML='';r.querySelector('.bpcvm')||r.insertAdjacentHTML('beforeend','<div class="bpcvm"></div>');r.querySelector('.bpcvm').textContent=c.load?'Buscando en SteamGridDB…':c.err;
-    if(!c.load){const it=document.createElement('div');it.className='bpcvi sel cur';it.dataset.k='0';it.innerHTML=`<img src="${art.grid(g,true)}" alt=""><i>Original</i>`;trk.appendChild(it);it.style.transform=`translateX(${innerWidth*.0}px) scale(1.13)`;r.querySelector('.bpcvm').style.marginLeft=(5*innerWidth/100+w+gap*2)+'px'}return}
-  const m=r.querySelector('.bpcvm');if(m)m.remove();
-  const items=[{o:1},...c.list];const cur=ART['c:'+g.id+':grid']||'';
-  if(!trk.children.length){items.forEach((x,k)=>{const it=document.createElement('div');it.className='bpcvi';it.innerHTML=x.o?`<img src="${art.grid(g,true)}" alt=""><i>Original</i>`:`<img src="${wi(x.t)}" alt="">`;trk.appendChild(it)})}
-  const sel=c.i;[...trk.children].forEach((it,k)=>{const d=k-sel,ex=w*.13/2+gap*.5;it.style.transform=`translateX(${k*step+(d>0?ex:d<0?-ex:0)}px) scale(${d===0?1.13:1})`;it.classList.toggle('sel',d===0);it.classList.toggle('cur',k===(c.on===undefined?(cur?-1:0):c.on))});
-  const x0=innerWidth*.05+0,tx=Math.max(0,sel-2)*step;trk.style.transform=`translateX(${-tx}px)`}
-function bpCvMove(d){const c=BP&&BP.cv;if(!c||c.load||!c.list.length||c.busy)return;const n=Math.max(0,Math.min(c.list.length,c.i+d));if(n===c.i){bpRumble(.3,30);bpSnd('bk');return}c.i=n;bpSnd('nav');bpRumble(.15,18);bpCvDraw()}
+  const o=document.createElement('div');o.className='bpcv';o.innerHTML='<h2></h2><p></p><div class="bpcvr"><div class="bpcvt"></div></div>';BP.el.appendChild(o);
+  BP.cv={g,el:o,kind:'grid',L:{}};BP.el.classList.add('cvo');bpSnd('ok');bpHints();requestAnimationFrame(()=>requestAnimationFrame(()=>o.classList.add('on')));bpCvLoad()}
+async function bpCvLoad(){const c=BP&&BP.cv;if(!c)return;const g=c.g,kind=c.kind;let S_=c.L[kind];
+  if(!S_){S_=c.L[kind]={list:[],load:true,err:'',i:1,on:undefined};bpCvDraw();
+    try{if(!ST.key)throw 'key';const l=await bpCvFetch(g,kind);S_.list=l;if(!l.length)S_.err='No encontré opciones para este juego'}catch(e){S_.err=e==='key'?'Falta la clave de SteamGridDB en Ajustes, Conexiones':'No pude conectar con SteamGridDB'}
+    S_.load=false;S_.i=S_.list.length?1:0}
+  if(BP&&BP.cv===c&&c.kind===kind)bpCvDraw()}
+function bpCvKind(d){const c=BP&&BP.cv;if(!c||c.busy)return;const i=BPCK.findIndex(x=>x[0]===c.kind),n=Math.max(0,Math.min(BPCK.length-1,i+d));if(n===i){bpRumble(.3,30);bpSnd('bk');return}c.kind=BPCK[n][0];bpSnd('tab');bpRumble(.2,25);bpCvLoad()}
+function bpCvDraw(){const c=BP&&BP.cv;if(!c)return;const o=c.el,g=c.g,kind=c.kind,Z=c.L[kind],H=innerHeight,{h,w}=bpCvDims(kind),gap=H*.03,step=w+gap;
+  o.className='bpcv on k-'+kind;o.querySelector('h2').innerHTML=BPCK.map(([k,t])=>`<span class="${k===kind?'on':''}">${t}</span>`).join('');o.querySelector('p').textContent=g.name;
+  const trk=o.querySelector('.bpcvt'),r=o.querySelector('.bpcvr');r.style.height=(h*1.3+H*.03)+'px';
+  const orig=`<img src="${art[kind](g,true)}" alt=""><i>Original</i>`;
+  if(trk.dataset.k!==kind||!Z||Z.load||Z.err){trk.innerHTML='';trk.dataset.k=kind;trk.style.transform=''}
+  const msg=r.querySelector('.bpcvm');if(msg)msg.remove();
+  if(!Z||Z.load||Z.err){r.insertAdjacentHTML('beforeend','<div class="bpcvm"></div>');const m=r.querySelector('.bpcvm');m.textContent=!Z||Z.load?'Buscando en SteamGridDB…':Z.err;m.style.height=h+'px';
+    if(Z&&!Z.load){const it=document.createElement('div');it.className='bpcvi sel cur';it.style.cssText=`height:${h}px;aspect-ratio:${w}/${h};transform:scale(1.1)`;it.innerHTML=orig;trk.appendChild(it);m.style.marginLeft=(innerWidth*.05+w+gap*2)+'px'}return}
+  const items=[{o:1},...Z.list],cur=ART['c:'+g.id+':'+kind]||'';
+  if(!trk.children.length)items.forEach(x=>{const it=document.createElement('div');it.className='bpcvi';it.style.cssText=`height:${h}px;aspect-ratio:${w}/${h}`;it.innerHTML=x.o?orig:`<img src="${wi(x.t)}" alt="">${x.q?`<b>${x.q}</b>`:''}`;trk.appendChild(it)});
+  const sel=Z.i;[...trk.children].forEach((it,k)=>{const d=k-sel,ex=w*.1/2+gap*.5;it.style.transform=`translateX(${k*step+(d>0?ex:d<0?-ex:0)}px) scale(${d===0?1.1:1})`;it.classList.toggle('sel',d===0);it.classList.toggle('cur',k===(Z.on===undefined?(cur?-1:0):Z.on))});
+  const per=Math.max(1,Math.floor((innerWidth*.9)/step));trk.style.transform=`translateX(${-Math.max(0,sel-Math.floor(per/2))*step}px)`}
+function bpCvMove(d){const c=BP&&BP.cv,Z=c&&c.L[c.kind];if(!Z||Z.load||!Z.list.length||c.busy)return;const n=Math.max(0,Math.min(Z.list.length,Z.i+d));if(n===Z.i){bpRumble(.3,30);bpSnd('bk');return}Z.i=n;bpSnd('nav');bpRumble(.15,18);bpCvDraw()}
 function bpCvClose(){const c=BP&&BP.cv;if(!c)return;BP.cv=null;BP.el.classList.remove('cvo');c.el.classList.remove('on');setTimeout(()=>c.el.remove(),400);bpSnd('bk');bpHints()}
-async function bpCvPick(){const c=BP&&BP.cv;if(!c||c.load||c.busy)return;if(c.err||!c.list.length){bpCvClose();return}const g=c.g,k=c.i;c.busy=1;
-  try{const kg='c:'+g.id+':grid',ki='c:'+g.id+':icon';
-    if(k===0){await artDel(kg);await artDel(ki);[kg,ki].forEach(x=>{if(ART[x]){URL.revokeObjectURL(ART[x]);delete ART[x]}});c.on=0}
-    else{bpBan('Descargando…',4000);const b=await sgImgBlob(c.list[k-1].u),gb=await shrink(b,'grid'),ib=await shrink(b,'icon');await artPut(kg,gb);await artPut(ki,ib);
-      if(ART[kg])URL.revokeObjectURL(ART[kg]);if(ART[ki])URL.revokeObjectURL(ART[ki]);ART[kg]=URL.createObjectURL(gb);ART[ki]=URL.createObjectURL(ib);c.on=k}
-    save();bpSnd('ok');bpRumble(.4,60);BP.el.querySelectorAll('.bpc').forEach(e=>{if(e.dataset.id===g.id){const im=e.querySelector('img');if(im)im.src=art.grid(g)}});bpFicDraw(g);try{renderList()}catch(e){}
-    bpBan(k===0?'Carátula original':'Carátula cambiada',1800);bpCvDraw()}
+async function bpCvPick(){const c=BP&&BP.cv,Z=c&&c.L[c.kind];if(!c||!Z||Z.load||c.busy)return;if(Z.err||!Z.list.length){bpCvClose();return}const g=c.g,kind=c.kind,k=Z.i,key='c:'+g.id+':'+kind;c.busy=1;
+  try{
+    if(k===0){await artDel(key);if(kind==='grid')await artDel('c:'+g.id+':icon');[key,'c:'+g.id+':icon'].forEach(x=>{if(x!==key&&kind!=='grid')return;if(ART[x]){URL.revokeObjectURL(ART[x]);delete ART[x]}});Z.on=0}
+    else{bpBan('Descargando…',5000);const b=await sgImgBlob(Z.list[k-1].u),nb=await shrink(b,kind==='hero'?'wall':kind);await artPut(key,nb);if(ART[key])URL.revokeObjectURL(ART[key]);ART[key]=URL.createObjectURL(nb);
+      if(kind==='grid'){const ib=await shrink(b,'icon'),ki='c:'+g.id+':icon';await artPut(ki,ib);if(ART[ki])URL.revokeObjectURL(ART[ki]);ART[ki]=URL.createObjectURL(ib)}Z.on=k}
+    save();bpSnd('ok');bpRumble(.4,60);
+    if(kind==='grid')BP.el.querySelectorAll('.bpc').forEach(e=>{if(e.dataset.id===g.id){const im=e.querySelector('img');if(im)im.src=art.grid(g)}});
+    if(kind==='logo'){BP.last=null;BP.sgl=null}if(kind==='hero'){BP.bgu=null;bpBg(g)}
+    bpFicDraw(g);try{renderList()}catch(e){}
+    bpBan(k===0?'Original restaurado':kind==='grid'?'Carátula cambiada':kind==='logo'?'Logo cambiado':'Fondo cambiado',1800);bpCvDraw()}
   catch(e){bpBan('No pude bajar esa imagen',2200)}
   c.busy=0}
 function bpFicOpen(g){if(!BP||BP.fic)return;BP.fic=1;BP.fg=g;bpTrail(g);bpSnd('ok');bpRumble(.4,60);bpFicDraw(g);BP.el.classList.add('fic');bpHints()}
