@@ -2946,6 +2946,27 @@ app.whenReady().then(() => {
       return { url: pathToFileURL(fin).href };
     } catch (e) { return { err: String(e.message || e) }; }
   });
+  /* trailer propio por link: baja a un archivo de vista previa; recién con "Usar" reemplaza al trailer del juego */
+  ipcMain.handle('trlUrl', async (_e, key, url) => {
+    try {
+      key = String(key || '').replace(/\W/g, ''); url = String(url || '').trim();
+      if (!key || !/^https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//i.test(url)) return { err: 'Pegá un link de YouTube' };
+      fs.mkdirSync(TRL, { recursive: true }); await ytEnsure();
+      const tmp = path.join(TRL, key + '.pv.mp4'); try { fs.unlinkSync(tmp); } catch (e) {}
+      await new Promise((resolve) => require('child_process').execFile(YTX, [url, '--no-playlist', '--no-warnings', '--match-filter', 'duration<900', '-f', 'bv[height<=1080][vcodec^=avc1][filesize<160M]/bv[height<=1080][vcodec^=avc1][filesize_approx<160M]/bv[height<=720][vcodec^=avc1]/bv[height<=720][ext=mp4]', '--max-filesize', '200M', '--socket-timeout', '20', '-o', tmp], { timeout: 180000, windowsHide: true, maxBuffer: 4e6 }, () => resolve()));
+      if (!fs.existsSync(tmp)) return { err: 'No pude bajar ese link' };
+      return { url: pathToFileURL(tmp).href };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('trlUse', (_e, key) => {
+    try {
+      key = String(key || '').replace(/\W/g, ''); const pv = path.join(TRL, key + '.pv.mp4'); if (!key || !fs.existsSync(pv)) return { err: 'sin vista previa' };
+      for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.') && f !== key + '.pv.mp4' && !/\.(mu\.\w+|nm)$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
+      const fin = path.join(TRL, key + '.mp4'); fs.renameSync(pv, fin); fs.writeFileSync(path.join(TRL, key + '.cu'), '');
+      return { url: pathToFileURL(fin).href };
+    } catch (e) { return { err: String(e.message || e) }; }
+  });
+  ipcMain.handle('trlDiscard', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); fs.unlinkSync(path.join(TRL, key + '.pv.mp4')); } catch (e) {} return true; });
   ipcMain.handle('musDel', (_e, key) => { try { key = String(key || '').replace(/\W/g, ''); musClean(key); fs.writeFileSync(path.join(TRL, key + '.nm'), ''); return true; } catch (e) { return false; } });
   /* mantenimiento: mover un juego a otro disco (copia, verifica y recién después ofrece borrar el original) */
   const dirBytes = (d, lim) => { let n = 0, t = Date.now(); const st = [d]; while (st.length) { const x = st.pop(); let es; try { es = fs.readdirSync(x, { withFileTypes: true }); } catch (e) { continue; } for (const e of es) { const p = path.join(x, e.name); if (e.isDirectory()) st.push(p); else { try { n += fs.statSync(p).size; } catch (e2) {} } } if (Date.now() - t > (lim || 20000)) return -1; } return n; };
