@@ -4486,7 +4486,7 @@ const A={
   esave:async a=>{const g=EG,nm=$('#e-name').value.trim();if(nm)g.name=nm;g.fav=EFAV||undefined;g.rate=ERATE||undefined;
     const h=parseFloat($('#e-h').value);if(!isNaN(h)&&h>=0)g.hours=h;
     const ap=parseInt(($('#e-app')||{}).value);if(ap&&ap!==g.app){g.app=ap;delete ST.sgdb[ap]}
-    if($('#e-im'))g.instM=$('#e-im').value==='1'?true:$('#e-im').value==='0'?false:undefined;g.launch=($('#e-l')||{value:''}).value.trim();if($('#e-bl')){if($('#e-bl').value==='1')g.bl=1;else delete g.bl}const was=g.status==='Terminado';g.status=EST;const dd=$('#e-dd').value,ddt=dd?new Date(dd+'T12:00:00').getTime():0;if(EST==='Terminado'&&!was){g.doneAt=ddt||achLast(g)||Date.now();window._cel=g}else if(EST!=='Terminado')delete g.doneAt;else if(ddt)g.doneAt=ddt;g.tags=$('#e-tg').value.split(',').map(x=>x.trim()).filter(Boolean);if($('#e-ex')){const ev=$('#e-ex').value.trim().replace(/^"|"$/g,'');if(isXbG(g)){const det=g.xdet||g.exe;if(ev&&ev!==det){g.xexe=ev;g.exe=ev}else{delete g.xexe;if(g.xdet)g.exe=g.xdet}}else g.exe=ev}if(!g.app&&!g.wimg){delete g.wno;wpImg(g)}g.hl={m:parseFloat($('#e-hm').value)||0,e:parseFloat($('#e-he').value)||0,c:parseFloat($('#e-hc').value)||0};
+    if($('#e-im'))g.instM=$('#e-im').value==='1'?true:$('#e-im').value==='0'?false:undefined;if($('#e-l'))g.launch=$('#e-l').value.trim();if($('#e-bl')){if($('#e-bl').value==='1')g.bl=1;else delete g.bl}const was=g.status==='Terminado';g.status=EST;const dd=$('#e-dd').value,ddt=dd?new Date(dd+'T12:00:00').getTime():0;if(EST==='Terminado'&&!was){g.doneAt=ddt||achLast(g)||Date.now();window._cel=g}else if(EST!=='Terminado')delete g.doneAt;else if(ddt)g.doneAt=ddt;g.tags=$('#e-tg').value.split(',').map(x=>x.trim()).filter(Boolean);if($('#e-ex')){const ev=$('#e-ex').value.trim().replace(/^"|"$/g,'');if(isXbG(g)){const det=g.xdet||g.exe;if(ev&&ev!==det){g.xexe=ev;g.exe=ev}else{delete g.xexe;if(g.xdet)g.exe=g.xdet}}else g.exe=ev}if(!g.app&&!g.wimg){delete g.wno;wpImg(g)}g.hl={m:parseFloat($('#e-hm').value)||0,e:parseFloat($('#e-he').value)||0,c:parseFloat($('#e-hc').value)||0};
     for(const k of Object.keys(EP)){const key='c:'+g.id+':'+k;
       if(EP[k]){await artPut(key,EP[k]);if(ART[key])URL.revokeObjectURL(ART[key]);ART[key]=URL.createObjectURL(EP[k])}
       else{await artDel(key);if(ART[key]){URL.revokeObjectURL(ART[key]);delete ART[key]}}}
@@ -8225,7 +8225,7 @@ function intro(){
 /* ---------- editar juego ---------- */
 let EP={},EG=null,EST='',EFAV=false,ERATE=0,EH='grid';
 /* editor de imágenes del juego: vista previa en vivo + opciones de SteamGridDB */
-let EDI={k:'grid',sel:{},u:{}};const EKP=[['grid','Carátula'],['hero','Fondo'],['logo','Logo'],['icon','Icono'],['wide','Banner']],EKA={grid:[5,'2/3'],hero:[3,'3.1/1'],logo:[4,'16/9'],icon:[6,'1/1'],wide:[3,'460/215']};
+let EDI={k:'grid',sel:{},u:{}};const EKP=[['grid','Carátula'],['hero','Fondo'],['logo','Logo'],['icon','Icono']],EKA={grid:[5,'2/3'],hero:[3,'3.1/1'],logo:[4,'16/9'],icon:[6,'1/1'],wide:[3,'460/215']};
 function edUrl(k){const p=EP[k];if(p){if(!EDI.u[k]||EDI.u[k].b!==p)EDI.u[k]={b:p,u:URL.createObjectURL(p)};return EDI.u[k].u}return p===null?autoImg(k):(hasC(k)?ART['c:'+EG.id+':'+k]:autoImg(k))}
 function edPrev(){const v=$('#edpv');if(!v)return;const g=EG;v.innerHTML=`<img class="pv-h" src="${edUrl('hero')}" alt=""><div class="pv-s"></div><div class="pv-c"><img src="${edUrl('grid')}" alt=""></div><div class="pv-l"><img src="${edUrl('logo')}" alt="" onerror="this.style.display='none'"><b>${esc(g.name)}</b></div><div class="pv-i"><img src="${edUrl('icon')}" alt=""></div>`;
   const l=$('.pv-l img');if(l){l.addEventListener('load',()=>{const b=$('.pv-l b');if(b)b.style.display='none'});l.addEventListener('error',()=>{const b=$('.pv-l b');if(b)b.style.display=''})}
@@ -8244,7 +8244,7 @@ Object.assign(A,{
  edset:async a=>{const k=EDI.k;if(a.dataset.n==='0'){EP[k]=null;if(k==='grid')EP.icon=null;EDI.sel[k]=null;paintEP();return}
    a.classList.add('ld');try{const b=await sgImgBlob(a.dataset.u);EP[k]=await shrink(b,k==='hero'?'wall':k);if(k==='grid')EP.icon=await shrink(b,'icon');EDI.sel[k]=a.dataset.u;paintEP()}catch(e){toast('No pude bajar esa imagen')}a.classList.remove('ld')}});
 
-const EK=[['icon','Icono','Lista de la izquierda'],['grid','Carátula','Vertical'],['hero','Fondo','Imagen grande de arriba'],['logo','Logo','Sobre el fondo'],['wide','Banner','Tarjetas de Inicio']];
+const EK=[['icon','Icono','Lista de la izquierda'],['grid','Carátula','Vertical'],['hero','Fondo','Imagen grande de arriba'],['logo','Logo','Sobre el fondo']];
 const hasC=k=>!!ART['c:'+EG.id+':'+k];
 const autoImg=k=>k==='icon'?(sg(EG).icon||art.grid(EG,true)):art[k](EG,true);
 function paintEP(){try{edPrev()}catch(e){}EK.forEach(([k])=>{const el=$('#ep-'+k);if(!el)return;
@@ -8266,10 +8266,10 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',
     <div class="edb">
      <section class="edp" data-p="gen">
       <label>Nombre<input class="txt" id="e-name" value="${esc(g.name)}"></label>
-      <div class="two2"><label>Horas jugadas<div class="hrs"><button type="button" data-a="ehadj" data-v="-1">−1</button><input class="txt" id="e-h" type="number" step="0.1" min="0" value="${(g.hours||0).toFixed(1)}"><button type="button" data-a="ehadj" data-v="1">+1</button><button type="button" data-a="ehadj" data-v="10">+10</button></div></label>
+      <div class="two2"><label>Horas jugadas<div class="hrs"><input class="txt" id="e-h" type="number" step="0.1" min="0" value="${(g.hours||0).toFixed(1)}"></div></label>
       <label>Fecha en que lo completaste<input class="txt" id="e-dd" type="date" value="${g.doneAt?new Date(g.doneAt-new Date(g.doneAt).getTimezoneOffset()*6e4).toISOString().slice(0,10):''}"></label></div>
       <div class="two2"><div><label>Mi nota</label><div class="stars" id="e-st">${[1,2,3,4,5].map(n=>`<button data-a="erate" data-v="${n}" class="${n<=ERATE?'on':''}">★</button>`).join('')}</div></div>
-      <div><label>Marcas</label><div class="chips" style="margin-top:6px">${!manualOk(g)?'':`<button class="cp done-b ${EST==='Terminado'?'on':''}" data-a="est" data-id="Terminado">${ic('trophy')} Completado</button>`}<button class="cp ${EFAV?'on':''}" id="e-fav" data-a="efav">${ic('star')} Favorito</button></div></div></div>
+      </div>
       <label>Etiquetas propias (separadas por coma)<input class="txt" id="e-tg" placeholder="ej: pixel art, relajante, con amigos" value="${esc((g.tags||[]).join(', '))}"></label>
       ${sug.length?`<div class="sugs">${sug.map(t=>`<button type="button" data-a="etag" data-v="${esc(t)}">+ ${esc(t)}</button>`).join('')}</div>`:''}
       <label>Duración (HowLongToBeat), en horas</label><div class="two2" style="grid-template-columns:repeat(3,1fr)"><input class="txt" id="e-hm" type="number" step="0.5" min="0" placeholder="Historia" value="${(g.hl&&g.hl.m)||''}"><input class="txt" id="e-he" type="number" step="0.5" min="0" placeholder="+ Extras" value="${(g.hl&&g.hl.e)||''}"><input class="txt" id="e-hc" type="number" step="0.5" min="0" placeholder="Platino" value="${(g.hl&&g.hl.c)||''}"></div>
@@ -8282,8 +8282,6 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',
       ${window.winteerNative&&winteerNative.trlPick?`<label>Trailer del Modo mando<div class="exr"><span class="hint" id="e-trs" style="flex:1;margin:0">${TRX[trk(g)]?'Tiene trailer':'Sin trailer'}</span><button type="button" class="b2 sm" data-a="etrpick">Elegir video…</button>${TRX[trk(g)]?'<button type="button" class="b2 sm" data-a="etrdel">Quitar</button>':''}</div></label>`:''}
       ${window.winteerNative&&winteerNative.musPick?`<label>Canción del Modo mando<div class="exr"><span class="hint" id="e-mus" style="flex:1;margin:0">${TRX['a:'+trk(g)]?'Tiene canción':'Sin canción'}</span><button type="button" class="b2 sm" data-a="emuspick">Elegir archivo…</button>${TRX['a:'+trk(g)]?'<button type="button" class="b2 sm" data-a="emusdel">Quitar</button>':''}</div><div class="exr" style="margin-top:6px"><input class="txt" id="e-murl" placeholder="O pegá un link de YouTube"><button type="button" class="b2 sm" data-a="emusurl">Bajar</button></div></label>`:''}
       ${window.winteerNative&&winteerNative.gmMove?(isSteamG(g)?`<label>Disco del juego<div class="exr"><span class="hint" style="flex:1;margin:0">En Steam se mueve desde Propiedades, Archivos instalados, Mover carpeta de instalación.</span><button type="button" class="b2 sm" data-a="egmsteam">Abrir en Steam</button></div></label>`:(g.exe&&!isXbG(g)?`<label>Disco del juego<div class="exr"><span class="hint" id="e-gd" style="flex:1;margin:0">Copia el juego a otro disco, lo verifica y recién después te deja borrar el original.</span><button type="button" class="b2 sm" data-a="egmmove">Mover a otro disco…</button></div></label>`:'')):''}
-      <label>Enlace de inicio (opcional)<input class="txt" id="e-l" placeholder="steam://rungameid/${g.app}" value="${esc(g.launch||'')}"></label>
-      <p class="hint" style="margin-top:8px">Si lo dejás vacío, WINTEER usa su forma normal de abrir el juego.</p>
       <h4 class="edsh">Avanzado</h4>
       <label>AppID de Steam<input class="txt" id="e-app" type="number" value="${g.app||''}"></label>
       <p class="hint" style="margin-top:8px">Cambiarlo vuelve a buscar las imágenes y datos del juego con ese número.</p>
