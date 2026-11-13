@@ -3476,6 +3476,22 @@ body.light .fp2-hero,body.light .fp2-sc,body.light .fp2-rv,body.light .fp2-h{bac
 .cjs.real{background-size:100% 100%;background-position:center}.cjs.real>*{display:none}
 .cjdisc.real{background:none;box-shadow:none;filter:drop-shadow(0 1.2vh 2vh rgba(0,0,0,.55))}.cjdisc.real img{object-fit:contain}.cjdisc.real b{display:none}
 .cjmb{align-self:flex-start;margin-top:1vh;padding:.9vh 1.8vh;border-radius:99px;border:0;background:#2a2620;color:#faf6ea;font-size:1.2vh;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform .25s,background .25s}.cjmb:hover{transform:scale(1.05);background:#000}
+.cjbg{background:radial-gradient(130% 90% at 50% -10%,var(--bc) 0,color-mix(in srgb,var(--bc) 62%,#05040b) 40%,#05040b 100%)}
+.cjbg::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 38% at 50% 100%,color-mix(in srgb,var(--bc) 38%,transparent),transparent)}
+.cjsh{display:flex;gap:calc(var(--w)*.02);margin-top:calc(var(--w)*.03)}.cjk .cjsh img{width:auto;flex:1;min-width:0;aspect-ratio:16/9;object-fit:cover;border-radius:.3vh}
+.cjrq{display:block;margin-top:calc(var(--w)*.03);font-size:calc(var(--w)*.038);line-height:1.4;opacity:.72;white-space:pre-line;max-height:calc(var(--w)*.3);overflow:hidden}.cjrq b{display:block;font-size:calc(var(--w)*.04);letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-bottom:calc(var(--w)*.01)}
+.cjk p{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.cji,.cjmv{position:absolute;inset:0;z-index:6;background:rgba(4,4,10,.93);backdrop-filter:blur(22px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .4s}.cji.on,.cjmv.on{opacity:1}
+.cj.insp .cjinfo,.cj.insp .cjrow{opacity:0;transition:opacity .3s}.cji{perspective:230vh}.cjbig{position:relative!important;left:0!important;top:0!important;transition:transform .7s cubic-bezier(.2,.85,.2,1)!important;cursor:default}
+.cjmv{perspective:260vh}.cjbook{display:flex;width:88vh;height:58vh;filter:drop-shadow(0 3vh 5vh rgba(0,0,0,.6))}
+.cjpl,.cjpr{flex:1;position:relative;padding:3.6vh 3.4vh;color:#2a2620;overflow:hidden;display:flex;flex-direction:column;gap:1.2vh}
+.cjpl{background:linear-gradient(90deg,#f6f0df,#ece5d2 92%,#cfc7b0);border-radius:.8vh 0 0 .8vh}.cjpr{background:linear-gradient(270deg,#f6f0df,#ece5d2 92%,#cfc7b0);border-radius:0 .8vh .8vh 0;transform-origin:left center}
+.cjpr.fl{animation:cjtp .6s cubic-bezier(.2,.85,.2,1) both}@keyframes cjtp{from{transform:rotateY(-80deg);opacity:.2}to{transform:none;opacity:1}}
+.cjpl small,.cjpr small{font-size:1.2vh;letter-spacing:.3em;text-transform:uppercase;font-weight:800;opacity:.55}
+.cjpc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4vh;height:100%;text-align:center}.cjpc img{height:34vh;border-radius:.5vh;box-shadow:0 1.4vh 3vh rgba(0,0,0,.35)}.cjpc h3{margin:0;font-size:2.6vh}
+.cjpd{margin:0;font-size:1.5vh;line-height:1.6;opacity:.85;overflow:hidden}.cjps{display:grid;grid-template-columns:1fr 1fr;gap:1vh}.cjps img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:.4vh}
+.cjpe{margin-top:auto;font-style:normal;text-align:center;font-size:1.05vh;letter-spacing:.4em;font-weight:800;opacity:.35}
+.cjbook .cjmi{display:flex;flex-direction:column;gap:.9vh}.cjbook .cjmi div{display:flex;justify-content:space-between;gap:1.4vh;font-size:1.45vh;border-bottom:1px dotted rgba(42,38,32,.35);padding-bottom:.5vh}.cjbook .cjmi span{opacity:.65}.cjbook .cjmi b{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cjpt{display:flex;justify-content:center;gap:1vh;margin:0 0 1.6vh}.cjpt button{padding:.8vh 2vh;border-radius:99px;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:1.5vh;font-weight:700;cursor:pointer;transition:background .25s,color .25s}.cjpt button.on{background:#fff;color:#111}
 .cjpa{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:1.4vh;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.6}.cjpg[data-t=side] .cjpi{width:9vh;aspect-ratio:1/3.4}.cjpg[data-t=disc] .cjpi{width:17vh;aspect-ratio:1;border-radius:50%}
 .cjot{margin-top:3.4vh;text-align:center}.cjot small{font-size:1.3vh;letter-spacing:.34em;text-transform:uppercase;font-weight:800;opacity:.65}.cjot h2{margin:.6vh 0 0;font-size:3.6vh;font-weight:800}
@@ -8538,16 +8554,20 @@ function bpFav(){if(!BP||BP.busy)return;const g=bpList()[BP.i];if(!g)return;g.fa
 function bpRand(){if(!BP||BP.busy)return;const L=bpList(),n=L.length;if(n<2)return;if(BP.z!=='row')bpZone('row');const tok=BP.spin=(BP.spin||0)+1,seq=[];for(let k=0;k<13;k++)seq.push(Math.floor(Math.random()*n));const t=Math.floor(Math.random()*n);seq.push(t);let k=0;el_spin(1);
   const step=()=>{if(!BP||BP.spin!==tok)return;BP.i=seq[k];bpSnd('nav');bpRender();k++;if(k<seq.length)setTimeout(step,50+k*k*2);else{el_spin(0);bpSnd('ok');bpRumble(.6,100);bpBan('Sorpresa: '+L[t].name)}};step()}
 /* ===== estanteria de cajas (Modo mando) ===== */
-const CJP={pc:['PC','#141a26','#3b82f6'],ps1:['PlayStation','#d9dbe1','#64748b'],ps2:['PlayStation 2','#0b0b10','#2563eb'],psp:['PSP','#ececf1','#0ea5e9'],gc:['GameCube','#2c2547','#7c5cff'],wii:['Wii','#f1f2f6','#38bdf8'],n64:['Nintendo 64','#1c1c22','#ef4444'],snes:['Super Nintendo','#3b3550','#a78bfa'],nes:['NES','#2a2a2e','#ef4444'],gb:['Game Boy','#8a8f7a','#84cc16'],gbc:['Game Boy Color','#5b2d8a','#c026d3'],gba:['Game Boy Advance','#3a2f73','#6366f1'],nds:['Nintendo DS','#16161a','#94a3b8'],genesis:['Mega Drive','#0c0c10','#dc2626'],sms:['Master System','#f3f3f3','#dc2626'],gg:['Game Gear','#111114','#22d3ee'],pce:['PC Engine','#eeeeee','#f97316'],a26:['Atari 2600','#1a120b','#f59e0b']};
+const CJP={pc:['PC','#141a26','#3b82f6'],ps1:['PlayStation','#d9dbe1','#64748b'],ps2:['PlayStation 2','#0b0b10','#2563eb'],psp:['PSP','#ececf1','#0ea5e9'],gc:['GameCube','#2c2547','#7c5cff'],wii:['Wii','#f1f2f6','#38bdf8'],n64:['Nintendo 64','#1c1c22','#ef4444'],snes:['Super Nintendo','#3b3550','#a78bfa'],nes:['NES','#2a2a2e','#ef4444'],gb:['Game Boy','#8a8f7a','#84cc16'],gbc:['Game Boy Color','#5b2d8a','#c026d3'],gba:['Game Boy Advance','#3a2f73','#6366f1'],nds:['Nintendo DS','#16161a','#94a3b8'],genesis:['Mega Drive','#0c0c10','#dc2626'],sms:['Master System','#f3f3f3','#dc2626'],gg:['Game Gear','#111114','#22d3ee'],pce:['PC Engine','#eeeeee','#f97316'],a26:['Atari 2600','#1a120b','#f59e0b'],x360:['Xbox 360','#6cb33f','#22c55e'],ps3:['PlayStation 3','#0d1730','#2563eb'],ps4:['PlayStation 4','#1a3a8f','#3b82f6'],switch:['Switch','#e60012','#ef4444'],wiiu:['Wii U','#18a0e0','#38bdf8'],'3ds':['Nintendo 3DS','#1b1b1f','#e11d48']};
+const CJS={pc:[1.42,.105],ps1:[1.0,.075],ps2:[1.4,.1],psp:[1.72,.13],gc:[1.3,.1],wii:[1.4,.1],n64:[1.3,.22],snes:[1.15,.18],nes:[1.25,.16],gb:[1.35,.13],gbc:[1.35,.13],gba:[1.4,.12],nds:[1.35,.1],genesis:[1.4,.1],sms:[1.4,.1],gg:[1.4,.1],pce:[1.0,.1],a26:[1.1,.1],x360:[1.4,.1],ps3:[1.4,.1],ps4:[1.4,.1],switch:[1.65,.06],wiiu:[1.4,.1],'3ds':[1.65,.06]};
+const cjShape=g=>{const q=CJS[cjPl(g)]||CJS.pc;return `--h:calc(var(--w)*${q[0]});--t:calc(var(--w)*${q[1]})`};
 const cjPl=g=>(g.emu&&g.emu.s&&CJP[g.emu.s])?g.emu.s:'pc';
 const cjCov=g=>(ST.cov||{})[g.id]||art.grid(g);
 const cjLum=h=>{const n=parseInt(h.slice(1),16);return (.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255))/255};
 function cjTabs(){const s=new Set(G.filter(g=>!g.hide).map(cjPl));return ['all',...Object.keys(CJP).filter(k=>s.has(k))]}
 function cjList(){const b=BP.cj;return G.filter(g=>!g.hide&&(!visOn()||visOk(g))&&(b.tab==='all'||cjPl(g)===b.tab)).sort((a,c)=>a.name.localeCompare(c.name))}
 function cjKeys(){const b=BP.cj;if(!b)return;const p=BP.padOn,k=(a,c,t)=>`<span><i>${p?padLbl(a):c}</i>${t}</span>`;
-  b.el.querySelector('.cjkeys').innerHTML=b.mode==='open'?k('A','Enter','Sacar el disco y jugar')+k('Y','F','Girar el disco')+k('B','Esc','Guardar la caja')
+  b.el.querySelector('.cjkeys').innerHTML=b.mode==='insp'?k('D-pad','← →','Girar')+k('D-pad','↑ ↓','Zoom')+k('Y','F','Dar vuelta')+k('B','Esc','Cerrar')
+   :b.mode==='man'?k('D-pad','← →','Pasar página')+k('B','Esc','Cerrar')
+   :b.mode==='open'?k('A','Enter','Sacar el disco y jugar')+k('LT','Z','Manual')+k('Y','F','Girar el disco')+k('B','Esc','Guardar la caja')
    :b.mode==='pick'?k('A','Enter','Usar este arte')+k('LB RB','Q E','Frente / Trasera / Lateral / Disco')+k('B','Esc','Volver')
-   :k('A','Enter','Jugar')+k('X','X','Abrir caja')+k('Y','F','Dar vuelta')+k('RT','G','Carátula')+k('LB RB','Q E','Consola')+k('B','Esc','Volver')}
+   :k('A','Enter','Jugar')+k('X','X','Abrir caja')+k('Y','F','Dar vuelta')+k('RT','G','Arte')+k('LT','Z','Inspeccionar')+k('LB RB','Q E','Consola')+k('B','Esc','Volver')}
 function cjOpen(){if(!BP||BP.cj||BP.busy)return;bpTrOff();const el=document.createElement('div');el.className='cj';
   el.innerHTML=`<div class="cjbg"><i></i><i></i><u></u></div><div class="cjtabs"></div><div class="cjrow"><div class="cjtrk"></div></div><div class="cjfloor"></div><div class="cjinfo"><h2></h2><p></p></div><div class="cjkeys"></div>`;
   BP.el.appendChild(el);const g0=bpList()[BP.i];BP.cj={el,tab:'all',i:0,els:new Map(),mode:'shelf'};
@@ -8566,29 +8586,38 @@ function ssQ(o){const d=Object.assign({devid:SSDEV.id||ST.ssdi,devpassword:SSDEV
 async function ssJ(p,q){const r=await nf('https://api.screenscraper.fr/api2/'+p+'?'+ssQ(q));if(r.status===401||r.status===403)throw new Error('Usuario, clave o código de desarrollador no válidos.');if(r.status===429||r.status===430||r.status===431)throw new Error('ScreenScraper llegó a su límite; probá más tarde.');if(!r.ok)throw new Error('ScreenScraper no respondió.');try{return await r.json()}catch(e){throw new Error('ScreenScraper no respondió bien.')}}
 let SSP=Promise.resolve();
 function ssGet(g){ST.ss=ST.ss||{};const c=ST.ss[g.id];if(c&&(c.ok||Date.now()-c.at<216e5))return Promise.resolve(c);
-  const run=SSP.then(async()=>{const o={ok:0,at:Date.now(),back:[],side:[],disc:[],man:[]};
+  const run=SSP.then(async()=>{const o={ok:0,at:Date.now(),front:[],back:[],side:[],disc:[],man:[]};
     try{const rj=await ssJ('jeuRecherche.php',{recherche:sgClean(g.name),systemeid:SSSYS[cjPl(g)]||135});
       const f=rj&&rj.response&&(rj.response.jeux||[]).find(x=>x&&x.id);
       if(!f){o.err='ScreenScraper no tiene este juego.';ST.ss[g.id]=o;save();return o}
       const ij=await ssJ('jeuInfos.php',{gameid:f.id}),ms=(ij&&ij.response&&ij.response.jeu&&ij.response.jeu.medias)||[];
       const R=['wor','eu','us','ss','uk','fr','de','jp'],rk=m=>{const i=R.indexOf(m.region);return i<0?99:i};
-      const by=t=>[...new Set(ms.filter(m=>m.type===t&&m.url).sort((a,b)=>rk(a)-rk(b)).map(m=>m.url))].slice(0,12);
-      o.back=by('box-2D-back');o.side=by('box-2D-side');o.disc=by('support-2D');o.man=by('manuel');o.ok=1;ST.ss[g.id]=o;save();return o
+      const by=t=>{const seen=new Set();return ms.filter(m=>m.type===t&&m.url).sort((a,b)=>rk(a)-rk(b)).filter(m=>!seen.has(m.url)&&seen.add(m.url)).map(m=>({u:m.url,r:m.region||''})).slice(0,12)};
+      o.front=by('box-2D');o.back=by('box-2D-back');o.side=by('box-2D-side');o.disc=by('support-2D');o.man=by('manuel');o.ok=1;ST.ss[g.id]=o;save();return o
     }catch(e){return {ok:0,err:e.message||'No pude conectar con ScreenScraper.',back:[],side:[],disc:[],man:[]}}});
   SSP=run.catch(()=>{}).then(()=>new Promise(r=>setTimeout(r,1300)));return run}
-function cjArt(g){const s=(ST.ss||{})[g.id]||{},c=(ST.cov2||{})[g.id]||{};return {back:c.back||(s.back||[])[0]||'',side:c.side||(s.side||[])[0]||'',disc:c.disc||(s.disc||[])[0]||'',man:(s.man||[])[0]||''}}
+const SSU=x=>x?(typeof x==='string'?x:x.u):'',SSRG={wor:'Mundo',us:'USA',eu:'Europa',jp:'Japón',uk:'Reino Unido',fr:'Francia',de:'Alemania',ss:'Genérica'};
+function cjArt(g){const s=(ST.ss||{})[g.id]||{},c=(ST.cov2||{})[g.id]||{};return {back:c.back||SSU((s.back||[])[0]),side:c.side||SSU((s.side||[])[0]),disc:c.disc||SSU((s.disc||[])[0]),man:SSU((s.man||[])[0])}}
 function cjArtRefresh(g){const b=BP&&BP.cj;if(!b)return;const c=b.els.get(g.id),n=c&&c.querySelector('.cjb');if(n)n.outerHTML=cjCaseHTML(g)}
-let SST;function cjSsAuto(g){clearTimeout(SST);if(!g||!ssOn())return;const s=(ST.ss||{})[g.id];if(s&&(s.ok||Date.now()-s.at<216e5))return;
+
+async function stGet(g){ST.stx=ST.stx||{};if(ST.stx[g.id]||!window.winteerNative||!g.app)return ST.stx[g.id];
+  try{const r=await nf('https://store.steampowered.com/api/appdetails?appids='+g.app+'&l=spanish');if(!r.ok)return;const j=await r.json(),d=j&&j[g.app]&&j[g.app].success&&j[g.app].data;
+    if(!d){ST.stx[g.id]={sh:[],rq:'',at:Date.now()};save();return ST.stx[g.id]}
+    const tx=h=>String(h||'').replace(/<br\s*\/?>|<\/li>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&[a-z#0-9]+;/gi,' ').replace(/[ \t]+/g,' ').replace(/\n\s*\n+/g,'\n').trim();
+    ST.stx[g.id]={sh:(d.screenshots||[]).slice(0,6).map(x=>x.path_thumbnail).filter(Boolean),rq:d.pc_requirements&&d.pc_requirements.minimum?tx(d.pc_requirements.minimum).slice(0,320):'',pub:(d.publishers||[]).join(', '),rel:(d.release_date&&d.release_date.date)||'',at:Date.now()};save();return ST.stx[g.id]}catch(e){}}
+let SST,STT;function cjSsAuto(g){clearTimeout(SST);clearTimeout(STT);if(!g)return;
+  if(g.app&&!(ST.stx||{})[g.id])STT=setTimeout(async()=>{const x=await stGet(g);if(x&&BP&&BP.cj)cjArtRefresh(g)},700);
+  if(!ssOn())return;const s=(ST.ss||{})[g.id];if(s&&(s.ok||Date.now()-s.at<216e5))return;
   SST=setTimeout(async()=>{await ssGet(g);if(BP&&BP.cj)cjArtRefresh(g)},900)}
-function cjCaseHTML(g){const pl=cjPl(g),P=CJP[pl],info=INFO[g.id]||{},dk=cjLum(P[1])>.6,A=cjArt(g);
-  return `<div class="cjb" style="--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}"><div class="cjf"><u>${esc(P[0])}</u><img src="${cjCov(g)}" data-fb="${art.wide(g)}" alt=""><s></s></div><div class="cjs${A.side?' real':''}"${A.side?` style="background-image:url('${esc(A.side)}')"`:''}><b>${esc(g.name)}</b><u>${esc(P[0])}</u></div><div class="cjr"></div><div class="cjk${A.back?' real':''}">${A.back?`<img class="cjbk" src="${esc(A.back)}" alt="">`:''}<img src="${art.wide(g)}" alt=""><h5>${esc(g.name)}</h5><p>${esc(bpDesc(info.d)||'Sin descripción todavía.')}</p><u>${esc(P[0])}</u><i class="cjbc"></i></div></div>`}
+function cjCaseHTML(g){const pl=cjPl(g),P=CJP[pl],info=INFO[g.id]||{},dk=cjLum(P[1])>.6,A=cjArt(g),X=(ST.stx||{})[g.id]||{};
+  return `<div class="cjb" style="--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}"><div class="cjf"><u>${esc(P[0])}</u><img src="${cjCov(g)}" data-fb="${art.wide(g)}" alt=""><s></s></div><div class="cjs${A.side?' real':''}"${A.side?` style="background-image:url('${esc(A.side)}')"`:''}><b>${esc(g.name)}</b><u>${esc(P[0])}</u></div><div class="cjr"></div><div class="cjk${A.back?' real':''}">${A.back?`<img class="cjbk" src="${esc(A.back)}" alt="">`:''}<img src="${art.wide(g)}" alt=""><h5>${esc(g.name)}</h5><p>${esc(bpDesc(info.d)||'Sin descripción todavía.')}</p>${X.sh&&X.sh.length?`<div class="cjsh">${X.sh.slice(0,3).map(u=>`<img src="${esc(u)}" alt="">`).join('')}</div>`:''}${X.rq?`<span class="cjrq"><b>Requisitos mínimos</b>${esc(X.rq)}</span>`:''}<u>${esc(P[0])}</u><i class="cjbc"></i></div></div>`}
 function cjRender(){const b=BP&&BP.cj;if(!b)return;const L=cjList(),el=b.el;b.i=Math.max(0,Math.min(b.i,L.length-1));const tabs=cjTabs();
   el.querySelector('.cjtabs').innerHTML=`<i>LB</i>${tabs.map(k=>`<button class="${b.tab===k?'on':''}" data-k="${k}">${k==='all'?'Todas':esc(CJP[k][0])}</button>`).join('')}<i>RB</i>`;
   const g=L[b.i],pl=g?cjPl(g):(b.tab==='all'?'pc':b.tab);el.style.setProperty('--bc',CJP[pl][2]);
   const trk=el.querySelector('.cjtrk'),keep=new Set(),vh=innerHeight/100;
   for(let j=b.i-9;j<=b.i+9;j++){if(j<0||j>=L.length)continue;const x=L[j],d=j-b.i;keep.add(x.id);let c=b.els.get(x.id);
     const ad=Math.abs(d),tx=d===0?0:Math.sign(d)*(31+(ad-1)*8.2)*vh,tf=d===0?`translateX(0) translateZ(${6*vh}px) rotateY(${b.flip?198:18}deg) scale(1.16)`:`translateX(${tx}px) translateZ(${-ad*1.5*vh}px) rotateY(${d<0?64:58}deg)`;
-    if(!c){c=document.createElement('div');c.className='cjc';c.dataset.id=x.id;c.innerHTML=cjCaseHTML(x);c.style.transition='none';c.style.transform=tf;c.style.opacity=0;trk.appendChild(c);void c.offsetWidth;c.style.transition='';b.els.set(x.id,c)}
+    if(!c){c=document.createElement('div');c.className='cjc';c.dataset.id=x.id;c.setAttribute('style',cjShape(x));c.innerHTML=cjCaseHTML(x);c.style.transition='none';c.style.transform=tf;c.style.opacity=0;trk.appendChild(c);void c.offsetWidth;c.style.transition='';b.els.set(x.id,c)}
     c.style.transform=tf;c.style.opacity=ad>8?0:1;c.classList.toggle('sel',d===0)}
   for(const [id,c] of b.els)if(!keep.has(id)){c.style.opacity=0;b.els.delete(id);setTimeout(()=>c.remove(),400)}
   const inf=el.querySelector('.cjinfo');
@@ -8601,8 +8630,29 @@ function cjCase(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='shelf')return;b
   const rows=[['Plataforma',P[0]],['Desarrollador',info.dev||'—'],['Géneros',(info.gen||[]).slice(0,3).join(', ')||'—'],['Tiempo jugado',g.hours>0?fh(g.hours):'Sin jugar'],['Última vez',lt?new Date(lt).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'Nunca'],['Estado',stOf(g)]];
   const o=document.createElement('div');o.className='cjo';o.style.cssText=`--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}`;
   o.innerHTML=`<div class="cjcase"><div class="cjl"><div class="cjman"><small>Manual</small><h3>${esc(g.name)}</h3><div class="cjmi">${rows.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div><p>${esc(bpDesc(info.d)||'')}</p>${A.man?'<button class="cjmb">Ver manual real</button>':''}<em>WINTEER</em></div></div><div class="cjrr"><div class="cjdisc${A.disc?' real':''}"><img src="${esc(A.disc||cjCov(g))}" data-fb="${cjCov(g)}" alt=""><i></i><b></b></div><u>${esc(P[0])}</u></div></div><div class="cjot"><small>Caja abierta</small><h2>${esc(g.name)}</h2></div>`;
-  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){if(window.winteerNative&&winteerNative.openUrl)winteerNative.openUrl(A.man);else window.open(A.man);return}if(e.target.closest('.cjdisc'))cjPlay();else if(!e.target.closest('.cjcase'))cjShut()});
+  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){if(window.winteerNative&&winteerNative.openUrl)winteerNative.openUrl(A.man);else window.open(A.man);return}if(e.target.closest('.cjman')){cjMan();return}if(e.target.closest('.cjdisc'))cjPlay();else if(!e.target.closest('.cjcase'))cjShut()});
   b.el.appendChild(o);b.o=o;requestAnimationFrame(()=>o.classList.add('on'));bpSnd('ok');bpRumble(.4,60);cjKeys()}
+
+function cjRows(g){const P=CJP[cjPl(g)],info=INFO[g.id]||{},lt=lastTs(g),X=(ST.stx||{})[g.id]||{};return [['Plataforma',P[0]],['Desarrollador',info.dev||'—'],['Editor',X.pub||'—'],['Salida',X.rel||'—'],['Géneros',(info.gen||[]).slice(0,3).join(', ')||'—'],['Tiempo jugado',g.hours>0?fh(g.hours):'Sin jugar'],['Última vez',lt?new Date(lt).toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}):'Nunca'],['Estado',stOf(g)]]}
+function cjInsp(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='shelf')return;b.mode='insp';b.ir=-18;b.iz=1;
+  const P=CJP[cjPl(g)],dk=cjLum(P[1])>.6,o=document.createElement('div');o.className='cji';o.style.cssText=`--pc:${P[1]};--tx:${dk?'#14141a':'#fff'};--ac:${P[2]}`;
+  o.innerHTML=`<div class="cjc cjbig sel" style="${cjShape(g)};--w:40vh">${cjCaseHTML(g)}</div><div class="cjot"><small>Inspeccionando</small><h2>${esc(g.name)}</h2></div>`;
+  b.el.appendChild(o);b.n=o;b.el.classList.add('insp');cjInspT();requestAnimationFrame(()=>o.classList.add('on'));bpSnd('ok');cjKeys()}
+function cjInspT(){const b=BP.cj,c=b&&b.n&&b.n.querySelector('.cjbig');if(c)c.style.transform=`rotateY(${b.ir}deg) scale(${b.iz})`}
+function cjInspX(){const b=BP.cj;if(!b||!b.n)return;const o=b.n;b.n=null;b.mode='shelf';b.el.classList.remove('insp');o.classList.remove('on');setTimeout(()=>o.remove(),400);bpSnd('bk');cjKeys()}
+function cjManPages(g){const P=CJP[cjPl(g)],info=INFO[g.id]||{},X=(ST.stx||{})[g.id]||{},A=cjArt(g),sh=X.sh||[];
+  const man=A.man?'<button class="cjmb">Ver manual real</button>':'';
+  return [
+   [`<div class="cjpc"><img src="${esc(cjCov(g))}" alt=""><h3>${esc(g.name)}</h3><small>${esc(P[0])}</small></div>`,`<small>Datos</small><div class="cjmi">${cjRows(g).map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>${man}`],
+   [`<small>Descripción</small><p class="cjpd">${esc(bpDesc(info.d)||'Todavía no hay descripción para este juego.')}</p>`,`<small>Capturas</small>${sh.length?`<div class="cjps">${sh.slice(0,4).map(u=>`<img src="${esc(u)}" alt="">`).join('')}</div>`:`<div class="cjps"><img src="${esc(art.wide(g))}" alt=""></div>`}`],
+   [`<small>Requisitos del sistema</small><p class="cjpd" style="white-space:pre-line">${esc(X.rq||'Sin datos de requisitos para este juego.')}</p>`,`<small>Tu progreso</small><p class="cjpd">${g.hours>0?'Llevás '+esc(fh(g.hours))+' jugadas.':'Todavía no lo jugaste.'}</p><em class="cjpe">WINTEER</em>`]]}
+function cjMan(){const b=BP.cj,g=cjList()[b.i];if(!g||b.mode!=='open')return;b.mode='man';b.mp=0;b.mg=g;const o=document.createElement('div');o.className='cjmv';b.m=o;if(b.o)b.o.style.opacity=0;
+  o.addEventListener('click',e=>{if(e.target.closest('.cjmb')){const u=cjArt(g).man;if(u){if(window.winteerNative&&winteerNative.openUrl)winteerNative.openUrl(u);else window.open(u)}return}if(!e.target.closest('.cjbook'))cjManX()});
+  b.el.appendChild(o);cjManDraw(0);requestAnimationFrame(()=>o.classList.add('on'));bpSnd('ok');cjKeys()}
+function cjManDraw(dir){const b=BP.cj,o=b.m,pg=cjManPages(b.mg),n=pg.length,[l,r]=pg[b.mp];
+  o.innerHTML=`<div class="cjbook"><div class="cjpl">${l}</div><div class="cjpr ${dir?'fl':''}" data-d="${dir}">${r}</div></div><div class="cjot"><small>Páginas ${b.mp*2+1}-${b.mp*2+2} de ${n*2}</small><h2>${esc(b.mg.name)}</h2></div>`}
+function cjManGo(d){const b=BP.cj,n=cjManPages(b.mg).length,k=Math.max(0,Math.min(n-1,b.mp+d));if(k===b.mp)return;b.mp=k;bpSnd('tab');cjManDraw(d)}
+function cjManX(){const b=BP.cj;if(!b||!b.m)return;const o=b.m;b.m=null;b.mode='open';if(b.o)b.o.style.opacity='';o.classList.remove('on');setTimeout(()=>o.remove(),400);bpSnd('bk');cjKeys()}
 function cjShut(){const b=BP.cj;if(!b||!b.o)return;const o=b.o;b.o=null;b.mode='shelf';o.classList.remove('on');setTimeout(()=>o.remove(),500);bpSnd('bk');cjKeys()}
 function cjPlay(){const b=BP.cj,g=cjList()[b.i];if(!g)return;const go=()=>{if(!BP)return;BP.tab='all';BP.q='';BP.inst=false;const j=bpList().findIndex(x=>x.id===g.id);if(j<0){bpBan('No pude abrir ese juego');return}BP.i=j;BP.last=null;const c=BP.cj;BP.cj=null;if(c){c.el.classList.remove('on');setTimeout(()=>c.el.remove(),450)}bpRender();bpAct()};
   if(b.o){b.o.classList.add('go');bpSnd('ok');setTimeout(go,650)}else go()}
@@ -8620,12 +8670,13 @@ async function cjPickT(t){const b=BP.cj,g=b&&cjList()[b.i];if(!b||!b.p||!g)retur
       const r=await nf('https://www.steamgriddb.com/api/v2/grids/'+gid+'?dimensions=600x900,342x482,660x930&types=static&limit=23',{headers:{Authorization:'Bearer '+ST.key}});
       if(!live())return;if(!r.ok){msg(r.status===401||r.status===403?'La clave de SteamGridDB no es válida.':'No pude conectar con SteamGridDB.');return}
       const j=await r.json();if(!live())return;(j.data||[]).forEach(x=>b.pl.push({u:x.url,t:x.thumb||x.url,n:(x.author&&x.author.name)||''}));
-      msg(b.pl.length>1?(b.pl.length-1)+' carátulas de SteamGridDB':'No hay carátulas alternativas para este juego.');cjPickDraw(g)}catch(e){if(live())msg('No pude conectar con SteamGridDB.')}return}
+      msg(b.pl.length>1?(b.pl.length-1)+' carátulas de SteamGridDB':'No hay carátulas alternativas para este juego.');cjPickDraw(g)}catch(e){if(live())msg('No pude conectar con SteamGridDB.')}
+    if(ssOn()&&live()){const q=await ssGet(g);if(live()&&q&&q.front&&q.front.length){q.front.forEach((x,i)=>b.pl.push({u:SSU(x),t:SSU(x),n:'ScreenScraper · '+(SSRG[x.r]||'Sin región')}));cjPickDraw(g)}}return}
   b.pl=[{u:'',t:'',n:'Automática'}];cjPickDraw(g);
   if(!ST.ssu||!ST.sspw){msg('Cargá tu usuario y clave de ScreenScraper en Ajustes → Conexiones.');return}
   if(!ssOn()){msg('Falta el código de desarrollador de WINTEER para usar ScreenScraper.');return}
   msg('Buscando en ScreenScraper…');const s=await ssGet(g);if(!live())return;
-  const L=(s&&s[t])||[];L.forEach((u,i)=>b.pl.push({u,t:u,n:'Opción '+(i+1)}));
+  const L=(s&&s[t])||[];L.forEach((x,i)=>b.pl.push({u:SSU(x),t:SSU(x),n:(SSRG[x.r]||'Sin región')+' · '+(i+1)}));
   msg(L.length?(L.length===1?'1 opción':L.length+' opciones')+' de ScreenScraper':(s&&s.err)||'ScreenScraper no tiene este arte para este juego.');cjPickDraw(g)}
 function cjPickDraw(g){const b=BP.cj;if(!b||!b.p)return;const cur=(b.pt&&b.pt!=='front'?((ST.cov2||{})[g.id]||{})[b.pt]:(ST.cov||{})[g.id])||'';
   b.p.querySelector('.cjpg').innerHTML=b.pl.map((x,i)=>`<div class="cjpi ${i===b.pi?'f':''} ${x.u===cur?'cur':''}" data-i="${i}" style="--i:${Math.min(i,14)}">${(x.t||!b.pt||b.pt==='front')?`<img src="${x.t||art.grid(g,1)}" data-fb="${art.wide(g)}" alt="" loading="lazy">`:'<em class="cjpa">Automático</em>'}<span>${esc(x.n||'')}</span></div>`).join('');
@@ -8635,11 +8686,13 @@ function cjPickOk(){const b=BP.cj,g=cjList()[b.i],x=b.pl[b.pi];if(!g||!x)return;
 function cjPickX(){const b=BP.cj;if(!b||!b.p)return;const o=b.p;b.p=null;b.mode='shelf';o.classList.remove('on');setTimeout(()=>o.remove(),400);bpSnd('bk');cjKeys()}
 /* una sola entrada para teclado y mando: l r u d a b x y lb rb rt */
 function cjIn(k){const b=BP&&BP.cj;if(!b)return;
-  if(b.mode==='open'){if(k==='a')cjPlay();else if(k==='b'||k==='x')cjShut();else if(k==='y'&&b.o){b.o.classList.toggle('tv');bpSnd('tab')}return}
+  if(b.mode==='insp'){if(k==='l'){b.ir-=90}else if(k==='r'){b.ir+=90}else if(k==='y'){b.ir+=180}else if(k==='u'){b.iz=Math.min(1.7,b.iz+.25)}else if(k==='d'){b.iz=Math.max(.8,b.iz-.25)}else if(k==='a'||k==='b'||k==='lt'||k==='x'){cjInspX();return}bpSnd('nav');cjInspT();return}
+  if(b.mode==='man'){if(k==='r')cjManGo(1);else if(k==='l')cjManGo(-1);else if(k==='b'||k==='a'||k==='x'||k==='lt')cjManX();return}
+  if(b.mode==='open'){if(k==='lt'){cjMan();return}if(k==='a')cjPlay();else if(k==='b'||k==='x')cjShut();else if(k==='y'&&b.o){b.o.classList.toggle('tv');bpSnd('tab')}return}
   if(b.mode==='pick'){if(k==='a')cjPickOk();else if(k==='lb'||k==='rb'){const t=CJT.map(x=>x[0]),n=t[(t.indexOf(b.pt)+(k==='rb'?1:-1)+t.length)%t.length];bpSnd('tab');cjPickT(n)}else if(k==='b'||k==='rt')cjPickX();else if('lrud'.includes(k))cjPickMove(k);return}
-  if(k==='r')cjMove(1);else if(k==='l')cjMove(-1);else if(k==='a')cjPlay();else if(k==='x')cjCase();else if(k==='y')cjFlip();else if(k==='rt')cjPick();else if(k==='b')cjClose();
+  if(k==='r')cjMove(1);else if(k==='l')cjMove(-1);else if(k==='a')cjPlay();else if(k==='x')cjCase();else if(k==='y')cjFlip();else if(k==='rt')cjPick();else if(k==='lt')cjInsp();else if(k==='b')cjClose();
   else if(k==='lb'||k==='rb'){const t=cjTabs(),j=t.indexOf(b.tab);cjTab(t[(j+(k==='rb'?1:-1)+t.length)%t.length])}}
-const CJK={ArrowRight:'r',ArrowLeft:'l',ArrowUp:'u',ArrowDown:'d',Enter:'a',Escape:'b',Backspace:'b',x:'x',X:'x',f:'y',F:'y',q:'lb',Q:'lb',e:'rb',E:'rb',g:'rt',G:'rt'};
+const CJK={ArrowRight:'r',ArrowLeft:'l',ArrowUp:'u',ArrowDown:'d',Enter:'a',Escape:'b',Backspace:'b',x:'x',X:'x',f:'y',F:'y',q:'lb',Q:'lb',e:'rb',E:'rb',g:'rt',G:'rt',z:'lt',Z:'lt'};
 document.addEventListener('keydown',e=>{if(e.key==='F10'){e.preventDefault();bpToggle();return}if(!BP)return;if(BP.cj){if(OSK)return;const a=CJK[e.key];if(a){cjIn(a);e.preventDefault()}return}
   const k=e.key;if(k==='c'||k==='C'){cjOpen();e.preventDefault();return}if(k==='ArrowRight'){bpMove(1)}else if(k==='ArrowLeft'){bpMove(-1)}else if(k==='ArrowUp'){bpUp()}else if(k==='ArrowDown'){bpDown()}else if(k==='Enter'){bpAct()}else if(k==='Escape'||k==='Backspace'){bpBack()}else if(k==='q'||k==='Q'){bpTab(-1)}else if(k==='e'||k==='E'){bpTab(1)}else if(k==='f'||k==='F'){bpFav()}else if(k==='t'||k==='T'){bpTrTog()}else if(k==='m'||k==='M'){bpMusTog()}else if(k==='/'){bpSearch()}else if(k==='r'||k==='R'){bpRand()}else return;e.preventDefault()});
 /* mando: botón Guía (si Windows lo informa) o Atrás+Inicio mantenidos 1 s */
@@ -8718,7 +8771,7 @@ function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[.
     if(fire('g',B(16)))bpToggle();
     if(B(8)&&B(9)){if(!st.h)st.h=now;else if(st.h>0&&now-st.h>1000){st.h=-1;bpToggle()}}else st.h=0;
     if(!BP)continue;BP.pi=p.index;const dzp=padDz(p);let ax=p.axes[0]||0,ay=p.axes[1]||0;if(Math.hypot(ax,ay)<dzp){ax=0;ay=0}
-    if(BP.cj){if(fire('r',B(15)||ax>.6,1))cjIn('r');if(fire('l',B(14)||ax<-.6,1))cjIn('l');if(fire('u',B(12)||ay<-.6,1))cjIn('u');if(fire('dn',B(13)||ay>.6,1))cjIn('d');if(fire('a',B(0)))cjIn('a');if(fire('b',B(1)))cjIn('b');if(fire('y',B(3)))cjIn('y');if(fire('sx',B(2)))cjIn('x');if(fire('lb',B(4)))cjIn('lb');if(fire('rb',B(5)))cjIn('rb');if(fire('rt',B(7)))cjIn('rt');continue}
+    if(BP.cj){if(fire('r',B(15)||ax>.6,1))cjIn('r');if(fire('l',B(14)||ax<-.6,1))cjIn('l');if(fire('u',B(12)||ay<-.6,1))cjIn('u');if(fire('dn',B(13)||ay>.6,1))cjIn('d');if(fire('a',B(0)))cjIn('a');if(fire('b',B(1)))cjIn('b');if(fire('y',B(3)))cjIn('y');if(fire('sx',B(2)))cjIn('x');if(fire('lb',B(4)))cjIn('lb');if(fire('rb',B(5)))cjIn('rb');if(fire('rt',B(7)))cjIn('rt');if(fire('lt',B(6)))cjIn('lt');continue}
     if(fire('ls',B(10))){cjOpen();continue}
     if(fire('r',B(15)||ax>.6,1))bpMove(1);if(fire('l',B(14)||ax<-.6,1))bpMove(-1);
     if(fire('u',B(12)||ay<-.6))bpUp();if(fire('dn',B(13)||ay>.6))bpDown();
