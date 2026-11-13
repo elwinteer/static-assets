@@ -8416,7 +8416,7 @@ function bpSnd(k){if(ST.bpSnd===false)return;try{BA=BA||new(window.AudioContext|
 function bpRumble(m,d){try{if(!BP||BP.pi==null)return;const p=navigator.getGamepads()[BP.pi],a=p&&p.vibrationActuator;if(a&&a.playEffect)a.playEffect('dual-rumble',{duration:d||40,strongMagnitude:m*.4,weakMagnitude:m})}catch(e){}}
 function bpBan(t,ms){if(!BP)return;const b=BP.el.querySelector('.bpban');b.textContent=t;b.classList.add('on');clearTimeout(BP.bt);BP.bt=setTimeout(()=>b.classList.remove('on'),ms||2800)}
 function bpHints(){if(!BP)return;const p=BP.padOn,k=(a,b)=>`<span><i>${p?padLbl(a):b}</i> `;
-  BP.el.querySelector('.bpkeys').innerHTML=BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.nr?`<div>${k('B','Esc')}Volver</span></div><div><span>↑ ↓ Leer</span></div>`:(BP.sec==='home'&&!BP.fic)?`<div>${k('A','Enter')}Abrir</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Cambiar noticia</span></div>`:BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.fic?`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Volver</span></div>`:`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Categoría</span>${k('X','/')}Buscar</span></div>`}
+  BP.el.querySelector('.bpkeys').innerHTML=BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.nr?`<div>${k('B','Esc')}Volver</span></div><div><span>↑ ↓ Leer</span></div>`:(BP.sec==='home'&&!BP.fic)?`<div>${k('A','Enter')}Abrir</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Noticia</span></div>`:BP.wel?`<div>${k('A','Enter')}Continuar</span>${k('B','Esc')}Salir</span></div>`:BP.fic?`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Volver</span></div>`:`<div>${k('A','Enter')}Jugar</span>${k('Y','F')}Favorito</span>${k('B','Esc')}Salir</span></div><div>${k('LB RB','Q E')}Sección</span>${k('LT RT','Z C')}Categoría</span>${k('X','/')}Buscar</span></div>`}
 function bpPadUi(){if(!BP)return;const e=BP.el.querySelector('.bppad');e.classList.toggle('on',!!BP.padOn);e.querySelector('b').textContent=BP.padOn?((()=>{const q=padNow();return q&&padCfg(q).n})()||'Mando conectado'):'Teclado y mouse'}
 function bpTop(){if(!BP)return;const d=new Date();{const w=BP.el.querySelector('.bpwho small');if(w)w.textContent=S.playing?'Jugando':'En línea'}BP.el.querySelector('.bpclk').textContent=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});try{BP.el.querySelector('.bplv').textContent='Nv '+lvlOf().l}catch(e){}bpPadUi()}
 function bpZone(z){if(!BP||BP.z===z)return;BP.z=z;BP.el.querySelectorAll('.bpnav button').forEach((b,i)=>b.classList.toggle('f',z==='nav'&&i===BP.n));bpHints()}
@@ -8426,7 +8426,7 @@ function bpOpen(){if(BP)return;hcnt('bp');const rec=G.some(g=>lastTs(g)>0),L0=S.
    <div class="bptop"><div class="bpwho">${avHTML(PR(),46)}<div><b>${esc((PR()||{}).name||UN()||'')}</b><small></small></div></div><div class="bpnav">${BPNV.map(([k,l])=>`<button data-k="${k}" class="${k==='home'?'cur':''}">${l}</button>`).join('')}</div><div class="bpr"><span class="bppad"><i></i><b></b></span><span class="bplv"></span><span class="bpclk"></span></div></div>
    <div class="bphero"><div class="bpkick"></div><h1></h1><div class="bpm"></div><div class="bpd"></div><div class="bpbtn"></div></div>
    <div class="bpst"></div>
-   <div class="bpcats"><i>LB</i>${BPT.map(([k,l])=>`<button data-k="${k}">${l}</button>`).join('')}<i>RB</i></div>
+   <div class="bpcats"><i>LT</i>${BPT.map(([k,l])=>`<button data-k="${k}">${l}</button>`).join('')}<i>RT</i></div>
    <div class="bprow"><div class="bptrk"></div></div><div class="bphome"></div><div class="bpfic"><div class="fc"></div></div><div class="bpban"></div><div class="bpbar"><div class="bpkeys"></div></div>`;
   document.body.appendChild(el);document.body.classList.add('bpon');BP={el,tab:G.some(instOf)?'inst':rec?'rec':'all',i:0,els:new Map(),z:'row',n:0,bg:0,padOn:false,pi:null,sec:'home',hi:0};el.classList.add('home');
   el.querySelector('.bpcats').addEventListener('click',e=>{const b=e.target.closest('button');if(b)bpTabSet(b.dataset.k)});
@@ -8500,6 +8500,7 @@ function el_spin(on){if(BP)BP.el.querySelector('.bprow').classList.toggle('bpspi
 function bpTabSet(k){if(!BP||BP.tab===k||BP.fic||BP.wel||BP.sec==='home')return;BP.tab=k;BP.i=0;BP.last=null;BP.spin=(BP.spin||0)+1;bpSnd('tab');bpRumble(.3,40);const r=BP.el.querySelector('.bprow');r.classList.remove('bpsw');void r.offsetWidth;r.classList.add('bpsw');bpRender()}
 function bpTab(d){if(!BP||BP.fic||BP.wel)return;if(BP.sec==='home'){if(!BP.nr)bpHomeItem(d);return}if(BP.z!=='row')bpZone('row');const k=BPT.findIndex(x=>x[0]===BP.tab);bpTabSet(BPT[(k+d+BPT.length)%BPT.length][0])}
 function bpUp(){if(BP&&BP.nr){const t=BP.nr.querySelector('.nrt');if(t)t.scrollBy({top:-innerHeight*.12,behavior:'smooth'});return}if(!BP||BP.busy||BP.fic||BP.wel||BP.z==='nav')return;BP.n=BP.sec==='home'?0:1;bpZone('nav');bpSnd('nav')}
+function bpSecStep(d){if(!BP||BP.busy||BP.fic||BP.wel||BP.nr)return;const t=d>0?'lib':'home';if(BP.sec===t&&BP.z==='row'){bpRumble(.3,30);bpSnd('bk');return}bpSecGo(t)}
 function bpNavPick(k){if(!BP)return;if(k==='home'||k==='games'){bpSecGo(k==='home'?'home':'lib')}else bpNavGo(k)}
 function bpNewsL(){try{return newsItems().slice(0,8)}catch(e){return[]}}
 function bpNewsW(){try{return(((NW&&NW.w)||{}).items||[]).slice(0,8)}catch(e){return[]}}
@@ -8554,7 +8555,7 @@ function bpFav(){if(!BP||BP.busy||BP.wel||BP.sec==='home')return;const g=bpList(
 function bpRand(){if(!BP||BP.busy)return;const L=bpList(),n=L.length;if(n<2)return;if(BP.z!=='row')bpZone('row');const tok=BP.spin=(BP.spin||0)+1,seq=[];for(let k=0;k<13;k++)seq.push(Math.floor(Math.random()*n));const t=Math.floor(Math.random()*n);seq.push(t);let k=0;el_spin(1);
   const step=()=>{if(!BP||BP.spin!==tok)return;BP.i=seq[k];bpSnd('nav');bpRender();k++;if(k<seq.length)setTimeout(step,50+k*k*2);else{el_spin(0);bpSnd('ok');bpRumble(.6,100);bpBan('Sorpresa: '+L[t].name)}};step()}
 document.addEventListener('keydown',e=>{if(e.key==='F10'){e.preventDefault();bpToggle();return}if(!BP)return;
-  const k=e.key;if(k==='ArrowRight'){bpMove(1)}else if(k==='ArrowLeft'){bpMove(-1)}else if(k==='ArrowUp'){bpUp()}else if(k==='ArrowDown'){bpDown()}else if(k==='Enter'){bpAct()}else if(k==='Escape'||k==='Backspace'){bpBack()}else if(k==='q'||k==='Q'){bpTab(-1)}else if(k==='e'||k==='E'){bpTab(1)}else if(k==='f'||k==='F'){bpFav()}else if(k==='/'){bpSearch()}else return;e.preventDefault()});
+  const k=e.key;if(k==='ArrowRight'){bpMove(1)}else if(k==='ArrowLeft'){bpMove(-1)}else if(k==='ArrowUp'){bpUp()}else if(k==='ArrowDown'){bpDown()}else if(k==='Enter'){bpAct()}else if(k==='Escape'||k==='Backspace'){bpBack()}else if(k==='q'||k==='Q'){bpSecStep(-1)}else if(k==='e'||k==='E'){bpSecStep(1)}else if(k==='z'||k==='Z'){bpTab(-1)}else if(k==='c'||k==='C'){bpTab(1)}else if(k==='f'||k==='F'){bpFav()}else if(k==='/'){bpSearch()}else return;e.preventDefault()});
 /* mando: botón Guía (si Windows lo informa) o Atrás+Inicio mantenidos 1 s */
 /* ---------- teclado en pantalla: se maneja con el mando (cruceta/palanca, A teclear, B borrar, X espacio, Y mayúsculas, Inicio aceptar) o con el mouse ---------- */
 let OSK=null;
@@ -8634,7 +8635,7 @@ function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[.
     if(fire('r',B(15)||ax>.6,1))bpMove(1);if(fire('l',B(14)||ax<-.6,1))bpMove(-1);
     if(fire('u',B(12)||ay<-.6))bpUp();if(fire('dn',B(13)||ay>.6))bpDown();
     if(fire('a',B(0)))bpAct();if(fire('b',B(1)))bpBack();if(fire('y',B(3)))bpFav();
-    if(fire('lb',B(4)))bpTab(-1);if(fire('rb',B(5)))bpTab(1);if(fire('sx',B(2)))bpSearch();}
+    if(fire('lb',B(4)))bpSecStep(-1);if(fire('rb',B(5)))bpSecStep(1);if(fire('lt',B(6)))bpTab(-1);if(fire('rt',B(7)))bpTab(1);if(fire('sx',B(2)))bpSearch();}
 }
 setInterval(gpTick,45);
 /* ---------- arranque ---------- */
