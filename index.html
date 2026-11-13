@@ -572,15 +572,15 @@ body.light .set .sgrid>.row,body.light details.mo>summary{background:rgba(40,28,
 .bpcats>i{font-style:normal;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18)}
 .bpcats button{border:0;font:inherit;font-size:clamp(13px,1.15vw,16px);font-weight:600;color:rgba(255,255,255,.55);background:none;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.3s}
 .bpcats button.on{color:#111;background:#fff}.bpcats em{font-style:normal;margin-left:auto;font-size:clamp(12px,1vw,14px);color:rgba(255,255,255,.6)}
-.bprow{position:absolute;left:0;right:0;bottom:10.5vh;height:28vh;z-index:20}
+.bprow{position:absolute;left:0;right:0;bottom:10.5vh;height:30vh;z-index:20}
 .bprow.bump{animation:bpbump .26s ease}
 @keyframes bpbump{30%{transform:translateX(-10px)}60%{transform:translateX(5px)}}
 .bptrk{position:absolute;left:0;bottom:3vh;width:0;height:0}
-.bpc{position:absolute;left:0;bottom:0;width:14vh;height:21vh;border-radius:14px;background:#17132a;transition:transform .55s cubic-bezier(.22,1,.36,1),opacity .4s,box-shadow .4s;transform-origin:50% 100%;will-change:transform;cursor:pointer;box-shadow:0 12px 28px -6px rgba(0,0,0,.6),0 4px 10px rgba(0,0,0,.3)}
+.bpc{position:absolute;left:0;bottom:0;width:15vh;height:22.5vh;border-radius:14px;background:#17132a;transition:transform .55s cubic-bezier(.22,1,.36,1),opacity .4s,box-shadow .4s;transform-origin:50% 100%;will-change:transform;cursor:pointer;box-shadow:0 12px 28px -6px rgba(0,0,0,.6),0 4px 10px rgba(0,0,0,.3)}
 .bpc img{width:100%;height:100%;object-fit:cover;display:block;border-radius:14px}
 .bpc::before{content:"";position:absolute;inset:0;border-radius:14px;background:rgba(5,4,11,.5);transition:opacity .4s;pointer-events:none;z-index:2}
 .bpc.sel::before{opacity:0}
-.bpc.sel{box-shadow:0 26px 60px -8px rgba(0,0,0,.85),0 10px 28px rgba(0,0,0,.5)}
+.bpc.sel{box-shadow:0 0 0 .4vh rgba(255,255,255,.96),0 0 4.5vh rgba(255,255,255,.28),0 26px 60px -8px rgba(0,0,0,.85),0 10px 28px rgba(0,0,0,.5)}
 .bpc .bpp{position:absolute;left:8px;right:8px;bottom:8px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);overflow:hidden;z-index:3}.bpc .bpp i{display:block;height:100%;background:#fff;border-radius:4px}
 .bpc .bpfv{position:absolute;top:7px;right:8px;z-index:3;color:#ffd66b;font-size:16px;text-shadow:0 2px 6px #000}
 .bpc.run::after{content:"JUGANDO";position:absolute;left:8px;top:8px;z-index:3;font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:99px;background:#e5484d}
@@ -8425,7 +8425,7 @@ function bpTrTog(){if(!BP)return;ST.bpTr=ST.bpTr===false?true:false;save();bpSnd
 function bpRender(){if(!BP)return;const L=bpList(),el=BP.el;BP.i=Math.max(0,Math.min(BP.i,L.length-1));
   el.querySelectorAll('.bpcats button').forEach(b=>b.classList.toggle('on',b.dataset.k===BP.tab));
   const lab=BP.tab==='rec'?'Seguir jugando':(BPT.find(x=>x[0]===BP.tab)||[0,''])[1];
-  const H=innerHeight,tw=H*.14,gap=H*.022,step=tw+gap,S1=1.2,ex=tw*(S1-1)/2+gap*.4,x0=innerWidth*.075,trk=el.querySelector('.bptrk'),keep=new Set();
+  const H=innerHeight,tw=H*.15,gap=H*.022,step=tw+gap,S1=1.2,ex=tw*(S1-1)/2+gap*.4,x0=innerWidth*.075,trk=el.querySelector('.bptrk'),keep=new Set();
   for(let j=BP.i-6;j<=BP.i+14;j++){if(j<0||j>=L.length)continue;const g=L[j],d=j-BP.i;keep.add(g.id);let c=BP.els.get(g.id);
     const tf=`translateX(${x0+d*step+(d>0?ex:d<0?-ex:0)}px) scale(${d===0?S1:1})`;
     if(!c){c=document.createElement('div');c.className='bpc';c.dataset.id=g.id;c.innerHTML=`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><span class="bpfv"></span><div class="bpp"><i></i></div>`;c.style.transition='none';c.style.transform=tf;c.style.opacity=0;trk.appendChild(c);void c.offsetWidth;c.style.transition='';BP.els.set(g.id,c)}
