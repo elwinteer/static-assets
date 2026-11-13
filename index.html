@@ -4194,6 +4194,7 @@ const sR=(t,d,c,f)=>`<div class="row${f?' f':''}"><div>${t}<small>${d}</small></
 const sSw=(a,on,k)=>`<button class="sw ${on?'on':''}" data-a="${a}"${k?` data-k="${k}"`:''}></button>`;
 const sH=t=>`<h4 class="shd">${t}</h4>`;
 const segv0=(a,o,cur)=>`<div class="seg">${o.map(([v,l])=>`<button data-a="${a}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
+const bpvName=n=>{for(const[re,t]of[[/breaking/i,'Breaking Bad'],[/minecraft/i,'Minecraft'],[/crash/i,'Crash Bandicoot 4'],[/cyberpunk 2077/i,'Cyberpunk 2077'],[/elden/i,'Elden Ring'],[/south park/i,'South Park'],[/spider/i,'Spider-Man'],[/red dead/i,'Red Dead Redemption 2'],[/edgerunners|david|romantic/i,'Cyberpunk: Edgerunners'],[/jinx/i,'Jinx'],[/last of us/i,'The Last of Us Part II'],[/wasteland/i,'Wastelands'],[/zelda/i,'Zelda: Breath of the Wild'],[/life is strange/i,'Life Is Strange']])if(re.test(n))return t;return n};
 let BPVL=[];const bpvLoad=async()=>{try{if(window.winteerNative&&winteerNative.fondosList)BPVL=await winteerNative.fondosList()||[]}catch(e){}};bpvLoad();
 const _x=0;/**/
 function setPane(t){
@@ -4234,10 +4235,10 @@ function setPane(t){
   if(t==='mando'){const L=BPVL,cur=bpvPick();return [
     sH('Fondo de video'),
     sR('Fondo de video','Se ve detrás de Inicio, Sagas, Amigos, Estadísticas y Ajustes del Modo mando. La Biblioteca sigue con el arte de cada juego.',sSw('bpvon',ST.bpvOn!==false)),
-    sR('Cómo se elige','Al azar cambia solo cuando termina cada video.',segv0('bpvm',[['rot','Al azar'],['uno','Uno fijo']],ST.bpvM||'rot')),
+    sR('Cómo se elige','Uno fijo repite siempre el video elegido. Al azar pasa a otro cuando termina cada uno.',segv0('bpvm',[['uno','Uno fijo'],['rot','Al azar']],ST.bpvM||'uno')),
     sR('Brillo del video','Más bajo hace que se lea mejor lo de arriba.',segv0('bpvd',[['.45','Suave'],['.65','Normal'],['.9','Fuerte']],String(ST.bpvB||'.65'))),
     sH('Videos'),
-    ...(L.length?[`<div class="row f"><div>Elegí cuál<small>${L.length} videos en la carpeta. Con "Al azar" se usan todos.</small></div><div class="bpvl">${L.map(v=>`<button class="b2 sm ${cur&&cur.f===v.f&&ST.bpvM==='uno'?'on':''}" data-a="bpvf" data-v="${esc(v.f)}">${esc(v.n)}</button>`).join('')}</div></div>`]:[sR('Sin videos todavía','Poné videos .mp4 o .webm en la carpeta de fondos y aparecen acá.','')]),
+    ...(L.length?[`<div class="row f"><div>Elegí cuál<small>${L.length} videos en la carpeta.</small></div><div class="bpvl">${L.map(v=>`<button class="b2 sm ${cur&&cur.f===v.f&&(ST.bpvM||'uno')==='uno'?'on':''}" data-a="bpvf" data-v="${esc(v.f)}">${esc(bpvName(v.n))}</button>`).join('')}</div></div>`]:[sR('Sin videos todavía','Poné videos .mp4 o .webm en la carpeta de fondos y aparecen acá.','')]),
     sR('Carpeta de videos','Copiá ahí los videos que quieras usar de fondo.','<div style="display:flex;gap:8px"><button class="b2" data-a="bpvdir">Abrir carpeta</button><button class="b2 g" data-a="bpvrel">Actualizar</button></div>')]}
   if(t==='ext')return N&&typeof emCfg==='function'?[(()=>{const c=emCfg(),n=G.filter(g=>g.emu).length,k=Object.keys(c.exe).length;return sR('Estación de emulación','Elegí la carpeta de ROMs y WINTEER detecta las consolas y abre cada juego con su emulador gratuito. '+(n?n+' juegos. ':'')+(k?k+' emulador'+(k===1?'':'es')+' listo'+(k===1?'':'s')+'.':'Todavía no hay emuladores.'),'<div style="display:flex;gap:8px;flex-wrap:nowrap"><button class="b2" data-a="x5dir">Agregar carpeta</button><button class="b2 g" data-a="x5scan">Escanear</button><button class="b2 g" data-a="x5emus">Emuladores</button></div>',1)})(),xr(/x5ra/),...(typeof x7Rows==='function'?x7Rows():[])]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>'];
   if(t==='data')return [
@@ -8453,7 +8454,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.tgg')&&!$('.mod
 Object.assign(A,{
   flsave:async()=>{const r=await winteerNative.flSave();toast(r&&r.ok?'Guardé el mapeo actual como el bueno':'No encontré el archivo del juego')},
   bpvon:a=>{ST.bpvOn=ST.bpvOn===false;save();a.classList.toggle('on',ST.bpvOn!==false);bpvSync()},
-  bpvm:a=>{ST.bpvM=a.dataset.v;save();$$('[data-a="bpvm"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync(1);if(S.view==='settings')go('settings')},
+  bpvm:a=>{ST.bpvM=a.dataset.v;try{BP.el.querySelector('.bpvv').loop=ST.bpvM==='uno'}catch(e){}save();$$('[data-a="bpvm"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync(1);if(S.view==='settings')go('settings')},
   bpvd:a=>{ST.bpvB=a.dataset.v;save();$$('[data-a="bpvd"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync()},
   bpvf:a=>{ST.bpvF=a.dataset.v;ST.bpvM='uno';save();bpvSync(1);go('settings')},
   bpvdir:()=>{try{winteerNative.fondosOpen()}catch(e){}},
@@ -8522,12 +8523,12 @@ function bpOpen(){if(BP)return;hcnt('bp');const rec=G.some(g=>lastTs(g)>0),L0=S.
   if(L0){const g=G.find(x=>x.id===L0.id);S.bpL=null;if(g){const dh=Math.max(0,(g.hours||0)-L0.h),r=rankOf(g);setTimeout(()=>bpBan(`${g.name} · +${fh(dh)}`+(r>L0.r?` · ¡Subiste a ${RK[r][0]}!`:'')),700)}}}
 function bpClose(){if(!BP)return;try{if(BP.ifr){const f=BP.ifr;bpFade(f,0,350,()=>{try{f.pause();if(f._au)f._au.pause()}catch(e){}})}}catch(e){}document.body.classList.remove('bpon');if(WN&&winteerNative.bpClosed)winteerNative.bpClosed();const e=BP.el;clearInterval(BP.clk);clearTimeout(BP.vt);clearTimeout(BP.ft);clearTimeout(BP.bt);BP=null;e.classList.remove('on');document.querySelectorAll('.bpln').forEach(x=>x.remove());setTimeout(()=>e.remove(),450);if(WN&&winteerNative.fullscreen)winteerNative.fullscreen(false)}
 const bpToggle=()=>BP?(visOn()?visExit():bpClose()):bpOpen();
-function bpvPick(){const L=BPVL;if(!L.length)return null;if(ST.bpvM==='uno'){return L.find(v=>v.f===ST.bpvF)||L[0]}
+function bpvPick(){const L=BPVL;if(!L.length)return null;if((ST.bpvM||'uno')==='uno'){return L.find(v=>v.f===ST.bpvF)||L[0]}
   const o=BP&&BP.vcur?L.filter(v=>v.f!==BP.vcur):L;return o[Math.floor(Math.random()*o.length)]||L[0]}
 function bpvSync(force){if(!BP||!BP.el)return;const v=BP.el.querySelector('.bpvv');if(!v)return;const on=ST.bpvOn!==false&&BPVL.length&&BP.sec!=='lib';BP.el.classList.toggle('vbg',!!on);v.style.filter='brightness('+(ST.bpvB||.65)+')';
   if(!on){try{v.pause()}catch(e){}return}
-  const need=force||!v.src||(ST.bpvM==='uno'&&BP.vcur!==(bpvPick()||{}).f);
-  if(need){const p=bpvPick();if(!p)return;BP.vcur=p.f;v.src=p.u;v.muted=true;v.onended=()=>{BP.vcur&&bpvSync(1)};v.onerror=()=>{BPVL=BPVL.filter(x=>x.f!==BP.vcur);setTimeout(()=>bpvSync(1),200)}}
+  const need=force||!v.src||((ST.bpvM||'uno')==='uno'&&BP.vcur!==(bpvPick()||{}).f);
+  if(need){const p=bpvPick();if(!p)return;BP.vcur=p.f;v.src=p.u;v.muted=true;v.loop=(ST.bpvM||'uno')==='uno';v.onended=()=>{BP.vcur&&bpvSync(1)};v.onerror=()=>{BPVL=BPVL.filter(x=>x.f!==BP.vcur);setTimeout(()=>bpvSync(1),200)}}
   v.play().catch(()=>{})}
 function bpBg(g){const imgs=BP.el.querySelectorAll('.bpbg>img'),u=g?art.hero(g):'';if(BP.bgu===u)return;BP.bgu=u;if(!u){imgs.forEach(i=>i.classList.remove('on'));return}
   const nx=imgs[1-BP.bg],cur=imgs[BP.bg];const tk=BP.bgt=(BP.bgt||0)+1;
