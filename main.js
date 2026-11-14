@@ -2976,6 +2976,7 @@ app.whenReady().then(() => {
     try { for (const f of fs.readdirSync(FONDOS()).filter(x => FVID.test(x)).sort()) { const p = path.join(FONDOS(), f); if (sizes.has(fs.statSync(p).size)) continue; out.push({ n: f.replace(/\.[^.]+$/, ''), f, k: 'u:' + f, o: 0, u: pathToFileURL(p).href }); } } catch (e) {}
     return out;
   }
+  ipcMain.handle('setZoom', (_e, z) => { try { z = Math.min(1.5, Math.max(0.5, +z || 1)); if (win && !win.isDestroyed()) win.webContents.setZoomFactor(z); } catch (e) {} return true; });
   ipcMain.handle('fondosList', () => fondosAll());
   ipcMain.handle('fondosOpen', async () => { try { await shell.openPath(FONDOS()); } catch (e) {} return true; });
   ipcMain.handle('fondosAdd', async () => {

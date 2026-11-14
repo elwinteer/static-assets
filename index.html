@@ -4198,6 +4198,7 @@ const sSw=(a,on,k)=>`<button class="sw ${on?'on':''}" data-a="${a}"${k?` data-k=
 const sH=t=>`<h4 class="shd">${t}</h4>`;
 const segv0=(a,o,cur)=>`<div class="seg">${o.map(([v,l])=>`<button data-a="${a}" data-v="${v}" class="${cur===v?'on':''}">${l}</button>`).join('')}</div>`;
 const bpvName=n=>n;
+try{if(ST.uiz&&ST.uiz!==1&&window.winteerNative&&winteerNative.setZoom)winteerNative.setZoom(ST.uiz)}catch(e){}
 let BPVL=[];const bpvLoad=async()=>{try{if(window.winteerNative&&winteerNative.fondosList)BPVL=await winteerNative.fondosList()||[]}catch(e){}};bpvLoad();
 const _x=0;/**/
 function setPane(t){
@@ -4208,6 +4209,7 @@ function setPane(t){
       sR('Iniciar con Windows','Arranca solo y oculto. Necesita el segundo plano.',sSw('bgsw',BGC.auto,'auto')),
       sR('Abrir el Modo mando con el mando','Botón Guía (o Atrás+Inicio 1 s), aunque WINTEER esté oculto.',sSw('bgsw',BGC.pad,'pad'))]:[]),
     sR('Abrir WINTEER en','La pantalla con la que arranca.',segv('start',[['home','Inicio'],['games','Biblioteca']],ST.start||'home')),
+    ...(N?[sR('Tamaño de la interfaz','Si ves todo muy grande o cortado (por ejemplo en una tele con escala de Windows 150%), achicalo acá.',segv0('uiz',[['1','Normal'],['.9','90%'],['.8','80%'],['.67','67%']],String(ST.uiz||1)))]:[]),
     xr(/x8sitog/),xr(/x8vis/),
     ...(N&&BGC.win?[sR('Capturas y clips',(BGC.stCap?'Captura, clip y carpeta, en tus juegos de Steam y en los que no.':'Captura, clip y carpeta, mientras jugás algo que no es de Steam.'),`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g sm" data-a="shkeyset">Captura ${esc(BGC.shotKey||'F12')}</button><button class="b2 g sm" data-a="shkeyset" data-w="clip">Clip ${esc(BGC.clipKey||'F9')}</button><button class="b2 g sm" data-a="shfolder" data-id="">Abrir carpeta</button></div>`)]:[]),
     xr(/xoinst|xotog|xopt/),
@@ -8453,6 +8455,7 @@ document.addEventListener('input',e=>{if(e.target&&e.target.id==='tgq'){TRM.q=e.
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.tgg')&&!$('.modal')){const t=e.target;if(t&&t.id==='tgq'&&t.value){t.value='';TRM.q='';tgRender();return}tgClose()}});
 Object.assign(A,{
   flsave:async()=>{const r=await winteerNative.flSave();toast(r&&r.ok?'Guardé el mapeo actual como el bueno':'No encontré el archivo del juego')},
+  uiz:a=>{ST.uiz=+a.dataset.v||1;save();$$('[data-a="uiz"]').forEach(b=>b.classList.toggle('on',b===a));try{winteerNative.setZoom(ST.uiz)}catch(e){}},
   bpvon:a=>{ST.bpvOn=ST.bpvOn===false;save();a.classList.toggle('on',ST.bpvOn!==false);bpvSync()},
   bpvm:a=>{ST.bpvM=a.dataset.v;try{BP.el.querySelector('.bpvv').loop=ST.bpvM==='uno'}catch(e){}save();$$('[data-a="bpvm"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync(1);if(S.view==='settings')go('settings')},
   bpvd:a=>{ST.bpvB=a.dataset.v;save();$$('[data-a="bpvd"]').forEach(b=>b.classList.toggle('on',b===a));bpvSync()},
