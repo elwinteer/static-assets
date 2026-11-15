@@ -330,17 +330,17 @@ code{background:var(--card2);padding:2px 7px;border-radius:6px;font-size:12px}
 @keyframes hofl{from{transform:scale(.94,.9)}to{transform:scale(1.04,1.1)}}
 .avs-st .ho-gl{animation:bkgl 2s ease-in-out infinite}
 .bgx{position:absolute;inset:0;width:100%;height:100%;display:block}.avs-bg,.avi-bg{overflow:hidden}
-.avs-st .bgt,.fq-st .bgt{animation:bgt 2.6s ease-in-out infinite}@keyframes bgt{50%{opacity:.25}}
-.avs-st .bgd,.fq-st .bgd{animation:bgdr 24s ease-in-out infinite alternate}@keyframes bgdr{from{transform:translateX(-24px)}to{transform:translateX(24px)}}
-.avs-st .bgup,.fq-st .bgup{animation:bgup 6s linear infinite;opacity:0}@keyframes bgup{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-110px);opacity:0}}
-.avs-st .bgf,.fq-st .bgf{animation:bgfa 8s linear infinite}@keyframes bgfa{to{transform:translateY(235px)}}
-.avs-st .bgrot,.fq-st .bgrot{animation:bgro 70s linear infinite}@keyframes bgro{to{transform:rotate(360deg)}}
-.avs-st .bgsw,.fq-st .bgsw{animation:bgsw 9s ease-in-out infinite alternate}@keyframes bgsw{from{transform:translateX(-10px) skewX(-3deg)}to{transform:translateX(10px) skewX(3deg)}}
-.avs-st .bgwv,.fq-st .bgwv{animation:bgwv 5s linear infinite}.avs-st .bgwv2,.fq-st .bgwv2{animation:bgwv 7s linear infinite reverse}@keyframes bgwv{to{transform:translateX(50px)}}
-.avs-st .bgsl,.fq-st .bgsl{animation:bgsl 2.4s linear infinite}@keyframes bgsl{to{transform:translateY(14px)}}
-.avs-st .bgfl,.fq-st .bgfl{transform-box:fill-box;transform-origin:50% 100%;animation:bgfl 1.2s ease-in-out infinite alternate}@keyframes bgfl{from{transform:scale(.96,.9);opacity:.75}to{transform:scale(1.04,1.08);opacity:1}}
-.avs-st .bgfk,.fq-st .bgfk{animation:bgfk 2.4s steps(1) infinite}.avs-st .bgbl,.fq-st .bgbl{animation:bgfk 1.2s steps(1) infinite}@keyframes bgfk{0%,60%,100%{opacity:1}30%{opacity:.3}}
-.avs-st .bgss,.fq-st .bgss{opacity:0;animation:bgss 6s linear infinite}@keyframes bgss{0%{transform:translate(0,0);opacity:0}70%{opacity:0}75%{opacity:1}100%{transform:translate(-90px,50px);opacity:0}}
+.avs-st .bgt,.fq-st .bgt,#bpss .bgt{animation:bgt 2.6s ease-in-out infinite}@keyframes bgt{50%{opacity:.25}}
+.avs-st .bgd,.fq-st .bgd,#bpss .bgd{animation:bgdr 24s ease-in-out infinite alternate}@keyframes bgdr{from{transform:translateX(-24px)}to{transform:translateX(24px)}}
+.avs-st .bgup,.fq-st .bgup,#bpss .bgup{animation:bgup 6s linear infinite;opacity:0}@keyframes bgup{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-110px);opacity:0}}
+.avs-st .bgf,.fq-st .bgf,#bpss .bgf{animation:bgfa 8s linear infinite}@keyframes bgfa{to{transform:translateY(235px)}}
+.avs-st .bgrot,.fq-st .bgrot,#bpss .bgrot{animation:bgro 70s linear infinite}@keyframes bgro{to{transform:rotate(360deg)}}
+.avs-st .bgsw,.fq-st .bgsw,#bpss .bgsw{animation:bgsw 9s ease-in-out infinite alternate}@keyframes bgsw{from{transform:translateX(-10px) skewX(-3deg)}to{transform:translateX(10px) skewX(3deg)}}
+.avs-st .bgwv,.fq-st .bgwv,#bpss .bgwv{animation:bgwv 5s linear infinite}.avs-st .bgwv2,.fq-st .bgwv2,#bpss .bgwv2{animation:bgwv 7s linear infinite reverse}@keyframes bgwv{to{transform:translateX(50px)}}
+.avs-st .bgsl,.fq-st .bgsl,#bpss .bgsl{animation:bgsl 2.4s linear infinite}@keyframes bgsl{to{transform:translateY(14px)}}
+.avs-st .bgfl,.fq-st .bgfl,#bpss .bgfl{transform-box:fill-box;transform-origin:50% 100%;animation:bgfl 1.2s ease-in-out infinite alternate}@keyframes bgfl{from{transform:scale(.96,.9);opacity:.75}to{transform:scale(1.04,1.08);opacity:1}}
+.avs-st .bgfk,.fq-st .bgfk,#bpss .bgfk{animation:bgfk 2.4s steps(1) infinite}.avs-st .bgbl,.fq-st .bgbl,#bpss .bgbl{animation:bgfk 1.2s steps(1) infinite}@keyframes bgfk{0%,60%,100%{opacity:1}30%{opacity:.3}}
+.avs-st .bgss,.fq-st .bgss,#bpss .bgss{opacity:0;animation:bgss 6s linear infinite}@keyframes bgss{0%{transform:translate(0,0);opacity:0}70%{opacity:0}75%{opacity:1}100%{transform:translate(-90px,50px);opacity:0}}
 .bgx .bgfly{animation:bgfly 16s linear infinite}@keyframes bgfly{from{transform:translateX(-40px)}to{transform:translateX(240px)}}
 .bgx .bgflyr{animation:bgflyr 16s linear infinite}@keyframes bgflyr{from{transform:translateX(240px)}to{transform:translateX(-40px)}}
 .bgx .bgflap{transform-box:fill-box;transform-origin:50% 50%;animation:bgflap .45s ease-in-out infinite alternate}@keyframes bgflap{from{transform:scaleY(1)}to{transform:scaleY(-.5)}}
@@ -2932,6 +2932,32 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 
 .pt-d{overflow:auto;max-height:100%}.pt-d .pt-db{display:flex;gap:10px;margin:2px 0 14px}.pf-inl{display:grid!important;grid-template-columns:150px 1fr;gap:22px;align-items:start}
 
+
+/* ===== protector de pantalla del Modo mando ===== */
+#bpss{position:fixed;inset:0;z-index:9050;background:#04030a;opacity:0;transition:opacity 1.2s ease;display:flex;align-items:center;justify-content:center;gap:5vw;overflow:hidden;color:#fff;cursor:none}
+#bpss.on{opacity:1}
+#bpss .ss-bg{position:absolute;inset:-8%;filter:blur(16px) brightness(.5) saturate(1.3);animation:ssdr 50s ease-in-out infinite alternate}
+@keyframes ssdr{from{transform:scale(1.05)}to{transform:scale(1.22) translate(-2%,1.5%)}}
+#bpss .ss-bg .bgx,#bpss .ss-st .bgx{position:absolute;inset:0;width:100%;height:100%}
+#bpss .ss-vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 38%,rgba(0,0,0,.7))}
+#bpss .ss-col{position:relative;z-index:2;width:24vw;display:grid;gap:2.2vh;align-content:center}
+#bpss .ss-time b{display:block;font-size:clamp(54px,8vw,150px);font-weight:300;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+#bpss .ss-time span{display:block;margin-top:1vh;font-size:clamp(14px,1.6vw,28px);opacity:.78}
+#bpss .ss-sea{display:inline-block;padding:1vh 1.6vw;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-size:clamp(13px,1.3vw,22px);backdrop-filter:blur(10px);justify-self:start}
+#bpss .ss-st{position:relative;z-index:2;height:86vh;aspect-ratio:290/430;border-radius:3.2vh;overflow:hidden;box-shadow:0 30px 100px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.18);animation:ssfl 9s ease-in-out infinite alternate}
+@keyframes ssfl{from{transform:translateY(-.7vh)}to{transform:translateY(.7vh)}}
+#bpss .ss-st .ss-sbg{position:absolute;inset:0;overflow:hidden}
+#bpss .ss-st .avx{position:absolute;left:50%;bottom:0;height:80%;width:auto;transform:translateX(-50%);filter:drop-shadow(0 14px 18px rgba(0,0,0,.35))}
+#bpss .ss-pet{position:absolute;right:2%;bottom:3%;width:42%;animation:sspb 3.2s ease-in-out infinite alternate}
+@keyframes sspb{from{transform:translateY(0)}to{transform:translateY(-1.2%)}}
+#bpss .ss-pet svg,#bpss .ss-pet img{display:block;width:100%;height:auto;filter:drop-shadow(0 8px 12px rgba(0,0,0,.4))}
+#bpss .ss-info{position:relative;z-index:2;width:24vw;display:grid;gap:1.6vh;align-content:center;justify-items:end;text-align:right}
+#bpss .ss-info div{padding:1.6vh 1.8vw;border-radius:2vh;background:rgba(10,8,22,.5);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(14px);min-width:60%}
+#bpss .ss-info small{display:block;font-size:clamp(10px,.9vw,14px);letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-bottom:.4vh}
+#bpss .ss-info b{font-size:clamp(18px,2.2vw,40px);font-weight:700}
+#bpss .ss-hint{position:absolute;left:0;right:0;bottom:3vh;text-align:center;z-index:3;font-size:clamp(12px,1.1vw,18px);opacity:.55;animation:ssh 3s ease-in-out infinite alternate}
+@keyframes ssh{from{opacity:.25}to{opacity:.7}}
+.ultra #bpss .ss-bg,.ultra #bpss .ss-st{animation:none}
 /* ===== NAVIDAD ===== */
 body.sea-xmas{--a:#e5484d;--argb:229,72,77;--a2:#fecaca;--a3:#b91c1c;--a3rgb:185,28,28;--on-a:#fff;--lg3:#ef4444;--ice:#ffe4e6;--icergb:255,228,230;--bg:#0c0607;--shell:#12090b;--sea-e:none}
 body.sea-xmas #amb b:nth-of-type(1){background:rgba(220,38,38,.5)}body.sea-xmas #amb b:nth-of-type(2){background:rgba(22,163,74,.42)}
@@ -4265,6 +4291,9 @@ function setPane(t){
     sR('Limpieza de juegos',c?c+' instalados sin jugar hace más de un mes.':'Nada para limpiar por ahora.',`<button class="b2" data-a="clnopen" ${c?'':'disabled'}>Ver</button>`)
   ]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>']}
   if(t==='mando'){const L=BPVL,cur=bpvPick(),uno=(ST.bpvM||'uno')==='uno',own=L.filter(v=>!v.o);return [
+    sH('Protector de pantalla'),
+    sR('Protector de pantalla','Si el Modo mando queda un rato sin usarse, aparece tu Winter en su fondo con la hora. Cualquier botón lo cierra.',segv0('bpssset',[['0','Apagado'],['60','1 min'],['120','2 min'],['300','5 min']],String(ST.bpss==null?120:ST.bpss))),
+    sR('Probar el protector','Se abre al instante dentro del Modo mando.','<button class="b2 g" data-a="bpsstest">Probar</button>'),
     sH('Trailers y música'),
     sR('Trailers y música del Modo mando','Busca y baja el trailer y la canción de cada juego. "Descargar todo" revisa toda tu biblioteca y baja lo que falte. <span id="trl-n"></span>',`<div style="display:flex;gap:8px;align-items:center"><button class="b2 g" data-a="tgopen">Administrar</button><button class="b2" data-a="trldl">Descargar todo</button></div>`),
     sR('Bajarlos solos al arrancar','Los juegos nuevos reciben su trailer y canción sin que hagas nada. Viene activado.',sSw('trlauto',ST.trlAuto!==false)),
@@ -9091,7 +9120,7 @@ function ccLoop(){if(!$('#cc-root')){CC.on=0;return}
   requestAnimationFrame(ccLoop)}
 const GPS={};let gpT=0;
 let OSKB=0;const oskName=()=>{const i=ST.oskBtn==null?8:ST.oskBtn;return padLbl(PBL[i]||('Botón '+i))};
-function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[...navigator.getGamepads()]:[]).filter(Boolean),now=performance.now();
+function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[...navigator.getGamepads()]:[]).filter(Boolean),now=performance.now();if(ssPad(pads))return;
   if(BP){const on=pads.length>0;if(on!==BP.padOn){BP.padOn=on;bpHints();bpPadUi()}if(on&&BP.pi==null)BP.pi=pads[0].index}
   for(const p of pads){const st=GPS[p.index]||(GPS[p.index]={d:{},t:{},h:0});const B=i=>!!(p.buttons[i]&&p.buttons[i].pressed);
     const fire=(id,down,rep)=>{const was=st.d[id];st.d[id]=down;if(down&&!was){st.t[id]=now+340;return true}if(down&&rep&&now>st.t[id]){st.t[id]=now+105;return true}return false};
@@ -9107,6 +9136,30 @@ function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[.
     if(fire('a',B(0)))bpAct();if(fire('b',B(1)))bpBack();if(fire('y',B(3)))bpFav();
     if(fire('lb',B(4)))bpSecStep(-1);if(fire('rb',B(5)))bpSecStep(1);if(fire('lt',B(6)))bpTab(-1);if(fire('rt',B(7)))bpTab(1);if(fire('sx',B(2))){if(BP&&BP.fic)bpCvOpen();else bpSearch()}}
 }
+
+/* ===BPSS=== protector de pantalla del Modo mando */
+let BSS={t:Date.now(),on:false,hold:false};
+function ssIdleMs(){const v=ST.bpss==null?120:+ST.bpss;return v>0?v*1000:0}
+function ssHTML(){const v=avXm(avView()),it=avItem('bg',v.bg),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=G.reduce((t,g)=>t+(g.hours||0),0),nm=(()=>{try{return (PR()||{}).name||ST.name||'Jugador'}catch(e){return 'Jugador'}})(),tt=(()=>{try{return rwTitle()||lvlOf().t}catch(e){return ''}})(),se=SEA_K&&SEAS[SEA_K]?SEAS[SEA_K]:null,d=new Date();
+ const pet=p?`<div class="ss-pet">${p.photo?petFace(p,300):petSVG(p,petMood(p),{size:300,body:true})}</div>`:'';
+ return `<div class="ss-bg" style="background:${it[4]}">${bgSc(v.bg)}</div><div class="ss-vig"></div>
+ <div class="ss-col"><div class="ss-time"><b id="ss-c">${ssClock()}</b><span>${(t=>t.charAt(0).toUpperCase()+t.slice(1))(d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}))}</span></div>${se?`<div class="ss-sea">${se[1]} ${se[0]}</div>`:''}</div>
+ <div class="ss-st"><div class="ss-sbg" style="background:${it[4]}">${bgSc(v.bg)}</div>${avSVG(v,{cls:'avx'})}${pet}</div>
+ <div class="ss-info"><div><small>Jugador</small><b>${esc(nm)}</b></div>${tt?`<div><small>Título</small><b>${esc(tt)}</b></div>`:''}<div><small>Horas jugadas</small><b>${Math.round(tot)} h</b></div><div><small>Biblioteca</small><b>${G.length} juegos</b></div></div>
+ <div class="ss-hint">Tocá cualquier botón para volver</div>`}
+function ssClock(){return new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function ssOn(){if(BSS.on||!BP)return;BSS.on=true;let e=document.getElementById('bpss');if(e)e.remove();e=document.createElement('div');e.id='bpss';e.innerHTML=ssHTML();document.body.appendChild(e);requestAnimationFrame(()=>requestAnimationFrame(()=>e.classList.add('on')))}
+function ssOff(){if(!BSS.on)return;BSS.on=false;BSS.t=Date.now();const e=document.getElementById('bpss');if(e){e.classList.remove('on');setTimeout(()=>e.remove(),1200)}}
+function ssPad(pads){let act=false;for(const p of pads){if(p.buttons.some((b,i)=>i!==16&&b.pressed)||Math.abs(p.axes[0]||0)>.5||Math.abs(p.axes[1]||0)>.5)act=true}
+  if(act)BSS.t=Date.now();
+  if(BSS.on){if(act){ssOff();BSS.hold=true}return true}
+  if(BSS.hold){if(act)return true;BSS.hold=false}
+  return false}
+['keydown','mousedown','wheel','touchstart'].forEach(ev=>addEventListener(ev,e=>{if(BSS.on){ssOff();e.stopPropagation();e.preventDefault()}BSS.t=Date.now()},true));
+{let lx=0,ly=0;addEventListener('mousemove',e=>{if(Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly)>6){lx=e.clientX;ly=e.clientY;if(BSS.on)ssOff();BSS.t=Date.now()}},true)}
+setInterval(()=>{try{const c=document.getElementById('ss-c');if(c&&BSS.on)c.textContent=ssClock();const ms=ssIdleMs();if(!ms||BSS.on||!BP||document.hidden||BP.fic||BP.wel||BP.mo||BP.cv||BP.qx||document.querySelector('.modal')||(S.playing&&S.playing.id))return;if(Date.now()-BSS.t>ms)ssOn()}catch(e){}},1000);
+Object.assign(A,{bpssset:a=>{ST.bpss=+a.dataset.v;save();a.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a));BSS.t=Date.now()},bpsstest:()=>{if(!BP){toast('Abrí el Modo mando y esperá un momento');return}ssOn()}});
+/* ===/BPSS=== */
 setInterval(gpTick,45);
 /* ---------- arranque ---------- */
 Promise.race([loadArt(),new Promise(r=>setTimeout(r,2500))]).then(()=>{applyTheme();applyPrefs();go(ST.start==='games'?'games':'home');initSnow();intro();obBoot();hitoBoot();setTimeout(()=>{try{const n=wrapNew()[0];ST.wtoast=ST.wtoast||{};if(n&&ST.wtoast_on!==false&&!ST.wtoast[n.key]){ST.wtoast[n.key]=1;save();toast('Tenés un Wrapped nuevo. Mirá en Inicio')}}catch(e){}},7000);setTimeout(warmAll,600);});
