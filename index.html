@@ -2943,7 +2943,7 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 #bpss .ss-lamp{animation:sslp 5s ease-in-out infinite alternate}@keyframes sslp{to{opacity:.8}}
 #bpss .ss-stm path{animation:sssm 3.4s ease-in-out infinite;opacity:0;transform-box:fill-box}@keyframes sssm{0%{transform:translateY(0);opacity:0}30%{opacity:.7}100%{transform:translateY(-22px);opacity:0}}
 #bpss .ss-eq rect{animation:sseq .9s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:bottom}#bpss .ss-eq rect:nth-child(2){animation-delay:-.3s}#bpss .ss-eq rect:nth-child(3){animation-delay:-.6s}#bpss .ss-eq rect:nth-child(4){animation-delay:-.15s}@keyframes sseq{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
-#bpss .ss-win2{position:absolute;z-index:2;left:50%;bottom:9.5vh;transform:translateX(-50%);height:47vh;width:auto;transform-origin:50% 100%;animation:ssbr 4.5s ease-in-out infinite;filter:drop-shadow(1.4vh .8vh 0 rgba(0,0,0,.28))}
+#bpss .ss-win2{position:absolute;z-index:2;left:50%;bottom:9.5vh;transform:translateX(-50%);height:47vh;width:auto;transform-origin:50% 100%;animation:ssbr 4.5s ease-in-out infinite,sssy 11s ease-in-out infinite alternate,sshp 17s ease-in-out infinite,ssyw2 26s ease-in-out infinite;filter:drop-shadow(1.4vh .8vh 0 rgba(0,0,0,.28))}
 @keyframes ssbr{0%,100%{transform:translateX(-50%) scale(1,1)}50%{transform:translateX(-50%) scale(1.012,.99)}}
 #bpss .ss-win2.yw{animation:ssyw 3.2s ease-in-out}@keyframes ssyw{30%,70%{transform:translateX(-50%) scale(1.02,1.03) rotate(-2deg)}}
 #bpss .ss-pt{position:absolute;z-index:3;left:calc(50% + 10vh);bottom:4.2vh;width:35vh}
@@ -2979,7 +2979,17 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 #bpss .ss-nt{animation:ssnt 8s ease-out infinite;opacity:0}#bpss .ss-nt.n1{animation-delay:-2.7s}#bpss .ss-nt.n2{animation-delay:-5.3s}@keyframes ssnt{0%{opacity:0;transform:translate(0,0) rotate(-6deg)}18%{opacity:.85}100%{opacity:0;transform:translate(26px,-120px) rotate(10deg)}}
 #bpss .pz-ear{animation:sspe 8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 90%}@keyframes sspe{0%,90%,100%{transform:rotate(0)}93%{transform:rotate(-7deg)}96%{transform:rotate(2deg)}}
 #bpss .pz-tail{animation:sspt 9s ease-in-out infinite;transform-box:fill-box;transform-origin:10% 80%}@keyframes sspt{0%,84%,100%{transform:rotate(0)}88%{transform:rotate(5deg)}92%{transform:rotate(-3deg)}96%{transform:rotate(2deg)}}
-.ultra #bpss .ss-rm *,.ultra #bpss .ss-win2,.ultra #bpss .pz-b,.ultra #bpss .pz-z{animation:none!important}
+@keyframes sssy{from{rotate:-1.1deg}to{rotate:1.1deg}}
+@keyframes sshp{0%,88%,100%{translate:0 0}90%{translate:0 -1.6vh}92.500%{translate:0 0}94.500%{translate:0 -.7vh}96.500%{translate:0 0}}
+@keyframes ssyw2{0%,52%,62%,100%{scale:1}57%{scale:1.035 1.06}}
+#bpss .ss-win2 .avx-eyes{animation:ssbk 5.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}@keyframes ssbk{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+#bpss .ss-sh{position:absolute;z-index:1;left:50%;bottom:7.6vh;width:26vh;height:4.4vh;margin-left:-13vh;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.5),transparent 68%);animation:sssd 4.5s ease-in-out infinite}@keyframes sssd{50%{transform:scale(1.05,1);opacity:.85}}
+#bpss .ss-th{position:absolute;z-index:3;left:calc(50% - 27vh);bottom:46vh;width:28vh;height:30vh;opacity:0;animation:ssth 26s ease-in-out infinite;transform-origin:80% 90%}
+#bpss .ss-thc{position:absolute;left:0;top:0;width:12vh;height:16vh;border-radius:2vh;border:.5vh solid rgba(255,255,255,.85);background:#241e44 center/cover;box-shadow:0 1vh 3vh rgba(0,0,0,.5),0 0 4vh rgba(255,255,255,.18);display:grid;place-items:center;font-size:6vh;animation:sstf 5s ease-in-out infinite alternate}
+#bpss .ss-th i{position:absolute;border-radius:50%;background:rgba(255,255,255,.85)}#bpss .ss-th i:nth-of-type(1){left:13vh;top:17vh;width:1.4vh;height:1.4vh}#bpss .ss-th i:nth-of-type(2){left:15.600vh;top:20.200vh;width:2vh;height:2vh}#bpss .ss-th i:nth-of-type(3){left:18.800vh;top:23.400vh;width:2.800vh;height:2.800vh}
+@keyframes ssth{0%,60%{opacity:0;transform:scale(.6) translateY(1vh)}64%{opacity:1;transform:scale(1.04)}66%{transform:scale(1)}86%{opacity:1;transform:scale(1)}90%,100%{opacity:0;transform:scale(.7) translateY(-1vh)}}
+@keyframes sstf{to{transform:translateY(-.8vh) rotate(1.500deg)}}
+.ultra #bpss .ss-rm *,.ultra #bpss .ss-win2,.ultra #bpss .ss-th,.ultra #bpss .ss-sh,.ultra #bpss .ss-win2,.ultra #bpss .pz-b,.ultra #bpss .pz-z{animation:none!important}
 /* ===== NAVIDAD ===== */
 body.sea-xmas{--a:#e5484d;--argb:229,72,77;--a2:#fecaca;--a3:#b91c1c;--a3rgb:185,28,28;--on-a:#fff;--lg3:#ef4444;--ice:#ffe4e6;--icergb:255,228,230;--bg:#0c0607;--shell:#12090b;--sea-e:none}
 body.sea-xmas #amb b:nth-of-type(1){background:rgba(220,38,38,.5)}body.sea-xmas #amb b:nth-of-type(2){background:rgba(22,163,74,.42)}
@@ -9188,6 +9198,16 @@ function ssCity(R){
  o+=`<g class="ss-plane"><rect x="0" y="108" width="14" height="3.500" rx="1.700" fill="#7a86c4"/><path d="M5 109l-3 -6h4l4 6zM5 111l-3 6h4l4 -6z" fill="#7a86c4"/><circle cx="1" cy="110" r="1.800" fill="#ff4d4d" class="ss-tw"/><circle cx="14" cy="110" r="1.800" fill="#fff" class="ss-tw" style="animation-delay:-1.500s"/></g>`;
  o+=`<g class="ss-shoot"><path d="M520 96l-52 20" stroke="url(#sssh)" stroke-width="2" stroke-linecap="round"/></g>`;
  return o}
+function ssFloor(R){
+ const rows=[590,602,618,640,672,720],pal=['#7b5238','#6f4a34','#845a3e','#674330','#775039'],vp=300;let o='<rect y="590" width="1280" height="130" fill="url(#ssf)"/>';
+ for(let r=0;r<5;r++){const y0=rows[r],y1=rows[r+1],sc0=(y0-vp)/290,sc1=(y1-vp)/290,w=150,off=(r%3)*52+(r*23%40);
+  for(let i=-9;i<=9;i++){const bx=i*w+off,xa0=640+bx*sc0,xb0=640+(bx+w)*sc0,xa1=640+bx*sc1,xb1=640+(bx+w)*sc1;if(xb1<-20||xa1>1300)continue;
+   const c=pal[Math.floor(R(r*31+i+40)*5)];
+   o+=`<path d="M${xa0.toFixed(1)} ${y0}L${xb0.toFixed(1)} ${y0}L${xb1.toFixed(1)} ${y1}L${xa1.toFixed(1)} ${y1}Z" fill="${c}" stroke="#26141f" stroke-width="1.6"/>`;
+   const gx=(xa1+xb1)/2;o+=`<path d="M${(xa0+(xb0-xa0)*.25).toFixed(1)} ${y0+2}Q${(gx).toFixed(1)} ${((y0+y1)/2).toFixed(1)} ${(xa1+(xb1-xa1)*.3).toFixed(1)} ${y1-2}" stroke="#fff" stroke-opacity=".05" stroke-width="1.4" fill="none"/><path d="M${(xa0+(xb0-xa0)*.7).toFixed(1)} ${y0+2}Q${(gx+10).toFixed(1)} ${((y0+y1)/2).toFixed(1)} ${(xa1+(xb1-xa1)*.78).toFixed(1)} ${y1-2}" stroke="#000" stroke-opacity=".08" stroke-width="1.2" fill="none"/>`}
+  o+=`<path d="M0 ${y0}H1280" stroke="#26141f" stroke-width="1.6"/><rect y="${y0}" width="1280" height="${(y1-y0)}" fill="#fff" opacity="${(.012+r*.004).toFixed(3)}"/>`}
+ o+=`<rect y="590" width="1280" height="130" fill="url(#ssfl)"/><path d="M374 470L560 720" stroke="#1a1430" stroke-opacity=".22" stroke-width="12"/><path d="M104 600H640" stroke="#1a1430" stroke-opacity=".14" stroke-width="9"/>`;
+ return o}
 function petSleepSVG(p){const c=PCOAT[p.coat||0]||PCOAT[0],a=p.ccol||c[1],bb=BRB(p,p.ccol?pMix(p.ccol,'#ffffff',.55):c[2],a),d=pMix(a,'#000000',.22),ink='#1b1a20',ch=(p.coat||0)===7,cn=p.breed==='caniche',up=p.ear==='up',tan='#d98a3a',SW=cn?5:4.5,lt=pMix(a,'#ffffff',.22),dk=ch||p.coat===2||p.coat===1,EC=dk?'#e9dcc6':ink,LN=dk?'#fff':'#000';
  /* silueta unificada: se dibuja con borde, y encima lo mismo sin borde */
  const U=(arr,fill)=>`<g fill="${fill}" stroke="${ink}" stroke-width="${SW*2}" stroke-linejoin="round">${arr}</g><g fill="${fill}">${arr}</g>`;
@@ -9243,11 +9263,11 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
  <radialGradient id="ssl" cx=".5" cy=".5"><stop offset="0" stop-color="#ffb347" stop-opacity=".62"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
  <radialGradient id="ssm" cx=".5" cy=".5"><stop offset="0" stop-color="#9ab8ff" stop-opacity=".5"/><stop offset="1" stop-color="#9ab8ff" stop-opacity="0"/></radialGradient>
  <linearGradient id="ssbm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ab8ff" stop-opacity=".22"/><stop offset="1" stop-color="#9ab8ff" stop-opacity="0"/></linearGradient>
- <linearGradient id="ssh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6" stop-opacity="0"/><stop offset="1" stop-color="#ff7ab8" stop-opacity=".3"/></linearGradient><linearGradient id="sssh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient><radialGradient id="ssv" cx=".5" cy=".55" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient></defs>
+ <linearGradient id="ssh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6" stop-opacity="0"/><stop offset="1" stop-color="#ff7ab8" stop-opacity=".3"/></linearGradient><linearGradient id="sssh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient><radialGradient id="ssfl" cx=".5" cy=".1" r=".9"><stop offset="0" stop-color="#ffb347" stop-opacity=".16"/><stop offset=".55" stop-color="#7a3050" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><radialGradient id="ssv" cx=".5" cy=".55" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient></defs>
  <rect width="1280" height="590" fill="url(#ssw)"/>
  ${[...Array(32)].map((_,i)=>`<path d="M${40+(i%8)*160+(Math.floor(i/8)%2)*80} ${30+Math.floor(i/8)*130}l5 -9 5 9 -5 9z" fill="#fff" opacity=".035"/>`).join('')}
  <rect y="440" width="1280" height="150" fill="#33264f"/><rect y="436" width="1280" height="8" fill="#463463"/>${[...Array(9)].map((_,i)=>`<rect x="${20+i*146}" y="460" width="120" height="104" rx="3" fill="none" stroke="#463463" stroke-width="3"/>`).join('')}
- <rect y="586" width="1280" height="12" fill="#221432"/><rect y="590" width="1280" height="130" fill="url(#ssf)"/>${[...Array(14)].map((_,i)=>`<path d="M${i*100-20} 598L${i*100-90} 720" stroke="#26141f" stroke-width="2.4"/>`).join('')}${[0,1,2].map(i=>`<path d="M0 ${620+i*40}H1280" stroke="#26141f" stroke-width="1.6" opacity=".6"/>`).join('')}
+ <rect y="584" width="1280" height="8" fill="#221432"/><rect y="580" width="1280" height="4" fill="#3a2a52"/>${ssFloor(R)}
  <!-- ventana -->
  <rect x="86" y="46" width="576" height="438" rx="8" fill="#150f28"/><svg x="100" y="60" width="548" height="410" viewBox="100 60 548 410"><rect x="100" y="60" width="548" height="410" fill="url(#ssn)"/>
  ${[...Array(34)].map((_,i)=>`<circle cx="${110+R(i+60)*520}" cy="${70+R(i+61)*200}" r="${.6+R(i+62)*1.1}" fill="#fff" class="ss-tw" opacity="${.4+R(i+63)*.5}" style="animation-delay:${(-R(i)*4).toFixed(1)}s"/>`).join('')}
@@ -9358,7 +9378,7 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
  <g transform="translate(960,690)"><ellipse cx="0" cy="0" rx="19" ry="8" fill="#e8a4b8"/><ellipse cx="30" cy="2" rx="19" ry="8" fill="#e8a4b8"/><ellipse cx="-6" cy="-2" rx="9" ry="4" fill="#fff" opacity=".35"/><ellipse cx="24" cy="0" rx="9" ry="4" fill="#fff" opacity=".35"/></g>
  ${[...Array(22)].map((_,i)=>`<circle class="ss-mote" cx="${120+R(i+80)*1040}" cy="${160+R(i+81)*440}" r="${1+R(i+82)*2}" fill="#ffe9b0" opacity="0" style="animation-delay:${(-R(i)*9).toFixed(1)}s;animation-duration:${(8+R(i+3)*8).toFixed(1)}s"/>`).join('')}
  <rect width="1280" height="720" fill="url(#ssv)"/></svg>
- ${winW}${pet}
+ <div class="ss-sh"></div>${winW}${post?`<div class="ss-th"><div class="ss-thc" style="background-image:url('${esc(post)}')"></div><i></i><i></i><i></i></div>`:`<div class="ss-th"><div class="ss-thc">🎮</div><i></i><i></i><i></i></div>`}${pet}
  ${se?`<div class="ss-sea">${se[1]} ${se[0]}</div>`:''}
  <div class="ss-in"><b>${Math.round(tot)} h jugadas</b>${G.length} juegos · ♪ lofi, noche de lluvia</div><div class="ss-cap">Tocá cualquier botón para volver</div>`}
 function ssClock(){return new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})}
