@@ -9261,23 +9261,16 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
   <!-- cubby 6: farol -->
   <g transform="translate(168,91)"><rect x="-14" y="-4" width="28" height="4" rx="2" fill="#3a2a22"/><path d="M-10 -4h20v-26q0 -8 -10 -8q-10 0 -10 8z" fill="#ffe9a8" opacity=".35" stroke="#c9a064" stroke-width="2.500"/><circle cy="-18" r="9" fill="#ffd27a" class="ss-lamp"/><circle cy="-18" r="30" fill="url(#ssl)" opacity=".5" class="ss-lamp"/><path d="M-6 -38q6 -8 12 0" fill="none" stroke="#c9a064" stroke-width="2"/></g>
  </g>
- <!-- torre -->
- <g transform="translate(1004,456)"><rect x="8" y="128" width="16" height="5" rx="2.500" fill="#15101f"/><rect x="100" y="128" width="16" height="5" rx="2.500" fill="#15101f"/>
-  <rect width="124" height="130" rx="10" fill="#1a1626" stroke="#34304a" stroke-width="4"/><rect x="9" y="9" width="106" height="112" rx="6" fill="#0c0a14"/>
-  <!-- radiador superior -->
-  <rect x="14" y="13" width="96" height="14" rx="3" fill="#201b30" stroke="#34304a" stroke-width="1.500"/>${[...Array(12)].map((_,i)=>`<rect x="${18+i*7.600}" y="16" width="3.200" height="8" fill="#0c0a14"/>`).join('')}
-  <path d="M72 27V44M84 27V44" stroke="#2a2440" stroke-width="5" stroke-linecap="round"/>
-  <!-- bomba cpu -->
-  <g transform="translate(78,52)"><rect x="-15" y="-10" width="30" height="20" rx="5" fill="#26203a" stroke="#3a3450" stroke-width="2"/><g class="ss-rgb"><circle r="6" fill="#0c0a14" stroke="#ec4899" stroke-width="2.200"/></g></g>
-  <!-- ram -->
-  <g class="ss-rgb">${[0,1,2,3].map(i=>`<rect x="${100+i*0}" y="${0}" width="0" height="0"/>`).join('')}</g>
-  ${[0,1].map(i=>`<g transform="translate(${100+i*6},38)"><rect width="4.500" height="36" rx="1" fill="#26203a"/><g class="ss-rgb"><rect x=".6" y="1" width="3.300" height="12" rx="1" fill="${['#22d3ee','#ec4899'][i]}"/></g></g>`).join('')}
-  <!-- ventiladores frontales -->
-  ${[[28,48],[28,86]].map(([x,y])=>`<g transform="translate(${x},${y})"><circle r="17" fill="#15101f" stroke="#2f2848" stroke-width="1.500"/><g class="ss-rgb"><circle r="15.500" fill="none" stroke="#22d3ee" stroke-width="2.600"/></g><g fill="#2f2848">${[0,1,2,3,4,5,6].map(i=>`<ellipse cx="0" cy="-7" rx="3.800" ry="7.500" transform="rotate(${(i*51.400).toFixed(1)}) rotate(14 0 -7)"/>`).join('')}</g><circle r="4.200" fill="#0c0a14" stroke="#3a3450" stroke-width="1.400"/></g>`).join('')}
-  <!-- gpu -->
-  <g transform="translate(46,98)"><rect width="64" height="17" rx="3" fill="#26203a" stroke="#3a3450" stroke-width="1.600"/><circle cx="16" cy="8.500" r="6.600" fill="#0c0a14"/><circle cx="16" cy="8.500" r="4" fill="none" stroke="#a78bfa" stroke-width="1.600"/><circle cx="46" cy="8.500" r="6.600" fill="#0c0a14"/><circle cx="46" cy="8.500" r="4" fill="none" stroke="#a78bfa" stroke-width="1.600"/><g class="ss-rgb"><rect x="3" y="14.500" width="58" height="1.800" rx=".9" fill="#ec4899"/></g></g>
-  <path d="M9 9H70L9 80Z" fill="#fff" opacity=".05"/><circle cx="111" cy="123" r="2.600" fill="#6ac27a" class="ss-tw"/></g>
- <path d="M1128 520Q1170 520 1170 450" fill="none" stroke="#15101f" stroke-width="3"/><path d="M1016 540Q960 540 960 452" fill="none" stroke="#15101f" stroke-width="3"/>
+ <!-- torre (vista frontal) -->
+ <ellipse cx="1236" cy="594" rx="52" ry="9" fill="url(#ssg)" opacity=".25"/><ellipse cx="1236" cy="592" rx="40" ry="6" fill="#000" opacity=".3"/>
+ <g transform="translate(1204,462)"><rect x="6" y="124" width="12" height="5" rx="2.500" fill="#15101f"/><rect x="46" y="124" width="12" height="5" rx="2.500" fill="#15101f"/>
+  <rect width="64" height="126" rx="7" fill="#1a1626" stroke="#34304a" stroke-width="3.500"/>
+  <rect x="5" y="5" width="54" height="14" rx="3" fill="#221d33"/><circle cx="15" cy="12" r="4.500" fill="#0c0a14" stroke="#46c85a" stroke-width="1.800"/><rect x="28" y="9" width="6" height="3" rx="1" fill="#0c0a14"/><rect x="38" y="9" width="6" height="3" rx="1" fill="#0c0a14"/><circle cx="52" cy="12" r="1.800" fill="#ec4899" class="ss-tw"/>
+  <rect x="5" y="22" width="54" height="90" rx="4" fill="#0c0a14"/>
+  ${[36,66,96].map(y=>`<g transform="translate(32,${y})"><circle r="15" fill="#15101f"/><g class="ss-rgb"><circle r="14" fill="none" stroke="#22d3ee" stroke-width="2.600"/><circle r="10.500" fill="none" stroke="#ec4899" stroke-width="1.400"/></g><g fill="#2f2848">${[0,1,2,3,4,5,6].map(i=>`<ellipse cx="0" cy="-6" rx="3.200" ry="6.400" transform="rotate(${(i*51.400).toFixed(1)}) rotate(14 0 -6)"/>`).join('')}</g><circle r="3.600" fill="#0c0a14" stroke="#3a3450" stroke-width="1.200"/></g>`).join('')}
+  <path d="M5 22H40L5 70Z" fill="#fff" opacity=".05"/>
+  <rect x="5" y="115" width="54" height="7" rx="2" fill="#221d33"/>${[...Array(9)].map((_,i)=>`<rect x="${9+i*5.500}" y="117" width="2.600" height="3" fill="#0c0a14"/>`).join('')}</g>
+ <path d="M1218 486Q1176 488 1172 452" fill="none" stroke="#15101f" stroke-width="3"/>
  <!-- monitor vertical con reloj -->
  <g transform="translate(772,304)"><rect width="84" height="128" rx="7" fill="#0b0914" stroke="#2f2848" stroke-width="5"/><rect x="7" y="7" width="70" height="114" fill="url(#sssc)"/><text id="ss-c" x="42" y="62" text-anchor="middle" font-family="monospace" font-size="42" font-weight="700" fill="#fff" style="filter:drop-shadow(0 0 8px #a78bfa)">${ssClock().split(':')[0]}</text><text id="ss-c2" x="42" y="104" text-anchor="middle" font-family="monospace" font-size="42" font-weight="700" fill="#ff7ab8" style="filter:drop-shadow(0 0 8px #ff4d9a)">${ssClock().split(':')[1]}</text><path d="M7 7H50L7 70Z" fill="#fff" opacity=".07"/><rect x="34" y="126" width="16" height="4" fill="#2f2848"/><rect x="20" y="128" width="44" height="5" rx="2.500" fill="#2f2848"/></g>
  <!-- monitor ultrawide -->
@@ -9301,12 +9294,10 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
   <circle cx="32" cy="46" r="13" fill="#15101f"/><circle cx="164" cy="46" r="13" fill="#15101f"/><g class="ss-eq" fill="#6ac27a" transform="translate(78,34)"><rect x="0" y="0" width="5" height="22"/><rect x="9" y="0" width="5" height="22"/><rect x="18" y="0" width="5" height="22"/><rect x="27" y="0" width="5" height="22"/></g></g>
  <path d="M56 560Q64 540 76 534M150 540Q166 528 182 532" fill="none" stroke="#6ac27a" stroke-width="2" opacity=".0"/>
  <g transform="translate(36,470)" fill="#ffd27a" class="ss-note" font-size="20" opacity=".0"><text>♪</text></g>
- <!-- puf -->
- <g transform="translate(230,560)"><path d="M0 70C-14 40 8 4 52 0C100 -4 130 30 120 70Z" fill="#e0457a"/><path d="M14 66C8 42 24 16 56 12" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="5" stroke-linecap="round"/><ellipse cx="60" cy="72" rx="64" ry="6" fill="#000" opacity=".25"/></g>
  <!-- alfombra -->
  <ellipse cx="680" cy="676" rx="400" ry="50" fill="#000" opacity=".25"/><ellipse cx="680" cy="668" rx="380" ry="52" fill="#8f3c5a"/><ellipse cx="680" cy="668" rx="350" ry="44" fill="none" stroke="#e8a4b8" stroke-width="3.4" stroke-dasharray="7 12"/><ellipse cx="680" cy="668" rx="290" ry="34" fill="#7a3050"/><ellipse cx="680" cy="668" rx="220" ry="24" fill="none" stroke="#c46a8a" stroke-width="2.6"/><ellipse cx="680" cy="668" rx="140" ry="14" fill="#6a2844"/>${[...Array(40)].map((_,i)=>`<path d="M${680+Math.cos(i/40*6.283)*380} ${668+Math.sin(i/40*6.283)*52}l${Math.cos(i/40*6.283)*9} ${Math.sin(i/40*6.283)*7}" stroke="#e8a4b8" stroke-width="2.4" stroke-linecap="round"/>`).join('')}
  <!-- joystick y pantuflas en la alfombra -->
- <g transform="translate(500,652) rotate(-12) scale(.98)"><ellipse cx="2" cy="40" rx="70" ry="8" fill="#000" opacity=".32"/>
+ <g transform="translate(520,664) rotate(-12) scale(.5)"><ellipse cx="2" cy="40" rx="70" ry="8" fill="#000" opacity=".32"/>
   <rect x="-46" y="-44" width="30" height="14" rx="7" fill="#15151a"/><rect x="16" y="-44" width="30" height="14" rx="7" fill="#15151a"/>
   <path d="M-38 -34C-22 -40 22 -40 38 -34C56 -34 68 -16 68 6C68 26 64 44 52 46C42 48 36 38 30 30C24 22 18 18 8 18H-8C-18 18 -24 22 -30 30C-36 38 -42 48 -52 46C-64 44 -68 26 -68 6C-68 -16 -56 -34 -38 -34Z" fill="#24242c" stroke="#0e0e12" stroke-width="3" stroke-linejoin="round"/>
   <path d="M-52 -28C-40 -36 -22 -37 -8 -35M52 -28C40 -36 22 -37 8 -35" fill="none" stroke="#4a4a58" stroke-width="2.500" stroke-linecap="round"/>
