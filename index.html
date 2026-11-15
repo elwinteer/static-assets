@@ -6622,7 +6622,7 @@ const LG=(c,h,o,i)=>PT(`M62 243L100 246V${h}H${100-o}L${104-o} ${Math.max(h-34,2
 const WB=(c)=>ol('M62 244Q100 252 138 244V254Q100 262 62 254Z',avSh(c,-.18),3.2);
 const FRY=(x0,y)=>inkP('M'+[...Array(10)].map((_,i)=>(x0+i*6)+' '+(i%2?y+4:y)).join('L'),2.4);
 const STR=(c,e)=>{const d='M68 150H84Q78 192 80 240H64Q64 194 68 150Z';return ol(d,c,3.4)+ol(MX(d),c,3.4)+ol('M66 198H134V206H66Z',c,3)+(e?SK('M72 156Q68 196 70 236',e,2,'opacity=".9"')+SK(MX('M72 156Q68 196 70 236'),e,2,'opacity=".9"'):'')+Ci(66,202,3.4,'#cfd6e0','stroke="#14110f" stroke-width="2"')+Ci(134,202,3.4,'#cfd6e0','stroke="#14110f" stroke-width="2"')};
-const SHW=s=>s?`<g transform="translate(100 0) scale(.9 1) translate(-100 0)">${s}</g>`:'';
+const SHW=s=>s?`<g transform="translate(100 0) scale(.88 1) translate(-100 0)">${s}</g>`:'';
 const MX=d=>d.replace(/([MLHVQ])([^MLHVQZ]*)/g,(m,c,a)=>{const n=a.trim().split(/[\s,]+/).map(Number);if(c==='V')return m;if(c==='H')return 'H'+(200-n[0]);return c+n.map((v,i)=>i%2?v:200-v).join(' ')});
 const SNK=(d,f,w)=>ol(d,f,w||3.4)+ol(MX(d),f,w||3.4);
 const SNI=(d,w,o)=>inkP(d,w||2.6,o)+inkP(MX(d),w||2.6,o);
@@ -6867,7 +6867,7 @@ const avItem=(cat,id)=>(AVD[cat].it.find(x=>x[0]===id));
 const avPetLv=()=>{try{const p=petCur();return p?pLvl(p):0}catch(e){return 0}};
 const avOk=it=>{const r=it[3];return typeof r==='number'?lvlOf().l>=r:avPetLv()>=+r.slice(1)};
 const avLbl=it=>{const r=it[3];return typeof r==='number'?'Nivel '+r:'Mascota nv '+String(r).slice(1)};
-const avNorm=a=>{const o={};a=a||{};for(const k of AVO){const c=AVK[k];if(c)o[k]=(avItem(c,a[k])?a[k]:AVDEF[k]);else{const v=a[k];o[k]=(Number.isInteger(v)&&v>=0&&v<AVCL.length)||(typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))?v:AVDEF[k]}}return o};
+const avNorm=a=>{const o={};a=a||{};for(const k of AVO){const c=AVK[k];if(c)o[k]=(avItem(c,a[k])?a[k]:AVDEF[k]);else{const v=a[k];o[k]=(Number.isInteger(v)&&v>=0&&v<AVCL.length)||(typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))?v:AVDEF[k]}}o.g=a.g==='f'?'f':'m';return o};
 const hx2=h=>{h=h.replace('#','');if(h.length===3)h=[...h].map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16,n>>8&255,n&255]};
 const rgb2hsl=([r,g,b])=>{r/=255;g/=255;b/=255;const M=Math.max(r,g,b),m=Math.min(r,g,b),l=(M+m)/2,d=M-m;let h=0,s=0;if(d){s=d/(1-Math.abs(2*l-1));h=M===r?((g-b)/d+(g<b?6:0)):M===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s,l]};
 const hsl2hex=(h,s,l)=>{const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs(h/60%2-1)),m=l-c/2,q=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];return '#'+q.map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('')};
@@ -6883,22 +6883,25 @@ function RC(str,col){if(col==null||!str)return str;col=cvx(col);const re=/#[0-9a
   return hsl2hex(t[0],neu?t[1]:Math.min(1,t[1]*(q[1]/ds)),Math.max(.04,Math.min(.97,q[2]*(t[2]/dl))))})}
 const HATCOV=new Set(['ht13','ht14','ht25','ht26']),HATMASK=new Set(['ht27','ht1','ht2','ht3','ht4','ht5','ht6','ht7','ht15','ht19','ht20','ht21','ht22','ht23']),HATDIL=new Set([]),HATW={ht14:[46,154],ht13:[50,150]},HATSC={ht27:[1.14,1.2],ht1:[1.24,1.26],ht2:[1.24,1.26],ht19:[1.24,1.26],ht20:[1.24,1.26],ht21:[1.2,1.2],ht22:[1.16,1.14],ht23:[1.22,1.26],ht7:[1.14,1.2],ht3:[1.1,1.12],ht4:[1.1,1.1]};
 const seaHat=()=>{try{const k=seaNow();return k==='xmas'?'ht7':k==='hall'?'ht27':null}catch(e){return null}};const xmasWin=()=>!!seaHat();const avXm=a=>{const h=seaHat();return h?{...a,hat:h}:a};
-let AVN=0;function avSVG(av,o){o=o||{};AVU='_'+(++AVN);const a=avXm(avNorm(av)),it=c=>avItem(c,a[c]),s=it('skin')[4],k={s,sd:avSh(s,-.14),h:it('hc')[4],hd:avSh(it('hc')[4],-.22)},cT=cvx(a.topc),cB=cvx(a.botc),tp=it('top'),long=tp[5]==='long';
+let AVN=0;function avSVG(av,o){o=o||{};AVU='_'+(++AVN);const a=avXm(avNorm(av)),it=c=>avItem(c,a[c]),s=it('skin')[4],k={s,sd:avSh(s,-.14),h:it('hc')[4],hd:avSh(it('hc')[4],-.22)},cT=cvx(a.topc),cB=cvx(a.botc),tp=it('top'),long=tp[5]==='long',FM=a.g==='f';
   const hatS=(h=>{const c=HATSC[a.hat];return c&&h?`<g transform="translate(100 92) scale(${c[0]} ${c[1]}) translate(-100 -92)">${h}</g>`:h})(RC(it('hat')[4](k),NOCOL.has(a.hat)?null:a.hatc)),HC=HATCOV.has(a.hat),HM=HATMASK.has(a.hat),vb=o.vb||'-24 -14 248 342',hcl=HC?`<clipPath id="avHk${AVU}"><path clip-rule="evenodd" d="M-100 -100H300V400H-100Z M${(HATW[a.hat]||[0,200])[0]} -90H${(HATW[a.hat]||[0,200])[1]}V95Q100 78 ${(HATW[a.hat]||[0,200])[0]} 95Z"/></clipPath>`:HM?`<mask id="avHm${AVU}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="500" height="600"><rect x="-100" y="-100" width="500" height="600" fill="#fff"/><g filter="url(#${HATDIL.has(a.hat)?'avBk2':'avBk'})">${hatS}</g></mask>`:'',hcw=x=>HC?`<g clip-path="url(#avHk${AVU})">${x}</g>`:HM?`<g mask="url(#avHm${AVU})">${x}</g>`:x;
   const body=[
    RC(it('back')[4](k),a.backc),
+   FM?'<g transform="translate(100 0) scale(.88 1) translate(-100 0)">':'',
    PT('M64 244L100 246V300Q100 318 82 318Q52 318 50 302Q50 290 58 278Q62 262 64 244Z','M0 0H1V1H0Z',k,1)+PT('M136 244L100 246V300Q100 318 118 318Q148 318 150 302Q150 290 142 278Q138 262 136 244Z','M124 240H170V330H124Z',k,2)+inkP('M100 248V304',3.6),
    PT('M88 148Q72 148 60 154Q42 162 34 188Q26 204 24 226Q20 252 34 260Q52 266 64 252L66 246Q100 250 134 246L136 252Q148 266 166 260Q180 252 176 226Q174 204 166 188Q158 162 140 154Q128 148 112 148Z','M132 140H190V272H167L134 152Z',k,3)+inkP('M66 182V238',3.6)+inkP('M134 182V238',3.6),
    it('shoes')[5]==='under'?SHW(RC(it('shoes')[4](k),a.shoesc)):'',
    long?'':it('bot')[4](cB),
    it('shoes')[5]==='under'?'':SHW(RC(it('shoes')[4](k),a.shoesc)),
    tp[4](cT),
+   FM?'</g>':'',
    it('back')[6]?RC(it('back')[6](k),a.backc):'',
    hcl+hcw(it('hair')[4](k)),
-   olE(46,116,9,10,s)+olE(154,116,9,10,s)+ol('M46 98Q44 52 100 46Q156 52 154 98Q154 142 100 150Q46 142 46 98Z',s),
-   `<path d="M154 100Q154 142 100 150Q64 148 52 124Q88 142 130 126Q152 116 154 100Z" fill="${k.sd}"/>`+inkP('M60 132Q80 148 100 150Q132 150 152 120',5.5),
+   FM?olE(48,117,8,9,s)+olE(152,117,8,9,s)+ol('M48 98Q47 54 100 48Q153 54 152 98Q152 136 100 148Q48 136 48 98Z',s):olE(46,116,9,10,s)+olE(154,116,9,10,s)+ol('M46 98Q44 52 100 46Q156 52 154 98Q154 142 100 150Q46 142 46 98Z',s),
+   FM?`<path d="M152 100Q152 136 100 148Q66 146 54 124Q88 140 130 126Q150 116 152 100Z" fill="${k.sd}"/>`+inkP('M62 130Q80 146 100 148Q130 148 150 120',5.5):`<path d="M154 100Q154 142 100 150Q64 148 52 124Q88 142 130 126Q152 116 154 100Z" fill="${k.sd}"/>`+inkP('M60 132Q80 148 100 150Q132 150 152 120',5.5),
    it('beard')[4](k),
-   `<g class="avx-eyes">${it('eyes')[4](k)}</g>`,it('brow')[4](k),it('mouth')[4](k),
+   FM?El(65,127,10,5.5,'#ff6f8a','opacity=".38"')+El(135,127,10,5.5,'#ff6f8a','opacity=".38"')+Pa('M91 130Q100 125 109 130Q100 138 91 130Z','#ef7d8c','opacity=".85"'):'',
+   `<g class="avx-eyes">${it('eyes')[4](k)}</g>`+(FM?inkP('M71 109L62 104',3.4)+inkP('M73 105L66 97',3.4)+inkP('M129 109L138 104',3.4)+inkP('M127 105L134 97',3.4):''),FM?'<g transform="translate(0 98) scale(1 .85) translate(0 -98)">'+it('brow')[4](k)+'</g>':it('brow')[4](k),it('mouth')[4](k),
    hcw(it('hair')[5](k)),
    RC(it('glass')[4](k),NOCOL.has(a.glass)?null:a.glassc),hatS,
    (h=>{const m=h[5]||{},x=m.x||160,o=RC(h[4](k),NOCOL.has(a.hand)?null:a.handc);return o?'<g transform="rotate('+(m.r||0)+' '+x+' 250) translate('+(m.dx||0)+' '+(m.dy||0)+')"><g class="'+(m.a||'')+'">'+o+'</g></g>':''})(it('hand')),
@@ -6937,7 +6940,7 @@ function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G
   let items=[...d.it].sort((a,b)=>(avOk(b)-avOk(a))||(a[2]-b[2]));if(F==='ok')items=items.filter(avOk);if(F==='lk')items=items.filter(x=>!avOk(x));
   const fl=[['all','Todos'],['ok','Desbloqueados'],['lk','Próximos']].map(([k,l])=>`<button class="${F===k?'on':''}" data-a="avflt" data-v="${k}">${l}</button>`).join('');
   return `<div class="av-top"><div class="av-col"><b>${have}</b> de ${tot.length} cosméticos<span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span></div><div class="av-rar">${rc.map(x=>`<span style="--rc:${x[0][1]}"><i></i>${x[0][0]} ${x[1]}/${x[2]}</span>`).join('')}</div></div>
-  <div class="avgs">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}${sw}<div class="avfl"><span>${d.n}</span><div>${fl}</div></div><div class="av-grid">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
+  ${G[0]==='head'?`<div class="avgs avgn"><span class="mut" style="align-self:center">Cuerpo</span><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div>`:''}<div class="avgs">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}${sw}<div class="avfl"><span>${d.n}</span><div>${fl}</div></div><div class="av-grid">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
 (()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
  const hv=()=>+(($('.avwv')||{}).value||100)/100,pick=(w,e)=>{const r=w.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,R=r.width/2,d=Math.min(1,Math.hypot(x,y)/R),h=(Math.atan2(y,x)*180/Math.PI+90+360)%360,dot=w.querySelector('i');const kk=Math.hypot(x,y)/R>1?R/Math.hypot(x,y):1;dot.style.left=(50+x/R*kk*50)+'%';dot.style.top=(50+y/R*kk*50)+'%';S.avh=h;S.avs=d;setC(w.parentNode.dataset.k,hsv2hex(h,d,hv()))};
  document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.avwheel');if(!w)return;drag=w;try{w.setPointerCapture(e.pointerId)}catch(_){}pick(w,e)});
@@ -7015,6 +7018,7 @@ Object.assign(A,{
  ptab:a=>{S.ptab=a.dataset.v;S.avp=null;go('profile')},
  cedt:a=>{S.ced=a.dataset.v;cedRef()},
  avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
+ avgen:a=>{ST.avc=avCur();ST.avc.g=a.dataset.v==='f'?'f':'m';S.avp=null;avSync();avRef()},
  avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;S.avp=null;avRef()},
  avflt:a=>{S.avf=a.dataset.v;avRef()},
  avpick:a=>{const c=a.dataset.c,id=a.dataset.id,it=avItem(c,id);if(!it)return;if(c==='hat'&&xmasWin()){toast(seaHat()==='ht27'?'🎃 En Halloween todos llevan calabaza en la cabeza. Los sombreros vuelven el 3 de noviembre':'🎅 En Navidad todos llevan gorro navideño. Los sombreros vuelven el 27 de diciembre');return}
