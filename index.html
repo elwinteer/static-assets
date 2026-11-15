@@ -2994,6 +2994,10 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 #bpss .ss-bird{animation:ssbd 38s linear infinite}@keyframes ssbd{from{transform:translate(110px,150px)}to{transform:translate(690px,90px)}}
 #bpss .ss-flap{animation:ssfp .5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}@keyframes ssfp{to{transform:scaleY(.4)}}
 #bpss .ss-mist{animation:ssms 14s ease-in-out infinite alternate}@keyframes ssms{from{transform:translateX(-30px);opacity:.6}to{transform:translateX(30px);opacity:1}}
+#bpss .ss-sp{position:absolute;z-index:4;left:calc(50% - 28vh);bottom:53vh;max-width:30vh;padding:1.5vh 2vh;border-radius:2.4vh;background:#fff;color:#241e44;font-size:clamp(12px,1.9vh,22px);font-weight:600;line-height:1.3;box-shadow:0 1vh 3vh rgba(0,0,0,.45);opacity:0;transform:scale(.7) translateY(1.2vh);transform-origin:90% 110%;transition:opacity .45s ease,transform .5s cubic-bezier(.2,1.4,.4,1)}
+#bpss .ss-sp.on{opacity:1;transform:scale(1) translateY(0)}
+#bpss .ss-sp::after{content:"";position:absolute;right:3.4vh;bottom:-1.5vh;width:2.6vh;height:2.6vh;background:#fff;transform:rotate(45deg) skew(8deg,8deg);border-radius:0 0 .6vh 0}
+#bpss .ss-sp b{font-weight:600}
 .ultra #bpss .ss-rm *,.ultra #bpss .ss-win2,.ultra #bpss .ss-th,.ultra #bpss .ss-sh,.ultra #bpss .ss-win2,.ultra #bpss .pz-b,.ultra #bpss .pz-z{animation:none!important}
 /* ===== NAVIDAD ===== */
 body.sea-xmas{--a:#e5484d;--argb:229,72,77;--a2:#fecaca;--a3:#b91c1c;--a3rgb:185,28,28;--on-a:#fff;--lg3:#ef4444;--ice:#ffe4e6;--icergb:255,228,230;--bg:#0c0607;--shell:#12090b;--sea-e:none}
@@ -4329,7 +4333,7 @@ function setPane(t){
   ]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>']}
   if(t==='mando'){const L=BPVL,cur=bpvPick(),uno=(ST.bpvM||'uno')==='uno',own=L.filter(v=>!v.o);return [
     sH('Protector de pantalla'),
-    sR('Protector de pantalla','Si el Modo mando queda un rato sin usarse, aparece tu Winter en su fondo con la hora. Cualquier botón lo cierra.',segv0('bpssset',[['0','Apagado'],['120','2 min'],['300','5 min'],['600','10 min']],String(ST.bpss==null?300:ST.bpss))),
+    sR('Protector de pantalla','Si el Modo mando queda un rato sin usarse, aparece tu Winter en su fondo con la hora. Cualquier botón lo cierra.',segv0('bpssset',[['0','Apagado'],['120','2 min'],['180','3 min'],['300','5 min'],['600','10 min']],String(ST.bpss==null?180:ST.bpss))),
     sR('Probar el protector','Se abre al instante dentro del Modo mando.','<button class="b2 g" data-a="bpsstest">Probar</button>'),
     sH('Trailers y música'),
     sR('Trailers y música del Modo mando','Busca y baja el trailer y la canción de cada juego. "Descargar todo" revisa toda tu biblioteca y baja lo que falte. <span id="trl-n"></span>',`<div style="display:flex;gap:8px;align-items:center"><button class="b2 g" data-a="tgopen">Administrar</button><button class="b2" data-a="trldl">Descargar todo</button></div>`),
@@ -9176,7 +9180,7 @@ function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[.
 
 /* ===BPSS=== protector de pantalla del Modo mando */
 let BSS={t:Date.now(),on:false,hold:false};
-function ssIdleMs(){const v=ST.bpss==null?300:+ST.bpss;return v>0?v*1000:0}
+function ssIdleMs(){const v=ST.bpss==null?180:+ST.bpss;return v>0?v*1000:0}
 const SSP={
  night:{w0:'#3a2d5e',w1:'#2a2046',sky:['#070b26','#241f58','#5a3a7a'],cl:'#6a5aa6',co:.55,bf:['#252d6c','#1a2152','#0d1133','#1b2260'],pk:1,bc:1,hz:['#8b5cf6','#ff7ab8'],bm:'#9ab8ff',bo:.22,tint:'#000',ti:0,vig:1,lp:1,lt:1,tx:'lofi, noche de lluvia',sun:{x:548,y:150,r:36,c:'#fff4d2',g:'#9ab8ff'}},
  am:{w0:'#5c4a7c',w1:'#46375f',sky:['#6fa0e0','#f4b78e','#ffe4c0'],cl:'#ffd5c0',co:.78,bf:['#9aa6d8','#7886c0','#5d6aa6','#6e7cb8'],pk:.12,bc:0,hz:['#ffd9a8','#ffb27a'],bm:'#ffd9a0',bo:.38,tint:'#ffcf9a',ti:.22,vig:.45,lp:.4,lt:.5,tx:'lofi, mañana tranquila',sun:{x:500,y:226,r:30,c:'#fff2c0',g:'#ffd9a0'}},
@@ -9213,6 +9217,16 @@ function ssCity(R,ph){const Q=SSP[ph||"night"];
  if(ph==='day'||ph==='am')o+=`<g class="ss-bird">${[0,1,2,3].map(i=>`<path class="ss-flap" d="M${i*22} ${i%2*9}q5 -7 9 0q4 -7 9 0" fill="none" stroke="#2a3560" stroke-width="1.800" stroke-linecap="round" style="animation-delay:${-i*.3}s"/>`).join('')}</g>`;
  if(ph==='am')o+=`<rect class="ss-mist" x="60" y="360" width="640" height="110" fill="url(#ssmi)"/>`;
  return o}
+function ssWall(){const R=n=>{const x=Math.sin(n*777)*43758.5;return x-Math.floor(x)};
+ return `<defs><linearGradient id="sswa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1148"/><stop offset=".55" stop-color="#6a2a8a"/><stop offset="1" stop-color="#ff7ab8"/></linearGradient><radialGradient id="sswb"><stop offset="0" stop-color="#ffd9a8" stop-opacity=".9"/><stop offset="1" stop-color="#ffd9a8" stop-opacity="0"/></radialGradient><linearGradient id="sswc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9ac0" stop-opacity=".5"/><stop offset="1" stop-color="#3a1a6a" stop-opacity=".9"/></linearGradient></defs>
+ <rect width="262" height="98" fill="url(#sswa)"/>${[...Array(36)].map((_,i)=>`<circle cx="${R(i)*262}" cy="${R(i+9)*46}" r="${.3+R(i+4)*.7}" fill="#fff" opacity="${.3+R(i+2)*.6}"/>`).join('')}
+ <circle cx="186" cy="50" r="34" fill="url(#sswb)"/><circle cx="186" cy="50" r="15" fill="#ffe9c4"/>${[0,1,2,3].map(i=>`<rect x="168" y="${52+i*3.600}" width="36" height="1.400" fill="#ff7ab8" opacity=".6"/>`).join('')}
+ <path d="M0 62L26 40L44 54L70 30L100 56L124 44L150 60L180 46L210 58L236 40L262 56V98H0Z" fill="#3a1a72"/><path d="M0 72L34 54L62 68L94 52L130 70L168 58L204 72L238 56L262 68V98H0Z" fill="#241050"/>
+ <rect y="70" width="262" height="28" fill="url(#sswc)"/><circle cx="186" cy="78" r="9" fill="#ffd9a8" opacity=".3"/>${[0,1,2,3,4].map(i=>`<rect x="${150+i*8}" y="${73+i*3}" width="${72-i*14}" height="1.400" fill="#ffe9c4" opacity="${.3-i*.04}"/>`).join('')}
+ ${[8,22,34,226,240,252].map((x,i)=>`<path d="M${x} 74l${i%2?-5:5} -${20+i%3*4}l${i%2?-5:5} ${20+i%3*4}z" fill="#120a30"/>`).join('')}
+ <rect width="262" height="98" fill="none"/>
+ ${[0,1,2].map(i=>`<g transform="translate(8,${8+i*17})"><rect width="12" height="12" rx="3" fill="${['#8b5cf6','#22d3ee','#f59e0b'][i]}" opacity=".85"/><rect y="13" width="12" height="1.600" rx=".8" fill="#fff" opacity=".6"/></g>`).join('')}
+ <rect y="90" width="262" height="8" fill="#0b0716" opacity=".78"/>${[0,1,2,3,4].map(i=>`<rect x="${6+i*11}" y="91.500" width="7" height="5" rx="1.500" fill="${['#8b5cf6','#22d3ee','#f59e0b','#46c85a','#ec4899'][i]}" opacity=".9"/>`).join('')}<rect x="226" y="92.500" width="28" height="3" rx="1.500" fill="#fff" opacity=".7"/>`}
 function ssFloor(R){
  const rows=[590,602,618,640,672,720],pal=['#7b5238','#6f4a34','#845a3e','#674330','#775039'],vp=300;let o='<rect y="590" width="1280" height="130" fill="url(#ssf)"/>';
  for(let r=0;r<5;r++){const y0=rows[r],y1=rows[r+1],sc0=(y0-vp)/290,sc1=(y1-vp)/290,w=150,off=(r%3)*52+(r*23%40);
@@ -9354,7 +9368,7 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
  <!-- monitor vertical con reloj -->
  <g transform="translate(772,304)"><rect width="84" height="128" rx="7" fill="#0b0914" stroke="#2f2848" stroke-width="5"/><rect x="7" y="7" width="70" height="114" fill="url(#sssc)"/><text id="ss-c" x="42" y="62" text-anchor="middle" font-family="monospace" font-size="42" font-weight="700" fill="#fff" style="filter:drop-shadow(0 0 8px #a78bfa)">${ssClock().split(':')[0]}</text><text id="ss-c2" x="42" y="104" text-anchor="middle" font-family="monospace" font-size="42" font-weight="700" fill="#ff7ab8" style="filter:drop-shadow(0 0 8px #ff4d9a)">${ssClock().split(':')[1]}</text><path d="M7 7H50L7 70Z" fill="#fff" opacity=".07"/><rect x="34" y="126" width="16" height="4" fill="#2f2848"/><rect x="20" y="128" width="44" height="5" rx="2.500" fill="#2f2848"/></g>
  <!-- monitor ultrawide -->
- <g transform="translate(870,312)"><rect width="276" height="112" rx="10" fill="#0b0914" stroke="#2f2848" stroke-width="5"/><rect x="7" y="7" width="262" height="98" rx="5" fill="#1d3a6b"/>${mon?`<image href="${esc(mon)}" x="7" y="7" width="262" height="98" preserveAspectRatio="xMidYMid slice"/>`:''}<rect x="7" y="7" width="262" height="98" rx="5" fill="#7fb0ff" opacity=".1"/><path d="M7 7H150L96 105H7Z" fill="#fff" opacity=".05"/><svg x="7" y="7" width="262" height="98"><g transform="skewX(-20)"><rect class="ss-shim" x="-90" y="-10" width="46" height="120" fill="#fff" opacity=".1"/></g></svg><rect x="124" y="112" width="28" height="12" fill="#2f2848"/><rect x="96" y="122" width="84" height="7" rx="3.500" fill="#2f2848"/></g>
+ <g transform="translate(870,312)"><rect width="276" height="112" rx="10" fill="#0b0914" stroke="#2f2848" stroke-width="5"/><rect x="7" y="7" width="262" height="98" rx="5" fill="#1d3a6b"/><svg x="7" y="7" width="262" height="98" viewBox="0 0 262 98">${ssWall()}</svg><rect x="7" y="7" width="262" height="98" rx="5" fill="#7fb0ff" opacity=".1"/><path d="M7 7H150L96 105H7Z" fill="#fff" opacity=".05"/><svg x="7" y="7" width="262" height="98"><g transform="skewX(-20)"><rect class="ss-shim" x="-90" y="-10" width="46" height="120" fill="#fff" opacity=".1"/></g></svg><rect x="124" y="112" width="28" height="12" fill="#2f2848"/><rect x="96" y="122" width="84" height="7" rx="3.500" fill="#2f2848"/></g>
  <!-- maneki neko -->
  <g transform="translate(1104,274)"><rect x="2" y="26" width="30" height="16" rx="6" fill="#fff"/><circle cx="17" cy="24" r="14" fill="#fff"/><path d="M6 14l-2 -10 10 6zM28 14l2 -10 -10 6z" fill="#fff"/><circle cx="12" cy="24" r="1.800" fill="#1b1a20"/><circle cx="22" cy="24" r="1.800" fill="#1b1a20"/><path d="M15 29q2 2 4 0" stroke="#1b1a20" fill="none" stroke-width="1.400"/><rect x="8" y="33" width="18" height="4" fill="#ef4444"/><circle cx="17" cy="38" r="2.500" fill="#fcd34d"/><g class="ss-wave"><rect x="26" y="14" width="7" height="18" rx="3.500" fill="#fff"/></g></g>
  <!-- desk mat, teclado, mouse -->
@@ -9393,12 +9407,23 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
  <g transform="translate(960,690)"><ellipse cx="0" cy="0" rx="19" ry="8" fill="#e8a4b8"/><ellipse cx="30" cy="2" rx="19" ry="8" fill="#e8a4b8"/><ellipse cx="-6" cy="-2" rx="9" ry="4" fill="#fff" opacity=".35"/><ellipse cx="24" cy="0" rx="9" ry="4" fill="#fff" opacity=".35"/></g>
  ${[...Array(22)].map((_,i)=>`<circle class="ss-mote" cx="${120+R(i+80)*1040}" cy="${160+R(i+81)*440}" r="${1+R(i+82)*2}" fill="#ffe9b0" opacity="0" style="animation-delay:${(-R(i)*9).toFixed(1)}s;animation-duration:${(8+R(i+3)*8).toFixed(1)}s"/>`).join('')}
  <rect width="1280" height="720" fill="${Q.tint}" opacity="${Q.ti}" style="mix-blend-mode:soft-light"/><rect width="1280" height="720" fill="url(#ssv)" opacity="${Q.vig}"/></svg>
- <div class="ss-sh"></div>${winW}${post?`<div class="ss-th"><div class="ss-thc" style="background-image:url('${esc(post)}')"></div><i></i><i></i><i></i></div>`:`<div class="ss-th"><div class="ss-thc">🎮</div><i></i><i></i><i></i></div>`}${pet}
+ <div class="ss-sh"></div>${winW}<div class="ss-sp"><b></b></div>${pet}
  ${se?`<div class="ss-sea">${se[1]} ${se[0]}</div>`:''}
  <div class="ss-in"><b>${Math.round(tot)} h jugadas</b>${G.length} juegos · ♪ ${Q.tx}</div><div class="ss-cap">Tocá cualquier botón para volver</div>`}
+function ssLines(PH){const nm=(()=>{try{return (PR()||{}).name||ST.name||''}catch(e){return ''}})(),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=Math.round(G.reduce((t,g)=>t+(g.hours||0),0)),top=G.slice().sort((x,y)=>(y.hours||0)-(x.hours||0))[0];
+ const L=['¿Seguís ahí? Yo sí, sin moverme.','Qué tranquilo está todo por acá…','¿Jugamos algo o seguimos relajando un rato?','Tengo ganas de una partida. ¿Y vos?','Ese teclado brilla más que mis ideas.','Si te quedás un rato más, me hago amigo del reloj.','Yo vigilo el cuarto. Vos descansá.','Cada tanto me estiro. Es parte del trabajo.','¿Sabías que el mando de la alfombra no se usa solo? Todavía.','Me quedé pensando en el próximo juego…'];
+ if(nm)L.push('¿Todo bien, '+nm+'? Acá la pasamos tranquilos.','Ey, '+nm+', cuando quieras volvemos a jugar.');
+ if(p&&p.name)L.push(p.name+' duerme como un campeón.','Shhh, que '+p.name+' está soñando con huesos.','Qué linda siesta se está pegando '+p.name+'.','No lo despiertes a '+p.name+', recién se acomodó.');
+ if(tot>0)L.push('Ya llevás '+tot+' horas jugadas. ¡Una locura!');
+ if(G.length>3)L.push('Tenés '+G.length+' juegos en la biblioteca. ¿Cuántos terminaste?');
+ if(top&&top.name)L.push('Tu juego más jugado es '+top.name+'. ¿Una más?');
+ const F={night:['La lluvia suena de lujo hoy.','Ya es tarde… ¿no te da sueño?','Con esta lluvia, el mejor plan es un juego tranquilo.','La luna está enorme esta noche.'],am:['Buen día. ¿Un matecito y a jugar?','El sol recién sale. Qué lindo arrancar así.','Mañana tranquila… ideal para una partida corta.'],day:['Día de sol y nosotros adentro. Perfecto.','Mirá cuántas nubes. Todas lindas.','A esta hora el cuarto es una pileta de luz.'],pm:['Mirá ese atardecer, ¡no te lo pierdas!','Se está yendo el sol. Se viene la hora de jugar.','El cielo está en modo rosa y naranja.']};
+ return L.concat(F[PH]||[])}
+function ssSay(){if(!BSS.on)return;const b=document.querySelector('#bpss .ss-sp');if(b){const L=ssLines(ssPh());let i,t=0;do{i=Math.floor(Math.random()*L.length)}while(L.length>1&&i===BSS.li&&++t<8);BSS.li=i;b.querySelector('b').textContent=L[i];b.classList.add('on');clearTimeout(BSS.sh);BSS.sh=setTimeout(()=>b.classList.remove('on'),5200+L[i].length*55)}
+ BSS.sp=setTimeout(ssSay,47000+Math.random()*6000)}
 function ssClock(){return new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})}
-function ssOn(){if(BSS.on||!BP)return;BSS.on=true;BSS.ph=ssPh();let e=document.getElementById('bpss');if(e)e.remove();e=document.createElement('div');e.id='bpss';e.innerHTML=ssHTML();document.body.appendChild(e);requestAnimationFrame(()=>requestAnimationFrame(()=>e.classList.add('on')));clearInterval(BSS.yi);BSS.yi=setInterval(()=>{const w=document.querySelector('#bpss .ss-win2');if(w){w.classList.remove('yw');void w.getBoundingClientRect();w.classList.add('yw')}},22000)}
-function ssOff(){if(!BSS.on)return;BSS.on=false;clearInterval(BSS.yi);BSS.t=Date.now();const e=document.getElementById('bpss');if(e){e.classList.remove('on');setTimeout(()=>e.remove(),1200)}}
+function ssOn(){if(BSS.on||!BP)return;BSS.on=true;BSS.ph=ssPh();clearTimeout(BSS.sp);BSS.sp=setTimeout(ssSay,9000);let e=document.getElementById('bpss');if(e)e.remove();e=document.createElement('div');e.id='bpss';e.innerHTML=ssHTML();document.body.appendChild(e);requestAnimationFrame(()=>requestAnimationFrame(()=>e.classList.add('on')));clearInterval(BSS.yi);BSS.yi=setInterval(()=>{const w=document.querySelector('#bpss .ss-win2');if(w){w.classList.remove('yw');void w.getBoundingClientRect();w.classList.add('yw')}},22000)}
+function ssOff(){if(!BSS.on)return;BSS.on=false;clearTimeout(BSS.sp);clearTimeout(BSS.sh);clearInterval(BSS.yi);BSS.t=Date.now();const e=document.getElementById('bpss');if(e){e.classList.remove('on');setTimeout(()=>e.remove(),1200)}}
 function ssPad(pads){let act=false;for(const p of pads){if(p.buttons.some((b,i)=>i!==16&&b.pressed)||Math.abs(p.axes[0]||0)>.5||Math.abs(p.axes[1]||0)>.5)act=true}
   if(act)BSS.t=Date.now();
   if(BSS.on){if(act){ssOff();BSS.hold=true}return true}
