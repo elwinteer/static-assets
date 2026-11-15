@@ -2946,7 +2946,7 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 #bpss .ss-win2{position:absolute;z-index:2;left:50%;bottom:9.5vh;transform:translateX(-50%);height:47vh;width:auto;transform-origin:50% 100%;animation:ssbr 4.5s ease-in-out infinite;filter:drop-shadow(1.4vh .8vh 0 rgba(0,0,0,.28))}
 @keyframes ssbr{0%,100%{transform:translateX(-50%) scale(1,1)}50%{transform:translateX(-50%) scale(1.012,.99)}}
 #bpss .ss-win2.yw{animation:ssyw 3.2s ease-in-out}@keyframes ssyw{30%,70%{transform:translateX(-50%) scale(1.02,1.03) rotate(-2deg)}}
-#bpss .ss-pt{position:absolute;z-index:3;left:calc(50% + 11vh);bottom:4.6vh;width:29vh}
+#bpss .ss-pt{position:absolute;z-index:3;left:calc(50% + 10vh);bottom:4.2vh;width:35vh}
 #bpss .ss-pt svg{display:block;width:100%;height:auto;overflow:visible}
 #bpss .pz-b{transform-box:fill-box;transform-origin:50% 100%;animation:sspb 3.8s ease-in-out infinite}@keyframes sspb{50%{transform:scale(1.015,1.07)}}
 #bpss .pz-z{animation:sspz 4s ease-in infinite;opacity:0;font-weight:800}#bpss .pz-z.z2{animation-delay:-1.4s}#bpss .pz-z.z3{animation-delay:-2.7s}@keyframes sspz{0%{transform:translate(0,0);opacity:0}25%{opacity:.9}100%{transform:translate(18px,-46px);opacity:0}}
@@ -9136,22 +9136,41 @@ function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[.
 /* ===BPSS=== protector de pantalla del Modo mando */
 let BSS={t:Date.now(),on:false,hold:false};
 function ssIdleMs(){const v=ST.bpss==null?300:+ST.bpss;return v>0?v*1000:0}
-function petSleepSVG(p){const c=PCOAT[p.coat||0]||PCOAT[0],a=p.ccol||c[1],bb=BRB(p,p.ccol?pMix(p.ccol,'#ffffff',.55):c[2],a),d=pMix(a,'#000000',.28),ink='#1b1a20',ch=(p.coat||0)===7,OL=`stroke="${ink}" stroke-width="3.2" stroke-linejoin="round"`,cn=p.breed==='caniche',up=p.ear==='up',tan='#d98a3a';
- const bumps=cn?[...Array(9)].map((_,i)=>`<circle cx="${52+i*17}" cy="${54+Math.abs(i-4)*1.6}" r="13" fill="${a}" ${OL}/>`).join(''):'';
- const earL=up?`<path d="M30 52 L34 26 L52 44Z" fill="${d}" ${OL}/>`:`<path d="M34 54 C14 64 10 92 24 104 C38 104 50 84 50 62Z" fill="${d}" ${OL}/>`;
- const earR=up?`<path d="M70 50 L78 26 L90 46Z" fill="${d}" ${OL}/>`:'';
- const cur=cn?`<g><circle cx="46" cy="52" r="15" fill="${a}" ${OL}/><circle cx="68" cy="48" r="15" fill="${a}" ${OL}/></g>`:'';
- return `<svg viewBox="0 0 230 130"><ellipse cx="118" cy="120" rx="104" ry="9" fill="#000" opacity=".32"/>
- <g class="pz-b"><path d="M150 98 Q214 100 214 66 Q214 44 196 48" fill="none" stroke="${ink}" stroke-width="${ch?17:19}" stroke-linecap="round"/><path d="M150 98 Q214 100 214 66 Q214 44 196 48" fill="none" stroke="${a}" stroke-width="${ch?11:13}" stroke-linecap="round"/>
- ${bumps}<ellipse cx="116" cy="84" rx="82" ry="34" fill="${a}" ${OL}/><path d="M50 98 Q116 124 182 98 Q182 112 116 118 Q50 112 50 98Z" fill="${bb}" opacity=".55"/>
- ${ch?`<path d="M66 70 Q80 58 98 66 Q80 78 66 70Z" fill="${tan}" opacity=".85"/><ellipse cx="150" cy="104" rx="20" ry="9" fill="${tan}" opacity=".9"/>`:''}
- <ellipse cx="156" cy="94" rx="30" ry="24" fill="${a}" ${OL}/><ellipse cx="146" cy="116" rx="24" ry="8" fill="${a}" ${OL}/>
- <ellipse cx="62" cy="112" rx="30" ry="9" fill="${a}" ${OL}/><ellipse cx="96" cy="114" rx="22" ry="8" fill="${a}" ${OL}/>
- <g class="pz-h">${earL}<circle cx="52" cy="84" r="31" fill="${a}" ${OL}/>${earR}${cur}<ellipse cx="38" cy="96" rx="20" ry="14" fill="${bb}" ${OL}/>
- <path d="M44 78 q7 7 14 0" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linecap="round"/><path d="M62 82 q6 6 12 0" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>
- <ellipse cx="22" cy="92" rx="7" ry="5.5" fill="${ink}"/><path d="M28 104 q6 5 12 0" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linecap="round"/>${ch?`<circle cx="46" cy="70" r="3.4" fill="${tan}"/><circle cx="66" cy="72" r="3.4" fill="${tan}"/>`:''}
- ${ch?`<path d="M72 104 Q94 116 112 104" fill="none" stroke="#e5484d" stroke-width="6" stroke-linecap="round"/>`:''}</g></g>
- <text class="pz-z" x="14" y="46" font-size="22" fill="#fff">z</text><text class="pz-z z2" x="26" y="34" font-size="17" fill="#fff">z</text><text class="pz-z z3" x="8" y="30" font-size="13" fill="#fff">z</text></svg>`}
+function petSleepSVG(p){const c=PCOAT[p.coat||0]||PCOAT[0],a=p.ccol||c[1],bb=BRB(p,p.ccol?pMix(p.ccol,'#ffffff',.55):c[2],a),d=pMix(a,'#000000',.22),ink='#1b1a20',ch=(p.coat||0)===7,cn=p.breed==='caniche',up=p.ear==='up',tan='#d98a3a',SW=cn?5:4.5,lt=pMix(a,'#ffffff',.22),dk=ch||p.coat===2||p.coat===1,EC=dk?'#e9dcc6':ink,LN=dk?'#fff':'#000';
+ /* silueta unificada: se dibuja con borde, y encima lo mismo sin borde */
+ const U=(arr,fill)=>`<g fill="${fill}" stroke="${ink}" stroke-width="${SW*2}" stroke-linejoin="round">${arr}</g><g fill="${fill}">${arr}</g>`;
+ const E=(x,y,rx,ry,r)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"${r?` transform="rotate(${r} ${x} ${y})"`:''}/>`,C=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}"/>`;
+ let body,hind,fore,tail,head,ear,face,extra='';
+ if(cn){
+  body=[...Array(9)].map((_,i)=>C(86+i*17,86+Math.sin(i*.9)*-5,26-Math.abs(i-4)*1.1)).join('')+E(150,98,62,30);
+  hind=C(196,96,34)+C(214,108,22);
+  tail=`<g>${C(238,92,15)}${C(248,86,10)}</g>`;
+  fore=E(62,126,34,13)+C(32,126,13)+C(90,126,13);
+  head=C(58,84,32)+E(26,100,22,16);
+  ear=`<g>${C(80,92,16)}${C(86,110,18)}${C(80,126,13)}</g>`;
+  extra=`<g>${C(46,56,13)}${C(60,50,15)}${C(74,57,13)}</g>`;
+ }else{
+  body=`<path d="M78 72C100 44 176 42 206 68C228 88 226 120 196 128L92 128C66 126 58 94 78 72Z"/>`;
+  hind=E(190,98,38,32)+E(168,126,24,10);
+  tail=`<path d="M222 106C250 104 252 78 234 70" fill="none" stroke="${ink}" stroke-width="${ch?24:26}" stroke-linecap="round"/><path d="M222 106C250 104 252 78 234 70" fill="none" stroke="${a}" stroke-width="${ch?15:17}" stroke-linecap="round"/>`;
+  fore=E(66,126,36,12)+E(110,128,26,10);
+  head=C(58,88,31)+E(28,102,23,16);
+  ear=up?`<path d="M62 62C56 44 66 34 82 36C88 52 86 70 76 82Z" fill="${d}"/>`:`<path d="M60 66C40 72 34 100 46 120C66 124 86 108 86 86C84 72 74 62 60 66Z" fill="${d}"/>`;
+ }
+ const earS=cn?U(ear,lt):(up?`<g stroke="${ink}" stroke-width="${SW}" stroke-linejoin="round">${ear}</g><path d="M68 48C66 42 72 40 78 42C80 52 80 62 76 70Z" fill="#f3b3b3" opacity=".55"/>`:`<g stroke="${ink}" stroke-width="${SW}" stroke-linejoin="round">${ear}</g>`);
+ const nose=`<ellipse cx="9" cy="100" rx="7.5" ry="6" fill="${ink}"/><ellipse cx="7" cy="98" rx="2.4" ry="1.6" fill="#fff" opacity=".55"/>`;
+ const eye=`<path d="M44 84q8 8 16 0" fill="none" stroke="${EC}" stroke-width="3.8" stroke-linecap="round"/><path d="M44 85l-3 3M52 90l0 3.5M60 85l3 3" stroke="${EC}" stroke-width="2" stroke-linecap="round"/><ellipse cx="68" cy="100" rx="8" ry="5" fill="#f08a8a" opacity=".45"/><path d="M14 108q8 8 18 2" fill="none" stroke="${dk&&!ch?EC:ink}" stroke-width="2.6" stroke-linecap="round"/>`;
+ const brow=ch?`<circle cx="44" cy="70" r="3.8" fill="${tan}"/><circle cx="62" cy="70" r="3.8" fill="${tan}"/>`:'';
+ const chm=ch?`<ellipse cx="30" cy="106" rx="20" ry="12" fill="${tan}" opacity=".95"/>`:'';
+ const socks=ch?`<ellipse cx="112" cy="129" rx="15" ry="7" fill="${tan}"/><ellipse cx="168" cy="128" rx="15" ry="6.5" fill="${tan}"/>`:'';
+ const belly=ch?'':`<path d="M96 122Q140 132 190 122L190 127Q140 135 96 127Z" fill="${bb}" opacity=".45"/>`;
+ const thigh=cn?'':`<path d="M170 70C196 66 218 92 206 122" fill="none" stroke="${LN}" stroke-width="3" stroke-linecap="round" opacity="${dk?.18:.45}"/><path d="M96 100C100 112 98 122 92 128" fill="none" stroke="${LN}" stroke-width="3" stroke-linecap="round" opacity="${dk?.16:.4}"/>`;
+ const sh=cn?'':`<path d="M92 56C130 46 170 50 196 64" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".16"/>`;
+ const col=ch?`<path d="M84 100Q98 116 116 112" fill="none" stroke="${ink}" stroke-width="12" stroke-linecap="round"/><path d="M84 100Q98 116 116 112" fill="none" stroke="#e5484d" stroke-width="7" stroke-linecap="round"/><circle cx="104" cy="115" r="4.5" fill="#fcd34d" stroke="${ink}" stroke-width="1.6"/>`:'';
+ return `<svg viewBox="-4 6 270 150"><ellipse cx="136" cy="140" rx="124" ry="9" fill="#000" opacity=".3"/>
+ <g class="pz-b">${U(tail.startsWith('<g')?tail.replace(/^<g>|<\/g>$/g,''):'', a)}${cn?'':tail}${U(body,a)}${U(hind,a)}${thigh}${sh}${belly}${U(fore,a)}${socks}${col}
+ <g class="pz-h">${earS.includes('rotate')?'':''}${U(head,a)}${extra?U(extra,a):''}${chm}${brow}${eye}${nose}${cn?'':''}${earS}</g></g>
+ <text class="pz-z" x="14" y="52" font-size="24" fill="#fff">z</text><text class="pz-z z2" x="28" y="38" font-size="18" fill="#fff">z</text><text class="pz-z z3" x="8" y="34" font-size="14" fill="#fff">z</text></svg>`}
 function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=G.reduce((t,g)=>t+(g.hours||0),0),se=SEA_K&&SEAS[SEA_K]?SEAS[SEA_K]:null,d=new Date(),
  top=G.slice().sort((x,y)=>(y.hours||0)-(x.hours||0)),im=g=>{try{return (cands(g,'grid')||[])[0]||''}catch(e){return ''}},iw=g=>{try{return (cands(g,'wide')||cands(g,'hero')||[])[0]||''}catch(e){return ''}},
  R=n=>{const x=Math.sin(n*999)*43758.5;return x-Math.floor(x)},
