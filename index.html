@@ -2940,6 +2940,7 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 #bpss .ss-rain path{animation:ssrn 1.1s linear infinite}@keyframes ssrn{0%{transform:translateY(-40px);opacity:0}15%{opacity:1}100%{transform:translateY(120px);opacity:0}}
 #bpss .ss-lt circle{animation:sslt 3s ease-in-out infinite}#bpss .ss-lt circle:nth-child(3n){animation-delay:-1s}#bpss .ss-lt circle:nth-child(3n+1){animation-delay:-2s}@keyframes sslt{50%{opacity:.35}}
 #bpss .ss-win{animation:sswn 7s ease-in-out infinite}@keyframes sswn{50%{opacity:.55}}
+#bpss .ss-lfk{animation:sslk 6s ease-in-out infinite!important}@keyframes sslk{0%,88%,100%{opacity:1}90%{opacity:.35}92%{opacity:.9}94%{opacity:.5}96%{opacity:1}}
 #bpss .ss-lamp{animation:sslp 5s ease-in-out infinite alternate}@keyframes sslp{to{opacity:.8}}
 #bpss .ss-stm path{animation:sssm 3.4s ease-in-out infinite;opacity:0;transform-box:fill-box}@keyframes sssm{0%{transform:translateY(0);opacity:0}30%{opacity:.7}100%{transform:translateY(-22px);opacity:0}}
 #bpss .ss-eq rect{animation:sseq .9s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:bottom}#bpss .ss-eq rect:nth-child(2){animation-delay:-.3s}#bpss .ss-eq rect:nth-child(3){animation-delay:-.6s}#bpss .ss-eq rect:nth-child(4){animation-delay:-.15s}@keyframes sseq{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
@@ -9239,7 +9240,20 @@ function ssCity(R,ph){const Q=SSP[ph||"night"];
  o+=`<rect x="96" y="436" width="560" height="5" fill="#0a0e26"/>${[...Array(10)].map((_,i)=>`<rect x="${110+i*58}" y="441" width="4" height="31" fill="#0a0e26"/>`).join('')}`;
  o+=`<g class="ss-train">${[0,1,2,3].map(i=>`<g transform="translate(${i*46},0)"><rect y="421" width="43" height="14" rx="4" fill="#232a5c"/><rect x="3" y="424" width="37" height="5" rx="1.500" fill="#ffe28a" opacity=".92"/>${[0,1,2,3,4].map(c=>`<rect x="${5+c*7.400}" y="424" width="1.600" height="5" fill="#232a5c"/>`).join('')}</g>`).join('')}<rect x="183" y="427" width="9" height="4" rx="2" fill="#fff" opacity=".9"/><ellipse cx="205" cy="429" rx="20" ry="5" fill="#fff" opacity=".12"/></g>`;
  /* calle */
- o+=`<rect x="96" y="458" width="560" height="20" fill="#080b1f"/><rect x="96" y="458" width="560" height="1.600" fill="#2a3470"/>`;
+ {const RC={night:'#080b1f',am:'#2a3058',day:'#3c4876',pm:'#2a2450'}[ph]||'#080b1f';o+=`<rect x="96" y="458" width="560" height="20" fill="${RC}"/><rect x="96" y="458" width="560" height="1.600" fill="${ph==='night'?'#2a3470':'#8a96d0'}" opacity="${ph==='night'?1:.55}"/><path d="M96 466.500H656" stroke="${ph==='night'?'#6a74b8':'#c8d0f0'}" stroke-width="1" stroke-dasharray="9 7" opacity="${ph==='night'?.28:.4}"/>`}
+ /* faroles */
+ const ON={night:1,pm:.55,am:.1,day:0}[ph]||0,LX=[128,232,322,430,522,618],bulb=ON>.3?(ON>.8?'#fff0c0':'#ffd890'):'#8a94b8';
+ LX.forEach((x,i)=>{const fk=i===3&&ON>.8?' ss-lfk':'';
+  o+=`<g transform="translate(${x},470)">
+  <defs><linearGradient id="lpc${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6a0" stop-opacity="${ON*.55}"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></linearGradient></defs>
+  ${ON>0?`<path d="M9 -45L17 -45L36 -7L-10 -7Z" fill="url(#lpc${i})" class="ss-lamp${fk}" style="mix-blend-mode:screen"/>`:''}
+  <rect x="-3.200" y="-5" width="6.400" height="5" rx="1" fill="#0a0e26"/><rect x="-1.600" y="-44" width="3.200" height="40" fill="#10163a"/><rect x="-1.600" y="-44" width="1.200" height="40" fill="${ph==='night'?'#3a4a9a':'#8a96d0'}" opacity="${ph==='night'?.5:.55}"/>
+  <path d="M0 -44Q0 -50 6 -50H11" fill="none" stroke="#10163a" stroke-width="2.600" stroke-linecap="round"/>
+  <path d="M7.500 -52H19Q21.500 -52 21.500 -49.500L19 -46.500H8Z" fill="#10163a"/><path d="M8 -51.500H19" stroke="${ph==='night'?'#3a4a9a':'#a8b4e8'}" stroke-width=".8" opacity=".6"/>
+  <ellipse cx="13.500" cy="-46.200" rx="4.200" ry="1.700" fill="${bulb}"/>${ON===0?`<circle cx="12" cy="-46.400" r="1" fill="#fff" opacity=".7" class="ss-gl" style="animation-delay:${-i*.7}s"/>`:''}
+  ${ON>0?`<circle cx="13.500" cy="-46" r="${7+ON*22}" fill="url(#ssl)" opacity="${ON*.75}" class="ss-lamp${fk}" style="mix-blend-mode:screen"/><circle cx="13.500" cy="-46" r="${3+ON*3}" fill="#fff" opacity="${ON*.5}"/>`:''}
+  </g>`});
+ 
  {const K={night:[.2,'#3a4a9a',.35,.9,.7],am:[.7,'#ffb878',.14,.22,.35],day:[1,'#ffffff',0,.1,.2],pm:[.62,'#ff7a40',.22,.34,.5]}[ph]||[1,'#fff',0,.1,.2],[kd,tn,tt,bm,sh]=K,hx2=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),cm=(h,m)=>{const c=hx2(h).map(v=>v*kd),t=hx2(m||tn);return '#'+c.map((v,i)=>Math.round(v*(1-tt)+t[i]*tt).toString(16).padStart(2,'0')).join('')},
  M=[{c:'#d8434c',b:'M1 -3Q1 -5 4 -5.500L8 -6Q10 -9.500 14 -9.500H19Q22 -9.500 24 -6.500L26.500 -5.500Q28 -5 28 -3V-2H1Z',w:['M9.500 -6.300Q11 -8.700 14 -8.700H15.600V-6.300Z','M17 -8.700H19Q21 -8.700 22.500 -6.300H17Z']},{c:'#3b7ddb',b:'M1 -3Q1 -5 4 -5.500L7 -6Q9 -9.800 13 -9.800H22Q25 -9.800 26 -6L27.500 -5Q28 -4.500 28 -3V-2H1Z',w:['M9 -6.300Q10.500 -8.900 13.500 -8.900H23.500Q24.500 -8.900 25 -6.300Z']},{c:'#e8e4da',b:'M1 -2V-9Q1 -11 3 -11H20Q23 -11 25 -8L27.500 -6Q28 -5.500 28 -4V-2Z',w:['M3 -9.500H11V-5.800H3Z','M13 -9.500H20Q22 -9.500 23.500 -7.500L24.500 -5.800H13Z']},{c:'#f4c430',b:'M1 -3Q1 -5 4 -5.500L8 -6Q10 -9.500 14 -9.500H19Q22 -9.500 24 -6.500L26.500 -5.500Q28 -5 28 -3V-2H1Z',w:['M9.500 -6.300Q11 -8.700 14 -8.700H15.600V-6.300Z','M17 -8.700H19Q21 -8.700 22.500 -6.300H17Z'],tx:1}];
  [[0,9,0],[1,13,-4],[2,11,-8],[3,15,-2]].forEach(([i,d,dl])=>{const g=464+(i%2)*4,dir=i%2?-1:1,m=M[(i+(ph==='day'?1:0))%4],bc=cm(m.c),hl=ph==='night'?'#ffe9b0':'#fff4d0',gl=ph==='night'?.55:ph==='pm'?.3:.12;
@@ -9253,6 +9267,7 @@ function ssCity(R,ph){const Q=SSP[ph||"night"];
   ${m.tx?`<rect x="12.500" y="-11.500" width="5" height="2" rx=".8" fill="${ph==='night'?'#ffe28a':'#fff0a8'}"/>`:''}
   <circle cx="6" cy="-2" r="2.600" fill="#0b0e24"/><circle cx="22" cy="-2" r="2.600" fill="#0b0e24"/><circle cx="6" cy="-2" r="1.100" fill="#8a94b8"/><circle cx="22" cy="-2" r="1.100" fill="#8a94b8"/>
   <ellipse cx="27.300" cy="-4.300" rx="1.300" ry="1.100" fill="${hl}"/><rect x="1" y="-4.900" width="1.500" height="1.700" rx=".6" fill="#ff3a3a"/></g></g>`})}
+ if(ON>0)o+=LX.map((x,i)=>`<g style="mix-blend-mode:screen" class="ss-lamp${i===3&&ON>.8?' ss-lfk':''}"><ellipse cx="${x+13}" cy="466" rx="${22+ON*18}" ry="${3.600+ON*2}" fill="#ffd890" opacity="${ON*.5}" filter="url(#sslb1)"/><ellipse cx="${x+13}" cy="465" rx="${10+ON*8}" ry="2" fill="#fff4cc" opacity="${ON*.45}"/></g>`).join('');
  /* avión y estrella fugaz */
  o+=`<g class="ss-plane"><rect x="0" y="108" width="14" height="3.500" rx="1.700" fill="#7a86c4"/><path d="M5 109l-3 -6h4l4 6zM5 111l-3 6h4l4 -6z" fill="#7a86c4"/><circle cx="1" cy="110" r="1.800" fill="#ff4d4d" class="ss-tw"/><circle cx="14" cy="110" r="1.800" fill="#fff" class="ss-tw" style="animation-delay:-1.500s"/></g>`;
  o+=`<g class="ss-shoot"><path d="M520 96l-52 20" stroke="url(#sssh)" stroke-width="2" stroke-linecap="round"/></g>`;
