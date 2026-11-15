@@ -1307,7 +1307,7 @@ async function poll() {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
     if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
-    else if (t.started) { if (plFail && !t.app) continue; if (++t.miss >= 6) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
+    else if (t.started) { if (plFail && !t.app) continue; if (++t.miss >= ((Date.now() - t.started < 4 * 60 * 1000 || flIs(t.name)) ? 45 : 6)) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
