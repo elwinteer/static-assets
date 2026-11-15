@@ -138,12 +138,13 @@ async function imgHandler(req) {
 }
 
 /* ---------- seguimiento de procesos (detectar cuándo cerrás un juego) ---------- */
-function listProcs() {
+async function listProcs() { return (await listProcsN()) || []; }
+function listProcsN() {
   return new Promise((res) => {
     if (process.platform === 'win32') {
-      execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Get-Process | Where-Object {$_.Path} | ForEach-Object {$_.Path}'], { windowsHide: true, maxBuffer: 8e6, timeout: 15000 }, (err, out) => res(err ? [] : out.split(/\r?\n/).map(s => s.trim().toLowerCase()).filter(Boolean)));
+      execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', 'Get-Process | Where-Object {$_.Path} | ForEach-Object {$_.Path}'], { windowsHide: true, maxBuffer: 8e6, timeout: 15000 }, (err, out) => res(err ? null : out.split(/\r?\n/).map(s => s.trim().toLowerCase()).filter(Boolean)));
     } else {
-      try { const o = []; for (const p of fs.readdirSync('/proc')) { if (!/^\d+$/.test(p)) continue; try { o.push(fs.readlinkSync('/proc/' + p + '/exe').toLowerCase()); } catch (e) {} } res(o); } catch (e) { res([]); }
+      try { const o = []; for (const p of fs.readdirSync('/proc')) { if (!/^\d+$/.test(p)) continue; try { o.push(fs.readlinkSync('/proc/' + p + '/exe').toLowerCase()); } catch (e) {} } res(o); } catch (e) { res(null); }
     }
   });
 }
@@ -1301,12 +1302,12 @@ async function poll() {
   const sr = new Map();
   for (const [id, t] of track) if (t.app) sr.set(id, await steamRun(t.app));
   const need = [...track].some(([id, t]) => !t.app || sr.get(id) === null);
-  const procs = need ? await listProcs() : [];
+  const pl = need ? await listProcsN() : [], procs = pl || [], plFail = pl === null;
   for (const [id, t] of [...track]) {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
     if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
-    else if (t.started) { if (++t.miss >= 2) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
+    else if (t.started) { if (plFail && !t.app) continue; if (++t.miss >= 6) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
