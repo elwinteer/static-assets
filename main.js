@@ -13,7 +13,7 @@ const { pathToFileURL, fileURLToPath } = require('url');
 protocol.registerSchemesAsPrivileged([{ scheme: 'wimg', privileges: { standard: true, secure: true, supportFetchAPI: true, bypassCSP: true, stream: true } }]);
 if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 
-let win = null, tray = null, quitting = false, fromBg = false, padProc = null;
+let dlEng = null, win = null, tray = null, quitting = false, fromBg = false, padProc = null;
 const CFGF = path.join(app.getPath('userData'), 'winteer-cfg.json');
 let cfg = { bg: false, auto: false, pad: true, shots: true, shotKey: 'F12', clipKey: 'F9', ovKey: 'Shift+Tab' };
 try { cfg = Object.assign(cfg, JSON.parse(fs.readFileSync(CFGF, 'utf8'))); } catch (e) {}
@@ -3064,6 +3064,33 @@ app.whenReady().then(() => {
   ipcMain.handle('xboxImport', async () => { try { return await xboxImport(); } catch (e) { return { ok: false, err: 'Error inesperado con Xbox', diag: String(e && e.message || e) }; } });
   ipcMain.handle('scanXbox', async () => { try { return await scanXbox(); } catch (e) { return { found: false, list: [] }; } });
   ipcMain.handle('pickDir', async () => { const r = await dialog.showOpenDialog(win, { title: 'Elegí la carpeta para las copias', properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
+  /* ===== Descargas e instalación (dl.js) ===== */
+  try {
+    const { Dl } = require('./dl.js');
+    dlEng = new Dl({
+      file: path.join(app.getPath('userData'), 'downloads.json'),
+      defaults: { dlDir: path.join(app.getPath('downloads'), 'WINTEER'), installDir: path.join(os.homedir(), 'Games', 'WINTEER') },
+      extract: z7Run, archiveSize: z7Size, findExes: wdlExes,
+    });
+    dlEng.load();
+    const dlSend = (ch, d) => { try { if (win && !win.isDestroyed()) win.webContents.send('dl:ev', { t: ch, d }); } catch (e) {} };
+    for (const ev of ['update', 'installed', 'uninstalled', 'removed', 'downloaded']) dlEng.on(ev, (d) => dlSend(ev, d));
+    dlEng.start();
+    const dlWrap = (f) => async (_e, a) => { try { return { ok: true, r: await f(a || {}) }; } catch (e) { return { ok: false, code: e.code || 'error', err: String(e.message || e) }; } };
+    ipcMain.handle('dlAdd', dlWrap((a) => dlEng.add(a)));
+    ipcMain.handle('dlList', dlWrap(() => dlEng.list()));
+    ipcMain.handle('dlPause', dlWrap((a) => dlEng.pause(a.id)));
+    ipcMain.handle('dlResume', dlWrap((a) => dlEng.resume(a.id)));
+    ipcMain.handle('dlRetry', dlWrap((a) => dlEng.retry(a.id)));
+    ipcMain.handle('dlCancel', dlWrap((a) => dlEng.cancel(a.id)));
+    ipcMain.handle('dlForget', dlWrap((a) => dlEng.forget(a.id)));
+    ipcMain.handle('dlUninstall', dlWrap((a) => dlEng.uninstall(a)));
+    ipcMain.handle('dlMarkSynced', dlWrap((a) => dlEng.markSynced(a.id)));
+    ipcMain.handle('dlGetCfg', dlWrap(() => dlEng.getCfg()));
+    ipcMain.handle('dlSetCfg', dlWrap((a) => dlEng.setCfg(a)));
+    ipcMain.handle('dlDisk', dlWrap((a) => dlEng.disk(a.path)));
+    ipcMain.handle('dlPickDir', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí una carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
+  } catch (e) { console.error('dl init', e); }
   ipcMain.handle('bkCheck', async (_e, o) => bkCheck(o || {}));
   ipcMain.handle('writeBackup', async (_e, o) => { try { return { ok: true, file: writeBackup(o) }; } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); return win ? win.isFullScreen() : false; });
@@ -3290,5 +3317,5 @@ app.whenReady().then(() => {
   nxmArgv(process.argv);
 });
 app.on('second-instance', (_e, argv) => { showWin(); nxmArgv(argv); });
-app.on('before-quit', () => { quitting = true; stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
+app.on('before-quit', () => { quitting = true; try { dlEng && dlEng.shutdown(); } catch (e) {} stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
 app.on('window-all-closed', () => { if (!cfg.bg || quitting) app.quit(); });

@@ -6428,6 +6428,46 @@ const nxSt=g=>{const z=(ST.nx=ST.nx||{});return z[g.id]=z[g.id]||{}};
 const nxR=(p)=>winteerNative.nxReq({p});
 async function nxInit(){try{const r=await winteerNative.nxState();NX.key=!!r.key;NX.prem=!!r.prem;NX.user=r.user||''}catch(e){}try{NX.nxm=!!(await winteerNative.nxmState())}catch(e){}NX.st=1}
 async function nxmGo(r){toast('Bajando de Nexus…');try{const f=await nxR(`/games/${r.domain}/mods/${r.mod}/files/${r.file}.json`);if(!f.ok)throw new Error(f.err==='key'?'key':'x');const o=await winteerNative.nxGet({domain:r.domain,mod:r.mod,file:r.file,name:f.d&&f.d.file_name,key:r.key,expires:r.expires,extract:true});if(o&&o.ok){toast('Bajado: '+(f.d&&f.d.name||o.file)+' → Descargas / WINTEER Mods');}else toast('No pude bajar ese archivo de Nexus')}catch(e){toast(e&&e.message==='key'?'Conectá tu clave de Nexus en la pestaña Mods':'No pude bajar ese archivo de Nexus')}}
+/* ===== Descargas -> biblioteca (el motor vive en dl.js; aca solo se registra el resultado) ===== */
+const dlAppid=gid=>{const m=/^steam:(\d+)$/.exec(String(gid||''));return m?+m[1]:0};
+const dlLow=s=>String(s||'').toLowerCase();
+function dlAdopt(it){
+  if(!it||it.status!=='completed'||!it.result||!it.result.dir)return null;
+  const r=it.result,exe=r.exe||'',app=dlAppid(it.gid);
+  const info={id:it.id,gid:it.gid,dir:r.dir,version:it.version||'',at:r.at||Date.now(),src:(it.source&&it.source.name)||''};
+  let g=G.find(x=>x.dl&&x.dl.id===it.id)||G.find(x=>x.dl&&x.dl.gid===it.gid)||(app&&G.find(x=>x.app===app))||(exe&&G.find(x=>x.exe&&dlLow(x.exe)===dlLow(exe)));
+  let st='new';
+  if(g){
+    if(g.exe&&dlLow(g.exe)!==dlLow(exe)&&instOf(g)&&!(g.dl&&g.dl.id===it.id)){st='dup';if(!g.dl)g.dl=info}
+    else{st='linked';if(exe)g.exe=exe;g.inst=true;if(g.instM===false)g.instM=true;g.dl=info}
+  }else{
+    g={id:'dl'+String(it.id).slice(0,8),name:it.name,exe:exe,inst:true,hours:0,status:'',last:'',notes:'',tags:[],dl:info};
+    if(app)g.app=app;
+    if(it.cover)g.cover=it.cover;
+    G.push(g);
+  }
+  save();try{renderList()}catch(e){}
+  return{g,st};
+}
+async function dlSync(){
+  if(!(window.winteerNative&&winteerNative.dlList))return;
+  const r=await winteerNative.dlList();if(!r||!r.ok)return;
+  for(const it of r.r){if(it.status==='completed'&&it.result&&!it.libSynced){const o=dlAdopt(it);if(o)try{await winteerNative.dlMarkSynced(it.id)}catch(e){}}}
+}
+function dlGone(i){
+  const g=G.find(x=>x.dl&&((i.id&&x.dl.id===i.id)||(i.gid&&x.dl.gid===i.gid)||(i.dir&&dlLow(x.dl.dir)===dlLow(i.dir))));
+  if(!g)return null;
+  g.inst=false;if(g.instM===true)delete g.instM;delete g.exe;delete g.dl;
+  save();try{renderList()}catch(e){}
+  return g;
+}
+if(window.winteerNative&&winteerNative.onDl){
+  winteerNative.onDl(m=>{
+    if(m.t==='installed'){const o=dlAdopt(m.d);if(o){try{winteerNative.dlMarkSynced(m.d.id)}catch(e){}toast(o.st==='dup'?m.d.name+' ya estaba en tu biblioteca':m.d.name+' instalado y agregado a tu biblioteca')}}
+    else if(m.t==='uninstalled'){const g=dlGone(m.d);if(g)toast(g.name+' desinstalado')}
+  });
+  setTimeout(()=>{dlSync().catch(()=>{})},2500);
+}
 if(window.winteerNative&&winteerNative.onNxm){winteerNative.onNxm(nxmGo);setTimeout(()=>{try{winteerNative.nxmReady()}catch(e){}},1500)}
 if(window.winteerNative&&winteerNative.nxState)nxInit();
 async function nxResolve(g,name){
