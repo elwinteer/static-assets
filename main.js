@@ -2923,6 +2923,7 @@ app.whenReady().then(() => {
   });
   /* canción propia del Modo mando */
   const musClean = (key) => { try { for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.mu.') || f === key + '.nm') { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} } } catch (e) {} };
+  ipcMain.handle('musRead', (_e, u) => { try { const f = require('url').fileURLToPath(String(u)); if (path.dirname(f) !== path.resolve(TRL) && !f.startsWith(path.resolve(TRL))) return null; return fs.readFileSync(f); } catch (e) { return null; } });
   ipcMain.handle('musPick', async (_e, key) => {
     try {
       key = String(key || '').replace(/\W/g, ''); if (!key) return { err: 'sin clave' };

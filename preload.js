@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   trlSizes: () => ipcRenderer.invoke('trlSizes'),
   trlUnmark: (k) => ipcRenderer.invoke('trlUnmark', k),
   scoreGet: (a) => ipcRenderer.invoke('scoreGet', a),
+  musRead: (u) => ipcRenderer.invoke('musRead', u),
   musPick: (k) => ipcRenderer.invoke('musPick', k),
   musUrl: (k, u) => ipcRenderer.invoke('musUrl', k, u),
   trlUrl: (k, u) => ipcRenderer.invoke('trlUrl', k, u),
