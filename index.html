@@ -1697,8 +1697,9 @@ body.light .cg-i{background:rgba(0,0,0,.06)}body.light .cg-pb{background:rgba(0,
 @keyframes wmpg{from{background-size:0 100%}to{background-size:100% 100%}}
 .wm-ctl{position:absolute;top:34px;right:24px;display:flex;gap:10px;z-index:6}.wm-ctl button{width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(8px)}.wm-ctl button:hover{background:rgba(255,255,255,.3)}.wm-ctl .i{width:18px;height:18px}.wm-snd.off{opacity:.4;text-decoration:line-through}
 #wm.pz .wm-ctl [data-a="wmpause"]{background:#fff;color:#111}
-.wm-nar{position:absolute;left:3vw;bottom:2vh;z-index:5;display:flex;align-items:flex-end;flex-direction:row-reverse;gap:1.4vw;pointer-events:none;opacity:0;transform:translateY(12vh) scale(.9);transform-origin:50% 100%;transition:opacity .4s,transform .7s cubic-bezier(.2,1.4,.3,1)}
-.wm-nar.on{opacity:1;transform:none}
+.wm-nar{position:absolute;left:3vw;bottom:2vh;z-index:5;display:flex;align-items:flex-end;flex-direction:row-reverse;gap:4.2vw;pointer-events:none;opacity:0;transform:translateX(-46vw)}
+.wm-nar.on{opacity:1;transform:none;transition:transform 1.15s cubic-bezier(.2,.65,.25,1),opacity .15s}
+.wm-bub{transform-origin:0 100%;transform:scale(0)}.wm-bub.in{animation:wmbub .42s cubic-bezier(.2,1.7,.4,1) forwards}@keyframes wmbub{from{transform:scale(0)}to{transform:scale(1)}}
 .wm-nar .wm-win{height:30vh;width:auto;filter:drop-shadow(0 1.2vh 2vh rgba(0,0,0,.45));transform-origin:50% 100%}
 .wm-nar.on .wm-win{animation:none}
 @keyframes wmw0{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-1vh) rotate(1.2deg)}}
@@ -8493,23 +8494,26 @@ const WRG={
  laugh:[[0,{lean:-4,sy:.98,by:2,la:30,ra:-30},{w:20,z:.6}],[150,{lean:4,by:-3,hd:6},{w:28,z:.4}],[300,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[450,{lean:4,by:-3,hd:6},{w:28,z:.4}],[600,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[750,{lean:3,by:-2,hd:4},{w:28,z:.4}],[1100,{lean:0,by:0,hd:0,la:0,ra:0,sy:1},{w:10,z:.85}]],
  bow:[[0,{lean:-14,hd:-8,by:2,la:10,ra:-10},{w:11,z:.75}],[900,{lean:0,hd:0,by:0,la:0,ra:0},{w:9,z:.85}]]
 };
+WRG.enter=(()=>{const a=[];for(let i=0;i<8;i++){const q=i%2?1:-1;a.push([i*125,{ll:26*q,rl:-26*q,la:Math.max(0,q)*36,ra:-Math.max(0,-q)*36,lean:7,by:i%2?-3:-8,sy:1,hd:2},{w:28,z:.6}])}
+  a.push([1000,{ll:0,rl:0,la:0,ra:0,lean:-10,sy:.93,sx:1.05,by:4,hd:-3},{w:24,z:.6}],[1200,{lean:0,sy:1,sx:1,by:0,hd:0},{w:16,z:.7}]);
+  return a.concat(WRG.wave.map(([t,p,o])=>[t+1400,p,o]))})();
 function wmSay(txt){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearInterval(WM.ty);clearTimeout(WM.tw);if(WM.rig)WM.rig.talk=0;
-  if(!txt){w.classList.remove('on');return}
-  w.classList.remove('on','talk');w.dataset.r=WM.i%4;void w.offsetWidth;w.classList.add('on');b.textContent='';
-  WM.tw=setTimeout(()=>{if(!WM)return;let k=0;w.classList.add('talk');if(WM.rig)WM.rig.talk=1;WM.ty=setInterval(()=>{if(!WM||WM.paused)return;k++;b.textContent=txt.slice(0,k);if(k>=txt.length){clearInterval(WM.ty);w.classList.remove('talk');if(WM.rig)WM.rig.talk=0}},26)},700)}
+  b.classList.remove('in');b.textContent='';w.classList.remove('talk');
+  if(!txt)return;
+  WM.tw=setTimeout(()=>{if(!WM)return;b.textContent=txt;b.classList.remove('in');void b.offsetWidth;b.classList.add('in');w.classList.add('talk');if(WM.rig)WM.rig.talk=1;let k=0;const n=Math.max(900,txt.length*26);WM.ty=setTimeout(()=>{w.classList.remove('talk');if(WM.rig)WM.rig.talk=0},n)},WM.i===0?1900:650)}
 function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));const s=WM.s[WM.i],el=$('#wm');clearTimeout(WM.tm);WM.L=1+Math.min(3,Math.floor(WM.i*4/WM.s.length));
   el.style.setProperty('--c',s.c.split(',')[0]);el.style.setProperty('--c2',s.c.split(',')[1]);
   const box=$('#wm .wm-s');box.innerHTML=s.h;wmSplit(box);[...box.children].forEach((c,n)=>c.style.setProperty('--n',n));box.dataset.v=WM.i%4;box.classList.remove('go');void box.offsetWidth;box.classList.add('go');
   const fl=$('#wm .wm-fl');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
   $$('#wm .wm-pg i').forEach((b,n)=>{b.style.animation='none';b.style.backgroundSize=n<WM.i?'100% 100%':'0 100%';if(n===WM.i){void b.offsetWidth;b.style.animation=`wmpg ${s.t}ms linear forwards`;b.style.animationPlayState=WM.paused?'paused':'running'}});
-  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)wrPlay(WM.rig,s.ge)},500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
+  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)wrPlay(WM.rig,ii===0&&!WM.ent?(WM.ent=1,'enter'):s.ge)},ii===0?0:500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
   WM.t0=Date.now();WM.left=s.t;WM.tm=setTimeout(()=>wmNext(),s.t)}
 function wmNext(){if(!WM)return;if(WM.i>=WM.s.length-1){wmClose(true);return}wmShow(WM.i+1)}
 function wmClose(done){if(!WM)return;clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);if(WM.rig){WM.rig.alive=false;wrStop(WM.rig)}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
 function wmKey(e){if(!WM)return;if(e.key==='Escape')wmClose();else if(e.key==='ArrowRight')wmNext();else if(e.key==='ArrowLeft')wmShow(WM.i-1);else if(e.key===' '){e.preventDefault();A.wmpause()}}
 function wmOpen(y,q){const sl=wmSlides(y,q);if(!sl.length)return;WM={s:sl,i:0,paused:false,snd:ST.hsnd!==false,P:[],L:1,st:0,nt:0,nf:0,fc:0};
   const e=document.createElement('div');e.id='wm';e.innerHTML=`<div class="wm-beat"></div><canvas id="wmcv"></canvas><div class="wm-fl"></div><div class="wm-pg">${sl.map(()=>'<i></i>').join('')}</div><div class="wm-ctl"><button data-a="wmpause" title="Pausar (espacio)">❚❚</button><button data-a="wmsnd" title="Música" class="wm-snd">♪</button><button data-a="wmx" title="Cerrar (Esc)">×</button></div><div class="wm-s"></div><div class="wm-nar"><div class="wm-bub"></div>${(()=>{try{return avSVG(avCur(),{floor:false,cls:'wm-win',rig:true})}catch(e){return''}})()}</div><div class="wm-zl" data-a="wmprev"></div><div class="wm-zr" data-a="wmnext"></div>`;
-  document.body.appendChild(e);{const sv=e.querySelector('.wm-win');if(sv)WM.rig=wrNew(sv)}document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
+  document.body.appendChild(e);{const sv=e.querySelector('.wm-win');if(sv)WM.rig=wrNew(sv)}{const nr=e.querySelector('.wm-nar');if(nr)requestAnimationFrame(()=>requestAnimationFrame(()=>nr.classList.add('on')))}document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
 Object.assign(A,{wmovie:()=>wmOpen(S.wy,S.wq||0),wmx:()=>wmClose(),wmnext:()=>wmNext(),wmprev:()=>wmShow(WM?WM.i-1:0),
  wmpause:()=>{if(!WM)return;WM.paused=!WM.paused;const e=$('#wm');e.classList.toggle('pz',WM.paused);$('#wm [data-a="wmpause"]').innerHTML=WM.paused?ic('play'):'❚❚';$$('#wm .wm-pg i').forEach(b=>b.style.animationPlayState=WM.paused?'paused':'running');
   if(WM.paused){clearTimeout(WM.tm);WM.left=Math.max(500,WM.left-(Date.now()-WM.t0))}else{WM.t0=Date.now();WM.tm=setTimeout(wmNext,WM.left);wmMus()}},
