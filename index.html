@@ -1700,9 +1700,7 @@ body.light .cg-i{background:rgba(0,0,0,.06)}body.light .cg-pb{background:rgba(0,
 .wm-nar{position:absolute;left:3vw;bottom:2vh;z-index:5;display:flex;align-items:flex-end;flex-direction:row-reverse;gap:1.4vw;pointer-events:none;opacity:0;transform:translateY(12vh) scale(.9);transform-origin:50% 100%;transition:opacity .4s,transform .7s cubic-bezier(.2,1.4,.3,1)}
 .wm-nar.on{opacity:1;transform:none}
 .wm-nar .wm-win{height:30vh;width:auto;filter:drop-shadow(0 1.2vh 2vh rgba(0,0,0,.45));transform-origin:50% 100%}
-.wm-nar.on .wm-win{animation:wmw0 3.2s ease-in-out infinite}
-.wm-nar.on[data-r="1"] .wm-win{animation-name:wmw1}.wm-nar.on[data-r="2"] .wm-win{animation-name:wmw2}.wm-nar.on[data-r="3"] .wm-win{animation-name:wmw3}
-.wm-nar.talk .wm-win{animation-duration:.5s!important}
+.wm-nar.on .wm-win{animation:none}
 @keyframes wmw0{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-1vh) rotate(1.2deg)}}
 @keyframes wmw1{0%,100%{transform:translateY(0) scale(1,1)}30%{transform:translateY(-3vh) scale(.97,1.04)}55%{transform:translateY(0) scale(1.04,.96)}}
 @keyframes wmw2{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-.6vh)}}
@@ -7186,9 +7184,17 @@ const AVGA={
  w12:'',w14:'',w16:''
 };
 const bgSc=id=>{const it=avItem('bg',id);let sc=(it&&it[5])||'';const d=(BGD[id]||'')+(AVGD[id]?'<g transform="translate(0,-16)">'+AVGD[id]()+(AVGA[id]||'')+'</g>':'');return d?sc.replace(/<\/svg>\s*$/,d+'</svg>'):sc};
+/* ===== rig de animación: el Winter se parte por zonas (brazos, piernas, torso, cabeza) con recortes del mismo dibujo, así cada prenda se mueve con su zona ===== */
+function avRig(P,FM){const X=x=>FM?100+(x-100)*.88:x,u=AVU,low=P.slice(1,9).join(''),back=P[0],b6=P[9],hand=P[P.length-2],head=P.slice(10,P.length-2).join('');
+  const rc=(i,d)=>`<clipPath id="rg${i}${u}"><path d="${d}"/></clipPath>`;
+  const R=(x1,y1,x2,y2)=>`M${x1} ${y1}H${x2}V${y2}H${x1}Z`;
+  const defs='<defs>'+rc('LA',R(-300,146,X(68),270))+rc('RA',R(X(132),146,500,270))+rc('TO',R(X(58),130,X(142),262))
+   +rc('LL',`M${X(64)} 244H100V400H-300V268H${X(64)}Z`)+rc('RL',`M${X(136)} 244H100V400H500V268H${X(136)}Z`)+'</defs>';
+  const cp=(i,c)=>`<g clip-path="url(#rg${i}${u})">${c}</g>`;
+  return defs+`<g data-rg="root">${back}<g data-rg="ll">${cp('LL',low)}</g><g data-rg="rl">${cp('RL',low)}</g><g data-rg="up">${cp('TO',low)}${b6}<g data-rg="hd">${head}</g><g data-rg="la">${cp('LA',low)}</g><g data-rg="ra">${cp('RA',low)}${hand}</g></g></g>`}
 let AVN=0;function avSVG(av,o){o=o||{};AVU='_'+(++AVN);const a=avXm(avNorm(av)),it=c=>avItem(c,a[c]),s=it('skin')[4],k={s,sd:avSh(s,-.14),h:it('hc')[4],hd:avSh(it('hc')[4],-.22)},cT=cvx(a.topc),cB=cvx(a.botc),tp=it('top'),long=tp[5]==='long',FM=a.g==='f';
   const hatS=(h=>{const c=HATSC[a.hat];return c&&h?`<g transform="translate(100 92) scale(${c[0]} ${c[1]}) translate(-100 -92)">${h}</g>`:h})(RC(it('hat')[4](k),NOCOL.has(a.hat)?null:a.hatc)),HC=HATCOV.has(a.hat),HM=HATMASK.has(a.hat),vb=o.vb||(o.floor===false?'-24 -14 248 342':'-24 -14 248 368'),hcl=HC?`<clipPath id="avHk${AVU}"><path clip-rule="evenodd" d="M-100 -100H300V400H-100Z M${(HATW[a.hat]||[0,200])[0]} -90H${(HATW[a.hat]||[0,200])[1]}V95Q100 78 ${(HATW[a.hat]||[0,200])[0]} 95Z"/></clipPath>`:HM?`<mask id="avHm${AVU}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="500" height="600"><rect x="-100" y="-100" width="500" height="600" fill="#fff"/><g filter="url(#${HATDIL.has(a.hat)?'avBk2':'avBk'})">${hatS}</g></mask>`:'',hcw=x=>HC?`<g clip-path="url(#avHk${AVU})">${x}</g>`:HM?`<g mask="url(#avHm${AVU})">${x}</g>`:x;
-  const body=[
+  const P=[
    RC(it('back')[4](k),a.backc),
    FM?'<g transform="translate(100 0) scale(.88 1) translate(-100 0)">':'',
    PT('M64 244L100 246V300Q100 318 82 318Q52 318 50 302Q50 290 58 278Q62 262 64 244Z','M0 0H1V1H0Z',k,1)+PT('M136 244L100 246V300Q100 318 118 318Q148 318 150 302Q150 290 142 278Q138 262 136 244Z','M124 240H170V330H124Z',k,2)+inkP('M100 248V304',3.6),
@@ -7209,7 +7215,8 @@ let AVN=0;function avSVG(av,o){o=o||{};AVU='_'+(++AVN);const a=avXm(avNorm(av)),
    RC(it('glass')[4](k),NOCOL.has(a.glass)?null:a.glassc),hatS,
    (h=>{const m=h[5]||{},x=m.x||160,o=RC(h[4](k),NOCOL.has(a.hand)?null:a.handc);return o?'<g transform="rotate('+(m.r||0)+' '+x+' 250) translate('+(m.dx||0)+' '+(m.dy||0)+')"><g class="'+(m.a||'')+'">'+o+'</g></g>':''})(it('hand')),
    ''
-  ].join('');
+  ];
+  const body=o.rig?avRig(P,FM):P.join('');
   const f=o.floor===false?'':avPlat(a.bg);
   return `<svg class="avx ${o.cls||''}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="avBk2" x="-20%" y="-20%" width="140%" height="140%"><feMorphology operator="dilate" radius="10 3"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/></filter><filter id="avBk"><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/></filter><filter id="avHd" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.6"/></filter><filter id="avInk" x="-6%" y="-6%" width="112%" height="112%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3.4"/></filter><radialGradient id="avAura${AVU}"><stop offset=".35" stop-color="#ffd34d" stop-opacity=".0"/><stop offset=".7" stop-color="#ffd34d" stop-opacity=".35"/><stop offset="1" stop-color="#ffd34d" stop-opacity="0"/></radialGradient></defs>${f}${body}</svg>`}
 
@@ -8388,8 +8395,12 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   const T=[];if(!fb&&d.tot>0)T.push([cu(d.tot.toFixed(0)),'horas']);T.push([cu(d.played),'juegos']);if(d.done.length)T.push([cu(d.done.length),'terminados']);if(!fb&&d.streak>1)T.push([cu(d.streak),'días de racha']);if(rvc)T.push([cu(rvc),'reseñas']);if(d.ach>0)T.push([cu(d.ach),'logros']);if(!fb&&d.dn>0&&d.tot>0)T.push([cu((d.tot/d.dn).toFixed(1),1),'h por día activo']);
   if(T.length>=3)add('#134e4a,#4338ca',`<div class="wm-k">EN RESUMEN</div><div class="wm-rc">${T.slice(0,6).map(([n,l],i)=>`<div style="--r:${i}">${n}<span>${l}</span></div>`).join('')}</div>`,6000);
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
-  try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br})})}catch(e){}
+  try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d)})}catch(e){}
   return S_}
+function wmGes(h,d){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'';
+  if(/^WINTEER/.test(t))return 'wave';if(/TIEMPO/.test(t))return d.tot>=100?'grab':'shrug';if(/BIBLIOTECA/.test(t))return 'shrug';if(/Nº 1/.test(t))return 'point';if(/SAGA/.test(t))return 'nod';if(/TOP/.test(t))return 'point';
+  if(/CALIFICADO/.test(t))return 'cheer';if(/CLIP|CAPTURA/.test(t))return 'point';if(/GÉNEROS/.test(t))return 'think';if(/MES FUERTE/.test(t))return 'laugh';if(/TERMINASTE/.test(t))return 'cheer';
+  if(/DIARIO/.test(t))return 'nod';if(/DÍA FAVORITO/.test(t))return 'point';if(/LOGROS/.test(t))return 'hop';if(/JUEGO DEL AÑO/.test(t))return 'cheer';if(/RESUMEN/.test(t))return 'nod';if(/ASÍ FUE/.test(t))return 'wave';return 'nod'}
 function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a=>a[Math.floor(Math.random()*a.length)],hs=n=>Math.round(n);
   const top=c.top&&c.top.name;
   if(/^WINTEER/.test(t))return R(['Ey, soy yo. Sentate que te cuento cómo te fue.','Llegó el momento. Te vengo mirando jugar hace rato.','Preparate, porque no te voy a cuidar los sentimientos.']);
@@ -8442,23 +8453,57 @@ function wmLoop(t){const cv=$('#wmcv');if(!WM||!cv)return;requestAnimationFrame(
     if(p.k==='r'){x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.6);x.restore()}else if(p.k==='s'){x.shadowColor='#fff';x.shadowBlur=10;x.beginPath();x.arc(p.x,p.y,p.s,0,7);x.fill();x.shadowBlur=0}else{x.shadowColor=p.c;x.shadowBlur=8;x.beginPath();x.arc(p.x,p.y,p.s*Math.max(.3,p.l),0,7);x.fill();x.shadowBlur=0}}x.globalAlpha=1}
 function wmCount(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu),dec=+el.dataset.dec||0,t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/1700),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec).replace('.',',')+(el.dataset.suf||'');if(k<1&&WM)requestAnimationFrame(f)})(t0)})}
 function wmSplit(root){root.querySelectorAll('.wm-huge,.wm-h2').forEach(h=>{const tx=h.textContent;let n=0;h.innerHTML=tx.split(' ').map(w=>`<span class="w">${[...w].map(ch=>`<span class="ch" style="--i:${n++}">${esc(ch)}</span>`).join('')}</span>`).join(' ')})}
-function wmSay(txt){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearInterval(WM.ty);clearTimeout(WM.tw);try{speechSynthesis.cancel()}catch(e){}
+/* ===== motor de animación del Winter: resortes críticamente amortiguados por articulación + gestos por línea de tiempo ===== */
+const WRP={bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0};
+function wrNew(svg){const g={};svg.querySelectorAll('[data-rg]').forEach(e=>g[e.dataset.rg]=e);const eyes=svg.querySelector('.avx-eyes');const r={svg,g,eyes,x:{},v:{},t:{},w:{},z:{},tl:[],raf:0,last:0,t0:performance.now(),bl:performance.now()+2500,alive:true};
+  for(const k in WRP){r.x[k]=WRP[k];r.v[k]=0;r.t[k]=WRP[k];r.w[k]=16;r.z[k]=.7}
+  svg.style.overflow='visible';
+  const tick=now=>{if(!r.alive||!svg.isConnected){r.alive=false;return}r.raf=requestAnimationFrame(tick);const dt=Math.min(.05,(now-(r.last||now))/1000);r.last=now;wrStep(r,dt,now)};r.raf=requestAnimationFrame(tick);return r}
+function wrStep(r,dt,now){if(!dt)return;const T=(now-r.t0)/1000;
+  for(const k in r.x){let w=r.w[k],z=r.z[k],x=r.x[k],v=r.v[k],tg=r.t[k];
+    const n=Math.max(1,Math.ceil(dt/.008)),h=dt/n;for(let i=0;i<n;i++){const a=w*w*(tg-x)-2*z*w*v;v+=a*h;x+=v*h}r.x[k]=x;r.v[k]=v}
+  const x=r.x,br=Math.sin(T*2.1),sw=Math.sin(T*1.3);
+  const set=(n,t)=>{const e=r.g[n];if(e)e.setAttribute('transform',t)};
+  set('root',`translate(${x.bx} ${x.by+br*-.9}) translate(100 318) scale(${x.sx*(1-br*.004)} ${x.sy*(1+br*.007)}) translate(-100 -318)`);
+  set('ll',`rotate(${x.ll} 80 248)`);set('rl',`rotate(${x.rl} 120 248)`);
+  set('up',`rotate(${x.lean+sw*.5} 100 250)`);set('hd',`rotate(${x.hd+sw*1.2+(r.talk?Math.sin(T*11)*1.8:0)} 100 150)`);
+  set('la',`rotate(${x.la-br*1.2} 46 158)`);set('ra',`rotate(${x.ra+br*1.2} 154 158)`);
+  if(r.eyes){if(now>r.bl){const k=(now-r.bl)/140;if(k>=1){r.bl=now+2200+Math.random()*3200;r.eyes.removeAttribute('transform')}else{const s=1-Math.sin(k*Math.PI)*.9;r.eyes.setAttribute('transform',`translate(0 112) scale(1 ${s.toFixed(3)}) translate(0 -112)`)}}}}
+function wrPose(r,p,o){o=o||{};for(const k in p){r.t[k]=p[k];r.w[k]=o.w||16;r.z[k]=o.z||.7}}
+function wrPlay(r,name){wrStop(r);const gs=WRG[name];if(!gs)return;const idle=Object.assign({},WRP);let t0=0;
+  gs.forEach(([ms,p,o])=>{r.tl.push(setTimeout(()=>{if(r.alive)wrPose(r,p,o)},ms));t0=Math.max(t0,ms)});
+  r.tl.push(setTimeout(()=>{if(r.alive)wrPose(r,idle,{w:11,z:.85})},t0+700))}
+function wrStop(r){r.tl.forEach(clearTimeout);r.tl=[]}
+/* gestos: [ms, pose, {w:rapidez, z:rebote (menor = más rebote)}]. ra negativo = brazo derecho sube hacia afuera; la positivo = izquierdo */
+const WRG={
+ wave:[[0,{ra:-20,lean:-3,by:2,hd:-4},{w:12}],[260,{ra:-150,lean:2,by:0,hd:5},{w:14,z:.5}],[620,{ra:-128},{w:20,z:.55}],[860,{ra:-158},{w:20,z:.55}],[1100,{ra:-128},{w:20,z:.55}],[1340,{ra:-158},{w:20,z:.55}],[1580,{ra:-130},{w:20,z:.55}],[1800,{ra:-6,lean:0,hd:0},{w:11,z:.8}]],
+ hop:[[0,{sy:.9,sx:1.06,by:6,la:6,ra:-6},{w:22,z:.8}],[170,{sy:1.06,sx:.96,by:-26,la:42,ra:-42,ll:6,rl:-6},{w:18,z:.55}],[520,{sy:.93,sx:1.05,by:4,la:8,ra:-8,ll:0,rl:0},{w:26,z:.7}],[720,{sy:1,sx:1,by:0,la:0,ra:0},{w:14,z:.6}]],
+ grab:[[0,{by:3,sy:.97,hd:0},{w:20,z:.8}],[140,{la:158,ra:-158,hd:-6,by:-3,sy:1.02,lean:-2},{w:24,z:.45}],[520,{hd:6,lean:2},{w:20,z:.5}],[760,{hd:-6,lean:-2},{w:20,z:.5}],[980,{hd:5,lean:2},{w:18,z:.55}],[1500,{la:0,ra:0,hd:0,lean:0,by:0,sy:1},{w:10,z:.85}]],
+ shrug:[[0,{by:2,sy:.98},{w:18,z:.8}],[160,{la:34,ra:-34,hd:9,by:-3,sy:1.02,lean:1.5},{w:22,z:.5}],[1100,{la:0,ra:0,hd:0,by:0,sy:1,lean:0},{w:10,z:.85}]],
+ point:[[0,{lean:-4,by:1,hd:-3},{w:14,z:.8}],[200,{ra:-112,lean:3,hd:5,by:-1},{w:20,z:.55}],[330,{ra:-104},{w:30,z:.5}],[700,{ra:-114},{w:30,z:.5}],[1100,{ra:-104},{w:30,z:.5}],[1700,{ra:-4,lean:0,hd:0,by:0},{w:10,z:.85}]],
+ cheer:[[0,{sy:.9,sx:1.06,by:6,la:10,ra:-10},{w:22,z:.8}],[160,{sy:1.07,sx:.95,by:-30,la:158,ra:-158,ll:8,rl:-8,hd:-4},{w:20,z:.5}],[520,{sy:.94,sx:1.04,by:5,la:140,ra:-140,ll:0,rl:0,hd:3},{w:24,z:.6}],[680,{sy:1.05,sx:.96,by:-18,la:162,ra:-162,hd:-3},{w:20,z:.5}],[1000,{sy:.95,by:3,la:148,ra:-148,hd:3},{w:22,z:.6}],[1180,{sy:1.04,by:-14,la:164,ra:-164},{w:20,z:.5}],[1600,{sy:1,sx:1,by:0,la:0,ra:0,hd:0},{w:11,z:.75}]],
+ nod:[[0,{hd:7,by:1},{w:18,z:.6}],[260,{hd:-3,by:0},{w:20,z:.6}],[520,{hd:6,by:1},{w:18,z:.6}],[800,{hd:0,by:0},{w:12,z:.8}]],
+ think:[[0,{hd:-9,lean:-2,la:6},{w:12,z:.8}],[400,{ra:-42,hd:-12,lean:-3},{w:14,z:.7}],[1600,{ra:0,hd:0,lean:0,la:0},{w:9,z:.85}]],
+ laugh:[[0,{lean:-4,sy:.98,by:2,la:30,ra:-30},{w:20,z:.6}],[150,{lean:4,by:-3,hd:6},{w:28,z:.4}],[300,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[450,{lean:4,by:-3,hd:6},{w:28,z:.4}],[600,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[750,{lean:3,by:-2,hd:4},{w:28,z:.4}],[1100,{lean:0,by:0,hd:0,la:0,ra:0,sy:1},{w:10,z:.85}]],
+ bow:[[0,{lean:-14,hd:-8,by:2,la:10,ra:-10},{w:11,z:.75}],[900,{lean:0,hd:0,by:0,la:0,ra:0},{w:9,z:.85}]]
+};
+function wmSay(txt){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearInterval(WM.ty);clearTimeout(WM.tw);if(WM.rig)WM.rig.talk=0;
   if(!txt){w.classList.remove('on');return}
   w.classList.remove('on','talk');w.dataset.r=WM.i%4;void w.offsetWidth;w.classList.add('on');b.textContent='';
-  WM.tw=setTimeout(()=>{if(!WM)return;let k=0;w.classList.add('talk');if(ST.wmvoz!==false&&x9Say())x9Speak(txt);WM.ty=setInterval(()=>{if(!WM||WM.paused)return;k++;b.textContent=txt.slice(0,k);if(k>=txt.length){clearInterval(WM.ty);w.classList.remove('talk')}},26)},700)}
+  WM.tw=setTimeout(()=>{if(!WM)return;let k=0;w.classList.add('talk');if(WM.rig)WM.rig.talk=1;WM.ty=setInterval(()=>{if(!WM||WM.paused)return;k++;b.textContent=txt.slice(0,k);if(k>=txt.length){clearInterval(WM.ty);w.classList.remove('talk');if(WM.rig)WM.rig.talk=0}},26)},700)}
 function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));const s=WM.s[WM.i],el=$('#wm');clearTimeout(WM.tm);WM.L=1+Math.min(3,Math.floor(WM.i*4/WM.s.length));
   el.style.setProperty('--c',s.c.split(',')[0]);el.style.setProperty('--c2',s.c.split(',')[1]);
   const box=$('#wm .wm-s');box.innerHTML=s.h;wmSplit(box);[...box.children].forEach((c,n)=>c.style.setProperty('--n',n));box.dataset.v=WM.i%4;box.classList.remove('go');void box.offsetWidth;box.classList.add('go');
   const fl=$('#wm .wm-fl');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
   $$('#wm .wm-pg i').forEach((b,n)=>{b.style.animation='none';b.style.backgroundSize=n<WM.i?'100% 100%':'0 100%';if(n===WM.i){void b.offsetWidth;b.style.animation=`wmpg ${s.t}ms linear forwards`;b.style.animationPlayState=WM.paused?'paused':'running'}});
-  wmSay(s.n||'');wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
+  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)wrPlay(WM.rig,s.ge)},500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
   WM.t0=Date.now();WM.left=s.t;WM.tm=setTimeout(()=>wmNext(),s.t)}
 function wmNext(){if(!WM)return;if(WM.i>=WM.s.length-1){wmClose(true);return}wmShow(WM.i+1)}
-function wmClose(done){if(!WM)return;clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);try{speechSynthesis.cancel()}catch(e){}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
+function wmClose(done){if(!WM)return;clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);if(WM.rig){WM.rig.alive=false;wrStop(WM.rig)}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
 function wmKey(e){if(!WM)return;if(e.key==='Escape')wmClose();else if(e.key==='ArrowRight')wmNext();else if(e.key==='ArrowLeft')wmShow(WM.i-1);else if(e.key===' '){e.preventDefault();A.wmpause()}}
 function wmOpen(y,q){const sl=wmSlides(y,q);if(!sl.length)return;WM={s:sl,i:0,paused:false,snd:ST.hsnd!==false,P:[],L:1,st:0,nt:0,nf:0,fc:0};
-  const e=document.createElement('div');e.id='wm';e.innerHTML=`<div class="wm-beat"></div><canvas id="wmcv"></canvas><div class="wm-fl"></div><div class="wm-pg">${sl.map(()=>'<i></i>').join('')}</div><div class="wm-ctl"><button data-a="wmpause" title="Pausar (espacio)">❚❚</button><button data-a="wmsnd" title="Música" class="wm-snd">♪</button><button data-a="wmx" title="Cerrar (Esc)">×</button></div><div class="wm-s"></div><div class="wm-nar"><div class="wm-bub"></div>${(()=>{try{return avSVG(avCur(),{floor:false,cls:'wm-win'})}catch(e){return''}})()}</div><div class="wm-zl" data-a="wmprev"></div><div class="wm-zr" data-a="wmnext"></div>`;
-  document.body.appendChild(e);document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
+  const e=document.createElement('div');e.id='wm';e.innerHTML=`<div class="wm-beat"></div><canvas id="wmcv"></canvas><div class="wm-fl"></div><div class="wm-pg">${sl.map(()=>'<i></i>').join('')}</div><div class="wm-ctl"><button data-a="wmpause" title="Pausar (espacio)">❚❚</button><button data-a="wmsnd" title="Música" class="wm-snd">♪</button><button data-a="wmx" title="Cerrar (Esc)">×</button></div><div class="wm-s"></div><div class="wm-nar"><div class="wm-bub"></div>${(()=>{try{return avSVG(avCur(),{floor:false,cls:'wm-win',rig:true})}catch(e){return''}})()}</div><div class="wm-zl" data-a="wmprev"></div><div class="wm-zr" data-a="wmnext"></div>`;
+  document.body.appendChild(e);{const sv=e.querySelector('.wm-win');if(sv)WM.rig=wrNew(sv)}document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
 Object.assign(A,{wmovie:()=>wmOpen(S.wy,S.wq||0),wmx:()=>wmClose(),wmnext:()=>wmNext(),wmprev:()=>wmShow(WM?WM.i-1:0),
  wmpause:()=>{if(!WM)return;WM.paused=!WM.paused;const e=$('#wm');e.classList.toggle('pz',WM.paused);$('#wm [data-a="wmpause"]').innerHTML=WM.paused?ic('play'):'❚❚';$$('#wm .wm-pg i').forEach(b=>b.style.animationPlayState=WM.paused?'paused':'running');
   if(WM.paused){clearTimeout(WM.tm);WM.left=Math.max(500,WM.left-(Date.now()-WM.t0))}else{WM.t0=Date.now();WM.tm=setTimeout(wmNext,WM.left);wmMus()}},
