@@ -8452,7 +8452,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/BIBLIOTECA/.test(t))return d.played<8?'Comprate más juegos, rata.':d.played>=25?'Tocá pasto, por favor.':'Buen año, me divertí bastante.';
   if(/Nº 1/.test(t))return 'Merca de la buena.';
   if(/SAGA/.test(t)){let sg=null;try{sg=wrapSaga(d)}catch(e){}return sg&&sg.dn>=sg.tot?'Así se juega una saga, de punta a punta.':'Te quedaron capítulos pendientes, ¿eh?'}
-  if(/TOP/.test(t))return R(['Después dicen que no tenés gustos definidos.','Cinco juegos y ninguno sobra.']);
+  if(/TOP/.test(t))return 'Comimos bien este año.';
   if(/CALIFICADO/.test(t))return R(['Y es verdad, es una joya.','Gusto impecable.']);
   if(/CLIP|CAPTURA/.test(t))return 'Esto lo guardaste vos. Buen ojo.';
   if(/GÉNEROS/.test(t))return R(['Mucho, bastante, casi siempre.','Se nota que te va.']);
