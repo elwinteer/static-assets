@@ -33,6 +33,7 @@
       "main.js",
       "preload.js",
       "dl.js",
+      "src.js",
       "index.html",
       "icon.ico",
       "icon.png",

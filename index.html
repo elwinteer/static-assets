@@ -3645,6 +3645,9 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .dlc .pb{height:6px;border-radius:9px;background:rgba(255,255,255,.1);margin-top:8px;overflow:hidden}.dlc .pb i{display:block;height:100%;background:#f3f4f6;border-radius:9px;transition:width .3s}
 .dlc.er .pb i{background:#ff7b7b}.dlc.ok .pb i{background:#7be0a0}.dlc .ac{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .dlst{font-weight:600;color:#f3f4f6}.dlc.er .dlst{color:#ff9a9a}.dlc.ok .dlst{color:#7be0a0}
+.srr{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}.srr:first-child{border-top:0}.srr b{font-size:14px}.srr small{color:var(--muted);display:block;word-break:break-all}.srr .e{color:#ff9a9a}.srr .ac{display:flex;gap:6px;flex-wrap:wrap}
+.srg{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.07)}.srg:first-child{border-top:0}.srg small{display:block;color:var(--muted)}.srg select{background:var(--card2);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px;max-width:150px}
+.ctsrc{margin:14px 0 4px;padding:12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:grid;gap:8px}.ctsrc>small{color:#9ca3af}.ctsrc .srg{border-color:rgba(255,255,255,.08)}.ctsrc .dlb{height:auto}
 .dlempty{color:var(--muted);padding:18px;text-align:center;border:1px dashed rgba(255,255,255,.12);border-radius:14px}
 @media(max-width:700px){.dlc{grid-template-columns:48px 1fr}.dlc .ac{grid-column:1/-1;justify-content:flex-start}}
 .ctq{display:flex;gap:10px;margin-bottom:14px}.ctq input{flex:1;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:var(--card2);color:var(--text);padding:0 18px;font-size:15px;outline:none}.ctq input:focus{border-color:#f3f4f6}
@@ -11424,8 +11427,10 @@ async function ctOpen(id){ctClose();const it=CT.map[id]||{},o=document.createEle
   <div class="ctdt" ${st()}>${own?'<span class="ow">✔ En tu biblioteca</span>':''}${(d.genres||[]).slice(0,4).map(x=>`<span>${esc(x.description)}</span>`).join('')}${feats.slice(0,4).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
   <p class="ctdp" ${st()}>${esc(d.short_description||'')}</p>
   <div class="ctdi" ${st()}><div><small>Lanzamiento</small><b>${esc((d.release_date||{}).date||'—')}</b></div><div><small>Desarrollador</small><b>${esc((d.developers||[]).join(', ')||'—')}</b></div><div><small>Editor</small><b>${esc((d.publishers||[]).join(', ')||'—')}</b></div><div><small>Metacritic</small><b>${d.metacritic?d.metacritic.score:'—'}</b></div><div><small>Plataformas</small><b>${[pl.windows&&'Windows',pl.mac&&'Mac',pl.linux&&'Linux'].filter(Boolean).join(' · ')||'—'}</b></div><div><small>Idiomas</small><b>${d.supported_languages?(d.supported_languages.replace(/<[^>]*>/g,'').split(',').length)+' idiomas':'—'}</b></div></div>
-  <div class="ctdg" ${st()}><button data-a="ctsteam" data-id="${id}">Abrir en Steam</button><button class="s" data-a="ctclose">Cerrar</button></div>`}
+  <div id="ct-src"></div>
+  <div class="ctdg" ${st()}><button data-a="ctsteam" data-id="${id}">Abrir en Steam</button><button class="s" data-a="ctclose">Cerrar</button></div>`;ctSrc(id,cv)}
 function ctClose(){const o=$('#ct-d');if(o)o.remove()}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='sr-q'){SRS.q=e.target.value;clearTimeout(srLoad.t);srLoad.t=setTimeout(()=>srLoad().catch(()=>{}),250)}});
 document.addEventListener('keydown',e=>{if(!$('#ct-d'))return;if(e.key==='Escape'){ctClose();e.stopPropagation()}else if(e.key==='ArrowRight'){ctMedia((CT.mi||0)+1);e.stopPropagation()}else if(e.key==='ArrowLeft'){ctMedia((CT.mi||0)-1);e.stopPropagation()}},true);
 Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.dataset.v;ctRef()},ctfree:()=>{CT.free=!CT.free;ctRef()},ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
 {const e=$('#i-cat');if(e)e.outerHTML=ic('cat')}
@@ -11469,6 +11474,10 @@ function dlDiskTxt(){const d=DLS.disk;return d&&d.free>=0?`Espacio libre en ${es
 V.dl=()=>{setTimeout(dlInit,0);const c=DLS.cfg||{};
   if(!(window.winteerNative&&winteerNative.dlAdd))return `<div class="dlv"><h1>Descargas</h1><div class="dlempty">El centro de descargas funciona en la app de escritorio de WINTEER.</div></div>`;
   return `<div class="dlv"><h1>Descargas</h1><small class="sub" id="dl-disk">${dlDiskTxt()}</small>
+  <h2>Fuentes</h2><div class="dlbox"><small class="sub">Una fuente es un enlace a un manifiesto (lista de juegos y archivos) publicado por quien distribuye el contenido. WINTEER no incluye ninguna: agregá solo fuentes que tengan permiso para distribuir esos juegos.</small>
+   <div id="sr-l">${srRows()}</div>
+   <div class="dlrow"><label>Enlace del manifiesto<input type="text" id="sr-u" placeholder="https://…/manifest.json"></label><label>Nombre (opcional)<input type="text" id="sr-n"></label><button class="dlb" data-a="sradd">Agregar fuente</button></div></div>
+  <h2>Disponible en tus fuentes</h2><div class="dlbox"><input type="text" id="sr-q" placeholder="Buscar en tus fuentes…" value="${esc(SRS.q)}"><div id="sr-g">${srGames()}</div></div>
   <h2>Agregar por enlace</h2><div class="dlbox">
    <div class="dlrow"><label>Nombre del juego<input type="text" id="dl-n" placeholder="Ej: Mi Juego"></label><label>ID único (opcional)<input type="text" id="dl-g" placeholder="steam:730 o un nombre propio"></label></div>
    <label>Enlace(s) de descarga — uno por línea, solo de fuentes que tengan permiso para distribuir el juego<textarea id="dl-u" rows="3" placeholder="https://…/juego.zip"></textarea></label>
@@ -11486,7 +11495,7 @@ async function dlInit(){
   const [l,c]=await Promise.all([winteerNative.dlList(),winteerNative.dlGetCfg()]);
   if(l&&l.ok){DLS.items=new Map(l.r.map(i=>[i.id,i]))}
   if(c&&c.ok)DLS.cfg=c.r;
-  await dlDisk();dlBadge();
+  await dlDisk();dlBadge();try{await srLoad()}catch(e){}
   const c2=DLS.cfg;if(c2&&S.view==='dl'){const set=(k,v)=>{const e=$('#'+k);if(e&&!e.value)e.value=v};set('dc-dl',c2.dlDir||'');set('dc-in',c2.installDir||'');const sp=$('#dc-sp');if(sp&&sp===document.activeElement===false)sp.value=c2.speedLimit?+(c2.speedLimit/1048576).toFixed(2):0;const ma=$('#dc-ma');if(ma)ma.value=c2.maxActive||3;const ka=$('#dc-ka');if(ka)ka.checked=!!c2.keepArchives;const di=$('#dl-d');if(di)di.placeholder=c2.installDir||''}
   dlPaint();
 }
@@ -11497,8 +11506,26 @@ function dlPatch(i){
   const el=document.querySelector(`.dlc[data-dlid="${i.id}"]`),prev=DLS.st&&DLS.st[i.id];
   DLS.st=DLS.st||{};DLS.st[i.id]=i.status;
   if(el&&prev===i.status){const t=document.createElement('div');t.innerHTML=dlCard(i);el.replaceWith(t.firstChild)}else dlPaint()}
+const SRS={list:[],games:[],q:''};
+const srAgo=t=>{if(!t)return 'nunca';const m=Math.round((Date.now()-t)/60000);return m<1?'recién':m<60?'hace '+m+' min':m<1440?'hace '+Math.round(m/60)+' h':'hace '+Math.round(m/1440)+' d'};
+function srRows(){return SRS.list.length?SRS.list.map(s=>`<div class="srr"><div><b>${esc(s.name)}</b> <small style="display:inline">· ${s.games} juegos · actualizada ${srAgo(s.updatedAt)}${s.enabled?'':' · desactivada'}</small><small>${esc(s.url)}</small>${s.error?`<small class="e">${esc(s.error)} (uso la última copia guardada)</small>`:''}</div><div class="ac"><button class="dlb sm s" data-a="srtog" data-id="${s.id}">${s.enabled?'Desactivar':'Activar'}</button><button class="dlb sm s" data-a="srref" data-id="${s.id}">Actualizar</button><button class="dlb sm r" data-a="srdel" data-id="${s.id}">Quitar</button></div></div>`).join(''):'<div class="dlempty">Todavía no agregaste ninguna fuente.</div>'}
+const srVer=(g,i)=>g.versions.length>1?`<select id="sv-${i}">${g.versions.map((v,k)=>`<option value="${k}">${esc(v.version||'versión '+(k+1))}${v.transport==='torrent'?' (torrent)':''}</option>`).join('')}</select>`:`<small>${esc(g.versions[0].version||'')}${g.versions[0].size?' · '+dlBytes(g.versions[0].size):''}</small>`;
+function srGames(){return SRS.games.length?SRS.games.slice(0,80).map((x,i)=>`<div class="srg"><div><b>${esc(x.game.name)}</b><small>${esc(x.source.name)}</small></div>${srVer(x.game,i)}<button class="dlb sm" data-a="srdl" data-i="${i}">Descargar</button></div>`).join(''):`<div class="dlempty">${SRS.list.some(s=>s.enabled)?'No hay juegos que coincidan.':'Agregá una fuente para ver juegos acá.'}</div>`}
+async function srLoad(){const N=winteerNative;if(!N.srcList)return;const [a,b]=await Promise.all([N.srcList(),N.srcGames(SRS.q)]);if(a&&a.ok)SRS.list=a.r;if(b&&b.ok)SRS.games=b.r;const l=$('#sr-l');if(l)l.innerHTML=srRows();const g=$('#sr-g');if(g)g.innerHTML=srGames()}
+async function srStart(x,ver,name){const r=await winteerNative.srcDl({sourceId:x.source.id,gid:x.gid,version:ver,cover:x.cover});if(!r.ok)return dlErr(r);
+  toast(r.r.dup?'Ya está en la lista de descargas':(name||'Juego')+': descarga iniciada');DLS.items.set(r.r.id,r.r);dlBadge();if(S.view==='dl')dlPaint()}
+async function ctSrc(id,cv){const e=$('#ct-src');if(!e||!(window.winteerNative&&winteerNative.srcLookup))return;
+  const r=await winteerNative.srcLookup('steam:'+id);if(!r||!r.ok||!r.r.length||!$('#ct-src'))return;
+  CT.sr=r.r.map(x=>({source:x.source,game:x.game,gid:'steam:'+id,cover:cv}));
+  $('#ct-src').innerHTML=`<div class="ctsrc"><small>Disponible en tus fuentes</small>${CT.sr.map((x,i)=>`<div class="srg"><div><b>${esc(x.source.name)}</b></div>${srVer(x.game,'c'+i)}<button class="dlb sm" data-a="ctdl" data-i="${i}">Descargar e instalar</button></div>`).join('')}</div>`}
 const dlErr=r=>toast(r&&r.err?r.err:'No se pudo completar la acción');
 Object.assign(A,{
+  sradd:async()=>{const u=$('#sr-u').value.trim();if(!u)return toast('Pegá el enlace del manifiesto');toast('Leyendo la fuente…');const r=await winteerNative.srcAdd(u,$('#sr-n').value.trim());if(!r.ok)return dlErr(r);toast('Fuente agregada: '+r.r.games+' juegos');$('#sr-u').value='';$('#sr-n').value='';srLoad()},
+  srdel:async a=>{if(!confirm('¿Quitar esta fuente? Los juegos ya instalados no se tocan.'))return;await winteerNative.srcRemove(a.dataset.id);srLoad()},
+  srtog:async a=>{const s=SRS.list.find(x=>x.id===a.dataset.id);if(s){await winteerNative.srcToggle(s.id,!s.enabled);srLoad()}},
+  srref:async a=>{toast('Actualizando…');const r=await winteerNative.srcRefresh(a.dataset.id);await srLoad();const x=r.ok&&r.r[0];toast(x&&!x.ok?'No pude actualizar: '+x.error:'Fuente actualizada')},
+  srdl:a=>{const i=+a.dataset.i,x=SRS.games[i];if(!x)return;const s=$('#sv-'+i);srStart({source:x.source,gid:x.game.ids[0],cover:x.game.cover},s?+s.value:0,x.game.name)},
+  ctdl:a=>{const i=+a.dataset.i,x=CT.sr&&CT.sr[i];if(!x)return;const s=$('#sv-c'+i);srStart(x,s?+s.value:0,x.game.name)},
   dladd:async()=>{
     const n=$('#dl-n').value.trim(),u=$('#dl-u').value.split(/\s+/).map(x=>x.trim()).filter(Boolean),hs=$('#dl-h').value.trim().toLowerCase(),d=$('#dl-d').value.trim();
     if(!n)return toast('Poné el nombre del juego');if(!u.length)return toast('Pegá al menos un enlace');

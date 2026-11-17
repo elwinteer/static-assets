@@ -13,7 +13,7 @@ const { pathToFileURL, fileURLToPath } = require('url');
 protocol.registerSchemesAsPrivileged([{ scheme: 'wimg', privileges: { standard: true, secure: true, supportFetchAPI: true, bypassCSP: true, stream: true } }]);
 if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 
-let dlEng = null, win = null, tray = null, quitting = false, fromBg = false, padProc = null;
+let dlEng = null, srcEng = null, win = null, tray = null, quitting = false, fromBg = false, padProc = null;
 const CFGF = path.join(app.getPath('userData'), 'winteer-cfg.json');
 let cfg = { bg: false, auto: false, pad: true, shots: true, shotKey: 'F12', clipKey: 'F9', ovKey: 'Shift+Tab' };
 try { cfg = Object.assign(cfg, JSON.parse(fs.readFileSync(CFGF, 'utf8'))); } catch (e) {}
@@ -3089,6 +3089,18 @@ app.whenReady().then(() => {
     ipcMain.handle('dlGetCfg', dlWrap(() => dlEng.getCfg()));
     ipcMain.handle('dlSetCfg', dlWrap((a) => dlEng.setCfg(a)));
     ipcMain.handle('dlDisk', dlWrap((a) => dlEng.disk(a.path)));
+    const { Sources } = require('./src.js');
+    srcEng = new Sources({ file: path.join(app.getPath('userData'), 'sources.json'), dir: path.join(app.getPath('userData'), 'sources') }).load();
+    setTimeout(() => { try { if (srcEng.list().length) srcEng.refresh(); } catch (e) {} }, 8000);
+    ipcMain.handle('srcList', dlWrap(() => srcEng.list()));
+    ipcMain.handle('srcAdd', dlWrap((a) => srcEng.add(a.url, a.name)));
+    ipcMain.handle('srcRemove', dlWrap((a) => srcEng.remove(a.id)));
+    ipcMain.handle('srcToggle', dlWrap((a) => srcEng.setEnabled(a.id, a.on)));
+    ipcMain.handle('srcRename', dlWrap((a) => srcEng.rename(a.id, a.name)));
+    ipcMain.handle('srcRefresh', dlWrap((a) => srcEng.refresh(a.id)));
+    ipcMain.handle('srcLookup', dlWrap((a) => srcEng.lookup(a.gid)));
+    ipcMain.handle('srcGames', dlWrap((a) => srcEng.games(a.q, 200)));
+    ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.gid), a.version | 0, { cover: a.cover || undefined, installDir: a.installDir || undefined }))));
     ipcMain.handle('dlPickDir', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí una carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
   } catch (e) { console.error('dl init', e); }
   ipcMain.handle('bkCheck', async (_e, o) => bkCheck(o || {}));
