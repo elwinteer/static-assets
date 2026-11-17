@@ -7186,12 +7186,18 @@ const AVGA={
 const bgSc=id=>{const it=avItem('bg',id);let sc=(it&&it[5])||'';const d=(BGD[id]||'')+(AVGD[id]?'<g transform="translate(0,-16)">'+AVGD[id]()+(AVGA[id]||'')+'</g>':'');return d?sc.replace(/<\/svg>\s*$/,d+'</svg>'):sc};
 /* ===== rig de animación: el Winter se parte por zonas (brazos, piernas, torso, cabeza) con recortes del mismo dibujo, así cada prenda se mueve con su zona ===== */
 function avRig(P,FM){const X=x=>FM?100+(x-100)*.88:x,u=AVU,low=P.slice(1,9).join(''),back=P[0],b6=P[9],hand=P[P.length-2],head=P.slice(10,P.length-2).join('');
+  /* recortes que siguen la silueta real: brazos hasta la curva de la mano, piernas desde esa curva, torso entre las líneas de tinta; todos se pisan 1 px para no dejar grietas */
+  const pt=(x,y)=>X(x)+' '+y,M=x=>200-x;
+  const L=(...a)=>a.map(([c,x,y,x2,y2])=>c==='Q'?`Q${pt(x,y)} ${pt(x2,y2)}`:`${c}${pt(x,y)}`).join('');
   const rc=(i,d)=>`<clipPath id="rg${i}${u}"><path d="${d}"/></clipPath>`;
-  const R=(x1,y1,x2,y2)=>`M${x1} ${y1}H${x2}V${y2}H${x1}Z`;
-  const defs='<defs>'+rc('LA',R(-300,146,X(68),270))+rc('RA',R(X(132),146,500,270))+rc('TO',R(X(58),130,X(142),262))
-   +rc('LL',`M${X(64)} 244H100V400H-300V268H${X(64)}Z`)+rc('RL',`M${X(136)} 244H100V400H500V268H${X(136)}Z`)+'</defs>';
+  const arm=m=>{const f=m?M:(x=>x);return 'M'+pt(f(m?-300:-300),146)+L(['L',f(67.8),146],['L',f(67.8),246],['L',f(66),252],['L',f(64),255.5],['Q',f(52),269.5,f(34),263.5],['L',f(-300),263.5])+'Z'};
+  const leg=m=>{const f=m?M:(x=>x);return 'M'+pt(f(-300),270)+L(['L',f(34),270],['L',f(34),262.5],['Q',f(52),268.5,f(64),254.5],['L',f(66),250],['L',f(67),244],['L',f(100),244],['L',f(100),400],['L',f(-300),400])+'Z'};
+  const defs='<defs>'+rc('LA',arm(0))+rc('RA',arm(1))+rc('TO',`M${pt(64.2,130)}H${X(135.8)}V262H${X(64.2)}Z`)+rc('LL',leg(0))+rc('RL',leg(1))+'</defs>';
   const cp=(i,c)=>`<g clip-path="url(#rg${i}${u})">${c}</g>`;
-  return defs+`<g data-rg="root">${back}<g data-rg="ll">${cp('LL',low)}</g><g data-rg="rl">${cp('RL',low)}</g><g data-rg="up">${cp('TO',low)}${b6}<g data-rg="hd">${head}</g><g data-rg="la">${cp('LA',low)}</g><g data-rg="ra">${cp('RA',low)}${hand}</g></g></g>`}
+  /* trazos de corte: aparecen solo cuando un miembro se separa, para que el borde tenga contorno como el resto del dibujo */
+  const sm=(k,d)=>`<g data-sm="${k}" style="opacity:0">${inkP(d,3.6)}</g>`;
+  const lineL=`M${pt(66,150)}V${184}M${pt(66,236)}V${252}`,lineR=`M${pt(134,150)}V${184}M${pt(134,236)}V${252}`;
+  return defs+`<g data-rg="root">${back}<g data-rg="ll">${cp('LL',low)}</g><g data-rg="rl">${cp('RL',low)}</g><g data-rg="up">${cp('TO',low)}${b6}${sm('tl',lineL)}${sm('tr',lineR)}<g data-rg="hd">${head}</g><g data-rg="la">${cp('LA',low)}${sm('la',lineL)}</g><g data-rg="ra">${cp('RA',low)}${sm('ra',lineR)}${hand}</g></g></g>`}
 let AVN=0;function avSVG(av,o){o=o||{};AVU='_'+(++AVN);const a=avXm(avNorm(av)),it=c=>avItem(c,a[c]),s=it('skin')[4],k={s,sd:avSh(s,-.14),h:it('hc')[4],hd:avSh(it('hc')[4],-.22)},cT=cvx(a.topc),cB=cvx(a.botc),tp=it('top'),long=tp[5]==='long',FM=a.g==='f';
   const hatS=(h=>{const c=HATSC[a.hat];return c&&h?`<g transform="translate(100 92) scale(${c[0]} ${c[1]}) translate(-100 -92)">${h}</g>`:h})(RC(it('hat')[4](k),NOCOL.has(a.hat)?null:a.hatc)),HC=HATCOV.has(a.hat),HM=HATMASK.has(a.hat),vb=o.vb||(o.floor===false?'-24 -14 248 342':'-24 -14 248 368'),hcl=HC?`<clipPath id="avHk${AVU}"><path clip-rule="evenodd" d="M-100 -100H300V400H-100Z M${(HATW[a.hat]||[0,200])[0]} -90H${(HATW[a.hat]||[0,200])[1]}V95Q100 78 ${(HATW[a.hat]||[0,200])[0]} 95Z"/></clipPath>`:HM?`<mask id="avHm${AVU}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="500" height="600"><rect x="-100" y="-100" width="500" height="600" fill="#fff"/><g filter="url(#${HATDIL.has(a.hat)?'avBk2':'avBk'})">${hatS}</g></mask>`:'',hcw=x=>HC?`<g clip-path="url(#avHk${AVU})">${x}</g>`:HM?`<g mask="url(#avHm${AVU})">${x}</g>`:x;
   const P=[
@@ -8457,7 +8463,7 @@ function wmSplit(root){root.querySelectorAll('.wm-huge,.wm-h2').forEach(h=>{cons
 const WRP={bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0};
 function wrNew(svg){const g={};svg.querySelectorAll('[data-rg]').forEach(e=>g[e.dataset.rg]=e);const eyes=svg.querySelector('.avx-eyes');const r={svg,g,eyes,x:{},v:{},t:{},w:{},z:{},tl:[],raf:0,last:0,t0:performance.now(),bl:performance.now()+2500,alive:true};
   for(const k in WRP){r.x[k]=WRP[k];r.v[k]=0;r.t[k]=WRP[k];r.w[k]=16;r.z[k]=.7}
-  svg.style.overflow='visible';
+  svg.style.overflow='visible';r.sm={};svg.querySelectorAll('[data-sm]').forEach(e=>r.sm[e.dataset.sm]=e);
   const tick=now=>{if(!r.alive||!svg.isConnected){r.alive=false;return}r.raf=requestAnimationFrame(tick);const dt=Math.min(.05,(now-(r.last||now))/1000);r.last=now;wrStep(r,dt,now)};r.raf=requestAnimationFrame(tick);return r}
 function wrStep(r,dt,now){if(!dt)return;const T=(now-r.t0)/1000;
   for(const k in r.x){let w=r.w[k],z=r.z[k],x=r.x[k],v=r.v[k],tg=r.t[k];
@@ -8467,7 +8473,7 @@ function wrStep(r,dt,now){if(!dt)return;const T=(now-r.t0)/1000;
   set('root',`translate(${x.bx} ${x.by+br*-.9}) translate(100 318) scale(${x.sx*(1-br*.004)} ${x.sy*(1+br*.007)}) translate(-100 -318)`);
   set('ll',`rotate(${x.ll} 80 248)`);set('rl',`rotate(${x.rl} 120 248)`);
   set('up',`rotate(${x.lean+sw*.5} 100 250)`);set('hd',`rotate(${x.hd+sw*1.2+(r.talk?Math.sin(T*11)*1.8:0)} 100 150)`);
-  set('la',`rotate(${x.la-br*1.2} 46 158)`);set('ra',`rotate(${x.ra+br*1.2} 154 158)`);
+  set('la',`rotate(${x.la-br*1.2} 46 158)`);set('ra',`rotate(${x.ra+br*1.2} 154 158)`);{const o=(k,v)=>{const e=r.sm&&r.sm[k];if(e)e.style.opacity=Math.max(0,Math.min(1,(Math.abs(v)-1.5)/3)).toFixed(2)};o('la',x.la);o('tl',x.la);o('ra',x.ra);o('tr',x.ra)};
   if(r.eyes){if(now>r.bl){const k=(now-r.bl)/140;if(k>=1){r.bl=now+2200+Math.random()*3200;r.eyes.removeAttribute('transform')}else{const s=1-Math.sin(k*Math.PI)*.9;r.eyes.setAttribute('transform',`translate(0 112) scale(1 ${s.toFixed(3)}) translate(0 -112)`)}}}}
 function wrPose(r,p,o){o=o||{};for(const k in p){r.t[k]=p[k];r.w[k]=o.w||16;r.z[k]=o.z||.7}}
 function wrPlay(r,name){wrStop(r);const gs=WRG[name];if(!gs)return;const idle=Object.assign({},WRP);let t0=0;
