@@ -66,10 +66,10 @@ using System;using System.Runtime.InteropServices;
 public class XI{[StructLayout(LayoutKind.Sequential)]public struct S{public uint P;public ushort B;public byte LT,RT;public short LX,LY,RX,RY;}
 [DllImport("xinput1_4.dll",EntryPoint="#100")]public static extern int Ex(int i,out S s);}
 "@
-$held=0;$was=$false
+$held=0;$gh=0
 while($true){$on=$false;$g=$false;$c=$false
 for($i=0;$i -lt 4;$i++){$s=New-Object XI+S;if([XI]::Ex($i,[ref]$s) -eq 0){$on=$true;if(($s.B -band 0x400) -ne 0){$g=$true};if(($s.B -band 0x30) -eq 0x30){$c=$true}}}
-if($g -and -not $was){Write-Output 'T'};$was=$g
+if($g){$gh++}else{if($gh -gt 0 -and $gh -le 5){Write-Output 'T'};$gh=0}
 if($c){$held++;if($held -eq 8){Write-Output 'T'}}else{$held=0}
 if($on){Start-Sleep -Milliseconds 120}else{Start-Sleep -Milliseconds 1500}}`;
 function startPad() {
