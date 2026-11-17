@@ -1697,6 +1697,8 @@ body.light .cg-i{background:rgba(0,0,0,.06)}body.light .cg-pb{background:rgba(0,
 @keyframes wmpg{from{background-size:0 100%}to{background-size:100% 100%}}
 .wm-ctl{position:absolute;top:34px;right:24px;display:flex;gap:10px;z-index:6}.wm-ctl button{width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(8px)}.wm-ctl button:hover{background:rgba(255,255,255,.3)}.wm-ctl .i{width:18px;height:18px}.wm-snd.off{opacity:.4;text-decoration:line-through}
 #wm.pz .wm-ctl [data-a="wmpause"]{background:#fff;color:#111}
+.wm-cmp{font-weight:700}.wm-cmp.up{color:#86efac}.wm-cmp.dn{color:#fca5a5}
+.wm-cvs{display:flex;gap:1.2vw;margin-top:1.6vh}.wm-cvs img{height:15vh;width:auto;border-radius:1vh;box-shadow:0 1vh 2.4vh rgba(0,0,0,.4)}.wm-cvs img:nth-child(1){transform:rotate(-8deg) translateY(1.6vh)}.wm-cvs img:nth-child(2){transform:rotate(-4deg) translateY(.4vh)}.wm-cvs img:nth-child(3){transform:translateY(-.8vh)}.wm-cvs img:nth-child(4){transform:rotate(4deg) translateY(.4vh)}.wm-cvs img:nth-child(5){transform:rotate(8deg) translateY(1.6vh)}
 .wm-nar{position:absolute;left:3vw;bottom:2vh;z-index:5;display:flex;align-items:flex-end;flex-direction:row-reverse;gap:4.2vw;pointer-events:none;opacity:0;transform:translateX(-46vw)}
 .wm-bub{transform-origin:0 100%;opacity:0}.wm-bub .wd{display:inline-block;opacity:0;transform:translateY(.5em) scale(.9)}.wm-bub.run .wd{opacity:1;transform:none;transition:opacity .4s ease var(--d),transform .55s cubic-bezier(.2,1.4,.4,1) var(--d)}
 .wm-nar .wm-win{height:30vh;width:auto;filter:drop-shadow(0 1.2vh 2vh rgba(0,0,0,.45));transform-origin:50% 100%}
@@ -1707,10 +1709,9 @@ body.light .cg-i{background:rgba(0,0,0,.06)}body.light .cg-pb{background:rgba(0,
 @keyframes wmw3{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-.8vw) rotate(-2deg)}75%{transform:translateX(.8vw) rotate(2deg)}}
 .wm-bub{align-self:center;max-width:30vw;min-height:3.2em;padding:1.6vh 1.5vw;border-radius:2vh 2vh 2vh .6vh;background:rgba(255,255,255,.95);color:#111;font-weight:600;font-size:clamp(14px,1.7vh,22px);line-height:1.35;box-shadow:0 1vh 3vh rgba(0,0,0,.35);text-align:left}
 .wm-bub{position:relative}.wm-bub:before{content:'';position:absolute;left:-9px;bottom:14px;border:9px solid transparent;border-right-color:rgba(255,255,255,.95);border-left:0}.wm-bub:empty{opacity:0}
-.wm-s{padding-bottom:26vh}
 @media(max-width:700px){.wm-nar .wm-win{height:20vh}.wm-bub{max-width:52vw}}
 .wm-zl,.wm-zr{position:absolute;top:80px;bottom:0;z-index:4;cursor:pointer}.wm-zl{left:0;width:30%}.wm-zr{right:0;width:70%}
-.wm-s{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding:80px 8vw;z-index:2}
+.wm-s{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding:80px 8vw 33vh;z-index:2}
 .wm-s>*{opacity:0}.wm-s.go>*{animation:wmin .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n)*.22s)}
 @keyframes wmin{from{opacity:0;transform:translateY(34px) scale(.96)}to{opacity:1;transform:none}}
 .wm-s.go>.wm-bg{animation:wmbg 1.4s forwards,kb 30s ease-in-out infinite alternate}@keyframes wmbg{from{opacity:0}to{opacity:.55}}
@@ -8380,8 +8381,10 @@ function wrapSaga(d){if(!d||d.fb||d.fixed||!d.per)return null;let best=null;sgBu
 function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+' '+y:String(y),top=d.pool[0]&&d.pool[0][0],cu=(n,dec,suf)=>`<b class="wm-n" data-cu="${n}" data-dec="${dec||0}" data-suf="${suf||''}">0</b>`;
   const S_=[];const add=(c,h,t)=>S_.push({c,h,t:t||6000});const stars=n=>'★'.repeat(Math.max(0,Math.min(5,Math.round(n))))+'☆'.repeat(5-Math.max(0,Math.min(5,Math.round(n))));
   add('#4c1d95,#0e7490',`<div class="wm-k">WINTEER · ${q?'TU '+QN[q].toUpperCase():'TU AÑO'}</div><h1 class="wm-huge">${q?'Q'+q:y}</h1>${q?`<div class="wm-k">${y}</div>`:''}<p class="wm-p">${esc(p[0])}</p>`,6000);
-  if(!fb&&d.tot>0)add('#1e1b4b,#7c3aed',`<div class="wm-k">TIEMPO DE JUEGO</div><div class="wm-bn">${cu(d.tot.toFixed(1),1)}<span>horas</span></div><p class="wm-p">${d.tot>=24?'Eso es más de '+Math.floor(d.tot/24)+' día'+(Math.floor(d.tot/24)===1?'':'s')+' enteros jugando.':'Cada hora cuenta.'}</p>`);
-  add('#0c4a6e,#2563eb',`<div class="wm-k">TU BIBLIOTECA ACTIVA</div><div class="wm-bn">${cu(d.played)}<span>juegos jugados</span></div>${!fb&&d.dn?`<p class="wm-p">en ${d.dn} día${d.dn===1?'':'s'} distintos${d.streak>1?', con una racha de '+d.streak+' seguidos':''}.</p>`:''}`);
+  const pv=(()=>{try{const x=wrapData(y-1,q);return x&&!x.fixed&&x.tot>0?x:null}catch(e){return null}})();d.pv=pv?pv.tot:0;
+  const cmp=pv?(()=>{const df=d.tot-pv.tot,pc=Math.round(Math.abs(df)/pv.tot*100);return df>=1?`<p class="wm-p wm-cmp up">▲ ${fh(df)} más que en ${q?QN[q]+' '+(y-1):y-1} (${pc}%)</p>`:df<=-1?`<p class="wm-p wm-cmp dn">▼ ${fh(-df)} menos que en ${q?QN[q]+' '+(y-1):y-1} (${pc}%)</p>`:`<p class="wm-p wm-cmp">Casi igual que en ${q?QN[q]+' '+(y-1):y-1}</p>`})():'';
+  if(!fb&&d.tot>0)add('#1e1b4b,#7c3aed',`<div class="wm-k">TIEMPO DE JUEGO</div><div class="wm-bn">${cu(d.tot.toFixed(1),1)}<span>horas</span></div><p class="wm-p">${d.tot>=24?'Eso es más de '+Math.floor(d.tot/24)+' día'+(Math.floor(d.tot/24)===1?'':'s')+' enteros jugando.':'Cada hora cuenta.'}</p>${cmp}`);
+  add('#0c4a6e,#2563eb',`<div class="wm-k">TU BIBLIOTECA ACTIVA</div><div class="wm-bn">${cu(d.played)}<span>juegos jugados</span></div>${!fb&&d.dn?`<p class="wm-p">en ${d.dn} día${d.dn===1?'':'s'} distintos${d.streak>1?', con una racha de '+d.streak+' seguidos':''}.</p>`:''}<div class="wm-cvs">${d.pool.slice(0,5).map(([g],i)=>`<img style="--r:${i}" src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`).join('')}</div>`);
   if(top)add('#111827,#1f2937',`<img class="wm-bg" src="${art.hero(top)}" data-fb="${art.wide(top)}" alt=""><div class="wm-fade"></div><div class="wm-k">TU JUEGO Nº 1</div><img class="wm-logo" src="${art.logo(top)}" data-txt="${esc(top.name)}" alt=""><h2 class="wm-h2">${esc(top.name)}</h2><p class="wm-p">${fh(d.pool[0][1])} en ${per}</p>`,6800);
   try{const sg=wrapSaga(d);if(sg)add('#1e1b4b,'+sg.col,`<div class="wm-k">${q?'TU SAGA DEL TRIMESTRE':'TU SAGA DEL AÑO'}</div><div class="wm-sgp" style="--c:${sg.col}">${sgPoster(sg)}</div><h2 class="wm-h2">${esc(sg.name)}</h2><p class="wm-p">${fh(sg.wh)} en ${sg.wn} juego${sg.wn===1?'':'s'} de la saga${sg.dn>=sg.tot?'. La terminaste completa.':sg.dn?'. Terminaste '+sg.dn+' de '+sg.tot+'.':'.'}</p>`,6800)}catch(e){}
   if(d.pool.length>1){const mx=Math.max(1,d.pool[0][1]);add('#312e81,#be185d',`<div class="wm-k">TU TOP ${Math.min(5,d.pool.length)}</div><div class="wm-top">${d.pool.slice(0,5).map(([g,h],i)=>`<div class="wm-row" style="--r:${i};--w:${Math.max(8,h/mx*100)}%"><u></u><span>${i+1}</span><div class="th"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""></div><b>${esc(g.name)}</b><em>${fh(h)}</em></div>`).join('')}</div>`,7000)}
@@ -8403,29 +8406,31 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
   try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d)})}catch(e){}
   return S_}
+const WM_GEST=false;
 function wmGes(h,d){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'';
   if(/^WINTEER/.test(t))return 'wave';if(/TIEMPO/.test(t))return d.tot>=100?'grab':'shrug';if(/BIBLIOTECA/.test(t))return 'shrug';if(/Nº 1/.test(t))return 'point';if(/SAGA/.test(t))return 'nod';if(/TOP/.test(t))return 'point';
   if(/CALIFICADO/.test(t))return 'cheer';if(/CLIP|CAPTURA/.test(t))return 'point';if(/GÉNEROS/.test(t))return 'think';if(/MES FUERTE/.test(t))return 'laugh';if(/TERMINASTE/.test(t))return 'cheer';
   if(/DIARIO/.test(t))return 'nod';if(/DÍA FAVORITO/.test(t))return 'point';if(/LOGROS/.test(t))return 'hop';if(/JUEGO DEL AÑO/.test(t))return 'cheer';if(/RESUMEN/.test(t))return 'nod';if(/ASÍ FUE/.test(t))return 'wave';return 'nod'}
-function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a=>a[Math.floor(Math.random()*a.length)],hs=n=>Math.round(n);
-  const top=c.top&&c.top.name;
-  if(/^WINTEER/.test(t))return R(['Ey, soy yo. Sentate que te cuento cómo te fue.','Llegó el momento. Te vengo mirando jugar hace rato.','Preparate, porque no te voy a cuidar los sentimientos.']);
-  if(/TIEMPO/.test(t))return d.tot>=200?hs(d.tot)+' horas. Boludo, salí a tomar sol alguna vez.':d.tot>=60?hs(d.tot)+' horas. Un montón, pero lo disfrutaste, así que bien.':hs(d.tot)+' horas. Poquito, pero cada hora cuenta.';
-  if(/BIBLIOTECA/.test(t))return d.played+' juegos distintos. Pica pica, no te casás con ninguno.';
-  if(/Nº 1/.test(t))return top?top+'. Ni lo niegues, estás enganchadísimo.':'Tu favorito, sin dudas.';
-  if(/SAGA/.test(t))return 'Una saga entera. Fidelidad nivel Dios.';
-  if(/TOP/.test(t))return 'Mirá ese podio. Después dicen que no tenés gustos definidos.';
-  if(/CALIFICADO/.test(t))return c.br?c.br.name+' fue tu mejor nota. Y es verdad, es una joya.':'Lo mejor calificado, mirá vos.';
+function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a=>a[Math.floor(Math.random()*a.length)],hs=n=>Math.round(n),big=d.tot>=150,mid=d.tot>=50;
+  const top=c.top&&c.top.name,pv=d.pv||0,df=d.tot-pv;
+  if(/^WINTEER/.test(t))return big?R(['Ey, soy yo. Sentate, que este año te dio para rato.','Llegó el momento. Y mirá que tenemos de qué hablar.']):mid?R(['Ey, soy yo. Te cuento cómo te fue.','Llegó el momento. Te vengo mirando jugar hace rato.']):R(['Ey, soy yo. Fue un año tranqui, pero lo repasamos igual.','Llegó el momento. Poco para contar, pero lo contamos bien.']);
+  if(/TIEMPO/.test(t)){const b=big?R([hs(d.tot)+' horas. Boludo, salí a tomar sol alguna vez.',hs(d.tot)+' horas. Eso ya es un trabajo de tiempo completo.']):mid?R([hs(d.tot)+' horas. Un montón, pero lo disfrutaste, así que bien.',hs(d.tot)+' horas. Ni mucho ni poco, justito.']):hs(d.tot)+' horas. Poquito, pero cada hora cuenta.';
+    return pv?b+(df>=5?' Y '+hs(df)+' más que antes.':df<=-5?' Y '+hs(-df)+' menos que antes.':''):b}
+  if(/BIBLIOTECA/.test(t))return d.played>=25?d.played+' juegos distintos. Pica pica, no te casás con ninguno.':d.played>=8?d.played+' juegos distintos. Bastante variado, ¿no?':d.played+(d.played===1?' solo juego. Fiel como pocos.':' juegos distintos. Pocos, pero bien jugados.');
+  if(/Nº 1/.test(t))return top?R([top+'. Ni lo niegues, estás enganchadísimo.',top+' te tuvo atrapado todo el año.']):'Tu favorito, sin dudas.';
+  if(/SAGA/.test(t))return R(['Una saga entera. Fidelidad nivel Dios.','Cuando te gusta una saga, vas hasta el final.']);
+  if(/TOP/.test(t))return R(['Mirá ese podio. Después dicen que no tenés gustos definidos.','Cinco juegos y ninguno sobra.']);
+  if(/CALIFICADO/.test(t))return c.br?R([c.br.name+' fue tu mejor nota. Y es verdad, es una joya.','Tu nota más alta fue para '+c.br.name+'. Gusto impecable.']):'Lo mejor calificado, mirá vos.';
   if(/CLIP|CAPTURA/.test(t))return 'Esto lo guardaste vos. Buen ojo, lo reconozco.';
-  if(/GÉNEROS/.test(t))return d.gen[0]?d.gen[0][0]+' es lo tuyo. Mucho, bastante, casi siempre.':'Tus géneros, ahí los tenés.';
-  if(/MES FUERTE/.test(t))return 'Ese mes no tocaste el pasto, ¿eh?';
+  if(/GÉNEROS/.test(t))return d.gen[0]?R([d.gen[0][0]+' es lo tuyo. Mucho, bastante, casi siempre.','Se nota que te va el '+d.gen[0][0]+'.']):'Tus géneros, ahí los tenés.';
+  if(/MES FUERTE/.test(t))return R(['Ese mes no tocaste el pasto, ¿eh?','Ese mes se te fue la mano, confesalo.']);
   if(/TERMINASTE/.test(t))return d.done.length>=5?'Terminaste '+d.done.length+'. ¿Quién sos y qué hiciste con el de los 40 juegos empezados?':'Terminaste '+d.done.length+(d.done.length===1?'. Uno es uno, festejemos.':'. Mejor eso que nada.');
   if(/DIARIO/.test(t))return 'Hasta escribiste tus partidas. Un genio de las letras.';
   if(/DÍA FAVORITO/.test(t))return 'Ya sé qué día no te puedo llamar para nada.';
   if(/LOGROS/.test(t))return d.ach+' logros. Cazaste de más, lo sabés.';
   if(/JUEGO DEL AÑO/.test(t))return 'El elegido. Se lo ganó, ni discusión.';
   if(/RESUMEN/.test(t))return 'Todo junto, así se ve más épico, ¿viste?';
-  if(/ASÍ FUE/.test(t))return 'Y esto fue todo. Gracias por jugar conmigo, nos vemos en el próximo.';
+  if(/ASÍ FUE/.test(t))return big?'Un año enorme. Gracias por jugarlo conmigo, nos vemos en el próximo.':'Y esto fue todo. Gracias por jugar conmigo, nos vemos en el próximo.';
   return ''}
 /* música de fiesta: secuenciador 122 BPM, do-sol-lam-fa, capas que crecen con las diapositivas */
 const WMF=m=>440*Math.pow(2,(m-69)/12),WCH=[[60,64,67],[59,62,67],[57,60,64],[57,60,65]],WBS=[36,31,33,29];
@@ -8519,7 +8524,7 @@ function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));cons
   const box=$('#wm .wm-s');box.innerHTML=s.h;wmSplit(box);[...box.children].forEach((c,n)=>c.style.setProperty('--n',n));box.dataset.v=WM.i%4;box.classList.remove('go');void box.offsetWidth;box.classList.add('go');
   const fl=$('#wm .wm-fl');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
   $$('#wm .wm-pg i').forEach((b,n)=>{b.style.animation='none';b.style.backgroundSize=n<WM.i?'100% 100%':'0 100%';if(n===WM.i){void b.offsetWidth;b.style.animation=`wmpg ${s.t}ms linear forwards`;b.style.animationPlayState=WM.paused?'paused':'running'}});
-  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)if(ii!==0)wrPlay(WM.rig,s.ge)},500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
+  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)if(ii!==0&&WM_GEST)wrPlay(WM.rig,s.ge)},500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
   WM.t0=Date.now();WM.left=s.t;WM.tm=setTimeout(()=>wmNext(),s.t)}
 function wmNext(){if(!WM)return;if(WM.i>=WM.s.length-1){wmClose(true);return}wmShow(WM.i+1)}
 function wmClose(done){if(!WM)return;clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);if(WM.rig){WM.rig.alive=false;wrStop(WM.rig)}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
