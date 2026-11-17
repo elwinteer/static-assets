@@ -8428,6 +8428,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   if(T.length>=3)add('#134e4a,#4338ca',`<div class="wm-k">EN RESUMEN</div><div class="wm-rc">${T.slice(0,6).map(([n,l],i)=>`<div style="--r:${i}">${n}<span>${l}</span></div>`).join('')}</div>`,6000);
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
   try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d);if(/TIEMPO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:70,y:0,f:1};if(d.tot>=150)x.rx=()=>wmShock();else if(d.tot>=50)x.rx=()=>wmJoy();else x.rx=()=>wmMeh()}
+      if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=10500;x.sd=7000;x.rx=()=>wmHypno()}
       if(/BIBLIOTECA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};if(d.played<8&&d.pool.length){x.t=11500;x.sd=7300;x.rx=()=>wmJuggle(d.pool.slice(0,3).map(p=>p[0]))}else if(d.played>=25&&d.pool.length){x.t=15500;x.sd=10600;x.rx=()=>wmCrush(d.pool.slice(0,6).map(p=>p[0]))}else if(d.played>=8&&d.played<25&&d.pool.length){x.t=11500;x.sd=6700;x.rx=()=>wmJuggle(d.pool.slice(0,5).map(p=>p[0]),{n:5,T:1400,dur:4200,happy:1})}}})}catch(e){}
   return S_}
 const WM_GEST=false;
@@ -8446,7 +8447,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/^WINTEER/.test(t))return big?R(['Ey, soy yo. Sentate, que este año te dio para rato.','Llegó el momento. Y mirá que tenemos de qué hablar.']):mid?R(['Ey, soy yo. Te cuento cómo te fue.','Llegó el momento. Te vengo mirando jugar hace rato.']):R(['Ey, soy yo. Fue un año tranqui, pero lo repasamos igual.','Llegó el momento. Poco para contar, pero lo contamos bien.']);
   if(/TIEMPO/.test(t))return big?R(['Boludo, salí a tomar sol alguna vez.','Eso ya es un trabajo de tiempo completo.']):mid?R(['Un montón, pero lo disfrutaste, así que bien.','Ni mucho ni poco. Justito.']):'Meh, creo que mi perro juega más.';
   if(/BIBLIOTECA/.test(t))return d.played<8?'Comprate más juegos, rata.':d.played>=25?'Tocá pasto, por favor.':'Buen año, me divertí bastante.';
-  if(/Nº 1/.test(t))return R(['Ni lo niegues, estás enganchadísimo.','Te tuvo atrapado todo el año.']);
+  if(/Nº 1/.test(t))return 'Merca de la buena.';
   if(/SAGA/.test(t))return R(['Fidelidad nivel Dios.','Cuando te gusta una saga, vas hasta el final.']);
   if(/TOP/.test(t))return R(['Después dicen que no tenés gustos definidos.','Cinco juegos y ninguno sobra.']);
   if(/CALIFICADO/.test(t))return R(['Y es verdad, es una joya.','Gusto impecable.']);
@@ -8598,6 +8599,11 @@ function wmCrush(gs){const r=WM&&WM.rig,nr=$('#wm .wm-nar'),root=$('#wm');if(!r|
         q(1650,{rot:0,by:0,lean:0,la:0,ra:0,hd:-5,sy:1,sx:1},{w:8,z:.8});
         q(1950,{ra:-34,la:0,lean:-2},{w:16,z:.55});q(2200,{ra:-8},{w:16,z:.55});q(2450,{ra:-30},{w:16,z:.55});q(2700,{ra:0,hd:0,lean:0},{w:9,z:.8})}}};
   const W0=b=>innerWidth;J.raf=requestAnimationFrame(f)}
+function wmHypno(){const r=WM&&WM.rig;if(!r)return;wrStop(r);const T=(ms,p,o)=>r.tl.push(setTimeout(()=>{if(WM&&WM.rig===r)wrPose(r,p,o)},ms));
+  wrPose(r,{wide:1,la:16,ra:-16,hd:3,lean:2},{w:5,z:.9});r.w.sx=r.w.sy=r.w.bx=1.1;r.z.sx=r.z.sy=r.z.bx=1;r.t.sx=r.t.sy=1.28;r.t.bx=70;
+  T(900,{la:22,ra:-22,lean:-3,hd:-3},{w:1.6,z:1});T(2100,{la:26,ra:-26,lean:3,hd:4},{w:1.6,z:1});
+  T(3500,{wide:0,sx:1,sy:1,bx:0,la:0,ra:0,lean:0,hd:-6},{w:14,z:.5});
+  T(4000,{hd:5},{w:20,z:.5});T(4300,{hd:-4},{w:20,z:.5});T(4600,{hd:0,joy:.4},{w:9,z:.8});T(6400,{joy:0},{w:6,z:.9})}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
