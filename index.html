@@ -1698,8 +1698,7 @@ body.light .cg-i{background:rgba(0,0,0,.06)}body.light .cg-pb{background:rgba(0,
 .wm-ctl{position:absolute;top:34px;right:24px;display:flex;gap:10px;z-index:6}.wm-ctl button{width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(8px)}.wm-ctl button:hover{background:rgba(255,255,255,.3)}.wm-ctl .i{width:18px;height:18px}.wm-snd.off{opacity:.4;text-decoration:line-through}
 #wm.pz .wm-ctl [data-a="wmpause"]{background:#fff;color:#111}
 .wm-nar{position:absolute;left:3vw;bottom:2vh;z-index:5;display:flex;align-items:flex-end;flex-direction:row-reverse;gap:4.2vw;pointer-events:none;opacity:0;transform:translateX(-46vw)}
-.wm-nar.on{opacity:1;transform:none;transition:transform 1.15s cubic-bezier(.2,.65,.25,1),opacity .15s}
-.wm-bub{transform-origin:0 100%;transform:scale(0)}.wm-bub.in{animation:wmbub .42s cubic-bezier(.2,1.7,.4,1) forwards}@keyframes wmbub{from{transform:scale(0)}to{transform:scale(1)}}
+.wm-bub{transform-origin:0 100%;opacity:0}.wm-bub .wd{display:inline-block;opacity:0;transform:translateY(.5em) scale(.9)}.wm-bub.run .wd{opacity:1;transform:none;transition:opacity .4s ease var(--d),transform .55s cubic-bezier(.2,1.4,.4,1) var(--d)}
 .wm-nar .wm-win{height:30vh;width:auto;filter:drop-shadow(0 1.2vh 2vh rgba(0,0,0,.45));transform-origin:50% 100%}
 .wm-nar.on .wm-win{animation:none}
 @keyframes wmw0{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-1vh) rotate(1.2deg)}}
@@ -8461,7 +8460,7 @@ function wmLoop(t){const cv=$('#wmcv');if(!WM||!cv)return;requestAnimationFrame(
 function wmCount(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu),dec=+el.dataset.dec||0,t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/1700),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec).replace('.',',')+(el.dataset.suf||'');if(k<1&&WM)requestAnimationFrame(f)})(t0)})}
 function wmSplit(root){root.querySelectorAll('.wm-huge,.wm-h2').forEach(h=>{const tx=h.textContent;let n=0;h.innerHTML=tx.split(' ').map(w=>`<span class="w">${[...w].map(ch=>`<span class="ch" style="--i:${n++}">${esc(ch)}</span>`).join('')}</span>`).join(' ')})}
 /* ===== motor de animación del Winter: resortes críticamente amortiguados por articulación + gestos por línea de tiempo ===== */
-const WRP={bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0};
+const WRP={bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0,run:0,spd:0,wv:0};
 function wrNew(svg){const g={};svg.querySelectorAll('[data-rg]').forEach(e=>g[e.dataset.rg]=e);const eyes=svg.querySelector('.avx-eyes');const r={svg,g,eyes,x:{},v:{},t:{},w:{},z:{},tl:[],raf:0,last:0,t0:performance.now(),bl:performance.now()+2500,alive:true};
   for(const k in WRP){r.x[k]=WRP[k];r.v[k]=0;r.t[k]=WRP[k];r.w[k]=16;r.z[k]=.7}
   svg.style.overflow='visible';r.sm={};svg.querySelectorAll('[data-sm]').forEach(e=>r.sm[e.dataset.sm]=e);
@@ -8470,11 +8469,15 @@ function wrStep(r,dt,now){if(!dt)return;const T=(now-r.t0)/1000;
   for(const k in r.x){let w=r.w[k],z=r.z[k],x=r.x[k],v=r.v[k],tg=r.t[k];
     const n=Math.max(1,Math.ceil(dt/.008)),h=dt/n;for(let i=0;i<n;i++){const a=w*w*(tg-x)-2*z*w*v;v+=a*h;x+=v*h}r.x[k]=x;r.v[k]=v}
   const x=r.x,br=Math.sin(T*2.1),sw=Math.sin(T*1.3);
+  r.ph=(r.ph||0)+dt*(3.5+11*Math.max(0,x.spd));r.wph=(r.wph||0)+dt*(x.wv>.02?9.5:0);
+  const rn=Math.max(0,Math.min(1,x.run)),sp=Math.sin(r.ph),cp=Math.sin(r.ph+Math.PI),wv=Math.max(0,Math.min(1,x.wv)),wsw=Math.sin(r.wph);
+  const P2={ll:x.ll+sp*30*rn,rl:x.rl+cp*30*rn,la:x.la+(sp*.5+.5)*38*rn,ra:x.ra-(cp*.5+.5)*38*rn,by:x.by-Math.abs(sp)*7*rn,hd:x.hd-sp*1.6*rn,lean:x.lean+sw*.5+5*rn*Math.abs(sp)};
+  P2.ra-=wsw*16*wv;P2.la-=0;
   const set=(n,t)=>{const e=r.g[n];if(e)e.setAttribute('transform',t)};
-  set('root',`translate(${x.bx} ${x.by+br*-.9}) translate(100 318) scale(${x.sx*(1-br*.004)} ${x.sy*(1+br*.007)}) translate(-100 -318)`);
-  set('ll',`rotate(${x.ll} 80 248)`);set('rl',`rotate(${x.rl} 120 248)`);
-  set('up',`rotate(${x.lean+sw*.5} 100 250)`);set('hd',`rotate(${x.hd+sw*1.2+(r.talk?Math.sin(T*11)*1.8:0)} 100 150)`);
-  set('la',`rotate(${x.la-br*1.2} 46 158)`);set('ra',`rotate(${x.ra+br*1.2} 154 158)`);{const o=(k,v)=>{const e=r.sm&&r.sm[k];if(e)e.style.opacity=Math.max(0,Math.min(1,(Math.abs(v)-1.5)/3)).toFixed(2)};o('la',x.la);o('tl',x.la);o('ra',x.ra);o('tr',x.ra)};
+  set('root',`translate(${x.bx} ${P2.by+br*-.9}) translate(100 318) scale(${x.sx*(1-br*.004)} ${x.sy*(1+br*.007)}) translate(-100 -318)`);
+  set('ll',`rotate(${P2.ll} 80 248)`);set('rl',`rotate(${P2.rl} 120 248)`);
+  set('up',`rotate(${P2.lean} 100 250)`);set('hd',`rotate(${P2.hd+sw*1.2+(r.talk?Math.sin(T*11)*1.8:0)} 100 150)`);
+  set('la',`rotate(${P2.la-br*1.2} 46 158)`);set('ra',`rotate(${P2.ra+br*1.2} 154 158)`);{const o=(k,v)=>{const e=r.sm&&r.sm[k];if(e)e.style.opacity=Math.max(0,Math.min(1,(Math.abs(v)-1.5)/3)).toFixed(2)};o('la',P2.la);o('tl',P2.la);o('ra',P2.ra);o('tr',P2.ra)};
   if(r.eyes){if(now>r.bl){const k=(now-r.bl)/140;if(k>=1){r.bl=now+2200+Math.random()*3200;r.eyes.removeAttribute('transform')}else{const s=1-Math.sin(k*Math.PI)*.9;r.eyes.setAttribute('transform',`translate(0 112) scale(1 ${s.toFixed(3)}) translate(0 -112)`)}}}}
 function wrPose(r,p,o){o=o||{};for(const k in p){r.t[k]=p[k];r.w[k]=o.w||16;r.z[k]=o.z||.7}}
 function wrPlay(r,name){wrStop(r);const gs=WRG[name];if(!gs)return;const idle=Object.assign({},WRP);let t0=0;
@@ -8483,7 +8486,7 @@ function wrPlay(r,name){wrStop(r);const gs=WRG[name];if(!gs)return;const idle=Ob
 function wrStop(r){r.tl.forEach(clearTimeout);r.tl=[]}
 /* gestos: [ms, pose, {w:rapidez, z:rebote (menor = más rebote)}]. ra negativo = brazo derecho sube hacia afuera; la positivo = izquierdo */
 const WRG={
- wave:[[0,{ra:-20,lean:-3,by:2,hd:-4},{w:12}],[260,{ra:-150,lean:2,by:0,hd:5},{w:14,z:.5}],[620,{ra:-128},{w:20,z:.55}],[860,{ra:-158},{w:20,z:.55}],[1100,{ra:-128},{w:20,z:.55}],[1340,{ra:-158},{w:20,z:.55}],[1580,{ra:-130},{w:20,z:.55}],[1800,{ra:-6,lean:0,hd:0},{w:11,z:.8}]],
+ wave:[[0,{ra:-20,lean:-3,by:2,hd:-4},{w:12}],[260,{ra:-146,lean:2,by:0,hd:5,wv:1},{w:13,z:.6}],[2000,{wv:0,ra:-6,lean:0,hd:0},{w:11,z:.8}]],
  hop:[[0,{sy:.9,sx:1.06,by:6,la:6,ra:-6},{w:22,z:.8}],[170,{sy:1.06,sx:.96,by:-26,la:42,ra:-42,ll:6,rl:-6},{w:18,z:.55}],[520,{sy:.93,sx:1.05,by:4,la:8,ra:-8,ll:0,rl:0},{w:26,z:.7}],[720,{sy:1,sx:1,by:0,la:0,ra:0},{w:14,z:.6}]],
  grab:[[0,{by:3,sy:.97,hd:0},{w:20,z:.8}],[140,{la:158,ra:-158,hd:-6,by:-3,sy:1.02,lean:-2},{w:24,z:.45}],[520,{hd:6,lean:2},{w:20,z:.5}],[760,{hd:-6,lean:-2},{w:20,z:.5}],[980,{hd:5,lean:2},{w:18,z:.55}],[1500,{la:0,ra:0,hd:0,lean:0,by:0,sy:1},{w:10,z:.85}]],
  shrug:[[0,{by:2,sy:.98},{w:18,z:.8}],[160,{la:34,ra:-34,hd:9,by:-3,sy:1.02,lean:1.5},{w:22,z:.5}],[1100,{la:0,ra:0,hd:0,by:0,sy:1,lean:0},{w:10,z:.85}]],
@@ -8494,26 +8497,36 @@ const WRG={
  laugh:[[0,{lean:-4,sy:.98,by:2,la:30,ra:-30},{w:20,z:.6}],[150,{lean:4,by:-3,hd:6},{w:28,z:.4}],[300,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[450,{lean:4,by:-3,hd:6},{w:28,z:.4}],[600,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[750,{lean:3,by:-2,hd:4},{w:28,z:.4}],[1100,{lean:0,by:0,hd:0,la:0,ra:0,sy:1},{w:10,z:.85}]],
  bow:[[0,{lean:-14,hd:-8,by:2,la:10,ra:-10},{w:11,z:.75}],[900,{lean:0,hd:0,by:0,la:0,ra:0},{w:9,z:.85}]]
 };
-WRG.enter=(()=>{const a=[];for(let i=0;i<8;i++){const q=i%2?1:-1;a.push([i*125,{ll:26*q,rl:-26*q,la:Math.max(0,q)*36,ra:-Math.max(0,-q)*36,lean:7,by:i%2?-3:-8,sy:1,hd:2},{w:28,z:.6}])}
-  a.push([1000,{ll:0,rl:0,la:0,ra:0,lean:-10,sy:.93,sx:1.05,by:4,hd:-3},{w:24,z:.6}],[1200,{lean:0,sy:1,sx:1,by:0,hd:0},{w:16,z:.7}]);
-  return a.concat(WRG.wave.map(([t,p,o])=>[t+1400,p,o]))})();
-function wmSay(txt){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearInterval(WM.ty);clearTimeout(WM.tw);if(WM.rig)WM.rig.talk=0;
-  b.classList.remove('in');b.textContent='';w.classList.remove('talk');
-  if(!txt)return;
-  WM.tw=setTimeout(()=>{if(!WM)return;b.textContent=txt;b.classList.remove('in');void b.offsetWidth;b.classList.add('in');w.classList.add('talk');if(WM.rig)WM.rig.talk=1;let k=0;const n=Math.max(900,txt.length*26);WM.ty=setTimeout(()=>{w.classList.remove('talk');if(WM.rig)WM.rig.talk=0},n)},WM.i===0?1900:650)}
+function wmEnter(){const nr=$('#wm .wm-nar'),r=WM&&WM.rig;if(!nr||!r)return;const D=1500,X0=-46,st=performance.now()+380;let ph=0;
+  nr.style.opacity=1;nr.style.transform=`translateX(${X0}vw)`;r.w.spd=r.w.run=30;
+  wrPose(r,{sy:.92,sx:1.04,lean:-7,by:4,hd:-3},{w:15,z:.8});
+  const f=now=>{if(!WM||!WM.rig||!nr.isConnected)return;const k=Math.max(0,Math.min(1,(now-st)/D)),e=1-Math.pow(1-k,3),v=Math.pow(1-k,2);nr.style.transform=`translateX(${(X0*(1-e)).toFixed(2)}vw)`;
+    if(k>0&&ph===0){ph=1;wrPose(r,{run:1,spd:1,sy:1,sx:1,by:0,lean:2,hd:2},{w:14,z:.9});r.w.spd=r.w.run=30}
+    if(ph===1){r.t.spd=Math.max(.15,v);if(k>.86){ph=2;r.t.run=0;r.t.spd=0;wrPose(r,{lean:-9,sy:.93,sx:1.05,by:4,hd:-3},{w:20,z:.65})}}
+    if(ph===2&&k>=1){ph=3;wrPose(r,{lean:0,sy:1,sx:1,by:0,hd:0},{w:14,z:.55});setTimeout(()=>{if(WM&&WM.rig)wrPose(WM.rig,{ra:-146,lean:2,hd:5,wv:1},{w:13,z:.6})},420);setTimeout(()=>{if(WM&&WM.rig)wrPose(WM.rig,{wv:0,ra:0,lean:0,hd:0},{w:10,z:.85})},2300)}
+    if(ph<3||k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+function wmSay(txt){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
+  const had=b.dataset.on==='1';
+  const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
+  out();if(!txt)return;
+  WM.tw=setTimeout(()=>{if(!WM)return;const ws=txt.split(' ');b.innerHTML=ws.map((x,i)=>`<span class="wd" style="--d:${i*55+260}ms">${esc(x)}</span>`).join(' ');b.dataset.on='1';
+    try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(.15) rotate(-7deg) translateY(14px)',opacity:0},{transform:'scale(1.08) rotate(1.6deg)',opacity:1,offset:.5},{transform:'scale(.97) rotate(-.5deg)',offset:.75},{transform:'scale(1) rotate(0)',opacity:1}],{duration:700,easing:'cubic-bezier(.3,.6,.35,1)',fill:'forwards'})}catch(e){b.style.opacity=1}
+    void b.offsetWidth;b.classList.add('tw');requestAnimationFrame(()=>b.classList.add('run'));
+    w.classList.add('talk');if(WM.rig)WM.rig.talk=1;WM.ty=setTimeout(()=>{w.classList.remove('talk');if(WM&&WM.rig)WM.rig.talk=0},ws.length*55+700)},had?300:(WM.i===0?2300:650));
+  b.classList.remove('run','tw')}
 function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));const s=WM.s[WM.i],el=$('#wm');clearTimeout(WM.tm);WM.L=1+Math.min(3,Math.floor(WM.i*4/WM.s.length));
   el.style.setProperty('--c',s.c.split(',')[0]);el.style.setProperty('--c2',s.c.split(',')[1]);
   const box=$('#wm .wm-s');box.innerHTML=s.h;wmSplit(box);[...box.children].forEach((c,n)=>c.style.setProperty('--n',n));box.dataset.v=WM.i%4;box.classList.remove('go');void box.offsetWidth;box.classList.add('go');
   const fl=$('#wm .wm-fl');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
   $$('#wm .wm-pg i').forEach((b,n)=>{b.style.animation='none';b.style.backgroundSize=n<WM.i?'100% 100%':'0 100%';if(n===WM.i){void b.offsetWidth;b.style.animation=`wmpg ${s.t}ms linear forwards`;b.style.animationPlayState=WM.paused?'paused':'running'}});
-  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)wrPlay(WM.rig,ii===0&&!WM.ent?(WM.ent=1,'enter'):s.ge)},ii===0?0:500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
+  wmSay(s.n||'');if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)if(ii!==0)wrPlay(WM.rig,s.ge)},500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
   WM.t0=Date.now();WM.left=s.t;WM.tm=setTimeout(()=>wmNext(),s.t)}
 function wmNext(){if(!WM)return;if(WM.i>=WM.s.length-1){wmClose(true);return}wmShow(WM.i+1)}
 function wmClose(done){if(!WM)return;clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);if(WM.rig){WM.rig.alive=false;wrStop(WM.rig)}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
 function wmKey(e){if(!WM)return;if(e.key==='Escape')wmClose();else if(e.key==='ArrowRight')wmNext();else if(e.key==='ArrowLeft')wmShow(WM.i-1);else if(e.key===' '){e.preventDefault();A.wmpause()}}
 function wmOpen(y,q){const sl=wmSlides(y,q);if(!sl.length)return;WM={s:sl,i:0,paused:false,snd:ST.hsnd!==false,P:[],L:1,st:0,nt:0,nf:0,fc:0};
   const e=document.createElement('div');e.id='wm';e.innerHTML=`<div class="wm-beat"></div><canvas id="wmcv"></canvas><div class="wm-fl"></div><div class="wm-pg">${sl.map(()=>'<i></i>').join('')}</div><div class="wm-ctl"><button data-a="wmpause" title="Pausar (espacio)">❚❚</button><button data-a="wmsnd" title="Música" class="wm-snd">♪</button><button data-a="wmx" title="Cerrar (Esc)">×</button></div><div class="wm-s"></div><div class="wm-nar"><div class="wm-bub"></div>${(()=>{try{return avSVG(avCur(),{floor:false,cls:'wm-win',rig:true})}catch(e){return''}})()}</div><div class="wm-zl" data-a="wmprev"></div><div class="wm-zr" data-a="wmnext"></div>`;
-  document.body.appendChild(e);{const sv=e.querySelector('.wm-win');if(sv)WM.rig=wrNew(sv)}{const nr=e.querySelector('.wm-nar');if(nr)requestAnimationFrame(()=>requestAnimationFrame(()=>nr.classList.add('on')))}document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
+  document.body.appendChild(e);{const sv=e.querySelector('.wm-win');if(sv)WM.rig=wrNew(sv)}setTimeout(wmEnter,0);document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
 Object.assign(A,{wmovie:()=>wmOpen(S.wy,S.wq||0),wmx:()=>wmClose(),wmnext:()=>wmNext(),wmprev:()=>wmShow(WM?WM.i-1:0),
  wmpause:()=>{if(!WM)return;WM.paused=!WM.paused;const e=$('#wm');e.classList.toggle('pz',WM.paused);$('#wm [data-a="wmpause"]').innerHTML=WM.paused?ic('play'):'❚❚';$$('#wm .wm-pg i').forEach(b=>b.style.animationPlayState=WM.paused?'paused':'running');
   if(WM.paused){clearTimeout(WM.tm);WM.left=Math.max(500,WM.left-(Date.now()-WM.t0))}else{WM.t0=Date.now();WM.tm=setTimeout(wmNext,WM.left);wmMus()}},
