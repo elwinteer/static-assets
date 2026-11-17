@@ -7196,7 +7196,7 @@ function avRig(P,FM,nm){const X=x=>FM?100+(x-100)*.88:x,u=AVU,low=P.slice(1,9).j
   const defs='<defs>'+rc('LA',arm(0))+rc('RA',arm(1))+rc('TO',`M${pt(64.2,130)}H${X(135.8)}V262H${X(64.2)}Z`)+rc('LL',leg(0))+rc('RL',leg(1))+'</defs>';
   const cp=(i,c)=>`<g clip-path="url(#rg${i}${u})">${c}</g>`;
   /* trazos de corte: aparecen solo cuando un miembro se separa, para que el borde tenga contorno como el resto del dibujo */
-  const OV=`<g data-ov="eyes" style="opacity:0">${[78,122].map(x=>`<ellipse cx="${x}" cy="112" rx="12.8" ry="15" fill="#fff" stroke="${INK}" stroke-width="3.4"/><circle cx="${x}" cy="113.5" r="3.3" fill="${INK}"/><circle cx="${x+1.3}" cy="112" r="1.2" fill="#fff"/>`).join('')}</g>`+`<g data-ov="joy" style="opacity:0"><path d="M65 115Q78 100 91 115" fill="none" stroke="${INK}" stroke-width="3.8" stroke-linecap="round"/><path d="M109 115Q122 100 135 115" fill="none" stroke="${INK}" stroke-width="3.8" stroke-linecap="round"/></g>`+(nm?`<g data-ov="smile" style="opacity:0"><path d="M86 129Q100 144 114 129Z" fill="#4a1d1d" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/></g><g data-ov="mouth" style="opacity:0"><ellipse cx="100" cy="133" rx="7.6" ry="7.4" fill="#4a1d1d" stroke="${INK}" stroke-width="3"/><ellipse cx="100" cy="137.4" rx="4.2" ry="2.5" fill="#e0707a"/></g>`:'');
+  const OV=`<g data-ov="eyes" style="opacity:0">${[78,122].map(x=>`<ellipse cx="${x}" cy="112" rx="12.8" ry="15" fill="#fff" stroke="${INK}" stroke-width="3.4"/><circle cx="${x}" cy="113.5" r="3.3" fill="${INK}"/><circle cx="${x+1.3}" cy="112" r="1.2" fill="#fff"/>`).join('')}</g>`+`<g data-ov="meh" style="opacity:0"><path d="M73.4 113.5a4.6 4.6 0 0 0 9.2 0Z" fill="${INK}"/><path d="M117.4 113.5a4.6 4.6 0 0 0 9.2 0Z" fill="${INK}"/><path d="M68 113.3H88M112 113.3H132" stroke="${INK}" stroke-width="3.6" stroke-linecap="round"/><path d="M66 103L88 107M134 103L112 107" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>`+`<g data-ov="joy" style="opacity:0"><path d="M65 115Q78 100 91 115" fill="none" stroke="${INK}" stroke-width="3.8" stroke-linecap="round"/><path d="M109 115Q122 100 135 115" fill="none" stroke="${INK}" stroke-width="3.8" stroke-linecap="round"/></g>`+(nm?`<g data-ov="flat" style="opacity:0"><path d="M91 131H109" stroke="${INK}" stroke-width="3.4" stroke-linecap="round" fill="none"/></g><g data-ov="smile" style="opacity:0"><path d="M86 129Q100 144 114 129Z" fill="#4a1d1d" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/></g><g data-ov="mouth" style="opacity:0"><ellipse cx="100" cy="133" rx="7.6" ry="7.4" fill="#4a1d1d" stroke="${INK}" stroke-width="3"/><ellipse cx="100" cy="137.4" rx="4.2" ry="2.5" fill="#e0707a"/></g>`:'');
   const sm=(k,d)=>`<g data-sm="${k}" style="opacity:0">${inkP(d,3.6)}</g>`;
   const lineL=`M${pt(66,150)}V${184}M${pt(66,236)}V${252}`,lineR=`M${pt(134,150)}V${184}M${pt(134,236)}V${252}`;
   return defs+`<g data-rg="root">${back}<g data-rg="ll">${cp('LL',low)}</g><g data-rg="rl">${cp('RL',low)}</g><g data-rg="up">${cp('TO',low)}${b6}${sm('tl',lineL)}${sm('tr',lineR)}<g data-rg="hd">${head}${OV}</g><g data-rg="la">${cp('LA',low)}${sm('la',lineL)}</g><g data-rg="ra">${cp('RA',low)}${sm('ra',lineR)}${hand}</g></g></g>`}
@@ -8427,7 +8427,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   const T=[];if(!fb&&d.tot>0)T.push([cu(d.tot.toFixed(0)),'horas']);T.push([cu(d.played),'juegos']);if(d.done.length)T.push([cu(d.done.length),'terminados']);if(!fb&&d.streak>1)T.push([cu(d.streak),'días de racha']);if(rvc)T.push([cu(rvc),'reseñas']);if(d.ach>0)T.push([cu(d.ach),'logros']);if(!fb&&d.dn>0&&d.tot>0)T.push([cu((d.tot/d.dn).toFixed(1),1),'h por día activo']);
   if(T.length>=3)add('#134e4a,#4338ca',`<div class="wm-k">EN RESUMEN</div><div class="wm-rc">${T.slice(0,6).map(([n,l],i)=>`<div style="--r:${i}">${n}<span>${l}</span></div>`).join('')}</div>`,6000);
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
-  try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d);if(/TIEMPO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:70,y:0,f:1};if(d.tot>=150)x.rx=()=>wmShock();else if(d.tot>=50)x.rx=()=>wmJoy()}})}catch(e){}
+  try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d);if(/TIEMPO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:70,y:0,f:1};if(d.tot>=150)x.rx=()=>wmShock();else if(d.tot>=50)x.rx=()=>wmJoy();else x.rx=()=>wmMeh()}})}catch(e){}
   return S_}
 const WM_GEST=false;
 function wmGes(h,d){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'';
@@ -8435,29 +8435,27 @@ function wmGes(h,d){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'';
   if(/^WINTEER/.test(t))return 'wave';if(/TIEMPO/.test(t))return d.tot>=100?'grab':'shrug';if(/BIBLIOTECA/.test(t))return 'shrug';if(/Nº 1/.test(t))return 'point';if(/SAGA/.test(t))return 'nod';if(/TOP/.test(t))return 'point';
   if(/CALIFICADO/.test(t))return 'cheer';if(/CLIP|CAPTURA/.test(t))return 'point';if(/GÉNEROS/.test(t))return 'think';if(/MES FUERTE/.test(t))return 'laugh';if(/TERMINASTE/.test(t))return 'cheer';
   if(/DIARIO/.test(t))return 'nod';if(/DÍA FAVORITO/.test(t))return 'point';if(/LOGROS/.test(t))return 'hop';if(/JUEGO DEL AÑO/.test(t))return 'cheer';if(/RESUMEN/.test(t))return 'nod';if(/ASÍ FUE/.test(t))return 'wave';return 'nod'}
-function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a=>a[Math.floor(Math.random()*a.length)],hs=n=>Math.round(n),big=d.tot>=150,mid=d.tot>=50;
-  const top=c.top&&c.top.name,pv=d.pv||0,df=d.tot-pv;
+function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a=>a[Math.floor(Math.random()*a.length)],big=d.tot>=150,mid=d.tot>=50;
   if(/RACHA/.test(t))return R(['Sin faltar un solo día. Qué disciplina, che.','Esa racha no la rompe ni un apagón.']);
-  if(/HORA FAVORITA/.test(t))return R(['Ya sé a qué hora no te puedo molestar.','Tu horario de oro, ahí lo tenés.']);
+  if(/HORA FAVORITA/.test(t))return R(['Ya sé a qué hora no te puedo molestar.','Tu horario de oro.']);
   if(/SESIÓN MÁS LARGA/.test(t))return R(['Ese día te olvidaste hasta de comer.','Una maratón así no se improvisa.']);
   if(/EL QUE DEJASTE/.test(t))return R(['Todavía te espera. No seas así.','Lo dejaste a medias. Se nota que le tenés rencor.']);
   if(/TU WINTER/.test(t))return 'Mirá cómo crecí. Bueno, cómo crecimos.';
   if(/EN UNA FRASE/.test(t))return 'Esto lo dice todo sobre vos. Sin vueltas.';
   if(/^WINTEER/.test(t))return big?R(['Ey, soy yo. Sentate, que este año te dio para rato.','Llegó el momento. Y mirá que tenemos de qué hablar.']):mid?R(['Ey, soy yo. Te cuento cómo te fue.','Llegó el momento. Te vengo mirando jugar hace rato.']):R(['Ey, soy yo. Fue un año tranqui, pero lo repasamos igual.','Llegó el momento. Poco para contar, pero lo contamos bien.']);
-  if(/TIEMPO/.test(t)){const b=big?R([hs(d.tot)+' horas. Boludo, salí a tomar sol alguna vez.',hs(d.tot)+' horas. Eso ya es un trabajo de tiempo completo.']):mid?R([hs(d.tot)+' horas. Un montón, pero lo disfrutaste, así que bien.',hs(d.tot)+' horas. Ni mucho ni poco, justito.']):hs(d.tot)+' horas. Poquito, pero cada hora cuenta.';
-    return pv?b+(df>=5?' Y '+hs(df)+' más que antes.':df<=-5?' Y '+hs(-df)+' menos que antes.':''):b}
-  if(/BIBLIOTECA/.test(t))return d.played>=25?d.played+' juegos distintos. Pica pica, no te casás con ninguno.':d.played>=8?d.played+' juegos distintos. Bastante variado, ¿no?':d.played+(d.played===1?' solo juego. Fiel como pocos.':' juegos distintos. Pocos, pero bien jugados.');
-  if(/Nº 1/.test(t))return top?R([top+'. Ni lo niegues, estás enganchadísimo.',top+' te tuvo atrapado todo el año.']):'Tu favorito, sin dudas.';
-  if(/SAGA/.test(t))return R(['Una saga entera. Fidelidad nivel Dios.','Cuando te gusta una saga, vas hasta el final.']);
-  if(/TOP/.test(t))return R(['Mirá ese podio. Después dicen que no tenés gustos definidos.','Cinco juegos y ninguno sobra.']);
-  if(/CALIFICADO/.test(t))return c.br?R([c.br.name+' fue tu mejor nota. Y es verdad, es una joya.','Tu nota más alta fue para '+c.br.name+'. Gusto impecable.']):'Lo mejor calificado, mirá vos.';
-  if(/CLIP|CAPTURA/.test(t))return 'Esto lo guardaste vos. Buen ojo, lo reconozco.';
-  if(/GÉNEROS/.test(t))return d.gen[0]?R([d.gen[0][0]+' es lo tuyo. Mucho, bastante, casi siempre.','Se nota que te va el '+d.gen[0][0]+'.']):'Tus géneros, ahí los tenés.';
+  if(/TIEMPO/.test(t))return big?R(['Boludo, salí a tomar sol alguna vez.','Eso ya es un trabajo de tiempo completo.']):mid?R(['Un montón, pero lo disfrutaste, así que bien.','Ni mucho ni poco. Justito.']):'Meh, creo que mi perro juega más.';
+  if(/BIBLIOTECA/.test(t))return d.played>=25?'Pica pica, no te casás con ninguno.':d.played>=8?'Bastante variado, ¿no?':'Pocos, pero bien jugados.';
+  if(/Nº 1/.test(t))return R(['Ni lo niegues, estás enganchadísimo.','Te tuvo atrapado todo el año.']);
+  if(/SAGA/.test(t))return R(['Fidelidad nivel Dios.','Cuando te gusta una saga, vas hasta el final.']);
+  if(/TOP/.test(t))return R(['Después dicen que no tenés gustos definidos.','Cinco juegos y ninguno sobra.']);
+  if(/CALIFICADO/.test(t))return R(['Y es verdad, es una joya.','Gusto impecable.']);
+  if(/CLIP|CAPTURA/.test(t))return 'Esto lo guardaste vos. Buen ojo.';
+  if(/GÉNEROS/.test(t))return R(['Mucho, bastante, casi siempre.','Se nota que te va.']);
   if(/MES FUERTE/.test(t))return R(['Ese mes no tocaste el pasto, ¿eh?','Ese mes se te fue la mano, confesalo.']);
-  if(/TERMINASTE/.test(t))return d.done.length>=5?'Terminaste '+d.done.length+'. ¿Quién sos y qué hiciste con el de los 40 juegos empezados?':'Terminaste '+d.done.length+(d.done.length===1?'. Uno es uno, festejemos.':'. Mejor eso que nada.');
+  if(/TERMINASTE/.test(t))return d.done.length>=5?'¿Quién sos y qué hiciste con el de los 40 juegos empezados?':R(['Uno es uno, festejemos.','Mejor eso que nada.']);
   if(/DIARIO/.test(t))return 'Hasta escribiste tus partidas. Un genio de las letras.';
   if(/DÍA FAVORITO/.test(t))return 'Ya sé qué día no te puedo llamar para nada.';
-  if(/LOGROS/.test(t))return d.ach+' logros. Cazaste de más, lo sabés.';
+  if(/LOGROS/.test(t))return 'Cazaste de más, lo sabés.';
   if(/JUEGO DEL AÑO/.test(t))return 'El elegido. Se lo ganó, ni discusión.';
   if(/RESUMEN/.test(t))return 'Todo junto, así se ve más épico, ¿viste?';
   if(/ASÍ FUE/.test(t))return big?'Un año enorme. Gracias por jugarlo conmigo, nos vemos en el próximo.':'Y esto fue todo. Gracias por jugar conmigo, nos vemos en el próximo.';
@@ -8495,7 +8493,7 @@ function wmLoop(t){const cv=$('#wmcv');if(!WM||!cv)return;requestAnimationFrame(
 function wmCount(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu),dec=+el.dataset.dec||0,t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/1700),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec).replace('.',',')+(el.dataset.suf||'');if(k<1&&WM)requestAnimationFrame(f)})(t0)})}
 function wmSplit(root){root.querySelectorAll('.wm-huge,.wm-h2').forEach(h=>{const tx=h.textContent;let n=0;h.innerHTML=tx.split(' ').map(w=>`<span class="w">${[...w].map(ch=>`<span class="ch" style="--i:${n++}">${esc(ch)}</span>`).join('')}</span>`).join(' ')})}
 /* ===== motor de animación del Winter: resortes críticamente amortiguados por articulación + gestos por línea de tiempo ===== */
-const WRP={bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0,run:0,spd:0,wv:0,wide:0,joy:0};
+const WRP={bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0,run:0,spd:0,wv:0,wide:0,joy:0,meh:0};
 function wrNew(svg){const g={};svg.querySelectorAll('[data-rg]').forEach(e=>g[e.dataset.rg]=e);const eyes=svg.querySelector('.avx-eyes');const r={svg,g,eyes,x:{},v:{},t:{},w:{},z:{},tl:[],raf:0,last:0,t0:performance.now(),bl:performance.now()+2500,alive:true};
   for(const k in WRP){r.x[k]=WRP[k];r.v[k]=0;r.t[k]=WRP[k];r.w[k]=16;r.z[k]=.7}
   svg.style.overflow='visible';r.ov={};svg.querySelectorAll('[data-ov]').forEach(e=>r.ov[e.dataset.ov]=e);r.sm={};svg.querySelectorAll('[data-sm]').forEach(e=>r.sm[e.dataset.sm]=e);
@@ -8516,7 +8514,8 @@ function wrStep(r,dt,now){if(!dt)return;const T=(now-r.t0)/1000;
   {const wd=Math.max(0,Math.min(1.2,x.wide)),tgt=r.talk?.2+.8*Math.abs(Math.sin(T*12+Math.sin(T*3.1)*2))*Math.abs(Math.sin(T*5.3+1))**.4:0;r.mo=(r.mo||0)+(tgt-(r.mo||0))*Math.min(1,dt*20);
     if(r.ov.eyes){r.ov.eyes.style.opacity=Math.min(1,wd*1.4).toFixed(2);r.ov.eyes.setAttribute('transform',`translate(100 112) scale(${(1+.1*wd).toFixed(3)}) translate(-100 -112) translate(${(wd>.5?Math.sin(T*47)*.5:0).toFixed(2)} 0)`)}
     const jy=Math.max(0,Math.min(1,x.joy));if(r.ov.joy)r.ov.joy.style.opacity=Math.min(1,jy*1.6).toFixed(2);if(r.ov.smile)r.ov.smile.style.opacity=Math.min(1,jy*1.6).toFixed(2);
-    if(r.eyes)r.eyes.style.opacity=Math.max(0,1-wd*1.6-jy*1.6).toFixed(2);
+    const mh=Math.max(0,Math.min(1,x.meh));if(r.ov.meh)r.ov.meh.style.opacity=Math.min(1,mh*1.6).toFixed(2);if(r.ov.flat)r.ov.flat.style.opacity=(Math.min(1,mh*1.6)*(1-Math.min(1,(r.mo||0)*4))).toFixed(2);
+    if(r.eyes)r.eyes.style.opacity=Math.max(0,1-wd*1.6-jy*1.6-mh*1.6).toFixed(2);
     if(r.ov.mouth){const op=Math.max(wd*.85,r.mo)*(1-Math.min(1,jy*1.2));r.ov.mouth.style.opacity=op>.06?1:0;r.ov.mouth.setAttribute('transform',`translate(100 133) scale(${(.55+.45*Math.min(1,op*1.2)).toFixed(3)} ${(.12+op*.95).toFixed(3)}) translate(-100 -133)`)}}
   if(r.eyes){if(now>r.bl){const k=(now-r.bl)/140;if(k>=1){r.bl=now+2200+Math.random()*3200;r.eyes.removeAttribute('transform')}else{const s=1-Math.sin(k*Math.PI)*.9;r.eyes.setAttribute('transform',`translate(0 112) scale(1 ${s.toFixed(3)}) translate(0 -112)`)}}}}
 function wrPose(r,p,o){o=o||{};for(const k in p){r.t[k]=p[k];r.w[k]=o.w||16;r.z[k]=o.z||.7}}
@@ -8558,6 +8557,8 @@ function wmShock(){const r=WM&&WM.rig;if(!r)return;wrStop(r);const T=(ms,p,o)=>r
 function wmJoy(){const r=WM&&WM.rig;if(!r)return;wrStop(r);const T=(ms,p,o)=>r.tl.push(setTimeout(()=>{if(WM&&WM.rig===r)wrPose(r,p,o)},ms));
   T(0,{joy:1,sy:.97,by:3,hd:-2},{w:16,z:.8});T(170,{sy:1.03,by:-9,ra:-64,hd:6,lean:2},{w:20,z:.5});T(480,{sy:.98,by:2},{w:22,z:.7});T(640,{by:0,sy:1,hd:-1},{w:14,z:.7});
   T(900,{hd:7},{w:16,z:.6});T(1180,{hd:-2},{w:16,z:.6});T(1450,{hd:6,wv:.55},{w:16,z:.6});T(2300,{hd:0,wv:0,ra:0,lean:0},{w:9,z:.85});T(3000,{joy:0},{w:7,z:.9})}
+function wmMeh(){const r=WM&&WM.rig;if(!r)return;wrStop(r);const T=(ms,p,o)=>r.tl.push(setTimeout(()=>{if(WM&&WM.rig===r)wrPose(r,p,o)},ms));
+  T(0,{meh:1,sy:.98,by:2,hd:0},{w:14,z:.85});T(260,{la:34,ra:-34,by:-3,sy:1.02,hd:9,lean:1.5},{w:20,z:.6});T(1700,{hd:-8,lean:-1.5},{w:7,z:.9});T(3000,{la:0,ra:0,by:0,sy:1,hd:0,lean:0},{w:8,z:.9});T(3900,{meh:0},{w:7,z:.9})}
 function wmSay(txt){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
