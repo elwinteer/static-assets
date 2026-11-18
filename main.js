@@ -3116,13 +3116,13 @@ app.whenReady().then(() => {
               if (ti && !/just a moment|un momento|attention required|verificando|checking/i.test(ti)) { ok = true; break; }
               if (!shown && Date.now() - t0 > 12000) { shown = true; try { w.show(); } catch (e) {} } // si no pasó solo, que el usuario haga el clic
             }
-            if (!ok) throw bad('La fuente pide verificación y no se pudo completar (HTTP 403)', 'http');
+            if (!ok) throw Object.assign(bad('La fuente pide verificación (Cloudflare) y no se completó en 90 segundos. Si apareció una ventana, hacé el clic de verificación y volvé a probar', 'http'), { challenge: true });
             await new Promise((r) => setTimeout(r, 800));
             x = await tryFetch();
             if (x.done) return x.done;
             const txt = await w.webContents.executeJavaScript('document.body ? document.body.innerText : ""').catch(() => '');
             if (txt && txt.length <= lim) return { text: txt, etag: '', url };
-            throw bad('La fuente respondió HTTP 403 (acceso denegado: puede requerir permiso, o el enlace venció)', 'http');
+            throw Object.assign(bad('Pasó la verificación pero la fuente sigue negando el acceso (HTTP 403): puede requerir permiso, o el enlace venció', 'http'), { challenge: true });
           } finally { try { if (!w.isDestroyed()) w.destroy(); } catch (e) {} }
         }
         if (x.done.text && x.done.text.length > lim) throw bad('El manifiesto es demasiado grande', 'size');

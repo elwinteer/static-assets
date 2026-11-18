@@ -46,7 +46,7 @@ async function fetchText(url, o) {
     try {
       const r = await o.netFetch(String(url), { etag: o.etag, maxBytes: MAX_BYTES });
       return r.notModified ? { notModified: true, url: String(url) } : { text: String(r.text || '').replace(/^\uFEFF/, ''), etag: r.etag || '', url: r.url || String(url) };
-    } catch (e) { if (e && ['size', 'url'].includes(e.code)) throw e; if (e && e.code === 'http' && !/HTTP (403|406|429|503)\b/.test(String(e.message))) throw e; }
+    } catch (e) { if (e && (e.challenge || ['size', 'url'].includes(e.code))) throw e; if (e && e.code === 'http' && !/HTTP (403|406|429|503)\b/.test(String(e.message))) throw e; }
   }
   return fetchNode(url, o);
 }
