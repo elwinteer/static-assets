@@ -295,9 +295,9 @@ function steamripConsole() {
   const cardsFrom = (doc, base, mode) => {
     const abs = (u) => { try { return new URL(u, base).href; } catch (e) { return ''; } };
     const all = [...doc.querySelectorAll('a[href*="free-download"]')].filter((a) => !a.closest('nav, header, footer'));
-    let scope = doc.body;
-    if (mode === 'new') { const hd = [...doc.querySelectorAll('h1,h2,h3,h4,span,div,p')].find((e) => !e.children.length && /^\s*recently added\s*$/i.test(e.textContent)); if (hd) { let c = hd, n = 0; while (c.parentElement && n++ < 7 && c.querySelectorAll('a[href*="free-download"]').length < 6) c = c.parentElement; if (c.querySelectorAll('a[href*="free-download"]').length >= 6) scope = c; } }
-    else { const cnt = new Map(); for (const a of all) { let p = a.parentElement, d = 0; while (p && p !== doc.body && d++ < 6) { cnt.set(p, (cnt.get(p) || 0) + 1); p = p.parentElement; } } let best = null, bc = 0; for (const [el, c] of cnt) if (c > bc || (c === bc && best && best.contains(el))) { best = el; bc = c; } if (best && bc >= 4) scope = best; }
+    let scope = doc.body, found = false;
+    if (mode === 'new') { const hd = [...doc.querySelectorAll('h1,h2,h3,h4,span,div,p')].find((e) => !e.children.length && /^\s*recently added\s*$/i.test(e.textContent)); if (hd) { let c = hd, n = 0; while (c.parentElement && n++ < 7 && c.querySelectorAll('a[href*="free-download"]').length < 6) c = c.parentElement; if (c.querySelectorAll('a[href*="free-download"]').length >= 6) { scope = c; found = true; } } }
+    if (!found) { const cnt = new Map(); for (const a of all) { let p = a.parentElement, d = 0; while (p && p !== doc.body && d++ < 6) { cnt.set(p, (cnt.get(p) || 0) + 1); p = p.parentElement; } } let best = null, bc = 0; for (const [el, c] of cnt) if (c > bc || (c === bc && best && best.contains(el))) { best = el; bc = c; } if (best && bc >= 4) scope = best; }
     const out = [], seen = new Set();
     for (const a of scope.querySelectorAll('a[href*="free-download"]')) {
       const href = abs(a.getAttribute('href')); if (!href || seen.has(href) || a.closest('nav, header, footer')) continue;
@@ -320,6 +320,7 @@ function steamripConsole() {
     const tabs = TABS();
     const ST = {}, nxt = (k, doc, url, pg) => { const n = nextOf(doc, url); if (n) return n; if (k === 'new') return location.origin + '/page/' + (pg + 1) + '/'; try { const u = new URL(url); u.hash = ''; u.search = ''; u.pathname = u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/\/?$/, '/') + 'page/' + (pg + 1) + '/'; return u.href; } catch (e) { return ''; } }; tabs.forEach((x) => { ST[x.k] = { items: x.k === 'new' ? firstCards : null, pg: x.k === 'new' ? 1 : 0, pages: {}, cur: 1, total: 0, psize: 0, next: x.k === 'new' ? nxt('new', document, location.href, (/\/page\/(\d+)/.exec(location.pathname) || [0, 1])[1] * 1) : '', busy: 0 }; });
     const PAGED = (k) => k === 'new' || k === 'top';
+    const phOf = (doc, base) => { const m = {}; doc.querySelectorAll('a.page-numbers, .pagination a, .nav-links a, .wp-pagenavi a, [class*=pagina] a').forEach((a) => { const t = (a.textContent || '').trim(), n = /^\d{1,4}$/.test(t) ? +t : 0, h = a.getAttribute('href'); if (n && h && !m[n]) { try { m[n] = new URL(h, base).href; } catch (e) {} } }); return m; };
     const totalOf = (doc) => { let m = 0; doc.querySelectorAll('a.page-numbers, .pagination a, .nav-links a, .wp-pagenavi a').forEach((a) => { const t = parseInt((a.textContent || '').replace(/[^\d]/g, ''), 10); if (t > m && t < 5000) m = t; const h = /\/page\/(\d+)/.exec(a.getAttribute('href') || ''); if (h && +h[1] > m && +h[1] < 5000) m = +h[1]; }); return m; };
     let cur = 'new', view = 'grid', q = '', shown = 0, pgN = 1; const PER = 14; const PAGE = 36;
     const row = (c, i) => { const m = c.m, ch = m ? [m.ver ? '<span class="v">' + esc(m.ver) + '</span>' : '', m.size ? '<span>' + esc(m.size) + '</span>' : '', ...(m.cats || []).map((x) => '<span>' + esc(x) + '</span>')].join('') : '<span class="uw" style="width:70px"></span><span class="uw" style="width:56px"></span>';
@@ -327,7 +328,7 @@ function steamripConsole() {
     const lrow = (c, i) => { const m = c.m, ch = m ? [m.ver ? '<span class="v">' + esc(m.ver) + '</span>' : '', m.size ? '<span>' + esc(m.size) + '</span>' : '', ...(m.cats || []).map((x) => '<span>' + esc(x) + '</span>')].join('') : '<span class="uw" style="width:64px"></span><span class="uw" style="width:50px"></span>';
       return '<a class="alr rv" data-i="' + i + '" href="' + esc(c.href) + '" style="--i:' + (i % 14) + '">' + (c.img ? '<span class="abg" style="background-image:url(\'' + esc(c.img) + '\')"></span>' : '') + '<span class="aw">' + esc(c.title.trim().charAt(0).toUpperCase()) + '</span><span class="an">' + String(i + 1).padStart(3, '0') + '</span><span class="acv">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '</span><span class="ab"><b class="at">' + esc(c.title) + '</b><span class="ac">' + ch + (m && m.date ? '<em>' + esc(m.date) + '</em>' : '') + '</span>' + (m && m.desc ? '<span class="ax"><span>' + esc(m.desc) + '</span></span>' : '') + '</span><span class="ago">Ver juego<i>›</i></span></a>'; };
     const pager = (pages, pg) => { if (pages < 2) return ''; const set = new Set([1, pages, pg, pg - 1, pg + 1, pg - 2, pg + 2]); const arr = [...set].filter((x) => x >= 1 && x <= pages).sort((a, b) => a - b); let h = '<button class="pb nv2" data-p="' + (pg - 1) + '"' + (pg < 2 ? ' disabled' : '') + '>‹</button>', last = 0; for (const x of arr) { if (x - last > 1) h += '<span class="pe">…</span>'; h += '<button class="pb' + (x === pg ? ' on' : '') + '" data-p="' + x + '">' + x + '</button>'; last = x; } return '<div class="pgs">' + h + '<button class="pb nv2" data-p="' + (pg + 1) + '"' + (pg >= pages ? ' disabled' : '') + '>›</button></div>'; };
-    const card = (c, i) => '<a class="cd rv" href="' + esc(c.href) + '" style="--i:' + (i % 12) + '"><span class="im">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '<i class="gl"></i></span>' + (cur === 'top' ? (() => { const rk = (ST.top.items || []).indexOf(c) + 1 + (ST.top.cur - 1) * (ST.top.psize || (ST.top.items || []).length); return rk ? '<em class="rk r' + Math.min(rk, 4) + '">' + rk + '</em>' : ''; })() : '') + '<span class="nm"><b>' + esc(c.title) + '</b></span></a>';
+    const card = (c, i) => '<a class="cd rv" href="' + esc(c.href) + '" style="--i:' + (i % 12) + '"><span class="cx">' + (cur === 'new' && (ST.new.cur || 1) === 1 && i < 6 ? '<span class="nb"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>NUEVO</span>' : '') + '<span class="dlb"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></span></span><span class="im">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '<i class="gl"></i></span>' + (cur === 'top' ? (() => { const rk = (ST.top.items || []).indexOf(c) + 1 + (ST.top.cur - 1) * (ST.top.psize || (ST.top.items || []).length); return rk ? '<em class="rk r' + Math.min(rk, 4) + '">' + rk + '</em>' : ''; })() : '') + '<span class="nm"><b>' + esc(c.title) + '</b><span class="mi"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M3 5.5l7-1v7H3zM11 4.4l10-1.4v8.500H11zM3 12.500h7v7l-7-1zM11 12.500h10V21l-10-1.400z"/></svg>PC<i></i><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5"/></svg>Descarga directa</span></span></a>';
     sh.innerHTML = `<style>
       :host{all:initial}*{box-sizing:border-box}
       ${AMBCSS}
@@ -424,6 +425,10 @@ function steamripConsole() {
       .gr.list{grid-template-columns:1fr;gap:10px;max-width:980px}
       .rv{opacity:0;transform:translateY(26px) scale(.97);filter:blur(5px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1),filter .8s cubic-bezier(.22,1,.36,1)}.rv.in{opacity:1;transform:none;filter:none}
       .cd{position:relative;display:block;color:#ececf3;text-decoration:none;perspective:700px}
+      .cd .cx{position:absolute;z-index:5;top:10px;right:10px;display:flex;gap:6px;align-items:center;pointer-events:none}
+      .cd .nb{display:inline-flex;align-items:center;gap:5px;font:800 9.5px "Segoe UI",system-ui;letter-spacing:.1em;padding:5px 9px;border-radius:99px;color:#0b0b13;background:linear-gradient(135deg,#fff,#d9dbe8);box-shadow:0 6px 20px rgba(255,255,255,.3);animation:nbp 2.6s ease-in-out infinite}@keyframes nbp{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+      .cd .dlb{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(10,10,18,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);opacity:0;transform:translateY(-8px) scale(.7);transition:opacity .35s,transform .5s cubic-bezier(.34,1.6,.64,1)}.cd:hover .dlb{opacity:1;transform:none}.cd:hover .dlb svg{animation:dlb 1.1s ease-in-out infinite}@keyframes dlb{0%,100%{transform:translateY(-1px)}50%{transform:translateY(2px)}}
+      .cd .mi{display:flex;align-items:center;gap:6px;font:600 10.5px "Segoe UI",system-ui;color:#c4c5d4;opacity:.85;margin-top:3px}.cd .mi i{width:3px;height:3px;border-radius:50%;background:#7d7e92}.cd .mi svg{flex:none;opacity:.9}
       .cd .im{position:relative;display:block;aspect-ratio:2/3;border-radius:18px;overflow:hidden;background:#14141c;box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s;transform-style:preserve-3d}
       .cd .im img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.22,1,.36,1)}.cd .im:after{content:'';position:absolute;inset:0;z-index:2;background:linear-gradient(0deg,rgba(5,5,9,.9) 0%,rgba(5,5,9,.2) 38%,transparent 60%)}
       .cd .gl{position:absolute;inset:0;z-index:2;background:radial-gradient(55% 55% at var(--mx,50%) var(--my,30%),rgba(255,255,255,.26),transparent 65%);opacity:0;transition:opacity .35s;pointer-events:none}.cd:hover .gl{opacity:1}
@@ -514,11 +519,11 @@ function steamripConsole() {
     const fetchTab = async (k, url) => {
       const st = ST[k]; if (st.busy) return; st.busy = 1;
       try { const r = await fetch(url, { credentials: 'include' }); if (r.status === 404 && (ST[k].items || []).length) { st.next = ''; st.busy = 0; if (k === cur) draw(); return; } if (!r.ok) throw new Error('HTTP ' + r.status); const doc = new DOMParser().parseFromString(await r.text(), 'text/html'); const have = new Set((st.items || []).map((c) => c.href)); const add = cardsFrom(doc, url, k === 'new' ? 'new' : 'x').filter((c) => !have.has(c.href)); await Promise.all(add.filter((c) => k !== 'all' && (!c.img || k === 'upd')).slice(0, 10).map((c) => metaOf(c.href).then((m) => { c.m = m; if (m.img) c.img = m.img; }))); st.items = (st.items || []).concat(add); if (k === 'all') st.items.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })); st.pg++; st.next = add.length && k !== 'all' ? nxt(k, doc, url, st.pg) : ''; st.err = add.length || st.items.length ? '' : 'No encontré juegos en esta sección'; }
-      catch (e) { st.next = ''; st.items = st.items || []; st.err = 'No se pudo cargar (' + String(e.message || e).slice(0, 40) + ')'; }
+      catch (e) { st.next = ''; st.items = st.items || []; st.err = 'No se pudo cargar: ' + String(e.message || e).slice(0, 110); }
       st.busy = 0; if (k === cur) { draw(); if (k !== 'new' || true) drawHero(); }
     };
     const loadMore = () => { const st = ST[cur], list = filt(); if (list.length > shown && !q) { shown += PAGE; draw(); return; } if (st.next) fetchTab(cur, st.next).then(() => { shown += PAGE; draw(); }); };
-    { const sn = ST.new, pn = +((/\/page\/(\d+)/.exec(location.pathname) || [0, 1])[1]); sn.pages[pn] = firstCards; sn.cur = pn; sn.psize = firstCards.length; sn.total = totalOf(document); }
+    { const sn = ST.new, pn = +((/\/page\/(\d+)/.exec(location.pathname) || [0, 1])[1]); sn.pages[pn] = firstCards; sn.cur = pn; sn.psize = firstCards.length; sn.total = totalOf(document); sn.ph = phOf(document, location.href); }
     const pageUrl = (k, n) => { if (k === 'new') return n < 2 ? location.origin + '/' : location.origin + '/page/' + n + '/'; const b = new URL(tabs.find((x) => x.k === k).url); b.hash = ''; b.search = ''; b.pathname = b.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/\/?$/, '/'); return n < 2 ? b.href : b.href + 'page/' + n + '/'; };
     const showPage = (k, n) => {
       const st = ST[k], fw = n > st.cur; st.cur = n;
@@ -530,13 +535,15 @@ function steamripConsole() {
       const st = ST[k]; if (st.busy || n < 1) return;
       if (st.pages[n]) { showPage(k, n); return; }
       st.busy = 1; st.err = ''; if (k === cur && st.items) draw();
-      try { const url = pageUrl(k, n), r = await fetch(url, { credentials: 'include' });
+      try { const url = (st.ph && st.ph[n]) || pageUrl(k, n), r = await fetch(url, { credentials: 'include' });
         if (r.status === 404) { st.total = Math.max(1, n - 1); st.busy = 0; if (k === cur) draw(); return; }
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const doc = new DOMParser().parseFromString(await r.text(), 'text/html'), items = cardsFrom(doc, url, k === 'new' ? 'new' : 'x');
         if (!items.length) { st.total = Math.max(1, n - 1); st.busy = 0; if (k === cur) draw(); return; }
+        { const first = (st.pages[1] || []).map((x) => x.href), same = items.filter((x) => first.includes(x.href)).length; if (n > 1 && first.length && same >= Math.ceil(items.length * 0.6)) throw new Error('esa página repite la 1 · ' + url.replace(location.origin, '')); }
+        st.ph = Object.assign(st.ph || {}, phOf(doc, url));
         const t = totalOf(doc); if (t > (st.total || 0)) st.total = t; st.pages[n] = items; if (n === 1 || !st.psize) st.psize = items.length; st.busy = 0; showPage(k, n);
-      } catch (e) { st.busy = 0; st.err = 'No se pudo cargar (' + String(e.message || e).slice(0, 40) + ')'; if (k === cur) draw(); }
+      } catch (e) { st.busy = 0; st.err = 'No se pudo cargar: ' + String(e.message || e).slice(0, 110); if (k === cur) draw(); }
     };
     let swT = 0;
     const sw = (k) => {
@@ -599,7 +606,7 @@ function vimmConsole() {
     [['lynx', 'atarilynx'], 'Lynx', 'Atari Lynx', 1989, 'atari', 'wide', 1], [['tg16', 'turbografx16', 'pcengine'], 'TG-16', 'TurboGrafx-16', 1987, 'atari', 'cart'],
     [['tgcd', 'turbografxcd', 'pcenginecd'], 'TG-CD', 'TurboGrafx-CD', 1990, 'atari', 'disc'], [['cdi', 'philipscdi'], 'CD-i', 'Philips CD-i', 1991, 'atari', 'disc'],
   ];
-  const FALL = ['NES', 'SNES', 'N64', 'GameCube', 'Wii', 'WiiWare', 'VB', 'GB', 'GBC', 'GBA', 'DS', 'SMS', 'Genesis', 'SegaCD', '32X', 'Saturn', 'Dreamcast', 'PS1', 'PS2', 'PS3', 'PSP', 'Xbox', 'X360-D', 'Atari2600', 'Atari5200', 'Atari7800', 'Jaguar', 'Lynx', 'TG16', 'TGCD', 'CDi'];
+  const FALL = ['NES', 'SNES', 'N64', 'GameCube', 'Wii', 'WiiWare', 'VB', 'GB', 'GBC', 'GBA', 'DS', 'SMS', 'Genesis', 'SegaCD', '32X', 'Saturn', 'Dreamcast', 'PS1', 'PS2', 'PS3', 'PSP', 'Xbox', 'X360', 'Atari2600', 'Atari5200', 'Atari7800', 'Jaguar', 'Lynx', 'TG16', 'TGCD', 'CDi'];
   const metaOf = (code, text) => {
     const a = norm(code), b = norm(text), m = META.find((r) => r[0].includes(a)) || META.find((r) => r[0].includes(b)) || META.find((r) => norm(r[2]) === b || norm(r[1]) === b);
     if (m) return { code, short: m[1], name: m[2], year: m[3], brand: m[4], type: m[5], port: !!m[6], ico: m[0][0] };
@@ -748,7 +755,8 @@ function vimmConsole() {
       if (u.origin !== O) continue; let code = '';
       const m = /^\/vault\/([A-Za-z][A-Za-z0-9_-]*)\/?$/.exec(u.pathname); if (m) code = m[1]; else if (u.searchParams.get('p') === 'list' && u.searchParams.get('system') && !u.searchParams.get('section')) code = u.searchParams.get('system');
       if (!code || /^(about|search|lists|wishlist|login|register)$/i.test(code)) continue; const k = norm(code); if (seen.has(k)) continue; seen.add(k);
-      const x = metaOf(code, T(a)); x.href = u.href; list.push(x);
+      if (/-d$/i.test(code) || /digital|\(d\)/i.test(T(a))) continue;
+      const x = metaOf(code, T(a)); if (list.some((y) => y.short === x.short && x.year)) continue; x.href = u.href; list.push(x);
     }
     let items = list.length >= 5 ? list : FALL.map((c) => { const x = metaOf(c, ''); x.href = O + '/vault/' + c; return x; });
     items.sort((a, b) => (a.year || 9999) - (b.year || 9999));

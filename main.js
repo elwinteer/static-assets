@@ -2060,6 +2060,15 @@ function createWindow() {
   });
   win.webContents.on('will-attach-webview', (_e, wp, params) => { delete wp.preload; delete wp.preloadURL; wp.nodeIntegration = false; wp.contextIsolation = true; wp.sandbox = true; params.partition = WEB_PART; });
   win.webContents.on('did-attach-webview', (_e, wc) => {
+    // Identidad de Chrome común (cabeceras sec-ch-ua y navigator.userAgentData sin «Electron») para que Cloudflare no rechace el navegador integrado.
+    try {
+      const ver = process.versions.chrome || '120.0.0.0', mj = ver.split('.')[0], plat = process.platform === 'win32' ? 'Windows' : process.platform === 'darwin' ? 'macOS' : 'Linux';
+      const ua = String(wc.getUserAgent() || '').replace(/\s(Electron|winteer)\/[\d.]+/ig, '');
+      const brands = [{ brand: 'Not.A/Brand', version: '8' }, { brand: 'Chromium', version: mj }, { brand: 'Google Chrome', version: mj }];
+      wc.debugger.attach('1.3');
+      wc.debugger.sendCommand('Emulation.setUserAgentOverride', { userAgent: ua, userAgentMetadata: { brands, fullVersionList: [{ brand: 'Not.A/Brand', version: '8.0.0.0' }, { brand: 'Chromium', version: ver }, { brand: 'Google Chrome', version: ver }], platform: plat, platformVersion: plat === 'Windows' ? '10.0.0' : '14.0.0', architecture: 'x86', bitness: '64', model: '', mobile: false, wow64: false } }).catch(() => {});
+      wc.debugger.sendCommand('Page.addScriptToEvaluateOnNewDocument', { source: 'try{if(!window.chrome)window.chrome={runtime:{},app:{isInstalled:false},csi:function(){},loadTimes:function(){}}}catch(e){}' }).catch(() => {});
+    } catch (e) {}
     try {
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
