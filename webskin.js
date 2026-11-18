@@ -686,8 +686,8 @@ function fitgirlConsole() {
   const SRCH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
   const BACK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
   const P = location.pathname.replace(/\/+$/, '') || '/', Q = new URLSearchParams(location.search), O = location.origin;
-  const TABS = [['new', 'Lanzamientos', '/'], ['pop', 'Populares', '/popular-repacks/'], ['up', 'Próximamente', '/upcoming-repacks/'], ['all', 'Todos A–Z', '/all-my-repacks-a-z/']];
-  const TIC = { new: '<path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/>', pop: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .5 1.500 1.500 2 2 1 .5-2-.5-4 1-7z"/>', up: '<circle cx="12" cy="12" r="8.500"/><path d="M12 7v5l3 2"/>', all: '<path d="M4 6h16M4 12h16M4 18h10"/>' };
+  const TABS = [['new', 'Lanzamientos', '/'], ['pop', 'Populares', '/popular-repacks/'], ['up', 'Próximamente', '/upcoming-repacks/'], ['all', 'Todos A–Z', '/all-my-repacks-a-z/'], ['upd', 'Actualizaciones', '/updates-list/']];
+  const TIC = { new: '<path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/>', pop: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .5 1.500 1.500 2 2 1 .5-2-.5-4 1-7z"/>', up: '<circle cx="12" cy="12" r="8.500"/><path d="M12 7v5l3 2"/>', all: '<path d="M4 6h16M4 12h16M4 18h10"/>', upd: '<path d="M20 12a8 8 0 1 1-2.500-5.800M20 4v5h-5"/>' };
   const TI = (k) => '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (TIC[k] || '') + '</svg>';
   const abs = (u, b) => { try { return new URL(u, b || location.href).href; } catch (e) { return ''; } };
   const tidy = (t) => { let v = ''; const m = /\b(v\s?\d[\w.\-]*|build\s*\d+)/i.exec(t); if (m) v = m[1].replace(/^v\s+/i, 'v'); let n = String(t || '').replace(/\s+/g, ' ').replace(/\s*[–—]\s*.*$/, '').replace(/\s+-\s+(v\s?\d|build|\d|\+|update).*$/i, '').replace(/\s*\(\+.*$/, '').replace(/\s*\+\s*\d+\s*DLCs?.*$/i, '').replace(/\s*,\s*v\d.*$/i, '').replace(/\s*Free\s*Download.*/i, '').trim(); if (n.length < 2) n = String(t || '').trim(); return { name: n, ver: v }; };
@@ -702,7 +702,7 @@ function fitgirlConsole() {
   const readArticles = (doc, base) => {
     const out = [], seen = new Set();
     doc.querySelectorAll('article').forEach((ar) => {
-      const a = ar.querySelector('.entry-title a, h1 a, h2 a, h3 a'); if (!a) return; const href = abs(a.getAttribute('href'), base); if (!href || seen.has(href)) return; seen.add(href);
+      const a = ar.querySelector('.entry-title a, h1 a, h2 a, h3 a'); if (!a) return; const href = abs(a.getAttribute('href'), base); if (!href || seen.has(href) || /upcoming/i.test(T(a))) return; seen.add(href);
       const raw = T(a), t = tidy(raw), tx = ar.textContent.replace(/\s+/g, ' '), inf = infoOf(tx), tm = ar.querySelector('time'), d = tm ? (tm.getAttribute('datetime') || T(tm)) : '';
       out.push({ href, title: t.name, ver: t.ver, img: imgOf(ar, base), rep: inf.rep, org: inf.org, lang: inf.lang, gen: inf.gen, date: d ? d.slice(0, 10) : '' });
     });
@@ -713,22 +713,28 @@ function fitgirlConsole() {
     root.querySelectorAll('a[href]').forEach((a) => { const im = a.querySelector('img'); if (!im) return; const href = abs(a.getAttribute('href'), base); if (!href || seen.has(href) || href.replace(/\/$/, '') === O || /\/(category|tag|page)\//.test(href)) return; seen.add(href); const raw = a.getAttribute('title') || im.getAttribute('alt') || T(a) || decodeURIComponent((href.split('/').filter(Boolean).pop() || '').replace(/-/g, ' ')); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: imgOf(a, base), rep: '', org: '', lang: '', gen: '', date: '' }); });
     return out;
   };
+  const readUpd = (doc, base) => {
+    const out = [], sp = doc.querySelectorAll('.su-spoiler');
+    sp.forEach((e) => { const t = T(e.querySelector('.su-spoiler-title')), c = e.querySelector('.su-spoiler-content'); if (!t) return; const ls = c ? [...c.querySelectorAll('a[href]')].map((a) => ({ t: T(a) || 'Enlace', h: abs(a.getAttribute('href'), base) })) : []; const tt = tidy(t); out.push({ href: '', title: tt.name, ver: tt.ver, ls, img: '', rep: '', org: '', lang: '', gen: '', date: '' }); });
+    return out;
+  };
   const readUp = (doc, base) => {
     const out = [], seen = new Set(), root = doc.querySelector('.entry-content') || doc.body;
-    root.querySelectorAll('a[href]').forEach((a) => { const href = abs(a.getAttribute('href'), base), raw = T(a).replace(/^[→\-–\s]+/, ''); if (!href || !raw || seen.has(href) || raw.length < 3 || href.indexOf('fitgirl-repacks.site') < 0 || /^https?:\/\/[^/]+\/?(#.*)?$/.test(href)) return; seen.add(href); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: '', rep: '', org: '', lang: '', gen: '', date: '' }); });
+    root.querySelectorAll('a[href]').forEach((a) => { const href = abs(a.getAttribute('href'), base), raw = T(a).replace(/^[→\-–\s]+/, ''); if (!href || !raw || seen.has(href) || raw.length < 3 || href.indexOf(location.host) < 0 || /^https?:\/\/[^/]+\/?(#.*)?$/.test(href)) return; seen.add(href); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: '', rep: '', org: '', lang: '', gen: '', date: '' }); });
     return out;
   };
   const readList = (doc, base) => {
     const out = [], seen = new Set();
-    doc.querySelectorAll('.lcp_catlist li a, ul.lcp_catlist a, .lcp_catlist a').forEach((a) => { const href = abs(a.getAttribute('href'), base), raw = T(a); if (!href || !raw || seen.has(href)) return; seen.add(href); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: '', rep: '', org: '', lang: '', gen: '', date: '' }); });
+    (doc.querySelector('.lcp_catlist') ? doc.querySelectorAll('.lcp_catlist a') : doc.querySelectorAll('.entry-content li a')).forEach((a) => { const href = abs(a.getAttribute('href'), base), raw = T(a); if (!href || !raw || seen.has(href)) return; seen.add(href); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: '', rep: '', org: '', lang: '', gen: '', date: '' }); });
     return out;
   };
   const totalOf = (doc) => { let m = 0; doc.querySelectorAll('.page-numbers, .pagination a, .nav-links a, .lcp_paginator a, .lcp_paginator li').forEach((a) => { const n = parseInt(T(a).replace(/[^\d]/g, ''), 10); if (n > m && n < 5000) m = n; const h = /(?:\/page\/|lcp_page0=)(\d+)/.exec(a.getAttribute && a.getAttribute('href') || ''); if (h && +h[1] > m && +h[1] < 5000) m = +h[1]; }); return m; };
   const urlFor = (k, n, q) => {
     if (k === 'search') return n < 2 ? O + '/?s=' + encodeURIComponent(q) : O + '/page/' + n + '/?s=' + encodeURIComponent(q);
-    if (k === 'all') return O + '/all-my-repacks-a-z/?lcp_page0=' + n + '#lcp_instance_0';
-    const b = TABS.find((t) => t[0] === k)[2]; return n < 2 ? O + b : O + b + 'page/' + n + '/';
+    if (NAV[k]) return NAV[k]; const b = TABS.find((t) => t[0] === k)[2]; return n < 2 ? O + b : O + b + 'page/' + n + '/';
   };
+  const NAV = {}; let HOME = null;
+  const navInit = async () => { if (HOME) return; try { HOME = await fetchDoc(O + '/'); if (!HOME) return; const want = { pop: /popular repacks/i, all: /all my repacks/i, upd: /updates list/i }; HOME.querySelectorAll('a[href]').forEach((a) => { const t = T(a); Object.keys(want).forEach((k) => { if (!NAV[k] && want[k].test(t) && a.getAttribute('href') && !/#/.test(a.getAttribute('href'))) NAV[k] = abs(a.getAttribute('href'), O + '/'); }); }); } catch (e) { HOME = null; } };
   const fetchDoc = async (u) => { const r = await fetch(u, { credentials: 'include' }); if (r.status === 404) return null; if (!r.ok) throw new Error('HTTP ' + r.status); return new DOMParser().parseFromString(await r.text(), 'text/html'); };
 
   // ---------- portada ----------
@@ -745,6 +751,7 @@ function fitgirlConsole() {
       .fc .rk{position:absolute;z-index:4;top:10px;left:10px;min-width:34px;height:34px;padding:0 9px;border-radius:12px;display:grid;place-items:center;font:800 15px ${FONT};color:#0b0b13;background:linear-gradient(135deg,#fff,#b9bacb)}.fc .rk.r1{background:linear-gradient(135deg,#ffe08a,#f5a524)}.fc .rk.r2{background:linear-gradient(135deg,#f3f4f8,#a7a9bd)}.fc .rk.r3{background:linear-gradient(135deg,#f0b48a,#b0693a)}
       .lr{display:flex;flex-direction:column;gap:10px}.rw{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;padding:12px 20px 12px 12px;border-radius:18px;background:linear-gradient(90deg,rgba(26,26,40,.72),rgba(14,14,22,.62));border:1px solid rgba(255,255,255,.07);cursor:pointer;color:#fff;animation:up .5s calc(var(--i)*22ms) cubic-bezier(.22,1,.36,1) backwards;transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .3s,background .3s}
       .rw:hover{transform:translateX(7px);border-color:rgba(255,255,255,.24);background:linear-gradient(90deg,rgba(42,42,60,.88),rgba(20,20,30,.72))}.rw .tl{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font:800 19px ${FONT};background:linear-gradient(135deg,hsl(var(--h) 60% 42%),hsl(calc(var(--h) + 40) 65% 26%))}.rw b{flex:1;min-width:0;font:600 15px ${FONT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rw i{font:700 11px ${FONT};font-style:normal;color:#b4b5c6;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.07)}
+      .ur .sb{display:none;flex-wrap:wrap;gap:8px;padding:10px 6px 4px 66px}.ur.open .sb{display:flex;animation:up .4s backwards}.ur .sb a{font:700 12px ${FONT};color:#fff;padding:7px 13px;border-radius:99px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);text-decoration:none;transition:all .25s}.ur .sb a:hover{background:#fff;color:#0b0b13;transform:translateY(-2px)}
       .pg{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:30px}.pg button{min-width:40px;height:40px;padding:0 13px;border-radius:13px;font:700 13.5px ${FONT};color:#a6a7b8;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .3s cubic-bezier(.22,1,.36,1)}.pg button:hover{color:#fff;background:rgba(255,255,255,.12);transform:translateY(-3px)}.pg button.on{color:#0b0b13;background:#f4f4f8}.pg button:disabled{opacity:.35;pointer-events:none}.pg span{align-self:center;color:#6f7085}
       .er{padding:14px 18px;margin:0 0 16px;border-radius:16px;font:600 13.5px ${FONT};color:#ffd58a;background:rgba(245,165,36,.1);border:1px solid rgba(245,165,36,.3)}
       .sk{aspect-ratio:3/4.2;border-radius:22px;background:linear-gradient(110deg,rgba(255,255,255,.04) 30%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.04) 70%);background-size:200% 100%;animation:swp 1.4s linear infinite}`;
@@ -753,7 +760,7 @@ function fitgirlConsole() {
     const ST = {}; TABS.forEach((t) => { ST[t[0]] = { pages: {}, cur: 1, total: 0, busy: 0, err: '' }; }); ST.search = { pages: {}, cur: 1, total: 0, busy: 0, err: '', q: '' };
     let cur = 'new', tk = 0;
     const hashK = (/wt=(\w+)/.exec(location.hash) || [])[1];
-    if (/^\/popular-repacks/.test(P)) cur = 'pop'; else if (/^\/(upcoming-repacks|category\/upcoming)/.test(P)) cur = 'up'; else if (/^\/all-my-repacks/.test(P)) cur = 'all'; else if (TABS.some((t) => t[0] === hashK)) cur = hashK;
+    const dt = document.title; if (/popular|pop repacks/i.test(dt) && !document.querySelector('body.single')) cur = 'pop'; else if (/^all my repacks/i.test(dt)) cur = 'all'; else if (/^updates list/i.test(dt)) cur = 'upd'; else if (/^upcoming repacks/i.test(dt)) cur = 'up'; else if (/^\/popular-repacks/.test(P)) cur = 'pop'; else if (/^\/(upcoming-repacks|category\/upcoming)/.test(P)) cur = 'up'; else if (/^\/all-my-repacks/.test(P)) cur = 'all'; else if (/^\/updates-list/.test(P)) cur = 'upd'; else if (TABS.some((t) => t[0] === hashK)) cur = hashK;
     const pn = +((/\/page\/(\d+)/.exec(P) || [0, 1])[1]); if (cur === 'new' && pn > 1) ST.new.cur = pn;
     const moveAc = () => { const b = sh.querySelector('#tb button.on'), a = sh.querySelector('#tb .ac'); if (b && a) { a.style.left = b.offsetLeft + 'px'; a.style.width = b.offsetWidth + 'px'; } };
     window.addEventListener('resize', moveAc);
@@ -764,7 +771,8 @@ function fitgirlConsole() {
       countTo($('#ts'), L.length, ' repacks' + (pages > 1 ? ' · página ' + st.cur + ' de ' + pages : ''));
       $('#er').innerHTML = st.err ? '<div class="er">' + esc(st.err) + '</div>' : '';
       if (!st.pages[st.cur]) { gr.className = 'gr cg'; gr.innerHTML = st.err ? '' : Array.from({ length: 12 }, () => '<div class="sk"></div>').join(''); $('#pg').innerHTML = ''; return; }
-      if (cur === 'all' || cur === 'up') { gr.className = 'gr lr'; gr.innerHTML = L.map((x, i) => '<a class="rw" style="--i:' + Math.min(i, 20) + '" data-h="' + esc(x.href) + '"><span class="tl" style="--h:' + hueOf(x.title) + '">' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + '</span><b>' + esc(x.title) + '</b>' + (x.ver ? '<i>' + esc(x.ver) + '</i>' : '') + '</a>').join(''); }
+      if (cur === 'upd') { gr.className = 'gr lr'; gr.innerHTML = L.map((x, i) => '<div class="ur" style="--i:' + Math.min(i, 20) + '"><a class="rw" data-t="1"><span class="tl" style="--h:' + hueOf(x.title) + '">' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '#').toUpperCase()) + '</span><b>' + esc(x.title) + '</b><i>' + (x.ls.length ? x.ls.length + ' enlaces ＋' : 'sin enlaces') + '</i></a><div class="sb">' + x.ls.map((l) => '<a href="' + esc(l.h) + '">' + esc(l.t.slice(0, 40)) + '</a>').join('') + '</div></div>').join(''); }
+      else if (cur === 'all' || cur === 'up') { gr.className = 'gr lr'; gr.innerHTML = L.map((x, i) => '<a class="rw" style="--i:' + Math.min(i, 20) + '" data-h="' + esc(x.href) + '"><span class="tl" style="--h:' + hueOf(x.title) + '">' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + '</span><b>' + esc(x.title) + '</b>' + (x.ver ? '<i>' + esc(x.ver) + '</i>' : '') + '</a>').join(''); }
       else {
         gr.className = 'gr cg';
         gr.innerHTML = L.length ? L.map((x, i) => '<a class="fc" style="--i:' + Math.min(i, 24) + ';--h:' + hueOf(x.title) + '" data-h="' + esc(x.href) + '"><span class="cx">' + (cur === 'new' && st.cur === 1 && i < 6 ? '<span class="nb">NUEVO</span>' : '') + '</span>' + (cur === 'pop' ? '<span class="rk r' + Math.min(i + 1, 4) + '">' + (i + 1) + '</span>' : '') + '<span class="im">' + (x.img ? '<img loading="lazy" src="' + esc(x.img) + '" alt="">' : '<b>' + esc(x.title.charAt(0)) + '</b>') + '</span><span class="nm"><b>' + esc(x.title) + '</b><span class="mi">' + (x.rep ? '<span>💾 ' + esc(x.rep) + '</span>' : '') + (x.ver ? '<span>' + esc(x.ver) + '</span>' : '') + (x.date ? '<span>' + esc(x.date) + '</span>' : '') + '</span></span></a>').join('') : '<div class="em">No encontré repacks</div>';
@@ -772,19 +780,33 @@ function fitgirlConsole() {
       gr.querySelectorAll('.fc,.rw').forEach((c) => {
         c.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; c.style.setProperty('--ry', ((x - .5) * 12).toFixed(1) + 'deg'); c.style.setProperty('--rx', ((.5 - y) * 10).toFixed(1) + 'deg'); c.style.setProperty('--mx', (x * 100).toFixed(0) + '%'); c.style.setProperty('--my', (y * 100).toFixed(0) + '%'); });
         c.addEventListener('pointerleave', () => { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
-        c.addEventListener('click', (e) => { e.preventDefault(); ripple(c, e); leave(sh, () => { location.href = c.dataset.h; }); });
+        c.addEventListener('click', (e) => { e.preventDefault(); if (c.dataset.t) { c.parentNode.classList.toggle('open'); return; } ripple(c, e); leave(sh, () => { location.href = c.dataset.h; }); });
       });
       const pgs = []; for (let i = 1; i <= pages; i++) if (i === 1 || i === pages || Math.abs(i - st.cur) <= 2) pgs.push(i); const out = []; pgs.forEach((n, i) => { if (i && n - pgs[i - 1] > 1) out.push('<span>…</span>'); out.push('<button data-p="' + n + '" class="' + (n === st.cur ? 'on' : '') + '">' + n + '</button>'); });
       $('#pg').innerHTML = pages > 1 ? '<button data-p="' + (st.cur - 1) + '"' + (st.cur < 2 ? ' disabled' : '') + '>‹</button>' + out.join('') + '<button data-p="' + (st.cur + 1) + '"' + (st.cur >= pages ? ' disabled' : '') + '>›</button>' : '';
       $('#pg').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => goPage(+b.dataset.p)));
     };
+    const PER = 60;
     const load = async (k, n) => {
       const st = ST[k]; if (st.pages[n] || st.busy) return; st.busy = 1; st.err = '';
       try {
+        if (k === 'up' || k === 'all' || k === 'upd') {
+          if (!st.full) {
+            await navInit(); let items = [];
+            if (k === 'up') {
+              let a = null; if (HOME) a = [...HOME.querySelectorAll('article .entry-title a')].find((x) => /upcoming/i.test(T(x)));
+              if (a) { const ar = a.closest('article'); items = readUp(ar, O + '/'); if (items.length < 3) { const d = await fetchDoc(abs(a.getAttribute('href'), O + '/')); if (d) items = readUp(d, O + '/'); } }
+              if (items.length < 3) { const d = await fetchDoc(O + '/upcoming-repacks/'); if (d) items = readUp(d, O + '/'); }
+            } else { const u = urlFor(k, 1, ''), doc = await fetchDoc(u); if (doc) items = k === 'upd' ? readUpd(doc, u) : readList(doc, u); if (k === 'upd' && !items.length && doc) items = readList(doc, u); }
+            st.full = items;
+          }
+          const f = st.full; st.total = Math.max(1, Math.ceil(f.length / PER)); const sl = f.slice((n - 1) * PER, n * PER);
+          if (!sl.length) { st.err = f.length ? 'Esa página no existe' : 'No pude leer esta sección'; return; } st.pages[n] = sl; return;
+        }
         const u = urlFor(k, n, st.q), doc = await fetchDoc(u);
         if (!doc) { st.total = Math.max(1, n - 1); st.err = 'Esa página no existe'; return; }
-        let items = k === 'up' ? readUp(doc, u) : k === 'all' ? readList(doc, u) : k === 'pop' ? readPopular(doc, u) : readArticles(doc, u);
-        if (!items.length && k !== 'pop' && k !== 'up') items = readPopular(doc, u);
+        let items = k === 'pop' ? readPopular(doc, u) : readArticles(doc, u);
+        if (!items.length && k !== 'pop') items = readPopular(doc, u);
         if (!items.length) { st.total = Math.max(1, n - 1); st.err = n > 1 ? 'No hay más páginas' : 'No pude leer los repacks de esta página'; return; }
         const t = totalOf(doc); if (t > st.total) st.total = t; st.pages[n] = items;
       } catch (e) { st.err = 'No se pudo cargar: ' + String(e.message || e).slice(0, 100); } finally { st.busy = 0; }
@@ -809,15 +831,18 @@ function fitgirlConsole() {
   };
 
   // ---------- página de un repack ----------
-  const DL = [[/magnet:/i, 'Torrent (magnet)', 'tor'], [/\.torrent(\?|$)/i, 'Archivo .torrent', 'tor'], [/1337x|rutor|tapochek|nyaa|rarbg/i, 'Torrent (web)', 'tor'], [/fuckingfast/i, 'FuckingFast', 'ddl'], [/datanodes/i, 'DataNodes', 'ddl'], [/gofile/i, 'GoFile', 'ddl'], [/buzzheavier/i, 'BuzzHeavier', 'ddl'], [/pixeldrain/i, 'PixelDrain', 'ddl'], [/vikingfile/i, 'VikingFile', 'ddl'], [/multiup/i, 'MultiUp', 'ddl'], [/1fichier/i, '1fichier', 'ddl'], [/mega\.nz/i, 'MEGA', 'ddl'], [/mediafire/i, 'MediaFire', 'ddl'], [/filecrypt/i, 'FileCrypt', 'ddl']];
+  const DL = [[/magnet:/i, 'Torrent (magnet)', 'tor'], [/\.torrent(\?|$)/i, 'Archivo .torrent', 'tor'], [/1337x|rutor|tapochek|nyaa|rarbg/i, 'Torrent (web)', 'tor'], [/fuckingfast/i, 'FuckingFast', 'ddl'], [/datanodes/i, 'DataNodes', 'ddl'], [/gofile/i, 'GoFile', 'ddl'], [/buzzheavier/i, 'BuzzHeavier', 'ddl'], [/pixeldrain/i, 'PixelDrain', 'ddl'], [/vikingfile/i, 'VikingFile', 'ddl'], [/multiup/i, 'MultiUp', 'ddl'], [/1fichier/i, '1fichier', 'ddl'], [/mega\.nz/i, 'MEGA', 'ddl'], [/mediafire/i, 'MediaFire', 'ddl'], [/filecrypt/i, 'FileCrypt', 'ddl'], [/filekeeper/i, 'FileKeeper', 'ddl']];
   const game = () => {
     const ar = document.querySelector('article'), en = ar && (ar.querySelector('.entry-content') || ar); if (!en) return false;
     const rawT = T(ar.querySelector('.entry-title, h1')) || document.title.replace(/\s*[–-]\s*FitGirl.*$/i, ''), t = tidy(rawT), tx = en.innerText.replace(/[ \t]+/g, ' ');
     const inf = infoOf(tx.replace(/\n+/g, '  ')); let cover = ''; const og = document.querySelector('meta[property="og:image"]'); const im0 = en.querySelector('img'); cover = im0 ? imgOf(en, location.href) : (og ? og.content : '');
+    const grp = [];
+    en.querySelectorAll('li').forEach((li) => { const a0 = li.querySelector('a[href]'); if (!a0) return; const t0 = T(li).slice(0, 80); const sp = li.querySelector('.su-spoiler'); if (!(sp || /filehoster|torrent|magnet|mirror/i.test(t0) || DL.some((d) => d[0].test(a0.getAttribute('href') || '')))) return; const parts = sp ? [...sp.querySelectorAll('a[href]')].map((a) => ({ t: T(a), h: abs(a.getAttribute('href')) })).filter((x) => x.h) : []; const name = T(a0).replace(/^Filehoster:\s*/i, '') || 'Descarga'; const h = /^magnet:/i.test(a0.getAttribute('href')) ? a0.getAttribute('href') : abs(a0.getAttribute('href')); if (!grp.some((g) => g.h === h)) grp.push({ name, h, parts, tor: /magnet:|\.torrent|torrent/i.test(a0.getAttribute('href') + t0) }); });
+    grp.sort((a, b) => (b.tor ? 1 : 0) - (a.tor ? 1 : 0));
     const dls = [], seen = new Set();
     en.querySelectorAll('a[href]').forEach((a) => { const h = a.getAttribute('href') || ''; const d = DL.find((x) => x[0].test(h)); if (!d || seen.has(h)) return; seen.add(h); const li = a.closest('li, p'), ctx = li ? T(li).slice(0, 60) : ''; dls.push({ h: /^magnet:/i.test(h) ? h : abs(h), lb: d[1], kind: d[2], ctx, tx: T(a) }); });
     dls.sort((a, b) => (a.kind === 'tor' ? 0 : 1) - (b.kind === 'tor' ? 0 : 1) || DL.findIndex((x) => x[1] === a.lb) - DL.findIndex((x) => x[1] === b.lb));
-    const prim = dls[0];
+    const prim = grp[0] ? { h: grp[0].tor || !grp[0].parts.length ? grp[0].h : grp[0].parts[0].h, lb: grp[0].name } : dls[0];
     let feats = []; { const h = [...en.querySelectorAll('h3,h2,strong,b')].find((e) => /repack features/i.test(T(e))); if (h) { let n = h.closest('h3,h2,p') || h; for (let i = 0; i < 4 && n && !feats.length; i++) { n = n.nextElementSibling; if (n && n.matches('ul,ol')) feats = [...n.querySelectorAll('li')].map(T).filter(Boolean).slice(0, 10); } } }
     let desc = ''; { const sp = [...en.querySelectorAll('.su-spoiler-content, .spoiler')].find((e) => T(e).length > 120 && !/repack features/i.test(T(e).slice(0, 60))); if (sp) desc = T(sp).slice(0, 700); }
     const shots = [...en.querySelectorAll('img')].map((i) => abs(i.getAttribute('data-lazy-src') || i.getAttribute('data-src') || i.getAttribute('src') || '')).filter((u, i, a) => u && !/^data:/.test(u) && u !== cover && a.indexOf(u) === i).slice(0, 12);
@@ -833,12 +858,13 @@ function fitgirlConsole() {
       .pn{padding:24px 26px 28px;display:none}.pn.on{display:block;animation:up .5s backwards}.lab{font:800 12px ${FONT};letter-spacing:.14em;text-transform:uppercase;color:#9899ad;margin:0 0 14px}.pn p{margin:0 0 20px;font:500 14.5px/1.65 ${FONT};color:#cfd0de}.pn ul{margin:0 0 22px;padding:0;list-style:none;display:grid;gap:8px}.pn li{position:relative;padding-left:22px;font:500 14px/1.5 ${FONT};color:#cfd0de}.pn li:before{content:'';position:absolute;left:4px;top:9px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff}
       .gal{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}.gal img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,.1);transition:transform .6s cubic-bezier(.22,1,.36,1)}.gal img:hover{transform:scale(1.03)}.gal img:first-child:nth-last-child(odd){grid-column:1/-1;aspect-ratio:21/9}
       .dl{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-bottom:10px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#fff;text-decoration:none;cursor:pointer;transition:transform .4s cubic-bezier(.22,1,.36,1),background .3s,border-color .3s}.dl:hover{transform:translateX(6px);background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25)}.dl b{font:700 14.5px ${FONT}}.dl small{flex:1;font:500 12px ${FONT};color:#8e8fa3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dl i{font:800 10px ${FONT};font-style:normal;letter-spacing:.1em;padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.1)}
+      .pts{display:flex;flex-wrap:wrap;gap:7px;margin:-2px 0 16px 14px}.pts a{font:600 11.5px ${FONT};color:#d6d7e2;padding:6px 11px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);text-decoration:none;transition:all .25s}.pts a:hover{background:#fff;color:#0b0b13;transform:translateY(-2px)}
       .cmt{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.07)}.cmt b{display:block;font:700 13px ${FONT};color:#fff;margin-bottom:5px}.cmt span{font:500 13.5px/1.55 ${FONT};color:#b9bacb}.em{padding:40px 0;text-align:center;color:#8e8fa3}`;
     const sh = mount(css, '<div class="app"><div class="bar"><button class="back" id="bk">' + BACK + 'Volver</button><div class="tbw hubtb" id="nv">' + TABS.map((x, j) => '<button style="--j:' + j + '" data-k="' + x[0] + '">' + TI(x[0]) + '<span>' + x[1] + '</span></button>').join('') + '</div><span></span></div><div class="main"><div class="side"><div class="cv">' + (cover ? '<img src="' + esc(cover) + '" alt="">' : '') + '</div><h1 class="gt" id="gt"></h1><div class="chips">' + (t.ver ? '<span>' + esc(t.ver) + '</span>' : '') + (inf.lang ? '<span>🌐 ' + esc(inf.lang.slice(0, 40)) + '</span>' : '') + (inf.gen ? inf.gen.split(/,\s*/).slice(0, 3).map((g) => '<span>' + esc(g) + '</span>').join('') : '') + '</div>' +
       (prim ? '<a class="big" href="' + esc(prim.h) + '">' + ico + 'Descargar · ' + esc(prim.lb) + '</a>' : '<a class="big off">Sin enlaces de descarga</a>') + '<div class="st"><div><small>Repack</small><b>' + esc(inf.rep || '—') + '</b></div><div><small>Original</small><b>' + esc(inf.org || '—') + '</b></div></div></div>' +
-      '<div class="panel"><div class="ptb"><button class="on" data-p="g">Juego</button><button data-p="d">Descargas' + (dls.length ? ' · ' + dls.length : '') + '</button>' + (cm.length ? '<button data-p="c">Comentarios · ' + cm.length + '</button>' : '') + '</div>' +
+      '<div class="panel"><div class="ptb"><button class="on" data-p="g">Juego</button><button data-p="d">Descargas' + ((grp.length || dls.length) ? ' · ' + (grp.length || dls.length) : '') + '</button>' + (cm.length ? '<button data-p="c">Comentarios · ' + cm.length + '</button>' : '') + '</div>' +
       '<div class="pn on" id="pg1">' + (desc ? '<div class="lab">Sobre el juego</div><p>' + esc(desc) + '</p>' : '') + (feats.length ? '<div class="lab">Características del repack</div><ul>' + feats.map((f) => '<li>' + esc(f) + '</li>').join('') + '</ul>' : '') + (inf.co ? '<div class="lab">Compañía</div><p>' + esc(inf.co) + '</p>' : '') + (shots.length ? '<div class="lab" id="shl">Capturas</div><div class="gal" id="gal">' + shots.map((s) => '<img loading="lazy" src="' + esc(s) + '" alt="">').join('') + '</div>' : '') + '</div>' +
-      '<div class="pn" id="pg2">' + (dls.length ? dls.map((d) => '<a class="dl" href="' + esc(d.h) + '"><b>' + esc(d.lb) + '</b><small>' + esc(d.tx && d.tx.length < 40 ? d.tx : d.ctx) + '</small><i>' + (d.kind === 'tor' ? 'TORRENT' : 'DIRECTO') + '</i></a>').join('') : '<div class="em">No encontré enlaces de descarga en esta página</div>') + '</div>' +
+      '<div class="pn" id="pg2">' + (grp.length ? grp.map((g) => '<div class="gp"><a class="dl" href="' + esc(g.h) + '"><b>' + esc(g.name) + '</b><small>' + (g.parts.length ? g.parts.length + ' archivos' : '') + '</small><i>' + (g.tor ? 'TORRENT' : 'SITIO') + '</i></a>' + (g.parts.length ? '<div class="pts">' + g.parts.map((x, i) => '<a href="' + esc(x.h) + '">' + esc((x.t.replace(/^.*#/, '').slice(0, 34)) || 'Parte ' + (i + 1)) + '</a>').join('') + '</div>' : '') + '</div>').join('') : dls.length ? dls.map((d) => '<a class="dl" href="' + esc(d.h) + '"><b>' + esc(d.lb) + '</b><small>' + esc(d.tx && d.tx.length < 40 ? d.tx : d.ctx) + '</small><i>' + (d.kind === 'tor' ? 'TORRENT' : 'DIRECTO') + '</i></a>').join('') : '<div class="em">No encontré enlaces de descarga en esta página</div>') + '</div>' +
       '<div class="pn" id="pg3">' + cm.map((c) => '<div class="cmt"><b>' + esc(c.a || 'Anónimo') + '</b><span>' + esc(c.t) + '</span></div>').join('') + '</div></div></div></div>');
     const $ = (s) => sh.querySelector(s); setTitle($('#gt'), t.name);
     $('#bk').addEventListener('click', () => leave(sh, () => { if (history.length > 1) history.back(); else location.href = O + '/'; }));
@@ -847,8 +873,10 @@ function fitgirlConsole() {
     const g = $('#gal'); if (g) { const chk = () => { if (!g.querySelector('img')) { g.remove(); const l = $('#shl'); if (l) l.remove(); } }; g.querySelectorAll('img').forEach((im) => { const bad = () => { im.remove(); chk(); }; im.addEventListener('error', bad); im.addEventListener('load', () => { if (im.naturalWidth < 240) bad(); }); }); }
     hoverPill(sh); return true;
   };
-  const SINGLE = !!document.querySelector('body.single, body.single-post') || (!!document.querySelector('article') && document.querySelectorAll('article').length === 1 && P !== '/' && !/^\/(page|category|tag|popular-repacks|all-my-repacks-a-z|upcoming-repacks)/.test(P) && !Q.get('s'));
-  const LISTING = P === '/' || /^\/(page\/\d+|category\/|popular-repacks|all-my-repacks-a-z|upcoming-repacks)/.test(P) || !!Q.get('s');
+  const TT = document.title, BODY = document.body.classList;
+  const SECT = /^(pop repacks|popular repacks|all my repacks|updates list|upcoming repacks|most popular|top \d+)/i.test(TT) || /^\/(popular-repacks|all-my-repacks|updates-list|upcoming-repacks)/.test(P);
+  const SINGLE = !SECT && (BODY.contains('single') || BODY.contains('single-post')) && !!document.querySelector('article');
+  const LISTING = !SINGLE && (SECT || P === '/' || /^\/(page\/\d+|category\/)/.test(P) || !!Q.get('s'));
   const run = () => { try { if (SINGLE) game(); else if (LISTING) home(); } catch (e) { try { const x = document.getElementById('wt-console'); if (x) x.remove(); document.documentElement.classList.remove('wt-console-on'); } catch (_) {} } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 }
