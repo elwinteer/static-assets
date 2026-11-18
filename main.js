@@ -1970,6 +1970,8 @@ function webInit() {
   const ses = session.fromPartition(WEB_PART);
   try { ses.setUserAgent(ses.getUserAgent().replace(/\s(Electron|winteer)\/[\d.]+/ig, '')); } catch (e) {}
   try { ses.setPermissionRequestHandler((_wc, _p, cb) => cb(false)); } catch (e) {}
+  // Cloudflare mira las pistas de cliente (sec-ch-ua): se saca la marca «Electron» para que el navegador integrado se vea como Chrome común.
+  try { ses.webRequest.onBeforeSendHeaders((d, cb) => { try { const h = d.requestHeaders; for (const k of Object.keys(h)) if (/^sec-ch-ua$/i.test(k)) h[k] = String(h[k]).replace(/(^|,\s*)"(Electron|winteer)";v="[^"]*"/ig, '').replace(/^\s*,\s*/, ''); cb({ requestHeaders: h }); } catch (e) { cb({}); } }); } catch (e) {}
   ses.on('will-download', (_e, item) => {
     try {
       const fn = String(item.getFilename() || ''), mt = String(item.getMimeType() || '');
@@ -2075,7 +2077,7 @@ function createWindow() {
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
       });
       // Estilo WINTEER para ciertos sitios (webskin.js): fondo neutro y colores sin tinte de marca.
-      wc.on('dom-ready', () => { try { const sk = require('./webskin.js'), s = sk.skinFor(wc.getURL()); if (!s) return; if (s.css) wc.insertCSS(s.css).catch(() => {}); if (s.mono) wc.executeJavaScript(sk.MONO_JS).catch(() => {}); if (sk.CONSOLE_JS[s.name]) wc.executeJavaScript(sk.CONSOLE_JS[s.name]).catch(() => {}); } catch (e) {} });
+      wc.on('dom-ready', async () => { try { const sk = require('./webskin.js'), s = sk.skinFor(wc.getURL()); if (!s) return; if (await wc.executeJavaScript("!!(document.querySelector('#challenge-form,#challenge-running,#challenge-stage,.cf-turnstile,[id^=cf-chl],iframe[src*=\"challenges.cloudflare\"]')||/just a moment|un momento|attention required|checking if you are human/i.test(document.title+' '+((document.body&&document.body.innerText)||'').slice(0,300)))").catch(() => false)) return; if (s.css) wc.insertCSS(s.css).catch(() => {}); if (s.mono) wc.executeJavaScript(sk.MONO_JS).catch(() => {}); if (sk.CONSOLE_JS[s.name]) wc.executeJavaScript(sk.CONSOLE_JS[s.name]).catch(() => {}); } catch (e) {} });
       const blockProto = (ev, u) => { if (/^magnet:/i.test(String(u))) { ev.preventDefault(); webTorrent(u); return; } if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
       wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
       wc.on('did-fail-load', (_ev, code, desc, _u, main) => { if (main && code === -20) note('Bloqueé una página de anuncios'); else if (main && code !== -3 && code !== 0) note('No pude abrir la página (' + String(desc || code) + ')'); });
