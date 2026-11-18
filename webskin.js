@@ -531,10 +531,25 @@ function steamripConsole() {
       clearTimeout(swT); gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or'); hero.classList.add('o');
       swT = setTimeout(() => { st.items = st.pages[n]; gr.classList.remove('ol', 'or'); draw(); gr.classList.add(fw ? 'xl' : 'xr'); hero.classList.remove('o'); drawHero(); w.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => gr.classList.remove('xl', 'xr'), 700); }, 230);
     };
+    const decH = (h) => { const d = document.createElement('textarea'); d.innerHTML = String(h || ''); return d.value; };
+    const wpPage = async (n, per) => {
+      const u = location.origin + '/wp-json/wp/v2/posts?per_page=' + per + '&page=' + n + '&_embed=wp:featuredmedia&_fields=link,title,_links,_embedded';
+      const r = await fetch(u, { credentials: 'include', headers: { Accept: 'application/json' } }); if (!r.ok) return null;
+      const j = await r.json().catch(() => null); if (!Array.isArray(j) || !j.length) return null;
+      const tp = +r.headers.get('X-WP-TotalPages') || 0;
+      const items = j.map((p) => { const m = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0], sz = m && m.media_details && m.media_details.sizes; const img = (sz && ((sz.medium_large || sz.large || sz.full || {}).source_url)) || (m && m.source_url) || ''; return { href: p.link, title: clean(decH(p.title && p.title.rendered)), img, build: '' }; }).filter((x) => x.href && x.title);
+      return items.length ? { items, tp } : null;
+    };
+    let wpOk = null;
     const goPage = async (k, n) => {
       const st = ST[k]; if (st.busy || n < 1) return;
       if (st.pages[n]) { showPage(k, n); return; }
       st.busy = 1; st.err = ''; if (k === cur && st.items) draw();
+      if (k === 'new' && wpOk !== false) {
+        try { const per = st.psize || 12, w0 = await wpPage(n, per);
+          if (w0) { wpOk = true; if (w0.tp) st.total = w0.tp; st.pages[n] = w0.items; st.busy = 0; showPage(k, n); return; }
+          wpOk = false; } catch (e) { wpOk = false; }
+      }
       try { const url = (st.ph && st.ph[n]) || pageUrl(k, n), r = await fetch(url, { credentials: 'include' });
         if (r.status === 404) { st.total = Math.max(1, n - 1); st.busy = 0; if (k === cur) draw(); return; }
         if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -546,6 +561,7 @@ function steamripConsole() {
       } catch (e) { st.busy = 0; st.err = 'No se pudo cargar: ' + String(e.message || e).slice(0, 110); if (k === cur) draw(); }
     };
     let swT = 0;
+    setTimeout(() => { if (wpOk === null) wpPage(1, ST.new.psize || 12).then((w0) => { if (!w0) { wpOk = false; return; } wpOk = true; if (w0.tp) { ST.new.total = w0.tp; if (cur === 'new') draw(); } }).catch(() => { wpOk = false; }); }, 400);
     const sw = (k) => {
       const di = tabs.findIndex((x) => x.k === k) - tabs.findIndex((x) => x.k === cur), fw = di > 0; clearTimeout(swT);
       sh.querySelectorAll('#tb button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); pill(); w.scrollTo({ top: 0, behavior: 'smooth' });
@@ -815,6 +831,8 @@ function vimmConsole() {
     cell.querySelectorAll('img[title],img[alt]').forEach((im) => { const v = (im.getAttribute('title') || im.getAttribute('alt') || '').trim(); if (v.length === 2) add(v); else if (LNAME[v.toLowerCase()]) add(LNAME[v.toLowerCase()]); });
     return out;
   };
+  const boxImg = (r) => { const id = (/\/vault\/(\d+)/.exec(r.h) || [])[1]; return id ? '<img class="bx" loading="lazy" alt="" src="' + O + '/image.php?type=box&id=' + id + '">' : ''; };
+  const armImgs = (root) => root.querySelectorAll('img.bx').forEach((im) => { const ok = () => { if (im.naturalWidth > 20) im.classList.add('ok'); else im.remove(); }; if (im.complete) ok(); else { im.addEventListener('load', ok); im.addEventListener('error', () => im.remove()); } });
   const hue = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; };
   const sysPage = () => {
     const rows = [], seen = new Set(), hdr = [];
@@ -858,7 +876,7 @@ function vimmConsole() {
       .rw{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;padding:12px 18px 12px 12px;border-radius:20px;background:linear-gradient(90deg,rgba(26,26,40,.72),rgba(14,14,22,.62));border:1px solid rgba(255,255,255,.07);cursor:pointer;color:#fff;animation:up .5s calc(var(--i)*26ms) cubic-bezier(.22,1,.36,1) backwards;transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .3s,background .3s,box-shadow .4s}
       .rw:before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(340px circle at var(--mx,50%) 50%,rgba(255,255,255,.1),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}.rw:hover:before{opacity:1}
       .rw:hover{transform:translateX(7px);border-color:rgba(255,255,255,.24);background:linear-gradient(90deg,rgba(42,42,60,.88),rgba(20,20,30,.72));box-shadow:0 16px 40px rgba(0,0,0,.4)}.rw:active{transform:translateX(3px) scale(.99)}
-      .tl{flex:none;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font:800 20px ${FONT};color:#fff;background:linear-gradient(135deg,hsl(var(--h) 60% 42%),hsl(calc(var(--h) + 40) 65% 26%));box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 20px hsl(var(--h) 60% 20% / .6);transition:transform .5s cubic-bezier(.34,1.6,.64,1)}.rw:hover .tl{transform:rotate(-8deg) scale(1.1)}
+      .tl{flex:none;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font:800 20px ${FONT};color:#fff;background:linear-gradient(135deg,hsl(var(--h) 60% 42%),hsl(calc(var(--h) + 40) 65% 26%));box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 20px hsl(var(--h) 60% 20% / .6);transition:transform .5s cubic-bezier(.34,1.6,.64,1)}.rw:hover .tl{transform:rotate(-8deg) scale(1.1)}.tl{position:relative;overflow:hidden}.tl .bx{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}.tl .bx.ok{opacity:1}.rw .tl{width:52px;height:68px;border-radius:12px}.tp .nm{position:relative}.tp .bt{flex:none;width:30px;height:40px;border-radius:7px;overflow:hidden;position:relative;background:rgba(255,255,255,.06)}.tp .bt .bx{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}.tp .bt .bx.ok{opacity:1}
       .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.tx b{font:700 15.5px ${FONT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cc{display:flex;flex-wrap:wrap;gap:6px}.cc span{font:600 11px ${FONT};color:#b4b5c6;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.07)}
       .cc .es{color:#7ff0b9;background:rgba(61,220,151,.14);box-shadow:inset 0 0 0 1px rgba(61,220,151,.3)}.cc .nes{color:#ffd58a;background:rgba(245,165,36,.12);box-shadow:inset 0 0 0 1px rgba(245,165,36,.28)}
       .st{flex:none;display:flex;align-items:center;gap:5px;font:800 14px ${FONT};color:#ffd36e}.st svg{filter:drop-shadow(0 0 8px rgba(255,211,110,.6))}
@@ -881,13 +899,14 @@ function vimmConsole() {
     const $ = (s) => sh.querySelector(s), gr = $('#gr'); let pg = 1, t0;
     const base = () => rows.filter((r) => !onlyEs || r.es);
     const view = () => { const q = norm($('#q').value), b = base(); return q ? b.filter((r) => norm(r.t).includes(q)) : b; };
-    const rowHtml = (r, i) => '<a class="rw" style="--i:' + Math.min(i, 18) + '" data-h="' + esc(r.h) + '"><span class="tl" style="--h:' + hue(r.t) + '">' + esc((r.t.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + '</span><span class="tx"><b>' + esc(r.t) + '</b><span class="cc">' +
+    const rowHtml = (r, i) => '<a class="rw" style="--i:' + Math.min(i, 18) + '" data-h="' + esc(r.h) + '"><span class="tl" style="--h:' + hue(r.t) + '">' + esc((r.t.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + boxImg(r) + '</span><span class="tx"><b>' + esc(r.t) + '</b><span class="cc">' +
       r.ch.map((c) => '<span>' + esc(c) + '</span>').join('') + r.lg.slice(0, 4).map((l) => '<span class="' + (l === 'es' ? 'es' : '') + '">' + l.toUpperCase() + '</span>').join('') + (known && !r.es ? '<span class="nes">⚠ Sin español</span>' : '') + '</span></span>' +
       (r.rt ? '<span class="st">' + STAR + r.rt.toFixed(1) + '</span>' : '') + '<svg class="ar" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
     const side = () => {
       const b = base(), rated = b.filter((r) => r.rt).sort((x, y) => y.rt - x.rt).slice(0, 5), top = rated.length ? rated : b.slice(0, 5);
-      $('#tp').innerHTML = '<h3>' + STAR.replace('width="14" height="14"', 'width="15" height="15"') + (rated.length ? 'Top 5 mejor valorados' : 'Primeros 5') + '</h3>' + (top.length ? top.map((r, i) => '<a class="tp" style="--i:' + i + '" data-h="' + esc(r.h) + '"><span class="nm">' + (i + 1) + '</span><span class="tt">' + esc(r.t) + '</span>' + (r.rt ? '<span class="rr">★ ' + r.rt.toFixed(1) + '</span>' : '') + '</a>').join('') : '<div class="em" style="padding:16px 0">Sin juegos</div>');
+      $('#tp').innerHTML = '<h3>' + STAR.replace('width="14" height="14"', 'width="15" height="15"') + (rated.length ? 'Top 5 mejor valorados' : 'Primeros 5') + '</h3>' + (top.length ? top.map((r, i) => '<a class="tp" style="--i:' + i + '" data-h="' + esc(r.h) + '"><span class="nm">' + (i + 1) + '</span><span class="bt">' + boxImg(r) + '</span><span class="tt">' + esc(r.t) + '</span>' + (r.rt ? '<span class="rr">★ ' + r.rt.toFixed(1) + '</span>' : '') + '</a>').join('') : '<div class="em" style="padding:16px 0">Sin juegos</div>');
       $('#tp').querySelectorAll('.tp').forEach((a) => a.addEventListener('click', () => leave(sh, () => { location.href = a.dataset.h; })));
+      armImgs($('#tp'));
       $('#sm').innerHTML = '<div><span>Juegos en la lista</span><b>' + rows.length + '</b></div>' + (known ? '<div><span>En español</span><b>' + nEs + '</b></div>' : '') + (cs ? '<div><span>Sección</span><b>' + esc(cs.toUpperCase()) + '</b></div>' : '');
     };
     const draw = () => {
@@ -899,6 +918,7 @@ function vimmConsole() {
       gr.className = 'gr lr';
       gr.innerHTML = sl.length ? sl.map(rowHtml).join('') : '<div class="em">' + (q ? 'No encontré «' + esc(q) + '» en esta lista.<br><br><a id="vs">Buscarlo en todo Vimm\'s Lair →</a>' : (onlyEs ? 'No hay juegos en español en esta lista.' : 'No hay juegos.')) + '</div>';
       const vs = $('#vs'); if (vs) vs.onclick = () => leave(sh, () => { location.href = O + '/vault/?p=list&system=' + encodeURIComponent(Q.get('system') || sysCode) + '&q=' + encodeURIComponent(q); });
+      armImgs(gr);
       gr.querySelectorAll('.rw').forEach((c) => { c.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); }); c.addEventListener('click', (e) => { e.preventDefault(); ripple(c, e); leave(sh, () => { location.href = c.dataset.h; }); }); });
       const pgs = []; for (let i = 1; i <= pages; i++) if (i === 1 || i === pages || Math.abs(i - pg) <= 2) pgs.push(i); const out = []; pgs.forEach((n, i) => { if (i && n - pgs[i - 1] > 1) out.push('<span>…</span>'); out.push('<button data-p="' + n + '" class="' + (n === pg ? 'on' : '') + '">' + n + '</button>'); });
       $('#pg').innerHTML = pages > 1 ? '<button data-p="' + (pg - 1) + '"' + (pg < 2 ? ' disabled' : '') + '>‹</button>' + out.join('') + '<button data-p="' + (pg + 1) + '"' + (pg >= pages ? ' disabled' : '') + '>›</button>' : '';

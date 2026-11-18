@@ -1963,6 +1963,32 @@ function webTorrent(u, hint) {
   } catch (e) { note('No pude agregar el torrent'); }
 }
 let wdlHint = '';
+// Captcha de Cloudflare: dentro del navegador integrado suele fallar. Si sigue ahí unos segundos, se abre una ventana
+// de navegador normal con la misma sesión para resolverlo; al pasar se cierra sola y la pestaña se recarga ya verificada.
+const CF_PROBE = "(()=>{const d=document,b=((d.body&&d.body.innerText)||'').slice(0,500);return !!(d.querySelector('#challenge-form,#challenge-stage,#challenge-running,.cf-turnstile,[name=\"cf-turnstile-response\"],iframe[src*=\"challenges.cloudflare\"]')||/just a moment|checking if you are human|verify you are human|attention required/i.test((d.title||'')+' '+b))})()";
+let cfWin = null;
+async function webCfCheck(wc) {
+  try {
+    if (cfWin || wc.isDestroyed()) return;
+    if (!(await wc.executeJavaScript(CF_PROBE, true).catch(() => false))) return;
+    await new Promise((r) => setTimeout(r, 6000));
+    if (cfWin || wc.isDestroyed() || !(await wc.executeJavaScript(CF_PROBE, true).catch(() => false))) return;
+    const url = wc.getURL(), ses = session.fromPartition(WEB_PART);
+    const w = new BrowserWindow({ width: 560, height: 680, center: true, title: 'WINTEER · verificá que sos humano', autoHideMenuBar: true, backgroundColor: '#111', webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
+    cfWin = w; let closed = false; w.on('closed', () => { closed = true; cfWin = null; });
+    try { w.webContents.setUserAgent(ses.getUserAgent()); } catch (e) {}
+    w.loadURL(url).catch(() => {});
+    const t0 = Date.now();
+    while (!closed && Date.now() - t0 < 180000) {
+      await new Promise((r) => setTimeout(r, 900));
+      if (closed) break;
+      let ch = true, ready = false;
+      try { ready = (await w.webContents.executeJavaScript('document.readyState', true)) === 'complete'; ch = await w.webContents.executeJavaScript(CF_PROBE, true); } catch (e) { continue; }
+      if (ready && !ch) { try { w.close(); } catch (e) {} try { if (!wc.isDestroyed()) wc.reload(); } catch (e) {} return; }
+    }
+    try { if (!closed) w.close(); } catch (e) {}
+  } catch (e) { cfWin = null; }
+}
 function webInit() {
   if (webOk) return; webOk = true;
   const tmpDir = path.join(app.getPath('userData'), 'dl-tmp');
@@ -2060,15 +2086,6 @@ function createWindow() {
   });
   win.webContents.on('will-attach-webview', (_e, wp, params) => { delete wp.preload; delete wp.preloadURL; wp.nodeIntegration = false; wp.contextIsolation = true; wp.sandbox = true; params.partition = WEB_PART; });
   win.webContents.on('did-attach-webview', (_e, wc) => {
-    // Identidad de Chrome común (cabeceras sec-ch-ua y navigator.userAgentData sin «Electron») para que Cloudflare no rechace el navegador integrado.
-    try {
-      const ver = process.versions.chrome || '120.0.0.0', mj = ver.split('.')[0], plat = process.platform === 'win32' ? 'Windows' : process.platform === 'darwin' ? 'macOS' : 'Linux';
-      const ua = String(wc.getUserAgent() || '').replace(/\s(Electron|winteer)\/[\d.]+/ig, '');
-      const brands = [{ brand: 'Not.A/Brand', version: '8' }, { brand: 'Chromium', version: mj }, { brand: 'Google Chrome', version: mj }];
-      wc.debugger.attach('1.3');
-      wc.debugger.sendCommand('Emulation.setUserAgentOverride', { userAgent: ua, userAgentMetadata: { brands, fullVersionList: [{ brand: 'Not.A/Brand', version: '8.0.0.0' }, { brand: 'Chromium', version: ver }, { brand: 'Google Chrome', version: ver }], platform: plat, platformVersion: plat === 'Windows' ? '10.0.0' : '14.0.0', architecture: 'x86', bitness: '64', model: '', mobile: false, wow64: false } }).catch(() => {});
-      wc.debugger.sendCommand('Page.addScriptToEvaluateOnNewDocument', { source: 'try{if(!window.chrome)window.chrome={runtime:{},app:{isInstalled:false},csi:function(){},loadTimes:function(){}}}catch(e){}' }).catch(() => {});
-    } catch (e) {}
     try {
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
@@ -2086,6 +2103,7 @@ function createWindow() {
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
       });
       // Estilo WINTEER para ciertos sitios (webskin.js): fondo neutro y colores sin tinte de marca.
+      wc.on('dom-ready', () => { webCfCheck(wc); });
       wc.on('dom-ready', async () => { try { const sk = require('./webskin.js'), s = sk.skinFor(wc.getURL()); if (!s) return; if (await wc.executeJavaScript("!!(document.querySelector('#challenge-form,#challenge-running,#challenge-stage,.cf-turnstile,[id^=cf-chl],iframe[src*=\"challenges.cloudflare\"]')||/just a moment|un momento|attention required|checking if you are human/i.test(document.title+' '+((document.body&&document.body.innerText)||'').slice(0,300)))").catch(() => false)) return; if (s.css) wc.insertCSS(s.css).catch(() => {}); if (s.mono) wc.executeJavaScript(sk.MONO_JS).catch(() => {}); if (sk.CONSOLE_JS[s.name]) wc.executeJavaScript(sk.CONSOLE_JS[s.name]).catch(() => {}); } catch (e) {} });
       const blockProto = (ev, u) => { if (/^magnet:/i.test(String(u))) { ev.preventDefault(); webTorrent(u); return; } if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
       wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
