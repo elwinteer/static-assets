@@ -5,6 +5,7 @@
 #include <libtorrent/settings_pack.hpp>
 #include <libtorrent/add_torrent_params.hpp>
 #include <libtorrent/magnet_uri.hpp>
+#include <libtorrent/load_torrent.hpp>
 #include <libtorrent/torrent_handle.hpp>
 #include <libtorrent/torrent_status.hpp>
 #include <libtorrent/torrent_info.hpp>
@@ -128,8 +129,8 @@ int main(int argc, char** argv) {
         p = lt::parse_magnet_uri(uri, ec);
         if (ec) { reply(m, false, "bad-uri", ec.message()); return; }
       } else {
-        p.ti = std::make_shared<lt::torrent_info>(uri, ec);
-        if (ec) { reply(m, false, "bad-torrent", ec.message()); return; }
+        try { p = lt::load_torrent_file(uri); }
+        catch (const std::exception& e) { reply(m, false, "bad-torrent", e.what()); return; }
       }
       // retomar con los datos guardados, si existen
       std::ifstream rf(resumeFile(id), std::ios::binary);
