@@ -149,8 +149,12 @@ function steamripConsole() {
   const reqCard = (t, o) => { const ks = Object.keys(o); return ks.length ? '<div class="rq"><h4>' + t + '</h4>' + ks.map((k) => '<div class="rw"><span>' + k + '</span><b>' + esc(o[k]) + '</b></div>').join('') + '</div>' : ''; };
   // pestañas compartidas (portada y página de juego)
   const TABS = () => [{ k: 'new', t: 'Lanzamientos', sub: 'Agregados recientemente', url: '' }, { k: 'top', t: 'Más populares', sub: 'Los más descargados', url: navLink(/top\s*games/i) }, { k: 'upd', t: 'Actualizados', sub: 'Con versión nueva', url: navLink(/recent\s*updates|updated/i) }, { k: 'all', t: 'Todos los juegos', sub: 'Lista completa', url: navLink(/games?\s*list|all\s*games|a\s*-?\s*z\b/i) }].filter((x) => x.k === 'new' || x.url);
-  const BARCSS = `@keyframes brt{0%,100%{box-shadow:0 14px 40px rgba(255,255,255,.12)}50%{box-shadow:0 14px 56px rgba(255,255,255,.3)}}
-      .bar{position:relative;z-index:8;flex:none;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 36px 12px;background:linear-gradient(180deg,rgba(7,6,15,.94),rgba(7,6,15,.72));backdrop-filter:blur(16px)}
+  const BARCSS = `@keyframes swp{0%,100%{background-position:0 0;opacity:.35}50%{background-position:100% 0;opacity:1}}@keyframes lgp{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}@keyframes xl{from{opacity:0;transform:translateX(46px);filter:blur(7px)}}@keyframes xr{from{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes ol{to{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes or{to{opacity:0;transform:translateX(46px);filter:blur(7px)}}
+      .pn.on.fr{animation:xl .55s cubic-bezier(.22,1,.36,1)!important}.pn.on.fl{animation:xr .55s cubic-bezier(.22,1,.36,1)!important}
+      @keyframes brt{0%,100%{box-shadow:0 14px 40px rgba(255,255,255,.12)}50%{box-shadow:0 14px 56px rgba(255,255,255,.3)}}
+      .bar{position:relative;z-index:8;flex:none;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:12px 28px 0;padding:10px 14px 10px 20px;border-radius:22px;background:linear-gradient(180deg,rgba(22,22,32,.78),rgba(12,12,20,.7));border:1px solid rgba(255,255,255,.09);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(18px)}
+      .bar:after{content:'';position:absolute;left:14%;right:14%;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);background-size:200% 100%;animation:swp 7s ease-in-out infinite;pointer-events:none}
+      .lg:before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 14px #fff;margin-right:12px;vertical-align:1px;animation:lgp 2.6s ease-in-out infinite}
       .lg{font:800 15px "Segoe UI",system-ui;letter-spacing:.28em;color:#fff;cursor:pointer;animation:up .7s backwards}
       .tbw{position:relative;display:flex;gap:4px;padding:5px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);animation:up .7s .08s backwards}
       .tbw button{position:relative;z-index:1;font:600 13.5px "Segoe UI",system-ui;color:#a6a7b8;background:none;border:0;border-radius:99px;padding:9px 18px;cursor:pointer;transition:color .3s,background .3s}.tbw button:hover{color:#fff}.tbw .hv{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:99px;background:rgba(255,255,255,.1);opacity:0;transition:left .45s cubic-bezier(.22,1,.36,1),width .45s cubic-bezier(.22,1,.36,1),opacity .3s}.tbw button.on{color:#0b0b13;background:#f4f4f8;box-shadow:0 6px 24px rgba(255,255,255,.2)}
@@ -290,10 +294,14 @@ function steamripConsole() {
     sh.innerHTML = `<style>
       :host{all:initial}*{box-sizing:border-box}
       ${AMBCSS}
-      @keyframes fi{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(22px)}}@keyframes wd{from{opacity:0;transform:translateY(.7em);filter:blur(10px)}}@keyframes shm{from{background-position:200% 0}to{background-position:-200% 0}}@keyframes kb{from{transform:scale(1.04)}to{transform:scale(1.16) translate(-1.5%,-1%)}}@keyframes pg{from{width:0}to{width:100%}}@keyframes bdr{to{transform:rotate(360deg)}}@keyframes flt{50%{transform:translateY(-10px) rotate(3deg)}}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.9)}}
+      @keyframes fi{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(22px)}}@keyframes wd{from{opacity:0;transform:translateY(.7em);filter:blur(10px)}}@keyframes shm{from{background-position:200% 0}to{background-position:-200% 0}}@keyframes kb{from{transform:scale(1.04)}to{transform:scale(1.16) translate(-1.5%,-1%)}}@keyframes pg{from{width:0}to{width:100%}}@keyframes swp{0%,100%{background-position:0 0;opacity:.35}50%{background-position:100% 0;opacity:1}}@keyframes lgp{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}@keyframes xl{from{opacity:0;transform:translateX(46px);filter:blur(7px)}}@keyframes xr{from{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes ol{to{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes or{to{opacity:0;transform:translateX(46px);filter:blur(7px)}}
+      .gr.ol{animation:ol .22s cubic-bezier(.4,0,1,1) forwards}.gr.or{animation:or .22s cubic-bezier(.4,0,1,1) forwards}.gr.xl{animation:xl .6s cubic-bezier(.22,1,.36,1)}.gr.xr{animation:xr .6s cubic-bezier(.22,1,.36,1)}#hero{transition:opacity .25s,transform .45s cubic-bezier(.22,1,.36,1)}#hero.o{opacity:0;transform:translateY(10px) scale(.985)}
+      @keyframes bdr{to{transform:rotate(360deg)}}@keyframes flt{50%{transform:translateY(-10px) rotate(3deg)}}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.9)}}
       .w{position:absolute;inset:0;overflow:auto;z-index:1;color:#ececf3;font:15px/1.55 "Segoe UI",system-ui,sans-serif;scroll-behavior:smooth;animation:fi .7s cubic-bezier(.22,1,.36,1) backwards}
       .w::-webkit-scrollbar{width:10px}.w::-webkit-scrollbar-thumb{background:#2a2a34;border-radius:10px}
-      .bar{position:sticky;top:0;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 28px;background:linear-gradient(180deg,rgba(7,6,15,.94),rgba(7,6,15,.72));backdrop-filter:blur(16px)}
+      .bar{position:sticky;top:10px;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:12px auto 0;max-width:1240px;padding:10px 14px 10px 20px;border-radius:22px;background:linear-gradient(180deg,rgba(22,22,32,.78),rgba(12,12,20,.7));border:1px solid rgba(255,255,255,.09);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(18px)}
+      .bar:after{content:'';position:absolute;left:14%;right:14%;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);background-size:200% 100%;animation:swp 7s ease-in-out infinite;pointer-events:none}
+      .lg:before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 14px #fff;margin-right:12px;vertical-align:1px;animation:lgp 2.6s ease-in-out infinite}
       .lg{font:800 15px "Segoe UI",system-ui;letter-spacing:.28em;color:#fff;animation:up .7s backwards}
       .tb{position:relative;display:flex;gap:4px;padding:5px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);animation:up .7s .08s backwards}
       .tb button{position:relative;z-index:1;font:600 13.5px "Segoe UI",system-ui;color:#a6a7b8;background:none;border:0;border-radius:99px;padding:9px 18px;cursor:pointer;transition:color .3s}.tb button:hover{color:#fff}.tb button.on{color:#0b0b13}
@@ -374,7 +382,17 @@ function steamripConsole() {
       st.busy = 0; if (k === cur) { draw(); if (k !== 'new' || true) drawHero(); }
     };
     const loadMore = () => { const st = ST[cur], list = filt(); if (list.length > shown && !q) { shown += PAGE; draw(); return; } if (st.next) fetchTab(cur, st.next).then(() => { shown += PAGE; draw(); }); };
-    const sw = (k) => { cur = k; shown = PAGE; q = ''; $('#q').value = ''; sh.querySelectorAll('#tb button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); pill(); w.scrollTo({ top: 0, behavior: 'smooth' }); draw(); if (ST[k].items) drawHero(); else fetchTab(k, tabs.find((x) => x.k === k).url); };
+    let swT = 0;
+    const sw = (k) => {
+      const di = tabs.findIndex((x) => x.k === k) - tabs.findIndex((x) => x.k === cur), fw = di > 0; clearTimeout(swT);
+      sh.querySelectorAll('#tb button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); pill(); w.scrollTo({ top: 0, behavior: 'smooth' });
+      gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or'); hero.classList.add('o');
+      swT = setTimeout(() => {
+        cur = k; shown = PAGE; q = ''; $('#q').value = ''; gr.classList.remove('ol', 'or'); draw(); gr.classList.add(fw ? 'xl' : 'xr'); hero.classList.remove('o');
+        if (ST[k].items) drawHero(); else fetchTab(k, tabs.find((x) => x.k === k).url);
+        setTimeout(() => gr.classList.remove('xl', 'xr'), 700);
+      }, 230);
+    };
     sh.querySelectorAll('#tb button').forEach((b) => { b.onclick = () => b.dataset.k !== cur && sw(b.dataset.k); });
     sh.querySelectorAll('#vw button').forEach((b) => { b.onclick = () => { view = b.dataset.v; sh.querySelectorAll('#vw button').forEach((x) => x.classList.toggle('on', x === b)); draw(); }; });
     let qt = 0; $('#q').oninput = (e) => { const val = e.target.value; clearTimeout(qt); qt = setTimeout(() => { q = val; shown = PAGE; draw(); drawHero(); }, 120); };
