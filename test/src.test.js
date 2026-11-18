@@ -176,3 +176,11 @@ test('catálogo propio: agrupa por título entre fuentes, filtra, ordena y pagin
   assert.equal(S.catalog({ sort: 'az', offset: 2, limit: 1 }).items[0].name, 'Quake'); assert.equal(S.catalogGet(aoe.key).entries.length, 2);
   S.setEnabled(sb.id, false); assert.equal(S.catalog({}).total, 3); a.s.close(); b.s.close();
 });
+
+test('cleanName: quita Free Download, versiones, DLC y ediciones', () => {
+  const { cleanName } = require('../src.js');
+  assert.equal(cleanName('Frontier Tale Free Download'), 'Frontier Tale');
+  assert.equal(cleanName('Tormented Souls 2: Digital Deluxe Edition (v1.2.0 + DLC + Bonus)'), 'Tormented Souls 2');
+  assert.equal(cleanName('Hades II v1.0.3 + Multiplayer'), 'Hades II');
+  assert.equal(cleanName('Max Payne'), 'Max Payne');
+});

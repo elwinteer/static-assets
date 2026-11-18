@@ -37,10 +37,22 @@ function parseTags(v) {
   const out = []; for (const t of a) { const x = str(t, 30); if (x && !out.some((y) => y.toLowerCase() === x.toLowerCase())) out.push(x); if (out.length >= 12) break; }
   return out;
 }
+/** Nombre limpio para mostrar y buscar portada: sin "Free Download", versiones, DLCs, builds ni ediciones. */
+function cleanName(t) {
+  let n = String(t || '').replace(/[™®©]/g, '');
+  n = n.replace(/\s*[\(\[][^)\]]*[\)\]]/g, ' ');
+  n = n.replace(/\b(free\s+)?(pc\s+)?(game\s+)?(full\s+)?(free\s+)?download(s)?\b.*$/i, ' ');
+  n = n.replace(/\s*[-–—:,]?\s*\b(v|ver\.?|version)\s*\d[\w.\-]*.*$/i, ' ');
+  n = n.replace(/\s+\+\s+.*$/, ' ').replace(/\s*[-–—]\s*(build|update|patch|hotfix|dlc|multi\d*|repack|fitgirl|dodi|elamigos|goldberg|steamrip)\b.*$/i, ' ');
+  n = n.replace(/\s+\bbuild\s*\d+.*$/i, ' ').replace(/\s+\b(repack|multi\d+|goldberg|portable)\b.*$/i, ' ');
+  n = n.replace(/\s*[:\-–—,]?\s*\b((the\s+)?(digital\s+)?(deluxe|ultimate|gold|complete|definitive|premium|collector'?s|standard|enhanced|anniversary|legendary|royal|special|director'?s\s+cut)(\s+edition)?|goty(\s+edition)?|game\s+of\s+the\s+year(\s+edition)?|remastered)\s*$/i, ' ');
+  n = n.replace(/\s*[:\-–—,+]\s*$/, ' ').replace(/\s+/g, ' ').trim();
+  return n.length >= 2 ? n : String(t || '').trim();
+}
 /** Título comparable: sin tildes, marcas, paréntesis, versiones ni palabras de edición. */
 const EDW = new Set(['edition', 'edicion', 'deluxe', 'goty', 'complete', 'completa', 'ultimate', 'gold', 'definitive', 'premium', 'standard', 'collectors', 'digital', 'remastered', 'enhanced', 'anniversary', 'bundle', 'pack', 'the', 'of', 'game', 'year', 'a', 'an', 'and', 'y']);
 function normTitle(t) {
-  t = String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[™®©]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+){1,}\b/g, ' ').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
+  t = cleanName(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[™®©]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+){1,}\b/g, ' ').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
   return t.split(' ').filter((w) => w && !EDW.has(w)).join(' ');
 }
 const parseBool = (v) => v === true || v === 1 || (typeof v === 'string' && /^(true|1|yes|si|sí|ok|verified|verificado)$/i.test(v.trim()));
@@ -286,7 +298,7 @@ class Sources extends EventEmitter {
       for (const g of c.games) {
         const k = g._nt || (g._nt = normTitle(g.name)) || g.ids[0];
         let e = m.get(k);
-        if (!e) { e = { key: k, name: g.name, cover: '', tags: new Set(), date: '', verified: false, creators: new Set(), entries: [], sources: new Set() }; m.set(k, e); }
+        if (!e) { e = { key: k, name: cleanName(g.name), cover: '', tags: new Set(), date: '', verified: false, creators: new Set(), entries: [], sources: new Set() }; m.set(k, e); }
         if (!e.cover && g.cover) e.cover = g.cover;
         for (const t of g.tags || []) e.tags.add(t);
         if (g.date && (!e.date || g.date > e.date)) e.date = g.date;
@@ -352,4 +364,4 @@ class Sources extends EventEmitter {
   }
 }
 
-module.exports = { Sources, normalize, fetchText, parseSize, normTitle };
+module.exports = { cleanName, Sources, normalize, fetchText, parseSize, normTitle };
