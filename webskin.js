@@ -148,7 +148,7 @@ function steamripConsole() {
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const reqCard = (t, o) => { const ks = Object.keys(o); return ks.length ? '<div class="rq"><h4>' + t + '</h4>' + ks.map((k) => '<div class="rw"><span>' + k + '</span><b>' + esc(o[k]) + '</b></div>').join('') + '</div>' : ''; };
   // pestañas compartidas (portada y página de juego)
-  const TABS = () => [{ k: 'new', t: 'Lanzamientos', sub: 'Agregados recientemente', url: '' }, { k: 'top', t: 'Más populares', sub: 'Los más descargados', url: navLink(/top\s*games/i) }, { k: 'upd', t: 'Actualizados', sub: 'Con versión nueva', url: navLink(/recent\s*updates|updated/i) }, { k: 'all', t: 'Todos los juegos', sub: 'Lista completa', url: navLink(/games?\s*list|all\s*games|a\s*-?\s*z\b/i) }].filter((x) => x.k === 'new' || x.url);
+  const TABS = () => [{ k: 'new', t: 'Lanzamientos', sub: 'Agregados recientemente', url: '' }, { k: 'top', t: 'Más populares', sub: 'Los más descargados', url: navLink(/top\s*games/i) }, { k: 'upd', t: 'Actualizados', sub: 'Con versión nueva', url: navLink(/recent\s*updates|updated/i) }, { k: 'all', t: 'Todos los juegos', sub: 'Lista completa', url: navLink(/games?\s*list|all\s*games|a\s*-?\s*z\b/i) || location.origin + '/games-list-page/' }].filter((x) => x.k === 'new' || x.url);
   const BARCSS = `@keyframes swp{0%,100%{background-position:0 0;opacity:.35}50%{background-position:100% 0;opacity:1}}@keyframes lgp{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}@keyframes xl{from{opacity:0;transform:translateX(46px);filter:blur(7px)}}@keyframes xr{from{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes ol{to{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes or{to{opacity:0;transform:translateX(46px);filter:blur(7px)}}
       .pn.on.fr{animation:xl .55s cubic-bezier(.22,1,.36,1)!important}.pn.on.fl{animation:xr .55s cubic-bezier(.22,1,.36,1)!important}
       @keyframes brt{0%,100%{box-shadow:0 14px 40px rgba(255,255,255,.12)}50%{box-shadow:0 14px 56px rgba(255,255,255,.3)}}
@@ -237,7 +237,7 @@ function steamripConsole() {
       @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none;filter:none}}
     </style>
     <div class="base"></div><div class="bg" style="background-image:url('${esc(d.cover)}')"></div>${AMB}
-    <div class="app"><div class="bar"><button class="ob" id="back">${ic('back')}Volver</button><div class="tbw" id="nv">${tabBtns(tabs)}</div><button class="ob" id="orig">${ic('ext')}Página original</button></div>
+    <div class="app"><div class="bar"><button class="ob" id="back">${ic('back')}Volver</button><div class="tbw" id="nv">${tabBtns(tabs)}</div><span></span></div>
       <div class="main"><div class="side"><div class="cvw" style="--cvimg:url('${esc(d.cover)}')"><div class="cv" id="cv"><img src="${esc(d.cover)}" alt=""><i></i></div></div>
           <div class="ch">${d.cats.map((c, i) => '<span style="--j:' + i + '">' + esc(c) + '</span>').join('')}</div>
           <h1>${d.title.split(' ').map((x, i) => '<span class="wd" style="--i:' + i + '">' + esc(x) + '</span>').join('')}</h1>
@@ -267,14 +267,6 @@ function steamripConsole() {
     document.documentElement.classList.add('wt-console-on'); document.body.appendChild(hostEl);
     requestAnimationFrame(() => { place($('.tb.on')); reveal(); });
     $('#back').onclick = () => leave(() => history.length > 1 ? history.back() : (location.href = '/'));
-    const showOrig = (cm) => {
-      hostEl.style.display = 'none'; document.documentElement.classList.remove('wt-console-on');
-      if (cm) { cm.removeAttribute('slot'); document.body.appendChild(cm); setTimeout(() => cm.scrollIntoView({ block: 'start' }), 60); }
-      const b = document.createElement('button'); b.textContent = 'Volver al menú';
-      b.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:2147483001;padding:10px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:#111;color:#fff;font:600 13px system-ui;cursor:pointer';
-      b.onclick = () => { hostEl.style.display = 'block'; document.documentElement.classList.add('wt-console-on'); if (cm) { cm.setAttribute('slot', 'c'); hostEl.appendChild(cm); } b.remove(); }; document.body.appendChild(b);
-    };
-    $('#orig').onclick = () => showOrig(null);
     // comentarios: se usa el bloque real de la página; si el sitio los carga recién al verlos, se lo "despierta" y, si sigue vacío, se ofrece abrirlos en la página original
     let cmNode = null;
     const grab = () => { const c = document.querySelector('#comments, .comments-area, #disqus_thread, .wpd-comm, #wpdcom, [id*=comment]:not(script)'); if (c && !hostEl.contains(c)) { cmNode = c; c.setAttribute('slot', 'c'); hostEl.appendChild(c); return true; } return !!cmNode; };
@@ -283,7 +275,7 @@ function steamripConsole() {
     const wake = () => {
       if (wk > 2) return; wk++;
       try { window.dispatchEvent(new Event('scroll')); window.dispatchEvent(new Event('resize')); const btn = document.querySelector('.wpd-load-more-submit, #load-comments, .dsq-load-btn, [class*=load-comments], [id*=load-comments]'); if (btn) btn.click(); } catch (e) {}
-      setTimeout(() => { if (count()) return; const box = $('.cm'); if (!box || box.querySelector('.fb')) return; const f = document.createElement('div'); f.className = 'fb'; f.innerHTML = '<div>' + (cmNode ? 'Los comentarios no se cargaron acá.' : 'No encontré comentarios en esta página.') + '</div>' + (cmNode ? '<button>Abrir comentarios en la página original</button>' : ''); box.appendChild(f); const bt = f.querySelector('button'); if (bt) bt.onclick = () => showOrig(cmNode); }, 2800);
+      setTimeout(() => { if (count()) return; const box = $('.cm'); if (!box || box.querySelector('.fb')) return; const f = document.createElement('div'); f.className = 'fb'; f.innerHTML = '<div>' + (cmNode ? 'Los comentarios no se pudieron cargar.' : 'Este juego todavía no tiene comentarios.') + '</div>'; box.appendChild(f); }, 2800);
     };
     let tries = 0; const iv = setInterval(() => { grab(); count(); if (++tries > 30) clearInterval(iv); }, 600); grab();
     return hostEl;
@@ -436,7 +428,7 @@ function steamripConsole() {
       @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none;filter:none}}
     </style>
     <div class="base"></div>${AMB}
-    <div class="sp" id="sp"></div><button class="up" id="up">↑</button><div class="w" id="w"><div class="bar"><span></span><div class="tb" id="tb"><span class="pill" id="pill"></span>${tabBtns(tabs)}</div><button class="ob" id="orig">${ic('ext')}Sitio original</button></div>
+    <div class="sp" id="sp"></div><button class="up" id="up">↑</button><div class="w" id="w"><div class="bar"><span></span><div class="tb" id="tb"><span class="pill" id="pill"></span>${tabBtns(tabs)}</div><span></span></div>
       <div id="hero"></div>
       <div class="tl"><div><h1 id="tt"></h1><p id="ts"></p></div><div class="ct"><div class="sr"><input id="q" placeholder="Buscar en la lista…"><span class="kb">/</span></div></div></div>
       <div class="azb" id="az"></div><div class="gr" id="gr"></div><div class="ft" id="ft"></div></div>`;
@@ -530,7 +522,6 @@ function steamripConsole() {
     sh.addEventListener('click', (e) => { const a = e.target.closest && e.target.closest('a.cd, a.go, a.up2, a.alr'); if (!a || e.ctrlKey || e.metaKey) return; e.preventDefault(); const u = a.href; leave(() => { location.href = u; }); });
     // carga automática al llegar al final
     const snt = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !q && !ST[cur].busy && ST[cur].items) { const mr = $('#mr'); if (mr) mr.click(); } }), { root: w, rootMargin: '0px 0px 500px 0px' }); snt.observe(ft);
-    $('#orig').onclick = () => { hostEl.style.display = 'none'; document.documentElement.classList.remove('wt-console-on'); const b = document.createElement('button'); b.textContent = 'Volver a la biblioteca'; b.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:2147483001;padding:10px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:#111;color:#fff;font:600 13px system-ui;cursor:pointer'; b.onclick = () => { hostEl.style.display = 'block'; document.documentElement.classList.add('wt-console-on'); b.remove(); }; document.body.appendChild(b); };
     document.documentElement.classList.add('wt-console-on'); document.body.appendChild(hostEl); hoverPill(sh);
     shown = PAGE; sh.querySelector('#tb button[data-k=new]').classList.add('on'); requestAnimationFrame(() => { pill(); }); draw(); drawHero();
     { const hm = /wt=(\w+)/.exec(location.hash); if (hm && hm[1] !== 'new' && ST[hm[1]]) sw(hm[1]); }
