@@ -3439,6 +3439,17 @@ body.bpon .pr-gr{height:44px}
 .wbem .gl{width:64px;height:64px;border-radius:20px;margin:0 auto 16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a2),var(--a3));color:var(--on-a)}.wbem .gl svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8}.wbem b{display:block;font-size:20px;margin-bottom:6px}.wbem span{display:block;color:var(--muted);font-size:14px;max-width:340px;margin:0 auto}
 .wbtn.wide{width:auto;padding:0 14px;font-size:12.5px;font-weight:600;white-space:nowrap}
 
+
+/* --- navegador inmersivo (sitios con skin) --- */
+.wbhot{display:none}
+.wbx.imm .wbhot{display:flex;position:absolute;left:0;right:0;top:0;height:14px;z-index:40;justify-content:center;align-items:flex-start}
+.wbhot i{width:54px;height:4px;margin-top:5px;border-radius:9px;background:rgba(255,255,255,.28);transition:opacity .3s,width .3s}
+.wbx.imm.peek .wbhot i{opacity:0}
+.wbx.imm>.wbt,.wbx.imm>.wbtb{position:absolute;left:0;right:0;z-index:41;opacity:0;pointer-events:none;transform:translateY(-14px) scale(.985);transition:opacity .28s ease,transform .42s cubic-bezier(.16,1,.3,1)}
+.wbx.imm>.wbt{top:8px;background:rgba(14,14,16,.88)}
+.wbx.imm>.wbtb{top:70px}
+.wbx.imm.peek>.wbt,.wbx.imm.peek>.wbtb{opacity:1;pointer-events:auto;transform:none}
+.wbx.imm .wbv{border-radius:22px;background:#09090a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 /* --- navegador v2 --- */
 #wbroot .wbx{gap:10px}
 .wbt{gap:10px;padding:7px 8px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.04));backdrop-filter:blur(18px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(255,255,255,.07),0 10px 30px rgba(0,0,0,.35)}
@@ -11378,10 +11389,10 @@ function wbBuild(root){const c=webCfg();
    <form class="wbu" id="wbf" autocomplete="off"><span class="wbl" id="wbl">${ic('wlk')}</span><input id="wbi" spellcheck="false" placeholder="Buscá o escribí una dirección"><i class="wbul"></i></form>
    <div class="wbg"><button class="wbb wbdlb" data-a="wbdl" id="wbdlb" title="Descargas">${ic('wdl')}<svg class="wbring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="pg" id="wbrp" cx="22" cy="22" r="19" pathLength="100"/></svg><i class="wbn" id="wbn"></i></button><button class="wbb" data-a="wbset" title="Ajustes del navegador">${ic('wgr')}</button></div></div>
    <div class="wbtb" id="wbtb">${wbTabsHTML()}</div>
-   <div class="wbv" id="wbv"><div class="wbld" id="wbpg"><i></i></div><div class="wbem" id="wbem"><div class="in"><div class="orb"><i></i><i></i><span>${WBG}</span></div><b>Tus sitios</b><span class="sb">Elegí uno para abrirlo en una pestaña. Sin pestañas abiertas el navegador no gasta recursos.</span><div class="mk" id="wbmk">${wbMarksHTML()}</div><div class="bt"><button class="b2 g" data-a="wbnt">${ic('plus')} Pestaña en blanco</button></div></div></div>
+   <div class="wbhot" id="wbhot"><i></i></div><div class="wbv" id="wbv"><div class="wbld" id="wbpg"><i></i></div><div class="wbem" id="wbem"><div class="in"><div class="orb"><i></i><i></i><span>${WBG}</span></div><b>Tus sitios</b><span class="sb">Elegí uno para abrirlo en una pestaña. Sin pestañas abiertas el navegador no gasta recursos.</span><div class="mk" id="wbmk">${wbMarksHTML()}</div><div class="bt"><button class="b2 g" data-a="wbnt">${ic('plus')} Pestaña en blanco</button></div></div></div>
    <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside></div></div>`;
   const inp=$('#wbi');$('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();wbOpen(u)});
-  inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));root.dataset.built=1;wdDraw();wdBadge()}
+  inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));{const hot=$('#wbhot'),bt=root.querySelector('.wbt'),tb=$('#wbtb');hot.addEventListener('mouseenter',()=>wbPeek(1));[bt,tb].forEach(e=>{e.addEventListener('mouseenter',()=>wbPeek(1));e.addEventListener('mouseleave',()=>wbPeek(0))});inp.addEventListener('blur',()=>wbPeek(0))}root.dataset.built=1;wdDraw();wdBadge()}
 function wbEnter(){clearTimeout(WBR.disc);const root=$('#wbroot');if(!root)return;
   if(!WN){root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Navegador</h2><p>Esta función está disponible en la app de escritorio de WINTEER.</p></div></div>`;return}
   const c=webCfg();wbTabsInit();try{if(c.dir)winteerNative.webDl('tmp',{dir:c.dir})}catch(e){}
@@ -11583,8 +11594,10 @@ Object.assign(A,{
     if(r.ok){DLS.cfg=r.r;toast('Ajustes guardados');dlDisk()}else dlErr(r)},
 });
 
+function wbImm(u){const x=$('.wbx');if(!x)return;let h='';try{h=new URL(u).hostname}catch(e){}const on=/(^|\.)(fitgirl-repacks\.site|steamrip\.com)$/i.test(h);x.classList.toggle('imm',on);if(!on)x.classList.remove('peek')}
+function wbPeek(on){const x=$('.wbx');if(!x)return;clearTimeout(WBR.pk);if(on)x.classList.add('peek');else WBR.pk=setTimeout(()=>{const f=document.activeElement;if(f&&f.id==='wbi')return;x.classList.remove('peek')},450)}
 function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
-  const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u;const lk=$('#wbl');if(lk){const sec=/^https:/i.test(u);lk.classList.toggle('bad',!sec);lk.innerHTML=ic(sec?'wlk':'wul')}}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
+  const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();try{wbImm(u)}catch(e){}if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u;const lk=$('#wbl');if(lk){const sec=/^https:/i.test(u);lk.classList.toggle('bad',!sec);lk.innerHTML=ic(sec?'wlk':'wul')}}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
   ['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>wv.addEventListener(e,nav));
   wv.addEventListener('did-start-loading',()=>{pg&&pg.classList.add('on');rl&&rl.classList.add('spin')});
   wv.addEventListener('did-stop-loading',()=>{pg&&pg.classList.remove('on');rl&&rl.classList.remove('spin');nav()});
