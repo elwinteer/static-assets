@@ -2074,6 +2074,8 @@ function createWindow() {
         t.on('will-redirect', (_ev, u) => take(u));
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
       });
+      // Estilo WINTEER para ciertos sitios (webskin.js): fondo neutro y colores sin tinte de marca.
+      wc.on('dom-ready', () => { try { const sk = require('./webskin.js'), s = sk.skinFor(wc.getURL()); if (!s) return; if (s.css) wc.insertCSS(s.css).catch(() => {}); if (s.mono) wc.executeJavaScript(sk.MONO_JS).catch(() => {}); } catch (e) {} });
       const blockProto = (ev, u) => { if (/^magnet:/i.test(String(u))) { ev.preventDefault(); webTorrent(u); return; } if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
       wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
       wc.on('did-fail-load', (_ev, code, desc, _u, main) => { if (main && code === -20) note('Bloqueé una página de anuncios'); else if (main && code !== -3 && code !== 0) note('No pude abrir la página (' + String(desc || code) + ')'); });
