@@ -3805,6 +3805,7 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .ctra{position:absolute;top:calc(50% - 6px);transform:translateY(-50%) scale(.9);z-index:5;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(10,10,16,.82);color:#fff;font-size:26px;line-height:1;cursor:pointer;opacity:0;transition:opacity .35s,transform .4s cubic-bezier(.22,1,.36,1),background .3s;display:grid;place-items:center;padding:0 0 3px}.ctra.l{left:-14px}.ctra.r{right:-14px}.ctrwrap:hover .ctra{opacity:1;transform:translateY(-50%)}.ctra:hover{background:#fff;color:#0b0b13}
 .ultra .thbg,.ultra .thp,.ultra .thc>*{transition:none!important}
 @media (prefers-reduced-motion:reduce){.thbg{transition:none!important}}
+.ctbar{background:linear-gradient(180deg,rgba(10,10,14,.985),rgba(10,10,14,.95))!important}
 </style>
 </head>
 <body>
@@ -11585,7 +11586,7 @@ async function ctCoversFor(items,gen){const N=window.winteerNative;if(!N||!N.src
   const need=items.filter(x=>!x.cover&&!CT.cv[x.key]);if(!need.length)return;
   for(let i=0;i<need.length;i+=20){if(gen!==CT.gen||CT.mode!=='src')return;const part=need.slice(i,i+20);
     const r=await N.srcCovers({items:part.map(x=>({k:x.key,n:x.name})),id:ST.igid,secret:ST.igsec,noIg:!igOn()});
-    if(!r||!r.ok)return;if(r.r&&r.r.msg)CT.cvErr=r.r.msg;
+    if(!r||!r.ok){if(!CT.cvToast){CT.cvToast=1;toast('Portadas: '+((r&&r.err)||'error interno'))}return}if(r.r&&r.r.msg&&!CT.cvToast&&!Object.values(r.r.r||{}).some(v=>v&&v.c)){CT.cvToast=1;toast('Portadas: no pude conectar ('+r.r.msg+')')}
     for(const k in ((r.r||{}).r||{})){const m=r.r.r[k];CT.cv[k]=m;const el=document.querySelector('.ctc.src[data-key="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]');if(!el)continue;
       if(m.c&&el.classList.contains('nocv')&&!el.querySelector('img')){const im=new Image();im.alt='';im.loading='lazy';im.onerror=()=>im.remove();im.onload=()=>{el.classList.remove('nocv')};im.src=ctIgU(m.c);el.insertBefore(im,el.firstChild)}
       const sp=el.querySelector('.ctm span');if(sp&&m.y&&!/^\d{4}/.test(sp.textContent))sp.textContent=[m.y,sp.textContent].filter(Boolean).join(' · ')}}}

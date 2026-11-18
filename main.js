@@ -1800,7 +1800,7 @@ async function srcCovers(o) {
   for (const it of (Array.isArray(o.items) ? o.items : []).slice(0, 60)) {
     const k = String(it.k || ''), n = String(it.n || '').replace(/[™®©"\\]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+)+\b/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
     if (!k || !n) continue;
-    const c = mem[k]; if (c && (c.c || Date.now() - c.t < 14 * 864e5)) { out[k] = c; continue; }
+    const c = mem[k]; if (c && c.v === 2 && (c.c || Date.now() - c.t < 14 * 864e5)) { out[k] = c; continue; }
     need.push({ k, n });
   }
   if (need.length && o.id && o.secret && !o.noIg) {
@@ -1813,7 +1813,7 @@ async function srcCovers(o) {
         chunk.forEach((x, j) => {
           const rows = ((res.find((r) => r.name === 'q' + j) || {}).result) || [], n0 = nrm(x.n);
           const g = rows.find((r) => nrm(r.name) === n0) || rows.find((r) => r.cover && (nrm(r.name).startsWith(n0) || n0.startsWith(nrm(r.name))) && Math.min(n0.length, nrm(r.name).length) >= 5) || null;
-          const m = g ? { c: g.cover ? g.cover.image_id : '', y: g.first_release_date ? new Date(g.first_release_date * 1000).getUTCFullYear() : 0, g: (g.genres || []).map((q) => q.name).slice(0, 3), r: Math.round(g.total_rating || 0), t: Date.now() } : { c: '', y: 0, g: [], r: 0, t: Date.now() };
+          const m = g ? { c: g.cover ? g.cover.image_id : '', y: g.first_release_date ? new Date(g.first_release_date * 1000).getUTCFullYear() : 0, g: (g.genres || []).map((q) => q.name).slice(0, 3), r: Math.round(g.total_rating || 0), t: Date.now(), v: 2 } : { c: '', y: 0, g: [], r: 0, t: Date.now(), v: 2 };
           mem[x.k] = m; out[x.k] = m;
         });
         scSave();
@@ -1828,8 +1828,8 @@ async function srcCovers(o) {
       const r = await net.fetch('https://store.steampowered.com/api/storesearch/?l=english&cc=us&term=' + encodeURIComponent(x.n), { headers: { accept: 'application/json' } });
       if (!r.ok) throw new Error('steam ' + r.status); const j = await r.json(), n0 = nrm(x.n);
       const it = (j.items || []).find((i) => nrm(i.name) === n0) || (j.items || []).find((i) => n0.length >= 5 && (nrm(i.name).startsWith(n0) || n0.startsWith(nrm(i.name))));
-      if (it) { const mm = { c: 'steam:' + it.id, y: (out[x.k] || {}).y || 0, g: (out[x.k] || {}).g || [], r: (out[x.k] || {}).r || 0, t: Date.now() }; mem[x.k] = mm; out[x.k] = mm; }
-      else if (!out[x.k] && !authBad && !lastErr) { const mm = { c: '', y: 0, g: [], r: 0, t: Date.now() }; mem[x.k] = mm; out[x.k] = mm; }
+      if (it) { const mm = { c: 'steam:' + it.id, y: (out[x.k] || {}).y || 0, g: (out[x.k] || {}).g || [], r: (out[x.k] || {}).r || 0, t: Date.now(), v: 2 }; mem[x.k] = mm; out[x.k] = mm; }
+      else if (!out[x.k] && !authBad && !lastErr) { const mm = { c: '', y: 0, g: [], r: 0, t: Date.now(), v: 2 }; mem[x.k] = mm; out[x.k] = mm; }
     } catch (e) { lastErr = lastErr || String(e.message || e).slice(0, 120); } } };
     if (miss.length) { await Promise.all([work(), work(), work(), work()]); scSave(); }
   }
