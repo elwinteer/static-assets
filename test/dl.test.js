@@ -345,3 +345,10 @@ test('host que bloquea siempre: error 403 con explicación clara', async () => {
   const dl = mk().start(); const it = dl.add({ gid: 'x:403b', name: 'J', autoInstall: false, files: [{ url: 'http://127.0.0.1:' + srv.address().port + '/a.bin', size: 10 }] });
   const f = await waitFor(dl, it.id, ['error', 'completed']); assert.equal(f.status, 'error'); assert.match(JSON.stringify(f.error), /rechaz|protege/i); srv.close();
 });
+
+test('enlace que devuelve una página HTML: error claro, no archivo corrupto', async () => {
+  const srv = http.createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); r.end('<html><head><title>Esperá 30 segundos - Host</title></head><body>captcha</body></html>'); });
+  await new Promise((ok) => srv.listen(0, '127.0.0.1', ok));
+  const dl = mk().start(); const it = dl.add({ gid: 'x:html', name: 'J', autoInstall: false, files: [{ url: 'http://127.0.0.1:' + srv.address().port + '/951bf0lutdy8', size: 232259584 }] });
+  const f = await waitFor(dl, it.id, ['error', 'completed']); assert.equal(f.status, 'error'); assert.match(JSON.stringify(f.error), /no es una descarga directa/); assert.match(JSON.stringify(f.error), /Esperá 30/); srv.close();
+});

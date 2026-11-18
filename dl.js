@@ -419,6 +419,12 @@ class Dl extends EventEmitter {
           }
           if ((sc === 403 || sc === 406 || sc === 401) && bro < 2) { res.resume(); bro++; return go(url, hops); }
           if (sc !== 200 && sc !== 206) { res.resume(); const e = new Error(sc === 403 || sc === 401 ? 'El servidor rechazó la descarga (HTTP ' + sc + '): el sitio que aloja el archivo la protege (captcha, enlace vencido o solo desde su web). Probá otra opción del juego o reintentá más tarde.' : 'El servidor respondió HTTP ' + sc); e.fatal = !(sc === 408 || sc === 429 || sc >= 500); if (e.fatal) e.code = 'http'; return finish(e); }
+          if (/text\/html|application\/xhtml/i.test(String(res.headers['content-type'] || '')) && !/\.(html?|php|asp)$/i.test(u.pathname)) {
+            // El enlace no es una descarga directa: devuelve una página web (captcha, "esperá 30 segundos", botón de descargar…).
+            let buf = ''; res.setEncoding && res.setEncoding('utf8');
+            const done = () => { const t = /<title[^>]*>([^<]{1,90})/i.exec(buf), e = err('notfile', 'Ese enlace no es una descarga directa: ' + u.hostname + ' devolvió una página web' + (t ? ' ("' + t[1].trim().replace(/\s+/g, ' ') + '")' : '') + ' en vez del archivo. Usá otra opción del juego o un enlace directo.'); e.fatal = true; finish(e); };
+            res.on('data', (c) => { buf += c; if (buf.length > 20000) { try { req.destroy(); } catch (x) {} done(); } }); res.on('end', done); res.on('error', done); return;
+          }
           let total = 0, append = false;
           if (sc === 206) {
             const m = /bytes (\d+)-(\d+)\/(\d+|\*)/.exec(res.headers['content-range'] || '');
