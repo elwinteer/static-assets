@@ -394,11 +394,18 @@ class Dl extends EventEmitter {
         if (ws) ws.end(end); else end();
       };
       ctl.abort = () => { try { req && req.destroy(); } catch (e) {} finish(null); };
-      let bro = false;
-      const go = (url, hops) => {
+      let bro = 0, ident = null; // bro: 0 = normal, 1 = identidad de navegador + Referer del host, 2 = Referer de la fuente
+      const go = async (url, hops) => {
         let u; try { u = new URL(url); } catch (e) { return finish(err('url', 'Dirección inválida')); }
         const lib = u.protocol === 'https:' ? https : http;
         const headers = { 'user-agent': bro ? UA_BROWSER : UA, accept: '*/*', 'accept-encoding': 'identity' };
+        if (bro) {
+          if (ident === null) { try { ident = (this.o.httpIdentity && await this.o.httpIdentity(u.href)) || {}; } catch (e) { ident = {}; } }
+          let ref = u.origin + '/'; if (bro === 2) { try { ref = new URL((it.source && it.source.url) || (it.p && it.p.sourceUrl) || ref).origin + '/'; } catch (e) {} }
+          Object.assign(headers, { accept: '*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8', referer: ref, 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': bro === 2 ? 'cross-site' : 'same-origin' });
+          if (ident.ua) headers['user-agent'] = ident.ua;
+          if (ident.cookie) headers.cookie = ident.cookie;
+        }
         if (off > 0) { headers.range = 'bytes=' + off + '-'; if (f.etag) headers['if-range'] = f.etag; }
         req = lib.get(u, { headers }, (res) => {
           const sc = res.statusCode;
@@ -408,8 +415,8 @@ class Dl extends EventEmitter {
             if (m && +m[1] === off) { f.got = off; return finish(null); }
             rm(part); off = 0; f.got = 0; return finish(new Error('Rango inválido, reinicio la descarga'));
           }
-          if ((sc === 403 || sc === 406) && !bro) { res.resume(); bro = true; return go(url, hops); }
-          if (sc !== 200 && sc !== 206) { res.resume(); const e = new Error('El servidor respondió HTTP ' + sc); e.fatal = !(sc === 408 || sc === 429 || sc >= 500); if (e.fatal) e.code = 'http'; return finish(e); }
+          if ((sc === 403 || sc === 406 || sc === 401) && bro < 2) { res.resume(); bro++; return go(url, hops); }
+          if (sc !== 200 && sc !== 206) { res.resume(); const e = new Error(sc === 403 || sc === 401 ? 'El servidor rechazó la descarga (HTTP ' + sc + '): el sitio que aloja el archivo la protege (captcha, enlace vencido o solo desde su web). Probá otra opción del juego o reintentá más tarde.' : 'El servidor respondió HTTP ' + sc); e.fatal = !(sc === 408 || sc === 429 || sc >= 500); if (e.fatal) e.code = 'http'; return finish(e); }
           let total = 0, append = false;
           if (sc === 206) {
             const m = /bytes (\d+)-(\d+)\/(\d+|\*)/.exec(res.headers['content-range'] || '');

@@ -3108,6 +3108,13 @@ app.whenReady().then(() => {
       file: path.join(app.getPath('userData'), 'downloads.json'),
       defaults: { dlDir: path.join(app.getPath('downloads'), 'WINTEER'), installDir: path.join(os.homedir(), 'Games', 'WINTEER') },
       extract: z7Run, archiveSize: z7Size, findExes: wdlExes,
+      // Para hosts que bloquean con 403: misma identidad y cookies (captcha ya resuelto) que usa la sesión de fuentes.
+      httpIdentity: async (url) => {
+        const ses = session.fromPartition('persist:winteer-src');
+        const ua = String(session.defaultSession.getUserAgent() || '').replace(/ (?!Chrome\/|Safari\/|AppleWebKit\/)[A-Za-z][\w.-]*\/[\w.+-]+/g, '');
+        let cookie = ''; try { cookie = (await ses.cookies.get({ url })).map((c) => c.name + '=' + c.value).join('; '); } catch (e) {}
+        return { ua, cookie };
+      },
     });
     dlEng.load();
     const dlSend = (ch, d) => { try { if (win && !win.isDestroyed()) win.webContents.send('dl:ev', { t: ch, d }); } catch (e) {} };
