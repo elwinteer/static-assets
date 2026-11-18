@@ -686,7 +686,7 @@ function fitgirlConsole() {
   const SRCH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
   const BACK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
   const P = location.pathname.replace(/\/+$/, '') || '/', Q = new URLSearchParams(location.search), O = location.origin;
-  const TABS = [['new', 'Lanzamientos', '/'], ['pop', 'Populares', '/popular-repacks/'], ['up', 'Próximamente', '/category/upcoming/'], ['all', 'Todos A–Z', '/all-my-repacks-a-z/']];
+  const TABS = [['new', 'Lanzamientos', '/'], ['pop', 'Populares', '/popular-repacks/'], ['up', 'Próximamente', '/upcoming-repacks/'], ['all', 'Todos A–Z', '/all-my-repacks-a-z/']];
   const TIC = { new: '<path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/>', pop: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .5 1.500 1.500 2 2 1 .5-2-.5-4 1-7z"/>', up: '<circle cx="12" cy="12" r="8.500"/><path d="M12 7v5l3 2"/>', all: '<path d="M4 6h16M4 12h16M4 18h10"/>' };
   const TI = (k) => '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (TIC[k] || '') + '</svg>';
   const abs = (u, b) => { try { return new URL(u, b || location.href).href; } catch (e) { return ''; } };
@@ -711,6 +711,11 @@ function fitgirlConsole() {
   const readPopular = (doc, base) => {
     const out = [], seen = new Set(), root = doc.querySelector('.entry-content') || doc.body;
     root.querySelectorAll('a[href]').forEach((a) => { const im = a.querySelector('img'); if (!im) return; const href = abs(a.getAttribute('href'), base); if (!href || seen.has(href) || href.replace(/\/$/, '') === O || /\/(category|tag|page)\//.test(href)) return; seen.add(href); const raw = a.getAttribute('title') || im.getAttribute('alt') || T(a) || decodeURIComponent((href.split('/').filter(Boolean).pop() || '').replace(/-/g, ' ')); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: imgOf(a, base), rep: '', org: '', lang: '', gen: '', date: '' }); });
+    return out;
+  };
+  const readUp = (doc, base) => {
+    const out = [], seen = new Set(), root = doc.querySelector('.entry-content') || doc.body;
+    root.querySelectorAll('a[href]').forEach((a) => { const href = abs(a.getAttribute('href'), base), raw = T(a).replace(/^[→\-–\s]+/, ''); if (!href || !raw || seen.has(href) || raw.length < 3 || href.indexOf('fitgirl-repacks.site') < 0 || /^https?:\/\/[^/]+\/?(#.*)?$/.test(href)) return; seen.add(href); const t = tidy(raw); out.push({ href, title: t.name, ver: t.ver, img: '', rep: '', org: '', lang: '', gen: '', date: '' }); });
     return out;
   };
   const readList = (doc, base) => {
@@ -748,7 +753,7 @@ function fitgirlConsole() {
     const ST = {}; TABS.forEach((t) => { ST[t[0]] = { pages: {}, cur: 1, total: 0, busy: 0, err: '' }; }); ST.search = { pages: {}, cur: 1, total: 0, busy: 0, err: '', q: '' };
     let cur = 'new', tk = 0;
     const hashK = (/wt=(\w+)/.exec(location.hash) || [])[1];
-    if (/^\/popular-repacks/.test(P)) cur = 'pop'; else if (/^\/category\/upcoming/.test(P)) cur = 'up'; else if (/^\/all-my-repacks/.test(P)) cur = 'all'; else if (TABS.some((t) => t[0] === hashK)) cur = hashK;
+    if (/^\/popular-repacks/.test(P)) cur = 'pop'; else if (/^\/(upcoming-repacks|category\/upcoming)/.test(P)) cur = 'up'; else if (/^\/all-my-repacks/.test(P)) cur = 'all'; else if (TABS.some((t) => t[0] === hashK)) cur = hashK;
     const pn = +((/\/page\/(\d+)/.exec(P) || [0, 1])[1]); if (cur === 'new' && pn > 1) ST.new.cur = pn;
     const moveAc = () => { const b = sh.querySelector('#tb button.on'), a = sh.querySelector('#tb .ac'); if (b && a) { a.style.left = b.offsetLeft + 'px'; a.style.width = b.offsetWidth + 'px'; } };
     window.addEventListener('resize', moveAc);
@@ -759,7 +764,7 @@ function fitgirlConsole() {
       countTo($('#ts'), L.length, ' repacks' + (pages > 1 ? ' · página ' + st.cur + ' de ' + pages : ''));
       $('#er').innerHTML = st.err ? '<div class="er">' + esc(st.err) + '</div>' : '';
       if (!st.pages[st.cur]) { gr.className = 'gr cg'; gr.innerHTML = st.err ? '' : Array.from({ length: 12 }, () => '<div class="sk"></div>').join(''); $('#pg').innerHTML = ''; return; }
-      if (cur === 'all') { gr.className = 'gr lr'; gr.innerHTML = L.map((x, i) => '<a class="rw" style="--i:' + Math.min(i, 20) + '" data-h="' + esc(x.href) + '"><span class="tl" style="--h:' + hueOf(x.title) + '">' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + '</span><b>' + esc(x.title) + '</b>' + (x.ver ? '<i>' + esc(x.ver) + '</i>' : '') + '</a>').join(''); }
+      if (cur === 'all' || cur === 'up') { gr.className = 'gr lr'; gr.innerHTML = L.map((x, i) => '<a class="rw" style="--i:' + Math.min(i, 20) + '" data-h="' + esc(x.href) + '"><span class="tl" style="--h:' + hueOf(x.title) + '">' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + '</span><b>' + esc(x.title) + '</b>' + (x.ver ? '<i>' + esc(x.ver) + '</i>' : '') + '</a>').join(''); }
       else {
         gr.className = 'gr cg';
         gr.innerHTML = L.length ? L.map((x, i) => '<a class="fc" style="--i:' + Math.min(i, 24) + ';--h:' + hueOf(x.title) + '" data-h="' + esc(x.href) + '"><span class="cx">' + (cur === 'new' && st.cur === 1 && i < 6 ? '<span class="nb">NUEVO</span>' : '') + '</span>' + (cur === 'pop' ? '<span class="rk r' + Math.min(i + 1, 4) + '">' + (i + 1) + '</span>' : '') + '<span class="im">' + (x.img ? '<img loading="lazy" src="' + esc(x.img) + '" alt="">' : '<b>' + esc(x.title.charAt(0)) + '</b>') + '</span><span class="nm"><b>' + esc(x.title) + '</b><span class="mi">' + (x.rep ? '<span>💾 ' + esc(x.rep) + '</span>' : '') + (x.ver ? '<span>' + esc(x.ver) + '</span>' : '') + (x.date ? '<span>' + esc(x.date) + '</span>' : '') + '</span></span></a>').join('') : '<div class="em">No encontré repacks</div>';
@@ -778,8 +783,8 @@ function fitgirlConsole() {
       try {
         const u = urlFor(k, n, st.q), doc = await fetchDoc(u);
         if (!doc) { st.total = Math.max(1, n - 1); st.err = 'Esa página no existe'; return; }
-        let items = k === 'all' ? readList(doc, u) : k === 'pop' ? readPopular(doc, u) : readArticles(doc, u);
-        if (!items.length && k !== 'pop') items = readPopular(doc, u);
+        let items = k === 'up' ? readUp(doc, u) : k === 'all' ? readList(doc, u) : k === 'pop' ? readPopular(doc, u) : readArticles(doc, u);
+        if (!items.length && k !== 'pop' && k !== 'up') items = readPopular(doc, u);
         if (!items.length) { st.total = Math.max(1, n - 1); st.err = n > 1 ? 'No hay más páginas' : 'No pude leer los repacks de esta página'; return; }
         const t = totalOf(doc); if (t > st.total) st.total = t; st.pages[n] = items;
       } catch (e) { st.err = 'No se pudo cargar: ' + String(e.message || e).slice(0, 100); } finally { st.busy = 0; }
@@ -842,8 +847,8 @@ function fitgirlConsole() {
     const g = $('#gal'); if (g) { const chk = () => { if (!g.querySelector('img')) { g.remove(); const l = $('#shl'); if (l) l.remove(); } }; g.querySelectorAll('img').forEach((im) => { const bad = () => { im.remove(); chk(); }; im.addEventListener('error', bad); im.addEventListener('load', () => { if (im.naturalWidth < 240) bad(); }); }); }
     hoverPill(sh); return true;
   };
-  const SINGLE = !!document.querySelector('body.single, body.single-post') || (!!document.querySelector('article') && document.querySelectorAll('article').length === 1 && P !== '/' && !/^\/(page|category|tag|popular-repacks|all-my-repacks-a-z)/.test(P) && !Q.get('s'));
-  const LISTING = P === '/' || /^\/(page\/\d+|category\/|popular-repacks|all-my-repacks-a-z)/.test(P) || !!Q.get('s');
+  const SINGLE = !!document.querySelector('body.single, body.single-post') || (!!document.querySelector('article') && document.querySelectorAll('article').length === 1 && P !== '/' && !/^\/(page|category|tag|popular-repacks|all-my-repacks-a-z|upcoming-repacks)/.test(P) && !Q.get('s'));
+  const LISTING = P === '/' || /^\/(page\/\d+|category\/|popular-repacks|all-my-repacks-a-z|upcoming-repacks)/.test(P) || !!Q.get('s');
   const run = () => { try { if (SINGLE) game(); else if (LISTING) home(); } catch (e) { try { const x = document.getElementById('wt-console'); if (x) x.remove(); document.documentElement.classList.remove('wt-console-on'); } catch (_) {} } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 }
