@@ -318,3 +318,30 @@ test('solo archivos comprimidos y nada más (sin carpetas ni exe) se anidan; con
   const it = dl.add({ gid: 'x:n2', name: 'N2', files: [{ url: s.url + '/o.zip' }] }); const f = await waitFor(dl, it.id, ['completed', 'error']); assert.equal(f.status, 'completed', JSON.stringify(f.error));
   assert.ok(fs.existsSync(path.join(f.result.dir, 'a.zip')), 'con setup.exe al lado no se extrae a.zip'); s.srv.close();
 });
+
+test('host que da 403 a Node: reintenta con la red de Chromium (referer + identidad) y completa', async () => {
+  const data = rnd(1e6), seen = [];
+  const srv = http.createServer((req, res) => {
+    seen.push({ ua: req.headers['user-agent'], ref: req.headers.referer || '' });
+    if (!/Chrome\//.test(req.headers['user-agent'] || '') || !req.headers.referer) { res.writeHead(403); return res.end('blocked'); }
+    res.writeHead(200, { 'content-length': data.length }); res.end(data);
+  });
+  await new Promise((ok) => srv.listen(0, '127.0.0.1', ok)); const url = 'http://127.0.0.1:' + srv.address().port + '/a.bin';
+  let chromiumCalls = 0;
+  const dl = mk({
+    httpIdentity: async () => ({ ua: 'Mozilla/5.0 Chrome/140.0.0.0 Safari/537.36', cookie: '' }),
+    chromiumGet: (u, headers, cb) => { chromiumCalls++; const EE = require('events'), out = new EE(); out.setTimeout = () => {}; out.destroy = () => {};
+      http.get(u, { headers }, (r) => { r.setTimeout = r.setTimeout || (() => {}); cb(r); }).on('error', (e) => out.emit('error', e)); return out; },
+  }).start();
+  const it = dl.add({ gid: 'x:403', name: 'Juego', autoInstall: false, files: [{ url, size: data.length }] });
+  const f = await waitFor(dl, it.id, ['completed', 'error']);
+  assert.equal(f.status, 'completed', JSON.stringify(f.error)); assert.ok(chromiumCalls >= 1);
+  srv.close();
+});
+
+test('host que bloquea siempre: error 403 con explicación clara', async () => {
+  const srv = http.createServer((q, r) => { r.writeHead(403); r.end(); });
+  await new Promise((ok) => srv.listen(0, '127.0.0.1', ok));
+  const dl = mk().start(); const it = dl.add({ gid: 'x:403b', name: 'J', autoInstall: false, files: [{ url: 'http://127.0.0.1:' + srv.address().port + '/a.bin', size: 10 }] });
+  const f = await waitFor(dl, it.id, ['error', 'completed']); assert.equal(f.status, 'error'); assert.match(JSON.stringify(f.error), /rechaz|protege/i); srv.close();
+});

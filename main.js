@@ -3109,6 +3109,25 @@ app.whenReady().then(() => {
       defaults: { dlDir: path.join(app.getPath('downloads'), 'WINTEER'), installDir: path.join(os.homedir(), 'Games', 'WINTEER') },
       extract: z7Run, archiveSize: z7Size, findExes: wdlExes,
       // Para hosts que bloquean con 403: misma identidad y cookies (captcha ya resuelto) que usa la sesión de fuentes.
+      // Descarga con la red de Chromium (misma huella TLS que un navegador real): los hosts con Cloudflare rechazan la de Node con 403.
+      chromiumGet: (url, headers, cb) => {
+        const { PassThrough } = require('stream'); const EE = require('events');
+        const ses = session.fromPartition('persist:winteer-src'), out = new EE(); let rq = null, pt = null;
+        out.setTimeout = () => {}; out.destroy = (e) => { try { rq && rq.abort(); } catch (x) {} try { pt && pt.destroy(); } catch (x) {} };
+        try {
+          rq = net.request({ url, session: ses, useSessionCookies: true, redirect: 'follow' });
+          for (const [k, v] of Object.entries(headers || {})) { if (/^(host|content-length|connection|accept-encoding)$/i.test(k)) continue; try { rq.setHeader(k, v); } catch (x) {} }
+          rq.on('response', (r) => {
+            pt = new PassThrough(); const h = {}; for (const [k, v] of Object.entries(r.headers || {})) h[k.toLowerCase()] = Array.isArray(v) ? v[0] : v;
+            pt.statusCode = r.statusCode; pt.headers = h; pt.complete = false; pt.setTimeout = () => {};
+            r.on('data', (c) => { if (!pt.write(c)) { try { r.pause(); } catch (x) {} pt.once('drain', () => { try { r.resume(); } catch (x) {} }); } });
+            r.on('end', () => { pt.complete = true; pt.end(); }); r.on('error', (e) => pt.destroy(e)); r.on('aborted', () => pt.destroy(new Error('aborted')));
+            cb(pt);
+          });
+          rq.on('error', (e) => out.emit('error', e)); rq.end();
+        } catch (e) { setImmediate(() => out.emit('error', e)); }
+        return out;
+      },
       httpIdentity: async (url) => {
         const ses = session.fromPartition('persist:winteer-src');
         const ua = String(session.defaultSession.getUserAgent() || '').replace(/ (?!Chrome\/|Safari\/|AppleWebKit\/)[A-Za-z][\w.-]*\/[\w.+-]+/g, '');

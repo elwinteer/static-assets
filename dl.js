@@ -407,7 +407,9 @@ class Dl extends EventEmitter {
           if (ident.cookie) headers.cookie = ident.cookie;
         }
         if (off > 0) { headers.range = 'bytes=' + off + '-'; if (f.etag) headers['if-range'] = f.etag; }
-        req = lib.get(u, { headers }, (res) => {
+        const viaChromium = bro > 0 && typeof this.o.chromiumGet === 'function';
+        if (viaChromium) delete headers.cookie; // Chromium usa las cookies de su sesión
+        const onRes = (res) => {
           const sc = res.statusCode;
           if ([301, 302, 303, 307, 308].includes(sc) && res.headers.location) { res.resume(); if (hops >= 6) return finish(err('redirect', 'Demasiadas redirecciones')); return go(new URL(res.headers.location, u).href, hops + 1); }
           if (sc === 416) {
@@ -443,7 +445,8 @@ class Dl extends EventEmitter {
           res.on('error', (e) => finish(e));
           res.on('aborted', () => finish(new Error('La conexión se cortó')));
           res.on('close', () => { if (!res.complete) finish(new Error('La conexión se cortó')); });
-        });
+        };
+        req = viaChromium ? this.o.chromiumGet(u.href, headers, onRes) : lib.get(u, { headers }, onRes);
         req.on('error', (e) => finish(e));
         req.setTimeout(30000, () => { try { req.destroy(new Error('Tiempo de espera agotado')); } catch (e) {} });
       };
