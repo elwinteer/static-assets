@@ -16,6 +16,8 @@ const { EventEmitter } = require('events');
 
 const MAX_BYTES = 12 * 1024 * 1024, MAX_GAMES = 20000, MAX_VERS = 50, MAX_FILES = 200, MAX_INC = 20;
 const UA = 'WINTEER/1 (+sources)';
+// Algunos servidores devuelven 403 a programas; si pasa, se reintenta una vez con un identificador de navegador común.
+const UA_BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 const err = (code, msg) => Object.assign(new Error(msg), { code });
 const str = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : typeof v === 'number' ? String(v).slice(0, n) : '');
 const normId = (s) => str(s, 120).toLowerCase();
@@ -45,15 +47,17 @@ function fetchText(url, o) {
       try { const p = fileURLToPath(u), st = fs.statSync(p); if (st.size > MAX_BYTES) return reject(err('size', 'El manifiesto es demasiado grande')); return resolve({ text: fs.readFileSync(p, 'utf8').replace(/^\uFEFF/, ''), etag: String(st.mtimeMs), url: u.href }); } catch (e) { return reject(err('file', 'No pude leer el archivo: ' + String(e.code || e.message).slice(0, 60))); }
     }
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return reject(err('url', 'El enlace tiene que empezar con http:// o https://'));
+    let bro = false;
     const go = (url, hops) => {
       const lib = url.protocol === 'https:' ? https : http;
-      const headers = { 'user-agent': UA, accept: 'application/json, */*', 'accept-encoding': 'identity' };
+      const headers = bro ? { 'user-agent': UA_BROWSER, accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8', 'accept-encoding': 'identity' } : { 'user-agent': UA, accept: 'application/json, */*', 'accept-encoding': 'identity' };
       if (o.etag) headers['if-none-match'] = o.etag;
       const req = lib.get(url, { headers }, (res) => {
         const sc = res.statusCode;
         if ([301, 302, 303, 307, 308].includes(sc) && res.headers.location) { res.resume(); if (hops >= 5) return reject(err('net', 'Demasiadas redirecciones')); let nx; try { nx = new URL(res.headers.location, url); } catch (e) { return reject(err('net', 'Redirección inválida')); } return go(nx, hops + 1); }
         if (sc === 304) { res.resume(); return resolve({ notModified: true, url: url.href }); }
-        if (sc !== 200) { res.resume(); return reject(err('http', 'La fuente respondió HTTP ' + sc)); }
+        if ((sc === 403 || sc === 406) && !bro) { res.resume(); bro = true; return go(url, hops); }
+        if (sc !== 200) { res.resume(); return reject(err('http', 'La fuente respondió HTTP ' + sc + (sc === 403 ? ' (acceso denegado: puede requerir permiso, o el enlace venció)' : ''))); }
         const len = +res.headers['content-length'] || 0;
         if (len > MAX_BYTES) { res.destroy(); return reject(err('size', 'El manifiesto es demasiado grande')); }
         const ch = []; let n = 0;

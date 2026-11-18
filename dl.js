@@ -15,6 +15,7 @@ const fs = require('fs'), path = require('path'), { fileURLToPath } = require('u
 const { EventEmitter } = require('events');
 
 const UA = 'WINTEER/1 (+download-manager)';
+const UA_BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 const MARK = '.winteer-install.json';
 const S = { Q: 'queued', D: 'downloading', P: 'paused', V: 'verifying', X: 'extracting', I: 'installing', C: 'completed', E: 'error' };
 const FINAL = new Set([S.C, S.E]);
@@ -393,10 +394,11 @@ class Dl extends EventEmitter {
         if (ws) ws.end(end); else end();
       };
       ctl.abort = () => { try { req && req.destroy(); } catch (e) {} finish(null); };
+      let bro = false;
       const go = (url, hops) => {
         let u; try { u = new URL(url); } catch (e) { return finish(err('url', 'Dirección inválida')); }
         const lib = u.protocol === 'https:' ? https : http;
-        const headers = { 'user-agent': UA, accept: '*/*', 'accept-encoding': 'identity' };
+        const headers = { 'user-agent': bro ? UA_BROWSER : UA, accept: '*/*', 'accept-encoding': 'identity' };
         if (off > 0) { headers.range = 'bytes=' + off + '-'; if (f.etag) headers['if-range'] = f.etag; }
         req = lib.get(u, { headers }, (res) => {
           const sc = res.statusCode;
@@ -406,6 +408,7 @@ class Dl extends EventEmitter {
             if (m && +m[1] === off) { f.got = off; return finish(null); }
             rm(part); off = 0; f.got = 0; return finish(new Error('Rango inválido, reinicio la descarga'));
           }
+          if ((sc === 403 || sc === 406) && !bro) { res.resume(); bro = true; return go(url, hops); }
           if (sc !== 200 && sc !== 206) { res.resume(); const e = new Error('El servidor respondió HTTP ' + sc); e.fatal = !(sc === 408 || sc === 429 || sc >= 500); if (e.fatal) e.code = 'http'; return finish(e); }
           let total = 0, append = false;
           if (sc === 206) {

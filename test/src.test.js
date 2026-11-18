@@ -123,3 +123,8 @@ test('formato plano: se busca por etiqueta/creador y spec() lleva el tamaño ins
   assert.equal(S.games('terror').length, 1); assert.equal(S.games('ana').length, 1); assert.equal(S.games('nada').length, 0);
   const sp = S.spec(s.id, 'g1', 0); assert.equal(sp.installSize, 5000); assert.equal(sp.files[0].size, 2000); a.s.close();
 });
+test('403 a programas: reintenta con identificador de navegador', async () => {
+  const a = await srv({ '/m.json': (q, r) => { if (!/Mozilla/.test(q.headers['user-agent'] || '')) { r.writeHead(403); return r.end(); } r.writeHead(200); r.end(JSON.stringify([{ id: 'g', name: 'G', link: '/g.zip' }])); }, '/no.json': (q, r) => { r.writeHead(403); r.end(); } });
+  const S = mk(); const s = await S.add(a.url + '/m.json'); assert.equal(s.games, 1);
+  await assert.rejects(S.add(a.url + '/no.json'), (e) => e.code === 'http' && /403/.test(e.message)); a.s.close();
+});

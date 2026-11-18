@@ -11447,11 +11447,11 @@ async function ctOpen(id){ctClose();const it=CT.map[id]||{},o=document.createEle
   <p class="ctdp" ${st()}>${esc(d.short_description||'')}</p>
   <div class="ctdi" ${st()}><div><small>Lanzamiento</small><b>${esc((d.release_date||{}).date||'—')}</b></div><div><small>Desarrollador</small><b>${esc((d.developers||[]).join(', ')||'—')}</b></div><div><small>Editor</small><b>${esc((d.publishers||[]).join(', ')||'—')}</b></div><div><small>Metacritic</small><b>${d.metacritic?d.metacritic.score:'—'}</b></div><div><small>Plataformas</small><b>${[pl.windows&&'Windows',pl.mac&&'Mac',pl.linux&&'Linux'].filter(Boolean).join(' · ')||'—'}</b></div><div><small>Idiomas</small><b>${d.supported_languages?(d.supported_languages.replace(/<[^>]*>/g,'').split(',').length)+' idiomas':'—'}</b></div></div>
   <div id="ct-src"></div>
-  <div class="ctdg" ${st()}><button data-a="ctsteam" data-id="${id}">Abrir en Steam</button><button class="s" data-a="ctclose">Cerrar</button></div>`;ctSrc(id,cv)}
+  <div class="ctdg" ${st()}><button data-a="ctdlmain" data-id="${id}">Descargar</button><button class="s" data-a="ctclose">Cerrar</button></div>`;ctSrc(id,cv)}
 function ctClose(){const o=$('#ct-d');if(o)o.remove()}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='sr-q'){SRS.q=e.target.value;clearTimeout(srLoad.t);srLoad.t=setTimeout(()=>srLoad().catch(()=>{}),250)}});
 document.addEventListener('keydown',e=>{if(!$('#ct-d'))return;if(e.key==='Escape'){ctClose();e.stopPropagation()}else if(e.key==='ArrowRight'){ctMedia((CT.mi||0)+1);e.stopPropagation()}else if(e.key==='ArrowLeft'){ctMedia((CT.mi||0)-1);e.stopPropagation()}},true);
-Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.dataset.v;ctRef()},ctfree:()=>{CT.free=!CT.free;ctRef()},ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
+Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.dataset.v;ctRef()},ctfree:()=>{CT.free=!CT.free;ctRef()},ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctdlmain:a=>{const x=CT.sr&&CT.sr[0];if(!x)return toast('Ninguna de tus fuentes tiene este juego todavía');const s=$('#sv-c0');srStart(x,s?+s.value:0,x.game.name)},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
 {const e=$('#i-cat');if(e)e.outerHTML=ic('cat')}
 P.dl='<path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>';
 {const e=$('#i-dl');if(e)e.outerHTML=ic('dl')}
