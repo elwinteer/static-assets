@@ -159,6 +159,16 @@ function normGame(g, base, key) {
   return o;
 }
 
+/** Lee el texto de un manifiesto: JSON normal, o una línea JSON por juego (NDJSON). Si no se puede, explica qué recibió. */
+function parseManifest(text) {
+  const t = String(text || '').replace(/^\uFEFF/, '').trim();
+  try { return JSON.parse(t); } catch (e) {}
+  if (/^<(!doctype|html|head|body|\?xml)/i.test(t)) throw err('json', 'La fuente devolvió una página web (HTML), no un JSON: seguramente el sitio pide verificación o iniciar sesión. Empieza con: ' + t.slice(0, 60).replace(/\s+/g, ' '));
+  const lines = t.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+  if (lines.length > 1) { try { return lines.map((x) => JSON.parse(x)); } catch (e) {} }
+  throw err('json', t ? 'La fuente no devolvió un JSON válido. Empieza con: ' + t.slice(0, 60).replace(/\s+/g, ' ') : 'La fuente devolvió un archivo vacío');
+}
+
 /** Valida y normaliza un manifiesto ya leído (objeto). */
 function normalize(m, baseUrl) {
   if (Array.isArray(m)) m = { games: m }; // también se acepta una lista de juegos suelta
@@ -201,12 +211,12 @@ class Sources extends EventEmitter {
     const loc = /^file:/i.test(url);
     const r = await fetchText(url, { etag, allowFile: loc, netFetch: this.o.netFetch });
     if (r.notModified) return { notModified: true };
-    let j; try { j = JSON.parse(r.text); } catch (e) { throw err('json', 'La fuente no devolvió un JSON válido'); }
+    const j = parseManifest(r.text);
     const top = normalize(j, r.url), games = top.games.slice(); let skipped = top.skipped;
     const seen = new Set([r.url]); let queue = top.include.slice(), n = 0;
     while (queue.length && n < MAX_INC) {
       const u = queue.shift(); if (seen.has(u)) continue; seen.add(u); n++;
-      try { const x = await fetchText(u, { allowFile: loc, netFetch: this.o.netFetch }); const sub = normalize(JSON.parse(x.text), x.url); games.push(...sub.games); skipped += sub.skipped; if (sub.include.length && n < MAX_INC) queue.push(...sub.include.slice(0, 5)); } catch (e) { skipped++; }
+      try { const x = await fetchText(u, { allowFile: loc, netFetch: this.o.netFetch }); const sub = normalize(parseManifest(x.text), x.url); games.push(...sub.games); skipped += sub.skipped; if (sub.include.length && n < MAX_INC) queue.push(...sub.include.slice(0, 5)); } catch (e) { skipped++; }
       if (games.length > MAX_GAMES) break;
     }
     return { meta: top.meta, games: games.slice(0, MAX_GAMES), skipped, etag: r.etag };

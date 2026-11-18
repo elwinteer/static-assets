@@ -141,3 +141,10 @@ test('lista con otro nombre (downloads) y alias uris/uploadDate/fileSize', () =>
   assert.deepEqual(a.versions.map((v) => v.transport), ['http', 'torrent']); assert.equal(a.date, '2026-02-03'); assert.equal(a.creator, 'U'); assert.equal(a.versions[0].size, 4 * 1024 ** 3);
   assert.equal(normalize({ items: { x: { name: 'X', link: '/x.zip' } } }, 'http://h/').games.length, 1);
 });
+test('JSON inválido: explica qué recibió; acepta una línea JSON por juego', async () => {
+  const a = await srv({ '/h': '<!DOCTYPE html><html>Just a moment...</html>', '/n': '{"id":"a","name":"A","link":"/a.zip"}\n{"id":"b","name":"B","link":"/b.zip"}\n', '/v': '' });
+  const S = mk();
+  await assert.rejects(S.add(a.url + '/h'), (e) => e.code === 'json' && /HTML/.test(e.message) && /DOCTYPE/i.test(e.message));
+  const s = await S.add(a.url + '/n'); assert.equal(s.games, 2);
+  await assert.rejects(S.add(a.url + '/v'), (e) => e.code === 'json'); a.s.close();
+});
