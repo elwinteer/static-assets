@@ -54,3 +54,31 @@ Reglas y atajos:
 - Archivos partidos (`.part1.rar`, `.001`, `.zip.001`…): listalos todos; WINTEER descomprime desde el primero.
 - Campos desconocidos se ignoran (se pueden agregar extras sin romper nada).
 - Límites: 12 MB por manifiesto, 20 000 juegos, 50 versiones por juego, 200 archivos por versión.
+
+## Formato plano (una fila por juego)
+
+Además del formato anterior, WINTEER entiende listas planas, donde cada juego es una sola fila:
+
+```json
+[
+  {
+    "id": "steam:730",
+    "name": "Nombre del juego",
+    "link": "https://…/juego.zip",
+    "magnet": "magnet:?xt=urn:btih:…",
+    "date": "2026-01-31",
+    "tags": ["rpg", "coop"],
+    "creator": "Quien lo publica",
+    "original": "30 GB",
+    "packed": "12 GB",
+    "size": "12 GB",
+    "verified": true
+  }
+]
+```
+
+- `id` y `name` son obligatorios. El emparejamiento sigue siendo solo por ID exacto: un `id` numérico suelto (`730`) **no** se toma como Steam; para Steam usá `steam:730` o el campo `steam`/`appid`.
+- `link` (http/https, o un `.torrent`) y/o `magnet`: hace falta al menos uno. Si vienen los dos, el juego aparece con dos versiones (Directa y Torrent).
+- `size`, `packed` y `original` aceptan bytes (número) o texto (`"12.5 GB"`, `"700 MB"`). Se descarga `packed` (o `size` si falta); `original` es el tamaño ya instalado y se suma al chequeo de espacio libre.
+- `tags` (lista o texto separado por coma), `creator`, `date` y `verified` se muestran en el catálogo y entran en la búsqueda (tags y creator). `verified` es solo una etiqueta informativa: **no** reemplaza `sha256`/`sha1`/`md5`, que son los que WINTEER comprueba.
+- `sha256`, `sha1` o `md5` también se pueden poner en la fila para verificar el archivo.

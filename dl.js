@@ -170,10 +170,10 @@ class Dl extends EventEmitter {
       meta: spec.meta && typeof spec.meta === 'object' ? JSON.parse(JSON.stringify(spec.meta)) : null,
       pw: typeof spec.password === 'string' ? spec.password.slice(0, 200) : '',
       transport: files.some((x) => x.torrent) ? 'torrent' : 'http', files, createdAt: Date.now(), status: S.Q,
-      installDir: spec.installDir ? path.normalize(String(spec.installDir)) : '', autoInstall: spec.autoInstall !== false, keepArchives: spec.keepArchives === undefined ? null : !!spec.keepArchives,
+      installSize: Math.max(0, Math.round(+spec.installSize || 0)), installDir: spec.installDir ? path.normalize(String(spec.installDir)) : '', autoInstall: spec.autoInstall !== false, keepArchives: spec.keepArchives === undefined ? null : !!spec.keepArchives,
       p: { done: 0, total: files.reduce((s, f) => s + f.size, 0), speed: 0, eta: 0, phase: 'queued', pct: 0 }, error: null, result: null, libSynced: false,
     };
-    const total = it.p.total;
+    const total = it.p.total + it.installSize; // lo que se baja + lo ya instalado (si la fuente lo informa)
     if (total > 0) {
       const d = this.disk(this._itemDir(it)).free;
       if (d >= 0 && d < total + 5e7) throw err('space', 'No hay espacio en disco: hacen falta ' + fmt(total) + ' y quedan ' + fmt(d), { need: total, free: d });

@@ -102,3 +102,24 @@ test('archivo local: pausa/reanuda y archivo faltante da error claro', async () 
   const b = dl.add({ gid: 'l:2', name: 'M', autoInstall: false, localOk: true, files: [{ url: require('url').pathToFileURL(path.join(d, 'nada.bin')).href }] });
   for (let i = 0; i < 100 && dl.get(b.id).status !== 'error'; i++) await sleep(30); assert.equal(dl.get(b.id).error.code, 'file');
 });
+
+test('formato plano: id, name, link, magnet, date, tags, creator, original, packed, size, verified', () => {
+  const m = normalize([
+    { id: 'abc', name: 'Juego', link: 'https://h.test/j.zip', magnet: 'magnet:?xt=urn:btih:abc&dn=j', date: '2026-01-02', tags: 'rpg, coop;RPG', creator: 'Fulano', original: '30 GB', packed: '12 GB', size: '12 GB', verified: 'true' },
+    { id: 7, name: 'Solo magnet', magnet: 'magnet:?xt=urn:btih:def' },
+    { id: 't', name: 'Torrent por link', link: '/x.torrent', tags: ['a', 'b'], verified: false, size: 1000 },
+    { id: 'sin', name: 'Sin enlaces', date: '2026' },
+  ], 'http://h.test/dir/m.json');
+  assert.equal(m.games.length, 3); assert.equal(m.skipped, 1);
+  const [a, b, c] = m.games;
+  assert.deepEqual(a.versions.map((v) => v.transport), ['http', 'torrent']); assert.equal(a.versions[0].files[0].url, 'https://h.test/j.zip');
+  assert.equal(a.versions[0].size, 12 * 1024 ** 3); assert.equal(a.installSize, 30 * 1024 ** 3); assert.deepEqual(a.tags, ['rpg', 'coop']); assert.equal(a.creator, 'Fulano'); assert.equal(a.verified, true); assert.equal(a.date, '2026-01-02');
+  assert.deepEqual(b.ids, ['7']); assert.equal(b.versions.length, 1); assert.equal(b.versions[0].transport, 'torrent'); assert.equal(b.cover, '');
+  assert.equal(c.versions[0].transport, 'torrent'); assert.equal(c.verified, undefined); assert.equal(c.versions[0].size, 1000);
+});
+test('formato plano: se busca por etiqueta/creador y spec() lleva el tamaño instalado', async () => {
+  const a = await srv({ '/m.json': [{ id: 'g1', name: 'Uno', link: '/u.zip', tags: 'terror', creator: 'Ana', original: 5000, packed: 2000 }] });
+  const S = mk(); const s = await S.add(a.url + '/m.json');
+  assert.equal(S.games('terror').length, 1); assert.equal(S.games('ana').length, 1); assert.equal(S.games('nada').length, 0);
+  const sp = S.spec(s.id, 'g1', 0); assert.equal(sp.installSize, 5000); assert.equal(sp.files[0].size, 2000); a.s.close();
+});

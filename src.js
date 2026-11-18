@@ -19,6 +19,23 @@ const UA = 'WINTEER/1 (+sources)';
 const err = (code, msg) => Object.assign(new Error(msg), { code });
 const str = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : typeof v === 'number' ? String(v).slice(0, n) : '');
 const normId = (s) => str(s, 120).toLowerCase();
+/** Tamaño en bytes: acepta número (bytes) o texto tipo "12.5 GB", "700 MB", "1,5GiB". 0 si no es un tamaño. */
+function parseSize(v) {
+  if (typeof v === 'number') return v > 0 && isFinite(v) ? Math.round(v) : 0;
+  if (typeof v !== 'string') return 0;
+  const m = /^\s*([0-9]+(?:[.,][0-9]+)?)\s*(b|kb|mb|gb|tb|kib|mib|gib|tib|k|m|g|t)?\s*$/i.exec(v.replace(/(\d)[\s_](\d{3})\b/g, '$1$2'));
+  if (!m) return 0;
+  const n = parseFloat(m[1].replace(',', '.')), u = (m[2] || 'b').toLowerCase().replace('ib', 'b');
+  const pow = { b: 0, k: 1, kb: 1, m: 2, mb: 2, g: 3, gb: 3, t: 4, tb: 4 }[u] || 0;
+  return Math.round(n * Math.pow(1024, pow));
+}
+/** Etiquetas: lista o texto separado por coma, punto y coma o barra. */
+function parseTags(v) {
+  const a = Array.isArray(v) ? v : typeof v === 'string' ? v.split(/[,;|]/) : [];
+  const out = []; for (const t of a) { const x = str(t, 30); if (x && !out.some((y) => y.toLowerCase() === x.toLowerCase())) out.push(x); if (out.length >= 12) break; }
+  return out;
+}
+const parseBool = (v) => v === true || v === 1 || (typeof v === 'string' && /^(true|1|yes|si|sí|ok|verified|verificado)$/i.test(v.trim()));
 
 function fetchText(url, o) {
   o = o || {};
@@ -74,16 +91,52 @@ function normVersion(v, base) {
   const tor = files.some((f) => isTorrent(f.url));
   return { version: str(v.version || v.name, 60), date: str(v.date || v.released, 40), notes: str(v.notes || v.changelog, 600), size: files.reduce((s, f) => s + (f.size || 0), 0), transport: tor ? 'torrent' : 'http', files };
 }
+/**
+ * Formato plano (una fila por juego), pensado para listas que publican otros sitios:
+ *   id, name, link, magnet, date, tags, creator, original, packed, size, verified
+ * - link: archivo por http/https (o un .torrent / magnet:). magnet: enlace magnet aparte.
+ *   Si vienen los dos, el juego queda con dos versiones: la directa y la de BitTorrent.
+ * - size / packed / original: bytes o texto ("12.5 GB"). Lo que se baja es "packed" (o "size" si falta);
+ *   "original" es el tamaño ya instalado y se usa para revisar el espacio en disco.
+ * - verified: solo se muestra como etiqueta; NO reemplaza la verificación por hash (sha256/sha1/md5).
+ */
+function flatVersions(g, base) {
+  const out = [], seen = new Set();
+  const dl = parseSize(g.packed) || parseSize(g.size) || parseSize(g.download);
+  const inst = parseSize(g.original) || parseSize(g.installed);
+  const date = str(g.date || g.released || g.updated, 40);
+  const push = (u, label) => {
+    const url = absUrl(u, base); if (!url || seen.has(url)) return; seen.add(url);
+    const f = { url }; if (dl) f.size = dl;
+    for (const a of ['sha256', 'sha1', 'md5']) { const v = str(g[a], 128).toLowerCase(); if (/^[0-9a-f]{16,128}$/.test(v)) f[a] = v; }
+    const tor = isTorrent(url);
+    out.push({ version: str(g.version, 60) || label, date, notes: str(g.notes, 600), size: dl, installSize: inst, transport: tor ? 'torrent' : 'http', files: [f] });
+  };
+  const link = g.link || g.url || g.href;
+  const magnets = [].concat(g.magnet || []).filter(Boolean);
+  if (link && !isTorrent(absUrl(link, base))) push(link, 'Directa');
+  for (const m of magnets) push(m, 'Torrent');
+  if (link && isTorrent(absUrl(link, base))) push(link, 'Torrent');
+  return out;
+}
 function normGame(g, base, key) {
   if (!g || typeof g !== 'object') return null;
   const ids = new Set(); for (const k of [g.id, key, g.gid, ...(Array.isArray(g.ids) ? g.ids : [])]) { const x = normId(k); if (x) ids.add(x); }
   if (g.steam || g.steamAppId || g.appid) { const n = parseInt(g.steam || g.steamAppId || g.appid, 10); if (n > 0) ids.add('steam:' + n); }
   const name = str(g.name || g.title, 160); if (!ids.size || !name) return null;
-  let vers = Array.isArray(g.versions) ? g.versions : (g.files || g.url) ? [g] : [];
-  const versions = vers.slice(0, MAX_VERS).map((v) => normVersion(v, base)).filter(Boolean);
+  let versions;
+  if (Array.isArray(g.versions)) versions = g.versions.slice(0, MAX_VERS).map((v) => normVersion(v, base)).filter(Boolean);
+  else if (g.files) versions = [normVersion(g, base)].filter(Boolean);
+  else versions = flatVersions(g, base);
   if (!versions.length) return null;
-  const cover = absUrl(g.cover || g.image || g.icon, base);
-  return { ids: [...ids], name, cover: /^magnet:/.test(cover) ? '' : cover, description: str(g.description || g.summary, 800), developer: str(g.developer || g.author, 120), versions };
+  const cr = g.cover || g.image || g.icon, cover = cr ? absUrl(cr, base) : '';
+  const o = { ids: [...ids], name, cover: /^magnet:/.test(cover) ? '' : cover, description: str(g.description || g.summary, 800), developer: str(g.developer || g.author, 120), versions };
+  const creator = str(g.creator || g.uploader || g.repacker, 80); if (creator) o.creator = creator;
+  const tags = parseTags(g.tags); if (tags.length) o.tags = tags;
+  const date = str(g.date, 40); if (date) o.date = date;
+  if (parseBool(g.verified)) o.verified = true;
+  const inst = parseSize(g.original); if (inst) o.installSize = inst;
+  return o;
 }
 
 /** Valida y normaliza un manifiesto ya leído (objeto). */
@@ -187,7 +240,7 @@ class Sources extends EventEmitter {
     q = String(q || '').trim().toLowerCase(); const out = [];
     for (const s of this.list_) {
       if (!s.enabled) continue; const c = this.cache.get(s.id); if (!c) continue;
-      for (const g of c.games) { if (q && !g.name.toLowerCase().includes(q) && !g.ids.some((i) => i.includes(q))) continue; out.push({ source: { id: s.id, name: s.name, url: s.url }, game: g }); if (out.length >= (limit || 200)) return out; }
+      for (const g of c.games) { if (q && !g.name.toLowerCase().includes(q) && !g.ids.some((i) => i.includes(q)) && !(g.creator || '').toLowerCase().includes(q) && !(g.tags || []).some((t) => t.toLowerCase().includes(q))) continue; out.push({ source: { id: s.id, name: s.name, url: s.url }, game: g }); if (out.length >= (limit || 200)) return out; }
     }
     return out;
   }
@@ -200,8 +253,8 @@ class Sources extends EventEmitter {
     if (v.transport === 'torrent' && !torrentOk) throw err('transport', 'Esta versión se distribuye por BitTorrent y falta el ayudante winteer-bt en esta instalación de WINTEER');
     extra = rest;
     const local = v.files.some((f) => /^file:/i.test(f.url));
-    return Object.assign({ localOk: local, gid: normId(gid), name: hit.game.name, cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
+    return Object.assign({ localOk: local, installSize: v.installSize || hit.game.installSize || 0, gid: normId(gid), name: hit.game.name, cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
   }
 }
 
-module.exports = { Sources, normalize, fetchText };
+module.exports = { Sources, normalize, fetchText, parseSize };
