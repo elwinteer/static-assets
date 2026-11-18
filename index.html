@@ -3766,6 +3766,19 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .ctscr button.on{box-shadow:0 6px 18px rgba(255,255,255,.18)}
 .ultra .ct:before,.ultra .ctc:before{display:none}.ultra .ctc{transform:none!important;animation:none!important}.ultra .ctc img{animation:none!important}.ultra .ctpill{transition:none}
 @media (prefers-reduced-motion:reduce){.ct:before,.ctc.sk{animation:none!important}.ctc img{animation:none!important}}
+/* modo "Mis fuentes" */
+.ctmode{display:flex;gap:3px;padding:4px;margin-left:auto;margin-right:12px;border-radius:15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09)}
+.ctmode button{height:34px;padding:0 18px;border:0;border-radius:11px;background:transparent;color:#aeb2c0;font-weight:700;font-size:13px;cursor:pointer;transition:background .35s cubic-bezier(.22,1,.36,1),color .3s,transform .3s}
+.ctmode button:hover{color:#fff;background:rgba(255,255,255,.08)}.ctmode button:active{transform:scale(.96)}.ctmode button.on{background:linear-gradient(135deg,#fff,#d6d9e4);color:#0b0b13;box-shadow:0 6px 16px rgba(255,255,255,.16)}
+.ctmode+.ctgear{margin-left:0}
+.ctsel{height:42px;padding:0 14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:13px;font-weight:600;cursor:pointer;max-width:240px;transition:background .3s}.ctsel:hover{background:rgba(255,255,255,.12)}.ctsel option{background:#14141b}
+.ctrow1 .ctsel+.ctfree{margin-left:0}.ctrow1:has(.ctsel) .ctsel{margin-left:auto}
+.ctph{display:none}.ctc.src.nocv .ctph,.ctsph{display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;background:linear-gradient(160deg,hsl(var(--h,220) 34% 24%),hsl(calc(var(--h,220) + 50) 38% 10%))}
+.ctc.src.nocv .ctph{position:absolute;inset:0}.ctc.src.nocv .ctph b,.ctsph b{font-size:15px;line-height:1.25;letter-spacing:-.2px;color:#f3f4f6;text-shadow:0 2px 12px rgba(0,0,0,.5);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.ctsph{width:100%;height:100%;box-sizing:border-box}.ctdm.ctsm0{background:#0b0b13}
+.ctdm img#ct-hero{transition:opacity .5s cubic-bezier(.22,1,.36,1)}
+.ctc.src .ctp{font-size:10.5px}.ctc.src.nocv .ctm{opacity:0}
+.ctse.big{grid-template-columns:auto 1fr auto;max-width:640px;margin:30px auto;padding:20px 22px}
 </style>
 </head>
 <body>
@@ -11468,11 +11481,13 @@ function wbLeave(){const wv=WBR.wv;try{wv&&wv.setAudioMuted(true)}catch(e){}clea
 V.web=()=>{setTimeout(wbEnter,0);return ''};
 /* ===== CATÁLOGO: todos los juegos de Steam ===== */
 P.cat='<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>';
-const CT={sort:'topsellers',tag:'',free:false,q:'',start:0,total:0,busy:0,gen:0,seen:new Set(),err:0,det:{},map:{},med:[]};
+const CT={mode:'src',ss:{sort:'recent',tag:'',source:'',verified:false,tags:[],sources:[],all:0,off:0,total:0},sort:'topsellers',tag:'',free:false,q:'',start:0,total:0,busy:0,gen:0,seen:new Set(),err:0,det:{},map:{},med:[]};
 const CTS=[['topsellers','Más vendidos'],['popularnew','Novedades populares'],['Released_DESC','Más recientes'],['Reviews_DESC','Mejor valorados'],['specials','Ofertas'],['comingsoon','Próximamente']];
 const CTT=[['','Todos'],['19','Acción'],['21','Aventura'],['122','RPG'],['9','Estrategia'],['599','Simulación'],['701','Deportes'],['699','Carreras'],['492','Indie'],['1667','Terror'],['1695','Mundo abierto'],['3859','Multijugador'],['1685','Cooperativo'],['1664','Puzles'],['597','Casual'],['1716','Roguelike'],['4182','Un jugador'],['1774','Shooter'],['1719','Cómodo']];
-function ctChips(){return `<div class="ctrow1"><div class="ctseg"><i class="ctpill"></i>${CTS.map(([k,n])=>`<button class="${CT.sort===k?'on':''}" data-a="ctsort" data-v="${k}">${n}</button>`).join('')}</div><button class="ctfree${CT.free?' on':''}" data-a="ctfree"><i></i>Gratis</button></div><div class="ctgen"><span class="ctl">Género</span><div class="ctscr">${CTT.map(([k,n])=>`<button class="${CT.tag===k?'on':''}" data-a="cttag" data-v="${k}">${n}</button>`).join('')}</div></div>`}
-V.cat=()=>{setTimeout(ctInit,0);return `<div class="ct"><div class="cth"><div class="cthl"><h1>Catálogo</h1><small id="ct-n">Todos los juegos de Steam</small></div><button class="ctgear" data-a="ctsrc" title="Fuentes de descarga" aria-label="Fuentes de descarga">${ic('gear')}</button></div><div class="ctbar"><div class="ctq"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="ct-q" type="search" placeholder="Buscar entre todos los juegos de Steam…" value="${esc(CT.q)}" autocomplete="off"></div><div id="ct-ch">${ctChips()}</div></div><div class="ctg" id="ct-g"></div><div class="cts" id="ct-s"></div></div>`};
+function ctChipsSteam(){return `<div class="ctrow1"><div class="ctseg"><i class="ctpill"></i>${CTS.map(([k,n])=>`<button class="${CT.sort===k?'on':''}" data-a="ctsort" data-v="${k}">${n}</button>`).join('')}</div><button class="ctfree${CT.free?' on':''}" data-a="ctfree"><i></i>Gratis</button></div><div class="ctgen"><span class="ctl">Género</span><div class="ctscr">${CTT.map(([k,n])=>`<button class="${CT.tag===k?'on':''}" data-a="cttag" data-v="${k}">${n}</button>`).join('')}</div></div>`}
+function ctModeHTML(){return [['src','Mis fuentes'],['steam','Steam']].map(([k,n])=>`<button class="${CT.mode===k?'on':''}" data-a="ctmode" data-v="${k}">${n}</button>`).join('')}
+function ctMode(m){if(CT.mode===m)return;CT.mode=m;const e=$('#ct-mode');if(e)e.innerHTML=ctModeHTML();const c=$('#ct-ch');if(c){c.innerHTML=ctChips();requestAnimationFrame(()=>ctPill(false))}const q=$('#ct-q');if(q)q.placeholder=m==='src'?'Buscar en tus fuentes…':'Buscar entre todos los juegos de Steam…';ctLoad(true)}
+V.cat=()=>{setTimeout(ctInit,0);return `<div class="ct"><div class="cth"><div class="cthl"><h1>Catálogo</h1><small id="ct-n"></small></div><div class="ctmode" id="ct-mode">${ctModeHTML()}</div><button class="ctgear" data-a="ctsrc" title="Fuentes de descarga" aria-label="Fuentes de descarga">${ic('gear')}</button></div><div class="ctbar"><div class="ctq"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="ct-q" type="search" placeholder="${CT.mode==='src'?'Buscar en tus fuentes…':'Buscar entre todos los juegos de Steam…'}" value="${esc(CT.q)}" autocomplete="off"></div><div id="ct-ch">${ctChips()}</div></div><div class="ctg" id="ct-g"></div><div class="cts" id="ct-s"></div></div>`};
 function ctUrl(st,alt){let u='https://store.steampowered.com/search/results/?query&start='+st+'&count=48&infinite=1&cc=ar&l='+(alt?'english':'spanish')+'&category1=998'+(alt?'':'&ndl=1');if(CT.q)u+='&term='+encodeURIComponent(CT.q);if(CT.tag)u+='&tags='+CT.tag;if(CT.free)u+='&maxprice=free';const k=CT.sort;if(k==='Released_DESC'||k==='Reviews_DESC')u+='&sort_by='+k;else if(!CT.q)u+='&filter='+k;return u}
 function ctParse(h){const d=new DOMParser().parseFromString(h||'','text/html'),out=[];d.querySelectorAll('a.search_result_row').forEach(r=>{const id=(r.getAttribute('data-ds-appid')||'').split(',')[0];if(!id||!/^\d+$/.test(id))return;const t=((r.querySelector('.title')||{}).textContent||'').trim();if(!t)return;const pe=r.querySelector('.discount_final_price'),dp=r.querySelector('.discount_pct'),rv=r.querySelector('.search_review_summary'),tt=rv?(rv.getAttribute('data-tooltip-html')||''):'',m=tt.match(/(\d+)%/);const im=r.querySelector('.search_capsule img'),cap=im?(im.getAttribute('src')||''):'',tp=tt.split(/<br\s*\/?>/i),rl=(tp[0]||'').replace(/<[^>]*>/g,'').trim(),rc=((tp[1]||'').match(/de las ([\d.,]+)/)||(tp[1]||'').match(/of the ([\d.,]+)/)||[])[1]||'';out.push({id,name:t,rl,rc,cap,base:cap.replace(/\/[^\/]*$/,'/'),price:pe?pe.textContent.trim():'',disc:dp?dp.textContent.trim():'',rel:((r.querySelector('.search_released')||{}).textContent||'').trim(),pct:m?+m[1]:0})});return out}
 const CTI={};
@@ -11496,7 +11511,7 @@ function ctChain(x){
 function ctStall(){setTimeout(()=>{document.querySelectorAll('.ctc:not(.noimg) img').forEach(e=>{const r=e.getBoundingClientRect();if(!(e.complete&&e.naturalWidth>0)&&r.bottom>0&&r.top<innerHeight&&!e.dataset.sx){e.dataset.sx=1;ctImg(e);setTimeout(()=>{e.dataset.sx=''},0)}})},5000)}
 function ctCard(x,own){const cl=x.pct>=75?'ok':x.pct>=50?'mid':'bad',b=x.base&&x.base.length>12?x.base:'';CT.map[x.id]=x;CTI[x.id]=ctChain(x);return `<div class="ctc" data-a="ctopen" data-id="${x.id}" style="--i:${(CT.ci=(CT.ci||0)+1)%24}"><img loading="lazy" src="${CTI[x.id][0]}" alt="" onerror="ctImg(this)">${x.pct?`<i class="ctp ${cl}">${x.pct}%</i>`:''}${own.has(x.id)?'<i class="cto">En tu biblioteca</i>':''}<div class="ctm"><b>${esc(x.name)}</b><span>${esc(x.rel||'')}</span></div></div>`}
 let CTO=null;
-async function ctLoad(reset){const g=$('#ct-g'),sn=$('#ct-s');if(!g)return;if(reset){CT.gen++;CT.ci=0;CT.start=0;CT.total=0;CT.seen=new Set();CT.busy=0;CT.err=0;g.innerHTML=Array.from({length:14},(_,i)=>`<div class="ctc sk" style="--i:${i}"></div>`).join('')}if(CT.busy)return;const gen=CT.gen;CT.busy=1;sn.innerHTML='Cargando…';
+async function ctLoad(reset){if(CT.mode==='src')return ctLoadSrc(reset);const g=$('#ct-g'),sn=$('#ct-s');if(!g)return;if(reset){CT.gen++;CT.ci=0;CT.start=0;CT.total=0;CT.seen=new Set();CT.busy=0;CT.err=0;g.innerHTML=Array.from({length:14},(_,i)=>`<div class="ctc sk" style="--i:${i}"></div>`).join('')}if(CT.busy)return;const gen=CT.gen;CT.busy=1;sn.innerHTML='Cargando…';
   let why='';try{let j=null;for(const alt of [0,1]){try{const r=window.winteerNative?await winteerNative.http({url:ctUrl(CT.start,alt)}):null;if(r){if(r.status!==200){why='HTTP '+r.status;continue}j=JSON.parse(r.text);if(j&&j.results_html)break;why='respuesta vacía'}else{const r2=await fetch(ctUrl(CT.start,alt));j=await r2.json();if(j&&j.results_html)break}}catch(e){why=why||('error: '+String(e&&e.message||e).slice(0,60))}}if(!j||!j.results_html)throw new Error(why||'sin datos');if(gen!==CT.gen)return;const items=ctParse((j||{}).results_html),own=new Set(G.map(x=>String(x.app)));await ctAssets(items);if(gen!==CT.gen)return;CT.total=+((j||{}).total_count)||0;let h='';items.forEach(x=>{if(CT.seen.has(x.id))return;CT.seen.add(x.id);h+=ctCard(x,own)});g.querySelectorAll('.sk').forEach(x=>x.remove());g.insertAdjacentHTML('beforeend',h);ctStall();CT.start+=48;const n=$('#ct-n');if(n)n.textContent=CT.total?CT.total.toLocaleString('es-AR')+' juegos'+(CT.q||CT.tag||CT.free?' con estos filtros':' en Steam'):'Sin resultados';
     if(!items.length&&!CT.seen.size)sn.innerHTML='No encontré juegos con esos filtros.';else if(CT.start<CT.total&&items.length)sn.innerHTML='';else sn.innerHTML=CT.seen.size?'Eso es todo.':''}
   catch(e){if(gen!==CT.gen)return;CT.err=1;g.querySelectorAll('.sk').forEach(x=>x.remove());sn.innerHTML='No pude conectar con Steam'+(e&&e.message?' ('+esc(e.message)+')':'')+'. <button data-a="ctretry">Reintentar</button>'}
@@ -11507,9 +11522,12 @@ function ctInit(){const q=$('#ct-q');if(!q)return;requestAnimationFrame(()=>ctPi
 function ctTilt(){const g=$('#ct-g');if(!g||g.dataset.tilt)return;g.dataset.tilt=1;let raf=0,cur=null;
   g.addEventListener('pointermove',e=>{if(document.body.classList.contains('ultra')||e.pointerType==='touch')return;const c=e.target.closest&&e.target.closest('.ctc');if(!c){return}cur=c;if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(!cur)return;const r=cur.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;cur.style.setProperty('--mx',(x*100).toFixed(1)+'%');cur.style.setProperty('--my',(y*100).toFixed(1)+'%');cur.style.setProperty('--ry',((x-.5)*9).toFixed(2)+'deg');cur.style.setProperty('--rx',((.5-y)*9).toFixed(2)+'deg')})});
   g.addEventListener('pointerout',e=>{const c=e.target.closest&&e.target.closest('.ctc');if(c&&!c.contains(e.relatedTarget)){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')}})}
+const CSO=[['recent','Recientes'],['az','A–Z'],['opts','Más opciones']];
+function ctChipsSrc(){const z=CT.ss;return `<div class="ctrow1"><div class="ctseg"><i class="ctpill"></i>${CSO.map(([k,n])=>`<button class="${z.sort===k?'on':''}" data-a="ctsort" data-v="${k}">${n}</button>`).join('')}</div>${z.sources.length>1?`<select class="ctsel" id="ct-srcsel"><option value="">Todas las fuentes</option>${z.sources.map(x=>`<option value="${x.id}"${z.source===x.id?' selected':''}>${esc(x.name)}</option>`).join('')}</select>`:''}<button class="ctfree${z.verified?' on':''}" data-a="ctfree"><i></i>Verificados</button></div>${z.tags.length?`<div class="ctgen"><span class="ctl">Etiquetas</span><div class="ctscr"><button class="${z.tag?'':'on'}" data-a="cttag" data-v="">Todas</button>${z.tags.map(t=>`<button class="${z.tag===t?'on':''}" data-a="cttag" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div></div>`:''}`}
+function ctChips(){return CT.mode==='src'?ctChipsSrc():ctChipsSteam()}
 function ctPill(anim){const g=document.querySelector('.ctseg');if(!g)return;const p=g.querySelector('.ctpill'),on=g.querySelector('button.on');if(!p)return;if(!on){p.style.opacity=0;return}
   const mv=()=>{p.style.opacity=1;p.style.width=on.offsetWidth+'px';p.style.transform='translateX('+on.offsetLeft+'px)'};if(anim===false){p.style.transition='none';mv();void p.offsetWidth;p.style.transition=''}else mv()}
-function ctSync(){const c=$('#ct-ch');if(!c)return;c.querySelectorAll('.ctseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===CT.sort));c.querySelectorAll('.ctscr button').forEach(b=>b.classList.toggle('on',b.dataset.v===CT.tag));const f=c.querySelector('.ctfree');if(f)f.classList.toggle('on',!!CT.free);ctPill(true);const t=c.querySelector('.ctscr button.on');if(t&&t.scrollIntoView)t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}
+function ctSync(){const c=$('#ct-ch');if(!c)return;const sr=CT.mode==='src',vs=sr?CT.ss.sort:CT.sort,vt=sr?CT.ss.tag:CT.tag;c.querySelectorAll('.ctseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===vs));c.querySelectorAll('.ctscr button').forEach(b=>b.classList.toggle('on',b.dataset.v===vt));const f=c.querySelector('.ctfree');if(f)f.classList.toggle('on',sr?!!CT.ss.verified:!!CT.free);ctPill(true);const t=c.querySelector('.ctscr button.on');if(t&&t.scrollIntoView)t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}
 function ctRef(){const c=$('#ct-ch');if(c&&c.querySelector('.ctseg'))ctSync();else if(c){c.innerHTML=ctChips();ctPill(false)}ctLoad(true)}
 function ctMedia(i){const n=CT.med.length;if(!n)return;i=(i+n)%n;CT.mi=i;const m=CT.med[i],box=$('#ct-m');if(!m||!box)return;box.querySelectorAll('img,video').forEach(e=>e.remove());box.insertAdjacentHTML('afterbegin',m.t==='v'?`<video src="${m.src}" poster="${esc(m.poster||'')}" controls autoplay muted loop></video>`:`<img src="${esc(m.src)}" alt="">`);const c=$('#ct-cn');if(c)c.textContent=(i+1)+' / '+n;document.querySelectorAll('#ct-th button').forEach((b,k)=>b.classList.toggle('on',k===i))}
 function ctRing(p,col){const r=22,c=2*Math.PI*r;return `<svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="${r}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"/><circle cx="29" cy="29" r="${r}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(c*p/100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 29 29)"/><text x="29" y="33.5" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">${p}%</text></svg>`}
@@ -11532,10 +11550,70 @@ async function ctOpen(id){ctClose();const it=CT.map[id]||{},o=document.createEle
   <p class="ctdp" ${st()}>${esc(d.short_description||'')}</p>
   <div class="ctdi" ${st()}><div><small>Lanzamiento</small><b>${esc((d.release_date||{}).date||'—')}</b></div><div><small>Desarrollador</small><b>${esc((d.developers||[]).join(', ')||'—')}</b></div><div><small>Editor</small><b>${esc((d.publishers||[]).join(', ')||'—')}</b></div><div><small>Metacritic</small><b>${d.metacritic?d.metacritic.score:'—'}</b></div><div><small>Plataformas</small><b>${[pl.windows&&'Windows',pl.mac&&'Mac',pl.linux&&'Linux'].filter(Boolean).join(' · ')||'—'}</b></div><div><small>Idiomas</small><b>${d.supported_languages?(d.supported_languages.replace(/<[^>]*>/g,'').split(',').length)+' idiomas':'—'}</b></div></div>
   <div id="ct-src" ${st()}><div class="ctsk"><i></i><i></i></div></div>`;ctSrc(id,cv,d.name||it.name)}
+/* ===== Catálogo propio: todos los juegos de tus fuentes ===== */
+const ctIgU=(id,t)=>'https://images.igdb.com/igdb/image/upload/'+(t||'t_cover_big')+'/'+id+'.jpg';
+const ctHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
+function ctSrcCard(x){CT.sm=CT.sm||{};CT.sm[x.key]=x;const m=(CT.cv||{})[x.key]||{},cv=x.cover||(m.c?ctIgU(m.c):''),yr=m.y||(x.date?String(x.date).slice(0,4):'');
+  return `<div class="ctc src${cv?'':' nocv'}" data-a="ctsopen" data-key="${esc(x.key)}" style="--i:${(CT.ci=(CT.ci||0)+1)%24};--h:${ctHue(x.name)}">${cv?`<img loading="lazy" src="${esc(cv)}" alt="" onerror="this.parentNode.classList.add('nocv');this.remove()">`:''}<div class="ctph"><b>${esc(x.name)}</b></div>${x.verified?'<i class="ctp ok">Verificado</i>':''}${x.opts>1?`<i class="cto">${x.opts} opciones</i>`:''}<div class="ctm"><b>${esc(x.name)}</b><span>${[yr,x.srcs>1?x.srcs+' fuentes':''].filter(Boolean).join(' · ')}</span></div></div>`}
+async function ctCoversFor(items,gen){const N=window.winteerNative;if(!N||!N.srcCovers||!igOn())return;CT.cv=CT.cv||{};
+  const need=items.filter(x=>!x.cover&&!CT.cv[x.key]);if(!need.length)return;
+  for(let i=0;i<need.length;i+=20){if(gen!==CT.gen||CT.mode!=='src')return;const part=need.slice(i,i+20);
+    const r=await N.srcCovers({items:part.map(x=>({k:x.key,n:x.name})),id:ST.igid,secret:ST.igsec});
+    if(!r||!r.ok)return;if(r.r&&r.r.error==='auth'){window._igBad=true;return}
+    for(const k in ((r.r||{}).r||{})){const m=r.r.r[k];CT.cv[k]=m;const el=document.querySelector('.ctc.src[data-key="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]');if(!el)continue;
+      if(m.c&&el.classList.contains('nocv')&&!el.querySelector('img')){const im=new Image();im.alt='';im.loading='lazy';im.onerror=()=>im.remove();im.onload=()=>{el.classList.remove('nocv')};im.src=ctIgU(m.c);el.insertBefore(im,el.firstChild)}
+      const sp=el.querySelector('.ctm span');if(sp&&m.y&&!/^\d{4}/.test(sp.textContent))sp.textContent=[m.y,sp.textContent].filter(Boolean).join(' · ')}}}
+async function ctLoadSrc(reset){const g=$('#ct-g'),sn=$('#ct-s'),N=window.winteerNative;if(!g)return;
+  if(reset){CT.gen++;CT.ci=0;CT.start=0;CT.total=0;CT.seen=new Set();CT.busy=0;CT.err=0;g.innerHTML=Array.from({length:14},(_,i)=>`<div class="ctc sk" style="--i:${i}"></div>`).join('')}
+  if(CT.busy)return;const gen=CT.gen;CT.busy=1;sn.innerHTML='';const z=CT.ss;
+  try{if(!N||!N.srcCat)throw new Error('Esto funciona en la app de escritorio');
+    const r=await N.srcCat({q:CT.q,tag:z.tag,source:z.source,verified:z.verified,sort:z.sort,offset:CT.start,limit:60});
+    if(gen!==CT.gen)return;if(!r||!r.ok)throw new Error((r&&r.error)||'sin datos');const d=r.r;
+    g.querySelectorAll('.sk').forEach(x=>x.remove());
+    if(!CT.start){const sig=(d.tags||[]).join('|')+'#'+(d.sources||[]).map(x=>x.id).join(',');z.tags=d.tags||[];z.sources=d.sources||[];z.all=d.all||0;
+      if(z.sig!==sig){z.sig=sig;const c=$('#ct-ch');if(c){c.innerHTML=ctChipsSrc();requestAnimationFrame(()=>ctPill(false))}}}
+    const fresh=[];let h='';for(const x of d.items){if(CT.seen.has(x.key))continue;CT.seen.add(x.key);fresh.push(x);h+=ctSrcCard(x)}
+    g.insertAdjacentHTML('beforeend',h);CT.total=d.total;CT.start+=d.items.length;
+    const n=$('#ct-n');if(n)n.textContent=z.all?d.total.toLocaleString('es-AR')+' juego'+(d.total===1?'':'s')+(CT.q||z.tag||z.source||z.verified?' con estos filtros':' en tus fuentes'):'Sin fuentes todavía';
+    if(!CT.seen.size)sn.innerHTML=z.all?'No encontré juegos con esos filtros.':'<div class="ctse big"><div class="ctsi">'+CTI_.plus+'</div><div class="ctst"><b>Todavía no tenés fuentes</b><small>Agregá una fuente (un enlace o un archivo .json) y todos sus juegos aparecen acá.</small></div><button class="ctsg" data-a="ctsrc">Agregar fuente</button></div>';
+    else sn.innerHTML=CT.start<CT.total?'':'Eso es todo.';
+    ctCoversFor(fresh,gen).catch(()=>{})}
+  catch(e){if(gen!==CT.gen)return;CT.err=1;g.querySelectorAll('.sk').forEach(x=>x.remove());sn.innerHTML='No pude leer tus fuentes ('+esc(e&&e.message||e)+'). <button data-a="ctretry">Reintentar</button>'}
+  finally{if(gen===CT.gen)CT.busy=0}
+  if(gen===CT.gen&&!CT.err&&CT.start<CT.total)ctWatch()}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='ct-srcsel'){CT.ss.source=e.target.value;ctLoad(true)}});
+function ctSrcPanelHTML(list,hasSrc){const n=list.length,ns=new Set(list.map(x=>x.source.id)).size;
+  return n?`<div class="ctsp"><div class="ctsh"><span>Descargar desde</span><em>${n} ${n===1?'opción':'opciones'}${ns>1?' · '+ns+' fuentes':''}</em></div><div class="ctsl">${list.map((x,i)=>ctSrcRow(x,i)).join('')}</div></div>`:''}
+async function ctOpenSrc(key){const N=window.winteerNative;if(!N||!N.srcCatGet)return;const r=await N.srcCatGet(key);if(!r||!r.ok||!r.r)return toast('No encontré ese juego en tus fuentes');
+  ctClose();const x=r.r,m=(CT.cv||{})[key]||{},cv=x.cover||(m.c?ctIgU(m.c):'');
+  CT.sr=x.entries.map(e=>({source:e.source,game:e.game,by:'src',gid:e.game.ids[0],cover:cv}));
+  const o=document.createElement('div');o.className='ctd';o.id='ct-d';let k=0;const st=()=>`style="animation-delay:${(k++)*70}ms"`;
+  o.addEventListener('click',e=>{if(e.target===o)ctClose()});
+  o.innerHTML=`<div class="ctdc"><div class="ctdbg" id="ct-bg" ${cv?`style="background-image:url('${esc(cv)}')"`:''}></div><button class="ctdx" data-a="ctclose">×</button>
+   <div class="ctdl"><div class="ctdm ctsm0" id="ct-m">${cv?`<img id="ct-hero" src="${esc(cv)}" alt="" style="object-fit:contain">`:`<div class="ctsph" style="--h:${ctHue(x.name)}"><b>${esc(x.name)}</b></div>`}</div><div class="ctdth" id="ct-th"></div></div>
+   <div class="ctdr"><div class="cthd" ${st()}><div class="ctcv">${cv?`<img src="${esc(cv)}" alt="">`:`<div class="ctsph" style="--h:${ctHue(x.name)};font-size:12px"><b>${esc(x.name)}</b></div>`}</div><div><h2>${esc(x.name)}</h2><small id="ct-sub">${x.date?esc(String(x.date).slice(0,4)):''}</small></div></div>
+   <div class="ctdt" ${st()} id="ct-tg">${x.verified?'<span class="ow">✔ Verificado</span>':''}${x.tags.slice(0,6).map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+   <p class="ctdp" ${st()} id="ct-ds">${igOn()?'Buscando información del juego…':''}</p>
+   <div class="ctdi" ${st()} id="ct-in"><div><small>Lanzamiento</small><b id="ct-i1">${x.date?esc(String(x.date).slice(0,10)):'—'}</b></div><div><small>Desarrollador</small><b id="ct-i2">—</b></div><div><small>Fuentes</small><b>${new Set(x.entries.map(e=>e.source.id)).size}</b></div></div>
+   <div id="ct-src" ${st()}>${ctSrcPanelHTML(CT.sr)}</div></div></div>`;
+  document.body.appendChild(o);
+  if(!igOn())return;
+  let d=(CT.det||(CT.det={}))['s:'+key];
+  if(!d){try{d=await N.igdb({id:ST.igid,secret:ST.igsec,name:x.name.replace(/\([^)]*\)|\[[^\]]*\]/g,' ').replace(/[™®©]/g,'').trim(),app:0});if(d&&d.error==='auth'){window._igBad=true;d=null}if(d)CT.det['s:'+key]=d}catch(e){d=null}}
+  const root=$('#ct-d');if(!root||!d)return;const q=id=>$('#'+id);
+  if(d.none||!d.d){const p=q('ct-ds');if(p)p.textContent='';return}
+  const p=q('ct-ds');if(p)p.textContent=d.d;
+  const yr=d.rel?new Date(d.rel*1000).getUTCFullYear():'';if(q('ct-sub'))q('ct-sub').textContent=[yr,(d.dev&&d.dev[0]&&d.dev[0].n)||''].filter(Boolean).join(' · ');
+  if(q('ct-i1')&&d.rel)q('ct-i1').textContent=new Date(d.rel*1000).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).toUpperCase();
+  if(q('ct-i2'))q('ct-i2').textContent=((d.dev||[]).map(a=>a.n).join(', '))||'—';
+  const tg=q('ct-tg');if(tg&&d.gen&&d.gen.length)tg.insertAdjacentHTML('beforeend',d.gen.slice(0,4).map(t=>`<span>${esc(t)}</span>`).join(''));
+  const ig=d.ig||{},imgs=[ig.art&&ctIgU(ig.art,'t_1080p'),ig.shot&&ctIgU(ig.shot,'t_1080p')].filter(Boolean);
+  if(imgs.length){const h=q('ct-hero')||document.createElement('img');if(!h.id){h.id='ct-hero';q('ct-m').innerHTML='';q('ct-m').appendChild(h)}h.style.objectFit='cover';h.style.opacity=0;h.onload=()=>{h.style.opacity=1};h.src=imgs[0];
+    if(imgs.length>1&&q('ct-th'))q('ct-th').innerHTML=imgs.map((u,i)=>`<button data-a="ctshot" data-u="${esc(u)}"><img src="${esc(u)}" alt=""></button>`).join('')}}
 function ctClose(){const o=$('#ct-d');if(o)o.remove()}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='sr-q'){SRS.q=e.target.value;clearTimeout(srLoad.t);srLoad.t=setTimeout(()=>srLoad().catch(()=>{}),250)}});
 document.addEventListener('keydown',e=>{if(!$('#ct-d'))return;if(e.key==='Escape'){ctClose();e.stopPropagation()}else if(e.key==='ArrowRight'){ctMedia((CT.mi||0)+1);e.stopPropagation()}else if(e.key==='ArrowLeft'){ctMedia((CT.mi||0)-1);e.stopPropagation()}},true);
-Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.dataset.v;ctRef()},ctfree:()=>{CT.free=!CT.free;ctRef()},ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
+Object.assign(A,{ctsort:a=>{if(CT.mode==='src')CT.ss.sort=a.dataset.v;else CT.sort=a.dataset.v;ctRef()},cttag:a=>{if(CT.mode==='src')CT.ss.tag=a.dataset.v;else CT.tag=a.dataset.v;ctRef()},ctfree:()=>{if(CT.mode==='src')CT.ss.verified=!CT.ss.verified;else CT.free=!CT.free;ctRef()},ctmode:a=>ctMode(a.dataset.v),ctshot:a=>{const h=$('#ct-hero');if(h){h.style.opacity=0;setTimeout(()=>{h.src=a.dataset.u;h.style.opacity=1},180)}},ctsopen:a=>ctOpenSrc(a.dataset.key),ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
 {const e=$('#i-cat');if(e)e.outerHTML=ic('cat')}
 P.dl='<path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>';
 {const e=$('#i-dl');if(e)e.outerHTML=ic('dl')}
@@ -11632,7 +11710,7 @@ function srModalHTML(){return `<div class="srmc"><button class="srx" data-a="src
   <h2>Disponible en tus fuentes</h2><div class="dlbox"><input type="text" id="sr-q" placeholder="Buscar en tus fuentes…" value="${esc(SRS.q)}"><div id="sr-g">${srGames()}</div></div>
 </div>`}
 function srOpen(){srClose();const o=document.createElement('div');o.className='srm';o.id='sr-m';o.innerHTML=srModalHTML();o.addEventListener('click',e=>{if(e.target===o)srClose()});document.body.appendChild(o);srLoad().catch(()=>{})}
-function srClose(){const o=$('#sr-m');if(o)o.remove()}
+function srClose(){const o=$('#sr-m');if(o){o.remove();if(CT.mode==='src'&&$('#ct-g'))ctLoad(true)}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sr-m')&&!$('#ct-d')){srClose();e.stopPropagation()}},true);
 const dlErr=r=>toast(r&&r.err?r.err:'No se pudo completar la acción');
 Object.assign(A,{

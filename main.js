@@ -1790,6 +1790,39 @@ async function igdb({ id, secret, name, app }) {
 }
 
 
+/* ---------- portadas y datos de los juegos del catálogo propio (IGDB por título, con caché en disco) ---------- */
+let scMem = null, scTimer = null;
+const scFile = () => path.join(app.getPath('userData'), 'srccovers.json');
+function scLoad() { if (!scMem) { try { scMem = JSON.parse(fs.readFileSync(scFile(), 'utf8')); } catch (e) { scMem = {}; } } return scMem; }
+function scSave() { clearTimeout(scTimer); scTimer = setTimeout(() => { try { fs.writeFileSync(scFile() + '.tmp', JSON.stringify(scMem)); fs.renameSync(scFile() + '.tmp', scFile()); } catch (e) {} }, 1500); }
+async function srcCovers(o) {
+  const mem = scLoad(), out = {}, need = [];
+  for (const it of (Array.isArray(o.items) ? o.items : []).slice(0, 60)) {
+    const k = String(it.k || ''), n = String(it.n || '').replace(/[™®©"\\]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+)+\b/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+    if (!k || !n) continue;
+    const c = mem[k]; if (c && (c.c || Date.now() - c.t < 14 * 864e5)) { out[k] = c; continue; }
+    need.push({ k, n });
+  }
+  if (need.length && o.id && o.secret) {
+    const { normTitle } = require('./src.js'), nrm = (s) => normTitle(s).replace(/ /g, '');
+    for (let i = 0; i < need.length; i += 10) {
+      const chunk = need.slice(i, i + 10);
+      try {
+        const body = chunk.map((x, j) => 'query games "q' + j + '" { search "' + x.n + '"; fields name,cover.image_id,first_release_date,total_rating,genres.name; limit 6; };').join('\n');
+        const res = await igq(o.id, o.secret, 'multiquery', body);
+        chunk.forEach((x, j) => {
+          const rows = ((res.find((r) => r.name === 'q' + j) || {}).result) || [], n0 = nrm(x.n);
+          const g = rows.find((r) => nrm(r.name) === n0) || rows.find((r) => r.cover && (nrm(r.name).startsWith(n0) || n0.startsWith(nrm(r.name))) && Math.min(n0.length, nrm(r.name).length) >= 5) || null;
+          const m = g ? { c: g.cover ? g.cover.image_id : '', y: g.first_release_date ? new Date(g.first_release_date * 1000).getUTCFullYear() : 0, g: (g.genres || []).map((q) => q.name).slice(0, 3), r: Math.round(g.total_rating || 0), t: Date.now() } : { c: '', y: 0, g: [], r: 0, t: Date.now() };
+          mem[x.k] = m; out[x.k] = m;
+        });
+        scSave();
+      } catch (e) { if (String(e.message) === 'auth') return { error: 'auth', r: out }; }
+    }
+  }
+  return { r: out };
+}
+
 /* ---------- versión de prueba (beta): solo se usa si fue armada sobre esta misma versión ---------- */
 function betaPage() {
   try {
@@ -3153,6 +3186,9 @@ app.whenReady().then(() => {
     ipcMain.handle('srcRename', dlWrap((a) => srcEng.rename(a.id, a.name)));
     ipcMain.handle('srcRefresh', dlWrap((a) => srcEng.refresh(a.id)));
     ipcMain.handle('srcLookup', dlWrap((a) => srcEng.lookup(a.gid)));
+    ipcMain.handle('srcCat', dlWrap((a) => srcEng.catalog(a || {})));
+    ipcMain.handle('srcCatGet', dlWrap((a) => srcEng.catalogGet(String(a.key || ''))));
+    ipcMain.handle('srcCovers', dlWrap((a) => srcCovers(a || {})));
     ipcMain.handle('srcMatch', dlWrap((a) => { const byId = srcEng.lookup(String(a.gid || '')).map((x) => Object.assign({ by: 'id' }, x)), t = srcEng.matchTitle(String(a.name || ''), byId.flatMap((x) => x.game.ids)); return { found: byId.concat(t.exact.map((x) => Object.assign({ by: 'title' }, x))), maybe: t.likely.map((x) => Object.assign({ by: 'maybe' }, x)) }; }));
     ipcMain.handle('srcGames', dlWrap((a) => srcEng.games(a.q, 200)));
     ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.ref || a.gid), a.version | 0, { gid: String(a.gid).toLowerCase(), cover: a.cover || undefined, installDir: a.installDir || undefined, torrentOk: dlEng.btAvailable() }))));

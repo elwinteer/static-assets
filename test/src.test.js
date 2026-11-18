@@ -165,3 +165,14 @@ test('coincidencia por título: estricta (exacta) + dudosas aparte; spec() por i
   assert.equal(S.matchTitle('Juego inexistente').exact.length, 0); assert.equal(S.matchTitle('ab').exact.length, 0);
   const g = m.exact.find((x) => x.source.id === sa.id).game; const sp = S.spec(sa.id, g.ids[0], 0, { gid: 'steam:1091500' }); assert.equal(sp.gid, 'steam:1091500'); assert.equal(sp.files[0].url, a.url + '/c.zip'); a.s.close(); b.s.close();
 });
+test('catálogo propio: agrupa por título entre fuentes, filtra, ordena y pagina', async () => {
+  const a = await srv({ '/m.json': { name: 'A', downloads: [{ title: 'Age of Empires II', uris: ['/a.zip'], tags: 'estrategia', date: '1999-09-30', cover: '/c.jpg' }, { title: 'Doom', uris: ['/d.zip'], tags: 'shooter,clásico', date: '1993-12-10' }, { title: 'Quake', uris: ['/q.zip'], tags: 'shooter', date: '1996-06-22', verified: true }] } });
+  const b = await srv({ '/m.json': { name: 'B', downloads: [{ title: 'Age of Empires II (v2.0)', uris: ['magnet:?xt=urn:btih:aa'], tags: 'estrategia' }, { title: 'Zork', uris: ['/z.zip'] }] } });
+  const S = mk(); await S.add(a.url + '/m.json'); const sb = await S.add(b.url + '/m.json');
+  let c = S.catalog({}); assert.equal(c.total, 4); assert.equal(c.all, 4); assert.deepEqual(c.items.map((x) => x.name).slice(0, 2), ['Age of Empires II', 'Quake'], 'recientes primero');
+  const aoe = c.items.find((x) => x.name.startsWith('Age')); assert.equal(aoe.opts, 2); assert.equal(aoe.srcs, 2); assert.equal(aoe.cover, a.url + '/c.jpg');
+  assert.ok(c.tags.includes('shooter')); assert.equal(S.catalog({ tag: 'shooter' }).total, 2); assert.equal(S.catalog({ verified: true }).total, 1);
+  assert.equal(S.catalog({ source: sb.id }).total, 2); assert.equal(S.catalog({ q: 'doo' }).total, 1); assert.deepEqual(S.catalog({ sort: 'az' }).items.map((x) => x.name), ['Age of Empires II', 'Doom', 'Quake', 'Zork']);
+  assert.equal(S.catalog({ sort: 'az', offset: 2, limit: 1 }).items[0].name, 'Quake'); assert.equal(S.catalogGet(aoe.key).entries.length, 2);
+  S.setEnabled(sb.id, false); assert.equal(S.catalog({}).total, 3); a.s.close(); b.s.close();
+});

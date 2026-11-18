@@ -211,7 +211,7 @@ class Sources extends EventEmitter {
   _save() { try { fs.mkdirSync(path.dirname(this.o.file), { recursive: true }); const t = this.o.file + '.tmp'; fs.writeFileSync(t, JSON.stringify({ v: 1, sources: this.list_ }, null, 1)); fs.renameSync(t, this.o.file); } catch (e) {} }
   _saveCache(id, c) { this.cache.set(id, c); try { fs.mkdirSync(this.o.dir, { recursive: true }); fs.writeFileSync(path.join(this.o.dir, id + '.json'), JSON.stringify(c, (k, v) => (k === '_nt' ? undefined : v))); } catch (e) {} }
   _index() {
-    this.idx = new Map();
+    this._grp = null; this.idx = new Map();
     for (const s of this.list_) {
       if (!s.enabled) continue; const c = this.cache.get(s.id); if (!c) continue;
       for (const g of c.games) for (const id of g.ids) { if (!this.idx.has(id)) this.idx.set(id, []); this.idx.get(id).push({ source: { id: s.id, name: s.name, url: s.url }, game: g }); }
@@ -277,6 +277,40 @@ class Sources extends EventEmitter {
     }
     this._save(); this._index(); this.emit('change'); return out;
   }
+  /** Catálogo propio: todos los juegos de las fuentes activas, agrupados por título (una tarjeta por juego, con todas sus fuentes). */
+  _groups() {
+    if (this._grp) return this._grp;
+    const m = new Map();
+    for (const s of this.list_) {
+      if (!s.enabled) continue; const c = this.cache.get(s.id); if (!c) continue;
+      for (const g of c.games) {
+        const k = g._nt || (g._nt = normTitle(g.name)) || g.ids[0];
+        let e = m.get(k);
+        if (!e) { e = { key: k, name: g.name, cover: '', tags: new Set(), date: '', verified: false, creators: new Set(), entries: [], sources: new Set() }; m.set(k, e); }
+        if (!e.cover && g.cover) e.cover = g.cover;
+        for (const t of g.tags || []) e.tags.add(t);
+        if (g.date && (!e.date || g.date > e.date)) e.date = g.date;
+        if (g.verified) e.verified = true;
+        if (g.creator) e.creators.add(g.creator);
+        e.sources.add(s.id); e.entries.push({ source: { id: s.id, name: s.name, url: s.url }, game: g });
+      }
+    }
+    this._grp = [...m.values()]; return this._grp;
+  }
+  /** Una página del catálogo: q (texto), tag, source, verified, sort ('recent'|'az'|'opts'), offset, limit. */
+  catalog(o) {
+    o = o || {}; const q = String(o.q || '').trim().toLowerCase(), tag = String(o.tag || '').toLowerCase(), src = String(o.source || '');
+    let l = this._groups().filter((e) => (!q || e.name.toLowerCase().includes(q) || e.key.includes(normTitle(q)) && normTitle(q).length > 2 || [...e.creators].some((c) => c.toLowerCase().includes(q)) || [...e.tags].some((t) => t.toLowerCase().includes(q))) && (!tag || [...e.tags].some((t) => t.toLowerCase() === tag)) && (!src || e.sources.has(src)) && (!o.verified || e.verified));
+    const srt = o.sort === 'az' ? (a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }) : o.sort === 'opts' ? (a, b) => b.entries.length - a.entries.length || a.name.localeCompare(b.name) : (a, b) => (b.date || '').localeCompare(a.date || '') || a.name.localeCompare(b.name);
+    l = l.slice().sort(srt);
+    const off = Math.max(0, o.offset | 0), lim = Math.min(200, Math.max(1, o.limit | 0 || 60));
+    const items = l.slice(off, off + lim).map((e) => ({ key: e.key, name: e.name, cover: e.cover, tags: [...e.tags].slice(0, 6), date: e.date, verified: e.verified, opts: e.entries.length, srcs: e.sources.size }));
+    const out = { total: l.length, items };
+    if (!off) { const c = new Map(); for (const e of this._groups()) for (const t of e.tags) c.set(t, (c.get(t) || 0) + 1); out.tags = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 40).map((x) => x[0]); out.sources = this.list_.filter((x) => x.enabled).map((x) => ({ id: x.id, name: x.name })); out.all = this._groups().length; }
+    return out;
+  }
+  /** Un juego del catálogo con todas sus fuentes (para el detalle). */
+  catalogGet(key) { const e = this._groups().find((x) => x.key === key); return e ? { key: e.key, name: e.name, cover: e.cover, tags: [...e.tags], date: e.date, verified: e.verified, entries: e.entries } : null; }
   /** Coincidencias por título (estricto): exact = mismo título normalizado; likely = el título es el mismo más palabras sin números (p. ej. una edición/DLC). */
   matchTitle(name, skipIds) {
     const q = normTitle(name); const exact = [], likely = []; if (q.length < 3) return { exact, likely };
