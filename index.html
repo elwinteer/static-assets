@@ -3442,13 +3442,13 @@ body.bpon .pr-gr{height:44px}
 
 /* --- navegador inmersivo (sitios con skin) --- */
 .wbhot{display:none}.wbv webview.wbh{visibility:hidden;pointer-events:none;z-index:-1}
-.wbx.imm .wbhot{display:flex;position:absolute;left:0;right:0;top:0;height:14px;z-index:40;justify-content:center;align-items:flex-start}
+.wbx.imm .wbhot{display:none;position:absolute;left:0;right:0;top:0;height:14px;z-index:40;justify-content:center;align-items:flex-start}
 .wbhot i{width:54px;height:4px;margin-top:5px;border-radius:9px;background:rgba(255,255,255,.28);transition:opacity .3s,width .3s}
 .wbx.imm.peek .wbhot i{opacity:0}
 .wbx.imm>.wbt,.wbx.imm>.wbtb{position:absolute;left:0;right:0;z-index:41;opacity:0;pointer-events:none;transform:translateY(-14px) scale(.985);transition:opacity .28s ease,transform .42s cubic-bezier(.16,1,.3,1)}
 .wbx.imm>.wbt{top:8px;background:rgba(14,14,16,.88)}
 .wbx.imm>.wbtb{top:70px}
-.wbx.imm.peek>.wbt,.wbx.imm.peek>.wbtb{opacity:1;pointer-events:auto;transform:none}
+.wbx.imm>.wbt,.wbx.imm>.wbtb{display:none!important}
 .wbx.imm .wbv{border-radius:22px;background:#09090a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 /* --- navegador v2 --- */
 #wbroot .wbx{gap:10px}
@@ -11607,7 +11607,7 @@ Object.assign(A,{
 
 function wbImm(u){const x=$('.wbx');if(!x)return;let h='';try{h=new URL(u).hostname}catch(e){}const on=/(^|\.)(fitgirl-repacks\.site|steamrip\.com)$/i.test(h);x.classList.toggle('imm',on);if(!on)x.classList.remove('peek')}
 function wbPeek(on){const x=$('.wbx');if(!x)return;clearTimeout(WBR.pk);if(on)x.classList.add('peek');else WBR.pk=setTimeout(()=>{const f=document.activeElement;if(f&&f.id==='wbi')return;x.classList.remove('peek')},450)}
-function wbSite(k){const re=k==='steamrip'?/(^|\.)steamrip\.com$/i:/(^|\.)fitgirl-repacks\.site$/i,home=k==='steamrip'?'https://steamrip.com/':'https://fitgirl-repacks.site/',c=webCfg();wbTabsInit();const t=(c.tabs||[]).find(x=>re.test(wbHost(x.url)||''));if(t){if(c.act!==t.id)wbSwitch(t.id)}else{WBR.nt=0;wbNewTab(home,true)}}
+function wbSite(k){if(k==='gear'){wbNewTab('',true);return}const re=k==='steamrip'?/(^|\.)steamrip\.com$/i:/(^|\.)fitgirl-repacks\.site$/i,home=k==='steamrip'?'https://steamrip.com/':'https://fitgirl-repacks.site/',c=webCfg();wbTabsInit();const t=(c.tabs||[]).find(x=>re.test(wbHost(x.url)||''));if(t){if(c.act!==t.id)wbSwitch(t.id)}else{WBR.nt=0;wbNewTab(home,true)}}
 function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
   const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();try{wbImm(u)}catch(e){}if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u;const lk=$('#wbl');if(lk){const sec=/^https:/i.test(u);lk.classList.toggle('bad',!sec);lk.innerHTML=ic(sec?'wlk':'wul')}}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
   ['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>wv.addEventListener(e,nav));
