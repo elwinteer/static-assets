@@ -69,3 +69,36 @@ test('extremo a extremo: fuente → spec → motor de descargas → instalado co
   for (let i = 0; i < 200 && !['completed', 'error'].includes(dl.get(it.id).status); i++) await sleep(50);
   const f = dl.get(it.id); assert.equal(f.status, 'completed', JSON.stringify(f.error)); assert.equal(f.gid, 'steam:42'); assert.equal(f.source.name, 'Dev'); assert.ok(fs.existsSync(path.join(f.result.dir, 'g.exe'))); a.s.close();
 });
+
+test('archivo .json local: agrega, resuelve rutas relativas, instala desde disco y se puede actualizar', async () => {
+  const d = tmp(), sd = path.join(d, 'src'); fs.mkdirSync(sd); fs.writeFileSync(path.join(sd, 'g.exe'), 'MZ');
+  fs.mkdirSync(path.join(d, 'mi fuente')); const zp = path.join(d, 'mi fuente', 'juego.zip'); cp.execFileSync('zip', ['-qr', zp, '.'], { cwd: sd }); const z = fs.readFileSync(zp);
+  const mf = path.join(d, 'mi fuente', 'manifest.json');
+  fs.writeFileSync(mf, JSON.stringify({ name: 'Local', games: [{ id: 'steam:77', name: 'Local Game', versions: [{ version: '1', files: [{ url: 'juego.zip', size: z.length, sha256: crypto.createHash('sha256').update(z).digest('hex') }] }] }] }));
+  const S = mk(); const s = await S.addFile(mf); assert.equal(s.name, 'Local'); assert.equal(s.games, 1); assert.equal(S.list()[0].kind, 'file');
+  await assert.rejects(S.addFile(mf), (e) => e.code === 'dup'); await assert.rejects(S.addFile('relativa.json'), (e) => e.code === 'file'); await assert.rejects(S.addFile(path.join(d, 'no-existe.json')), (e) => e.code === 'file');
+  fs.writeFileSync(path.join(d, 'roto.json'), '{x'); await assert.rejects(S.addFile(path.join(d, 'roto.json')), (e) => e.code === 'json');
+  const sp = S.spec(s.id, 'steam:77', 0); assert.equal(sp.localOk, true); assert.match(sp.files[0].url, /^file:\/\/.*mi%20fuente\/juego\.zip$/);
+  const ex = async (f, out) => { const r = cp.spawnSync('unzip', ['-q', f, '-d', out]); return r.status === 0 ? { ok: 1 } : { err: 'x' }; };
+  const dl = new Dl({ file: path.join(d, 'dl.json'), defaults: { dlDir: path.join(d, 'dl'), installDir: path.join(d, 'games') }, extract: ex, archiveSize: async () => 0, findExes: (r) => ({ exes: [], pick: path.join(r, 'g.exe') }) }).load().start();
+  const it = dl.add(sp); for (let i = 0; i < 200 && !['completed', 'error'].includes(dl.get(it.id).status); i++) await sleep(50);
+  const f = dl.get(it.id); assert.equal(f.status, 'completed', JSON.stringify(f.error)); assert.ok(fs.existsSync(path.join(f.result.dir, 'g.exe')));
+  fs.writeFileSync(mf, JSON.stringify({ name: 'Local', games: [{ id: 'steam:77', name: 'Local Game v2', files: ['juego.zip'] }] })); await S.refresh(s.id); assert.equal(S.lookup('steam:77')[0].game.name, 'Local Game v2');
+});
+test('seguridad: un manifiesto remoto NO puede apuntar a archivos locales, ni el motor aceptar file: sin permiso', async () => {
+  const a = await srv({ '/m.json': { games: [{ id: 'x', name: 'X', versions: [{ files: ['file:///etc/passwd'] }, { files: ['http://127.0.0.1:1/a.zip'] }] }] } });
+  const S = mk(); await S.add(a.url + '/m.json'); const g = S.lookup('x')[0].game; assert.equal(g.versions.length, 1); assert.ok(g.versions[0].files.every((f) => !/^file:/.test(f.url)));
+  const dl = new Dl({ file: path.join(tmp(), 'd.json'), defaults: { dlDir: tmp(), installDir: tmp() }, extract: async () => ({ ok: 1 }), archiveSize: async () => 0, findExes: () => ({ exes: [], pick: '' }) }).load();
+  assert.throws(() => dl.add({ gid: 'a', name: 'a', files: [{ url: 'file:///etc/passwd' }] })); a.s.close();
+});
+test('archivo local: pausa/reanuda y archivo faltante da error claro', async () => {
+  const d = tmp(), big = path.join(d, 'big.bin'); fs.writeFileSync(big, crypto.randomBytes(3e6));
+  const dl = new Dl({ file: path.join(d, 'dl.json'), defaults: { dlDir: path.join(d, 'dl'), installDir: path.join(d, 'g') }, extract: async () => ({ ok: 1 }), archiveSize: async () => 0, findExes: () => ({ exes: [], pick: '' }) }).load().start();
+  dl.setCfg({ speedLimit: 1500000 });
+  const it = dl.add({ gid: 'l:1', name: 'L', autoInstall: false, localOk: true, files: [{ url: require('url').pathToFileURL(big).href }] });
+  await sleep(400); dl.pause(it.id); for (let i = 0; i < 100 && dl.get(it.id).status !== 'paused'; i++) await sleep(30); assert.equal(dl.get(it.id).status, 'paused');
+  dl.resume(it.id); for (let i = 0; i < 300 && !['completed', 'error'].includes(dl.get(it.id).status); i++) await sleep(50);
+  const f = dl.get(it.id); assert.equal(f.status, 'completed', JSON.stringify(f.error)); assert.equal(fs.statSync(path.join(dl.cfg.dlDir, 'wt-' + it.id, 'big.bin')).size, 3e6);
+  const b = dl.add({ gid: 'l:2', name: 'M', autoInstall: false, localOk: true, files: [{ url: require('url').pathToFileURL(path.join(d, 'nada.bin')).href }] });
+  for (let i = 0; i < 100 && dl.get(b.id).status !== 'error'; i++) await sleep(30); assert.equal(dl.get(b.id).error.code, 'file');
+});

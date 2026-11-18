@@ -11,7 +11,7 @@
  * El emparejamiento con el catálogo y la biblioteca es SOLO por ID exacto (p. ej. "steam:730"),
  * nunca por parecido de nombres.
  */
-const fs = require('fs'), path = require('path'), http = require('http'), https = require('https'), crypto = require('crypto');
+const fs = require('fs'), path = require('path'), { pathToFileURL, fileURLToPath } = require('url'), http = require('http'), https = require('https'), crypto = require('crypto');
 const { EventEmitter } = require('events');
 
 const MAX_BYTES = 12 * 1024 * 1024, MAX_GAMES = 20000, MAX_VERS = 50, MAX_FILES = 200, MAX_INC = 20;
@@ -24,6 +24,9 @@ function fetchText(url, o) {
   o = o || {};
   return new Promise((resolve, reject) => {
     let u; try { u = new URL(url); } catch (e) { return reject(err('url', 'El enlace no es válido')); }
+    if (u.protocol === 'file:' && o.allowFile) {
+      try { const p = fileURLToPath(u), st = fs.statSync(p); if (st.size > MAX_BYTES) return reject(err('size', 'El manifiesto es demasiado grande')); return resolve({ text: fs.readFileSync(p, 'utf8').replace(/^\uFEFF/, ''), etag: String(st.mtimeMs), url: u.href }); } catch (e) { return reject(err('file', 'No pude leer el archivo: ' + String(e.code || e.message).slice(0, 60))); }
+    }
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return reject(err('url', 'El enlace tiene que empezar con http:// o https://'));
     const go = (url, hops) => {
       const lib = url.protocol === 'https:' ? https : http;
@@ -48,7 +51,7 @@ function fetchText(url, o) {
   });
 }
 
-function absUrl(v, base) { try { const u = new URL(String(v || '').trim(), base); return u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'magnet:' ? u.href : ''; } catch (e) { return ''; } }
+function absUrl(v, base) { try { const u = new URL(String(v || '').trim(), base); const local = /^file:/i.test(String(base)); return u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'magnet:' || (local && u.protocol === 'file:') ? u.href : ''; } catch (e) { return ''; } }
 const isTorrent = (u) => /^magnet:/i.test(u) || /\.torrent(\?|#|$)/i.test(u);
 
 function normFile(f, base) {
@@ -120,14 +123,15 @@ class Sources extends EventEmitter {
 
   /** Descarga el manifiesto (y sus "include") y lo deja listo para usar. */
   async _pull(url, etag) {
-    const r = await fetchText(url, { etag });
+    const loc = /^file:/i.test(url);
+    const r = await fetchText(url, { etag, allowFile: loc });
     if (r.notModified) return { notModified: true };
     let j; try { j = JSON.parse(r.text); } catch (e) { throw err('json', 'La fuente no devolvió un JSON válido'); }
     const top = normalize(j, r.url), games = top.games.slice(); let skipped = top.skipped;
     const seen = new Set([r.url]); let queue = top.include.slice(), n = 0;
     while (queue.length && n < MAX_INC) {
       const u = queue.shift(); if (seen.has(u)) continue; seen.add(u); n++;
-      try { const x = await fetchText(u); const sub = normalize(JSON.parse(x.text), x.url); games.push(...sub.games); skipped += sub.skipped; if (sub.include.length && n < MAX_INC) queue.push(...sub.include.slice(0, 5)); } catch (e) { skipped++; }
+      try { const x = await fetchText(u, { allowFile: loc }); const sub = normalize(JSON.parse(x.text), x.url); games.push(...sub.games); skipped += sub.skipped; if (sub.include.length && n < MAX_INC) queue.push(...sub.include.slice(0, 5)); } catch (e) { skipped++; }
       if (games.length > MAX_GAMES) break;
     }
     return { meta: top.meta, games: games.slice(0, MAX_GAMES), skipped, etag: r.etag };
@@ -140,6 +144,18 @@ class Sources extends EventEmitter {
     const c = await this._pull(u.href);
     if (!c.games.length) throw err('empty', 'La fuente no tiene ningún juego que WINTEER pueda usar (revisá el formato)');
     const s = { id: crypto.randomBytes(6).toString('hex'), url: u.href, name: str(name, 60) || c.meta.name || u.hostname, enabled: true, addedAt: Date.now(), updatedAt: Date.now(), etag: c.etag || '', error: '' };
+    this.list_.push(s); this._saveCache(s.id, c); this._save(); this._index(); this.emit('change');
+    return Object.assign({}, s, { games: c.games.length, skipped: c.skipped });
+  }
+  /** Agrega una fuente desde un archivo .json del disco. Los enlaces relativos se resuelven junto al archivo. */
+  async addFile(file, name) {
+    file = String(file || '').trim();
+    if (!file || !path.isAbsolute(file)) throw err('file', 'Elegí un archivo .json');
+    const url = pathToFileURL(path.resolve(file)).href;
+    const dup = this.list_.find((s) => s.url === url); if (dup) throw err('dup', 'Ese archivo ya está agregado: ' + dup.name);
+    const c = await this._pull(url);
+    if (!c.games.length) throw err('empty', 'El archivo no tiene ningún juego que WINTEER pueda usar (revisá el formato)');
+    const s = { id: crypto.randomBytes(6).toString('hex'), url, kind: 'file', path: path.resolve(file), name: str(name, 60) || c.meta.name || path.basename(file, path.extname(file)), enabled: true, addedAt: Date.now(), updatedAt: Date.now(), etag: c.etag || '', error: '' };
     this.list_.push(s); this._saveCache(s.id, c); this._save(); this._index(); this.emit('change');
     return Object.assign({}, s, { games: c.games.length, skipped: c.skipped });
   }
@@ -180,7 +196,8 @@ class Sources extends EventEmitter {
     if (!hit) throw err('nf', 'Esa fuente ya no tiene este juego');
     const v = hit.game.versions[Math.max(0, Math.min(hit.game.versions.length - 1, versionIdx | 0))];
     if (v.transport === 'torrent') throw err('transport', 'Esta versión se distribuye por BitTorrent, que todavía no está disponible en esta versión de WINTEER');
-    return Object.assign({ gid: normId(gid), name: hit.game.name, cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
+    const local = v.files.some((f) => /^file:/i.test(f.url));
+    return Object.assign({ localOk: local, gid: normId(gid), name: hit.game.name, cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
   }
 }
 

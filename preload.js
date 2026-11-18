@@ -186,6 +186,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   dlPickDir: (t) => ipcRenderer.invoke('dlPickDir', t),
   srcList: () => ipcRenderer.invoke('srcList'),
   srcAdd: (url, name) => ipcRenderer.invoke('srcAdd', { url, name }),
+  srcAddFile: (name) => ipcRenderer.invoke('srcAddFile', { name }),
   srcRemove: (id) => ipcRenderer.invoke('srcRemove', { id }),
   srcToggle: (id, on) => ipcRenderer.invoke('srcToggle', { id, on }),
   srcRename: (id, name) => ipcRenderer.invoke('srcRename', { id, name }),

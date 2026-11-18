@@ -11,7 +11,7 @@
  * Los "transportes" (HTTP hoy, BitTorrent/libtorrent en la etapa 6) se registran en `Dl.transports`.
  * Nada de esto toca la interfaz: el renderer solo recibe eventos y llama a la API.
  */
-const fs = require('fs'), path = require('path'), http = require('http'), https = require('https'), crypto = require('crypto');
+const fs = require('fs'), path = require('path'), { fileURLToPath } = require('url'), http = require('http'), https = require('https'), crypto = require('crypto');
 const { EventEmitter } = require('events');
 
 const UA = 'WINTEER/1 (+download-manager)';
@@ -66,7 +66,7 @@ class Dl extends EventEmitter {
     this._timer = null; this._saveT = null; this._saving = false;
     this._instChain = Promise.resolve();
     this._stopped = false;
-    this.transports = { http: { start: (it, f, part, ctl) => this._httpGet(it, f, part, ctl) } };
+    this.transports = { http: { start: (it, f, part, ctl) => this._httpGet(it, f, part, ctl) }, file: { start: (it, f, part, ctl) => this._fileGet(it, f, part, ctl) } };
   }
 
   /* ---------- persistencia ---------- */
@@ -145,7 +145,7 @@ class Dl extends EventEmitter {
       if (!f || typeof f.url !== 'string') throw err('spec', 'Archivo sin dirección');
       let u; try { u = new URL(f.url); } catch (e) { throw err('spec', 'Dirección inválida: ' + String(f.url).slice(0, 80)); }
       if (u.protocol === 'magnet:' || /\.torrent$/i.test(u.pathname)) throw err('transport', 'BitTorrent todavía no está disponible en esta versión');
-      if (u.protocol !== 'http:' && u.protocol !== 'https:') throw err('spec', 'Solo se admiten enlaces http(s)');
+      if (u.protocol === 'file:' && spec.localOk === true) { /* archivo local indicado por un manifiesto en disco */ } else if (u.protocol !== 'http:' && u.protocol !== 'https:') throw err('spec', 'Solo se admiten enlaces http(s)');
       let nm = safeName(f.name || decodeURIComponent(path.basename(u.pathname)) || 'archivo' + n, 'archivo');
       while (used.has(nm.toLowerCase())) nm = n + '_' + nm;
       used.add(nm.toLowerCase());
@@ -302,7 +302,7 @@ class Dl extends EventEmitter {
       if (ctl.cancel) throw CANCEL; if (ctl.pause || ctl.shutdown) throw PAUSE;
       const before = f.got;
       try {
-        await this.transports[it.transport].start(it, f, part, ctl);
+        await this.transports[/^file:/i.test(f.url) ? 'file' : it.transport].start(it, f, part, ctl);
         break;
       } catch (e) {
         if (e === PAUSE || e.pause) throw PAUSE; if (e === CANCEL || e.cancel) throw CANCEL;
@@ -392,6 +392,33 @@ class Dl extends EventEmitter {
         req.setTimeout(30000, () => { try { req.destroy(new Error('Tiempo de espera agotado')); } catch (e) {} });
       };
       go(f.url, 0);
+    });
+  }
+
+  /** Copia un archivo local (de un manifiesto en disco) con pausa, reanudación y límite de velocidad. */
+  _fileGet(it, f, part, ctl) {
+    return new Promise((resolve, reject) => {
+      let src; try { src = fileURLToPath(f.url); } catch (e) { return reject(err('url', 'Ruta de archivo inválida')); }
+      let st; try { st = fs.statSync(src); if (!st.isFile()) throw 0; } catch (e) { return reject(err('file', 'No encuentro el archivo: ' + src)); }
+      if (f.size && st.size !== f.size) return reject(err('integrity', 'El archivo local no tiene el tamaño esperado: ' + path.basename(src)));
+      if (!f.size) f.size = st.size;
+      let off = 0; try { off = fs.statSync(part).size; } catch (e) {}
+      if (off > st.size) { rm(part); off = 0; }
+      if (off === st.size) { f.got = off; return resolve(); }
+      let closed = false; const rs = fs.createReadStream(src, { start: off }), ws = fs.createWriteStream(part, { flags: off ? 'a' : 'w' });
+      f.got = off;
+      const finish = (e) => { if (closed) return; closed = true; ctl.abort = null; try { rs.destroy(); } catch (x) {} ws.end(() => { if (ctl.cancel) return reject(CANCEL); if (ctl.pause || ctl.shutdown) return reject(PAUSE); e ? reject(e) : resolve(); }); };
+      ctl.abort = () => finish(null);
+      ws.on('error', (e) => finish(err('disk', 'No pude escribir en el disco: ' + String(e.message || e).slice(0, 80))));
+      rs.on('error', (e) => finish(err('file', 'No pude leer el archivo: ' + String(e.message || e).slice(0, 80))));
+      rs.on('end', () => finish(null));
+      let hold = 0; const upd = () => { if (closed) return; if (hold > 0) rs.pause(); else rs.resume(); };
+      rs.on('data', (c) => {
+        if (closed) return;
+        if (!ws.write(c)) { hold++; upd(); ws.once('drain', () => { hold--; upd(); }); }
+        f.got += c.length; this._calc(it); this._speed(it, c.length); this._touch(it);
+        const w = this.lim.delay(c.length); if (w > 15) { hold++; upd(); setTimeout(() => { hold--; upd(); }, w); }
+      });
     });
   }
 

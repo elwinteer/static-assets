@@ -3094,6 +3094,7 @@ app.whenReady().then(() => {
     setTimeout(() => { try { if (srcEng.list().length) srcEng.refresh(); } catch (e) {} }, 8000);
     ipcMain.handle('srcList', dlWrap(() => srcEng.list()));
     ipcMain.handle('srcAdd', dlWrap((a) => srcEng.add(a.url, a.name)));
+    ipcMain.handle('srcAddFile', async (_e, a) => { try { const r = await dialog.showOpenDialog(win, { title: 'Elegí el archivo de la fuente (.json)', properties: ['openFile'], filters: [{ name: 'Manifiesto JSON', extensions: ['json'] }] }); if (r.canceled || !r.filePaths[0]) return { ok: true, r: null }; return { ok: true, r: await srcEng.addFile(r.filePaths[0], a && a.name) }; } catch (e) { return { ok: false, code: e.code || 'error', err: String(e.message || e) }; } });
     ipcMain.handle('srcRemove', dlWrap((a) => srcEng.remove(a.id)));
     ipcMain.handle('srcToggle', dlWrap((a) => srcEng.setEnabled(a.id, a.on)));
     ipcMain.handle('srcRename', dlWrap((a) => srcEng.rename(a.id, a.name)));
