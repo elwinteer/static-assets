@@ -343,7 +343,7 @@ class Dl extends EventEmitter {
     it._sp = []; it.p.speed = 0; it.p.eta = 0;
   }
   async _file(it, f, dir, ctl) {
-    const part = path.join(dir, f.name + '.part'), final = path.join(dir, f.name);
+    const part = path.join(dir, f.name + '.part'); let final = path.join(dir, f.name);
     let tries = 0;
     for (;;) {
       if (ctl.cancel) throw CANCEL; if (ctl.pause || ctl.shutdown) throw PAUSE;
@@ -365,6 +365,7 @@ class Dl extends EventEmitter {
     let sz = 0; try { sz = fs.statSync(part).size; } catch (e) {}
     if (f.size && sz !== f.size) { rm(part); f.got = 0; throw err('integrity', 'El tamaño de "' + f.name + '" no coincide (' + sz + ' de ' + f.size + ' bytes)'); }
     if (!f.size) f.size = sz;
+    if (f.realName && !/\.[A-Za-z0-9]{2,5}$/.test(f.name) && /\.[A-Za-z0-9]{2,5}$/.test(f.realName)) { f.name = safeName(f.realName, f.name); final = path.join(dir, f.name); }
     fs.renameSync(part, final);
     const alg = f.sha256 ? 'sha256' : f.sha1 ? 'sha1' : f.md5 ? 'md5' : '';
     if (alg) {
@@ -422,6 +423,18 @@ class Dl extends EventEmitter {
           if (/text\/html|application\/xhtml/i.test(String(res.headers['content-type'] || '')) && !/\.(html?|php|asp)$/i.test(u.pathname)) {
             // El enlace no es una descarga directa: devuelve una página web (captcha, "esperá 30 segundos", botón de descargar…).
             let buf = ''; res.setEncoding && res.setEncoding('utf8');
+            if (typeof this.o.webFetch === 'function' && !it._webTried) {
+              // Página del host (captcha / espera / botón): se abre en una ventana, el usuario aprieta "descargar" y WINTEER captura el archivo.
+              it._webTried = true; try { req.destroy(); } catch (x) {}
+              let cancelled = false; ctl.abort = () => { cancelled = true; try { this.o.webFetch.cancel && this.o.webFetch.cancel(); } catch (x) {} };
+              const onP = (got, tot) => { f.got = got; if (tot && !f.size) f.size = tot; n = got; this._calc(it); this._touch(it); };
+              rm(part); this.o.webFetch(url, part, onP).then((r) => {
+                if (r && r.name) f.realName = r.name;
+                if (r && r.size) { f.got = r.size; if (!f.size || f.size !== r.size) f.size = r.size; }
+                finish(null);
+              }).catch((e) => { const e2 = err('web', String((e && e.message) || e || 'No se pudo descargar desde la página')); e2.fatal = true; finish(cancelled ? null : e2); });
+              return;
+            }
             const done = () => { const t = /<title[^>]*>([^<]{1,90})/i.exec(buf), e = err('notfile', 'Ese enlace no es una descarga directa: ' + u.hostname + ' devolvió una página web' + (t ? ' ("' + t[1].trim().replace(/\s+/g, ' ') + '")' : '') + ' en vez del archivo. Usá otra opción del juego o un enlace directo.'); e.fatal = true; finish(e); };
             res.on('data', (c) => { buf += c; if (buf.length > 20000) { try { req.destroy(); } catch (x) {} done(); } }); res.on('end', done); res.on('error', done); return;
           }

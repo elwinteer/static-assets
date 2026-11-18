@@ -13,7 +13,7 @@ const { pathToFileURL, fileURLToPath } = require('url');
 protocol.registerSchemesAsPrivileged([{ scheme: 'wimg', privileges: { standard: true, secure: true, supportFetchAPI: true, bypassCSP: true, stream: true } }]);
 if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 
-let dlEng = null, srcEng = null, win = null, tray = null, quitting = false, fromBg = false, padProc = null;
+let webFetchCancel = null, dlEng = null, srcEng = null, win = null, tray = null, quitting = false, fromBg = false, padProc = null;
 const CFGF = path.join(app.getPath('userData'), 'winteer-cfg.json');
 let cfg = { bg: false, auto: false, pad: true, shots: true, shotKey: 'F12', clipKey: 'F9', ovKey: 'Shift+Tab' };
 try { cfg = Object.assign(cfg, JSON.parse(fs.readFileSync(CFGF, 'utf8'))); } catch (e) {}
@@ -3141,6 +3141,26 @@ app.whenReady().then(() => {
         } catch (e) { setImmediate(() => out.emit('error', e)); }
         return out;
       },
+      // Enlaces que abren una página del host (MegaDB, etc.): ventana propia; el usuario aprieta "descargar" y se captura el archivo.
+      webFetch: Object.assign((url, dest, onProgress) => new Promise((resolve, reject) => {
+        const ses = session.fromPartition('persist:winteer-src'); let started = false, settled = false, w = null, tm = null;
+        const end = (e, r) => { if (settled) return; settled = true; clearTimeout(tm); try { ses.removeListener('will-download', onDl); } catch (x) {} try { w && !w.isDestroyed() && w.destroy(); } catch (x) {} e ? reject(e) : resolve(r); };
+        const onDl = (ev, item, wc) => {
+          if (!w || wc !== w.webContents) return; started = true; clearTimeout(tm);
+          try { fs.mkdirSync(path.dirname(dest), { recursive: true }); } catch (x) {} item.setSavePath(dest);
+          try { w.hide(); } catch (x) {}
+          item.on('updated', () => onProgress(item.getReceivedBytes(), item.getTotalBytes()));
+          item.once('done', (e2, st) => st === 'completed' ? end(null, { size: item.getReceivedBytes(), name: item.getFilename() }) : end(new Error(st === 'cancelled' ? 'Descarga cancelada' : 'La descarga desde la página falló')));
+        };
+        ses.on('will-download', onDl);
+        w = new BrowserWindow({ width: 1000, height: 720, title: 'WINTEER · Descargar — apretá el botón de descarga de la página', autoHideMenuBar: true, backgroundColor: '#0b0b10', webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
+        w.setMenuBarVisibility(false);
+        w.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+        w.on('closed', () => { if (!started) end(new Error('Cerraste la ventana antes de empezar la descarga')); });
+        tm = setTimeout(() => end(new Error('No se inició ninguna descarga en 10 minutos')), 600000);
+        webFetchCancel = () => end(new Error('Descarga cancelada'));
+        w.loadURL(url).catch(() => {});
+      }), { cancel: () => { try { webFetchCancel && webFetchCancel(); } catch (e) {} } }),
       httpIdentity: async (url) => {
         const ses = session.fromPartition('persist:winteer-src');
         const ua = String(session.defaultSession.getUserAgent() || '').replace(/ (?!Chrome\/|Safari\/|AppleWebKit\/)[A-Za-z][\w.-]*\/[\w.+-]+/g, '');

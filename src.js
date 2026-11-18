@@ -360,7 +360,7 @@ class Sources extends EventEmitter {
     if (v.transport === 'torrent' && !torrentOk) throw err('transport', 'Esta versión se distribuye por BitTorrent y falta el ayudante winteer-bt en esta instalación de WINTEER');
     extra = rest;
     const local = v.files.some((f) => /^file:/i.test(f.url));
-    return Object.assign({ localOk: local, installSize: v.installSize || hit.game.installSize || 0, gid: normId(gid), name: hit.game.name, cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
+    return Object.assign({ localOk: local, installSize: v.installSize || hit.game.installSize || 0, gid: normId(gid), name: cleanName(hit.game.name), cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
   }
 }
 

@@ -352,3 +352,13 @@ test('enlace que devuelve una página HTML: error claro, no archivo corrupto', a
   const dl = mk().start(); const it = dl.add({ gid: 'x:html', name: 'J', autoInstall: false, files: [{ url: 'http://127.0.0.1:' + srv.address().port + '/951bf0lutdy8', size: 232259584 }] });
   const f = await waitFor(dl, it.id, ['error', 'completed']); assert.equal(f.status, 'error'); assert.match(JSON.stringify(f.error), /no es una descarga directa/); assert.match(JSON.stringify(f.error), /Esperá 30/); srv.close();
 });
+
+test('enlace que abre una página del host: se usa la ventana (webFetch) y el archivo queda completo', async () => {
+  const data = rnd(2e6);
+  const srv = http.createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end('<title>Error - MegaDB</title>'); });
+  await new Promise((ok) => srv.listen(0, '127.0.0.1', ok)); let called = 0;
+  const dl = mk({ webFetch: async (url, dest, onP) => { called++; fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, data); onP(data.length, data.length); return { size: data.length, name: 'Juego-v1.rar' }; } }).start();
+  const it = dl.add({ gid: 'x:web', name: 'J', autoInstall: false, files: [{ url: 'http://127.0.0.1:' + srv.address().port + '/abc123', sha256: sha(data) }] });
+  const f = await waitFor(dl, it.id, ['completed', 'error']); assert.equal(f.status, 'completed', JSON.stringify(f.error)); assert.equal(called, 1);
+  assert.equal(sha(fs.readFileSync(path.join(dl.cfg.dlDir, 'wt-' + it.id, 'Juego-v1.rar'))), sha(data)); srv.close();
+});
