@@ -11577,15 +11577,15 @@ async function ctOpen(id){ctClose();const it=CT.map[id]||{},o=document.createEle
   <div class="ctdi" ${st()}><div><small>Lanzamiento</small><b>${esc((d.release_date||{}).date||'—')}</b></div><div><small>Desarrollador</small><b>${esc((d.developers||[]).join(', ')||'—')}</b></div><div><small>Editor</small><b>${esc((d.publishers||[]).join(', ')||'—')}</b></div><div><small>Metacritic</small><b>${d.metacritic?d.metacritic.score:'—'}</b></div><div><small>Plataformas</small><b>${[pl.windows&&'Windows',pl.mac&&'Mac',pl.linux&&'Linux'].filter(Boolean).join(' · ')||'—'}</b></div><div><small>Idiomas</small><b>${d.supported_languages?(d.supported_languages.replace(/<[^>]*>/g,'').split(',').length)+' idiomas':'—'}</b></div></div>
   <div id="ct-src" ${st()}><div class="ctsk"><i></i><i></i></div></div>`;ctSrc(id,cv,d.name||it.name)}
 /* ===== Catálogo propio: todos los juegos de tus fuentes ===== */
-const ctIgU=(id,t)=>'https://images.igdb.com/igdb/image/upload/'+(t||'t_cover_big')+'/'+id+'.jpg';
+const ctIgU=(id,t)=>String(id).startsWith('steam:')?'https://cdn.cloudflare.steamstatic.com/steam/apps/'+String(id).slice(6)+(t==='t_1080p'?'/library_hero.jpg':'/library_600x900.jpg'):'https://images.igdb.com/igdb/image/upload/'+(t||'t_cover_big')+'/'+id+'.jpg';
 const ctHue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;return h};
 function ctSrcCard(x){CT.sm=CT.sm||{};CT.sm[x.key]=x;const m=(CT.cv||{})[x.key]||{},cv=x.cover||(m.c?ctIgU(m.c):''),yr=m.y||(x.date?String(x.date).slice(0,4):'');
   return `<div class="ctc src${cv?'':' nocv'}" data-a="ctsopen" data-key="${esc(x.key)}" style="--i:${(CT.ci=(CT.ci||0)+1)%24};--h:${ctHue(x.name)}">${cv?`<img loading="lazy" src="${esc(cv)}" alt="" onerror="this.parentNode.classList.add('nocv');this.remove()">`:''}<div class="ctph"><b>${esc(x.name)}</b></div>${x.verified?'<i class="ctp ok">Verificado</i>':''}${x.opts>1?`<i class="cto">${x.opts} opciones</i>`:''}<div class="ctm"><b>${esc(x.name)}</b><span>${[yr,x.srcs>1?x.srcs+' fuentes':''].filter(Boolean).join(' · ')}</span></div></div>`}
-async function ctCoversFor(items,gen){const N=window.winteerNative;if(!N||!N.srcCovers||!igOn())return;CT.cv=CT.cv||{};
+async function ctCoversFor(items,gen){const N=window.winteerNative;if(!N||!N.srcCovers)return;CT.cv=CT.cv||{};
   const need=items.filter(x=>!x.cover&&!CT.cv[x.key]);if(!need.length)return;
   for(let i=0;i<need.length;i+=20){if(gen!==CT.gen||CT.mode!=='src')return;const part=need.slice(i,i+20);
-    const r=await N.srcCovers({items:part.map(x=>({k:x.key,n:x.name})),id:ST.igid,secret:ST.igsec});
-    if(!r||!r.ok)return;if(r.r&&r.r.error==='auth'){window._igBad=true;return}
+    const r=await N.srcCovers({items:part.map(x=>({k:x.key,n:x.name})),id:ST.igid,secret:ST.igsec,noIg:!igOn()});
+    if(!r||!r.ok)return;if(r.r&&r.r.msg)CT.cvErr=r.r.msg;
     for(const k in ((r.r||{}).r||{})){const m=r.r.r[k];CT.cv[k]=m;const el=document.querySelector('.ctc.src[data-key="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]');if(!el)continue;
       if(m.c&&el.classList.contains('nocv')&&!el.querySelector('img')){const im=new Image();im.alt='';im.loading='lazy';im.onerror=()=>im.remove();im.onload=()=>{el.classList.remove('nocv')};im.src=ctIgU(m.c);el.insertBefore(im,el.firstChild)}
       const sp=el.querySelector('.ctm span');if(sp&&m.y&&!/^\d{4}/.test(sp.textContent))sp.textContent=[m.y,sp.textContent].filter(Boolean).join(' · ')}}}

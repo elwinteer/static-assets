@@ -1796,14 +1796,14 @@ const scFile = () => path.join(app.getPath('userData'), 'srccovers.json');
 function scLoad() { if (!scMem) { try { scMem = JSON.parse(fs.readFileSync(scFile(), 'utf8')); } catch (e) { scMem = {}; } } return scMem; }
 function scSave() { clearTimeout(scTimer); scTimer = setTimeout(() => { try { fs.writeFileSync(scFile() + '.tmp', JSON.stringify(scMem)); fs.renameSync(scFile() + '.tmp', scFile()); } catch (e) {} }, 1500); }
 async function srcCovers(o) {
-  const mem = scLoad(), out = {}, need = [];
+  const mem = scLoad(), out = {}, need = []; let authBad = false, lastErr = '';
   for (const it of (Array.isArray(o.items) ? o.items : []).slice(0, 60)) {
     const k = String(it.k || ''), n = String(it.n || '').replace(/[™®©"\\]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+)+\b/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
     if (!k || !n) continue;
     const c = mem[k]; if (c && (c.c || Date.now() - c.t < 14 * 864e5)) { out[k] = c; continue; }
     need.push({ k, n });
   }
-  if (need.length && o.id && o.secret) {
+  if (need.length && o.id && o.secret && !o.noIg) {
     const { normTitle } = require('./src.js'), nrm = (s) => normTitle(s).replace(/ /g, '');
     for (let i = 0; i < need.length; i += 10) {
       const chunk = need.slice(i, i + 10);
@@ -1817,10 +1817,23 @@ async function srcCovers(o) {
           mem[x.k] = m; out[x.k] = m;
         });
         scSave();
-      } catch (e) { if (String(e.message) === 'auth') return { error: 'auth', r: out }; }
+      } catch (e) { if (String(e.message) === 'auth') authBad = true; else lastErr = String(e.message || e).slice(0, 120); }
     }
   }
-  return { r: out };
+  // Respaldo sin claves: buscador de la tienda de Steam (portadas de juegos que IGDB no resolvió o si IGDB falló).
+  {
+    const { normTitle } = require('./src.js'), nrm = (s) => normTitle(s).replace(/ /g, '');
+    const miss = need.filter((x) => !(out[x.k] && out[x.k].c)).slice(0, 40); let q = 0;
+    const work = async () => { while (q < miss.length) { const x = miss[q++]; try {
+      const r = await net.fetch('https://store.steampowered.com/api/storesearch/?l=english&cc=us&term=' + encodeURIComponent(x.n), { headers: { accept: 'application/json' } });
+      if (!r.ok) throw new Error('steam ' + r.status); const j = await r.json(), n0 = nrm(x.n);
+      const it = (j.items || []).find((i) => nrm(i.name) === n0) || (j.items || []).find((i) => n0.length >= 5 && (nrm(i.name).startsWith(n0) || n0.startsWith(nrm(i.name))));
+      if (it) { const mm = { c: 'steam:' + it.id, y: (out[x.k] || {}).y || 0, g: (out[x.k] || {}).g || [], r: (out[x.k] || {}).r || 0, t: Date.now() }; mem[x.k] = mm; out[x.k] = mm; }
+      else if (!out[x.k] && !authBad && !lastErr) { const mm = { c: '', y: 0, g: [], r: 0, t: Date.now() }; mem[x.k] = mm; out[x.k] = mm; }
+    } catch (e) { lastErr = lastErr || String(e.message || e).slice(0, 120); } } };
+    if (miss.length) { await Promise.all([work(), work(), work(), work()]); scSave(); }
+  }
+  return { r: out, error: authBad && !Object.values(out).some((v) => v && v.c) ? 'auth' : undefined, msg: lastErr };
 }
 
 /* ---------- versión de prueba (beta): solo se usa si fue armada sobre esta misma versión ---------- */

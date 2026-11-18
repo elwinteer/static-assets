@@ -41,9 +41,6 @@
       "sagas/**/*",
       "package.json"
     ],
-    "extraResources": [
-      { "from": "bt/bin", "to": "bt", "filter": ["winteer-bt.exe"] }
-    ],
     "win": {
       "target": [
         {
@@ -77,6 +74,7 @@
       }
     ],
     "extraResources": [
+      { "from": "bt/bin", "to": "bt", "filter": ["winteer-bt.exe"] },
       {
         "from": "bin7z",
         "to": "7z",
