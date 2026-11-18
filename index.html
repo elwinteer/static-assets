@@ -3687,6 +3687,34 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .ctdg{display:flex;gap:10px}.ctdg button{height:50px;padding:0 22px;border-radius:15px;border:0;background:linear-gradient(135deg,#fff,#d9dbe6);color:#0b0b13;font-weight:800;cursor:pointer;font-size:15px;flex:1;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(255,255,255,.12)}.ctdg button:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(255,255,255,.22)}.ctdg button.s{background:rgba(255,255,255,.1);color:#f3f4f6;flex:0 0 auto;box-shadow:none}
 .ctc.wide img{height:auto;position:absolute;top:50%;transform:translateY(-50%)}.ctc.wide .ctm{opacity:1}
 
+/* detalle del catálogo · zona de fuentes y animaciones */
+.ctd{animation:ctin .45s cubic-bezier(.22,1,.36,1)}
+.ctdc{animation:ctpop .6s cubic-bezier(.22,1,.36,1)}
+@keyframes ctpop{from{opacity:0;transform:translateY(30px) scale(.97);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes ctup{from{opacity:0;transform:translateY(18px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.ctdr>*{animation-duration:.65s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+.ctdm img,.ctdm video{transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
+.ctdm:hover img{transform:scale(1.015)}
+.ctdth button{transition:opacity .35s,transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}.ctdth button:hover{opacity:.9;transform:scale(1)}
+.ctdx{transition:background .3s,color .3s,transform .45s cubic-bezier(.22,1,.36,1)}
+#ct-src{flex:none}
+.ctsk{display:grid;gap:8px}.ctsk i{height:58px;border-radius:16px;background:linear-gradient(100deg,rgba(255,255,255,.05) 30%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 70%) 0 0/220% 100%;animation:ctsh 1.4s linear infinite}.ctsk i+i{height:58px;opacity:.55}@keyframes ctsh{to{background-position:-220% 0}}
+.ctsp{border-radius:20px;padding:14px 14px 10px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(12px);animation:ctup .6s cubic-bezier(.22,1,.36,1) both}
+.ctsh{display:flex;justify-content:space-between;align-items:baseline;margin:0 4px 10px}.ctsh span{font-weight:800;font-size:13px;letter-spacing:.9px;text-transform:uppercase;color:#e5e7eb}.ctsh em{font-style:normal;font-size:12px;color:#9ca3af}
+.ctsl{display:grid;gap:8px;max-height:236px;overflow:auto;padding:2px 2px 4px;scrollbar-width:thin}
+.ctsr{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:10px 12px;border-radius:15px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.07);transition:transform .35s cubic-bezier(.22,1,.36,1),background .3s,border-color .3s,box-shadow .35s;animation:ctup .55s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(.12s + var(--i)*70ms)}
+.ctsr:hover{transform:translateY(-2px);background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2);box-shadow:0 10px 26px rgba(0,0,0,.4)}
+.ctsr.mb{opacity:.82;border-style:dashed}
+.ctsa{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:16px;color:#0b0b13;background:linear-gradient(135deg,#fff,#c9ccd8)}
+.ctsm{min-width:0}.ctsm b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ctsm small{display:block;color:#9ca3af;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ctsm .ctsx{color:#7d8394;font-size:11.5px}
+.ctsv select{background:rgba(255,255,255,.09);color:#f3f4f6;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:7px 8px;max-width:170px;font-size:12.5px;cursor:pointer;transition:background .25s}.ctsv select:hover{background:rgba(255,255,255,.15)}.ctsv small{white-space:nowrap}
+.ctsb{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 18px;border:0;border-radius:12px;cursor:pointer;font-weight:800;font-size:14px;color:#0b0b13;background:linear-gradient(135deg,#fff,#d9dbe6);box-shadow:0 6px 18px rgba(255,255,255,.12);transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s}
+.ctsb:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 26px rgba(255,255,255,.28)}.ctsb:active{transform:scale(.97)}.ctsb svg{transition:transform .35s cubic-bezier(.22,1,.36,1)}.ctsb:hover svg{transform:translateY(2px)}
+.ctse{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.18);animation:ctup .6s cubic-bezier(.22,1,.36,1) both}
+.ctsi{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;color:#aeb2c0;background:rgba(255,255,255,.07);animation:ctfloat 3.6s ease-in-out infinite}@keyframes ctfloat{50%{transform:translateY(-3px)}}
+.ctst b{display:block;font-size:15px}.ctst small{display:block;color:#9ca3af;font-size:12.5px;margin-top:2px}
+.ctsg{height:38px;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#f3f4f6;font-weight:700;font-size:13px;cursor:pointer;transition:background .3s,transform .3s cubic-bezier(.22,1,.36,1)}.ctsg:hover{background:rgba(255,255,255,.18);transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.ctd,.ctdc,.ctdr>*,.ctsr,.ctsp,.ctse,.ctsi{animation:none!important}}
 </style>
 </head>
 <body>
@@ -11446,12 +11474,11 @@ async function ctOpen(id){ctClose();const it=CT.map[id]||{},o=document.createEle
   <div class="ctdt" ${st()}>${own?'<span class="ow">✔ En tu biblioteca</span>':''}${(d.genres||[]).slice(0,4).map(x=>`<span>${esc(x.description)}</span>`).join('')}${feats.slice(0,4).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
   <p class="ctdp" ${st()}>${esc(d.short_description||'')}</p>
   <div class="ctdi" ${st()}><div><small>Lanzamiento</small><b>${esc((d.release_date||{}).date||'—')}</b></div><div><small>Desarrollador</small><b>${esc((d.developers||[]).join(', ')||'—')}</b></div><div><small>Editor</small><b>${esc((d.publishers||[]).join(', ')||'—')}</b></div><div><small>Metacritic</small><b>${d.metacritic?d.metacritic.score:'—'}</b></div><div><small>Plataformas</small><b>${[pl.windows&&'Windows',pl.mac&&'Mac',pl.linux&&'Linux'].filter(Boolean).join(' · ')||'—'}</b></div><div><small>Idiomas</small><b>${d.supported_languages?(d.supported_languages.replace(/<[^>]*>/g,'').split(',').length)+' idiomas':'—'}</b></div></div>
-  <div id="ct-src"></div>
-  <div class="ctdg" ${st()}><button data-a="ctdlmain" data-id="${id}">Descargar</button><button class="s" data-a="ctclose">Cerrar</button></div>`;ctSrc(id,cv,d.name||it.name)}
+  <div id="ct-src" ${st()}><div class="ctsk"><i></i><i></i></div></div>`;ctSrc(id,cv,d.name||it.name)}
 function ctClose(){const o=$('#ct-d');if(o)o.remove()}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='sr-q'){SRS.q=e.target.value;clearTimeout(srLoad.t);srLoad.t=setTimeout(()=>srLoad().catch(()=>{}),250)}});
 document.addEventListener('keydown',e=>{if(!$('#ct-d'))return;if(e.key==='Escape'){ctClose();e.stopPropagation()}else if(e.key==='ArrowRight'){ctMedia((CT.mi||0)+1);e.stopPropagation()}else if(e.key==='ArrowLeft'){ctMedia((CT.mi||0)-1);e.stopPropagation()}},true);
-Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.dataset.v;ctRef()},ctfree:()=>{CT.free=!CT.free;ctRef()},ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctdlmain:a=>{const l=CT.sr||[],f=l.filter(x=>x.by!=='maybe');if(f.length===1){const i=l.indexOf(f[0]),v=$('#sv-c'+i);return srStart(f[0],v?+v.value:0,f[0].game.name)}const e=$('#ct-src');if(e&&l.length){e.scrollIntoView({behavior:'smooth',block:'center'});e.classList.add('flash');setTimeout(()=>e.classList.remove('flash'),1200);return}toast('Ninguna de tus fuentes tiene este juego')},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
+Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.dataset.v;ctRef()},ctfree:()=>{CT.free=!CT.free;ctRef()},ctopen:a=>ctOpen(a.dataset.id),ctclose:ctClose,ctmed:a=>ctMedia(+a.dataset.i),ctnav:a=>ctMedia((CT.mi||0)+(+a.dataset.d)),ctretry:()=>{CT.err=0;ctLoad(false)},ctsteam:a=>window.open('https://store.steampowered.com/app/'+a.dataset.id+'/','_blank')});
 {const e=$('#i-cat');if(e)e.outerHTML=ic('cat')}
 P.dl='<path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>';
 {const e=$('#i-dl');if(e)e.outerHTML=ic('dl')}
@@ -11533,14 +11560,15 @@ function srGames(){return SRS.games.length?SRS.games.slice(0,80).map((x,i)=>`<di
 async function srLoad(){const N=winteerNative;if(!N.srcList)return;const [a,b]=await Promise.all([N.srcList(),N.srcGames(SRS.q)]);if(a&&a.ok)SRS.list=a.r;if(b&&b.ok)SRS.games=b.r;const l=$('#sr-l');if(l)l.innerHTML=srRows();const g=$('#sr-g');if(g)g.innerHTML=srGames()}
 async function srStart(x,ver,name){const r=await winteerNative.srcDl({sourceId:x.source.id,gid:x.gid,ref:x.game&&x.game.ids?x.game.ids[0]:undefined,version:ver,cover:x.cover});if(!r.ok)return dlErr(r);
   toast(r.r.dup?'Ya está en la lista de descargas':(name||'Juego')+': descarga iniciada');DLS.items.set(r.r.id,r.r);dlBadge();if(S.view==='dl')dlPaint()}
-function ctSrcRow(x,i){const mb=x.by==='maybe';return `<div class="srg${mb?' maybe':''}"><div><b>${esc(x.game.name)}</b><small>${esc(x.source.name)}${x.by==='title'?' · coincide por título':''}${mb?' · puede ser otra edición':''}</small>${srMeta(x.game)?`<small>${srMeta(x.game)}</small>`:''}</div>${srVer(x.game,'c'+i)}<button class="dlb sm${mb?' s':''}" data-a="ctdl" data-i="${i}">${mb?'Descargar':'Descargar e instalar'}</button></div>`}
+const CTI_ = {cloud:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5H7z"/><path d="m9.5 12.5 5 5m0-5-5 5"/></svg>',plus:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>',dl:'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>'};
+function ctSrcRow(x,i){const mb=x.by==='maybe',nm=x.source.name||'?';return `<div class="ctsr${mb?' mb':''}" style="--i:${i}"><div class="ctsa">${esc(nm.trim().charAt(0).toUpperCase()||'?')}</div><div class="ctsm"><b>${esc(x.game.name)}</b><small>${esc(nm)}${mb?' · posible otra edición':''}</small>${srMeta(x.game)?`<small class="ctsx">${srMeta(x.game)}</small>`:''}</div><div class="ctsv">${srVer(x.game,'c'+i)}</div><button class="ctsb" data-a="ctdl" data-i="${i}">${CTI_.dl}<span>Descargar</span></button></div>`}
 async function ctSrc(id,cv,name){const e=$('#ct-src');if(!e||!(window.winteerNative&&winteerNative.srcMatch))return;
-  const r=await winteerNative.srcMatch('steam:'+id,name||'');CT.sr=[];if(!$('#ct-src'))return;
-  const ok=r&&r.ok?r.r:{found:[],maybe:[]};
+  const [r,sl]=await Promise.all([winteerNative.srcMatch('steam:'+id,name||''),winteerNative.srcList?winteerNative.srcList():null]);CT.sr=[];if(!$('#ct-src'))return;
+  const ok=r&&r.ok?r.r:{found:[],maybe:[]},hasSrc=!!(sl&&sl.ok&&sl.r.some(q=>q.enabled));
   CT.sr=ok.found.concat(ok.maybe).map(x=>({source:x.source,game:x.game,by:x.by,gid:'steam:'+id,cover:cv}));
-  const nf=ok.found.length,hasSrc=SRS.list.some(s=>s.enabled)||(ok.found.length+ok.maybe.length>0);
-  $('#ct-src').innerHTML=CT.sr.length?`<div class="ctsrc"><small>${nf?'Disponible en tus fuentes ('+nf+')':'Posibles coincidencias en tus fuentes'}</small>${CT.sr.map((x,i)=>ctSrcRow(x,i)).join('')}</div>`:`<div class="ctsrc"><small>Ninguna de tus fuentes tiene este juego</small></div>`;
-  const b=document.querySelector('[data-a="ctdlmain"]');if(b){b.textContent=nf?(nf>1?'Descargar ('+nf+' opciones)':'Descargar'):CT.sr.length?'Ver coincidencias':'Descargar';b.dataset.has=nf?'1':'0'}}
+  const n=CT.sr.length,ns=new Set(CT.sr.map(x=>x.source.id)).size;
+  $('#ct-src').innerHTML=n?`<div class="ctsp"><div class="ctsh"><span>Descargar desde</span><em>${n} ${n===1?'opción':'opciones'}${ns>1?' · '+ns+' fuentes':''}</em></div><div class="ctsl">${CT.sr.map((x,i)=>ctSrcRow(x,i)).join('')}</div></div>`
+   :`<div class="ctse"><div class="ctsi">${hasSrc?CTI_.cloud:CTI_.plus}</div><div class="ctst"><b>${hasSrc?'No está en tus fuentes':'Todavía no tenés fuentes'}</b><small>${hasSrc?'Ninguna de las fuentes que agregaste tiene este juego.':'Agregá una fuente para poder descargar juegos desde acá.'}</small></div><button class="ctsg" data-a="ctsrc">${hasSrc?'Administrar fuentes':'Agregar fuente'}</button></div>`}
 function srModalHTML(){return `<div class="srmc"><button class="srx" data-a="srclose">×</button><h2 style="margin:0 0 4px;font-size:22px;letter-spacing:0;text-transform:none;color:#f3f4f6">Fuentes de descarga</h2>  <h2>Tus fuentes</h2><div class="dlbox"><small class="srsub">Una fuente es un enlace a un manifiesto (lista de juegos y archivos) publicado por quien distribuye el contenido. WINTEER no incluye ninguna: agregá solo fuentes que tengan permiso para distribuir esos juegos.</small>
    <div id="sr-l">${srRows()}</div>
    <div class="dlrow"><label>Enlace del manifiesto<input type="text" id="sr-u" placeholder="https://…/manifest.json"></label><label>Nombre (opcional)<input type="text" id="sr-n"></label><button class="dlb" data-a="sradd">Agregar fuente</button><button class="dlb s" data-a="sradd_f">Elegir archivo .json…</button></div></div>
