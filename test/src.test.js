@@ -128,3 +128,10 @@ test('403 a programas: reintenta con identificador de navegador', async () => {
   const S = mk(); const s = await S.add(a.url + '/m.json'); assert.equal(s.games, 1);
   await assert.rejects(S.add(a.url + '/no.json'), (e) => e.code === 'http' && /403/.test(e.message)); a.s.close();
 });
+test('403 persistente: usa netFetch (red de Chromium) como último intento', async () => {
+  const a = await srv({ '/m.json': (q, r) => { r.writeHead(403); r.end(); } }); let calls = 0;
+  const d = tmp(); const S = new Sources({ file: path.join(d, 's.json'), dir: path.join(d, 'c'), netFetch: async (u) => { calls++; return { text: JSON.stringify([{ id: 'g', name: 'G', link: '/g.zip' }]), etag: 'x', url: u }; } }).load();
+  const s = await S.add(a.url + '/m.json'); assert.equal(s.games, 1); assert.equal(calls, 1);
+  const S2 = new Sources({ file: path.join(tmp(), 's.json'), dir: path.join(tmp(), 'c'), netFetch: async () => { const e = new Error('La fuente respondió HTTP 403'); e.code = 'http'; throw e; } }).load();
+  await assert.rejects(S2.add(a.url + '/m.json'), (e) => e.code === 'http'); a.s.close();
+});

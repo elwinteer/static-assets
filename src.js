@@ -47,16 +47,20 @@ function fetchText(url, o) {
       try { const p = fileURLToPath(u), st = fs.statSync(p); if (st.size > MAX_BYTES) return reject(err('size', 'El manifiesto es demasiado grande')); return resolve({ text: fs.readFileSync(p, 'utf8').replace(/^\uFEFF/, ''), etag: String(st.mtimeMs), url: u.href }); } catch (e) { return reject(err('file', 'No pude leer el archivo: ' + String(e.code || e.message).slice(0, 60))); }
     }
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return reject(err('url', 'El enlace tiene que empezar con http:// o https://'));
-    let bro = false;
+    let bro = false, viaNet = false;
     const go = (url, hops) => {
       const lib = url.protocol === 'https:' ? https : http;
-      const headers = bro ? { 'user-agent': UA_BROWSER, accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8', 'accept-encoding': 'identity' } : { 'user-agent': UA, accept: 'application/json, */*', 'accept-encoding': 'identity' };
+      const headers = bro ? { 'user-agent': UA_BROWSER, accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8', 'accept-encoding': 'identity', referer: url.origin + '/', 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-origin' } : { 'user-agent': UA, accept: 'application/json, */*', 'accept-encoding': 'identity' };
       if (o.etag) headers['if-none-match'] = o.etag;
       const req = lib.get(url, { headers }, (res) => {
         const sc = res.statusCode;
         if ([301, 302, 303, 307, 308].includes(sc) && res.headers.location) { res.resume(); if (hops >= 5) return reject(err('net', 'Demasiadas redirecciones')); let nx; try { nx = new URL(res.headers.location, url); } catch (e) { return reject(err('net', 'Redirección inválida')); } return go(nx, hops + 1); }
         if (sc === 304) { res.resume(); return resolve({ notModified: true, url: url.href }); }
         if ((sc === 403 || sc === 406) && !bro) { res.resume(); bro = true; return go(url, hops); }
+        if ((sc === 403 || sc === 406 || sc === 429 || sc === 503) && o.netFetch && !viaNet) { // último intento: la red de Chromium (la misma de un navegador), que pasa filtros que rechazan a Node
+          res.resume(); viaNet = true;
+          return o.netFetch(url.href, { etag: o.etag, maxBytes: MAX_BYTES }).then((r) => resolve(r.notModified ? { notModified: true, url: url.href } : { text: String(r.text || '').replace(/^\uFEFF/, ''), etag: r.etag || '', url: r.url || url.href }), (e) => reject(e && e.code ? e : err('http', 'La fuente respondió HTTP ' + sc + (sc === 403 ? ' (acceso denegado: puede requerir permiso, o el enlace venció)' : ''))));
+        }
         if (sc !== 200) { res.resume(); return reject(err('http', 'La fuente respondió HTTP ' + sc + (sc === 403 ? ' (acceso denegado: puede requerir permiso, o el enlace venció)' : ''))); }
         const len = +res.headers['content-length'] || 0;
         if (len > MAX_BYTES) { res.destroy(); return reject(err('size', 'El manifiesto es demasiado grande')); }
@@ -182,14 +186,14 @@ class Sources extends EventEmitter {
   /** Descarga el manifiesto (y sus "include") y lo deja listo para usar. */
   async _pull(url, etag) {
     const loc = /^file:/i.test(url);
-    const r = await fetchText(url, { etag, allowFile: loc });
+    const r = await fetchText(url, { etag, allowFile: loc, netFetch: this.o.netFetch });
     if (r.notModified) return { notModified: true };
     let j; try { j = JSON.parse(r.text); } catch (e) { throw err('json', 'La fuente no devolvió un JSON válido'); }
     const top = normalize(j, r.url), games = top.games.slice(); let skipped = top.skipped;
     const seen = new Set([r.url]); let queue = top.include.slice(), n = 0;
     while (queue.length && n < MAX_INC) {
       const u = queue.shift(); if (seen.has(u)) continue; seen.add(u); n++;
-      try { const x = await fetchText(u, { allowFile: loc }); const sub = normalize(JSON.parse(x.text), x.url); games.push(...sub.games); skipped += sub.skipped; if (sub.include.length && n < MAX_INC) queue.push(...sub.include.slice(0, 5)); } catch (e) { skipped++; }
+      try { const x = await fetchText(u, { allowFile: loc, netFetch: this.o.netFetch }); const sub = normalize(JSON.parse(x.text), x.url); games.push(...sub.games); skipped += sub.skipped; if (sub.include.length && n < MAX_INC) queue.push(...sub.include.slice(0, 5)); } catch (e) { skipped++; }
       if (games.length > MAX_GAMES) break;
     }
     return { meta: top.meta, games: games.slice(0, MAX_GAMES), skipped, etag: r.etag };

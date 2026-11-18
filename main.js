@@ -3094,7 +3094,16 @@ app.whenReady().then(() => {
     ipcMain.handle('dlSetCfg', dlWrap((a) => dlEng.setCfg(a)));
     ipcMain.handle('dlDisk', dlWrap((a) => dlEng.disk(a.path)));
     const { Sources } = require('./src.js');
-    srcEng = new Sources({ file: path.join(app.getPath('userData'), 'sources.json'), dir: path.join(app.getPath('userData'), 'sources') }).load();
+    srcEng = new Sources({ file: path.join(app.getPath('userData'), 'sources.json'), dir: path.join(app.getPath('userData'), 'sources'),
+      // Respaldo para fuentes que rechazan (403) a Node: pedirlas con la red de Chromium, igual que un navegador.
+      netFetch: async (url, o) => {
+        const h = { accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8' }; if (o && o.etag) h['if-none-match'] = o.etag;
+        const r = await net.fetch(url, { headers: h, redirect: 'follow' });
+        if (r.status === 304) return { notModified: true };
+        if (!r.ok) { const e = new Error('La fuente respondió HTTP ' + r.status + (r.status === 403 ? ' (acceso denegado: puede requerir permiso, o el enlace venció)' : '')); e.code = 'http'; throw e; }
+        const t = await r.text(); if (t.length > ((o && o.maxBytes) || 12e6)) { const e = new Error('El manifiesto es demasiado grande'); e.code = 'size'; throw e; }
+        return { text: t, etag: r.headers.get('etag') || '', url: r.url || url };
+      } }).load();
     setTimeout(() => { try { if (srcEng.list().length) srcEng.refresh(); } catch (e) {} }, 8000);
     ipcMain.handle('srcList', dlWrap(() => srcEng.list()));
     ipcMain.handle('srcAdd', dlWrap((a) => srcEng.add(a.url, a.name)));
