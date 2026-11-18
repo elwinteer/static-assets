@@ -386,6 +386,12 @@ function steamripConsole() {
     const pill = () => { const b = sh.querySelector('#tb button.on'), p = $('#pill'); if (b) { p.style.left = b.offsetLeft + 'px'; p.style.width = b.offsetWidth + 'px'; } };
     const shotCache = {};
     const shotOf = (href) => shotCache[href] || (shotCache[href] = fetch(href, { credentials: 'include' }).then((r) => r.ok ? r.text() : '').then((t) => { if (!t) return ''; const doc = new DOMParser().parseFromString(t, 'text/html'), og = (doc.querySelector('meta[property="og:image"]') || {}).content || '', root = doc.querySelector('.entry-content, .post-content, article') || doc.body; const us = [...root.querySelectorAll('img')].map((i) => i.getAttribute('data-lazy-src') || i.getAttribute('data-src') || i.getAttribute('src') || '').filter((u) => u && !/^data:/.test(u) && !/logo|avatar|emoji|icon|gravatar|banner|button|badge/i.test(u)).map((u) => { try { return new URL(u, href).href; } catch (e) { return ''; } }).filter((u, i, a) => u && u !== og && a.indexOf(u) === i); return us[1] || us[0] || ''; }).catch(() => ''));
+    const covC = {};
+    const coverOf = (href) => covC[href] || (covC[href] = fetch(href, { credentials: 'include' }).then((r) => r.ok ? r.text() : '').then((t) => { if (!t) return ''; const doc = new DOMParser().parseFromString(t, 'text/html'); let u = (doc.querySelector('meta[property="og:image"]') || {}).content || ''; if (!u) { const im = doc.querySelector('.entry-content img, article img'); u = im ? (im.getAttribute('data-lazy-src') || im.getAttribute('data-src') || im.getAttribute('src') || '') : ''; } try { return u ? new URL(u, href).href : ''; } catch (e) { return ''; } }).catch(() => ''));
+    const allItems = () => Object.values(ST).flatMap((x) => x.items || []);
+    const covQ = []; let covBusy = 0;
+    const covPump = () => { while (covBusy < 4 && covQ.length) { const cd = covQ.shift(); covBusy++; coverOf(cd.href).then((u) => { const it = allItems().find((c) => c.href === cd.href); if (u && it) it.img = u; const ph = cd.querySelector('.ph'); if (u && ph) { const im = new Image(); im.onload = () => { const t = document.createElement('img'); t.src = u; t.alt = ''; t.style.cssText = 'opacity:0;transition:opacity .8s'; ph.replaceWith(t); requestAnimationFrame(() => { t.style.opacity = '1'; }); }; im.src = u; } }).finally(() => { covBusy--; covPump(); }); } };
+    const ioC = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { ioC.unobserve(e.target); covQ.push(e.target); covPump(); } }), { root: w, rootMargin: '400px' }) : null;
     let heroT = 0, heroTok = 0;
     const drawHero = () => {
       clearInterval(heroT); const it = (ST[cur].items || []).filter((c) => c.img).slice(0, 5);
@@ -402,14 +408,14 @@ function steamripConsole() {
       gr.className = 'gr' + (view === 'list' ? ' list' : '');
       if (!st.items) { gr.innerHTML = Array.from({ length: 14 }, () => '<div class="sk"></div>').join(''); ft.innerHTML = ''; hero.innerHTML = ''; return; }
       const vis = list.slice(0, q ? 400 : Math.max(shown, PAGE));
-      gr.innerHTML = vis.length ? vis.map(card).join('') : '<div class="em">No hay juegos que coincidan</div>'; arm();
+      gr.innerHTML = vis.length ? vis.map(card).join('') : '<div class="em">No hay juegos que coincidan</div>'; arm(); if (ioC) gr.querySelectorAll('.ph').forEach((p) => { const cd = p.closest('.cd'); if (cd && !cd.dataset.cv) { cd.dataset.cv = 1; ioC.observe(cd); } });
       const more = list.length > vis.length;
       ft.innerHTML = more || (st.next && !q) ? '<button id="mr">' + (st.busy ? 'Cargando…' : 'Cargar más') + '</button>' : (st.err ? '<span class="er">' + esc(st.err) + '</span>' : '');
       const mr = $('#mr'); if (mr) mr.onclick = loadMore;
     };
     const fetchTab = async (k, url) => {
       const st = ST[k]; if (st.busy) return; st.busy = 1;
-      try { const r = await fetch(url, { credentials: 'include' }); if (!r.ok) throw new Error('HTTP ' + r.status); const doc = new DOMParser().parseFromString(await r.text(), 'text/html'); const have = new Set((st.items || []).map((c) => c.href)); const add = cardsFrom(doc, url, k === 'new' ? 'new' : 'x').filter((c) => !have.has(c.href)); st.items = (st.items || []).concat(add); st.pg++; st.next = add.length ? nxt(k, doc, url, st.pg) : ''; st.err = add.length || st.items.length ? '' : 'No encontré juegos en esta sección'; }
+      try { const r = await fetch(url, { credentials: 'include' }); if (!r.ok) throw new Error('HTTP ' + r.status); const doc = new DOMParser().parseFromString(await r.text(), 'text/html'); const have = new Set((st.items || []).map((c) => c.href)); const add = cardsFrom(doc, url, k === 'new' ? 'new' : 'x').filter((c) => !have.has(c.href)); await Promise.all(add.filter((c) => !c.img).slice(0, 10).map((c) => coverOf(c.href).then((u) => { if (u) c.img = u; }))); st.items = (st.items || []).concat(add); st.pg++; st.next = add.length ? nxt(k, doc, url, st.pg) : ''; st.err = add.length || st.items.length ? '' : 'No encontré juegos en esta sección'; }
       catch (e) { st.next = ''; st.items = st.items || []; st.err = 'No se pudo cargar (' + String(e.message || e).slice(0, 40) + ')'; }
       st.busy = 0; if (k === cur) { draw(); if (k !== 'new' || true) drawHero(); }
     };
