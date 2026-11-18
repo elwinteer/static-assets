@@ -39,7 +39,18 @@ function parseTags(v) {
 }
 const parseBool = (v) => v === true || v === 1 || (typeof v === 'string' && /^(true|1|yes|si|sí|ok|verified|verificado)$/i.test(v.trim()));
 
-function fetchText(url, o) {
+async function fetchText(url, o) {
+  o = o || {};
+  // En Electron: primero la red de Chromium (net.fetch con User-Agent de Chrome); si falla por bloqueo o red, sigue el camino con Node.
+  if (o.netFetch && /^https?:/i.test(String(url))) {
+    try {
+      const r = await o.netFetch(String(url), { etag: o.etag, maxBytes: MAX_BYTES });
+      return r.notModified ? { notModified: true, url: String(url) } : { text: String(r.text || '').replace(/^\uFEFF/, ''), etag: r.etag || '', url: r.url || String(url) };
+    } catch (e) { if (e && ['size', 'url'].includes(e.code)) throw e; if (e && e.code === 'http' && !/HTTP (403|406|429|503)\b/.test(String(e.message))) throw e; }
+  }
+  return fetchNode(url, o);
+}
+function fetchNode(url, o) {
   o = o || {};
   return new Promise((resolve, reject) => {
     let u; try { u = new URL(url); } catch (e) { return reject(err('url', 'El enlace no es válido')); }

@@ -3095,9 +3095,9 @@ app.whenReady().then(() => {
     ipcMain.handle('dlDisk', dlWrap((a) => dlEng.disk(a.path)));
     const { Sources } = require('./src.js');
     srcEng = new Sources({ file: path.join(app.getPath('userData'), 'sources.json'), dir: path.join(app.getPath('userData'), 'sources'),
-      // Respaldo para fuentes que rechazan (403) a Node: pedirlas con la red de Chromium, igual que un navegador.
+      // Primer intento: la red de Chromium (net.fetch) con User-Agent de Chrome, igual que un navegador; si falla, se usa Node.
       netFetch: async (url, o) => {
-        const h = { accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8' }; if (o && o.etag) h['if-none-match'] = o.etag;
+        const h = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8' }; if (o && o.etag) h['if-none-match'] = o.etag;
         const r = await net.fetch(url, { headers: h, redirect: 'follow' });
         if (r.status === 304) return { notModified: true };
         if (!r.ok) { const e = new Error('La fuente respondió HTTP ' + r.status + (r.status === 403 ? ' (acceso denegado: puede requerir permiso, o el enlace venció)' : '')); e.code = 'http'; throw e; }
