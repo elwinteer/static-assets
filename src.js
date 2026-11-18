@@ -88,7 +88,8 @@ function normGame(g, base, key) {
 
 /** Valida y normaliza un manifiesto ya leído (objeto). */
 function normalize(m, baseUrl) {
-  if (!m || typeof m !== 'object' || Array.isArray(m)) throw err('manifest', 'El manifiesto tiene que ser un objeto JSON');
+  if (Array.isArray(m)) m = { games: m }; // también se acepta una lista de juegos suelta
+  if (!m || typeof m !== 'object') throw err('manifest', 'El archivo no tiene el formato esperado: tiene que ser un objeto { "games": [...] } o una lista de juegos');
   const sc = m.schema === undefined ? 1 : +m.schema;
   if (sc !== 1) throw err('schema', 'Versión de manifiesto no soportada (' + m.schema + '). Actualizá WINTEER.');
   let list = [];
@@ -142,7 +143,7 @@ class Sources extends EventEmitter {
     if (u.protocol !== 'http:' && u.protocol !== 'https:') throw err('url', 'El enlace tiene que empezar con http:// o https://');
     const dup = this.list_.find((s) => s.url === u.href); if (dup) throw err('dup', 'Esa fuente ya está agregada: ' + dup.name);
     const c = await this._pull(u.href);
-    if (!c.games.length) throw err('empty', 'La fuente no tiene ningún juego que WINTEER pueda usar (revisá el formato)');
+    if (!c.games.length) throw err('empty', 'La fuente no tiene ningún juego que WINTEER pueda usar: cada juego necesita "name", un "id" y "files" (o "versions") con enlaces');
     const s = { id: crypto.randomBytes(6).toString('hex'), url: u.href, name: str(name, 60) || c.meta.name || u.hostname, enabled: true, addedAt: Date.now(), updatedAt: Date.now(), etag: c.etag || '', error: '' };
     this.list_.push(s); this._saveCache(s.id, c); this._save(); this._index(); this.emit('change');
     return Object.assign({}, s, { games: c.games.length, skipped: c.skipped });
@@ -154,7 +155,7 @@ class Sources extends EventEmitter {
     const url = pathToFileURL(path.resolve(file)).href;
     const dup = this.list_.find((s) => s.url === url); if (dup) throw err('dup', 'Ese archivo ya está agregado: ' + dup.name);
     const c = await this._pull(url);
-    if (!c.games.length) throw err('empty', 'El archivo no tiene ningún juego que WINTEER pueda usar (revisá el formato)');
+    if (!c.games.length) throw err('empty', 'El archivo no tiene ningún juego que WINTEER pueda usar: cada juego necesita "name", un "id" y "files" (o "versions") con enlaces');
     const s = { id: crypto.randomBytes(6).toString('hex'), url, kind: 'file', path: path.resolve(file), name: str(name, 60) || c.meta.name || path.basename(file, path.extname(file)), enabled: true, addedAt: Date.now(), updatedAt: Date.now(), etag: c.etag || '', error: '' };
     this.list_.push(s); this._saveCache(s.id, c); this._save(); this._index(); this.emit('change');
     return Object.assign({}, s, { games: c.games.length, skipped: c.skipped });

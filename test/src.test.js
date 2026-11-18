@@ -18,7 +18,7 @@ test('normaliza: formas flexibles (ids, atajo files, mapa, relativas, hashes)', 
   assert.deepEqual(m.games[1].ids.sort(), ['g2', 'gog:5', 'steam:9']); assert.equal(m.games[1].versions[0].files[0].md5, 'b'.repeat(32));
 });
 test('normaliza: rechaza basura y schema desconocido; marca torrents', () => {
-  assert.throws(() => normalize([], 'http://x/'), (e) => e.code === 'manifest'); assert.throws(() => normalize({ schema: 2, games: [] }, 'http://x/'), (e) => e.code === 'schema'); assert.throws(() => normalize({ foo: 1 }, 'http://x/'));
+  assert.throws(() => normalize('x', 'http://x/'), (e) => e.code === 'manifest'); assert.equal(normalize([{ id: 'a', name: 'A', files: ['/a.zip'] }], 'http://x/').games.length, 1); assert.throws(() => normalize({ schema: 2, games: [] }, 'http://x/'), (e) => e.code === 'schema'); assert.throws(() => normalize({ foo: 1 }, 'http://x/'));
   const m = normalize({ games: [{ id: 'a', name: 'A', versions: [{ files: ['magnet:?xt=urn:btih:abc'] }, { files: ['javascript:alert(1)', 'file:///etc/passwd'] }] }] }, 'http://x/');
   assert.equal(m.games[0].versions.length, 1); assert.equal(m.games[0].versions[0].transport, 'torrent');
 });

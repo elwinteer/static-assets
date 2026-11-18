@@ -42,6 +42,7 @@ El emparejamiento con el catálogo es solo por **ID exacto** (por ejemplo `steam
 
 Reglas y atajos:
 - `schema` es opcional (por defecto 1). Una versión mayor que la soportada se rechaza con un aviso.
+- El archivo puede ser directamente una lista de juegos `[ {…}, {…} ]`, sin el objeto de afuera.
 - `games` puede ser una lista, o un objeto `{ "<id>": {…} }` donde la clave es el ID.
 - Cada juego necesita `name`, al menos un ID (`id`, `ids`, o `steam`/`steamAppId`/`appid` numérico) y al menos una versión con archivos.
 - Atajo: un juego puede traer `files` (o `url`) directamente, sin `versions`.
