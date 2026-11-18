@@ -891,7 +891,7 @@ function fitgirlConsole() {
       .ct{display:flex;flex-direction:column}#hr{order:1}.hd{order:2;margin:26px 0 16px}#er{order:3}#gr{order:4}#pg{order:5}
       .hz{grid-template-columns:1fr!important;margin:4px 0 0!important}.sd,.ctl,.dh{display:none!important}
       .hz .hero{height:330px;min-height:0;align-items:center;padding:0 44px;gap:0;border-radius:28px}
-      .hero .ar{display:none}.hero .bk{filter:blur(30px) brightness(.5) saturate(1.5)}
+      .hero .ar{display:none}.hero .bk{inset:-3%;filter:brightness(.62) saturate(1.25);transition:background-image .6s,filter .6s}.hero .bk.fb{inset:-12%;filter:blur(24px) brightness(.55) saturate(1.5)}.hero .tx:before{content:'';display:block;width:46px;height:3px;border-radius:3px;background:#fff;box-shadow:0 0 16px rgba(255,255,255,.7)}
       .hero:after{background:linear-gradient(90deg,rgba(6,6,10,.94),rgba(6,6,10,.55) 55%,rgba(6,6,10,.1)),linear-gradient(0deg,rgba(6,6,10,.65),transparent 50%)}
       .hero .cvr{position:absolute;right:60px;top:50%;width:190px;aspect-ratio:2/3;border-radius:18px;transform:translateY(-50%) rotate(3deg);animation:none}.hero:hover .cvr{transform:translateY(-50%) rotate(1deg) scale(1.04)}
       .hero .tx{width:min(560px,56%)}.hero .mi{display:none}.hero small{font:700 11.5px ${FONT};letter-spacing:.22em;color:#b4b6c4}.hero h3{font-size:40px;letter-spacing:-1px}
@@ -939,22 +939,25 @@ function fitgirlConsole() {
       if (cur === 'all') {
         const hr0 = $('#hr'); hr0.innerHTML = ''; gr.className = 'gr az2'; $('#pg').innerHTML = '';
         const ch = (t) => (t.replace(/^[^A-Za-z0-9]+/, '')[0] || '#').toUpperCase();
-        const by = {}; L.forEach((x) => { const c = ch(x.title), k = /[A-Z]/.test(c) ? c : '#'; (by[k] = by[k] || []).push(x); });
-        const keys = Object.keys(by).sort((a, b) => a === '#' ? -1 : b === '#' ? 1 : a < b ? -1 : 1); keys.forEach((k) => by[k].sort((a, b) => a.title.localeCompare(b.title, 'en', { numeric: true })));
+        let by = {}, keys = [], idx = [];
+        const norm = (t) => t.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+        const rebuild = () => { by = {}; L.forEach((x) => { const c = ch(x.title), k = /[A-Z]/.test(c) ? c : '#'; (by[k] = by[k] || []).push(x); }); keys = Object.keys(by).sort((a, b) => a === '#' ? -1 : b === '#' ? 1 : a < b ? -1 : 1); keys.forEach((k) => by[k].sort((a, b) => a.title.localeCompare(b.title, 'en', { numeric: true }))); idx = L.map((x) => ({ x, n: norm(x.title) })); };
+        rebuild();
         const AZ = window.__fgAZ || (window.__fgAZ = { l: keys[0] }); if (!by[AZ.l]) AZ.l = keys[0];
         let nShow = 60, qv = '';
-        const norm = (t) => t.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
-        const idx = L.map((x) => ({ x, n: norm(x.title) }));
         const rowA = (x, i) => '<a class="ar2" style="--i:' + Math.min(i, 14) + '" data-h="' + esc(x.href) + '"><span class="an">' + String(i + 1).padStart(3, '0') + '</span><span class="acv"><b>' + esc(ch(x.title)) + '</b></span><span class="ab2"><b class="at">' + esc(x.title) + '</b><span class="cp">' + (x.ver ? '<span class="v">' + esc(x.ver) + '</span>' : '') + (x.hv ? '<span>⚠ HV</span>' : '') + '</span></span><span class="ago">Ver juego <i>›</i></span></a>';
-        gr.innerHTML = '<div class="azb" id="az">' + keys.map((k) => '<button data-l="' + k + '">' + k + '</button>').join('') + '</div><div id="ar"></div>';
+        gr.innerHTML = '<div class="azb" id="az"></div><div id="ar"></div>';
         const ar = gr.querySelector('#ar');
         const paint = () => {
+          const azb = gr.querySelector('#az'); azb.innerHTML = keys.map((k) => '<button data-l="' + k + '">' + k + '</button>').join('');
+          const ts = $('#ts'); if (ts) cancelAnimationFrame(ts._r), ts.textContent = L.length + ' repacks' + (ST.all.ld ? ' · cargando el resto…' : '');
           const q = norm(qv); let arr;
           if (q) { const ws = q.split(' '); arr = idx.filter((o) => ws.every((w) => o.n.indexOf(w) >= 0)).sort((a, b) => (a.n.indexOf(q) === 0 ? 0 : 1) - (b.n.indexOf(q) === 0 ? 0 : 1) || a.n.length - b.n.length).map((o) => o.x); } else arr = by[AZ.l] || [];
           gr.querySelectorAll('#az button').forEach((b) => b.classList.toggle('on', !q && b.dataset.l === AZ.l));
-          ar.innerHTML = arr.length ? arr.slice(0, nShow).map(rowA).join('') + (arr.length > nShow ? '<button class="mre" id="mre">Mostrar más (' + (arr.length - nShow) + ')</button>' : '') : '<div class="em">Nada con «' + esc(qv) + '». Probá con otra palabra.</div>';
+          ar.innerHTML = arr.length ? arr.slice(0, nShow).map(rowA).join('') + (arr.length > nShow ? '<button class="mre" id="mre">Mostrar más (' + (arr.length - nShow) + ')</button>' : '') : '<div class="em">Nada con «' + esc(qv) + '»' + (ST.all.ld ? ' (todavía estoy cargando el catálogo)' : '') + '. Apretá Enter para buscar en todo el sitio.</div>';
         };
-        let tmr = 0; $('#q').oninput = (e) => { clearTimeout(tmr); tmr = setTimeout(() => { qv = e.target.value; nShow = 60; paint(); }, 90); };
+        window.__fgAllRef = () => { if (cur === 'all' && gr.isConnected && gr.classList.contains('az2')) { rebuild(); if (!by[AZ.l]) AZ.l = keys[0]; paint(); } };
+        let tmr = 0; $('#q').oninput = (e) => { const v = e.target.value; clearTimeout(tmr); tmr = setTimeout(() => { qv = v; nShow = 60; paint(); }, 90); };
         gr.onclick = (e) => {
           const b = e.target.closest && e.target.closest('#az button'); if (b) { AZ.l = b.dataset.l; nShow = 60; qv = ''; $('#q').value = ''; paint(); return; }
           if (e.target.closest && e.target.closest('#mre')) { nShow += 120; paint(); return; }
@@ -967,7 +970,7 @@ function fitgirlConsole() {
       $('#q').oninput = null;
       const UI = window.__fgUI || (window.__fgUI = { f: 'all', v: 'g' });
       const hr = $('#hr'), isN = cur === 'new' && st.cur === 1 && L.length > 3, HL = isN ? L.slice(0, 6).filter((x) => x.img).slice(0, 4) : [], hx = HL[0] || null;
-      const heroH = (x) => '<a class="hero" data-h="' + esc(x.href) + '"><span class="bk" style="background-image:url(' + esc(x.img) + ')"></span><span class="ar" style="background-image:url(' + esc(x.img) + ')"></span><span class="cvr"><img src="' + esc(x.img) + '" alt=""></span><span class="tx"><small style="--q:0">AGREGADOS RECIENTEMENTE</small><h3 style="--q:1">' + esc(x.title) + '</h3><span class="mi" style="--q:2">' + (x.rep ? '<span>💾 ' + esc(x.rep) + '</span>' : '') + (x.hv ? '<span class="hvt">⚠ HV · Hipervisor</span>' : '') + (x.ver ? '<span>' + esc(x.ver) + '</span>' : '') + (x.lang ? '<span>🌐 ' + esc(x.lang.slice(0, 30)) + '</span>' : '') + '</span><span class="cta" style="--q:3">Ver juego ›</span></span></a>';
+      const heroH = (x) => '<a class="hero" data-h="' + esc(x.href) + '"><span class="bk' + (x.bg ? '' : ' fb') + '" style="background-image:url(' + esc(x.bg || x.img) + ')"></span><span class="ar" style="background-image:url(' + esc(x.img) + ')"></span><span class="cvr"><img src="' + esc(x.img) + '" alt=""></span><span class="tx"><small style="--q:0">AGREGADOS RECIENTEMENTE</small><h3 style="--q:1">' + esc(x.title) + '</h3><span class="mi" style="--q:2">' + (x.rep ? '<span>💾 ' + esc(x.rep) + '</span>' : '') + (x.hv ? '<span class="hvt">⚠ HV · Hipervisor</span>' : '') + (x.ver ? '<span>' + esc(x.ver) + '</span>' : '') + (x.lang ? '<span>🌐 ' + esc(x.lang.slice(0, 30)) + '</span>' : '') + '</span><span class="cta" style="--q:3">Ver juego ›</span></span></a>';
       clearInterval(window.__fgHT);
       if (isN) {
         let hi = 0;
@@ -975,6 +978,7 @@ function fitgirlConsole() {
         const nHoy = L.filter((x) => dateN(x) <= 0).length, nSem = L.filter((x) => dateN(x) < 7).length;
         const stat = nHoy > 0 ? ['NUEVOS HOY', '+' + nHoy, 'repacks'] : ['ESTA SEMANA', '+' + nSem, 'repacks'];
         hr.innerHTML = '<div class="hz' + (hx ? '' : ' nh') + '">' + (hx ? '<div class="hm" id="hm">' + heroH(hx) + (HL.length > 1 ? '<div class="dts">' + HL.map((x, i) => '<button data-i="' + i + '" class="' + (i ? '' : 'on') + '"></button>').join('') + '</div>' : '') + '</div>' : '') + '<aside class="sd"><div class="sdt"><div class="sdc"><small>' + stat[0] + '</small><b>' + stat[1] + '</b><span>' + stat[2] + '</span></div><div class="sdc"><small>CATÁLOGO</small><b>' + (st.total || '') + '</b><span>páginas</span></div></div><div class="sdp"><small>POPULARES</small><div id="p3"><i></i><i></i><i></i></div></div></aside></div><div class="ctl" id="ctl"><button data-f="all">Todos</button><button data-f="hv">Sin HV</button><button data-f="sm">&lt; 10 GB</button><span class="sp"></span><button data-v="g">▦ Grilla</button><button data-v="l">☰ Lista</button></div>';
+        HL.forEach((x) => { if (x.bg === undefined) { x.bg = ''; getDoc(x.href).then((d) => { if (!d) return; const root = d.querySelector('.entry-content') || d; let u = ''; for (const im of root.querySelectorAll('img')) { const an = im.closest('a'), h = an && an.getAttribute('href'); const cand = h && /\.(jpe?g|png|webp)(\?|$)/i.test(h) ? abs(h, x.href) : abs(im.getAttribute('src') || '', x.href); if (cand && cand !== x.img && im.getAttribute('src') !== (x.img || '').replace(/^.*\//, '') && !/emoji|logo|avatar|gravatar|\.gif/i.test(cand)) { u = cand; break; } } if (!u) return; const pre = new Image(); pre.onload = () => { x.bg = u; const bk = hr.querySelector('.hero[data-h="' + x.href.replace(/"/g, '\\"') + '"] .bk'); if (bk) { bk.classList.remove('fb'); bk.style.backgroundImage = 'url(' + u + ')'; } }; pre.src = u; }).catch(() => {}); } });
         const showH = (i) => { hi = i; const hm = hr.querySelector('#hm'), old = hm.querySelector('.hero'); if (!old) return; old.style.transition = 'opacity .35s'; old.style.opacity = '0'; setTimeout(() => { const t = document.createElement('div'); t.innerHTML = heroH(HL[i]); const nh = t.firstChild; nh.style.animation = 'none'; nh.style.opacity = '0'; old.replaceWith(nh); requestAnimationFrame(() => { nh.style.transition = 'opacity .5s'; nh.style.opacity = '1'; }); hm.querySelectorAll('.dts button').forEach((b, k) => b.classList.toggle('on', k === i)); }, 330); };
         const dt = hr.querySelector('.dts'); if (dt) dt.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); showH(+b.dataset.i); clearInterval(window.__fgHT); };
         if (HL.length > 1) window.__fgHT = setInterval(() => { if (!hr.isConnected || document.hidden) return; if (!hr.querySelector('#hm')) { clearInterval(window.__fgHT); return; } showH((hi + 1) % HL.length); }, 8000);
@@ -1035,7 +1039,9 @@ function fitgirlConsole() {
               let a = null; if (HOME) a = [...HOME.querySelectorAll('article .entry-title a, article h1 a, article h2 a')].find((x) => /upcoming/i.test(T(x)));
               if (a) { const ar = a.closest('article'); items = readUp(ar, O + '/'); if (items.length < 3) { const d = await fetchDoc(abs(a.getAttribute('href'), O + '/')); if (d) items = readUp(d, O + '/'); } }
               if (items.length < 3) { const d = await fetchDoc(O + '/upcoming-repacks/'); if (d) items = readUp(d, O + '/'); }
-            } else { const u = urlFor(k, 1, ''), doc = await fetchDoc(u); if (doc) items = k === 'upd' ? readUpd(doc, u) : readList(doc, u); if (k === 'upd' && !items.length && doc) items = readList(doc, u); }
+            } else { const u = urlFor(k, 1, ''), doc = await fetchDoc(u); if (doc) items = k === 'upd' ? readUpd(doc, u) : readList(doc, u); if (k === 'upd' && !items.length && doc) items = readList(doc, u);
+              if (k === 'all' && doc && items.length) { const tp = Math.min(totalOf(doc), 400); if (tp > 1) { st.ld = 1; const seen = new Set(items.map((x) => x.href)); let nx = 2, dn = 0; const worker = async () => { while (nx <= tp) { const pg = nx++; try { const u2 = u + (u.indexOf('?') < 0 ? '?' : '&') + 'lcp_page0=' + pg, d = await fetchDoc(u2); if (d) readList(d, u2).forEach((x) => { if (!seen.has(x.href)) { seen.add(x.href); items.push(x); } }); } catch (e) {} dn++; if (dn % 6 === 0 && window.__fgAllRef) window.__fgAllRef(); } }; Promise.all(Array.from({ length: 6 }, worker)).then(() => { st.ld = 0; if (window.__fgAllRef) window.__fgAllRef(); }); } }
+            }
             st.full = items;
             if (!items.length && k === 'up') { st.err = 'No encontré la lista de próximos repacks'; return; }
           }
