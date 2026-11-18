@@ -183,6 +183,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   dlGetCfg: () => ipcRenderer.invoke('dlGetCfg'),
   dlSetCfg: (c) => ipcRenderer.invoke('dlSetCfg', c),
   dlDisk: (p) => ipcRenderer.invoke('dlDisk', { path: p }),
+  dlPassword: (id, pw) => ipcRenderer.invoke('dlPassword', { id, pw }),
   dlPickDir: (t) => ipcRenderer.invoke('dlPickDir', t),
   btInfo: () => ipcRenderer.invoke('btInfo'),
   srcList: () => ipcRenderer.invoke('srcList'),

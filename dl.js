@@ -168,6 +168,7 @@ class Dl extends EventEmitter {
       id: mkid(), gid, name, cover: typeof spec.cover === 'string' ? spec.cover.slice(0, 600) : '', version: String(spec.version || '').slice(0, 60),
       source: spec.source && typeof spec.source === 'object' ? JSON.parse(JSON.stringify(spec.source)) : null,
       meta: spec.meta && typeof spec.meta === 'object' ? JSON.parse(JSON.stringify(spec.meta)) : null,
+      pw: typeof spec.password === 'string' ? spec.password.slice(0, 200) : '',
       transport: files.some((x) => x.torrent) ? 'torrent' : 'http', files, createdAt: Date.now(), status: S.Q,
       installDir: spec.installDir ? path.normalize(String(spec.installDir)) : '', autoInstall: spec.autoInstall !== false, keepArchives: spec.keepArchives === undefined ? null : !!spec.keepArchives,
       p: { done: 0, total: files.reduce((s, f) => s + f.size, 0), speed: 0, eta: 0, phase: 'queued', pct: 0 }, error: null, result: null, libSynced: false,
@@ -212,6 +213,39 @@ class Dl extends EventEmitter {
   }
   markSynced(id) { const it = this.items.get(id); if (it) { it.libSynced = true; this._persist(); } return !!it; }
   setDest(id, dir) { const it = this.items.get(id); if (!it || FINAL.has(it.status) || it.status === S.I || it.status === S.X) return false; if (!path.isAbsolute(dir)) return false; it.installDir = path.normalize(dir); this._persist(); return true; }
+
+  /** Mensaje de error de extracción; la contraseña pedida/incorrecta tiene su propio código para que la interfaz la pida. */
+  _exErr(r, name) {
+    const m = (r && r.err) || 'No pude descomprimir "' + name + '"';
+    return /contrase/i.test(m) ? err('password', 'El archivo "' + name + '" tiene contraseña (o la que pusiste es incorrecta)') : err('extract', m);
+  }
+  /** Pone la contraseña de los archivos comprimidos y reintenta. */
+  setPassword(id, pw) {
+    const it = this.items.get(id); if (!it) return false;
+    it.pw = String(pw || '').slice(0, 200); this._persist(true);
+    return it.status === S.E ? this.retry(id) : true;
+  }
+  /**
+   * Repacks que traen un archivo dentro de otro: si lo extraído es solo archivos comprimidos (sin carpetas ni .exe),
+   * se descomprimen también. Si hay carpetas o ejecutables NO se toca nada, porque un juego puede traer .zip/.pak propios.
+   */
+  async _nested(it, tmp, ctl) {
+    for (let round = 0; round < 3; round++) {
+      let base = tmp, ents = fs.readdirSync(tmp, { withFileTypes: true });
+      if (ents.length === 1 && ents[0].isDirectory()) { base = path.join(tmp, ents[0].name); ents = fs.readdirSync(base, { withFileTypes: true }); }
+      if (ents.some((e) => e.isDirectory() || /\.(exe|dll|bat|msi)$/i.test(e.name))) return;
+      const isMain = (n) => (ARCH.test(n) || /\.001$/.test(n)) && !ARCH_PART2.test(n);
+      const arcs = ents.filter((e) => isMain(e.name));
+      if (!arcs.length) return;
+      for (const a of arcs) {
+        if (ctl.cancel) throw CANCEL;
+        const file = path.join(base, a.name), r = await this.o.extract(file, base, null, { password: it.pw || '' });
+        if (!r || !r.ok) throw this._exErr(r, a.name);
+        rm(file);
+      }
+      for (const e of fs.readdirSync(base)) if (ARCH_PART2.test(e)) rm(path.join(base, e));
+    }
+  }
 
   /** Desinstala: borra la carpeta del juego solo si tiene nuestro marcador. */
   async uninstall(ref) {
@@ -522,17 +556,18 @@ class Dl extends EventEmitter {
         if (ctl.cancel) throw CANCEL;
         this._set(it, S.X); it.p.phase = 'extract'; this._touch(it);
         const file = f.abs;
-        let r = await this.o.extract(file, tmp, (v) => { it.p.pct = (idx + v) / main.length; this._touch(it); });
-        if (!r || !r.ok) throw err('extract', (r && r.err) || 'No pude descomprimir "' + f.name + '"');
+        let r = await this.o.extract(file, tmp, (v) => { it.p.pct = (idx + v) / main.length; this._touch(it); }, { password: it.pw || '' });
+        if (!r || !r.ok) throw this._exErr(r, f.name);
         let ents = fs.readdirSync(tmp);
         if (ents.length === 1 && /\.tar$/i.test(ents[0]) && !/\.tar$/i.test(f.name)) {
           const t2 = tmp + '-t'; rm(t2); fs.mkdirSync(t2, { recursive: true });
-          r = await this.o.extract(path.join(tmp, ents[0]), t2, null); rm(tmp);
-          if (!r || !r.ok) { rm(t2); throw err('extract', (r && r.err) || 'No pude descomprimir "' + f.name + '"'); }
+          r = await this.o.extract(path.join(tmp, ents[0]), t2, null, { password: it.pw || '' }); rm(tmp);
+          if (!r || !r.ok) { rm(t2); throw this._exErr(r, f.name); }
           fs.renameSync(t2, tmp);
         }
         idx++;
       }
+      if (main.length) await this._nested(it, tmp, ctl);
       if (tree) fs.cpSync(tree, tmp, { recursive: true }); else for (const f of loose) fs.copyFileSync(f.abs, path.join(tmp, f.name));
       this._set(it, S.I); it.p.phase = 'install'; it.p.pct = 1;
       let ents = fs.readdirSync(tmp);
@@ -552,6 +587,7 @@ class Dl extends EventEmitter {
       fs.writeFileSync(path.join(dest, MARK), JSON.stringify(mk, null, 1));
       it.result = { dir: dest, exe: fx.pick || '', exes: (fx.exes || []).map((x) => ({ p: x.p, rel: x.rel, size: x.size })), files: count, bytes, at: mk.installedAt };
       it.libSynced = false;
+      it.pw = '';
       if (!(it.keepArchives === null ? this.cfg.keepArchives : it.keepArchives)) rm(dir);
       this._set(it, S.C, { error: null, p: Object.assign(it.p, { phase: 'done', pct: 1, speed: 0, eta: 0 }) });
       this.emit('installed', this.snapshot(it));

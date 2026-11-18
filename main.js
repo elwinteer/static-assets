@@ -1829,12 +1829,12 @@ function z7Exe() {
   for (const p of [path.join(process.resourcesPath || '', '7z', '7z.exe'), path.join(__dirname, 'bin7z', '7z.exe'), ...pf]) { try { if (fs.existsSync(p)) return p; } catch (e) {} }
   return '';
 }
-function z7Run(archive, out, onP) {
+function z7Run(archive, out, onP, opt) {
   return new Promise((res) => {
     const exe = z7Exe(); let err = '';
     let cp;
     try {
-      if (exe) cp = spawn(exe, ['x', '-y', '-bsp1', '-aoa', '-o' + out, archive], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      if (exe) cp = spawn(exe, ['x', '-y', '-bsp1', '-aoa', '-o' + out, ...(opt && opt.password ? ['-p' + opt.password] : []), archive], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
       else if (process.platform === 'win32' && /\.zip$/i.test(archive)) cp = spawn('tar', ['-xf', archive, '-C', out], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
       else return res({ err: 'No encontré 7-Zip para descomprimir' });
     } catch (e) { return res({ err: 'No pude abrir 7-Zip' }); }
@@ -3107,6 +3107,7 @@ app.whenReady().then(() => {
     ipcMain.handle('srcGames', dlWrap((a) => srcEng.games(a.q, 200)));
     ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.gid), a.version | 0, { cover: a.cover || undefined, installDir: a.installDir || undefined, torrentOk: dlEng.btAvailable() }))));
     ipcMain.handle('btInfo', dlWrap(() => ({ available: dlEng.btAvailable() })));
+    ipcMain.handle('dlPassword', dlWrap((a) => dlEng.setPassword(a.id, a.pw)));
     ipcMain.handle('dlPickDir', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí una carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
   } catch (e) { console.error('dl init', e); }
   ipcMain.handle('bkCheck', async (_e, o) => bkCheck(o || {}));

@@ -11479,7 +11479,7 @@ function dlCard(i){
   if(i.status==='downloading'||i.status==='verifying')ac=b('pause','Pausar')+b('cancel','Cancelar','r');
   else if(i.status==='queued')ac=b('pause','Pausar')+b('cancel','Cancelar','r');
   else if(i.status==='paused')ac=b('resume','Reanudar','')+b('cancel','Cancelar','r');
-  else if(i.status==='error')ac=b('retry','Reintentar','')+b('cancel','Quitar','r');
+  else if(i.status==='error')ac=(i.error&&i.error.code==='password'?b('pw','Poner contraseña',''):b('retry','Reintentar',''))+b('cancel','Quitar','r');
   else if(ok){const g=G.find(x=>x.dl&&x.dl.id===i.id);ac=(g?b('play','Jugar',''):'')+(i.result?b('open','Carpeta')+b('uninst','Desinstalar','r'):'')+b('forget','Quitar')}
   else ac=b('cancel','Cancelar','r');
   const cv=i.cover?`style="background-image:url('${esc(i.cover)}')"`:'';
@@ -11497,6 +11497,7 @@ V.dl=()=>{setTimeout(dlInit,0);const c=DLS.cfg||{};
   <h2>Agregar por enlace</h2><div class="dlbox">
    <div class="dlrow"><label>Nombre del juego<input type="text" id="dl-n" placeholder="Ej: Mi Juego"></label><label>ID único (opcional)<input type="text" id="dl-g" placeholder="steam:730 o un nombre propio"></label></div>
    <label>Enlace(s) de descarga — uno por línea, solo de fuentes que tengan permiso para distribuir el juego${DLS.bt?' (también acepta un enlace magnet o .torrent, de a uno)':' · BitTorrent no está instalado en esta versión'}<textarea id="dl-u" rows="3" placeholder="https://…/juego.zip"></textarea></label>
+   <div class="dlrow"><label>Contraseña del archivo (opcional)<input type="text" id="dl-pw" autocomplete="off"></label></div>
    <div class="dlrow"><label>SHA-256 (opcional, si es un solo archivo)<input type="text" id="dl-h" placeholder="para verificar que no esté dañado"></label><label>Instalar en (opcional)<input type="text" id="dl-d" placeholder="${esc(c.installDir||'')}"></label><button class="dlb s" data-a="dlpick" data-t="d">Elegir…</button></div>
    <div class="dlrow"><button class="dlb" data-a="dladd">Descargar e instalar</button></div></div>
   <div id="dl-l">${dlLists()}</div>
@@ -11558,14 +11559,15 @@ Object.assign(A,{
     if(!n)return toast('Poné el nombre del juego');if(!u.length)return toast('Pegá al menos un enlace');
     if(hs&&(u.length>1||!/^[0-9a-f]{64}$/.test(hs)))return toast('El SHA-256 son 64 caracteres y solo sirve para un único archivo');
     const gid=$('#dl-g').value.trim()||'manual:'+n.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40);
-    const r=await winteerNative.dlAdd({gid,name:n,installDir:d||undefined,files:u.map(x=>({url:x,sha256:hs||undefined}))});
+    const r=await winteerNative.dlAdd({gid,name:n,installDir:d||undefined,password:($('#dl-pw').value||'')||undefined,files:u.map(x=>({url:x,sha256:hs||undefined}))});
     if(!r.ok)return dlErr(r);
-    if(r.r.dup)toast('Ese juego ya está en la lista');else{toast('Descarga agregada');['dl-n','dl-u','dl-h','dl-g','dl-d'].forEach(k=>{const e=$('#'+k);if(e)e.value=''})}
+    if(r.r.dup)toast('Ese juego ya está en la lista');else{toast('Descarga agregada');['dl-n','dl-u','dl-h','dl-g','dl-d','dl-pw'].forEach(k=>{const e=$('#'+k);if(e)e.value=''})}
     DLS.items.set(r.r.id,r.r);dlPaint()},
   dlact:async a=>{
     const id=a.dataset.id,k=a.dataset.k,N=winteerNative,it=DLS.items.get(id);let r;
     if(k==='pause')r=await N.dlPause(id);else if(k==='resume')r=await N.dlResume(id);else if(k==='retry')r=await N.dlRetry(id);
     else if(k==='cancel'){r=await N.dlCancel(id);DLS.items.delete(id);dlPaint()}
+    else if(k==='pw'){const pw=prompt('Contraseña del archivo comprimido:');if(pw===null)return;r=await N.dlPassword(id,pw)}
     else if(k==='forget'){r=await N.dlForget(id);DLS.items.delete(id);dlPaint()}
     else if(k==='open'){if(it&&it.result)N.gmOpen(it.result.exe||it.result.dir);return}
     else if(k==='play'){const g=G.find(x=>x.dl&&x.dl.id===id);if(g)go('games',{sel:g.id,q:''}),setTimeout(()=>{if(!(S.playing&&S.playing.id===g.id))A.play()},150);return}

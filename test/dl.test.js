@@ -276,3 +276,45 @@ test('markSynced y reinstalar tras desinstalar', async () => {
   const again = dl.add({ gid: 'x:re', name: 'Re', files: [{ url: s.url + '/g.zip' }] }); assert.notEqual(again.id, it.id);
   await waitFor(dl, again.id, 'completed'); s.srv.close();
 });
+
+/* ---------- contraseña y archivos anidados ---------- */
+const exPw = async (f, out, _p, o) => {
+  const a = ['-q', '-o']; if (o && o.password) a.push('-P', o.password); a.push(f, '-d', out);
+  const r = cp.spawnSync('unzip', a); if (r.status === 0) return { ok: 1 };
+  return { err: r.status === 82 || /password|incorrect/i.test(String(r.stderr) + String(r.stdout)) ? 'El archivo tiene contraseña' : 'dañado' };
+};
+function zipPw(entries, pw) {
+  const d = tmp(), src = path.join(d, 'src'); fs.mkdirSync(src);
+  for (const [k, v] of Object.entries(entries)) { const p = path.join(src, k); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, v); }
+  const out = path.join(d, 'x.zip'); cp.execFileSync('zip', ['-qr', ...(pw ? ['-P', pw] : []), out, '.'], { cwd: src }); return fs.readFileSync(out);
+}
+const mkx = () => mk({ extract: exPw });
+test('archivo con contraseña: pide contraseña (código password) y con la correcta instala', async () => {
+  const z = zipPw({ 'g.exe': 'MZ', 'a.dat': 'x' }, 'secreta'); const s = await server({ '/g.zip': z }); const dl = mkx().start();
+  const it = dl.add({ gid: 'x:pw', name: 'Pw', files: [{ url: s.url + '/g.zip' }] });
+  const e = await waitFor(dl, it.id, 'error'); assert.equal(e.error.code, 'password');
+  dl.setPassword(it.id, 'mala'); assert.equal((await waitFor(dl, it.id, ['error', 'completed'])).error.code, 'password');
+  dl.setPassword(it.id, 'secreta'); const f = await waitFor(dl, it.id, ['completed', 'error']); assert.equal(f.status, 'completed', JSON.stringify(f.error));
+  assert.ok(fs.existsSync(path.join(f.result.dir, 'g.exe'))); assert.equal(dl.items.get(it.id).pw, '', 'no guarda la contraseña tras instalar'); s.srv.close();
+});
+test('contraseña indicada al agregar', async () => {
+  const z = zipPw({ 'g.exe': 'MZ' }, 'abc'); const s = await server({ '/g.zip': z }); const dl = mkx().start();
+  const it = dl.add({ gid: 'x:pw2', name: 'Pw2', password: 'abc', files: [{ url: s.url + '/g.zip' }] }); assert.equal((await waitFor(dl, it.id, ['completed', 'error'])).status, 'completed'); s.srv.close();
+});
+test('archivo dentro de archivo: se descomprime en cadena', async () => {
+  const inner = zipPw({ 'g.exe': 'MZ', 'data/a.dat': 'x' }), outer = (() => { const d = tmp(), src = path.join(d, 's'); fs.mkdirSync(src); fs.writeFileSync(path.join(src, 'inner.zip'), inner); fs.writeFileSync(path.join(src, 'LEEME.txt'), 'hola'); const o = path.join(d, 'o.zip'); cp.execFileSync('zip', ['-qr', o, '.'], { cwd: src }); return fs.readFileSync(o); })();
+  const s = await server({ '/o.zip': outer }); const dl = mkx().start();
+  const it = dl.add({ gid: 'x:nest', name: 'Nest', files: [{ url: s.url + '/o.zip' }] }); const f = await waitFor(dl, it.id, ['completed', 'error']); assert.equal(f.status, 'completed', JSON.stringify(f.error));
+  assert.ok(fs.existsSync(path.join(f.result.dir, 'g.exe'))); assert.ok(fs.existsSync(path.join(f.result.dir, 'data', 'a.dat'))); assert.ok(!fs.existsSync(path.join(f.result.dir, 'inner.zip'))); s.srv.close();
+});
+test('un juego con su propio .zip de recursos NO se toca', async () => {
+  const z = zipPw({ 'g.exe': 'MZ', 'recursos.zip': 'PK-no-tocar', 'data/b.dat': 'x' }); const s = await server({ '/g.zip': z }); const dl = mkx().start();
+  const it = dl.add({ gid: 'x:keep', name: 'Keep', files: [{ url: s.url + '/g.zip' }] }); const f = await waitFor(dl, it.id, ['completed', 'error']); assert.equal(f.status, 'completed', JSON.stringify(f.error));
+  assert.equal(fs.readFileSync(path.join(f.result.dir, 'recursos.zip'), 'utf8'), 'PK-no-tocar'); s.srv.close();
+});
+test('solo archivos comprimidos y nada más (sin carpetas ni exe) se anidan; con exe suelto no', async () => {
+  const inner = zipPw({ 'g.exe': 'MZ' }); const d = tmp(), src = path.join(d, 's'); fs.mkdirSync(src); fs.writeFileSync(path.join(src, 'a.zip'), inner); fs.writeFileSync(path.join(src, 'setup.exe'), 'MZ');
+  const o = path.join(d, 'o.zip'); cp.execFileSync('zip', ['-qr', o, '.'], { cwd: src }); const s = await server({ '/o.zip': fs.readFileSync(o) }); const dl = mkx().start();
+  const it = dl.add({ gid: 'x:n2', name: 'N2', files: [{ url: s.url + '/o.zip' }] }); const f = await waitFor(dl, it.id, ['completed', 'error']); assert.equal(f.status, 'completed', JSON.stringify(f.error));
+  assert.ok(fs.existsSync(path.join(f.result.dir, 'a.zip')), 'con setup.exe al lado no se extrae a.zip'); s.srv.close();
+});
