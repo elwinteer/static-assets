@@ -3097,35 +3097,52 @@ app.whenReady().then(() => {
     srcEng = new Sources({ file: path.join(app.getPath('userData'), 'sources.json'), dir: path.join(app.getPath('userData'), 'sources'),
       // Primer intento: la red de Chromium (net.fetch) con User-Agent de Chrome, igual que un navegador; si falla, se usa Node.
       netFetch: async (url, o) => {
-        const UAC = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
-        const ses = session.fromPartition('persist:winteer-src'); ses.setUserAgent(UAC); // las cookies del desafío se guardan aquí y se reutilizan
+        // Identidad real de navegador: el Chromium que trae Electron, sin las marcas "Electron/…" ni el nombre de la app.
+        // Nunca inventar otra versión de Chrome: Cloudflare compara el texto con el navegador real y, si no coincide, repite el captcha sin fin.
+        const ses = session.fromPartition('persist:winteer-src');
+        const UAC = String(session.defaultSession.getUserAgent() || '').replace(/ (?!Chrome\/|Safari\/|AppleWebKit\/)[A-Za-z][\w.-]*\/[\w.+-]+/g, '');
+        ses.setUserAgent(UAC);
+        const lim = (o && o.maxBytes) || 12e6, bad = (m, c, x) => Object.assign(new Error(m), { code: c }, x || {});
         const h = { accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8' }; if (o && o.etag) h['if-none-match'] = o.etag;
-        const lim = (o && o.maxBytes) || 12e6, bad = (m, c) => Object.assign(new Error(m), { code: c });
-        const isChallenge = (r, t) => r.status === 403 || r.status === 503 || (/html/i.test(r.headers.get('content-type') || '') && /just a moment|cf-chl|challenge-platform|attention required/i.test(t.slice(0, 4000)));
-        const tryFetch = async () => { const r = await ses.fetch(url, { headers: h, redirect: 'follow' }); if (r.status === 304) return { done: { notModified: true } }; const t = await r.text(); return isChallenge(r, t) ? { r } : r.ok ? { done: { text: t, etag: r.headers.get('etag') || '', url: r.url || url } } : { err: r.status }; };
-        let x = await tryFetch();
-        if (x.err) throw bad('La fuente respondió HTTP ' + x.err, 'http');
-        if (x.r) { // desafío de Cloudflare ("Un momento…" / captcha): se resuelve en una ventana de navegador real, visible para poder hacer el clic
-          const w = new BrowserWindow({ show: true, center: true, width: 560, height: 680, title: 'WINTEER · verificando fuente', autoHideMenuBar: true, webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
-          try {
-            w.loadURL(url, { userAgent: UAC }).catch(() => {});
-            const t0 = Date.now(); let ok = false;
-            while (Date.now() - t0 < 90000 && !w.isDestroyed()) {
-              await new Promise((r) => setTimeout(r, 1000));
-              let ti = ''; try { ti = w.webContents.getTitle() || ''; } catch (e) {}
-              if (ti && !/just a moment|un momento|attention required|verificando|checking/i.test(ti)) { ok = true; break; }
+        const CH = /just a moment|un momento|checking your browser|verify you are human|verific(a|á) que (eres|sos) humano|attention required|cf-chl|challenge-platform/i;
+        const fetchOnce = async () => {
+          const r = await ses.fetch(url, { headers: h, redirect: 'follow' });
+          if (r.status === 304) return { done: { notModified: true } };
+          const t = await r.text();
+          if (r.status === 403 || r.status === 503 || r.status === 429 || (/html/i.test(r.headers.get('content-type') || '') && CH.test(t.slice(0, 6000)))) return { challenge: true };
+          if (!r.ok) throw bad('La fuente respondió HTTP ' + r.status, 'http', { challenge: true });
+          if (t.length > lim) throw bad('El manifiesto es demasiado grande', 'size');
+          return { done: { text: t, etag: r.headers.get('etag') || '', url: r.url || url } };
+        };
+        let x = await fetchOnce(); // con la verificación ya guardada de una vez anterior, esto alcanza
+        if (x.done) return x.done;
+        // Hace falta verificar: ventana de navegador real con la misma sesión. Se muestra para que resuelvas el captcha y se cierra sola.
+        const w = new BrowserWindow({ show: false, center: true, width: 560, height: 700, title: 'WINTEER · verificá la fuente', autoHideMenuBar: true, backgroundColor: '#111', webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
+        let closed = false; w.on('closed', () => { closed = true; });
+        const probe = `(()=>{const d=document,b=d.body?d.body.innerText.slice(0,400):'';const ch=${CH}.test((d.title||'')+' '+b)||!!d.querySelector('#challenge-form,#challenge-stage,#cf-challenge-running,[name="cf-turnstile-response"],iframe[src*="challenges.cloudflare.com"]');const pre=d.querySelector('body>pre');return {ch,ready:d.readyState,ct:d.contentType||'',len:(pre?pre.textContent:(d.body?d.body.innerText:'')).length}})()`;
+        try {
+          w.webContents.setUserAgent(UAC);
+          w.loadURL(url).catch(() => {});
+          const t0 = Date.now();
+          while (true) {
+            if (closed) throw bad('Cerraste la ventana de verificación antes de terminar. Volvé a intentar y resolvé el captcha', 'http', { challenge: true });
+            if (Date.now() - t0 > 180000) throw bad('La verificación de la fuente no se completó en 3 minutos', 'http', { challenge: true });
+            await new Promise((r) => setTimeout(r, 700));
+            if (closed) continue;
+            let st = null; try { st = await w.webContents.executeJavaScript(probe, true); } catch (e) {}
+            if (!st || st.ready !== 'complete') continue;
+            if (st.ch) { if (!w.isVisible()) { w.show(); w.focus(); } continue; }
+            // Pasó la verificación.
+            if (/json|text\/plain/i.test(st.ct)) {
+              const text = await w.webContents.executeJavaScript(`(()=>{const p=document.querySelector('body>pre');return p?p.textContent:document.body.innerText})()`, true);
+              if (text.length > lim) throw bad('El manifiesto es demasiado grande', 'size');
+              return { text, etag: '', url: w.webContents.getURL() || url };
             }
-            if (!ok) throw Object.assign(bad('La fuente pide verificación (Cloudflare) y no se completó en 90 segundos. Si apareció una ventana, hacé el clic de verificación y volvé a probar', 'http'), { challenge: true });
-            await new Promise((r) => setTimeout(r, 800));
-            x = await tryFetch();
-            if (x.done) return x.done;
-            const txt = await w.webContents.executeJavaScript('document.body ? document.body.innerText : ""').catch(() => '');
-            if (txt && txt.length <= lim) return { text: txt, etag: '', url };
-            throw Object.assign(bad('Pasó la verificación pero la fuente sigue negando el acceso (HTTP 403): puede requerir permiso, o el enlace venció', 'http'), { challenge: true });
-          } finally { try { if (!w.isDestroyed()) w.destroy(); } catch (e) {} }
-        }
-        if (x.done.text && x.done.text.length > lim) throw bad('El manifiesto es demasiado grande', 'size');
-        return x.done;
+            const y = await fetchOnce().catch((e) => ({ err: e })); // por si la página final es HTML pero la cookie ya sirve
+            if (y.done) return y.done;
+            throw bad('La fuente abrió una página web en vez de la lista de juegos: puede pedir iniciar sesión, o el enlace no apunta al .json', 'http', { challenge: true });
+          }
+        } finally { try { if (!w.isDestroyed()) w.destroy(); } catch (e) {} }
       } }).load();
     setTimeout(() => { try { if (srcEng.list().length) srcEng.refresh(); } catch (e) {} }, 8000);
     ipcMain.handle('srcList', dlWrap(() => srcEng.list()));
