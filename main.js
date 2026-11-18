@@ -3153,8 +3153,9 @@ app.whenReady().then(() => {
     ipcMain.handle('srcRename', dlWrap((a) => srcEng.rename(a.id, a.name)));
     ipcMain.handle('srcRefresh', dlWrap((a) => srcEng.refresh(a.id)));
     ipcMain.handle('srcLookup', dlWrap((a) => srcEng.lookup(a.gid)));
+    ipcMain.handle('srcMatch', dlWrap((a) => { const byId = srcEng.lookup(String(a.gid || '')).map((x) => Object.assign({ by: 'id' }, x)), t = srcEng.matchTitle(String(a.name || ''), byId.flatMap((x) => x.game.ids)); return { found: byId.concat(t.exact.map((x) => Object.assign({ by: 'title' }, x))), maybe: t.likely.map((x) => Object.assign({ by: 'maybe' }, x)) }; }));
     ipcMain.handle('srcGames', dlWrap((a) => srcEng.games(a.q, 200)));
-    ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.gid), a.version | 0, { cover: a.cover || undefined, installDir: a.installDir || undefined, torrentOk: dlEng.btAvailable() }))));
+    ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.ref || a.gid), a.version | 0, { gid: String(a.gid).toLowerCase(), cover: a.cover || undefined, installDir: a.installDir || undefined, torrentOk: dlEng.btAvailable() }))));
     ipcMain.handle('btInfo', dlWrap(() => ({ available: dlEng.btAvailable() })));
     ipcMain.handle('dlPassword', dlWrap((a) => dlEng.setPassword(a.id, a.pw)));
     ipcMain.handle('dlPickDir', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí una carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });

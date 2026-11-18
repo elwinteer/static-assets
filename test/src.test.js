@@ -154,3 +154,14 @@ test('sin id: se genera uno a partir del título (downloads + title + uris)', ()
   assert.equal(m.games[0].ids[0], 'src:nandu-edicion-epica'); assert.notEqual(m.games[1].ids[0], m.games[0].ids[0]); assert.equal(m.games[2].ids[0], 'src:otro');
   assert.equal(normalize({ downloads: [{ title: 'Otro', uris: ['https://h.test/o.zip'] }] }, 'http://h/').games[0].ids[0], 'src:otro', 'estable entre actualizaciones');
 });
+test('coincidencia por título: estricta (exacta) + dudosas aparte; spec() por id propio', async () => {
+  const { normTitle } = require('../src.js');
+  assert.equal(normTitle('The Witcher® 3: Wild Hunt – Game of the Year Edition (v1.32)'), 'witcher 3 wild hunt');
+  const a = await srv({ '/m.json': { name: 'A', downloads: [{ title: 'Cyberpunk 2077 Ultimate Edition', uris: ['/c.zip'] }, { title: 'Cyberpunk 2077: Phantom Liberty', uris: ['/p.zip'] }, { title: 'FC 25', uris: ['/f25.zip'] }, { title: 'FC 26', uris: ['/f26.zip'] }, { title: 'Hades', uris: ['/h.zip'] }] } });
+  const b = await srv({ '/m.json': { name: 'B', downloads: [{ title: 'cyberpunk 2077', uris: ['magnet:?xt=urn:btih:cc'] }] } });
+  const S = mk(); const sa = await S.add(a.url + '/m.json'); await S.add(b.url + '/m.json');
+  const m = S.matchTitle('Cyberpunk 2077'); assert.equal(m.exact.length, 2); assert.equal(m.likely.length, 1, 'Phantom Liberty queda como dudosa');
+  const f = S.matchTitle('FC 25'); assert.equal(f.exact.length, 1); assert.equal(f.likely.length, 0, 'FC 26 no se confunde con FC 25');
+  assert.equal(S.matchTitle('Juego inexistente').exact.length, 0); assert.equal(S.matchTitle('ab').exact.length, 0);
+  const g = m.exact.find((x) => x.source.id === sa.id).game; const sp = S.spec(sa.id, g.ids[0], 0, { gid: 'steam:1091500' }); assert.equal(sp.gid, 'steam:1091500'); assert.equal(sp.files[0].url, a.url + '/c.zip'); a.s.close(); b.s.close();
+});

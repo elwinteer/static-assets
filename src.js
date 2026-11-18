@@ -37,6 +37,12 @@ function parseTags(v) {
   const out = []; for (const t of a) { const x = str(t, 30); if (x && !out.some((y) => y.toLowerCase() === x.toLowerCase())) out.push(x); if (out.length >= 12) break; }
   return out;
 }
+/** Título comparable: sin tildes, marcas, paréntesis, versiones ni palabras de edición. */
+const EDW = new Set(['edition', 'edicion', 'deluxe', 'goty', 'complete', 'completa', 'ultimate', 'gold', 'definitive', 'premium', 'standard', 'collectors', 'digital', 'remastered', 'enhanced', 'anniversary', 'bundle', 'pack', 'the', 'of', 'game', 'year', 'a', 'an', 'and', 'y']);
+function normTitle(t) {
+  t = String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[™®©]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+){1,}\b/g, ' ').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
+  return t.split(' ').filter((w) => w && !EDW.has(w)).join(' ');
+}
 const parseBool = (v) => v === true || v === 1 || (typeof v === 'string' && /^(true|1|yes|si|sí|ok|verified|verificado)$/i.test(v.trim()));
 
 async function fetchText(url, o) {
@@ -203,7 +209,7 @@ class Sources extends EventEmitter {
     this._index(); return this;
   }
   _save() { try { fs.mkdirSync(path.dirname(this.o.file), { recursive: true }); const t = this.o.file + '.tmp'; fs.writeFileSync(t, JSON.stringify({ v: 1, sources: this.list_ }, null, 1)); fs.renameSync(t, this.o.file); } catch (e) {} }
-  _saveCache(id, c) { this.cache.set(id, c); try { fs.mkdirSync(this.o.dir, { recursive: true }); fs.writeFileSync(path.join(this.o.dir, id + '.json'), JSON.stringify(c)); } catch (e) {} }
+  _saveCache(id, c) { this.cache.set(id, c); try { fs.mkdirSync(this.o.dir, { recursive: true }); fs.writeFileSync(path.join(this.o.dir, id + '.json'), JSON.stringify(c, (k, v) => (k === '_nt' ? undefined : v))); } catch (e) {} }
   _index() {
     this.idx = new Map();
     for (const s of this.list_) {
@@ -271,6 +277,23 @@ class Sources extends EventEmitter {
     }
     this._save(); this._index(); this.emit('change'); return out;
   }
+  /** Coincidencias por título (estricto): exact = mismo título normalizado; likely = el título es el mismo más palabras sin números (p. ej. una edición/DLC). */
+  matchTitle(name, skipIds) {
+    const q = normTitle(name); const exact = [], likely = []; if (q.length < 3) return { exact, likely };
+    const qt = q.split(' '); skipIds = new Set(skipIds || []);
+    for (const s of this.list_) {
+      if (!s.enabled) continue; const c = this.cache.get(s.id); if (!c) continue;
+      for (const g of c.games) {
+        if (g.ids.some((i) => skipIds.has(i))) continue;
+        const n = g._nt || (g._nt = normTitle(g.name)); if (!n) continue;
+        const item = { source: { id: s.id, name: s.name, url: s.url }, game: g };
+        if (n === q) { exact.push(item); continue; }
+        const gt = n.split(' '), [sh, lo] = gt.length <= qt.length ? [gt, qt] : [qt, gt];
+        if ((sh.length >= 2 || sh.join('').length >= 6) && sh.every((w, i) => w === lo[i]) && lo.slice(sh.length).every((w) => !/^\d/.test(w)) && lo.length - sh.length <= 4) likely.push(item);
+      }
+    }
+    return { exact, likely: likely.slice(0, 12) };
+  }
   /** Todas las fuentes activas que tienen ese juego (por ID exacto). */
   lookup(gid) { return (this.idx.get(normId(gid)) || []).map((x) => ({ source: x.source, game: x.game })); }
   /** Juegos de las fuentes activas, con filtro de texto opcional. */
@@ -295,4 +318,4 @@ class Sources extends EventEmitter {
   }
 }
 
-module.exports = { Sources, normalize, fetchText, parseSize };
+module.exports = { Sources, normalize, fetchText, parseSize, normTitle };

@@ -194,6 +194,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   srcRename: (id, name) => ipcRenderer.invoke('srcRename', { id, name }),
   srcRefresh: (id) => ipcRenderer.invoke('srcRefresh', { id }),
   srcLookup: (gid) => ipcRenderer.invoke('srcLookup', { gid }),
+  srcMatch: (gid, name) => ipcRenderer.invoke('srcMatch', { gid, name }),
   srcGames: (q) => ipcRenderer.invoke('srcGames', { q }),
   srcDl: (o) => ipcRenderer.invoke('srcDl', o),
   onDl: (cb) => { const f = (_e, m) => { try { cb(m); } catch (e) {} }; ipcRenderer.on('dl:ev', f); return () => ipcRenderer.removeListener('dl:ev', f); },
