@@ -668,6 +668,21 @@ function vimmConsole() {
     .tbw .ac{position:absolute;top:6px;bottom:6px;left:0;width:0;border-radius:99px;background:#f4f4f8;box-shadow:0 6px 26px rgba(255,255,255,.28);transition:left .55s cubic-bezier(.34,1.35,.64,1),width .55s cubic-bezier(.34,1.35,.64,1)}
     .tbw button svg{flex:none;transition:transform .5s cubic-bezier(.34,1.6,.64,1)}.tbw button:hover svg{transform:scale(1.2) rotate(-8deg)}.tbw button.on svg{transform:scale(1.08)}
     .tbw button i{transition:transform .4s cubic-bezier(.34,1.6,.64,1),opacity .3s}.tbw button.on i{opacity:.8;transform:scale(1.1)}
+    .w{animation:wi .9s cubic-bezier(.22,1,.36,1) backwards}@keyframes wi{from{opacity:0;transform:scale(1.025) translateY(12px);filter:blur(10px)}}
+    @keyframes cin{from{opacity:0;transform:translateX(var(--dx,40px)) scale(.93);filter:blur(6px)}}@keyframes cout{to{opacity:0;transform:translateX(calc(var(--dx,40px)*-.7)) scale(.94);filter:blur(6px)}}
+    .gr.ent .cs,.gr.ent .rw{animation:cin .62s calc(var(--i)*36ms) cubic-bezier(.22,1,.36,1) backwards!important}
+    .bar{transition:padding .45s cubic-bezier(.22,1,.36,1)}.bar.sc{padding-top:9px;padding-bottom:9px}.bar:before{transition:background .4s}.bar.sc:before{background:linear-gradient(180deg,rgba(7,6,15,.98) 60%,rgba(7,6,15,0))}
+    .bar.sc .tbw,.bar.sc .back,.bar.sc .sr{box-shadow:0 12px 32px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08)}
+    .rt{display:flex;justify-content:flex-end;animation:up .7s .14s backwards}
+    .tg{display:inline-flex;align-items:center;gap:11px;height:42px;padding:0 18px 0 8px;border-radius:99px;font:600 13.5px ${FONT};color:#a6a7b8;background:rgba(16,16,26,.74);border:1px solid rgba(255,255,255,.11);backdrop-filter:blur(22px);cursor:pointer;transition:color .3s,border-color .3s,box-shadow .4s}.tg em{font-style:normal}
+    .tg .kn{position:relative;width:38px;height:24px;border-radius:99px;background:rgba(255,255,255,.12);transition:background .4s}.tg .kn:after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4);transition:transform .5s cubic-bezier(.34,1.7,.64,1)}
+    .tg.on{color:#fff;border-color:rgba(61,220,151,.45);box-shadow:0 0 30px rgba(61,220,151,.14)}.tg.on .kn{background:#2fbf84}.tg.on .kn:after{transform:translateX(14px)}.tg:active .kn:after{width:23px}
+    .sw svg:last-child{transition:transform .45s cubic-bezier(.34,1.6,.64,1)}.sw.open svg:last-child{transform:rotate(180deg)}
+    .dd{position:fixed;z-index:20;top:74px;left:50%;width:min(720px,calc(100% - 40px));margin-left:calc(min(720px,100% - 40px)/-2);padding:16px;border-radius:26px;background:rgba(14,14,24,.98);border:1px solid rgba(255,255,255,.13);box-shadow:0 40px 90px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08);display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;opacity:0;transform:translateY(-14px) scale(.96);transform-origin:50% 0;pointer-events:none;transition:opacity .3s,transform .5s cubic-bezier(.34,1.4,.64,1)}
+    .w.dop .bar *{backdrop-filter:none!important}.w.dop .bar:before{display:none}
+    .dd.open{opacity:1;transform:none;pointer-events:auto}
+    .di{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px 11px;border-radius:16px;cursor:pointer;color:#c9cad6;font:700 12.5px ${FONT};background:rgba(255,255,255,.035);border:1px solid transparent;opacity:0;transform:translateY(8px);transition:background .3s,color .3s,transform .4s cubic-bezier(.34,1.6,.64,1),border-color .3s}
+    .dd.open .di{opacity:1;transform:none;transition-delay:calc(var(--i)*18ms),calc(var(--i)*18ms),calc(var(--i)*18ms),0s,0s}.di:hover{background:rgba(255,255,255,.1);color:#fff;transform:translateY(-3px) scale(1.04)!important;border-color:rgba(255,255,255,.2)}.di.cur{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.09);color:#fff}
     .w{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;font-family:${FONT};color:#e8e8f0;transition:opacity .32s ease,transform .4s cubic-bezier(.4,0,.2,1),filter .32s ease;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
     .w.out{opacity:0;transform:scale(.975) translateY(8px);filter:blur(6px)}
     @keyframes up{from{opacity:0;transform:translateY(18px)}}@keyframes pop{from{opacity:0;transform:translateY(22px) scale(.94)}}
@@ -703,9 +718,15 @@ function vimmConsole() {
     const sh = h.attachShadow({ mode: 'open' });
     sh.innerHTML = '<style>' + BASE + css + '</style><div class="base"></div>' + DRAW_AMB() + '<div class="cur"></div><div class="w">' + html + '</div>';
     { const cu = sh.querySelector('.cur'); window.addEventListener('pointermove', (e) => { cu.style.opacity = '1'; cu.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)'; }, { passive: true }); document.addEventListener('pointerleave', () => { cu.style.opacity = '0'; }); }
+    { const w = sh.querySelector('.w'), bar = () => sh.querySelector('.bar'); w.addEventListener('scroll', () => { const b = bar(); if (b) b.classList.toggle('sc', w.scrollTop > 24); }, { passive: true }); }
     document.documentElement.appendChild(h);
     const st = document.createElement('style'); st.textContent = 'html.wt-console-on body{visibility:hidden!important}html.wt-console-on{overflow:hidden!important;background:#07060f!important}'; document.head.appendChild(st);
     document.documentElement.classList.add('wt-console-on'); return sh;
+  };
+  const swapGrid = (gr, fw, apply, after) => {
+    const kids = [...gr.children]; gr.style.setProperty('--dx', (fw ? 44 : -44) + 'px'); gr.classList.remove('ent');
+    kids.forEach((k, i) => { k.style.animation = 'cout .3s cubic-bezier(.4,0,1,1) ' + Math.min(i, 12) * 16 + 'ms forwards'; });
+    setTimeout(() => { apply(); gr.classList.add('ent'); if (after) after(); setTimeout(() => gr.classList.remove('ent'), 1300); }, 290 + Math.min(kids.length, 12) * 16);
   };
   const setTitle = (el, t) => { el.innerHTML = [...t].map((c, i) => '<span style="--k:' + i + '">' + (c === ' ' ? '&nbsp;' : esc(c)) + '</span>').join(''); };
   const countTo = (el, n, suf) => { const t0 = performance.now(), D = 520; cancelAnimationFrame(el._r); const f = (t) => { const p = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(n * e) + suf; if (p < 1) el._r = requestAnimationFrame(f); }; el._r = requestAnimationFrame(f); };
@@ -731,6 +752,7 @@ function vimmConsole() {
     }
     let items = list.length >= 5 ? list : FALL.map((c) => { const x = metaOf(c, ''); x.href = O + '/vault/' + c; return x; });
     items.sort((a, b) => (a.year || 9999) - (b.year || 9999));
+    try { sessionStorage.setItem('__wtv', JSON.stringify(items.map((x) => ({ c: x.code, t: x.short, h: x.href })))); } catch (e) {}
     const TABS = [['all', 'Todas'], ['nintendo', 'Nintendo'], ['sega', 'Sega'], ['sony', 'PlayStation'], ['xbox', 'Xbox'], ['atari', 'Atari y más'], ['port', 'Portátiles']];
     const cnt = (k) => items.filter((x) => k === 'all' || (k === 'port' ? x.port : x.brand === k)).length;
     const tabs = TABS.filter((t) => cnt(t[0]) > 0);
@@ -746,7 +768,7 @@ function vimmConsole() {
       .yr{position:absolute;z-index:1;top:18px;right:18px;font:700 11px ${FONT};letter-spacing:.08em;color:#c9cad6;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
       .go{position:absolute;z-index:1;right:18px;bottom:16px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);color:#fff;opacity:0;transform:translateX(-8px);transition:opacity .35s,transform .45s cubic-bezier(.22,1,.36,1)}.cs:hover .go{opacity:1;transform:none}`;
     const sh = mount(css, '<div class="bar hb"><div class="lg">CONSOLAS</div><div class="tbw hubtb" id="tb"><span class="ac"></span>' + tabs.map((t, j) => '<button style="--j:' + j + '" data-k="' + t[0] + '">' + TI(t[0]) + '<span>' + t[1] + '</span><i>' + cnt(t[0]) + '</i></button>').join('') + '</div><label class="sr">' + SRCH + '<input id="q" placeholder="Buscar consola…" spellcheck="false"></label></div><div class="ct"><div class="hd"><div><h2 id="ti"></h2><p id="ts"></p></div></div><div class="gr" id="gr"></div></div>');
-    const $ = (s) => sh.querySelector(s), gr = $('#gr'); let cur = 'all', t0;
+    const $ = (s) => sh.querySelector(s), gr = $('#gr'); let cur = 'all', t0, tabTk = 0;
     const moveAc = () => { const b = sh.querySelector('#tb button.on'), a = sh.querySelector('#tb .ac'); if (b && a) { a.style.left = b.offsetLeft + 'px'; a.style.width = b.offsetWidth + 'px'; } };
     window.addEventListener('resize', moveAc); setTimeout(moveAc, 60); setTimeout(moveAc, 700);
     const draw = () => {
@@ -763,8 +785,8 @@ function vimmConsole() {
     const setTab = (k, anim) => {
       const old = tabs.findIndex((t) => t[0] === cur), nw = tabs.findIndex((t) => t[0] === k); cur = k;
       sh.querySelectorAll('#tb button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); moveAc();
-      if (!anim) { draw(); return; } const fw = nw > old; clearTimeout(t0); gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or');
-      t0 = setTimeout(() => { draw(); gr.classList.add(fw ? 'xl' : 'xr'); setTimeout(() => gr.classList.remove('xl', 'xr'), 650); }, 230);
+      if (!anim) { draw(); return; } const fw = nw > old; clearTimeout(t0); const tk = ++tabTk;
+      swapGrid(gr, fw, () => { if (tk === tabTk) draw(); });
     };
     sh.querySelectorAll('#tb button').forEach((b) => b.addEventListener('click', () => { if (b.dataset.k !== cur) setTab(b.dataset.k, 1); }));
     $('#q').addEventListener('input', () => draw()); hoverPill(sh); setTab('all', 0);
@@ -844,7 +866,7 @@ function vimmConsole() {
       .em a{color:#fff;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
       .pg{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:30px}.pg button{min-width:40px;height:40px;padding:0 13px;border-radius:13px;font:700 13.5px ${FONT};color:#a6a7b8;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .3s cubic-bezier(.22,1,.36,1);animation:pop .45s backwards}.pg button:hover{color:#fff;background:rgba(255,255,255,.12);transform:translateY(-3px)}.pg button.on{color:#0b0b13;background:#f4f4f8}.pg button:disabled{opacity:.35;pointer-events:none}.pg span{align-self:center;color:#6f7085}`;
     const STAR = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.400 6.100 20.500l1.200-6.500L2.500 9.400l6.600-.9z"/></svg>';
-    const sh = mount(css, '<div class="bar"><button class="back" id="bk">' + BACK + 'Consolas</button><div class="tbw"><button class="on">' + esc(mt.short) + '</button></div><span></span></div><div class="ct"><div class="hd"><div class="bn"><span class="bi" style="--bc:' + AC + '">' + svg(mt.type, 72, mt.ico) + '</span><div><h2 id="ti"></h2><p id="ts"></p></div></div></div>' +
+    const sh = mount(css, '<div class="bar"><button class="back" id="bk">' + BACK + 'Consolas</button><div class="tbw"><button class="on sw" id="sw">' + svg(mt.type, 20, mt.ico) + '<span>' + esc(mt.short) + '</span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div><div class="rt">' + (known && !noEs ? '<button class="tg on" id="tg"><span class="kn"></span><em>Solo español</em></button>' : '<span></span>') + '</div></div><div class="dd" id="dd"></div><div class="ct"><div class="hd"><div class="bn"><span class="bi" style="--bc:' + AC + '">' + svg(mt.type, 72, mt.ico) + '</span><div><h2 id="ti"></h2><p id="ts"></p></div></div></div>' +
       '<label class="big" id="bg">' + SRCH.replace('width="16" height="16"', 'width="22" height="22"') + '<input id="q" placeholder="Buscar en ' + esc(mt.short) + '…" spellcheck="false" autocomplete="off"><span class="kb">/</span><button class="cl" id="cl" title="Borrar">' + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></label>' +
       (letters.length ? '<div class="lt">' + letters.map((l, i) => '<a style="animation:pop .5s ' + (i * 28 + 200) + 'ms cubic-bezier(.34,1.5,.64,1) backwards" data-h="' + esc(l.h) + '" class="' + (l.s.toLowerCase() === cs.toLowerCase() ? 'on' : '') + '">' + esc(l.tx.length > 4 ? l.s : l.tx) + '</a>').join('') + '</div>' : '') +
       '<div class="two"><div><div id="nt"></div><div class="gr" id="gr"></div><div class="pg" id="pg"></div></div><div class="aside"><div class="cd" id="tp"></div><div class="cd"><h3>Resumen</h3><div class="sm" id="sm"></div></div></div></div></div>');
@@ -865,7 +887,7 @@ function vimmConsole() {
       $('#bg').classList.toggle('has', !!q); countTo($('#ts'), L.length, (L.length === 1 ? ' juego' : ' juegos') + (onlyEs ? ' en español' : '') + (cs ? ' · sección ' + cs.toUpperCase() : '') + (pages > 1 ? ' · página ' + pg + ' de ' + pages : ''));
       const hid = rows.length - base().length;
       $('#nt').innerHTML = noEs ? '<div class="nt warn">⚠ No hay juegos en español en esta sección. Te muestro todos, pero ninguno tiene traducción al español.</div>' : (onlyEs && hid > 0 ? '<div class="nt inf">Solo juegos en español · ' + hid + ' ocultos por no tener ES<button id="sa">Mostrar todos</button></div>' : (known && !onlyEs ? '<div class="nt inf">Mostrando todos los idiomas<button id="sa">Solo español</button></div>' : (!known ? '<div class="nt inf">No pude leer el idioma de esta lista, así que muestro todo.</div>' : '')));
-      const sa = $('#sa'); if (sa) sa.onclick = () => { onlyEs = !onlyEs; pg = 1; draw(); side(); };
+      const sa = $('#sa'); if (sa) sa.onclick = () => flip(); const tg = $('#tg'); if (tg) tg.classList.toggle('on', onlyEs);
       gr.className = 'gr lr';
       gr.innerHTML = sl.length ? sl.map(rowHtml).join('') : '<div class="em">' + (q ? 'No encontré «' + esc(q) + '» en esta lista.<br><br><a id="vs">Buscarlo en todo Vimm\'s Lair →</a>' : (onlyEs ? 'No hay juegos en español en esta lista.' : 'No hay juegos.')) + '</div>';
       const vs = $('#vs'); if (vs) vs.onclick = () => leave(sh, () => { location.href = O + '/vault/?p=list&system=' + encodeURIComponent(Q.get('system') || sysCode) + '&q=' + encodeURIComponent(q); });
@@ -874,7 +896,18 @@ function vimmConsole() {
       $('#pg').innerHTML = pages > 1 ? '<button data-p="' + (pg - 1) + '"' + (pg < 2 ? ' disabled' : '') + '>‹</button>' + out.join('') + '<button data-p="' + (pg + 1) + '"' + (pg >= pages ? ' disabled' : '') + '>›</button>' : '';
       $('#pg').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => go(+b.dataset.p)));
     };
-    const go = (n) => { if (n < 1 || n === pg) return; const fw = n > pg; clearTimeout(t0); gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or'); t0 = setTimeout(() => { pg = n; draw(); gr.classList.add(fw ? 'xl' : 'xr'); sh.querySelector('.w').scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => gr.classList.remove('xl', 'xr'), 650); }, 230); };
+    const flip = () => { onlyEs = !onlyEs; pg = 1; swapGrid(gr, true, () => { draw(); side(); }); };
+    const go = (n) => { if (n < 1 || n === pg) return; const fw = n > pg; swapGrid(gr, fw, () => { pg = n; draw(); }, () => sh.querySelector('.w').scrollTo({ top: 0, behavior: 'smooth' })); };
+    { let saved = []; try { saved = JSON.parse(sessionStorage.getItem('__wtv') || '[]'); } catch (e) {}
+      const all = (saved.length ? saved.map((x) => Object.assign(metaOf(x.c, x.t), { href: x.h })) : FALL.map((c) => Object.assign(metaOf(c, ''), { href: O + '/vault/' + c }))).sort((a, b) => (a.year || 9999) - (b.year || 9999));
+      const dd = $('#dd'), sw = $('#sw'), me = norm(sysCode);
+      dd.innerHTML = all.map((x, i) => '<a class="di' + (norm(x.code) === me ? ' cur' : '') + '" style="--i:' + i + ';color:inherit" data-h="' + esc(x.href) + '"><span style="--ac:' + ((BR[x.brand] || [0, '#fff'])[1]) + '">' + svg(x.type, 34, x.ico) + '</span>' + esc(x.short) + '</a>').join('');
+      const wEl = sh.querySelector('.w'), shut = () => { dd.classList.remove('open'); sw.classList.remove('open'); wEl.classList.remove('dop'); };
+      sw.addEventListener('click', (e) => { e.stopPropagation(); dd.classList.toggle('open'); sw.classList.toggle('open'); wEl.classList.toggle('dop', dd.classList.contains('open')); });
+      sh.addEventListener('click', (e) => { if (!e.target.closest || !e.target.closest('#dd')) shut(); });
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') shut(); });
+      dd.querySelectorAll('.di').forEach((a) => a.addEventListener('click', () => { if (a.classList.contains('cur')) { shut(); return; } leave(sh, () => { location.href = a.dataset.h; }); }));
+      const tg = $('#tg'); if (tg) tg.addEventListener('click', flip); }
     setTitle($('#ti'), mt.name);
     $('#bk').addEventListener('click', () => leave(sh, () => { location.href = HUB; }));
     sh.querySelectorAll('.lt a').forEach((a) => a.addEventListener('click', () => leave(sh, () => { location.href = a.dataset.h; })));
