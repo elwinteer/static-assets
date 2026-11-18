@@ -91,6 +91,18 @@ function steamripConsole() {
     }
     return out;
   };
+  const AMBCSS = `.base{position:fixed;inset:0;background:radial-gradient(60% 45% at 18% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(50% 40% at 88% 8%,rgba(255,255,255,.045),transparent 70%),#07060f}
+      .amb{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+      .orb{position:absolute;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(255,255,255,.2),transparent 65%);opacity:.55;animation:orb var(--d) ease-in-out infinite alternate}
+      @keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.3)}}
+      .pt{position:absolute;bottom:-12px;left:var(--l);width:var(--s);height:var(--s);border-radius:50%;background:rgba(255,255,255,var(--a));filter:blur(var(--b));animation:fup var(--t) linear var(--dl) infinite}
+      @keyframes fup{0%{transform:translate(0,0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translate(var(--dx),-108vh);opacity:0}}
+      .beam{position:absolute;top:-25%;left:-40%;width:55%;height:150%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.04),transparent);transform:rotate(12deg);animation:bm 22s ease-in-out infinite alternate}
+      @keyframes bm{from{transform:translateX(0) rotate(12deg)}to{transform:translateX(230%) rotate(12deg)}}
+      .vig{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 38%,transparent 55%,rgba(0,0,0,.5))}
+      @keyframes br{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const AMB = '<div class="amb"><div class="beam"></div>' + [0, 1, 2].map((i) => '<div class="orb" style="left:' + [8, 62, 34][i] + '%;top:' + [12, 55, 78][i] + '%;width:' + [420, 520, 380][i] + 'px;height:' + [420, 520, 380][i] + 'px;--x:' + [120, -160, 90][i] + 'px;--y:' + [90, -70, -110][i] + 'px;--d:' + [19, 26, 22][i] + 's"></div>').join('') + Array.from({ length: 30 }, () => { const sz = rnd(1.5, 4.5); return '<i class="pt" style="--l:' + rnd(0, 100).toFixed(1) + '%;--s:' + sz.toFixed(1) + 'px;--a:' + rnd(.25, .8).toFixed(2) + ';--b:' + (sz > 3.4 ? 1.2 : 0) + 'px;--t:' + rnd(14, 30).toFixed(1) + 's;--dl:-' + rnd(0, 30).toFixed(1) + 's;--dx:' + rnd(-90, 90).toFixed(0) + 'px"></i>'; }).join('') + '<div class="vig"></div></div>';
   const build = () => {
     const h1 = document.querySelector('h1.entry-title, .entry-header h1, article h1, h1'); if (!h1) return 0;
     const raw = T(h1), title = clean(raw); if (!title) return 0;
@@ -126,7 +138,7 @@ function steamripConsole() {
     if (!Object.keys(req.min).length && !Object.keys(req.rec).length) { const all = parseReq(blocks.flatMap((b) => b.p)); if (Object.keys(all.min).length) Object.assign(req, all); }
     const full = T(root);
     const szm = /(?:game\s+)?(?:download\s+)?size\s*[:\-]?\s*(?:~|approx\.?\s*)?([\d.,]+\s*(?:GB|MB|TB))/i.exec(full), size = szm ? szm[1].replace(/\s+/g, ' ').toUpperCase() : '';
-    const vm = /\bbuild\s*(\d{5,})|\bv\s*(\d+(?:\.\d+)+)/i.exec(raw + ' ' + full.slice(0, 2500)), ver = vm ? (vm[1] ? 'Build ' + vm[1] : 'v' + vm[2]) : '';
+    const vm = /build\s*(\d{5,})|\bv\s*(\d+(?:\.\d+)+)/i.exec(raw + ' ' + full.slice(0, 2500)), ver = vm ? (vm[1] ? 'Build ' + vm[1] : 'v' + vm[2]) : '';
     const sp0 = req.min['Espacio'] || req.rec['Espacio'] || '', spm = /([\d.,]+\s*(?:GB|MB|TB))/i.exec(sp0), space = spm ? spm[1].toUpperCase() : sp0;
     const info = blocks.filter((b) => b.p.length && !/requirement/i.test(b.h) && !/^(download|how to|installation|steps)/i.test(b.h)).slice(0, 8);
     const shots = imgs.map((i) => i.currentSrc || i.src).filter((u, i, a) => u !== cover && a.indexOf(u) === i).slice(0, 8);
@@ -142,7 +154,8 @@ function steamripConsole() {
     const reqHTML = reqCard('Mínimos', d.req.min) + reqCard('Recomendados', d.req.rec);
     sh.innerHTML = `<style>
       :host{all:initial}*{box-sizing:border-box}
-      .w{position:absolute;inset:0;overflow:auto;color:#ececf3;font:15px/1.55 "Segoe UI",system-ui,sans-serif;background:radial-gradient(60% 45% at 18% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(50% 40% at 88% 8%,rgba(255,255,255,.045),transparent 70%),#07060f;scroll-behavior:smooth;animation:fi .7s cubic-bezier(.22,1,.36,1) backwards}
+      ${AMBCSS}
+      .w{position:absolute;inset:0;overflow:auto;color:#ececf3;font:15px/1.55 "Segoe UI",system-ui,sans-serif;scroll-behavior:smooth;animation:fi .7s cubic-bezier(.22,1,.36,1) backwards;z-index:1}
       .w::-webkit-scrollbar{width:10px}.w::-webkit-scrollbar-thumb{background:#2a2a34;border-radius:10px}
       @keyframes fi{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(20px)}}@keyframes pop{from{opacity:0;transform:translateY(26px) scale(.93) rotate(-2deg)}}@keyframes sl{from{opacity:0;transform:translateX(-16px)}}@keyframes dr{0%,100%{transform:scale(1.12) translate(0,0)}50%{transform:scale(1.18) translate(-1.5%,1%)}}@keyframes dn{from{opacity:0;transform:translateY(-120%) scale(.9)}}@keyframes wd{from{opacity:0;transform:translateY(.7em) rotate(2deg);filter:blur(10px)}}@keyframes rev{from{clip-path:inset(100% 0 0 0 round 22px);opacity:.2;transform:scale(1.08) translateY(30px)}}@keyframes tr{from{opacity:0;transform:translateX(34px)}}@keyframes tl{from{opacity:0;transform:translateX(-34px)}}@keyframes rp{from{transform:scale(0);opacity:.5}to{transform:scale(1);opacity:0}}@keyframes sh{from{transform:translateX(-120%) skewX(-18deg)}to{transform:translateX(260%) skewX(-18deg)}}@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
       .bg{position:fixed;inset:-70px;background:center/cover;filter:blur(64px) brightness(.34) saturate(1.3);opacity:.9;animation:fi 1.4s ease backwards,dr 28s ease-in-out infinite;pointer-events:none}
@@ -152,7 +165,7 @@ function steamripConsole() {
       .mini{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:9;display:none;align-items:center;gap:14px;padding:8px 10px 8px 8px;border-radius:99px;background:rgba(14,14,22,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 50px rgba(0,0,0,.55)}.mini.on{display:flex;animation:dn .6s cubic-bezier(.34,1.5,.64,1)}
       .mini img{width:34px;height:34px;border-radius:50%;object-fit:cover}.mini b{font:700 14px "Segoe UI",system-ui;max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini a{font:700 13px "Segoe UI",system-ui;background:#f4f4f8;color:#0b0b13;border-radius:99px;padding:9px 18px;text-decoration:none;transition:transform .35s cubic-bezier(.22,1,.36,1)}.mini a:hover{transform:scale(1.05)}
       .hero{position:relative;display:grid;grid-template-columns:300px minmax(0,1fr);gap:46px;max-width:1180px;margin:6px auto 0;padding:10px 40px 30px}
-      .cvw{perspective:900px;width:300px}.cv{position:relative;width:300px;aspect-ratio:2/3;border-radius:22px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.12);animation:rev 1.15s .05s cubic-bezier(.22,1,.36,1) backwards,pop .9s .05s cubic-bezier(.34,1.4,.64,1) backwards;background:#14141c;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s;transform-style:preserve-3d;will-change:transform}
+      .cvw{position:relative;perspective:900px;width:300px}.cvw:before{content:'';position:absolute;inset:8% 6%;background:var(--cvimg) center/cover;filter:blur(44px) saturate(1.4);opacity:.5;border-radius:30px;animation:br 6s ease-in-out infinite;z-index:0}.cv{z-index:1}.cv{position:relative;width:300px;aspect-ratio:2/3;border-radius:22px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.12);animation:rev 1.15s .05s cubic-bezier(.22,1,.36,1) backwards,pop .9s .05s cubic-bezier(.34,1.4,.64,1) backwards;background:#14141c;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s;transform-style:preserve-3d;will-change:transform}
       .cv img{width:100%;height:100%;object-fit:cover;display:block}.cv i{position:absolute;inset:0;background:radial-gradient(60% 60% at var(--mx,50%) var(--my,30%),rgba(255,255,255,.22),transparent 65%);opacity:0;transition:opacity .4s;pointer-events:none}.cv:hover i{opacity:1}
       .inf{display:flex;flex-direction:column;gap:16px;min-width:0;justify-content:center}
 .wd{display:inline-block;animation:wd 1s calc(.2s + var(--i) * .055s) cubic-bezier(.22,1,.36,1) backwards;margin-right:.26em}h1{animation:none!important}
@@ -180,10 +193,10 @@ function steamripConsole() {
       @media (max-width:900px){.hero{grid-template-columns:1fr;justify-items:center}.cv,.cvw{width:220px}}
       @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
     </style>
-    <div class="bg" style="background-image:url('${esc(d.cover)}')"></div>
+    <div class="base"></div><div class="bg" style="background-image:url('${esc(d.cover)}')"></div>${AMB}
     <div class="mini" id="mini"><img src="${esc(d.cover)}" alt=""><b>${esc(d.title)}</b><a href="${esc(main.href)}" target="_blank" rel="noopener">Descargar</a></div>
     <div class="w" id="w"><div class="top"><button id="back">‹ Volver</button><button id="orig">Ver página original</button></div>
-      <div class="hero"><div class="cvw"><div class="cv" id="cv"><img src="${esc(d.cover)}" alt=""><i></i></div></div>
+      <div class="hero"><div class="cvw" style="--cvimg:url('${esc(d.cover)}')"><div class="cv" id="cv"><img src="${esc(d.cover)}" alt=""><i></i></div></div>
         <div class="inf"><div class="ch">${d.cats.map((c, i) => '<span style="--j:' + i + '">' + esc(c) + '</span>').join('')}</div>
           <h1>${d.title.split(' ').map((x, i) => '<span class="wd" style="--i:' + i + '">' + esc(x) + '</span>').join('')}</h1>
           ${stats.length ? '<div class="st">' + stats.map((x, i) => '<div style="--j:' + i + '"><small>' + x[0] + '</small><b>' + esc(x[1]) + '</b></div>').join('') + '</div>' : ''}
@@ -228,8 +241,69 @@ function steamripConsole() {
     let tries = 0; if (!grab()) { const iv = setInterval(() => { if (grab() || ++tries > 24) clearInterval(iv); }, 500); }
     return hostEl;
   };
+
+  // ---------- portada de SteamRIP: solo la lista de los últimos lanzamientos ----------
+  const cardsFrom = (doc, base) => {
+    const abs = (u) => { try { return new URL(u, base).href; } catch (e) { return ''; } };
+    let scope = doc.body; const hd = [...doc.querySelectorAll('h1,h2,h3,h4,span,div,p')].find((e) => !e.children.length && /^\s*recently added\s*$/i.test(e.textContent));
+    if (hd) { let c = hd, n = 0; while (c.parentElement && n++ < 7 && c.querySelectorAll('a[href*="free-download"]').length < 6) c = c.parentElement; if (c.querySelectorAll('a[href*="free-download"]').length >= 6) scope = c; }
+    const out = [], seen = new Set();
+    for (const a of scope.querySelectorAll('a[href*="free-download"]')) {
+      const href = abs(a.getAttribute('href')); if (!href || seen.has(href) || a.closest('nav, header, footer')) continue;
+      const box = a.closest('article, li, [class*=post], [class*=card], [class*=item]') || a.parentElement || a;
+      const img = a.querySelector('img') || (box && box.querySelector('img'));
+      let src = ''; if (img) src = img.getAttribute('data-lazy-src') || img.getAttribute('data-src') || (img.getAttribute('data-lazy-srcset') || img.getAttribute('srcset') || '').split(/\s+/)[0] || img.getAttribute('src') || '';
+      if (/^data:image\/(gif|svg)/.test(src)) src = img.getAttribute('data-lazy-src') || img.getAttribute('data-src') || '';
+      const raw = (a.getAttribute('title') || (img && img.getAttribute('alt')) || T(a) || T(box.querySelector && box.querySelector('h1,h2,h3,h4,h5')) || '').trim();
+      const title = clean(raw); if (!title || title.length < 2) continue;
+      const bm = /build\s*(\d{5,})/i.exec(T(box) + ' ' + raw);
+      seen.add(href); out.push({ href, title, img: src ? abs(src) : '', build: bm ? 'Build ' + bm[1] : '' });
+    }
+    return out;
+  };
+  const mountHome = (cards) => {
+    const hostEl = document.createElement('div'); hostEl.id = 'wt-console'; hostEl.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:block';
+    const sh = hostEl.attachShadow({ mode: 'open' });
+    const nextA = document.querySelector('a.next.page-numbers, a[rel=next], .pagination a.next'); let nextHref = nextA ? nextA.href : '';
+    const row = (c) => '<a class="rw rv" href="' + esc(c.href) + '"><span class="th">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '') + '</span><span class="tx"><b>' + esc(c.title) + '</b><span class="mt">' + (c.build ? '<em>' + esc(c.build) + '</em>' : '') + '<em>Descarga gratis</em></span></span><span class="go">›</span></a>';
+    sh.innerHTML = `<style>
+      :host{all:initial}*{box-sizing:border-box}
+      ${AMBCSS}
+      @keyframes fi{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(20px)}}@keyframes wd{from{opacity:0;transform:translateY(.7em);filter:blur(10px)}}
+      .w{position:absolute;inset:0;overflow:auto;z-index:1;color:#ececf3;font:15px/1.55 "Segoe UI",system-ui,sans-serif;scroll-behavior:smooth;animation:fi .7s cubic-bezier(.22,1,.36,1) backwards}
+      .w::-webkit-scrollbar{width:10px}.w::-webkit-scrollbar-thumb{background:#2a2a34;border-radius:10px}
+      .top{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;padding:14px 28px;background:linear-gradient(180deg,rgba(7,6,15,.92),rgba(7,6,15,0))}
+      .top button{font:600 13px "Segoe UI",system-ui;color:#c9cad6;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:8px 16px;cursor:pointer;transition:background .3s,color .3s,transform .4s cubic-bezier(.22,1,.36,1)}.top button:hover{background:rgba(255,255,255,.16);color:#fff;transform:translateY(-1px)}
+      .hd{max-width:980px;margin:6px auto 0;padding:10px 40px 14px}.hd small{display:block;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:#8e90a0;font-weight:700;animation:up .8s .05s cubic-bezier(.22,1,.36,1) backwards}
+      .hd h1{margin:6px 0 0;font-size:44px;letter-spacing:-1.2px;line-height:1.05}.wd{display:inline-block;margin-right:.26em;animation:wd 1s calc(.12s + var(--i) * .07s) cubic-bezier(.22,1,.36,1) backwards}
+      .hd p{margin:8px 0 0;color:#9d9eb0;animation:up .8s .35s cubic-bezier(.22,1,.36,1) backwards}
+      .ls{max-width:980px;margin:0 auto;padding:6px 40px 90px;display:grid;gap:10px}
+      .rv{opacity:0;transform:translateY(24px) scale(.985);filter:blur(5px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1),filter .8s cubic-bezier(.22,1,.36,1),background .3s,border-color .3s}.rv.in{opacity:1;transform:none;filter:none}
+      .rw{position:relative;display:grid;grid-template-columns:78px minmax(0,1fr) 28px;gap:18px;align-items:center;padding:10px 18px 10px 10px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);color:#ececf3;text-decoration:none;overflow:hidden}
+      .rw:after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.07),transparent 70%);transform:translateX(-120%);transition:transform .8s cubic-bezier(.22,1,.36,1);pointer-events:none}
+      .rw.in:hover{background:rgba(255,255,255,.085);border-color:rgba(255,255,255,.18);transform:translateX(6px) scale(1.006)}.rw:hover:after{transform:translateX(120%)}
+      .th{width:78px;height:104px;border-radius:14px;overflow:hidden;background:#14141c;box-shadow:0 12px 30px rgba(0,0,0,.5);display:block}.th img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.22,1,.36,1)}.rw:hover .th img{transform:scale(1.1)}
+      .tx{min-width:0;display:grid;gap:6px}.tx b{font-size:18px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mt{display:flex;gap:8px;flex-wrap:wrap}.mt em{font-style:normal;font-size:12px;padding:3px 11px;border-radius:99px;background:rgba(255,255,255,.08);color:#c9cad6}
+      .go{font-size:28px;color:#8e90a0;transition:transform .5s cubic-bezier(.34,1.5,.64,1),color .3s;text-align:center}.rw:hover .go{transform:translateX(5px);color:#fff}
+      .more{display:block;margin:10px auto 0;font:700 14px "Segoe UI",system-ui;color:#0b0b13;background:#f4f4f8;border:0;border-radius:14px;padding:14px 28px;cursor:pointer;transition:transform .4s cubic-bezier(.34,1.4,.64,1),box-shadow .4s}.more:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(255,255,255,.18)}.more[disabled]{opacity:.5;cursor:wait}
+      @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none;filter:none}}
+    </style>
+    <div class="base"></div>${AMB}
+    <div class="w" id="w"><div class="top"><button id="orig">Ver página original</button></div>
+      <div class="hd"><small>SteamRIP</small><h1>${'Últimos lanzamientos'.split(' ').map((x, i) => '<span class="wd" style="--i:' + i + '">' + x + '</span>').join('')}</h1><p id="cnt"></p></div>
+      <div class="ls" id="ls">${cards.map(row).join('')}</div><div id="mb"></div></div>`;
+    const $ = (q) => sh.querySelector(q), w = $('#w'), ls = $('#ls'); let n = 0;
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root: w, threshold: 0.05 }) : null;
+    const arm = () => ls.querySelectorAll('.rv:not(.in):not([data-a])').forEach((e, i) => { e.dataset.a = 1; e.style.transitionDelay = Math.min(i, 9) * 55 + 'ms,' + Math.min(i, 9) * 55 + 'ms,' + Math.min(i, 9) * 55 + 'ms,0s,0s'; io ? io.observe(e) : e.classList.add('in'); });
+    const cnt = () => { n = ls.querySelectorAll('.rw').length; $('#cnt').textContent = n + ' juegos agregados recientemente'; };
+    const more = () => { const mb = $('#mb'); mb.innerHTML = nextHref ? '<button class="more" id="bm">Cargar más</button>' : ''; const b = $('#bm'); if (b) b.onclick = async () => { b.disabled = true; b.textContent = 'Cargando…'; try { const r = await fetch(nextHref, { credentials: 'include' }), html = await r.text(), doc = new DOMParser().parseFromString(html, 'text/html'); const have = new Set([...ls.querySelectorAll('.rw')].map((a) => a.getAttribute('href'))); const add = cardsFrom(doc, nextHref).filter((c) => !have.has(c.href)); ls.insertAdjacentHTML('beforeend', add.map(row).join('')); const na = doc.querySelector('a.next.page-numbers, a[rel=next], .pagination a.next'); nextHref = na ? new URL(na.getAttribute('href'), nextHref).href : ''; cnt(); arm(); more(); } catch (e) { b.disabled = false; b.textContent = 'No se pudo cargar · reintentar'; } }; };
+    cnt(); arm(); more();
+    document.documentElement.classList.add('wt-console-on'); document.body.appendChild(hostEl);
+    $('#orig').onclick = () => { hostEl.style.display = 'none'; document.documentElement.classList.remove('wt-console-on'); const b = document.createElement('button'); b.textContent = 'Volver a la lista'; b.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:2147483001;padding:10px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:#111;color:#fff;font:600 13px system-ui;cursor:pointer'; b.onclick = () => { hostEl.style.display = 'block'; document.documentElement.classList.add('wt-console-on'); b.remove(); }; document.body.appendChild(b); };
+  };
+  let htries = 0; const goHome = () => { try { const c = cardsFrom(document, location.href); if (c.length >= 4) { mountHome(c); return; } } catch (e) {} if (++htries < 8) setTimeout(goHome, 900); };
   let tries = 0; const go = () => { try { const d = build(); if (d) { mount(d); return; } } catch (e) {} if (++tries < 6) setTimeout(go, 1000); };
-  if (!/free-download/i.test(location.pathname)) return; go();
+  if (/free-download/i.test(location.pathname)) go(); else if (/^\/(page\/\d+\/?)?$/.test(location.pathname)) goHome();
 }
 const skinFor = (url) => { try { const h = new URL(url).hostname; return SKINS.find((s) => s.test.test(h)) || null; } catch (e) { return null; } };
 module.exports = { SKINS, MONO_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()' } };
