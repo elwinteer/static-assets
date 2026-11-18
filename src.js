@@ -139,11 +139,13 @@ function flatVersions(g, base) {
   if (link && isTorrent(absUrl(link, base))) push(link, 'Torrent');
   return out;
 }
-function normGame(g, base, key) {
+function normGame(g, base, key, genIdx) {
   if (!g || typeof g !== 'object') return null;
   const ids = new Set(); for (const k of [g.id, key, g.gid, ...(Array.isArray(g.ids) ? g.ids : [])]) { const x = normId(k); if (x) ids.add(x); }
   if (g.steam || g.steamAppId || g.appid) { const n = parseInt(g.steam || g.steamAppId || g.appid, 10); if (n > 0) ids.add('steam:' + n); }
-  const name = str(g.name || g.title, 160); if (!ids.size || !name) return null;
+  const name = str(g.name || g.title, 160); if (!name) return null;
+  // Sin ID en la fuente: se genera uno estable a partir del título (solo para listar y descargar; no se empareja con Steam).
+  if (!ids.size) { const sl = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90) || 'juego'; ids.add('src:' + sl + (genIdx ? '-' + genIdx : '')); }
   let versions;
   if (Array.isArray(g.versions)) versions = g.versions.slice(0, MAX_VERS).map((v) => normVersion(v, base)).filter(Boolean);
   else if (g.files) versions = [normVersion(g, base)].filter(Boolean);
@@ -182,7 +184,12 @@ function normalize(m, baseUrl) {
   else if (!Array.isArray(m.include)) throw err('manifest', 'No encontré la lista "games" en el manifiesto');
   const games = [];
   let skipped = 0;
-  for (const [g, k] of list.slice(0, MAX_GAMES)) { const n = normGame(g, baseUrl, k); if (n) games.push(n); else skipped++; }
+  const used = new Set();
+  for (const [g, k] of list.slice(0, MAX_GAMES)) {
+    let n = normGame(g, baseUrl, k, 0);
+    if (n && n.ids.length === 1 && n.ids[0].startsWith('src:') && used.has(n.ids[0])) n = normGame(g, baseUrl, k, games.length + 1); // mismo título repetido: se distingue por posición
+    if (n) { if (n.ids[0].startsWith('src:')) used.add(n.ids[0]); games.push(n); } else skipped++;
+  }
   const inc = (Array.isArray(m.include) ? m.include : []).slice(0, MAX_INC).map((x) => absUrl(x, baseUrl)).filter((x) => x && !/^magnet:/.test(x));
   return { meta: { name: str(m.name, 80), description: str(m.description, 300), homepage: absUrl(m.homepage, baseUrl).replace(/^magnet:.*/, ''), updated: str(m.updated, 40) }, games, include: inc, skipped };
 }

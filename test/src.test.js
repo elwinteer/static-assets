@@ -148,3 +148,9 @@ test('JSON inválido: explica qué recibió; acepta una línea JSON por juego', 
   const s = await S.add(a.url + '/n'); assert.equal(s.games, 2);
   await assert.rejects(S.add(a.url + '/v'), (e) => e.code === 'json'); a.s.close();
 });
+test('sin id: se genera uno a partir del título (downloads + title + uris)', () => {
+  const m = normalize({ downloads: [{ title: 'Ñandú: Edición Épica', uris: ['magnet:?xt=urn:btih:aa'] }, { title: 'Ñandú: Edición Épica', uris: ['https://h.test/b.zip'] }, { title: 'Otro', uris: ['https://h.test/o.zip'] }, { title: 'Sin enlaces' }] }, 'http://h.test/m.json');
+  assert.equal(m.games.length, 3); assert.equal(m.skipped, 1);
+  assert.equal(m.games[0].ids[0], 'src:nandu-edicion-epica'); assert.notEqual(m.games[1].ids[0], m.games[0].ids[0]); assert.equal(m.games[2].ids[0], 'src:otro');
+  assert.equal(normalize({ downloads: [{ title: 'Otro', uris: ['https://h.test/o.zip'] }] }, 'http://h/').games[0].ids[0], 'src:otro', 'estable entre actualizaciones');
+});
