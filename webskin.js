@@ -72,7 +72,7 @@ const MONO_JS = `(() => {
 // Se ejecuta dentro de la página. Si no encuentra título + portada + enlaces, deja la página original intacta.
 function steamripConsole() {
   if (window.__wtConsole) return; window.__wtConsole = 1;
-  const HOSTS = { 'megadb.net': 'MegaDB', 'gofile.io': 'Gofile', '1fichier.com': '1Fichier', 'buzzheavier.com': 'BuzzHeavier', 'vikingfile.com': 'VikingFile', 'pixeldrain.com': 'Pixeldrain', 'mediafire.com': 'MediaFire', 'filecrypt.cc': 'FileCrypt', 'filecrypt.co': 'FileCrypt', 'datanodes.to': 'DataNodes', 'ddownload.com': 'DDownload', 'rapidgator.net': 'Rapidgator', 'drive.google.com': 'Google Drive', 'mega.nz': 'MEGA', 'qiwi.gg': 'Qiwi', 'workupload.com': 'Workupload', 'send.cm': 'Send.cm', 'uploadhaven.com': 'UploadHaven', 'turbobit.net': 'Turbobit' };
+  const HOSTS = { 'megadb.net': 'MegaDB', 'gofile.io': 'Gofile', '1fichier.com': '1Fichier', 'buzzheavier.com': 'BuzzHeavier', 'bzzhr.co': 'BuzzHeavier', 'bzzhr.to': 'BuzzHeavier', 'bzzheavier.com': 'BuzzHeavier', 'flashbang.sh': 'BuzzHeavier', 'vikingfile.com': 'VikingFile', 'pixeldrain.com': 'Pixeldrain', 'mediafire.com': 'MediaFire', 'filecrypt.cc': 'FileCrypt', 'filecrypt.co': 'FileCrypt', 'datanodes.to': 'DataNodes', 'ddownload.com': 'DDownload', 'rapidgator.net': 'Rapidgator', 'drive.google.com': 'Google Drive', 'mega.nz': 'MEGA', 'qiwi.gg': 'Qiwi', 'workupload.com': 'Workupload', 'send.cm': 'Send.cm', 'uploadhaven.com': 'UploadHaven', 'turbobit.net': 'Turbobit' };
   const BAD = /(discord|facebook|twitter|x\.com|instagram|youtube|youtu\.be|t\.me|telegram|reddit|steampowered|patreon|ko-fi|paypal|store\.epicgames|gog\.com)/i;
   const clean = (t) => String(t || '').replace(/\s+/g, ' ').replace(/\s*[-–—|:]?\s*(?:free\s*)?download(?:ed)?(?:\s*(?:free|game|pc|full|now))*\s*$/i, '').replace(/\s*[-–—|:(\[]?\s*free\s*download\w*\)?\]?/ig, ' ').replace(/\s*[-–—|(\[]?\s*\bbuild\s*\d+[^)\]]*[)\]]?/ig, ' ').replace(/\s+[-–—|]\s*v?\d+(\.\d+)+\S*\s*$/i, '').replace(/\s+/g, ' ').replace(/[\s\-–—|:]+$/, '').trim();
   const T = (n) => (n && n.textContent || '').replace(/\s+/g, ' ').trim();
@@ -121,6 +121,7 @@ function steamripConsole() {
       seen.add(href);
       links.push({ href, name: mg || tor ? 'Torrent' : known ? HOSTS[known] : /steamrip/i.test(hn) ? (tx || 'Descarga') : hn.split('.').slice(-2, -1)[0].replace(/^./, (c) => c.toUpperCase()), sub: mg ? 'Enlace magnet' : tor ? 'Archivo .torrent' : (tx && tx.length < 40 ? tx : hn) });
     }
+    const pri = (l) => /bzzhr|bzzheavier|buzzheavier/i.test(l.href) ? 0 : 1; links.sort((x, y) => pri(x) - pri(y));
     if (!links.length) return 0;
     const cats = [...document.querySelectorAll('a[rel~=tag], a[rel~=category], .post-cat a, .meta-category a, .post-categories a')].map(T).filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 6);
     const tm = document.querySelector('time'), date = tm ? T(tm) : '';
@@ -151,7 +152,7 @@ function steamripConsole() {
   const BARCSS = `.bar{position:relative;z-index:8;flex:none;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 28px;background:linear-gradient(180deg,rgba(7,6,15,.94),rgba(7,6,15,.72));backdrop-filter:blur(16px)}
       .lg{font:800 15px "Segoe UI",system-ui;letter-spacing:.28em;color:#fff;cursor:pointer;animation:up .7s backwards}
       .tbw{position:relative;display:flex;gap:4px;padding:5px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);animation:up .7s .08s backwards}
-      .tbw button{position:relative;z-index:1;font:600 13.5px "Segoe UI",system-ui;color:#a6a7b8;background:none;border:0;border-radius:99px;padding:9px 18px;cursor:pointer;transition:color .3s,background .3s}.tbw button:hover{color:#fff;background:rgba(255,255,255,.07)}.tbw button.on{color:#0b0b13;background:none}
+      .tbw button{position:relative;z-index:1;font:600 13.5px "Segoe UI",system-ui;color:#a6a7b8;background:none;border:0;border-radius:99px;padding:9px 18px;cursor:pointer;transition:color .3s,background .3s}.tbw button:hover{color:#fff;background:rgba(255,255,255,.07)}.tbw button.on{color:#0b0b13;background:#f4f4f8;box-shadow:0 6px 24px rgba(255,255,255,.2)}
       .ob{font:600 12.5px "Segoe UI",system-ui;color:#c9cad6;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:8px 15px;cursor:pointer;transition:background .3s,color .3s,transform .4s cubic-bezier(.22,1,.36,1)}.ob:hover{background:rgba(255,255,255,.16);color:#fff;transform:translateY(-1px)}`;
   const goTab = (k) => { location.href = location.origin + '/' + (k === 'new' ? '' : '#wt=' + k); };
   const mount = (d) => {
@@ -177,7 +178,7 @@ function steamripConsole() {
       .side{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:4px 6px 6px 2px}
       .cvw{position:relative;flex:none;animation:pop .9s .1s cubic-bezier(.22,1,.36,1) backwards}.cvw:before{content:'';position:absolute;inset:6% 4%;background:var(--cvimg) center/cover;filter:blur(40px) saturate(1.4);opacity:.55;border-radius:30px;animation:br 6s ease-in-out infinite}
       .cv{position:relative;border-radius:20px;overflow:hidden;background:#0d0d14;box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.1);transition:transform .7s cubic-bezier(.22,1,.36,1),box-shadow .5s;transform-style:preserve-3d}
-      .cv:before{content:'';position:absolute;inset:-20px;background:var(--cvimg) center/cover;filter:blur(26px) brightness(.65) saturate(1.3)}.cv img{position:relative;display:block;width:100%;height:auto;max-height:50vh;object-fit:contain;margin:0 auto}.cv i{position:absolute;inset:0;background:radial-gradient(60% 60% at var(--mx,50%) var(--my,30%),rgba(255,255,255,.2),transparent 65%);opacity:0;transition:opacity .4s;pointer-events:none}.cv:hover i{opacity:1}
+      .cv:before{content:'';position:absolute;inset:-20px;background:var(--cvimg) center/cover;filter:blur(26px) brightness(.65) saturate(1.3)}.cv img{position:relative;display:block;width:100%;height:auto;max-height:36vh;object-fit:contain;margin:0 auto}.cv i{position:absolute;inset:0;background:radial-gradient(60% 60% at var(--mx,50%) var(--my,30%),rgba(255,255,255,.2),transparent 65%);opacity:0;transition:opacity .4s;pointer-events:none}.cv:hover i{opacity:1}
       h1{margin:2px 0 0;font-size:27px;line-height:1.15;letter-spacing:-.6px;text-shadow:0 4px 30px rgba(0,0,0,.6)}
       .wd{display:inline-block;animation:wd 1s calc(.2s + var(--i) * .05s) cubic-bezier(.22,1,.36,1) backwards;margin-right:.26em}
       .ch{display:flex;flex-wrap:wrap;gap:7px}.ch span{animation:up .7s calc(.3s + var(--j,0) * .06s) cubic-bezier(.34,1.4,.64,1) backwards;font-size:12px;padding:4px 12px;border-radius:99px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08);color:#d4d5e0}
@@ -189,7 +190,7 @@ function steamripConsole() {
       .alt{display:grid;gap:7px}.alt a{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 16px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#e8e8f0;text-decoration:none;font-weight:600;font-size:14px;transition:background .3s,transform .5s cubic-bezier(.34,1.4,.64,1),border-color .3s;animation:sl .8s cubic-bezier(.34,1.3,.64,1) backwards}
       .alt a:hover{background:rgba(255,255,255,.13);transform:translateX(6px);border-color:rgba(255,255,255,.2)}.alt small{color:#9a9bad;font-weight:500;font-size:12px}
       .panel{min-height:0;display:flex;flex-direction:column;border-radius:24px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden;animation:up .9s .15s cubic-bezier(.22,1,.36,1) backwards}
-      .pt{position:relative;flex:none;display:flex;gap:4px;padding:10px 14px 0;border-bottom:1px solid rgba(255,255,255,.08)}.tb{position:relative;font:600 14px "Segoe UI",system-ui;color:#9d9eb0;background:none;border:0;padding:12px 18px;cursor:pointer;border-radius:12px 12px 0 0;transition:color .3s,background .3s}.tb:hover{color:#fff;background:rgba(255,255,255,.05)}.tb.on{color:#fff}
+      .ptb{position:relative;flex:none;display:flex;gap:4px;padding:10px 14px 0;border-bottom:1px solid rgba(255,255,255,.08)}.tb{position:relative;font:600 14px "Segoe UI",system-ui;color:#9d9eb0;background:none;border:0;padding:12px 18px;cursor:pointer;border-radius:12px 12px 0 0;transition:color .3s,background .3s}.tb:hover{color:#fff;background:rgba(255,255,255,.05)}.tb.on{color:#fff}
       .ind{position:absolute;bottom:-1px;height:2px;background:#fff;border-radius:2px;transition:left .6s cubic-bezier(.34,1.4,.64,1),width .6s cubic-bezier(.34,1.4,.64,1)}
       .pw{position:relative;flex:1;min-height:0}.pn{position:absolute;inset:0;overflow:auto;padding:22px 26px 40px;display:none}.pn.on{display:block;animation:up .6s cubic-bezier(.22,1,.36,1)}.pn.on.fr{animation:tr .55s cubic-bezier(.22,1,.36,1)}.pn.on.fl{animation:tl .55s cubic-bezier(.22,1,.36,1)}
       .rv{opacity:0;transform:translateY(22px) scale(.985);filter:blur(5px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1),filter .8s cubic-bezier(.22,1,.36,1)}.rv.in{opacity:1;transform:none;filter:none}
@@ -206,10 +207,10 @@ function steamripConsole() {
       <div class="main"><div class="side"><div class="cvw" style="--cvimg:url('${esc(d.cover)}')"><div class="cv" id="cv"><img src="${esc(d.cover)}" alt=""><i></i></div></div>
           <div class="ch">${d.cats.map((c, i) => '<span style="--j:' + i + '">' + esc(c) + '</span>').join('')}</div>
           <h1>${d.title.split(' ').map((x, i) => '<span class="wd" style="--i:' + i + '">' + esc(x) + '</span>').join('')}</h1>
-          ${stats.length ? '<div class="st">' + stats.map((x, i) => '<div style="--j:' + i + '"><small>' + x[0] + '</small><b>' + esc(x[1]) + '</b></div>').join('') + '</div>' : ''}
           <a class="big" href="${esc(main.href)}" target="_blank" rel="noopener"><span>Descargar</span><small>${esc(main.name)}</small></a>
+          ${stats.length ? '<div class="st">' + stats.map((x, i) => '<div style="--j:' + i + '"><small>' + x[0] + '</small><b>' + esc(x[1]) + '</b></div>').join('') + '</div>' : ''}
           ${rest.length ? '<div class="lbl">Más enlaces</div><div class="alt">' + rest.map((l, i) => '<a href="' + esc(l.href) + '" target="_blank" rel="noopener" style="animation-delay:' + (0.5 + i * 0.06) + 's"><span>' + esc(l.name) + '</span><small>' + (l.sub.toLowerCase() === l.name.toLowerCase() ? '' : esc(l.sub)) + '</small></a>').join('') + '</div>' : ''}</div>
-        <div class="panel"><div class="pt" id="tabs">${panes.map((p, i) => '<button class="tb' + (i ? '' : ' on') + '" data-t="' + p[0] + '">' + p[1] + '</button>').join('')}<span class="ind" id="ind"></span></div>
+        <div class="panel"><div class="ptb" id="tabs">${panes.map((p, i) => '<button class="tb' + (i ? '' : ' on') + '" data-t="' + p[0] + '">' + p[1] + '</button>').join('')}<span class="ind" id="ind"></span></div>
           <div class="pw">${panes.map((p, i) => '<div class="pn' + (i ? '' : ' on') + '" id="p-' + p[0] + '">' + p[2] + '</div>').join('')}</div></div></div></div>`;
     const $ = (q) => sh.querySelector(q), ind = $('#ind');
     const place = (b) => { if (b) { ind.style.left = b.offsetLeft + 'px'; ind.style.width = b.offsetWidth + 'px'; } };
