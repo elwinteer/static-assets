@@ -1795,47 +1795,6 @@ let scMem = null, scTimer = null;
 const scFile = () => path.join(app.getPath('userData'), 'srccovers.json');
 function scLoad() { if (!scMem) { try { scMem = JSON.parse(fs.readFileSync(scFile(), 'utf8')); } catch (e) { scMem = {}; } } return scMem; }
 function scSave() { clearTimeout(scTimer); scTimer = setTimeout(() => { try { fs.writeFileSync(scFile() + '.tmp', JSON.stringify(scMem)); fs.renameSync(scFile() + '.tmp', scFile()); } catch (e) {} }, 1500); }
-async function srcCovers(o) {
-  const mem = scLoad(), out = {}, need = []; let authBad = false, lastErr = '';
-  for (const it of (Array.isArray(o.items) ? o.items : []).slice(0, 60)) {
-    const k = String(it.k || ''), n = String(it.n || '').replace(/[™®©"\\]/g, '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\bv?\d+(\.\d+)+\b/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
-    if (!k || !n) continue;
-    const c = mem[k]; if (c && c.v === 2 && (c.c || Date.now() - c.t < 14 * 864e5)) { out[k] = c; continue; }
-    need.push({ k, n });
-  }
-  if (need.length && o.id && o.secret && !o.noIg) {
-    const { normTitle } = require('./src.js'), nrm = (s) => normTitle(s).replace(/ /g, '');
-    for (let i = 0; i < need.length; i += 10) {
-      const chunk = need.slice(i, i + 10);
-      try {
-        const body = chunk.map((x, j) => 'query games "q' + j + '" { search "' + x.n + '"; fields name,cover.image_id,first_release_date,total_rating,genres.name; limit 6; };').join('\n');
-        const res = await igq(o.id, o.secret, 'multiquery', body);
-        chunk.forEach((x, j) => {
-          const rows = ((res.find((r) => r.name === 'q' + j) || {}).result) || [], n0 = nrm(x.n);
-          const g = rows.find((r) => nrm(r.name) === n0) || rows.find((r) => r.cover && (nrm(r.name).startsWith(n0) || n0.startsWith(nrm(r.name))) && Math.min(n0.length, nrm(r.name).length) >= 5) || null;
-          const m = g ? { c: g.cover ? g.cover.image_id : '', y: g.first_release_date ? new Date(g.first_release_date * 1000).getUTCFullYear() : 0, g: (g.genres || []).map((q) => q.name).slice(0, 3), r: Math.round(g.total_rating || 0), t: Date.now(), v: 2 } : { c: '', y: 0, g: [], r: 0, t: Date.now(), v: 2 };
-          mem[x.k] = m; out[x.k] = m;
-        });
-        scSave();
-      } catch (e) { if (String(e.message) === 'auth') authBad = true; else lastErr = String(e.message || e).slice(0, 120); }
-    }
-  }
-  // Respaldo sin claves: buscador de la tienda de Steam (portadas de juegos que IGDB no resolvió o si IGDB falló).
-  {
-    const { normTitle } = require('./src.js'), nrm = (s) => normTitle(s).replace(/ /g, '');
-    const miss = need.filter((x) => !(out[x.k] && out[x.k].c)).slice(0, 40); let q = 0;
-    const work = async () => { while (q < miss.length) { const x = miss[q++]; try {
-      const r = await net.fetch('https://store.steampowered.com/api/storesearch/?l=english&cc=us&term=' + encodeURIComponent(x.n), { headers: { accept: 'application/json' } });
-      if (!r.ok) throw new Error('steam ' + r.status); const j = await r.json(), n0 = nrm(x.n);
-      const it = (j.items || []).find((i) => nrm(i.name) === n0) || (j.items || []).find((i) => n0.length >= 5 && (nrm(i.name).startsWith(n0) || n0.startsWith(nrm(i.name))));
-      if (it) { const mm = { c: 'steam:' + it.id, y: (out[x.k] || {}).y || 0, g: (out[x.k] || {}).g || [], r: (out[x.k] || {}).r || 0, t: Date.now(), v: 2 }; mem[x.k] = mm; out[x.k] = mm; }
-      else if (!out[x.k] && !authBad && !lastErr) { const mm = { c: '', y: 0, g: [], r: 0, t: Date.now(), v: 2 }; mem[x.k] = mm; out[x.k] = mm; }
-    } catch (e) { lastErr = lastErr || String(e.message || e).slice(0, 120); } } };
-    if (miss.length) { await Promise.all([work(), work(), work(), work()]); scSave(); }
-  }
-  return { r: out, error: authBad && !Object.values(out).some((v) => v && v.c) ? 'auth' : undefined, msg: lastErr };
-}
-
 /* ---------- versión de prueba (beta): solo se usa si fue armada sobre esta misma versión ---------- */
 function betaPage() {
   try {
@@ -1990,6 +1949,19 @@ async function adSet(on) {
     return 1;
   } catch (e) { adOn = false; return 0; }
 }
+/* Torrents desde el navegador: enlaces magnet: y archivos .torrent se pasan al motor BitTorrent (se ven en Descargas). */
+function webTorrent(u, hint) {
+  const note = (t) => wsend({ st: 'note', msg: t });
+  try {
+    if (!dlEng) { note('Las descargas no están disponibles en esta instalación'); return; }
+    let nm = String(hint || '').trim(); try { if (!nm && /^magnet:/i.test(u)) nm = new URL(u).searchParams.get('dn') || ''; } catch (e) {}
+    nm = (nm || 'Torrent').replace(/\.torrent$/i, '').slice(0, 120);
+    const gid = 'web:' + require('crypto').createHash('sha1').update(String(u)).digest('hex').slice(0, 20);
+    Promise.resolve().then(() => dlEng.add({ gid, name: nm, autoInstall: false, localOk: /^file:/i.test(u), files: [{ url: u }] }))
+      .then((r) => note(r && r.dup ? '«' + nm + '» ya está en Descargas' : 'Agregué «' + nm + '» a Descargas (BitTorrent)'))
+      .catch((e) => note(String((e && e.message) || e).slice(0, 160)));
+  } catch (e) { note('No pude agregar el torrent'); }
+}
 let wdlHint = '';
 function webInit() {
   if (webOk) return; webOk = true;
@@ -1999,6 +1971,15 @@ function webInit() {
   try { ses.setUserAgent(ses.getUserAgent().replace(/\s(Electron|winteer)\/[\d.]+/ig, '')); } catch (e) {}
   try { ses.setPermissionRequestHandler((_wc, _p, cb) => cb(false)); } catch (e) {}
   ses.on('will-download', (_e, item) => {
+    try {
+      const fn = String(item.getFilename() || ''), mt = String(item.getMimeType() || '');
+      if (/\.torrent$/i.test(fn) || /x-bittorrent/i.test(mt)) {
+        const td = path.join(app.getPath('userData'), 'torrents'); fs.mkdirSync(td, { recursive: true });
+        const tp = path.join(td, Date.now() + '-' + wdlSafe(fn || 'archivo.torrent').replace(/\.torrent$/i, '') + '.torrent'); item.setSavePath(tp);
+        item.once('done', (_ev, st) => { if (st === 'completed') webTorrent(pathToFileURL(tp).href, fn); });
+        return;
+      }
+    } catch (e) {}
     let base = tmpDir; if (wdlHint) { try { fs.mkdirSync(wdlHint, { recursive: true }); fs.accessSync(wdlHint, fs.constants.W_OK); base = wdlHint; } catch (e) {} }
     const id = ++wdlN, tmp = path.join(base, id + '-' + Date.now() + '.part');
     item.setSavePath(tmp);
@@ -2080,6 +2061,7 @@ function createWindow() {
     try {
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
+        if (/^magnet:/i.test(String(url))) { webTorrent(url); return { action: 'deny' }; }
         if (own(url) && adUrlHit(url)) { adBlocked++; note('Bloqueé una ventana de anuncios (' + (() => { try { return new URL(url).hostname; } catch (e) { return ''; } })() + ')'); return { action: 'deny' }; }
         if (own(url)) { let ref = ''; try { ref = (referrer && referrer.url) || wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url, fg: disposition !== 'background-tab', ref }); return { action: 'deny' }; }
         if (!url || url === 'about:blank') return { action: 'allow', overrideBrowserWindowOptions: { show: false, width: 520, height: 420, skipTaskbar: true, autoHideMenuBar: true } };
@@ -2092,7 +2074,7 @@ function createWindow() {
         t.on('will-redirect', (_ev, u) => take(u));
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
       });
-      const blockProto = (ev, u) => { if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
+      const blockProto = (ev, u) => { if (/^magnet:/i.test(String(u))) { ev.preventDefault(); webTorrent(u); return; } if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
       wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
       wc.on('did-fail-load', (_ev, code, desc, _u, main) => { if (main && code === -20) note('Bloqueé una página de anuncios'); else if (main && code !== -3 && code !== 0) note('No pude abrir la página (' + String(desc || code) + ')'); });
     } catch (e) {}
@@ -3245,10 +3227,6 @@ app.whenReady().then(() => {
     ipcMain.handle('srcRename', dlWrap((a) => srcEng.rename(a.id, a.name)));
     ipcMain.handle('srcRefresh', dlWrap((a) => srcEng.refresh(a.id)));
     ipcMain.handle('srcLookup', dlWrap((a) => srcEng.lookup(a.gid)));
-    ipcMain.handle('srcCat', dlWrap((a) => srcEng.catalog(a || {})));
-    ipcMain.handle('srcCatGet', dlWrap((a) => srcEng.catalogGet(String(a.key || ''))));
-    ipcMain.handle('srcCovers', dlWrap((a) => srcCovers(a || {})));
-    ipcMain.handle('srcMatch', dlWrap((a) => { const byId = srcEng.lookup(String(a.gid || '')).map((x) => Object.assign({ by: 'id' }, x)), t = srcEng.matchTitle(String(a.name || ''), byId.flatMap((x) => x.game.ids)); return { found: byId.concat(t.exact.map((x) => Object.assign({ by: 'title' }, x))), maybe: t.likely.map((x) => Object.assign({ by: 'maybe' }, x)) }; }));
     ipcMain.handle('srcGames', dlWrap((a) => srcEng.games(a.q, 200)));
     ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.ref || a.gid), a.version | 0, { gid: String(a.gid).toLowerCase(), cover: a.cover || undefined, installDir: a.installDir || undefined, torrentOk: dlEng.btAvailable() }))));
     ipcMain.handle('btInfo', dlWrap(() => ({ available: dlEng.btAvailable() })));
