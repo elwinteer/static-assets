@@ -743,10 +743,11 @@ function fitgirlConsole() {
     lang: rx(txt, /Languages?:\s*(.{1,80}?)(?=\s*(?:Original Size|Repack Size|Download|Companies|Genres|Screenshots|$))/i), gen: rx(txt, /Genres\/Tags:\s*(.{1,90}?)(?=\s*(?:Companies|Languages|Original Size|Repack Size|$))/i), co: rx(txt, /Companies?:\s*(.{1,70}?)(?=\s*(?:Languages|Original Size|Repack Size|Genres|$))/i),
   });
   // ---------- lectura de listados ----------
+  const SKIPT = /upcoming|updates digest|repack updated|\bupdated repack/i;
   const readArticles = (doc, base) => {
     const out = [], seen = new Set();
     doc.querySelectorAll('article').forEach((ar) => {
-      const a = ar.querySelector('.entry-title a, h1 a, h2 a, h3 a'); if (!a) return; const href = abs(a.getAttribute('href'), base); if (!href || seen.has(href) || /upcoming|updates digest/i.test(T(a))) return; seen.add(href);
+      const a = ar.querySelector('.entry-title a, h1 a, h2 a, h3 a'); if (!a) return; const href = abs(a.getAttribute('href'), base); if (!href || seen.has(href) || SKIPT.test(T(a))) return; seen.add(href);
       const raw = T(a), t = tidy(raw), tx = ar.textContent.replace(/\s+/g, ' '), inf = infoOf(tx), tm = ar.querySelector('time'), d = tm ? (tm.getAttribute('datetime') || T(tm)) : '';
       out.push({ href, title: t.name, ver: t.ver, hv: t.hv, img: imgOf(ar, base), rep: inf.rep, org: inf.org, lang: inf.lang, gen: inf.gen, date: d ? d.slice(0, 10) : '' });
     });
