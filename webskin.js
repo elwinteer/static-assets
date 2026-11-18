@@ -142,7 +142,7 @@ function steamripConsole() {
     const vm = /build\s*(\d{4,8})|\bv\s*(\d+(?:\.\d+)+)/i.exec(raw + ' ' + full.slice(0, 2500)), ver = vm && !vm[1] ? 'v' + vm[2] : '';
     const sp0 = req.min['Espacio'] || req.rec['Espacio'] || '', spm = /([\d.,]+\s*(?:GB|MB|TB))/i.exec(sp0), space = spm ? spm[1].toUpperCase() : sp0;
     const info = blocks.filter((b) => b.p.length && !/requirement/i.test(b.h) && !/^(download|how to|installation|steps)/i.test(b.h)).slice(0, 8);
-    const shots = imgs.map((i) => i.currentSrc || i.src).filter((u, i, a) => u !== cover && a.indexOf(u) === i).slice(0, 8);
+    const shots = imgs.map((i) => i.currentSrc || i.src).filter((u, i, a) => u && !/^data:/.test(u) && u !== cover && a.indexOf(u) === i).slice(0, 8);
     return { title, cover, links, cats, date, info, shots, req, size, ver, space };
   };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -164,7 +164,7 @@ function steamripConsole() {
   const ic = (k) => '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + IC[k] + '</svg>';
   const tabBtns = (tabs) => tabs.map((x) => '<button data-k="' + x.k + '">' + ic(x.k) + '<span>' + x.t + '</span></button>').join('');
   const BAR2 = `.bar{display:grid!important;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin:14px auto 0!important;max-width:1240px;padding:0 6px!important;background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:0!important}.bar:after{display:none!important}
-      .bar:before{content:'';position:absolute;inset:-16px -60px -14px;background:linear-gradient(180deg,rgba(7,6,15,.92) 30%,rgba(7,6,15,0));z-index:-1;pointer-events:none}
+      .bar:before{content:'';position:absolute;inset:-16px calc(50% - 50vw) -14px;background:linear-gradient(180deg,rgba(7,6,15,.92) 30%,rgba(7,6,15,0));z-index:-1;pointer-events:none}
       .app .bar{width:100%;max-width:1320px;padding:0 36px!important;position:relative}.app .bar:before{display:none}
       .bar>:first-child{justify-self:start}.bar>:last-child{justify-self:end}
       .bar .tb,.bar .tbw{justify-self:center;padding:6px!important;gap:4px!important;border-radius:99px;background:rgba(16,16,26,.74)!important;border:1px solid rgba(255,255,255,.11)!important;backdrop-filter:blur(22px);box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08)!important}
@@ -255,6 +255,9 @@ function steamripConsole() {
     }));
     sh.querySelectorAll('#nv button').forEach((b) => { b.onclick = () => goTab(b.dataset.k); });
     hoverPill(sh);
+    { const chk = () => { const g = $('.gal'); if (g && !g.querySelector('img')) { const l = g.previousElementSibling; if (l && l.classList.contains('lab')) l.remove(); g.remove(); } };
+      sh.querySelectorAll('.gal img').forEach((im) => { const bad = () => { im.remove(); chk(); }; im.addEventListener('error', bad); im.addEventListener('load', () => { if (im.naturalWidth < 240) bad(); }); if (im.complete && im.naturalWidth && im.naturalWidth < 240) bad(); });
+      setTimeout(() => { sh.querySelectorAll('.gal img').forEach((im) => { if (!im.naturalWidth) im.remove(); }); chk(); }, 7000); }
     const cv = $('#cv'), cim = cv.querySelector('img');
     const fit = () => { const r = Math.min(1.9, Math.max(.62, (cim.naturalWidth || 2) / (cim.naturalHeight || 3))); cv.style.aspectRatio = String(r); cv.style.width = 'min(100%, ' + (38 * r).toFixed(1) + 'vh)'; }; cim.complete ? fit() : cim.addEventListener('load', fit); fit();
     cv.addEventListener('mousemove', (e) => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; cv.style.transition = 'transform .08s linear,box-shadow .5s'; cv.style.transform = 'perspective(900px) rotateY(' + ((x - .5) * 10) + 'deg) rotateX(' + ((.5 - y) * 10) + 'deg) scale(1.02)'; cv.style.setProperty('--mx', x * 100 + '%'); cv.style.setProperty('--my', y * 100 + '%'); });
@@ -308,14 +311,16 @@ function steamripConsole() {
     const hostEl = document.createElement('div'); hostEl.id = 'wt-console'; hostEl.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:block';
     const sh = hostEl.attachShadow({ mode: 'open' });
     const tabs = TABS();
-    const ST = {}, nxt = (k, doc, url, pg) => { const n = nextOf(doc, url); if (n) return n; if (k === 'new') return location.origin + '/page/' + (pg + 1) + '/'; try { const u = new URL(url); u.hash = ''; u.search = ''; u.pathname = u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/\/?$/, '/') + 'page/' + (pg + 1) + '/'; return u.href; } catch (e) { return ''; } }; tabs.forEach((x) => { ST[x.k] = { items: x.k === 'new' ? firstCards : null, pg: x.k === 'new' ? 1 : 0, next: x.k === 'new' ? nxt('new', document, location.href, (/\/page\/(\d+)/.exec(location.pathname) || [0, 1])[1] * 1) : '', busy: 0 }; });
+    const ST = {}, nxt = (k, doc, url, pg) => { const n = nextOf(doc, url); if (n) return n; if (k === 'new') return location.origin + '/page/' + (pg + 1) + '/'; try { const u = new URL(url); u.hash = ''; u.search = ''; u.pathname = u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/\/?$/, '/') + 'page/' + (pg + 1) + '/'; return u.href; } catch (e) { return ''; } }; tabs.forEach((x) => { ST[x.k] = { items: x.k === 'new' ? firstCards : null, pg: x.k === 'new' ? 1 : 0, pages: {}, cur: 1, total: 0, psize: 0, next: x.k === 'new' ? nxt('new', document, location.href, (/\/page\/(\d+)/.exec(location.pathname) || [0, 1])[1] * 1) : '', busy: 0 }; });
+    const PAGED = (k) => k === 'new' || k === 'top';
+    const totalOf = (doc) => { let m = 0; doc.querySelectorAll('a.page-numbers, .pagination a, .nav-links a, .wp-pagenavi a').forEach((a) => { const t = parseInt((a.textContent || '').replace(/[^\d]/g, ''), 10); if (t > m && t < 5000) m = t; const h = /\/page\/(\d+)/.exec(a.getAttribute('href') || ''); if (h && +h[1] > m && +h[1] < 5000) m = +h[1]; }); return m; };
     let cur = 'new', view = 'grid', q = '', shown = 0, pgN = 1; const PER = 14; const PAGE = 36;
     const row = (c, i) => { const m = c.m, ch = m ? [m.ver ? '<span class="v">' + esc(m.ver) + '</span>' : '', m.size ? '<span>' + esc(m.size) + '</span>' : '', ...(m.cats || []).map((x) => '<span>' + esc(x) + '</span>')].join('') : '<span class="uw" style="width:70px"></span><span class="uw" style="width:56px"></span>';
       return '<a class="up2 rv" data-i="' + i + '" href="' + esc(c.href) + '" style="--i:' + (i % 10) + '">' + (c.img ? '<span class="ubg" style="background-image:url(\'' + esc(c.img) + '\')"></span>' : '') + '<span class="un">' + String(i + 1).padStart(2, '0') + '</span><span class="ucv">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '</span><span class="ub"><span class="uk"><i class="dot"></i>Actualizado' + (m && m.date ? '<em>· ' + esc(m.date) + '</em>' : '') + '</span><b class="ut">' + esc(c.title) + '</b><span class="uc">' + ch + '</span>' + (m ? (m.desc ? '<span class="ud2">' + esc(m.desc) + '</span>' : '') : '<span class="uw" style="width:92%"></span><span class="uw" style="width:68%"></span>') + '<span class="uf"><small>' + (m && m.ver ? 'Nueva versión disponible' : 'Versión más reciente') + '</small><span class="ugo">Ver juego<i>›</i></span></span></span></a>'; };
     const lrow = (c, i) => { const m = c.m, ch = m ? [m.ver ? '<span class="v">' + esc(m.ver) + '</span>' : '', m.size ? '<span>' + esc(m.size) + '</span>' : '', ...(m.cats || []).map((x) => '<span>' + esc(x) + '</span>')].join('') : '<span class="uw" style="width:64px"></span><span class="uw" style="width:50px"></span>';
       return '<a class="alr rv" data-i="' + i + '" href="' + esc(c.href) + '" style="--i:' + (i % 14) + '">' + (c.img ? '<span class="abg" style="background-image:url(\'' + esc(c.img) + '\')"></span>' : '') + '<span class="aw">' + esc(c.title.trim().charAt(0).toUpperCase()) + '</span><span class="an">' + String(i + 1).padStart(3, '0') + '</span><span class="acv">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '</span><span class="ab"><b class="at">' + esc(c.title) + '</b><span class="ac">' + ch + (m && m.date ? '<em>' + esc(m.date) + '</em>' : '') + '</span>' + (m && m.desc ? '<span class="ax"><span>' + esc(m.desc) + '</span></span>' : '') + '</span><span class="ago">Ver juego<i>›</i></span></a>'; };
     const pager = (pages, pg) => { if (pages < 2) return ''; const set = new Set([1, pages, pg, pg - 1, pg + 1, pg - 2, pg + 2]); const arr = [...set].filter((x) => x >= 1 && x <= pages).sort((a, b) => a - b); let h = '<button class="pb nv2" data-p="' + (pg - 1) + '"' + (pg < 2 ? ' disabled' : '') + '>‹</button>', last = 0; for (const x of arr) { if (x - last > 1) h += '<span class="pe">…</span>'; h += '<button class="pb' + (x === pg ? ' on' : '') + '" data-p="' + x + '">' + x + '</button>'; last = x; } return '<div class="pgs">' + h + '<button class="pb nv2" data-p="' + (pg + 1) + '"' + (pg >= pages ? ' disabled' : '') + '>›</button></div>'; };
-    const card = (c, i) => '<a class="cd rv" href="' + esc(c.href) + '" style="--i:' + (i % 12) + '"><span class="im">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '<i class="gl"></i></span>' + (cur === 'top' ? (() => { const rk = (ST.top.items || []).indexOf(c) + 1; return rk ? '<em class="rk r' + Math.min(rk, 4) + '">' + rk + '</em>' : ''; })() : '') + '<span class="nm"><b>' + esc(c.title) + '</b></span></a>';
+    const card = (c, i) => '<a class="cd rv" href="' + esc(c.href) + '" style="--i:' + (i % 12) + '"><span class="im">' + (c.img ? '<img loading="lazy" src="' + esc(c.img) + '" alt="">' : '<b class="ph">' + esc(c.title.charAt(0)) + '</b>') + '<i class="gl"></i></span>' + (cur === 'top' ? (() => { const rk = (ST.top.items || []).indexOf(c) + 1 + (ST.top.cur - 1) * (ST.top.psize || (ST.top.items || []).length); return rk ? '<em class="rk r' + Math.min(rk, 4) + '">' + rk + '</em>' : ''; })() : '') + '<span class="nm"><b>' + esc(c.title) + '</b></span></a>';
     sh.innerHTML = `<style>
       :host{all:initial}*{box-sizing:border-box}
       ${AMBCSS}
@@ -341,6 +346,7 @@ function steamripConsole() {
       .up{position:fixed;right:30px;bottom:30px;z-index:9;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(20,20,28,.85);backdrop-filter:blur(10px);color:#fff;font-size:18px;cursor:pointer;opacity:0;transform:translateY(20px) scale(.8);pointer-events:none;transition:opacity .4s,transform .5s cubic-bezier(.34,1.4,.64,1),background .3s,color .3s}.up.on{opacity:1;transform:none;pointer-events:auto}.up:hover{background:#f4f4f8;color:#0b0b13}
       .sr{display:block}.kb{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:#8e90a0;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:1px 7px;pointer-events:none}.sr input:focus~.kb{opacity:0}
       .sl h2 span{display:inline-block;opacity:0;transform:translateY(.5em);filter:blur(8px);transition:opacity .7s,transform .8s cubic-bezier(.22,1,.36,1),filter .7s;transition-delay:calc(var(--c)*28ms + .25s)}.sl.on h2 span{opacity:1;transform:none;filter:none}
+      .w{overflow-x:hidden!important}
       ${BAR2}
       .tb:active,.ob:active,.vw button:active{transform:scale(.94)}
       .gr.al{grid-template-columns:1fr;gap:12px;max-width:1000px}
@@ -450,7 +456,7 @@ function steamripConsole() {
       return { img: ab(u), ver: vm ? 'v' + vm[1] : '', size: szm ? szm[1].replace(/\s+/g, ' ').toUpperCase() : '', date: tm ? T(tm) : '', cats, desc };
     }).catch(() => ({})));
     const coverOf = (href) => metaOf(href).then((m) => m.img || '');
-    const allItems = () => Object.values(ST).flatMap((x) => x.items || []);
+    const allItems = () => Object.values(ST).flatMap((x) => (x.pages && Object.keys(x.pages).length ? Object.values(x.pages).flat() : (x.items || [])));
     const covQ = []; let covBusy = 0;
     const covPump = () => { while (covBusy < 4 && covQ.length) { const cd = covQ.shift(); covBusy++; metaOf(cd.href).then((m) => { const it = allItems().find((c) => c.href === cd.href); if (it) { it.m = m; if (m.img) it.img = m.img; }
       if (cd.classList.contains('up2') || cd.classList.contains('alr')) { if (it) { const t = document.createElement('div'); t.innerHTML = (cd.classList.contains('alr') ? lrow : row)(it, +cd.dataset.i); const n = t.firstChild; n.classList.add('in'); n.dataset.cv = 1; n.style.opacity = '0'; cd.replaceWith(n); requestAnimationFrame(() => { n.style.transition = 'opacity .7s'; n.style.opacity = '1'; }); } return; }
@@ -459,7 +465,7 @@ function steamripConsole() {
     let heroT = 0, heroTok = 0;
     const drawHero = () => {
       clearInterval(heroT); const it = (ST[cur].items || []).filter((c) => c.img).slice(0, 5);
-      if (!it.length || q || cur === 'all') { hero.innerHTML = ''; return; }
+      if (!it.length || q || cur === 'all' || (ST[cur].cur || 1) > 1) { hero.innerHTML = ''; return; }
       hero.innerHTML = '<div class="hero">' + it.map((c, i) => '<div class="sl' + (i ? '' : ' on') + '"><div class="bgi" style="background-image:url(\'' + esc(c.img) + '\')"></div><div class="sh"></div><div class="tx"><small class="k">' + (cur === 'top' ? 'Top ' + (i + 1) + ' · ' : '') + esc(tabs.find((x) => x.k === cur).sub) + '</small><h2>' + [...c.title].map((ch, n) => '<span style="--c:' + n + '">' + (ch === ' ' ? '&nbsp;' : esc(ch)) + '</span>').join('') + '</h2><a class="go" href="' + esc(c.href) + '">Ver juego  ›</a></div><div class="ps"><img src="' + esc(c.img) + '" alt=""></div></div>').join('') + '<div class="dots">' + it.map((c, i) => '<button data-i="' + i + '" class="' + (i ? '' : 'on') + '"></button>').join('') + '</div></div>';
       const tok = ++heroTok; it.forEach((c, i) => shotOf(c.href).then((u) => { if (!u || tok !== heroTok) return; const im = new Image(); im.onload = () => { const sl = hero.querySelectorAll('.sl')[i]; if (!sl || tok !== heroTok) return; const b = sl.querySelector('.bgi'); b.style.backgroundImage = 'url(\'' + u + '\')'; b.classList.add('shot'); }; im.src = u; }));
       let i0 = 0; const go = (i) => { i0 = (i + it.length) % it.length; hero.querySelectorAll('.sl').forEach((e, k) => e.classList.toggle('on', k === i0)); hero.querySelectorAll('.dots button').forEach((e, k) => { e.classList.remove('on'); if (k === i0) { void e.offsetWidth; e.classList.add('on'); } }); };
@@ -485,6 +491,13 @@ function steamripConsole() {
         if (ioC) gr.querySelectorAll('.alr').forEach((cd) => { const it = allItems().find((c) => c.href === cd.href); if (!cd.dataset.cv && !(it && it.m)) { cd.dataset.cv = 1; ioC.observe(cd); } });
         ft.innerHTML = pager(pages, pgN) || (st.err ? '<span class="er">' + esc(st.err) + '</span>' : ''); ft.querySelectorAll('[data-p]').forEach((b) => { b.onclick = () => { pgN = +b.dataset.p; w.scrollTo({ top: Math.max(0, gr.offsetTop - 120), behavior: 'smooth' }); draw(); }; }); return;
       }
+      if (PAGED(cur)) {
+        const loaded = Object.keys(st.pages).map(Number), pages = st.total || (Math.max(1, ...loaded) + 1);
+        $('#ts').textContent = list.length + ' juegos · página ' + st.cur + (st.total ? ' de ' + st.total : '');
+        gr.innerHTML = list.length ? list.map(card).join('') : '<div class="em">No hay juegos que coincidan</div>'; arm();
+        ft.innerHTML = pager(pages, st.cur) + (st.busy ? '<div class="er" style="margin-top:12px">Cargando…</div>' : '') + (st.err ? '<div class="er" style="margin-top:12px">' + esc(st.err) + '</div>' : '');
+        ft.style.display = 'grid'; ft.querySelectorAll('[data-p]').forEach((b) => { b.onclick = () => goPage(cur, +b.dataset.p); }); return;
+      }
       const vis = list.slice(0, q ? 400 : Math.max(shown, PAGE));
       gr.innerHTML = vis.length ? vis.map(cur === 'upd' ? row : card).join('') : '<div class="em">No hay juegos que coincidan</div>'; arm(); if (ioC) (cur === 'upd' ? gr.querySelectorAll('.up2') : [...gr.querySelectorAll('.ph')].map((p) => p.closest('.cd'))).forEach((cd) => { const it = cur === 'upd' ? allItems().find((c) => c.href === cd.href) : null; if (cd && !cd.dataset.cv && !(it && it.m)) { cd.dataset.cv = 1; ioC.observe(cd); } });
       const more = list.length > vis.length;
@@ -498,6 +511,26 @@ function steamripConsole() {
       st.busy = 0; if (k === cur) { draw(); if (k !== 'new' || true) drawHero(); }
     };
     const loadMore = () => { const st = ST[cur], list = filt(); if (list.length > shown && !q) { shown += PAGE; draw(); return; } if (st.next) fetchTab(cur, st.next).then(() => { shown += PAGE; draw(); }); };
+    { const sn = ST.new, pn = +((/\/page\/(\d+)/.exec(location.pathname) || [0, 1])[1]); sn.pages[pn] = firstCards; sn.cur = pn; sn.psize = firstCards.length; sn.total = totalOf(document); }
+    const pageUrl = (k, n) => { if (k === 'new') return n < 2 ? location.origin + '/' : location.origin + '/page/' + n + '/'; const b = new URL(tabs.find((x) => x.k === k).url); b.hash = ''; b.search = ''; b.pathname = b.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/\/?$/, '/'); return n < 2 ? b.href : b.href + 'page/' + n + '/'; };
+    const showPage = (k, n) => {
+      const st = ST[k], fw = n > st.cur; st.cur = n;
+      if (k !== cur) { st.items = st.pages[n]; return; }
+      clearTimeout(swT); gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or'); hero.classList.add('o');
+      swT = setTimeout(() => { st.items = st.pages[n]; gr.classList.remove('ol', 'or'); draw(); gr.classList.add(fw ? 'xl' : 'xr'); hero.classList.remove('o'); drawHero(); w.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => gr.classList.remove('xl', 'xr'), 700); }, 230);
+    };
+    const goPage = async (k, n) => {
+      const st = ST[k]; if (st.busy || n < 1) return;
+      if (st.pages[n]) { showPage(k, n); return; }
+      st.busy = 1; st.err = ''; if (k === cur && st.items) draw();
+      try { const url = pageUrl(k, n), r = await fetch(url, { credentials: 'include' });
+        if (r.status === 404) { st.total = Math.max(1, n - 1); st.busy = 0; if (k === cur) draw(); return; }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const doc = new DOMParser().parseFromString(await r.text(), 'text/html'), items = cardsFrom(doc, url, k === 'new' ? 'new' : 'x');
+        if (!items.length) { st.total = Math.max(1, n - 1); st.busy = 0; if (k === cur) draw(); return; }
+        const t = totalOf(doc); if (t > (st.total || 0)) st.total = t; st.pages[n] = items; if (n === 1 || !st.psize) st.psize = items.length; st.busy = 0; showPage(k, n);
+      } catch (e) { st.busy = 0; st.err = 'No se pudo cargar (' + String(e.message || e).slice(0, 40) + ')'; if (k === cur) draw(); }
+    };
     let swT = 0;
     const sw = (k) => {
       const di = tabs.findIndex((x) => x.k === k) - tabs.findIndex((x) => x.k === cur), fw = di > 0; clearTimeout(swT);
@@ -505,7 +538,7 @@ function steamripConsole() {
       gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or'); hero.classList.add('o');
       swT = setTimeout(() => {
         cur = k; shown = PAGE; pgN = 1; q = ''; $('#q').value = ''; gr.classList.remove('ol', 'or'); draw(); gr.classList.add(fw ? 'xl' : 'xr'); hero.classList.remove('o');
-        if (ST[k].items) drawHero(); else fetchTab(k, tabs.find((x) => x.k === k).url);
+        if (ST[k].items) drawHero(); else if (PAGED(k)) goPage(k, 1); else fetchTab(k, tabs.find((x) => x.k === k).url);
         setTimeout(() => gr.classList.remove('xl', 'xr'), 700);
       }, 230);
     };
