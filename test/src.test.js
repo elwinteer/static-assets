@@ -135,3 +135,9 @@ test('403 persistente: usa netFetch (red de Chromium) como último intento', asy
   const S2 = new Sources({ file: path.join(tmp(), 's.json'), dir: path.join(tmp(), 'c'), netFetch: async () => { const e = new Error('La fuente respondió HTTP 403'); e.code = 'http'; throw e; } }).load();
   await assert.rejects(S2.add(a.url + '/m.json'), (e) => e.code === 'http'); a.s.close();
 });
+test('lista con otro nombre (downloads) y alias uris/uploadDate/fileSize', () => {
+  const m = normalize({ name: 'X', downloads: [{ id: 'a', title: 'A', uris: ['magnet:?xt=urn:btih:aa', 'https://h.test/a.zip'], uploadDate: '2026-02-03', fileSize: '4 GB', uploader: 'U' }, { id: 'b', name: 'B', magnet: 'magnet:?xt=urn:btih:bb' }] }, 'http://h.test/m.json');
+  assert.equal(m.games.length, 2); const a = m.games[0];
+  assert.deepEqual(a.versions.map((v) => v.transport), ['http', 'torrent']); assert.equal(a.date, '2026-02-03'); assert.equal(a.creator, 'U'); assert.equal(a.versions[0].size, 4 * 1024 ** 3);
+  assert.equal(normalize({ items: { x: { name: 'X', link: '/x.zip' } } }, 'http://h/').games.length, 1);
+});

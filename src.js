@@ -110,9 +110,9 @@ function normVersion(v, base) {
  */
 function flatVersions(g, base) {
   const out = [], seen = new Set();
-  const dl = parseSize(g.packed) || parseSize(g.size) || parseSize(g.download);
+  const dl = parseSize(g.packed) || parseSize(g.size) || parseSize(g.fileSize) || parseSize(g.download);
   const inst = parseSize(g.original) || parseSize(g.installed);
-  const date = str(g.date || g.released || g.updated, 40);
+  const date = str(g.date || g.uploadDate || g.released || g.updated, 40);
   const push = (u, label) => {
     const url = absUrl(u, base); if (!url || seen.has(url)) return; seen.add(url);
     const f = { url }; if (dl) f.size = dl;
@@ -120,8 +120,9 @@ function flatVersions(g, base) {
     const tor = isTorrent(url);
     out.push({ version: str(g.version, 60) || label, date, notes: str(g.notes, 600), size: dl, installSize: inst, transport: tor ? 'torrent' : 'http', files: [f] });
   };
-  const link = g.link || g.url || g.href;
-  const magnets = [].concat(g.magnet || []).filter(Boolean);
+  const link = g.link || g.url || g.href || uris.find((x) => !/^magnet:/i.test(x));
+  const uris = [].concat(g.uris || []).filter((x) => typeof x === 'string');
+  const magnets = [].concat(g.magnet || [], uris.filter((x) => /^magnet:/i.test(x))).filter(Boolean);
   if (link && !isTorrent(absUrl(link, base))) push(link, 'Directa');
   for (const m of magnets) push(m, 'Torrent');
   if (link && isTorrent(absUrl(link, base))) push(link, 'Torrent');
@@ -141,7 +142,7 @@ function normGame(g, base, key) {
   const o = { ids: [...ids], name, cover: /^magnet:/.test(cover) ? '' : cover, description: str(g.description || g.summary, 800), developer: str(g.developer || g.author, 120), versions };
   const creator = str(g.creator || g.uploader || g.repacker, 80); if (creator) o.creator = creator;
   const tags = parseTags(g.tags); if (tags.length) o.tags = tags;
-  const date = str(g.date, 40); if (date) o.date = date;
+  const date = str(g.date || g.uploadDate, 40); if (date) o.date = date;
   if (parseBool(g.verified)) o.verified = true;
   const inst = parseSize(g.original); if (inst) o.installSize = inst;
   return o;
@@ -154,8 +155,9 @@ function normalize(m, baseUrl) {
   const sc = m.schema === undefined ? 1 : +m.schema;
   if (sc !== 1) throw err('schema', 'Versión de manifiesto no soportada (' + m.schema + '). Actualizá WINTEER.');
   let list = [];
-  if (Array.isArray(m.games)) list = m.games.map((g) => [g, '']);
-  else if (m.games && typeof m.games === 'object') list = Object.entries(m.games).map(([k, g]) => [g, k]);
+  const L = ['games', 'downloads', 'items', 'list', 'entries', 'repacks'].find((k) => m[k] && typeof m[k] === 'object');
+  if (L && Array.isArray(m[L])) list = m[L].map((g) => [g, '']);
+  else if (L) list = Object.entries(m[L]).map(([k, g]) => [g, k]);
   else if (!Array.isArray(m.include)) throw err('manifest', 'No encontré la lista "games" en el manifiesto');
   const games = [];
   let skipped = 0;
