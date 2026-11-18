@@ -184,6 +184,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   dlSetCfg: (c) => ipcRenderer.invoke('dlSetCfg', c),
   dlDisk: (p) => ipcRenderer.invoke('dlDisk', { path: p }),
   dlPickDir: (t) => ipcRenderer.invoke('dlPickDir', t),
+  btInfo: () => ipcRenderer.invoke('btInfo'),
   srcList: () => ipcRenderer.invoke('srcList'),
   srcAdd: (url, name) => ipcRenderer.invoke('srcAdd', { url, name }),
   srcAddFile: (name) => ipcRenderer.invoke('srcAddFile', { name }),

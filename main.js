@@ -3067,7 +3067,11 @@ app.whenReady().then(() => {
   /* ===== Descargas e instalación (dl.js) ===== */
   try {
     const { Dl } = require('./dl.js');
+    const { Bt } = require('./bt.js');
+    const btExe = [path.join(process.resourcesPath || '', 'bt', 'winteer-bt.exe'), path.join(__dirname, 'bt', 'bin', 'winteer-bt.exe')].find((p) => { try { return fs.statSync(p).isFile(); } catch (e) { return false; } }) || '';
+    const btEng = process.platform === 'win32' ? new Bt({ exe: btExe, stateDir: path.join(app.getPath('userData'), 'bt') }) : null;
     dlEng = new Dl({
+      bt: btEng,
       file: path.join(app.getPath('userData'), 'downloads.json'),
       defaults: { dlDir: path.join(app.getPath('downloads'), 'WINTEER'), installDir: path.join(os.homedir(), 'Games', 'WINTEER') },
       extract: z7Run, archiveSize: z7Size, findExes: wdlExes,
@@ -3101,7 +3105,8 @@ app.whenReady().then(() => {
     ipcMain.handle('srcRefresh', dlWrap((a) => srcEng.refresh(a.id)));
     ipcMain.handle('srcLookup', dlWrap((a) => srcEng.lookup(a.gid)));
     ipcMain.handle('srcGames', dlWrap((a) => srcEng.games(a.q, 200)));
-    ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.gid), a.version | 0, { cover: a.cover || undefined, installDir: a.installDir || undefined }))));
+    ipcMain.handle('srcDl', dlWrap((a) => dlEng.add(srcEng.spec(String(a.sourceId), String(a.gid), a.version | 0, { cover: a.cover || undefined, installDir: a.installDir || undefined, torrentOk: dlEng.btAvailable() }))));
+    ipcMain.handle('btInfo', dlWrap(() => ({ available: dlEng.btAvailable() })));
     ipcMain.handle('dlPickDir', async (_e, t) => { const r = await dialog.showOpenDialog(win, { title: String(t || 'Elegí una carpeta'), properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? '' : r.filePaths[0]; });
   } catch (e) { console.error('dl init', e); }
   ipcMain.handle('bkCheck', async (_e, o) => bkCheck(o || {}));

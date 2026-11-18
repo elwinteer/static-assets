@@ -34,11 +34,15 @@
       "preload.js",
       "dl.js",
       "src.js",
+      "bt.js",
       "index.html",
       "icon.ico",
       "icon.png",
       "sagas/**/*",
       "package.json"
+    ],
+    "extraResources": [
+      { "from": "bt/bin", "to": "bt", "filter": ["winteer-bt.exe"] }
     ],
     "win": {
       "target": [

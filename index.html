@@ -11456,7 +11456,7 @@ Object.assign(A,{ctsort:a=>{CT.sort=a.dataset.v;ctRef()},cttag:a=>{CT.tag=a.data
 P.dl='<path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>';
 {const e=$('#i-dl');if(e)e.outerHTML=ic('dl')}
 /* ===== Centro de descargas (vista; el motor real esta en dl.js) ===== */
-const DLS={items:new Map(),cfg:null,disk:null,ready:false};
+const DLS={items:new Map(),cfg:null,disk:null,ready:false,bt:false};
 const dlBytes=n=>n>=1073741824?(n/1073741824).toFixed(2)+' GB':n>=1048576?(n/1048576).toFixed(1)+' MB':n>=1024?Math.round(n/1024)+' KB':(n||0)+' B';
 const dlTime=s=>!s?'':s>=3600?Math.floor(s/3600)+' h '+Math.round(s%3600/60)+' min':s>=60?Math.floor(s/60)+' min '+(s%60)+' s':s+' s';
 const DLN={queued:'En cola',downloading:'Descargando',paused:'En pausa',verifying:'Verificando',extracting:'Descomprimiendo',installing:'Instalando',completed:'Instalado',error:'Error'};
@@ -11468,7 +11468,8 @@ function dlState(i){
 function dlCard(i){
   const a=dlActive(i),pct=Math.round((i.p.pct||0)*100),er=i.status==='error',ok=i.status==='completed';
   let m='';
-  if(i.status==='downloading')m=`<span>${dlBytes(i.p.speed)}/s</span><span>${dlBytes(i.p.done)} de ${i.p.total?dlBytes(i.p.total):'?'}</span>${i.p.eta?`<span>${dlTime(i.p.eta)} restantes</span>`:''}`;
+  const bt=i.transport==='torrent'?`<span>BitTorrent · ${i.p.peers||0} pares</span>`:'';
+  if(i.status==='downloading')m=bt+`<span>${dlBytes(i.p.speed)}/s</span><span>${dlBytes(i.p.done)} de ${i.p.total?dlBytes(i.p.total):'?'}</span>${i.p.eta?`<span>${dlTime(i.p.eta)} restantes</span>`:''}`;
   else if(i.status==='paused'||i.status==='queued')m=`<span>${dlBytes(i.p.done)} de ${i.p.total?dlBytes(i.p.total):'?'}</span>`;
   else if(ok&&i.result)m=`<span>${dlBytes(i.result.bytes||0)}</span><span>${esc(i.result.dir)}</span>`;
   else if(er)m=`<span>${esc(i.error?i.error.msg:'Error')}</span>`;
@@ -11495,7 +11496,7 @@ V.dl=()=>{setTimeout(dlInit,0);const c=DLS.cfg||{};
   return `<div class="dlv"><h1>Descargas</h1><small class="dlsub" id="dl-disk">${dlDiskTxt()}</small>
   <h2>Agregar por enlace</h2><div class="dlbox">
    <div class="dlrow"><label>Nombre del juego<input type="text" id="dl-n" placeholder="Ej: Mi Juego"></label><label>ID único (opcional)<input type="text" id="dl-g" placeholder="steam:730 o un nombre propio"></label></div>
-   <label>Enlace(s) de descarga — uno por línea, solo de fuentes que tengan permiso para distribuir el juego<textarea id="dl-u" rows="3" placeholder="https://…/juego.zip"></textarea></label>
+   <label>Enlace(s) de descarga — uno por línea, solo de fuentes que tengan permiso para distribuir el juego${DLS.bt?' (también acepta un enlace magnet o .torrent, de a uno)':' · BitTorrent no está instalado en esta versión'}<textarea id="dl-u" rows="3" placeholder="https://…/juego.zip"></textarea></label>
    <div class="dlrow"><label>SHA-256 (opcional, si es un solo archivo)<input type="text" id="dl-h" placeholder="para verificar que no esté dañado"></label><label>Instalar en (opcional)<input type="text" id="dl-d" placeholder="${esc(c.installDir||'')}"></label><button class="dlb s" data-a="dlpick" data-t="d">Elegir…</button></div>
    <div class="dlrow"><button class="dlb" data-a="dladd">Descargar e instalar</button></div></div>
   <div id="dl-l">${dlLists()}</div>
@@ -11511,6 +11512,7 @@ async function dlInit(){
   if(l&&l.ok){DLS.items=new Map(l.r.map(i=>[i.id,i]))}
   if(c&&c.ok)DLS.cfg=c.r;
   await dlDisk();dlBadge();try{await srLoad()}catch(e){}
+  try{const b=await winteerNative.btInfo();if(b&&b.ok&&DLS.bt!==!!b.r.available){DLS.bt=!!b.r.available;if(S.view==='dl'&&!document.activeElement.matches('input,textarea'))go('dl')}}catch(e){}
   const c2=DLS.cfg;if(c2&&S.view==='dl'){const set=(k,v)=>{const e=$('#'+k);if(e&&!e.value)e.value=v};set('dc-dl',c2.dlDir||'');set('dc-in',c2.installDir||'');const sp=$('#dc-sp');if(sp&&sp===document.activeElement===false)sp.value=c2.speedLimit?+(c2.speedLimit/1048576).toFixed(2):0;const ma=$('#dc-ma');if(ma)ma.value=c2.maxActive||3;const ka=$('#dc-ka');if(ka)ka.checked=!!c2.keepArchives;const di=$('#dl-d');if(di)di.placeholder=c2.installDir||''}
   dlPaint();
 }

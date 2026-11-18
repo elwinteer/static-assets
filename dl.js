@@ -66,6 +66,7 @@ class Dl extends EventEmitter {
     this._timer = null; this._saveT = null; this._saving = false;
     this._instChain = Promise.resolve();
     this._stopped = false;
+    this.bt = o.bt || null;
     this.transports = { http: { start: (it, f, part, ctl) => this._httpGet(it, f, part, ctl) }, file: { start: (it, f, part, ctl) => this._fileGet(it, f, part, ctl) } };
   }
 
@@ -106,13 +107,14 @@ class Dl extends EventEmitter {
   _set(it, st, extra) { it.status = st; if (extra) Object.assign(it, extra); this._touch(it); this._persist(true); }
 
   /* ---------- configuración y disco ---------- */
+  btAvailable() { return !!(this.bt && this.bt.available()); }
   getCfg() { return Object.assign({}, this.cfg); }
   setCfg(c) {
     c = c || {};
     if (typeof c.dlDir === 'string' && path.isAbsolute(c.dlDir)) this.cfg.dlDir = path.normalize(c.dlDir);
     if (typeof c.installDir === 'string' && path.isAbsolute(c.installDir)) this.cfg.installDir = path.normalize(c.installDir);
     if (c.maxActive !== undefined) this.cfg.maxActive = Math.max(1, Math.min(10, Math.round(+c.maxActive) || 1));
-    if (c.speedLimit !== undefined) { this.cfg.speedLimit = Math.max(0, Math.round(+c.speedLimit) || 0); this.lim.rate = this.cfg.speedLimit; }
+    if (c.speedLimit !== undefined) { this.cfg.speedLimit = Math.max(0, Math.round(+c.speedLimit) || 0); this.lim.rate = this.cfg.speedLimit; if (this.bt) this.bt.setLimits(this.cfg.speedLimit, 0); }
     if (c.keepArchives !== undefined) this.cfg.keepArchives = !!c.keepArchives;
     this._persist(true); this._pump();
     return this.getCfg();
@@ -144,7 +146,15 @@ class Dl extends EventEmitter {
     const used = new Set(), files = spec.files.map((f, n) => {
       if (!f || typeof f.url !== 'string') throw err('spec', 'Archivo sin dirección');
       let u; try { u = new URL(f.url); } catch (e) { throw err('spec', 'Dirección inválida: ' + String(f.url).slice(0, 80)); }
-      if (u.protocol === 'magnet:' || /\.torrent$/i.test(u.pathname)) throw err('transport', 'BitTorrent todavía no está disponible en esta versión');
+      const tor = u.protocol === 'magnet:' || /\.torrent$/i.test(u.pathname);
+      if (tor) {
+        if (!this.btAvailable()) throw err('transport', 'BitTorrent no está disponible en esta instalación de WINTEER (falta el ayudante winteer-bt)');
+        if (spec.files.length !== 1) throw err('spec', 'Un torrent va solo, sin otros archivos en la misma descarga');
+        if (u.protocol === 'file:' && spec.localOk !== true) throw err('spec', 'Archivo local no permitido');
+        if (u.protocol !== 'magnet:' && u.protocol !== 'http:' && u.protocol !== 'https:' && u.protocol !== 'file:') throw err('spec', 'Enlace de torrent no válido');
+        const dn = u.protocol === 'magnet:' ? u.searchParams.get('dn') : '';
+        return { url: u.href, name: safeName(dn || path.basename(u.pathname) || 'torrent', 'torrent'), size: 0, got: 0, done: false, torrent: true };
+      }
       if (u.protocol === 'file:' && spec.localOk === true) { /* archivo local indicado por un manifiesto en disco */ } else if (u.protocol !== 'http:' && u.protocol !== 'https:') throw err('spec', 'Solo se admiten enlaces http(s)');
       let nm = safeName(f.name || decodeURIComponent(path.basename(u.pathname)) || 'archivo' + n, 'archivo');
       while (used.has(nm.toLowerCase())) nm = n + '_' + nm;
@@ -158,7 +168,7 @@ class Dl extends EventEmitter {
       id: mkid(), gid, name, cover: typeof spec.cover === 'string' ? spec.cover.slice(0, 600) : '', version: String(spec.version || '').slice(0, 60),
       source: spec.source && typeof spec.source === 'object' ? JSON.parse(JSON.stringify(spec.source)) : null,
       meta: spec.meta && typeof spec.meta === 'object' ? JSON.parse(JSON.stringify(spec.meta)) : null,
-      transport: 'http', files, createdAt: Date.now(), status: S.Q,
+      transport: files.some((x) => x.torrent) ? 'torrent' : 'http', files, createdAt: Date.now(), status: S.Q,
       installDir: spec.installDir ? path.normalize(String(spec.installDir)) : '', autoInstall: spec.autoInstall !== false, keepArchives: spec.keepArchives === undefined ? null : !!spec.keepArchives,
       p: { done: 0, total: files.reduce((s, f) => s + f.size, 0), speed: 0, eta: 0, phase: 'queued', pct: 0 }, error: null, result: null, libSynced: false,
     };
@@ -228,6 +238,7 @@ class Dl extends EventEmitter {
     await Promise.race([Promise.all(w), sleep(4000)]);
     for (const it of this.items.values()) if ([S.D, S.V].includes(it.status)) it.status = S.Q;
     this._persist(true);
+    try { if (this.bt) await this.bt.shutdown(); } catch (e) {}
   }
 
   /* ---------- planificador ---------- */
@@ -288,6 +299,7 @@ class Dl extends EventEmitter {
   async _download(it, ctl) {
     it.p.phase = 'download'; this._set(it, S.D);
     const dir = this._itemDir(it); fs.mkdirSync(dir, { recursive: true });
+    if (it.transport === 'torrent') { await this._torrent(it, dir, ctl); it._sp = []; it.p.speed = 0; it.p.eta = 0; return; }
     for (const f of it.files) {
       if (f.done && exists(path.join(dir, f.name))) continue;
       f.done = false;
@@ -395,6 +407,52 @@ class Dl extends EventEmitter {
     });
   }
 
+  /** Descarga BitTorrent: la hace el ayudante (libtorrent); acá solo se sigue su progreso. */
+  async _torrent(it, dir, ctl) {
+    const f = it.files[0], bt = this.bt;
+    if (!this.btAvailable()) throw err('transport', 'El ayudante BitTorrent no está disponible');
+    if (ctl.cancel) throw CANCEL; if (ctl.pause || ctl.shutdown) throw PAUSE;
+    let uri = f.url;
+    if (!/^magnet:/i.test(uri)) {
+      const tf = path.join(dir, 'meta.torrent');
+      if (!exists(tf)) { it.p.phase = 'metadata'; this._touch(it); if (/^file:/i.test(uri)) fs.copyFileSync(fileURLToPath(uri), tf); else fs.writeFileSync(tf, await this._getBuf(uri, 0)); }
+      uri = tf;
+    }
+    const root = path.join(dir, 'bt');
+    return new Promise((resolve, reject) => {
+      let fin = false;
+      const off = () => { bt.off('status', onS); bt.off('finished', onF); bt.off('error', onE); bt.off('exit', onX); ctl.abort = null; };
+      const end = (e) => { if (fin) return; fin = true; off(); e ? reject(e) : resolve(); };
+      const onS = (m) => {
+        if (m.id !== it.id) return;
+        if (m.hash) it.btHash = m.hash; if (m.total > 0) f.size = m.total; f.got = Math.min(m.done || 0, f.size || m.done || 0);
+        it.p.peers = m.peers | 0; it.p.seeds = m.seeds | 0;
+        it.p.phase = m.state === 'checking' ? 'verify' : m.state === 'metadata' ? 'metadata' : 'download';
+        this._calc(it); it.p.speed = m.down | 0; it.p.eta = it.p.speed > 0 && it.p.total > it.p.done ? Math.ceil((it.p.total - it.p.done) / it.p.speed) : 0; this._touch(it);
+      };
+      const onF = (m) => { if (m.id !== it.id) return; it.btRoot = String(m.root || root); it.btFiles = (Array.isArray(m.files) ? m.files : []).map((x) => ({ p: String(x.p), s: +x.s || 0 })); f.done = true; f.got = f.size = it.btFiles.reduce((s, x) => s + x.s, 0) || f.size; this._calc(it); end(null); };
+      const onE = (m) => { if (m.id !== it.id) return; end(err(m.code || 'torrent', m.msg || 'Error de BitTorrent')); };
+      const onX = () => end(err('bt-exit', 'El ayudante BitTorrent se cerró. Reintentá la descarga.'));
+      bt.on('status', onS); bt.on('finished', onF); bt.on('error', onE); bt.on('exit', onX);
+      ctl.abort = () => {
+        if (ctl.cancel) bt.send({ op: 'remove', id: it.id, deleteFiles: true }).catch(() => {}); else bt.send({ op: 'pause', id: it.id }).catch(() => {});
+        end(ctl.cancel ? CANCEL : PAUSE);
+      };
+      bt.send({ op: 'add', id: it.id, uri, dir: root }).catch((e) => end(e.fatal === undefined ? Object.assign(e, { fatal: true }) : e));
+    });
+  }
+  _getBuf(url, hops) {
+    return new Promise((resolve, reject) => {
+      let u; try { u = new URL(url); } catch (e) { return reject(err('url', 'Enlace de torrent inválido')); }
+      (u.protocol === 'https:' ? https : http).get(u, { headers: { 'user-agent': UA } }, (res) => {
+        if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) { res.resume(); return hops >= 5 ? reject(err('redirect', 'Demasiadas redirecciones')) : resolve(this._getBuf(new URL(res.headers.location, u).href, hops + 1)); }
+        if (res.statusCode !== 200) { res.resume(); return reject(err('http', 'No pude bajar el archivo .torrent (HTTP ' + res.statusCode + ')')); }
+        const ch = []; let n = 0; res.on('data', (c) => { n += c.length; if (n > 8e6) { res.destroy(); reject(err('size', 'El archivo .torrent es demasiado grande')); } else ch.push(c); });
+        res.on('end', () => resolve(Buffer.concat(ch))); res.on('error', reject);
+      }).on('error', (e) => reject(err('network', 'No pude bajar el archivo .torrent: ' + (e.code || e.message))));
+    });
+  }
+
   /** Copia un archivo local (de un manifiesto en disco) con pausa, reanudación y límite de velocidad. */
   _fileGet(it, f, part, ctl) {
     return new Promise((resolve, reject) => {
@@ -442,12 +500,20 @@ class Dl extends EventEmitter {
       if (ctl.cancel) throw CANCEL;
       fs.mkdirSync(parent, { recursive: true }); rm(tmp); fs.mkdirSync(tmp, { recursive: true });
       this._set(it, S.I);
-      const main = [], loose = [];
-      for (const f of it.files) {
-        if (ARCH.test(f.name) || /\.(00[1-9])$/.test(f.name)) { if (ARCH_PART2.test(f.name)) continue; main.push(f); } else if (ARCH_PART2.test(f.name)) continue; else loose.push(f);
+      const main = [], loose = []; let tree = '';
+      if (it.transport === 'torrent') {
+        const rd = it.btRoot; if (!rd || !exists(rd)) throw err('extract', 'No encuentro lo descargado por BitTorrent');
+        const L = it.btFiles || [];
+        for (const x of L) { const ab = path.join(rd, x.p), base = path.basename(x.p); if ((ARCH.test(base) || /\.(00[1-9])$/.test(base)) && !ARCH_PART2.test(base)) main.push({ name: base, abs: ab, size: x.s }); }
+        if (!main.length) { tree = rd; loose.push(...L.map((x) => ({ size: x.s }))); }
+      } else {
+        for (const f of it.files) {
+          const o = { name: f.name, abs: path.join(dir, f.name), size: f.size };
+          if (ARCH.test(f.name) || /\.(00[1-9])$/.test(f.name)) { if (ARCH_PART2.test(f.name)) continue; main.push(o); } else if (ARCH_PART2.test(f.name)) continue; else loose.push(o);
+        }
       }
       // espacio para lo que se va a descomprimir
-      let need = 0; for (const f of main) need += await this.o.archiveSize(path.join(dir, f.name)).catch(() => 0);
+      let need = 0; for (const f of main) need += await this.o.archiveSize(f.abs).catch(() => 0);
       for (const f of loose) need += f.size || 0;
       const free = this.disk(parent).free;
       if (need > 0 && free >= 0 && free < need + 5e7) throw err('space', 'No hay espacio para instalar: necesita ' + fmt(need) + ' y quedan ' + fmt(free), { need, free });
@@ -455,7 +521,7 @@ class Dl extends EventEmitter {
       for (const f of main) {
         if (ctl.cancel) throw CANCEL;
         this._set(it, S.X); it.p.phase = 'extract'; this._touch(it);
-        const file = path.join(dir, f.name);
+        const file = f.abs;
         let r = await this.o.extract(file, tmp, (v) => { it.p.pct = (idx + v) / main.length; this._touch(it); });
         if (!r || !r.ok) throw err('extract', (r && r.err) || 'No pude descomprimir "' + f.name + '"');
         let ents = fs.readdirSync(tmp);
@@ -467,7 +533,7 @@ class Dl extends EventEmitter {
         }
         idx++;
       }
-      for (const f of loose) fs.copyFileSync(path.join(dir, f.name), path.join(tmp, f.name));
+      if (tree) fs.cpSync(tree, tmp, { recursive: true }); else for (const f of loose) fs.copyFileSync(f.abs, path.join(tmp, f.name));
       this._set(it, S.I); it.p.phase = 'install'; it.p.pct = 1;
       let ents = fs.readdirSync(tmp);
       if (!ents.length) throw err('extract', 'El contenido estaba vacío');

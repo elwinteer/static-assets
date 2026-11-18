@@ -2,18 +2,47 @@ name: Beta
 on:
   push:
     branches: [beta]
-    paths: ['main.js','preload.js','dl.js','src.js','index.html','package.json','icon.ico','icon.png','sagas/**']
+    paths: ['main.js','preload.js','dl.js','src.js','bt.js','bt/**','index.html','package.json','icon.ico','icon.png','sagas/**']
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
+  bt:
+    # Ayudante BitTorrent (libtorrent). Si falla, la beta se arma igual, sin BitTorrent.
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\vcpkg\archives
+          key: vcpkg-bt-${{ hashFiles('bt/vcpkg.json') }}
+      - name: Compilar winteer-bt
+        shell: bash
+        run: |
+          cmake -S bt -B bt/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          cmake --build bt/build --config Release
+          ls bt/build/Release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: winteer-bt
+          path: bt/build/Release/winteer-bt.exe
   build:
+    needs: bt
+    if: ${{ !cancelled() }}
     runs-on: windows-latest
     defaults:
       run:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      - name: Traer el ayudante BitTorrent (si se pudo compilar)
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: winteer-bt
+          path: bt/bin
+      - run: mkdir -p bt/bin && ls bt/bin
       - uses: actions/setup-node@v4
         with:
           node-version: 22

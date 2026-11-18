@@ -196,7 +196,9 @@ class Sources extends EventEmitter {
     const hit = this.lookup(gid).find((x) => x.source.id === sourceId) || this.games('', 1e9).find((x) => x.source.id === sourceId && x.game.ids.includes(normId(gid)));
     if (!hit) throw err('nf', 'Esa fuente ya no tiene este juego');
     const v = hit.game.versions[Math.max(0, Math.min(hit.game.versions.length - 1, versionIdx | 0))];
-    if (v.transport === 'torrent') throw err('transport', 'Esta versión se distribuye por BitTorrent, que todavía no está disponible en esta versión de WINTEER');
+    const { torrentOk, ...rest } = extra || {};
+    if (v.transport === 'torrent' && !torrentOk) throw err('transport', 'Esta versión se distribuye por BitTorrent y falta el ayudante winteer-bt en esta instalación de WINTEER');
+    extra = rest;
     const local = v.files.some((f) => /^file:/i.test(f.url));
     return Object.assign({ localOk: local, gid: normId(gid), name: hit.game.name, cover: hit.game.cover || '', version: v.version, files: v.files.map((f) => Object.assign({}, f)), source: { id: hit.source.id, name: hit.source.name, url: hit.source.url } }, extra || {});
   }
