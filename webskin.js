@@ -3,8 +3,8 @@
 'use strict';
 const SKINS = [
   { name: 'steamrip', test: /(^|\.)steamrip\.com$/i, css: `
-    html{background:radial-gradient(60% 45% at 18% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(50% 40% at 88% 8%,rgba(255,255,255,.045),transparent 70%),radial-gradient(70% 50% at 50% 100%,rgba(255,255,255,.03),transparent 70%),#09090a fixed!important;background-image:none}
-    html{background:radial-gradient(60% 45% at 18% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(50% 40% at 88% 8%,rgba(255,255,255,.045),transparent 70%),radial-gradient(70% 50% at 50% 100%,rgba(255,255,255,.03),transparent 70%),#09090a!important;background-attachment:fixed!important;scroll-behavior:smooth}
+    html{background:transparent!important;background-image:none!important}
+    html{background:transparent!important;background-image:none!important}
     body{background:transparent!important;background-image:none!important}
     body:before,body:after,html:before,html:after{background-image:none!important}
     html{animation:wtIn .6s cubic-bezier(.22,1,.36,1) backwards}
@@ -35,7 +35,7 @@ const SKINS = [
     @media (prefers-reduced-motion:reduce){html,.wt-frame{animation:none!important}*{transition:none!important}}
   `, mono: true },
   { name: 'fitgirl', test: /(^|\.)fitgirl-repacks\.site$/i, css: `
-    html,body{background:#09090a!important;color:#d6d7e2!important}
+    html,body{background:transparent!important;color:#d6d7e2!important}
     a{color:#fff}
   `, mono: true },
 ];
@@ -95,7 +95,7 @@ function steamripConsole() {
     }
     return out;
   };
-  const AMBCSS = `.base{position:fixed;inset:0;background:#09090a}.amb,.au,.bgc,.bg,.vig,.beam{display:none!important}
+  const AMBCSS = `.base{position:fixed;inset:0;background:transparent}.amb,.au,.bgc,.bg,.vig,.beam{display:none!important}
       .amb{position:fixed;inset:0;overflow:hidden;pointer-events:none}
       .orb{position:absolute;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(255,255,255,.2),transparent 65%);opacity:.55;animation:orb var(--d) ease-in-out infinite alternate}
       @keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.3)}}
@@ -611,7 +611,7 @@ function fitgirlConsole() {
   const FONT = '"Segoe UI",system-ui,sans-serif';
   const BASE = `*{box-sizing:border-box}:host{all:initial}
     .bar.fg .tbw.hubtb button{padding:0 20px 0 16px!important;height:42px!important;font:600 14px "Segoe UI",system-ui!important;gap:9px!important}.bar.fg .tbw.hubtb button svg{width:17px!important;height:17px!important;padding:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:inherit!important;opacity:.85;box-sizing:border-box}
-    .base{position:fixed;inset:0;background:#09090a}.amb,.au,.bgc,.bg,.vig,.beam{display:none!important}
+    .base{position:fixed;inset:0;background:transparent}.amb,.au,.bgc,.bg,.vig,.beam{display:none!important}
     .amb{position:fixed;inset:0;overflow:hidden;pointer-events:none}
     .orb{position:absolute;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%);opacity:.5;animation:orb var(--d) ease-in-out infinite alternate}
     @keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.3)}}
