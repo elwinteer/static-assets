@@ -186,8 +186,8 @@ function steamripConsole() {
     const stats = [['Tamaño', d.size], ['Espacio en disco', d.space], ['Versión', d.ver], ['Publicado', d.date]].filter((x) => x[1]);
     const reqHTML = reqCard('Mínimos', d.req.min) + reqCard('Recomendados', d.req.rec);
     const panes = [];
-    { const shots = d.shots.length ? '<div class="lab rv">Capturas</div><div class="gal rv">' + d.shots.slice(0, 6).map((u) => '<img loading="lazy" src="' + esc(u) + '" alt="">').join('') + '</div>' : '';
-      const info = d.info.map((b) => '<div class="sec rv"><h3>' + esc(b.h) + '</h3>' + b.p.map((x) => '<p>' + esc(x) + '</p>').join('') + '</div>').join('');
+    { const shots = d.shots.length ? '<div class="gal rv">' + d.shots.slice(0, 3).map((u) => '<img loading="lazy" src="' + esc(u) + '" alt="">').join('') + '</div>' : '';
+      const info = d.info.slice(0, 2).map((b) => '<div class="sec rv"><h3>' + esc(b.h) + '</h3>' + b.p.slice(0, 2).map((x) => '<p>' + esc(x) + '</p>').join('') + '</div>').join('') + (d.info.length > 2 || d.info.some((b) => b.p.length > 2 || b.p.join(' ').length > 380) ? '<button class="mo" id="more">Ver descripción completa</button>' : '');
       const rq = reqHTML ? '<div class="rqs rv">' + reqHTML + '</div>' : '';
       const body = shots + (info || rq ? '<div class="mix' + (info && rq ? '' : ' one') + '"><div>' + info + '</div>' + (rq ? '<div>' + rq + '</div>' : '') + '</div>' : '');
       panes.push(['i', 'Juego', body || '<div class="empty">Sin información</div>']); }
@@ -238,16 +238,28 @@ function steamripConsole() {
       .lb{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(4,4,8,.88);animation:fi .35s;cursor:zoom-out}.lb img{max-width:92vw;max-height:90vh;border-radius:14px;box-shadow:0 40px 100px rgba(0,0,0,.7);animation:pop .5s cubic-bezier(.22,1,.36,1)}
       .cm{color:#d6d7e2;min-height:120px}.empty{color:#8e90a0;padding:30px;text-align:center}.fb{display:grid;gap:12px;justify-items:center;padding:30px;color:#9d9eb0;text-align:center}.fb button{font:700 14px "Segoe UI",system-ui;background:#f4f4f8;color:#0b0b13;border:0;border-radius:12px;padding:12px 22px;cursor:pointer}
       @media (max-width:980px){.main{grid-template-columns:1fr;overflow:auto}.side{overflow:visible}.panel{min-height:70vh}.tbw{display:none}}
+      /* ventana de juego compacta: todo entra sin scroll */
+      .main{grid-template-columns:minmax(290px,340px) minmax(0,1fr);gap:20px;padding:8px 28px 22px;max-width:1500px}
+      .side{overflow:hidden;gap:10px;padding:2px 4px 0 2px;-webkit-mask-image:none;mask-image:none}
+      .cv{}h1{font-size:23px;line-height:1.12;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}h1:after{margin-top:7px}
+      .big{height:48px}.st div{padding:7px 12px}.alt a{padding:8px 14px}.alt{gap:6px}.ch span{padding:3px 10px}
+      .panel{min-height:0}.pn#p-i{overflow:hidden;padding:16px 20px 18px;display:none;flex-direction:column;gap:14px}.pn#p-i.on{display:flex}
+      .pn#p-i .gal{flex:1 1 0;min-height:120px;max-height:240px;margin:0!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr);gap:12px!important}.pn#p-i .gal img,.pn#p-i .gal img:first-child:nth-last-child(n){grid-column:auto!important;grid-row:auto!important;width:100%;height:100%;object-fit:cover;border-radius:14px!important;box-shadow:0 10px 26px rgba(0,0,0,.4)}
+      .pn#p-i .mix{flex:1 1 0;min-height:0;align-items:stretch;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px}.pn#p-i .mix>div{min-height:0;gap:12px}.pn#p-i .mix>div:first-child{overflow:hidden}
+      .pn#p-i .sec{padding:12px 16px;flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}.pn#p-i .sec h3{margin:0 0 8px}.pn#p-i .sec p{margin:0 0 6px;font-size:13.5px;line-height:1.5;color:#d2d3df;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+      .pn#p-i .rq{padding:12px 16px;flex:1 1 auto;min-height:0;overflow:hidden}.pn#p-i .rq h4{margin:0 0 6px}.pn#p-i .rq .rw{padding:5px 0;font-size:13.5px}
+      .mo{all:unset;cursor:pointer;flex:none;align-self:flex-start;margin-top:-2px;padding:9px 18px;border-radius:99px;font:700 13px "Segoe UI",system-ui;color:#0b0b13;background:#f4f4f8;transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s}.mo:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(255,255,255,.2)}
+      .md{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(4,4,8,.82);backdrop-filter:blur(8px);animation:fi .35s}.md>div{width:min(760px,90vw);max-height:84vh;overflow:auto;padding:26px 30px;border-radius:24px;background:#121216;border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 100px rgba(0,0,0,.7);animation:pop .5s cubic-bezier(.22,1,.36,1)}.md h3{margin:18px 0 8px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#9a9bad}.md h3:first-child{margin-top:0}.md p{margin:0 0 10px;color:#d6d7e2;font-size:14.5px;line-height:1.6}
       @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none;filter:none}}
     </style>
     <div class="base"></div><div class="bg" style="background-image:url('${esc(d.cover)}')"></div>${AMB}
     <div class="app"><div class="bar"><button class="ob" id="back">${ic('back')}Volver</button><div class="tbw" id="nv">${tabBtns(tabs)}</div><span></span></div>
       <div class="main"><div class="side"><div class="cvw" style="--cvimg:url('${esc(d.cover)}')"><div class="cv" id="cv"><img src="${esc(d.cover)}" alt=""><i></i></div></div>
-          <div class="ch">${d.cats.map((c, i) => '<span style="--j:' + i + '">' + esc(c) + '</span>').join('')}</div>
+          <div class="ch">${d.cats.slice(0, 4).map((c, i) => '<span style="--j:' + i + '">' + esc(c) + '</span>').join('')}</div>
           <h1>${d.title.split(' ').map((x, i) => '<span class="wd" style="--i:' + i + '">' + esc(x) + '</span>').join('')}</h1>
           <a class="big" href="${esc(main.href)}" target="_blank" rel="noopener"><span>Descargar</span><small>${esc(main.name)}</small></a>
           ${stats.length ? '<div class="st">' + stats.map((x, i) => '<div style="--j:' + i + '"><small>' + x[0] + '</small><b>' + esc(x[1]) + '</b></div>').join('') + '</div>' : ''}
-          ${rest.length ? '<div class="lbl">Más enlaces</div><div class="alt">' + rest.map((l, i) => '<a href="' + esc(l.href) + '" target="_blank" rel="noopener" style="animation-delay:' + (0.5 + i * 0.06) + 's"><span>' + esc(l.name) + '</span><small>' + (l.sub.toLowerCase() === l.name.toLowerCase() ? '' : esc(l.sub)) + '</small></a>').join('') + '</div>' : ''}</div>
+          ${rest.length ? '<div class="lbl">Más enlaces</div><div class="alt">' + rest.slice(0, 2).map((l, i) => '<a href="' + esc(l.href) + '" target="_blank" rel="noopener" style="animation-delay:' + (0.5 + i * 0.06) + 's"><span>' + esc(l.name) + '</span><small>' + (l.sub.toLowerCase() === l.name.toLowerCase() ? '' : esc(l.sub)) + '</small></a>').join('') + '</div>' : ''}</div>
         <div class="panel"><div class="ptb" id="tabs">${panes.map((p, i) => '<button class="tb' + (i ? '' : ' on') + '" data-t="' + p[0] + '">' + p[1] + '</button>').join('')}<span class="ind" id="ind"></span></div>
           <div class="pw">${panes.map((p, i) => '<div class="pn' + (i ? '' : ' on') + '" id="p-' + p[0] + '">' + p[2] + '</div>').join('')}</div></div></div></div>`;
     const $ = (q) => sh.querySelector(q), ind = $('#ind');
@@ -263,9 +275,10 @@ function steamripConsole() {
       sh.querySelectorAll('.gal img').forEach((im) => { const bad = () => { im.remove(); chk(); }; im.addEventListener('error', bad); im.addEventListener('load', () => { if (im.naturalWidth < 240) bad(); }); if (im.complete && im.naturalWidth && im.naturalWidth < 240) bad(); });
       setTimeout(() => { sh.querySelectorAll('.gal img').forEach((im) => { if (!im.naturalWidth) im.remove(); }); chk(); }, 7000); }
     const cv = $('#cv'), cim = cv.querySelector('img');
-    const fit = () => { const r = Math.min(1.9, Math.max(.62, (cim.naturalWidth || 2) / (cim.naturalHeight || 3))); cv.style.aspectRatio = String(r); cv.style.width = 'min(100%, ' + (38 * r).toFixed(1) + 'vh)'; }; cim.complete ? fit() : cim.addEventListener('load', fit); fit();
+    const fit = () => { const r = Math.min(1.9, Math.max(.62, (cim.naturalWidth || 2) / (cim.naturalHeight || 3))); cv.style.aspectRatio = String(r); cv.style.width = 'min(100%, ' + (29 * r).toFixed(1) + 'vh)'; }; cim.complete ? fit() : cim.addEventListener('load', fit); fit();
     cv.addEventListener('mousemove', (e) => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; cv.style.transition = 'transform .08s linear,box-shadow .5s'; cv.style.transform = 'perspective(900px) rotateY(' + ((x - .5) * 10) + 'deg) rotateX(' + ((.5 - y) * 10) + 'deg) scale(1.02)'; cv.style.setProperty('--mx', x * 100 + '%'); cv.style.setProperty('--my', y * 100 + '%'); });
     cv.addEventListener('mouseleave', () => { cv.style.transition = 'transform .7s cubic-bezier(.22,1,.36,1),box-shadow .5s'; cv.style.transform = ''; });
+    { const mo = $('#more'); if (mo) mo.onclick = () => { const m = document.createElement('div'); m.className = 'md'; m.innerHTML = '<div>' + d.info.map((b) => '<h3>' + esc(b.h) + '</h3>' + b.p.map((x) => '<p>' + esc(x) + '</p>').join('')).join('') + '</div>'; m.onclick = (e) => { if (e.target === m) m.remove(); }; sh.appendChild(m); }; }
     const big = $('.big');
     big.addEventListener('mousemove', (e) => { const r = big.getBoundingClientRect(); big.style.transform = 'translate(' + ((e.clientX - r.left - r.width / 2) * .04) + 'px,' + (-3 + (e.clientY - r.top - r.height / 2) * .12) + 'px)'; });
     big.addEventListener('mouseleave', () => { big.style.transform = ''; });
@@ -1106,4 +1119,14 @@ function fitgirlConsole() {
 }
 
 const skinFor = (url) => { try { const h = new URL(url).hostname; return SKINS.find((s) => s.test.test(h)) || null; } catch (e) { return null; } };
-module.exports = { SKINS, MONO_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()' } };
+// Botón flotante para cambiar entre SteamRIP y FitGirl sin cerrar pestañas (lo recibe el navegador del launcher por console.log)
+const SW_JS = (cur) => '(' + function (cur) {
+  if (document.getElementById('wt-sw') || window.top !== window) return;
+  const h = document.createElement('div'); h.id = 'wt-sw'; h.style.cssText = 'position:fixed;left:14px;top:12px;z-index:2147483600;display:block';
+  const sh = h.attachShadow({ mode: 'open' });
+  sh.innerHTML = '<style>.p{display:flex;gap:3px;padding:4px;border-radius:99px;background:rgba(14,14,16,.72);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:.6;transition:opacity .35s,transform .45s cubic-bezier(.16,1,.3,1);font:700 12px "Segoe UI",system-ui,sans-serif}.p:hover{opacity:1;transform:translateY(1px)}button{all:unset;cursor:pointer;padding:7px 13px;border-radius:99px;color:#c9cad6;transition:background .3s,color .3s,transform .3s}button:hover{background:rgba(255,255,255,.12);color:#fff}button.on{background:linear-gradient(135deg,#fff,#cfd0da);color:#0b0b13;cursor:default}button:active{transform:scale(.95)}@media (max-width:1100px){.p{display:none}}</style><div class="p"><button data-k="steamrip" class="' + (cur === 'steamrip' ? 'on' : '') + '">SteamRIP</button><button data-k="fitgirl" class="' + (cur === 'fitgirl' ? 'on' : '') + '">FitGirl</button></div>';
+  sh.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('button'); if (!b || b.classList.contains('on')) return; console.log('__WT_SW__' + b.dataset.k); });
+  document.documentElement.appendChild(h);
+}.toString() + ')(' + JSON.stringify(cur) + ')';
+
+module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()' } };
