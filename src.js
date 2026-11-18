@@ -110,6 +110,7 @@ function normVersion(v, base) {
  */
 function flatVersions(g, base) {
   const out = [], seen = new Set();
+  const uris = [].concat(g.uris || []).filter((x) => typeof x === 'string');
   const dl = parseSize(g.packed) || parseSize(g.size) || parseSize(g.fileSize) || parseSize(g.download);
   const inst = parseSize(g.original) || parseSize(g.installed);
   const date = str(g.date || g.uploadDate || g.released || g.updated, 40);
@@ -121,7 +122,6 @@ function flatVersions(g, base) {
     out.push({ version: str(g.version, 60) || label, date, notes: str(g.notes, 600), size: dl, installSize: inst, transport: tor ? 'torrent' : 'http', files: [f] });
   };
   const link = g.link || g.url || g.href || uris.find((x) => !/^magnet:/i.test(x));
-  const uris = [].concat(g.uris || []).filter((x) => typeof x === 'string');
   const magnets = [].concat(g.magnet || [], uris.filter((x) => /^magnet:/i.test(x))).filter(Boolean);
   if (link && !isTorrent(absUrl(link, base))) push(link, 'Directa');
   for (const m of magnets) push(m, 'Torrent');
