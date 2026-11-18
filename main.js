@@ -3105,16 +3105,15 @@ app.whenReady().then(() => {
         const tryFetch = async () => { const r = await ses.fetch(url, { headers: h, redirect: 'follow' }); if (r.status === 304) return { done: { notModified: true } }; const t = await r.text(); return isChallenge(r, t) ? { r } : r.ok ? { done: { text: t, etag: r.headers.get('etag') || '', url: r.url || url } } : { err: r.status }; };
         let x = await tryFetch();
         if (x.err) throw bad('La fuente respondió HTTP ' + x.err, 'http');
-        if (x.r) { // desafío de JavaScript (Cloudflare "Un momento…"): se resuelve en una ventana de navegador real; si pide un clic, se muestra
-          const w = new BrowserWindow({ show: false, width: 520, height: 640, title: 'WINTEER · verificando fuente', autoHideMenuBar: true, webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
+        if (x.r) { // desafío de Cloudflare ("Un momento…" / captcha): se resuelve en una ventana de navegador real, visible para poder hacer el clic
+          const w = new BrowserWindow({ show: true, center: true, width: 560, height: 680, title: 'WINTEER · verificando fuente', autoHideMenuBar: true, webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
           try {
             w.loadURL(url, { userAgent: UAC }).catch(() => {});
-            const t0 = Date.now(); let shown = false, ok = false;
+            const t0 = Date.now(); let ok = false;
             while (Date.now() - t0 < 90000 && !w.isDestroyed()) {
               await new Promise((r) => setTimeout(r, 1000));
               let ti = ''; try { ti = w.webContents.getTitle() || ''; } catch (e) {}
               if (ti && !/just a moment|un momento|attention required|verificando|checking/i.test(ti)) { ok = true; break; }
-              if (!shown && Date.now() - t0 > 12000) { shown = true; try { w.show(); } catch (e) {} } // si no pasó solo, que el usuario haga el clic
             }
             if (!ok) throw Object.assign(bad('La fuente pide verificación (Cloudflare) y no se completó en 90 segundos. Si apareció una ventana, hacé el clic de verificación y volvé a probar', 'http'), { challenge: true });
             await new Promise((r) => setTimeout(r, 800));
