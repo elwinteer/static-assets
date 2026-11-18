@@ -3097,12 +3097,36 @@ app.whenReady().then(() => {
     srcEng = new Sources({ file: path.join(app.getPath('userData'), 'sources.json'), dir: path.join(app.getPath('userData'), 'sources'),
       // Primer intento: la red de Chromium (net.fetch) con User-Agent de Chrome, igual que un navegador; si falla, se usa Node.
       netFetch: async (url, o) => {
-        const h = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8' }; if (o && o.etag) h['if-none-match'] = o.etag;
-        const r = await net.fetch(url, { headers: h, redirect: 'follow' });
-        if (r.status === 304) return { notModified: true };
-        if (!r.ok) { const e = new Error('La fuente respondió HTTP ' + r.status + (r.status === 403 ? ' (acceso denegado: puede requerir permiso, o el enlace venció)' : '')); e.code = 'http'; throw e; }
-        const t = await r.text(); if (t.length > ((o && o.maxBytes) || 12e6)) { const e = new Error('El manifiesto es demasiado grande'); e.code = 'size'; throw e; }
-        return { text: t, etag: r.headers.get('etag') || '', url: r.url || url };
+        const UAC = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
+        const ses = session.fromPartition('persist:winteer-src'); ses.setUserAgent(UAC); // las cookies del desafío se guardan aquí y se reutilizan
+        const h = { accept: 'application/json,text/plain,*/*', 'accept-language': 'es-AR,es;q=0.9,en;q=0.8' }; if (o && o.etag) h['if-none-match'] = o.etag;
+        const lim = (o && o.maxBytes) || 12e6, bad = (m, c) => Object.assign(new Error(m), { code: c });
+        const isChallenge = (r, t) => r.status === 403 || r.status === 503 || (/html/i.test(r.headers.get('content-type') || '') && /just a moment|cf-chl|challenge-platform|attention required/i.test(t.slice(0, 4000)));
+        const tryFetch = async () => { const r = await ses.fetch(url, { headers: h, redirect: 'follow' }); if (r.status === 304) return { done: { notModified: true } }; const t = await r.text(); return isChallenge(r, t) ? { r } : r.ok ? { done: { text: t, etag: r.headers.get('etag') || '', url: r.url || url } } : { err: r.status }; };
+        let x = await tryFetch();
+        if (x.err) throw bad('La fuente respondió HTTP ' + x.err, 'http');
+        if (x.r) { // desafío de JavaScript (Cloudflare "Un momento…"): se resuelve en una ventana de navegador real; si pide un clic, se muestra
+          const w = new BrowserWindow({ show: false, width: 520, height: 640, title: 'WINTEER · verificando fuente', autoHideMenuBar: true, webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
+          try {
+            w.loadURL(url, { userAgent: UAC }).catch(() => {});
+            const t0 = Date.now(); let shown = false, ok = false;
+            while (Date.now() - t0 < 90000 && !w.isDestroyed()) {
+              await new Promise((r) => setTimeout(r, 1000));
+              let ti = ''; try { ti = w.webContents.getTitle() || ''; } catch (e) {}
+              if (ti && !/just a moment|un momento|attention required|verificando|checking/i.test(ti)) { ok = true; break; }
+              if (!shown && Date.now() - t0 > 12000) { shown = true; try { w.show(); } catch (e) {} } // si no pasó solo, que el usuario haga el clic
+            }
+            if (!ok) throw bad('La fuente pide verificación y no se pudo completar (HTTP 403)', 'http');
+            await new Promise((r) => setTimeout(r, 800));
+            x = await tryFetch();
+            if (x.done) return x.done;
+            const txt = await w.webContents.executeJavaScript('document.body ? document.body.innerText : ""').catch(() => '');
+            if (txt && txt.length <= lim) return { text: txt, etag: '', url };
+            throw bad('La fuente respondió HTTP 403 (acceso denegado: puede requerir permiso, o el enlace venció)', 'http');
+          } finally { try { if (!w.isDestroyed()) w.destroy(); } catch (e) {} }
+        }
+        if (x.done.text && x.done.text.length > lim) throw bad('El manifiesto es demasiado grande', 'size');
+        return x.done;
       } }).load();
     setTimeout(() => { try { if (srcEng.list().length) srcEng.refresh(); } catch (e) {} }, 8000);
     ipcMain.handle('srcList', dlWrap(() => srcEng.list()));
