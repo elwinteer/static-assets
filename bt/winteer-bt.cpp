@@ -207,11 +207,18 @@ int main(int argc, char** argv) {
         if (st.errc) { emit({{"ev", "error"}, {"id", it.id}, {"code", "torrent"}, {"msg", st.errc.message()}}); }
         if (!it.finished && (st.state == lt::torrent_status::finished || st.state == lt::torrent_status::seeding) && st.has_metadata) {
           it.finished = true;
+          // Lista de archivos: se recorre lo descargado en disco (así no depende de la API de torrent_info, que cambió entre versiones)
           json files = json::array();
-          if (auto ti = it.h.torrent_file()) {
-            const lt::file_storage& fst = ti->files();
-            for (lt::file_index_t i(0); i < lt::file_index_t(fst.num_files()); ++i)
-              files.push_back({{"p", fst.file_path(i)}, {"s", (long long)fst.file_size(i)}});
+          {
+            std::error_code fe2;
+            fs::path base = fs::path(st.save_path), top = base / st.name;
+            auto addFile = [&](const fs::path& p) {
+              std::error_code e3; auto sz = fs::file_size(p, e3);
+              files.push_back({{"p", fs::relative(p, base, e3).generic_string()}, {"s", (long long)(e3 ? 0 : sz)}});
+            };
+            if (fs::is_directory(top, fe2)) {
+              for (auto& ent : fs::recursive_directory_iterator(top, fe2)) if (ent.is_regular_file(fe2)) addFile(ent.path());
+            } else if (fs::is_regular_file(top, fe2)) addFile(top);
           }
           emit({{"ev", "finished"}, {"id", it.id}, {"root", st.save_path}, {"files", files}});
           done.push_back(it.id);
