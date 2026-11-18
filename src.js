@@ -14,7 +14,7 @@
 const fs = require('fs'), path = require('path'), { pathToFileURL, fileURLToPath } = require('url'), http = require('http'), https = require('https'), crypto = require('crypto');
 const { EventEmitter } = require('events');
 
-const MAX_BYTES = 12 * 1024 * 1024, MAX_GAMES = 20000, MAX_VERS = 50, MAX_FILES = 200, MAX_INC = 20;
+const MAX_BYTES = 150 * 1024 * 1024, MAX_GAMES = 150000, MAX_VERS = 50, MAX_FILES = 200, MAX_INC = 20;
 const UA = 'WINTEER/1 (+sources)';
 // Algunos servidores devuelven 403 a programas; si pasa, se reintenta una vez con un identificador de navegador común.
 const UA_BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';

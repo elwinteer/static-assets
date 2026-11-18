@@ -53,7 +53,7 @@ Reglas y atajos:
 - La primera versión de la lista es la predeterminada.
 - Archivos partidos (`.part1.rar`, `.001`, `.zip.001`…): listalos todos; WINTEER descomprime desde el primero.
 - Campos desconocidos se ignoran (se pueden agregar extras sin romper nada).
-- Límites: 12 MB por manifiesto, 20 000 juegos, 50 versiones por juego, 200 archivos por versión.
+- Límites: 150 MB por manifiesto, 150 000 juegos, 50 versiones por juego, 200 archivos por versión.
 
 ## Formato plano (una fila por juego)
 
