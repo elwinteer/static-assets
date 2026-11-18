@@ -1815,6 +1815,54 @@ const WDL = new Map(); let wdlN = 0, webOk = false;
 const wsend = (m) => { if (win && !win.isDestroyed()) win.webContents.send('webdl', m); };
 const wdlSafe = (n) => { n = String(n || 'archivo').replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').replace(/[. ]+$/, '').trim(); return n || 'archivo'; };
 function wdlUniq(dir, name) { let p = path.join(dir, name); if (!fs.existsSync(p)) return p; const e = path.extname(name), b = path.basename(name, e); for (let i = 1; i < 500; i++) { p = path.join(dir, b + ' (' + i + ')' + e); if (!fs.existsSync(p)) return p; } return p; }
+
+/* ---------- descarga en partes (varias conexiones a la vez, como un gestor de descargas) ---------- */
+const WDL_CONN = 8, WDL_BLK = 4 * 1024 * 1024, WDL_MIN = 16 * 1024 * 1024;
+function wdlProbe(ses, url, ref) {
+  return new Promise((resolve) => {
+    let done = false, rq = null; const end = (v) => { if (done) return; done = true; clearTimeout(tm); try { rq && rq.abort(); } catch (e) {} resolve(v); };
+    const tm = setTimeout(() => end(null), 9000);
+    try {
+      rq = net.request({ url, session: ses, useSessionCookies: true, redirect: 'follow' });
+      rq.setHeader('Range', 'bytes=0-0'); if (ref) rq.setHeader('Referer', ref);
+      rq.on('response', (r) => { const cr = String(r.headers['content-range'] || ''), m = /\/(\d+)\s*$/.exec(cr); if (r.statusCode === 206 && m) end({ total: +m[1] }); else end(null); r.on('data', () => {}); r.on('error', () => end(null)); });
+      rq.on('error', () => end(null)); rq.end();
+    } catch (e) { end(null); }
+  });
+}
+function wdlSegRun(d, ses, url, total, ref, send) {
+  const nb = Math.ceil(total / WDL_BLK), blocks = [];
+  for (let i = 0; i < nb; i++) blocks.push({ s: i * WDL_BLK, e: Math.min(total, (i + 1) * WDL_BLK) - 1, got: 0, tries: 0, busy: false, ok: false });
+  d.seg = true; d.paused = false; d.cancelled = false; d.reqs = new Set(); d.got = 0; d.left = nb; d.failed = '';
+  let fd = -1; try { fd = fs.openSync(d.tmp, 'w'); fs.ftruncateSync(fd, total); } catch (e) { return false; }
+  d.fd = fd; let last = 0, lastT = Date.now(), spd = 0;
+  const tick = setInterval(() => { const now = Date.now(), dt = (now - lastT) / 1000; if (dt <= 0) return; const inst = (d.got - last) / dt; spd = spd ? spd * .7 + inst * .3 : inst; last = d.got; lastT = now; d.speed = d.paused ? 0 : spd; send({ id: d.id, st: d.paused ? 'pause' : 'prog', got: d.got, size: total, speed: d.speed }); }, 400);
+  const fetchBlock = (b) => new Promise((resolve, reject) => {
+    let rq; try { rq = net.request({ url, session: ses, useSessionCookies: true, redirect: 'follow' }); } catch (e) { return reject(e); }
+    d.reqs.add(rq); const fin = (e) => { d.reqs.delete(rq); e ? reject(e) : resolve(); };
+    rq.setHeader('Range', 'bytes=' + (b.s + b.got) + '-' + b.e); if (ref) rq.setHeader('Referer', ref);
+    rq.on('response', (r) => {
+      if (r.statusCode !== 206) { r.on('data', () => {}); return fin(Object.assign(new Error('El servidor no permite bajar en partes'), { fatal: true })); }
+      r.on('data', (ch) => { try { fs.writeSync(d.fd, ch, 0, ch.length, b.s + b.got); b.got += ch.length; d.got += ch.length; } catch (e) { try { rq.abort(); } catch (x) {} fin(Object.assign(new Error('No pude escribir en el disco'), { fatal: true })); } });
+      r.on('end', () => fin(b.got >= b.e - b.s + 1 ? null : new Error('corte'))); r.on('error', (e) => fin(e)); r.on('aborted', () => fin(new Error('corte')));
+    });
+    rq.on('error', (e) => fin(e)); rq.on('abort', () => fin(new Error('abort'))); rq.end();
+  });
+  const finish = (st) => { clearInterval(tick); try { d.reqs.forEach((q) => { try { q.abort(); } catch (e) {} }); } catch (e) {} try { fs.closeSync(d.fd); } catch (e) {} d.fd = -1; d.fin(st); };
+  d.stop = (cancel) => { if (cancel) { d.cancelled = true; } else d.paused = true; d.reqs.forEach((q) => { try { q.abort(); } catch (e) {} }); };
+  const worker = async () => {
+    while (!d.cancelled && d.left > 0 && !d.failed) {
+      if (d.paused) { await new Promise((r) => setTimeout(r, 200)); continue; }
+      const b = blocks.find((x) => !x.ok && !x.busy); if (!b) { await new Promise((r) => setTimeout(r, 150)); continue; }
+      b.busy = true;
+      try { await fetchBlock(b); b.ok = true; d.left--; }
+      catch (e) { if (d.cancelled) break; if (e && e.fatal) { d.failed = e.message; break; } if (d.paused) { b.busy = false; continue; } if (++b.tries > 6) { d.failed = 'La descarga se cortó'; break; } await new Promise((r) => setTimeout(r, 700 * b.tries)); }
+      b.busy = false;
+    }
+  };
+  Promise.all(Array.from({ length: Math.min(WDL_CONN, nb) }, worker)).then(() => { if (d.cancelled) finish('cancelled'); else if (d.failed || d.left > 0) finish('interrupted'); else finish('completed'); });
+  return true;
+}
 function wdlMove(d) {
   return new Promise((res, rej) => {
     try { fs.mkdirSync(path.dirname(d.final), { recursive: true }); fs.renameSync(d.tmp, d.final); return res(); } catch (e) { if (!e || e.code !== 'EXDEV') return rej(e); }
@@ -1989,6 +2037,12 @@ async function webCfCheck(wc) {
     try { if (!closed) w.close(); } catch (e) {}
   } catch (e) { cfWin = null; }
 }
+
+/* Al apretar «Descargar» en una página con skin (SteamRIP/FitGirl) y abrirse la página del host, se aprieta sola su propio botón Descargar */
+const AUTO_SKIN = /(^|\.)(steamrip\.com|fitgirl-repacks\.site)$/i, AUTO_HOST = /(^|\.)(buzzheavier\.com|bzzhr\.co|flashbang\.sh)$/i, AUTO = new Map();
+function autoMark(url, ref) { try { const rh = new URL(ref).hostname, h = new URL(url).hostname; if (AUTO_SKIN.test(rh) && AUTO_HOST.test(h)) AUTO.set(h, Date.now()); } catch (e) {} }
+function autoTake(url) { try { const h = new URL(url).hostname; if (!AUTO_HOST.test(h)) return false; const t = AUTO.get(h); if (t && Date.now() - t < 90000) { AUTO.delete(h); return true; } } catch (e) {} return false; }
+const AUTO_JS = "(()=>{let n=0;const t=setInterval(()=>{n++;const l=[...document.querySelectorAll('a,button')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&/^\\s*(download|descargar)\\s*$/i.test(e.textContent||'')});if(l[0]){clearInterval(t);l[0].click()}else if(n>20)clearInterval(t)},400)})()";
 function webInit() {
   if (webOk) return; webOk = true;
   const tmpDir = path.join(app.getPath('userData'), 'dl-tmp');
@@ -2017,13 +2071,13 @@ function webInit() {
     let host = ''; try { host = new URL(item.getURL()).hostname.replace(/^www\./, ''); } catch (e) {}
     wsend({ id, st: 'ask', name: d.name, size: item.getTotalBytes(), host });
     item.on('updated', (_ev, st) => {
-      if (d.state !== 'run') return;
+      if (d.state !== 'run' || d.seg) return;
       const now = Date.now(); if (now - d.lastT < 250) return;
       const got = item.getReceivedBytes(), dt = (now - d.lastT) / 1000, inst = dt > 0 ? (got - d.last) / dt : 0;
       d.speed = d.speed ? d.speed * 0.7 + inst * 0.3 : inst; d.last = got; d.lastT = now;
       wsend({ id, st: item.isPaused() ? 'pause' : 'prog', got, size: item.getTotalBytes(), speed: d.speed });
     });
-    item.once('done', async (_ev, st) => {
+    const fin = async (st) => {
       if (d.state === 'cancel' || st === 'cancelled') { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'cancel' }); return; }
       if (st !== 'completed' || !d.final) { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'err', msg: 'La descarga se cortó' }); return; }
       d.state = 'move'; wsend({ id, st: 'moving', p: 0 });
@@ -2040,7 +2094,9 @@ function webInit() {
       WDL.delete(id);
       wsend({ id, st: 'done', path: outPath, size, unz, unzErr, exes: ex.exes, pick: ex.pick, lib: !!d.lib });
       try { if (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused()) shotToast(null, d.name, 'dl', unz ? (ex.pick ? 'Descomprimido y agregado a tu Biblioteca' : ex.exes.length ? 'Descomprimido · falta elegir el .exe' : 'Descomprimido y listo') : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
-    });
+    };
+    d.fin = fin;
+    item.once('done', (_ev, st) => { if (d.seg) return; fin(st); });
   });
   ipcMain.handle('webDl', async (_e, m, a) => {
     a = a || {};
@@ -2063,11 +2119,20 @@ function webInit() {
         const sz = d.item.getTotalBytes();
         if (sz > 0) { try { const s = fs.statfsSync(dir); if (s.bsize * s.bavail < sz + 5e7) return { err: 'No hay lugar suficiente en ese disco' }; } catch (e) {} }
         d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.unz = !!a.unz; d.del = !!(a.unz && a.del); d.lib = !!(a.unz && a.lib); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
-        d.item.resume(); return { ok: 1, name: path.basename(d.final), path: d.final };
+        let seg = false;
+        try {
+          const chain = d.item.getURLChain(), url = chain[chain.length - 1] || d.item.getURL(); let ref = ''; try { ref = new URL(chain[0] || url).origin + '/'; } catch (e) {}
+          if (/^https?:/i.test(url) && (sz <= 0 || sz >= WDL_MIN)) {
+            const pr = await wdlProbe(session.fromPartition(WEB_PART), url, ref);
+            if (pr && pr.total >= WDL_MIN && (sz <= 0 || Math.abs(pr.total - sz) < 4096) && d.state === 'run') { seg = wdlSegRun(d, session.fromPartition(WEB_PART), url, pr.total, ref, wsend); if (seg) { d.seg = true; try { d.item.cancel(); } catch (e) {} } }
+          }
+        } catch (e) { seg = false; }
+        if (!seg) { try { d.item.resume(); } catch (e) {} }
+        return { ok: 1, name: path.basename(d.final), path: d.final, seg };
       }
-      if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
-      if (m === 'resume') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.lastT = Date.now(); d.last = d.item.getReceivedBytes(); d.item.resume(); wsend({ id: a.id, st: 'prog', got: d.last, size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
-      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; try { d.item.cancel(); } catch (e) {} } return 1; }
+      if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run' && d.seg) { d.stop(false); wsend({ id: a.id, st: 'pause', got: d.got, size: d.total || 0, speed: 0 }); } else if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
+      if (m === 'resume') { const d = WDL.get(a.id); if (d && d.state === 'run' && d.seg) { d.paused = false; wsend({ id: a.id, st: 'prog', got: d.got, size: 0, speed: 0 }); } else if (d && d.state === 'run') { d.lastT = Date.now(); d.last = d.item.getReceivedBytes(); d.item.resume(); wsend({ id: a.id, st: 'prog', got: d.last, size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
+      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; if (d.seg) d.stop(true); else { try { d.item.cancel(); } catch (e) {} } } return 1; }
       if (m === 'show') { if (a.path && fs.existsSync(a.path)) shell.showItemInFolder(a.path); return 1; }
       if (m === 'open') { if (a.path && fs.existsSync(a.path)) await shell.openPath(a.path); return 1; }
       if (m === 'exists') return !!(a.path && fs.existsSync(a.path));
@@ -2091,13 +2156,13 @@ function createWindow() {
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
         if (/^magnet:/i.test(String(url))) { webTorrent(url); return { action: 'deny' }; }
         if (own(url) && adUrlHit(url)) { adBlocked++; note('Bloqueé una ventana de anuncios (' + (() => { try { return new URL(url).hostname; } catch (e) { return ''; } })() + ')'); return { action: 'deny' }; }
-        if (own(url)) { let ref = ''; try { ref = (referrer && referrer.url) || wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url, fg: disposition !== 'background-tab', ref }); return { action: 'deny' }; }
+        if (own(url)) { let ref = ''; try { ref = (referrer && referrer.url) || wc.getURL(); } catch (e) {} autoMark(url, ref); wsend({ st: 'newtab', url, fg: disposition !== 'background-tab', ref }); return { action: 'deny' }; }
         if (!url || url === 'about:blank') return { action: 'allow', overrideBrowserWindowOptions: { show: false, width: 520, height: 420, skipTaskbar: true, autoHideMenuBar: true } };
         note('La página quiso abrir algo que no es una web (' + String(url).split(':')[0] + ':) y lo bloqueé'); return { action: 'deny' };
       });
       wc.on('did-create-window', (cw) => {
         const t = cw.webContents; let done = false;
-        const take = (u) => { if (done || !own(u)) return; done = true; if (adUrlHit(u)) { adBlocked++; note('Bloqueé una ventana de anuncios'); try { cw.destroy(); } catch (e) {} return; } let ref = ''; try { ref = wc.getURL(); } catch (e) {} wsend({ st: 'newtab', url: u, fg: true, ref }); try { cw.destroy(); } catch (e) {} };
+        const take = (u) => { if (done || !own(u)) return; done = true; if (adUrlHit(u)) { adBlocked++; note('Bloqueé una ventana de anuncios'); try { cw.destroy(); } catch (e) {} return; } let ref = ''; try { ref = wc.getURL(); } catch (e) {} autoMark(u, ref); wsend({ st: 'newtab', url: u, fg: true, ref }); try { cw.destroy(); } catch (e) {} };
         t.on('did-start-navigation', (_ev, u, _ip, main) => { if (main) take(u); });
         t.on('will-redirect', (_ev, u) => take(u));
         setTimeout(() => { try { if (!cw.isDestroyed()) cw.destroy(); } catch (e) {} }, 20000);
@@ -2108,6 +2173,7 @@ function createWindow() {
       let preP = null, preT = 0;
       const unhide = () => { clearTimeout(preT); if (preP) { const p = preP; preP = null; p.then((k) => wc.removeInsertedCSS(k)).catch(() => {}); } };
       wc.on('load-commit', (_ev, url, isMain) => { if (!isMain) return; try { const sk = require('./webskin.js'), s = sk.skinFor(url); if (!s || !sk.CONSOLE_JS[s.name]) return; unhide(); preP = wc.insertCSS('html{background:#09090a!important}body{visibility:hidden!important}'); preP.catch(() => {}); preT = setTimeout(unhide, 7000); } catch (e) {} });
+      wc.on('dom-ready', () => { try { if (autoTake(wc.getURL())) wc.executeJavaScript(AUTO_JS).catch(() => {}); } catch (e) {} });
       wc.on('dom-ready', async () => { try { const sk = require('./webskin.js'), s = sk.skinFor(wc.getURL()); if (!s) return; if (await wc.executeJavaScript("!!(document.querySelector('#challenge-form,#challenge-running,#challenge-stage,.cf-turnstile,[id^=cf-chl],iframe[src*=\"challenges.cloudflare\"]')||/just a moment|un momento|attention required|checking if you are human/i.test(document.title+' '+((document.body&&document.body.innerText)||'').slice(0,300)))").catch(() => false)){ unhide(); return; } if (s.css) wc.insertCSS(s.css).catch(() => {}); if (s.mono) wc.executeJavaScript(sk.MONO_JS).catch(() => {}); if (sk.CONSOLE_JS[s.name]) { try { const acc = await win.webContents.executeJavaScript("(()=>{const c=getComputedStyle(document.body),g=(n)=>c.getPropertyValue(n).trim();return{argb:g('--argb'),icergb:g('--icergb'),a3rgb:g('--a3rgb')}})()"); await wc.executeJavaScript('window.__wtAcc=' + JSON.stringify(acc)).catch(() => {}); } catch (e) {} await wc.executeJavaScript(sk.CONSOLE_JS[s.name]).catch(() => {}); } try { if (sk.SW_JS) wc.executeJavaScript(sk.SW_JS(s.name)).catch(() => {}); } catch (e) {} } catch (e) {} finally { let n = 0; const poll = async () => { try { if (wc.isDestroyed()) return; const ok = await wc.executeJavaScript("!!document.getElementById('wt-console')").catch(() => true); if (ok || ++n > 30) setTimeout(unhide, 120); else setTimeout(poll, 150); } catch (e) { unhide(); } }; poll(); } });
       const blockProto = (ev, u) => { if (/^magnet:/i.test(String(u))) { ev.preventDefault(); webTorrent(u); return; } if (!/^(https?|about|blob|data):/i.test(String(u))) { ev.preventDefault(); note('La página quiso abrir algo que no es una web (' + String(u).split(':')[0] + ':) y lo bloqueé'); } };
       wc.on('will-navigate', blockProto); wc.on('will-redirect', blockProto);
