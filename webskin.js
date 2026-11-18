@@ -95,7 +95,7 @@ function steamripConsole() {
     }
     return out;
   };
-  const AMBCSS = `.base{position:fixed;inset:0;background:radial-gradient(60% 45% at 18% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(50% 40% at 88% 8%,rgba(255,255,255,.045),transparent 70%),#09090a}
+  const AMBCSS = `.base{position:fixed;inset:0;background:#09090a}.amb,.au,.bgc,.bg,.vig,.beam{display:none!important}
       .amb{position:fixed;inset:0;overflow:hidden;pointer-events:none}
       .orb{position:absolute;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(255,255,255,.2),transparent 65%);opacity:.55;animation:orb var(--d) ease-in-out infinite alternate}
       @keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.3)}}
@@ -610,7 +610,7 @@ function fitgirlConsole() {
   const T = (n) => (n && n.textContent || '').replace(/\s+/g, ' ').trim();
   const FONT = '"Segoe UI",system-ui,sans-serif';
   const BASE = `*{box-sizing:border-box}:host{all:initial}
-    .base{position:fixed;inset:0;background:radial-gradient(60% 45% at 18% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(50% 40% at 88% 8%,rgba(255,255,255,.045),transparent 70%),#09090a}
+    .base{position:fixed;inset:0;background:#09090a}.amb,.au,.bgc,.bg,.vig,.beam{display:none!important}
     .amb{position:fixed;inset:0;overflow:hidden;pointer-events:none}
     .orb{position:absolute;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%);opacity:.5;animation:orb var(--d) ease-in-out infinite alternate}
     @keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.3)}}
