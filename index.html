@@ -1571,7 +1571,8 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .h2-nwb .h2-nl.big{overflow:auto;flex:1;min-height:0}.h2-nwb .h2-nr{flex:none;padding:10px}.h2-nwb .h2-nr img{width:84px;height:56px}
 .h2-nwb .nbl{margin-top:10px;font-size:12.5px;color:var(--a2);cursor:pointer;display:flex;align-items:center;gap:6px}.h2-nwb .nbl svg{width:14px;height:14px}
 .center{position:relative}.vtabs{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:30;backdrop-filter:blur(14px);background:rgba(18,16,24,.72)}
-#view.vtp{padding-top:70px}
+#view.vtp{padding-top:70px;box-sizing:border-box}
+.vtp .pfh-r{padding:12px 18px!important;gap:10px!important}.vtp .pfh-card{gap:10px!important}
 /* ---- Estadísticas nueva + Wrapped anual ---- */
 .st3{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1.15fr);gap:18px;height:100%;min-height:640px}
 .s3c{background:rgba(var(--pnrgb),.82);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}
@@ -3766,8 +3767,8 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
           <a data-v="games"><span id="i-games"></span>Biblioteca</a>
           <a data-v="diary"><span id="i-diary"></span>Diario</a>
           <a data-v="prog"><span id="i-prog"></span>Progreso</a>
-          <a data-v="friends"><span id="i-friends"></span>Amigos</a>
-          <a data-v="profile"><span id="i-profile"></span>Perfil</a>
+          <a data-v="sagas"><span id="i-sagas"></span>Sagas</a>
+          <a data-v="social"><span id="i-social"></span>Social</a>
           <a data-v="cat" style="display:none"><span id="i-cat"></span>Catálogo Steam</a>
           <a data-v="dl" style="display:none"><span id="i-dl"></span>Descargas<b id="dl-bd" class="dlbd" hidden></b></a>
         </nav>
@@ -4522,7 +4523,7 @@ V.settings=()=>{const t=setT();return `<div class="sx2"><nav class="stabs">${STA
   <section class="card set spane"><div class="sgrid">${setPane(t).join('')}</div></section></div>`};
 
 /* ---------- navegación ---------- */
-const NAVOF={sagas:'games',hitos:'prog',stats:'prog',wrapped:'prog',news:'home',pet:'profile'};
+const NAVOF={hitos:'prog',stats:'prog',wrapped:'prog',news:'home',friends:'social',profile:'social',pet:'social'};
 function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$('#ind'),nw=$('.navwrap');if(!ind||!nw)return;const was=ind.style.opacity==='0'||ind.style.opacity==='';
   if(a){const y=Math.round(a.getBoundingClientRect().top-nw.getBoundingClientRect().top);
     if(was){ind.style.transition='none';ind.style.transform=`translateY(${y}px)`;void ind.offsetWidth;ind.style.transition=''}else ind.style.transform=`translateY(${y}px)`}
@@ -4531,7 +4532,7 @@ function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$(
   clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(v==='prog'){v=S.lp||'stats';if(v==='wrapped')S.wdet=0}if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
+function go(v,o){if(v==='social')v=S.ls||'friends';if(v==='friends'||v==='profile')S.ls=v;if(v==='prog'){v=S.lp||'stats';if(v==='wrapped')S.wdet=0}if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
@@ -5072,9 +5073,10 @@ function autoDone(g,live){if(!g||g.status==='Terminado')return 0;const m=hlm(g);
 function autoDoneAll(){let n=0;G.forEach(g=>{n+=autoDone(g)});if(n){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}return n}
 setTimeout(()=>{try{autoDoneAll()}catch(e){}},1800);setInterval(()=>{try{autoDoneAll()}catch(e){}},60000);
 /* ---------- pestañas de grupo (Biblioteca / Progreso) ---------- */
-const VGROUPS=[['games','sagas'],['stats','hitos','wrapped']];
+const VGROUPS=[['stats','hitos','wrapped']];
 const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
 function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;const o=ce.querySelector(':scope>.vtabs');if(o)o.remove();el.classList.remove('vtp');
+  if(v==='friends'||(v==='profile'&&(S.ptab==='home'||S.ptab==='card'))){const cur=v==='friends'?'friends':S.ptab==='card'?'card':'home',d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['card','Tarjeta pública']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
   const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
   const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="gtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
   if(v!=='games')el.classList.add('vtp');ce.insertBefore(d,el)}
@@ -7530,7 +7532,7 @@ function pfCol(){const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,
   <h4 class="shd">Próximos desbloqueos</h4><div class="av-grid">${nx.length?nx.map(([k,it])=>avCard(k,it,cur)).join(''):'<p class="mut">Ya desbloqueaste todo lo que se puede por nivel.</p>'}</div>`}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;if(t==='col')return pfCol();if(t==='look')return `<div class="sgrid">${setX('look')}</div><h4 class="shd">Personalizar</h4><div class="sgrid">${setX('per')}</div>`;return ''}
 V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',col:'home',pet:'home'})[S.ptab]||'home';const t=S.ptab;if(t!=='card'&&W&&W.inline)W=null;
-  const nav=`<nav class="ptabs rise" style="--i:0">${PTABS.map(([k,l,i])=>`<button class="stab ${k===t?'on':''}" data-a="ptab" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
+  const nav=(t==='home'||t==='card')?'':`<nav class="ptabs rise" style="--i:0">${PTABS.map(([k,l,i])=>`<button class="stab ${k===t?'on':''}" data-a="ptab" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
   if(t==='home')return `<div class="stack avp">${nav}${pfHome()}</div>`;
   if(t==='pet'){petLife();return `<div class="stack avp pt">${nav}${petTabHTML()}</div>`}
   if(t==='av')return `<div class="stack avp">${nav}<div class="avedit rise" style="--i:1"><section class="card avl"><div class="avs-st" id="avst">${avStage()}</div><div class="avl-b"><button class="hm-go" data-a="avrand">${ic('flake')} Sorprendeme</button><button class="hm-go hm-gh" data-a="avreset">Restablecer</button></div></section><section class="card set spane" id="avpane">${profTabBody('av')}</section></div></div>`;
@@ -7538,6 +7540,7 @@ V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',
   return `<div class="stack avp">${nav}<section class="card set spane rise" style="--i:1">${profTabBody(t)}</section></div>`};
 Object.assign(A,{
  ptab:a=>{S.ptab=a.dataset.v;S.avp=null;go('profile')},
+ soctab:a=>{const k=a.dataset.k;if(k==='friends'){go('friends');return}S.ptab=k;S.avp=null;go('profile')},
  cedt:a=>{S.ced=a.dataset.v;cedRef()},
  avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
  avgen:a=>{ST.avc=avCur();ST.avc.g=a.dataset.v==='f'?'f':'m';S.avp=null;avSync();avRef()},
@@ -10345,7 +10348,7 @@ async function frUnread(){const f=FR();if(!fbOn()||!f.list.length)return;let tot
     if(open){f.sn[c]=Date.now();if(ch){frChatDraw(c);frRead(c)}}
     const un=th.filter(m=>m.t>(f.sn[c]||0)&&!m.d).length;if(un>(f.un[c]||0)&&!open){frNotify(c,th[th.length-1])}f.un[c]=open?0:un;tot+=f.un[c]}catch(e){}}
   save();frBadge(tot);if(frOn()&&!document.querySelector('.modal')&&!(document.activeElement&&/^fr-/.test(document.activeElement.id||''))&&frUnread.last!==JSON.stringify(f.un)){frUnread.last=JSON.stringify(f.un);frList()}}
-function frBadge(n){const a=document.querySelector('.nav a[data-v="friends"]');if(!a)return;let b=a.querySelector('.fr-nb');if(!n){if(b)b.remove();return}if(!b){b=document.createElement('em');b.className='fr-nb';a.appendChild(b)}b.textContent=n>9?'9+':n}
+function frBadge(n){const a=document.querySelector('.nav a[data-v="social"]');if(!a)return;let b=a.querySelector('.fr-nb');if(!n){if(b)b.remove();return}if(!b){b=document.createElement('em');b.className='fr-nb';a.appendChild(b)}b.textContent=n>9?'9+':n}
 /* ---------- pantalla ---------- */
 function frAv(d,m,sz){return avHTML({name:d.name,av:(d.av&&d.av.k==='img'&&!(m&&m.pic))?{k:'letter',c:d.av.c}:d.av,pic:m&&m.pic,avx:d.avx},sz)}
 function frBan(d,m){const b=d.ban||{k:'g',i:0};if(m&&m.ban&&b.k==='img')return `<div class="pban"><img src="${m.ban}" alt=""></div>`;if(b.k==='game'&&b.n){const g=G.find(x=>frN(x.name)===frN(b.n));if(g)return `<div class="pban" style="background:#0b0a12"><img src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>`}return `<div class="pban" style="background:${BANS[b.i||0]||BANS[0]}"></div>`}
@@ -11855,6 +11858,7 @@ const wdMsg=m=>{
 };window.wdMsg=wdMsg;if(WN&&winteerNative.onWebDl)winteerNative.onWebDl(wdMsg);
 {const e=$('#i-web');if(e)e.outerHTML=ic('web')}
 P.prog=P.trophy;{const e=$('#i-prog');if(e)e.outerHTML=ic('prog')}
+P.social=P.friends;if(!P.sagas)P.sagas='<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 5 9-5" opacity=".55"/>';['sagas','social'].forEach(k=>{const e=$('#i-'+k);if(e)e.outerHTML=ic(k)});
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
