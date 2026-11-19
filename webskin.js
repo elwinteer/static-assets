@@ -463,7 +463,7 @@ function steamripConsole() {
     const $ = (x) => sh.querySelector(x), w = $('#w'), gr = $('#gr'), ft = $('#ft'), hero = $('#hero');
     const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root: w, threshold: 0.04, rootMargin: '0px 0px 120px 0px' }) : null;
     const arm = () => gr.querySelectorAll('.rv:not(.in):not([data-a])').forEach((e, i) => { e.dataset.a = 1; e.style.transitionDelay = (i % 9) * 50 + 'ms'; io ? io.observe(e) : e.classList.add('in'); });
-    let RS = { q: '', items: [] };
+    let RS = { q: '', items: [] }; let selL = '';
     const filt = () => { const it = (ST[cur].items || []), qq = q.trim().toLowerCase(); if (!qq) return it; const loc = it.filter((c) => c.title.toLowerCase().includes(qq)); if (RS.q !== qq) return loc; const have = new Set(loc.map((c) => c.href)); return loc.concat(RS.items.filter((c) => !have.has(c.href))); };
     const pill = () => { const b = sh.querySelector('#tb button.on'), p = $('#pill'); if (b) { p.style.left = b.offsetLeft + 'px'; p.style.width = b.offsetWidth + 'px'; } };
     const shotCache = {};
@@ -503,16 +503,16 @@ function steamripConsole() {
       const az = $('#az'); az.style.display = cur === 'all' && st.items ? 'flex' : 'none';
       if (cur === 'all') {
         const lt = (c) => { const x = c.title.trim().charAt(0).toUpperCase(); return /[A-Z]/.test(x) ? x : '#'; }; const first = {}; list.forEach((c, ix) => { const l = lt(c); if (first[l] === undefined) first[l] = ix; });
-        const pgs0 = Math.max(1, Math.ceil(list.length / PER)), p0 = Math.min(Math.max(1, pgN), pgs0), curL = list[(p0 - 1) * PER] ? lt(list[(p0 - 1) * PER]) : '';
+        const pgs0 = Math.max(1, Math.ceil(list.length / PER)), p0 = Math.min(Math.max(1, pgN), pgs0), curL = selL && first[selL] !== undefined && Math.floor(first[selL] / PER) + 1 === p0 ? selL : (list[(p0 - 1) * PER] ? lt(list[(p0 - 1) * PER]) : '');
         az.innerHTML = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map((l) => '<button data-l="' + l + '"' + (first[l] === undefined ? ' disabled' : '') + (l === curL ? ' class="on"' : '') + '>' + l + '</button>').join('');
-        az.querySelectorAll('button:not(:disabled)').forEach((b) => { b.onclick = () => { pgN = Math.floor(first[b.dataset.l] / PER) + 1; w.scrollTo({ top: Math.max(0, gr.offsetTop - 150), behavior: 'smooth' }); draw(); }; });
+        az.querySelectorAll('button:not(:disabled)').forEach((b) => { b.onclick = () => { selL = b.dataset.l; pgN = Math.floor(first[selL] / PER) + 1; draw(); const tr = gr.querySelector('[data-i="' + first[selL] + '"]'); if (tr) w.scrollTo({ top: Math.max(0, tr.getBoundingClientRect().top - w.getBoundingClientRect().top + w.scrollTop - 150), behavior: 'smooth' }); }; });
       }
       if (cur === 'all') {
         const pages = Math.max(1, Math.ceil(list.length / PER)); pgN = Math.min(Math.max(1, pgN), pages); const base = (pgN - 1) * PER, vis2 = list.slice(base, base + PER);
         $('#ts').textContent = list.length + ' juegos · página ' + pgN + ' de ' + pages;
         gr.innerHTML = vis2.length ? vis2.map((c, j) => lrow(c, base + j)).join('') : '<div class="em">No hay juegos que coincidan</div>'; arm();
         if (ioC) gr.querySelectorAll('.alr').forEach((cd) => { const it = allItems().find((c) => c.href === cd.href); if (!cd.dataset.cv && !(it && it.m)) { cd.dataset.cv = 1; ioC.observe(cd); } });
-        ft.innerHTML = pager(pages, pgN) || (st.err ? '<span class="er">' + esc(st.err) + '</span>' : ''); ft.querySelectorAll('[data-p]').forEach((b) => { b.onclick = () => { pgN = +b.dataset.p; w.scrollTo({ top: Math.max(0, gr.offsetTop - 120), behavior: 'smooth' }); draw(); }; }); return;
+        ft.innerHTML = pager(pages, pgN) || (st.err ? '<span class="er">' + esc(st.err) + '</span>' : ''); ft.querySelectorAll('[data-p]').forEach((b) => { b.onclick = () => { selL = ''; pgN = +b.dataset.p; w.scrollTo({ top: Math.max(0, gr.offsetTop - 120), behavior: 'smooth' }); draw(); }; }); return;
       }
       if (PAGED(cur)) {
         const loaded = Object.keys(st.pages).map(Number), pages = st.total || (Math.max(1, ...loaded) + 1);
@@ -702,7 +702,7 @@ function fitgirlConsole() {
     { const cu = sh.querySelector('.cur'); window.addEventListener('pointermove', (e) => { cu.style.opacity = '1'; cu.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)'; }, { passive: true }); document.addEventListener('pointerleave', () => { cu.style.opacity = '0'; }); }
     { const w = sh.querySelector('.w'), bar = () => sh.querySelector('.bar'); w.addEventListener('scroll', () => { const b = bar(); if (b) b.classList.toggle('sc', w.scrollTop > 24); }, { passive: true }); }
     document.documentElement.appendChild(h);
-    const st = document.createElement('style'); st.textContent = 'html.wt-console-on body{visibility:hidden!important}html.wt-console-on{overflow:hidden!important;background:#09090a!important}'; document.head.appendChild(st);
+    const st = document.createElement('style'); st.textContent = 'html.wt-console-on body{visibility:hidden!important}html.wt-console-on{overflow:hidden!important;background:transparent!important}'; document.head.appendChild(st);
     document.documentElement.classList.add('wt-console-on'); return sh;
   };
   const swapGrid = (gr, fw, apply, after) => {
@@ -812,6 +812,35 @@ function fitgirlConsole() {
   // ---------- portada ----------
   const DOCS = new Map();
   const getDoc = (u) => { if (!DOCS.has(u)) { if (DOCS.size > 30) DOCS.delete(DOCS.keys().next().value); DOCS.set(u, fetchDoc(u).catch((e) => { DOCS.delete(u); throw e; })); } return DOCS.get(u); };
+  const nrm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const metaOf = async (x) => {
+    if (x.meta) return x.meta;
+    let href = x.href;
+    if (!href) {
+      href = (x.ls || []).map((l) => l.h).find((h) => { try { const u = new URL(h); return u.origin === O && u.pathname.length > 3 && !/\/(category|tag|page|author)\//.test(u.pathname); } catch (e) { return false; } }) || '';
+      if (!href) { try { const d = await fetchDoc(O + '/?s=' + encodeURIComponent(x.title)); const r = d ? readArticles(d, O + '/') : [], k = nrm(x.title); const hit = r.find((a) => nrm(a.title) === k) || r.find((a) => k.length > 6 && nrm(a.title).indexOf(k.slice(0, 12)) === 0) || r[0]; href = hit ? hit.href : ''; } catch (e) {} }
+    }
+    if (!href) return (x.meta = {});
+    try {
+      const d = await getDoc(href), ar = d.querySelector('article') || d, root = d.querySelector('.entry-content') || d, inf = infoOf((ar.textContent || '').replace(/\s+/g, ' '));
+      let desc = ''; for (const pp of root.querySelectorAll('p')) { const t = T(pp); if (t.length > 90 && !/download|repack size|original size|genres|screenshots|mirror|torrent|magnet|fitgirl|donat|selective/i.test(t)) { desc = t.slice(0, 230); break; } }
+      return (x.meta = Object.assign({ href, img: imgOf(root, href), desc }, inf));
+    } catch (e) { return (x.meta = { href }); }
+  };
+  const ENR = { n: 0, q: [] };
+  const pumpE = () => { while (ENR.n < 3 && ENR.q.length) { const job = ENR.q.shift(); ENR.n++; job().catch(() => {}).then(() => { ENR.n--; pumpE(); }); } };
+  const lazyEnrich = (els, getItem, fill) => {
+    const go = (el) => { ENR.q.push(async () => { const x = getItem(el); if (!x || !el.isConnected) return; const m = await metaOf(x); if (el.isConnected && m) fill(el, m); }); pumpE(); };
+    if (!window.IntersectionObserver) { els.forEach(go); return; }
+    const io = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { io.unobserve(en.target); go(en.target); } }), { rootMargin: '200px' });
+    els.forEach((el) => io.observe(el));
+  };
+  const fillCard = (el, m) => {
+    const cv = el.querySelector('.acv'); if (m.img && cv && !cv.querySelector('img')) { const im = document.createElement('img'); im.alt = ''; im.src = m.img; im.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .6s'; im.onload = () => { im.style.opacity = '1'; }; cv.innerHTML = ''; cv.appendChild(im); }
+    const cp = el.querySelector('.cp'); if (cp && !cp.dataset.f) { cp.dataset.f = 1; const add = (t) => { const sp = document.createElement('span'); sp.textContent = t; cp.appendChild(sp); }; if (m.rep) add('💾 ' + m.rep); String(m.gen || '').split(/\s*,\s*/).filter(Boolean).slice(0, 2).forEach(add); }
+    const host = el.querySelector('.ab2') || el.querySelector('.ub'); const line = m.desc || [m.co && 'Por ' + m.co, m.lang].filter(Boolean).join(' · ');
+    if (host && line && !host.querySelector('.ds')) { const d = document.createElement('span'); d.className = 'ds'; d.textContent = line; const uf = host.querySelector('.uf'); host.insertBefore(d, uf || null); }
+  };
   let pf = 0; const prefetch = (u) => { if (!u || !/^https?:/.test(u) || DOCS.has(u)) return; clearTimeout(pf); pf = setTimeout(() => { getDoc(u).catch(() => {}); }, 90); };
   const swap = (fn) => { const old = document.getElementById('wt-console'); fn(); if (old) old.remove(); };
   const openPage = async (sh, href) => {
@@ -928,6 +957,7 @@ function fitgirlConsole() {
       .up3 .uk{display:flex;align-items:center;gap:8px;font:700 11px ${FONT};letter-spacing:.2em;color:#b6b8c8}.up3 .uk .dt{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff}
       .up3 .ut3{font:700 21px/1.2 ${FONT};letter-spacing:-.4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.up3 .uf{margin-top:auto;display:flex;justify-content:space-between;align-items:center}.up3 .uf small{color:#8e90a0;font-size:12px}
       .ur{min-width:0}
+      .ds{font:500 12.5px/1.45 ${FONT};color:#8e90a0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.acv img{width:100%;height:100%;object-fit:cover;display:block}
       .sk{aspect-ratio:3/4.2;border-radius:22px;background:linear-gradient(110deg,rgba(255,255,255,.04) 30%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.04) 70%);background-size:200% 100%;animation:swp 1.4s linear infinite}`;
     const sh = mount(css, '<div class="au"><i></i><i></i><i></i></div><div class="bar hb fg"><span></span><div class="tbw hubtb" id="tb"><span class="ac"></span>' + TABS.map((t, j) => '<button style="--j:' + j + ';--c1:' + TC[t[0]][0] + ';--c2:' + TC[t[0]][1] + ';--rgb:' + TC[t[0]][2] + '" data-k="' + t[0] + '">' + TI(t[0]) + '<span>' + t[1] + '</span></button>').join('') + '</div><span></span></div><div class="ct"><div class="hd"><div><h2 id="ti"></h2><p id="ts"></p></div><label class="sr">' + SRCH + '<input id="q" placeholder="Buscar en la lista…" spellcheck="false" autocomplete="off"></label></div><div id="er"></div><div id="hr"></div><div class="gr" id="gr"></div><div class="pg" id="pg"></div></div><button class="tp" id="tp" aria-label="Subir"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>');
     const $ = (s) => sh.querySelector(s), gr = $('#gr');
@@ -966,6 +996,7 @@ function fitgirlConsole() {
           if (q) { const ws = q.split(' '); arr = idx.filter((o) => ws.every((w) => o.n.indexOf(w) >= 0)).sort((a, b) => (a.n.indexOf(q) === 0 ? 0 : 1) - (b.n.indexOf(q) === 0 ? 0 : 1) || a.n.length - b.n.length).map((o) => o.x); } else arr = by[AZ.l] || [];
           gr.querySelectorAll('#az button').forEach((b) => b.classList.toggle('on', !q && b.dataset.l === AZ.l));
           ar.innerHTML = arr.length ? arr.slice(0, nShow).map(rowA).join('') + (arr.length > nShow ? '<button class="mre" id="mre">Mostrar más (' + (arr.length - nShow) + ')</button>' : '') : '<div class="em">Nada con «' + esc(qv) + '»' + (ST.all.ld ? ' (todavía estoy cargando el catálogo)' : '') + '. Apretá Enter para buscar en todo el sitio.</div>';
+          const byH = new Map(arr.map((x) => [x.href, x])); lazyEnrich(ar.querySelectorAll('.ar2'), (el) => byH.get(el.dataset.h), fillCard);
         };
         window.__fgAllRef = () => { if (cur === 'all' && gr.isConnected && gr.classList.contains('az2')) { rebuild(); if (!by[AZ.l]) AZ.l = keys[0]; paint(); } };
         let tmr = 0; $('#q').oninput = (e) => { const v = e.target.value; clearTimeout(tmr); tmr = setTimeout(() => { qv = v; nShow = 60; paint(); }, 90); };
@@ -1000,7 +1031,7 @@ function fitgirlConsole() {
       } else hr.innerHTML = cur === 'new' && st.cur > 1 ? '<div class="ctl" id="ctl"><button data-f="all">Todos</button><button data-f="hv">Sin HV</button><button data-f="sm">&lt; 10 GB</button><span class="sp"></span><button data-v="g">▦ Grilla</button><button data-v="l">☰ Lista</button></div>' : '';
       const LL = hx ? L.filter((x) => x !== hx) : L;
       if (cur === 'up') { gr.className = 'gr up'; gr.innerHTML = L.map((x, i) => '<div class="ut" style="--i:' + Math.min(i, 30) + ';--h:' + hueOf(x.title) + '"><span class="ui"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/></svg></span><span class="ux"><b>' + esc(x.title) + '</b><span class="uf"><em></em>PRÓXIMAMENTE' + (x.ver ? ' · ' + esc(x.ver) : '') + '</span></span><span class="un">' + String(i + 1).padStart(2, '0') + '</span></div>').join(''); }
-      else if (cur === 'upd') { gr.className = 'gr ud2'; gr.innerHTML = L.map((x, i) => '<div class="ur" style="--i:' + Math.min(i, 20) + '"><a class="up3" data-t="1"><span class="acv"><b>' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '#').toUpperCase()) + '</b></span><span class="ub"><span class="uk"><i class="dt"></i>ACTUALIZADO</span><b class="ut3">' + esc(x.title) + '</b><span class="cp">' + (x.ver ? '<span class="v">' + esc(x.ver) + '</span>' : '') + '</span><span class="uf"><small>' + (x.ls.length ? x.ls.length + (x.ls.length === 1 ? ' enlace' : ' enlaces') : 'sin enlaces') + '</small><span class="ago">Ver enlaces <i>›</i></span></span></span></a><div class="sb">' + x.ls.map((l) => '<a href="' + esc(l.h) + '">' + esc(l.t.slice(0, 40)) + '</a>').join('') + '</div></div>').join(''); }
+      else if (cur === 'upd') { gr.className = 'gr ud2'; gr.innerHTML = L.map((x, i) => '<div class="ur" style="--i:' + Math.min(i, 20) + '"><a class="up3" data-t="1" data-n="' + i + '"><span class="acv"><b>' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '#').toUpperCase()) + '</b></span><span class="ub"><span class="uk"><i class="dt"></i>ACTUALIZADO</span><b class="ut3">' + esc(x.title) + '</b><span class="cp">' + (x.ver ? '<span class="v">' + esc(x.ver) + '</span>' : '') + '</span><span class="uf"><small>' + (x.ls.length ? x.ls.length + (x.ls.length === 1 ? ' enlace' : ' enlaces') : 'sin enlaces') + '</small><span class="ago">Ver enlaces <i>›</i></span></span></span></a><div class="sb">' + x.ls.map((l) => '<a href="' + esc(l.h) + '">' + esc(l.t.slice(0, 40)) + '</a>').join('') + '</div></div>').join(''); lazyEnrich(gr.querySelectorAll('.up3'), (el) => L[+el.dataset.n], fillCard); }
       else if (cur === 'all') { gr.className = 'gr lr'; gr.innerHTML = L.map((x, i) => '<a class="rw" style="--i:' + Math.min(i, 20) + '" data-h="' + esc(x.href) + '"><span class="tl" style="--h:' + hueOf(x.title) + '">' + esc((x.title.replace(/^[^A-Za-z0-9]+/, '')[0] || '?').toUpperCase()) + '</span><b>' + esc(x.title) + '</b>' + (x.hv ? '<span class="hvt">⚠ HV</span>' : '') + (x.ver ? '<i>' + esc(x.ver) + '</i>' : '') + '</a>').join(''); }
       else if (cur === 'new') {
         LL.forEach((x, i) => { x.nw = st.cur === 1 && i < 5; });
