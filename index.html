@@ -1555,6 +1555,23 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 @keyframes h2pulse{50%{box-shadow:0 0 0 7px rgba(74,222,128,0)}}@keyframes h2glow{50%{filter:brightness(1.18)}}@keyframes h2shine{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
 @keyframes h2zoom{to{transform:scale(1.12)}}@keyframes h2up{from{opacity:0;transform:translateY(18px)}}@keyframes h2bar{from{width:0}}@keyframes h2spin{from{transform:rotate(-90deg) scale(.6);opacity:0}}
 @keyframes h2pop{from{transform:scale(0)}}@keyframes h2mq{to{transform:translateX(-50%)}}
+/* ---- Inicio sereno + pestañas de grupo ---- */
+.h2-top{grid-template-columns:1fr auto}
+.h2-g.h2n{grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:18px}
+.h2n .h2-rt>*{flex:1 1 0}.h2n .h2-rt .h2-nw{flex:1.5 1 0}.h2n .h2-rt .h2-rs,.h2n .h2-rt .h2-wc{flex:1 1 0}
+.h2n .h2-mid .h2-hero{flex:1.5 1 0}
+.rs3{display:flex;gap:8px;align-items:flex-end;flex:1}.rs3>div{flex:1}.rs3 b{display:block;font-size:30px;font-weight:800}.rs3 small{font-size:12.5px;color:var(--muted)}
+.h2-rs{cursor:pointer;display:flex;flex-direction:column}
+.h2-wc{display:flex;flex-direction:column;background:linear-gradient(160deg,rgba(var(--argb),.30),rgba(var(--pnrgb),.85));border-color:rgba(var(--argb),.45);box-shadow:0 0 40px rgba(var(--argb),.18)}
+.h2-wc h3 a{cursor:pointer;font-size:15px;padding:0 4px}
+.h2-wc .wcb{display:flex;flex-direction:column;gap:7px;flex:1;justify-content:center}.h2-wc .wcb b{font-size:19px;font-weight:800;line-height:1.2}.h2-wc .wcb p{font-size:12.5px;color:var(--muted);margin:0}
+.h2-wc .wtag{align-self:flex-start;font-size:10px;letter-spacing:.14em;font-weight:800;padding:3px 9px;border-radius:99px;background:linear-gradient(135deg,#ffb86b,#ff5470);color:#fff}
+.h2-wc .wbt{display:flex;gap:8px;margin-top:4px}.h2-wc .wbt .hm-go{height:38px;padding:0 16px;font-size:13px;border-radius:12px}
+.h2-nwb{display:flex;flex-direction:column;border-color:rgba(var(--argb),.4);box-shadow:0 0 40px rgba(var(--argb),.14);flex:1 1 0}
+.h2-nwb .h2-nl.big{overflow:auto;flex:1;min-height:0}.h2-nwb .h2-nr{flex:none;padding:10px}.h2-nwb .h2-nr img{width:84px;height:56px}
+.h2-nwb .nbl{margin-top:10px;font-size:12.5px;color:var(--a2);cursor:pointer;display:flex;align-items:center;gap:6px}.h2-nwb .nbl svg{width:14px;height:14px}
+.center{position:relative}.vtabs{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:30;backdrop-filter:blur(14px);background:rgba(18,16,24,.72)}
+#view.vtp{padding-top:70px}
 @media (max-height:760px){.h2.fix{height:auto}.h2-g{grid-template-columns:1fr}.h2-hero{min-height:360px}}
 
 
@@ -3721,16 +3738,13 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
         <nav class="nav">
           <a data-v="home"><span id="i-home"></span>Inicio</a>
           <a data-v="web"><span id="i-web"></span>Catálogo</a>
-          <a data-v="profile"><span id="i-profile"></span>Perfil</a>
           <a data-v="games"><span id="i-games"></span>Biblioteca</a>
-          <a data-v="cat" style="display:none"><span id="i-cat"></span>Catálogo</a>
-          <a data-v="dl" style="display:none"><span id="i-dl"></span>Descargas<b id="dl-bd" class="dlbd" hidden></b></a>
-          <a data-v="sagas"><span id="i-sagas"></span>Sagas</a>
           <a data-v="diary"><span id="i-diary"></span>Diario</a>
-          <a data-v="hitos"><span id="i-hitos"></span>Hitos</a>
-          <a data-v="stats"><span id="i-stats"></span>Estadísticas</a>
+          <a data-v="prog"><span id="i-prog"></span>Progreso</a>
           <a data-v="friends"><span id="i-friends"></span>Amigos</a>
-          <a data-v="news"><span id="i-news"></span>Novedades</a>
+          <a data-v="profile"><span id="i-profile"></span>Perfil</a>
+          <a data-v="cat" style="display:none"><span id="i-cat"></span>Catálogo Steam</a>
+          <a data-v="dl" style="display:none"><span id="i-dl"></span>Descargas<b id="dl-bd" class="dlbd" hidden></b></a>
         </nav>
       </div>
     </div>
@@ -4454,20 +4468,21 @@ V.settings=()=>{const t=setT();return `<div class="sx2"><nav class="stabs">${STA
   <section class="card set spane"><div class="sgrid">${setPane(t).join('')}</div></section></div>`};
 
 /* ---------- navegación ---------- */
-function moveInd(){const a=$(`.nav a[data-v="${S.view}"]`),ind=$('#ind'),nw=$('.navwrap');if(!ind||!nw)return;const was=ind.style.opacity==='0'||ind.style.opacity==='';
+const NAVOF={sagas:'games',hitos:'prog',stats:'prog',wrapped:'prog',news:'home',pet:'profile'};
+function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$('#ind'),nw=$('.navwrap');if(!ind||!nw)return;const was=ind.style.opacity==='0'||ind.style.opacity==='';
   if(a){const y=Math.round(a.getBoundingClientRect().top-nw.getBoundingClientRect().top);
     if(was){ind.style.transition='none';ind.style.transform=`translateY(${y}px)`;void ind.offsetWidth;ind.style.transition=''}else ind.style.transform=`translateY(${y}px)`}
   ind.style.opacity=a?1:0;
   $$('.nav a').forEach(x=>x.classList.toggle('active',x===a));
-  clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
+  clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
+function go(v,o){if(v==='prog')v=S.lp||'hitos';if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
   {const t=$('#tinst');if(t)t.textContent=G.filter(instOf).length}
-  const el=$('#view');el.classList.remove('in');void el.offsetWidth;el.innerHTML=V[v]();el.classList.add('in');el.scrollTop=0;
+  const el=$('#view');el.classList.remove('in');void el.offsetWidth;el.innerHTML=V[v]();el.classList.add('in');el.scrollTop=0;vtabs(v);
   
   if(v==='games'){renderDetail();{const l=$('#list');if(l&&!l._sc){l._sc=1;let t;l.addEventListener('scroll',()=>{document.body.classList.add('scr');clearTimeout(t);t=setTimeout(()=>document.body.classList.remove('scr'),160)},{passive:true})}}renderList()}
   if(v==='settings'||v==='profile'){const on=(id,ev,fn)=>{const e=$('#'+id);if(e)e.addEventListener(ev,fn)};
@@ -5001,8 +5016,15 @@ const hlm=g=>parseFloat((g.hl||{}).m)||0,manualOk=g=>!(hlm(g)>0);
 function autoDone(g,live){if(!g||g.status==='Terminado')return 0;const m=hlm(g);if(!(m>0)||!((g.hours||0)>=m))return 0;g.status='Terminado';g.doneAt=live?Date.now():(lastTs(g)||Date.now());if(live){try{celebrate(g)}catch(e){}}return 1}
 function autoDoneAll(){let n=0;G.forEach(g=>{n+=autoDone(g)});if(n){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}return n}
 setTimeout(()=>{try{autoDoneAll()}catch(e){}},1800);setInterval(()=>{try{autoDoneAll()}catch(e){}},60000);
+/* ---------- pestañas de grupo (Biblioteca / Progreso) ---------- */
+const VGROUPS=[['games','sagas'],['hitos','stats','wrapped']];
+const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
+function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;const o=ce.querySelector(':scope>.vtabs');if(o)o.remove();el.classList.remove('vtp');
+  const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
+  const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="vtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
+  if(v!=='games')el.classList.add('vtp');ce.insertBefore(d,el)}
 /* ---------- INICIO v2 (ventana fija) ---------- */
-const H2T=[['para','Para vos'],['act','Actividad']];
+const H2T=[];
 const h2ago=ts=>{const n=Math.floor((Date.now()-ts)/864e5);return n<=0?'hoy':n===1?'ayer':'hace '+n+' días'};
 const h2nago=s=>{const m=Math.max(1,Math.round((Date.now()/1000-s)/60));return m<60?'hace '+m+' min':m<1440?'hace '+Math.round(m/60)+' h':'hace '+Math.round(m/1440)+' d'};
 function h2streak(){let n=0;const d=new Date();for(let i=0;i<400;i++){const k=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;if((ST.log||{})[k]>0)n++;else if(i>0)break;d.setDate(d.getDate()-1)}return n}
@@ -5020,7 +5042,7 @@ function h2Strip(hero){const ex=g=>hero&&g.id===hero.id;let P=mqList().filter(g=
   P=P.slice(0,24);const prog=g=>{const m=parseFloat((g.hl||{}).m)||0;return g.status==='Terminado'?100:m?Math.min(98,g.hours/m*100):0};
   const loop=P.length>=7,item=g=>`<div class="h2-cv" data-a="open" data-id="${g.id}"><div class="im"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><i class="shn"></i>${prog(g)?`<div class="pg"><i style="--w:${prog(g)}%"></i></div>`:''}</div><b>${esc(g.name)}</b></div>`;
   const html=P.map(item).join('');
-  return `<section class="h2-c h2-st rise" style="--i:4"><h3>Retomá donde quedaste <a data-a="go" data-v="games">Biblioteca ${ic('arrow')}</a></h3><div class="h2-cs ${loop?'car':''}"><div class="h2-trk" style="--n:${P.length}">${html}${loop?html:''}</div></div></section>`}
+  return `<section class="h2-c h2-st rise" style="--i:4"><h3>Tu biblioteca <a data-a="go" data-v="games">Ver todos ${ic('arrow')}</a></h3><div class="h2-cs ${loop?'car':''}"><div class="h2-trk" style="--n:${P.length}">${html}${loop?html:''}</div></div></section>`}
 function recMini(){if(!S.rec||!gm(S.rec.id))recPick();const r=S.rec,g=r&&gm(r.id);
   if(!g)return `<section class="h2-c h2-rec hm-rec rise" style="--i:2"><h3>Para vos</h3><p class="sub0" style="margin:0">Sumá juegos para recibir recomendaciones.</p></section>`;
   const fe=[...recFeats(g).keys()].filter(x=>!x.startsWith('dev:')&&!/^(Un jugador|Multijugador|Cooperativo)$/.test(x)).slice(0,3);
@@ -5029,12 +5051,12 @@ function recMini(){if(!S.rec||!gm(S.rec.id))recPick();const r=S.rec,g=r&&gm(r.id
   <div class="chs">${fe.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p class="why">${esc(r.why)}</p>
   <div class="bt">${canPlay(g)?`<button class="hm-go" data-a="hplay" data-id="${g.id}">${ic('play')} Jugar</button>`:`<button class="hm-go" data-a="open" data-id="${g.id}">Ver ficha</button>`}<button class="hm-go hm-gh" data-a="recnext">${ic('flake')} Otra</button><button class="hm-go hm-gh" data-a="recno" title="No me interesa">✕</button></div></section>`}
 function newsRows(n){const L=newsItems().slice(0,n);return L.length?L.map(x=>`<div class="h2-nr" data-a="go" data-v="news"><img src="${art.grid(x.g)}" data-fb="${art.wide(x.g)}" alt=""><div><b>${esc(x.te||x.t)}</b><p>${esc(x.ce||x.c||'')}</p><small>${h2nago(x.d)} · ${esc(x.g.name)}</small></div></div>`).join(''):'<p class="sub0" style="margin:0">Cuando haya novedades de tus juegos, aparecen acá.</p>'}
-function newsMini(){return `<section class="h2-c h2-nw rise" style="--i:3"><h3>Noticias <a data-a="go" data-v="news"><i class="lv"></i>Ver todas</a></h3><div class="h2-nl two">${newsRows(2)}</div></section>`}
+function newsMini(){return `<section class="h2-c h2-nw rise" style="--i:3"><h3>Novedades <a data-a="h2nopen"><i class="lv"></i>Ver todas</a></h3><div class="h2-nl two">${newsRows(2)}</div></section>`}
 function h2Top5(){const pp=PR()||{fav:[]},fv=(pp.fav||[]).map(gm).filter(Boolean);
   return `<section class="h2-c h2-t5 rise" style="--i:2"><h3>Tu top 5 <a data-a="obedit" data-s="5">${ic('edit')}</a></h3><div class="g5">${[0,1,2,3,4].map(i=>fv[i]?`<div data-a="open" data-id="${fv[i].id}" title="${esc(fv[i].name)}"><img src="${art.grid(fv[i])}" data-fb="${art.wide(fv[i])}" alt=""><b>${i+1}</b></div>`:`<div class="e" data-a="obedit" data-s="5">${ic('plus')}</div>`).join('')}</div></section>`}
-function h2Goals(){const L=lvlOf(),g=goalsList(),bar=f=>`<div class="h2pb"><i style="--w:${Math.round(f*100)}%"></i></div>`,fm=n=>n>=100?Math.round(n):+n.toFixed(1);
-  const rows=[`<div class="h2gr"><div><span>Nivel ${L.l+1}</span><small>faltan ${Math.max(0,Math.round(L.next))} XP</small></div>${bar(L.pct/100)}</div>`].concat(g.map(x=>`<div class="h2gr"><div><span>${esc(x.n)}</span><small>${x.t>1?fm(x.c)+' / '+fm(x.t):'casi'}</small></div>${bar(x.f)}</div>`));
-  return `<section class="h2-c h2-go rise" style="--i:3"><h3>Próximos objetivos <a data-a="go" data-v="hitos">Hitos ${ic('arrow')}</a></h3>${rows.join('')}</section>`}
+function h2Goals(n){const L=lvlOf(),g=goalsList(),bar=f=>`<div class="h2pb"><i style="--w:${Math.round(f*100)}%"></i></div>`,fm=n=>n>=100?Math.round(n):+n.toFixed(1);
+  const rows0=[`<div class="h2gr"><div><span>Nivel ${L.l+1}</span><small>faltan ${Math.max(0,Math.round(L.next))} XP</small></div>${bar(L.pct/100)}</div>`].concat(g.map(x=>`<div class="h2gr"><div><span>${esc(x.n)}</span><small>${x.t>1?fm(x.c)+' / '+fm(x.t):'casi'}</small></div>${bar(x.f)}</div>`));
+  return `<section class="h2-c h2-go rise" style="--i:3"><h3>Próximos objetivos <a data-a="go" data-v="hitos">Hitos ${ic('arrow')}</a></h3>${rows0.slice(0,n||99).join('')}</section>`}
 function h2Week(){const w=week(),st=h2streak(),nm=['D','L','M','X','J','V','S'];
   return `<section class="h2-c h2-wk rise" style="--i:4"><h3>Racha semanal <span class="fire">${st>0?'🔥 '+st+(st===1?' día':' días'):'Jugá hoy para empezar'}</span></h3><div class="wk">${w.map((x,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return `<span class="${x[1]>0?'f':''}${i===6?' t':''}" style="--d:${i}" title="${x[1].toFixed(1)} h"><i></i>${nm[d.getDay()]}</span>`}).join('')}</div></section>`}
 function h2Pet(){const p=petCur();if(!p)return `<section class="h2-c h2-pt rise" style="--i:5" data-a="go" data-v="pet"><h3>Mi mascota</h3><p class="sub0" style="margin:0">Adoptá una mascota y acompañá tu launcher.</p></section>`;
@@ -5042,7 +5064,11 @@ function h2Pet(){const p=petCur();if(!p)return `<section class="h2-c h2-pt rise"
 function h2Tick(){const g=goalsList()[0],p=petCur(),it=[`${G.length} juegos en tu biblioteca`,`${Math.round(totalH())} h jugadas`,`${gaN()} hitos desbloqueados`,`${doneN()} juegos completados`];
   if(g)it.push(`Te faltan ${Math.max(0,Math.round((g.t-g.c)*10)/10)} para «${g.n}»`);if(p)it.push(`${p.name} está en nivel ${pLvl(p)}`);const st=h2streak();if(st>1)it.push(`Racha de ${st} días`);
   const h=it.map(x=>`<span>${esc(x)}</span>`).join('');return `<div class="h2-tick rise" style="--i:6"><b>HOY</b><div class="mv"><div class="tr" style="--d:${it.length*5}s">${h}${h}</div></div></div>`}
-function h2Para(adv){const hero=h2Pick(adv);return `<div class="h2-g"><div class="h2-col">${recMini()}${newsMini()}</div><div class="h2-col h2-mid">${h2Hero(hero)}${h2Strip(hero)}</div><div class="h2-col">${h2Top5()}${h2Goals()}${h2Week()}${h2Pet()}</div></div>${h2Tick()}`}
+function h2Resumen(){return `<section class="h2-c h2-rs rise" style="--i:2" data-a="go" data-v="stats"><h3>Tu resumen <a>Estadísticas ${ic('arrow')}</a></h3><div class="rs3"><div><b>${Math.round(totalH()).toLocaleString('es-AR')}</b><small>horas</small></div><div><b>${doneN()}</b><small>completados</small></div><div><b>${gaN()}</b><small>hitos</small></div></div></section>`}
+function h2WrapCard(w){const nm=w.q?QN[w.q]+' '+w.y:'Año '+w.y;return `<section class="h2-c h2-wc rise" style="--i:2"><h3>Tu Wrapped <a data-a="wdismiss" data-id="${w.key}" title="Más tarde">✕</a></h3><div class="wcb"><span class="wtag">NUEVO</span><b>Tu ${esc(nm)} ya está listo</b><p>Mirá cómo jugaste, en una presentación animada.</p><div class="wbt"><button class="hm-go" data-a="wplay" data-id="${w.key}">${ic('play')} Verlo</button><button class="hm-go hm-gh" data-a="wropen" data-id="${w.key}">Ver detalle</button></div></div></section>`}
+function h2NewsBig(){return `<section class="h2-c h2-nwb rise" style="--i:1"><h3>Novedades <a data-a="h2nclose">✕ Cerrar</a></h3><div class="h2-nl big">${newsRows(10)}</div><a class="nbl" data-a="go" data-v="news">Abrir todas las novedades ${ic('arrow')}</a></section>`}
+function h2Right(){if(S.h2nw)return h2NewsBig();const w=(typeof wrapNew==='function'?wrapNew():[])[0];return `${w?h2WrapCard(w):h2Resumen()}${h2Week()}${h2Goals(2)}${newsMini()}`}
+function h2Para(adv){const hero=h2Pick(adv);return `<div class="h2-g h2n"><div class="h2-col h2-mid">${h2Hero(hero)}${h2Strip(hero)}</div><div class="h2-col h2-rt" id="h2rt">${h2Right()}</div></div>`}
 function h2Body(t,adv){
   if(t==='juegos')return `<div class="h2-sc">${perfilBody()}</div>`;
   if(t==='desc')return `<div class="h2-sc"><div class="h2-dg">${recCard()}<section class="h2-c h2-nw big"><h3>Noticias de tus juegos <a data-a="go" data-v="news">Ver todas ${ic('arrow')}</a></h3>${newsRows(8)}</section></div></div>`;
@@ -5051,14 +5077,17 @@ function h2Body(t,adv){
 function homeBody(){return h2Body(S.h2t||'para')}
 V.home=()=>{
   const p=PR(),L=lvlOf();if(S.ht==='wrapped'||S.ht==='rarezas'){S.h2t='act';S.ht=null}
-  S.h2t=S.h2t||'para';
+  S.h2t='para';
   const h=new Date().getHours(),sal=rwGreet(h<6?'Buenas noches':h<12?'Buen día':h<20?'Buenas tardes':'Buenas noches'),fecha=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}),nm=(p&&p.name)||UN(),wn=wrapNew()[0];
   return `<div class="h2 ${S.h2t==='para'?'fix':''}" id="h2r"><header class="h2-top rise" style="--i:0"><div class="l"><small>${fecha}</small><h2>${sal}, ${esc(nm)}</h2></div>
-   <div class="h2-tabs" id="h2tb">${H2T.map(([k,l])=>`<button class="${S.h2t===k?'on':''}" data-a="h2tab" data-v="${k}">${l}${k==='act'&&wn?'<i></i>':''}</button>`).join('')}</div>
    <div class="r">${wn?`<button class="h2-pill wr" data-a="wplay" data-id="${wn.key}">🎁 Wrapped listo</button>`:''}${x7Pill()}${rjPill()}<button class="h2-pill" data-a="go" data-v="profile" title="Mi perfil">Nv ${L.l} · ${Math.round(L.x)} XP<span class="xb"><i style="width:${L.pct}%"></i></span></button><button class="h2-dice" data-a="rand" title="¿Qué juego hoy? Elegir uno al azar" aria-label="Elegir un juego al azar"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.6" cy="8.6" r="1.35"/><circle cx="15.4" cy="8.6" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.6" cy="15.4" r="1.35"/><circle cx="15.4" cy="15.4" r="1.35"/></svg></button></div></header>
    <div id="hbody" class="h2-body">${h2Body(S.h2t,S.h2t==='para')}</div></div>`};
 Object.assign(A,{
  h2tab:a=>{const t=a.dataset.v,was=S.h2t;S.h2t=t;$$('#h2tb button').forEach(b=>b.classList.toggle('on',b===a));const r=$('#h2r');if(r)r.classList.toggle('fix',t==='para');const b=$('#hbody');if(b){b.innerHTML=h2Body(t,t==='para'&&was!=='para'||t==='para');counters(b)}},
+ h2nopen:()=>{S.h2nw=1;const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
+ h2nclose:()=>{S.h2nw=0;const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
+ wdismiss:a=>{ST.wseen=ST.wseen||{};ST.wseen[a.dataset.id]=1;save();const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
+ vtab:a=>go(a.dataset.v),
  h2next:()=>{const b=$('#hbody');if(b){b.innerHTML=h2Para(true);S.h2t='para'}}
 });
 
@@ -11770,6 +11799,7 @@ const wdMsg=m=>{
   if(m.st==='cancel'){delete WDR.l[m.id];wdDraw();wdBadge();return}
 };window.wdMsg=wdMsg;if(WN&&winteerNative.onWebDl)winteerNative.onWebDl(wdMsg);
 {const e=$('#i-web');if(e)e.outerHTML=ic('web')}
+P.prog=P.trophy;{const e=$('#i-prog');if(e)e.outerHTML=ic('prog')}
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
