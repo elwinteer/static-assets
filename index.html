@@ -4477,7 +4477,7 @@ function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$(
   clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(v==='prog')v=S.lp||'hitos';if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
+function go(v,o){if(v==='prog')v=S.lp||'stats';if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
@@ -5017,7 +5017,7 @@ function autoDone(g,live){if(!g||g.status==='Terminado')return 0;const m=hlm(g);
 function autoDoneAll(){let n=0;G.forEach(g=>{n+=autoDone(g)});if(n){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}return n}
 setTimeout(()=>{try{autoDoneAll()}catch(e){}},1800);setInterval(()=>{try{autoDoneAll()}catch(e){}},60000);
 /* ---------- pestañas de grupo (Biblioteca / Progreso) ---------- */
-const VGROUPS=[['games','sagas'],['hitos','stats','wrapped']];
+const VGROUPS=[['games','sagas'],['stats','hitos','wrapped']];
 const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
 function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;const o=ce.querySelector(':scope>.vtabs');if(o)o.remove();el.classList.remove('vtp');
   const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
