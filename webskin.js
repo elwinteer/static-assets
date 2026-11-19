@@ -456,17 +456,18 @@ function steamripConsole() {
       .em{grid-column:1/-1;text-align:center;color:#8e90a0;padding:60px 0}
       @media (max-width:900px){.sl .ps{display:none}.sl .tx{width:80%}.bar{flex-wrap:wrap}}
       @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none;filter:none}}
+      @keyframes ssin{from{opacity:0;transform:translateY(-14px) scale(.97);filter:blur(6px)}}@keyframes ssp{to{background-position:-200% 0}}.ssb{order:-1;display:flex;justify-content:center;margin:4px 28px 24px;animation:ssin .75s cubic-bezier(.16,1,.3,1) backwards}.ssl{position:relative;display:flex;align-items:center;gap:12px;width:min(680px,100%);height:54px;padding:0 20px;border-radius:99px;background:rgba(16,16,26,.74);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(22px);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);color:#a6a7b8;cursor:text;transition:width .6s cubic-bezier(.16,1,.3,1),border-color .35s,box-shadow .35s,transform .5s,color .3s}.ssl:focus-within{width:min(780px,100%);border-color:rgba(255,255,255,.5);box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 0 5px rgba(255,255,255,.09);transform:translateY(-1px);color:#fff}.ssl svg{flex:none}.ssl input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:500 16px "Segoe UI",system-ui}.ssl input::placeholder{color:#7c7e90}.ssl button{all:unset;cursor:pointer;flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font:600 16px/1 "Segoe UI",system-ui;opacity:0;transform:scale(.5) rotate(-90deg);pointer-events:none;transition:opacity .3s,transform .4s cubic-bezier(.16,1,.3,1),background .25s}.ssl.has button{opacity:1;transform:none;pointer-events:auto}.ssl button:hover{background:rgba(255,255,255,.24)}.ssl.ld:after{content:'';position:absolute;left:30px;right:30px;bottom:-1px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff,transparent);background-size:200% 100%;animation:ssp 1.1s linear infinite}
     </style>
     <div class="base"></div>${AMB}
     <div class="sp" id="sp"></div><button class="up" id="up">↑</button><div class="w" id="w"><div class="bar"><span></span><div class="tb" id="tb"><span class="pill" id="pill"></span>${tabBtns(tabs)}</div><span></span></div>
-      <div id="hero"></div>
+      <div class="ssb" id="ssb"><label class="ssl"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="sq" placeholder="Buscar en SteamRIP…" spellcheck="false" autocomplete="off"><button id="sx" type="button" aria-label="Borrar">×</button></label></div><div id="hero"></div>
       <div class="tl"><div><h1 id="tt"></h1><p id="ts"></p></div><div class="ct"><div class="sr"><input id="q" placeholder="Buscar en la lista…"><span class="kb">/</span></div></div></div>
       <div class="azb" id="az"></div><div class="gr" id="gr"></div><div class="ft" id="ft"></div></div>`;
     const $ = (x) => sh.querySelector(x), w = $('#w'), gr = $('#gr'), ft = $('#ft'), hero = $('#hero');
     const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root: w, threshold: 0.04, rootMargin: '0px 0px 120px 0px' }) : null;
     const arm = () => gr.querySelectorAll('.rv:not(.in):not([data-a])').forEach((e, i) => { e.dataset.a = 1; e.style.transitionDelay = (i % 9) * 50 + 'ms'; io ? io.observe(e) : e.classList.add('in'); });
     let RS = { q: '', items: [] }; let selL = '';
-    const filt = () => { const it = (ST[cur].items || []), qq = q.trim().toLowerCase(); if (!qq) return it; const loc = it.filter((c) => c.title.toLowerCase().includes(qq)); if (RS.q !== qq) return loc; const have = new Set(loc.map((c) => c.href)); return loc.concat(RS.items.filter((c) => !have.has(c.href))); };
+    const filt = () => { const it = (ST[cur].items || []), qq = q.trim().toLowerCase(); if (!qq) return it; if (cur === 'new') return RS.q === qq ? RS.items : []; const loc = it.filter((c) => c.title.toLowerCase().includes(qq)); if (RS.q !== qq) return loc; const have = new Set(loc.map((c) => c.href)); return loc.concat(RS.items.filter((c) => !have.has(c.href))); };
     const pill = () => { const b = sh.querySelector('#tb button.on'), p = $('#pill'); if (b) { p.style.left = b.offsetLeft + 'px'; p.style.width = b.offsetWidth + 'px'; } };
     const shotCache = {};
     const shotOf = (href) => shotCache[href] || (shotCache[href] = fetch(href, { credentials: 'include' }).then((r) => r.ok ? r.text() : '').then((t) => { if (!t) return ''; const doc = new DOMParser().parseFromString(t, 'text/html'), og = (doc.querySelector('meta[property="og:image"]') || {}).content || '', root = doc.querySelector('.entry-content, .post-content, article') || doc.body; const us = [...root.querySelectorAll('img')].map((i) => i.getAttribute('data-lazy-src') || i.getAttribute('data-src') || i.getAttribute('src') || '').filter((u) => u && !/^data:/.test(u) && !/logo|avatar|emoji|icon|gravatar|banner|button|badge/i.test(u)).map((u) => { try { return new URL(u, href).href; } catch (e) { return ''; } }).filter((u, i, a) => u && u !== og && a.indexOf(u) === i); return us[1] || us[0] || ''; }).catch(() => ''));
@@ -499,6 +500,7 @@ function steamripConsole() {
     };
     const draw = () => {
       const t = tabs.find((x) => x.k === cur), st = ST[cur], list = filt();
+      $('#ssb').style.display = cur === 'new' ? 'flex' : 'none'; $('.tl .ct').style.display = cur === 'new' ? 'none' : '';
       $('#tt').textContent = q ? 'Resultados para “' + q + '”' : t.t; $('#ts').textContent = st.items ? list.length + ' juegos' + (st.next && !q ? ' · hay más para cargar' : '') : 'Cargando…';
       gr.className = 'gr' + (cur === 'upd' ? ' ud' : cur === 'all' ? ' al' : '');
       if (!st.items) { gr.innerHTML = Array.from({ length: 14 }, () => '<div class="' + (cur === 'upd' ? 'sk2' : 'sk') + '"></div>').join(''); ft.innerHTML = ''; hero.innerHTML = ''; return; }
@@ -515,6 +517,10 @@ function steamripConsole() {
         gr.innerHTML = vis2.length ? vis2.map((c, j) => lrow(c, base + j)).join('') : '<div class="em">No hay juegos que coincidan</div>'; arm();
         if (ioC) gr.querySelectorAll('.alr').forEach((cd) => { const it = allItems().find((c) => c.href === cd.href); if (!cd.dataset.cv && !(it && it.m)) { cd.dataset.cv = 1; ioC.observe(cd); } });
         ft.innerHTML = pager(pages, pgN) || (st.err ? '<span class="er">' + esc(st.err) + '</span>' : ''); ft.querySelectorAll('[data-p]').forEach((b) => { b.onclick = () => { selL = ''; pgN = +b.dataset.p; w.scrollTo({ top: Math.max(0, gr.offsetTop - 120), behavior: 'smooth' }); draw(); }; }); return;
+      }
+      if (cur === 'new' && q.trim()) {
+        const ok = RS.q === q.trim().toLowerCase(); $('#ts').textContent = ok ? list.length + ' resultados' : 'Buscando…';
+        gr.innerHTML = list.length ? list.map(card).join('') : '<div class="em">' + (ok ? 'No hay juegos que coincidan' : 'Buscando en SteamRIP…') + '</div>'; arm(); ft.innerHTML = ''; return;
       }
       if (PAGED(cur)) {
         const loaded = Object.keys(st.pages).map(Number), pages = st.total || (Math.max(1, ...loaded) + 1);
@@ -580,7 +586,7 @@ function steamripConsole() {
       sh.querySelectorAll('#tb button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); pill(); w.scrollTo({ top: 0, behavior: 'smooth' });
       gr.classList.remove('xl', 'xr', 'ol', 'or'); void gr.offsetWidth; gr.classList.add(fw ? 'ol' : 'or'); hero.classList.add('o');
       swT = setTimeout(() => {
-        cur = k; shown = PAGE; pgN = 1; q = ''; $('#q').value = ''; gr.classList.remove('ol', 'or'); draw(); gr.classList.add(fw ? 'xl' : 'xr'); hero.classList.remove('o');
+        cur = k; shown = PAGE; pgN = 1; q = ''; $('#q').value = ''; $('#sq').value = ''; $('.ssl').classList.remove('has', 'ld'); gr.classList.remove('ol', 'or'); draw(); gr.classList.add(fw ? 'xl' : 'xr'); hero.classList.remove('o');
         if (ST[k].items) drawHero(); else if (PAGED(k)) goPage(k, 1); else fetchTab(k, tabs.find((x) => x.k === k).url);
         setTimeout(() => gr.classList.remove('xl', 'xr'), 700);
       }, 230);
@@ -597,6 +603,22 @@ function steamripConsole() {
       const nz = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, ''), ws = qq.split(/\s+/).map(nz).filter(Boolean); items = items.filter((c) => ws.every((w) => nz(c.title).indexOf(w) >= 0));
       if (q.trim().toLowerCase() !== qq) return; RS = { q: qq, items }; draw();
     };
+    const siteSearch = async (qq) => {
+      let items = []; const seen = new Set(), add = (a) => a.forEach((c) => { if (c.href && !seen.has(c.href)) { seen.add(c.href); items.push(c); } });
+      const pg = async (n) => { try { const u = location.origin + (n > 1 ? '/page/' + n : '') + '/?s=' + encodeURIComponent(qq), r = await fetch(u, { credentials: 'include' }); if (!r.ok) return []; return cardsFrom(new DOMParser().parseFromString(await r.text(), 'text/html'), u, 'x'); } catch (e) { return []; } };
+      const p1 = await pg(1); add(p1); if (p1.length >= 8) { const more = await Promise.all([pg(2), pg(3)]); more.forEach(add); }
+      if (!items.length) { try { const r = await fetch(location.origin + '/wp-json/wp/v2/posts?search=' + encodeURIComponent(qq) + '&per_page=30&_embed=wp:featuredmedia&_fields=link,title,_links,_embedded', { credentials: 'include', headers: { Accept: 'application/json' } }); const j = r.ok ? await r.json().catch(() => null) : null; if (Array.isArray(j)) add(j.map((p) => { const m = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0]; return { href: p.link, title: clean(decH(p.title && p.title.rendered)), img: (m && m.source_url) || '', build: '' }; }).filter((x) => x.href && x.title)); } catch (e) {} }
+      RS = { q: qq.toLowerCase(), items };
+    };
+    const ssl = $('.ssl'), sq = $('#sq'); let sT = 0, sK = 0;
+    const sSearch = async (val) => {
+      const qq = val.trim(), my = ++sK; ssl.classList.toggle('has', !!val);
+      if (qq.length < 2) { ssl.classList.remove('ld'); if (q) { q = ''; RS = { q: '', items: [] }; shown = PAGE; draw(); drawHero(); } return; }
+      q = val; shown = PAGE; pgN = 1; ssl.classList.add('ld'); draw(); drawHero(); await siteSearch(qq); if (my !== sK) return; ssl.classList.remove('ld'); draw();
+    };
+    sq.oninput = (e) => { const v = e.target.value; ssl.classList.toggle('has', !!v); clearTimeout(sT); sT = setTimeout(() => sSearch(v), 380); };
+    sq.onkeydown = (e) => { if (e.key === 'Enter') { clearTimeout(sT); sSearch(sq.value); } else if (e.key === 'Escape') { sq.value = ''; sSearch(''); sq.blur(); } };
+    $('#sx').onclick = () => { sq.value = ''; sSearch(''); sq.focus(); };
     let qt = 0; $('#q').oninput = (e) => { const val = e.target.value; clearTimeout(qt); qt = setTimeout(() => { q = val; shown = PAGE; pgN = 1; draw(); drawHero(); remote(val); }, 120); };
     // inclinación 3D con brillo en cada tarjeta
     gr.addEventListener('mousemove', (e) => { const im = e.target.closest && e.target.closest('.cd .im'); if (!im || cur === 'upd') return; const r = im.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; im.style.transition = 'transform .08s linear,box-shadow .5s'; im.style.transform = 'rotateY(' + ((x - .5) * 10) + 'deg) rotateX(' + ((.5 - y) * 10) + 'deg) translateY(-6px)'; im.querySelector('.gl').style.setProperty('--mx', x * 100 + '%'); im.querySelector('.gl').style.setProperty('--my', y * 100 + '%'); }, { passive: true });
@@ -604,8 +626,8 @@ function steamripConsole() {
     w.addEventListener('scroll', () => { const m = w.scrollHeight - w.clientHeight; $('#sp').style.width = (m > 0 ? w.scrollTop / m * 100 : 0) + '%'; $('#up').classList.toggle('on', w.scrollTop > 500); }, { passive: true });
     $('#up').onclick = () => w.scrollTo({ top: 0, behavior: 'smooth' });
     hero.addEventListener('mousemove', (e) => { const h = hero.firstChild; if (!h || !h.getBoundingClientRect) return; const r = h.getBoundingClientRect(); h.style.setProperty('--hx', (e.clientX - r.left) + 'px'); h.style.setProperty('--hy', (e.clientY - r.top) + 'px'); const p = h.querySelector('.sl.on .ps'); if (p) { p.style.translate = ((e.clientX - r.left) / r.width - .5) * -14 + 'px ' + ((e.clientY - r.top) / r.height - .5) * -10 + 'px'; } }, { passive: true });
-    hostEl.addEventListener('keydown', (e) => { if (e.key === '/' && sh.activeElement !== $('#q')) { e.preventDefault(); $('#q').focus(); } });
-    document.addEventListener('keydown', (e) => { if (hostEl.style.display === 'none') return; if (e.key === '/' && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); $('#q').focus(); } if (e.key === 'Escape') { $('#q').blur(); } if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const d = hero.querySelectorAll('.dots button'), on = [...d].findIndex((x) => x.classList.contains('on')); if (d.length && sh.activeElement !== $('#q')) d[(on + (e.key === 'ArrowRight' ? 1 : d.length - 1)) % d.length].click(); } });
+    hostEl.addEventListener('keydown', (e) => { if (e.key === '/' && sh.activeElement !== $('#q') && sh.activeElement !== $('#sq')) { e.preventDefault(); (cur === 'new' ? $('#sq') : $('#q')).focus(); } });
+    document.addEventListener('keydown', (e) => { if (hostEl.style.display === 'none') return; if (e.key === '/' && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); (cur === 'new' ? $('#sq') : $('#q')).focus(); } if (e.key === 'Escape') { $('#q').blur(); $('#sq').blur(); } if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const d = hero.querySelectorAll('.dots button'), on = [...d].findIndex((x) => x.classList.contains('on')); if (d.length && sh.activeElement !== $('#q')) d[(on + (e.key === 'ArrowRight' ? 1 : d.length - 1)) % d.length].click(); } });
     sh.addEventListener('click', (e) => { const a = e.target.closest && e.target.closest('a.cd, a.go, a.up2, a.alr'); if (!a || e.ctrlKey || e.metaKey) return; e.preventDefault(); const u = a.href; leave(() => { location.href = u; }); });
     // carga automática al llegar al final
     const snt = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !q && !ST[cur].busy && ST[cur].items) { const mr = $('#mr'); if (mr) mr.click(); } }), { root: w, rootMargin: '0px 0px 500px 0px' }); snt.observe(ft);
@@ -962,8 +984,8 @@ function fitgirlConsole() {
       .up3 .ut3{font:700 21px/1.2 ${FONT};letter-spacing:-.4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.up3 .uf{margin-top:auto;display:flex;justify-content:space-between;align-items:center}.up3 .uf small{color:#8e90a0;font-size:12px}
       .ur{min-width:0}
       .ds{font:500 12.5px/1.45 ${FONT};color:#8e90a0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.acv img{width:100%;height:100%;object-fit:cover;display:block}
-      .sk{aspect-ratio:3/4.2;border-radius:22px;background:linear-gradient(110deg,rgba(255,255,255,.04) 30%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.04) 70%);background-size:200% 100%;animation:swp 1.4s linear infinite}`;
-    const sh = mount(css, '<div class="au"><i></i><i></i><i></i></div><div class="bar hb fg"><span></span><div class="tbw hubtb" id="tb"><span class="ac"></span>' + TABS.map((t, j) => '<button style="--j:' + j + ';--c1:' + TC[t[0]][0] + ';--c2:' + TC[t[0]][1] + ';--rgb:' + TC[t[0]][2] + '" data-k="' + t[0] + '">' + TI(t[0]) + '<span>' + t[1] + '</span></button>').join('') + '</div><span></span></div><div class="ct"><div class="hd"><div><h2 id="ti"></h2><p id="ts"></p></div><label class="sr">' + SRCH + '<input id="q" placeholder="Buscar en la lista…" spellcheck="false" autocomplete="off"></label></div><div id="er"></div><div id="hr"></div><div class="gr" id="gr"></div><div class="pg" id="pg"></div></div><button class="tp" id="tp" aria-label="Subir"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>');
+      @keyframes ssin{from{opacity:0;transform:translateY(-14px) scale(.97);filter:blur(6px)}}@keyframes ssp{to{background-position:-200% 0}}.ssb{order:-1;display:flex;justify-content:center;margin:4px 28px 24px;animation:ssin .75s cubic-bezier(.16,1,.3,1) backwards}.ssl{position:relative;display:flex;align-items:center;gap:12px;width:min(680px,100%);height:54px;padding:0 20px;border-radius:99px;background:rgba(16,16,26,.74);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(22px);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);color:#a6a7b8;cursor:text;transition:width .6s cubic-bezier(.16,1,.3,1),border-color .35s,box-shadow .35s,transform .5s,color .3s}.ssl:focus-within{width:min(780px,100%);border-color:rgba(255,255,255,.5);box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 0 5px rgba(255,255,255,.09);transform:translateY(-1px);color:#fff}.ssl svg{flex:none}.ssl input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:500 16px "Segoe UI",system-ui}.ssl input::placeholder{color:#7c7e90}.ssl button{all:unset;cursor:pointer;flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font:600 16px/1 "Segoe UI",system-ui;opacity:0;transform:scale(.5) rotate(-90deg);pointer-events:none;transition:opacity .3s,transform .4s cubic-bezier(.16,1,.3,1),background .25s}.ssl.has button{opacity:1;transform:none;pointer-events:auto}.ssl button:hover{background:rgba(255,255,255,.24)}.ssl.ld:after{content:'';position:absolute;left:30px;right:30px;bottom:-1px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff,transparent);background-size:200% 100%;animation:ssp 1.1s linear infinite}.ct:not(.ss1)>.ssb{display:none}.ct.ss1 .hd .sr{display:none}.sk{aspect-ratio:3/4.2;border-radius:22px;background:linear-gradient(110deg,rgba(255,255,255,.04) 30%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.04) 70%);background-size:200% 100%;animation:swp 1.4s linear infinite}`;
+    const sh = mount(css, '<div class="au"><i></i><i></i><i></i></div><div class="bar hb fg"><span></span><div class="tbw hubtb" id="tb"><span class="ac"></span>' + TABS.map((t, j) => '<button style="--j:' + j + ';--c1:' + TC[t[0]][0] + ';--c2:' + TC[t[0]][1] + ';--rgb:' + TC[t[0]][2] + '" data-k="' + t[0] + '">' + TI(t[0]) + '<span>' + t[1] + '</span></button>').join('') + '</div><span></span></div><div class="ct"><div class="ssb" id="ssb"><label class="ssl"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="sq" placeholder="Buscar en FitGirl…" spellcheck="false" autocomplete="off"><button id="sx" type="button" aria-label="Borrar">×</button></label></div><div class="hd"><div><h2 id="ti"></h2><p id="ts"></p></div><label class="sr">' + SRCH + '<input id="q" placeholder="Buscar en la lista…" spellcheck="false" autocomplete="off"></label></div><div id="er"></div><div id="hr"></div><div class="gr" id="gr"></div><div class="pg" id="pg"></div></div><button class="tp" id="tp" aria-label="Subir"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>');
     const $ = (s) => sh.querySelector(s), gr = $('#gr');
     offAll(); const ST = window.__fgST || (window.__fgST = {}); TABS.forEach((t) => { if (!ST[t[0]]) ST[t[0]] = { pages: {}, cur: 1, total: 0, busy: 0, err: '' }; }); ST.search = { pages: {}, cur: 1, total: 0, busy: 0, err: '', q: '' };
     let cur = window.__fgCur && window.__fgCur !== 'search' ? window.__fgCur : 'new', tk = 0; const first = !window.__fgCur;
@@ -976,6 +998,7 @@ function fitgirlConsole() {
     const title = () => cur === 'search' ? 'Resultados para «' + ST.search.q + '»' : TABS.find((t) => t[0] === cur)[1];
     const draw = () => {
       const st = ST[cur], L = st.pages[st.cur] || []; $('#bg') && 0;
+      $('.ct').classList.toggle('ss1', cur === 'new' || cur === 'search');
       setTitle($('#ti'), title()); const pages = st.total || (st.pages[st.cur] ? st.cur : 1);
       countTo($('#ts'), L.length, (cur === 'up' ? ' próximos lanzamientos' : ' repacks') + (pages > 1 ? ' · página ' + st.cur + ' de ' + pages : ''));
       $('#er').innerHTML = st.err ? '<div class="er">' + esc(st.err) + '</div>' : '';
@@ -1118,10 +1141,17 @@ function fitgirlConsole() {
       draw(); await load(k, ST[k].cur); if (my !== tk) return; gr.classList.add('ent'); draw(); setTimeout(() => gr.classList.remove('ent'), 1300);
     };
     sh.querySelectorAll('#tb button').forEach((b) => b.addEventListener('click', () => { if (b.dataset.k !== cur) setTab(b.dataset.k, 1); }));
-    $('#q').addEventListener('keydown', async (e) => { if (e.key !== 'Enter') return; const v = $('#q').value.trim(); if (!v) return; ST.search = { pages: {}, cur: 1, total: 0, busy: 0, err: '', q: v }; sh.querySelectorAll('#tb button').forEach((b) => b.classList.remove('on')); cur = 'search'; const my = ++tk; swapGrid(gr, true, () => {}, null); await new Promise((r) => setTimeout(r, 330)); draw(); await load('search', 1); if (my !== tk) return; gr.classList.add('ent'); draw(); setTimeout(() => gr.classList.remove('ent'), 1300); });
+    const runSearch = async (v) => { ST.search = { pages: {}, cur: 1, total: 0, busy: 0, err: '', q: v }; sh.querySelectorAll('#tb button').forEach((b) => b.classList.remove('on')); cur = 'search'; const my = ++tk; swapGrid(gr, true, () => {}, null); await new Promise((r) => setTimeout(r, 330)); draw(); await load('search', 1); if (my !== tk) return; gr.classList.add('ent'); draw(); setTimeout(() => gr.classList.remove('ent'), 1300);  };
+    $('#q').addEventListener('keydown', (e) => { if (e.key !== 'Enter') return; const v = $('#q').value.trim(); if (v) runSearch(v); });
+    { const ssl = $('.ssl'), sq = $('#sq'); let sT = 0;
+      const go = async (v) => { v = v.trim(); if (v.length < 2) { if (cur === 'search') setTab('new', 1); return; } ssl.classList.add('ld'); await runSearch(v); ssl.classList.remove('ld'); };
+      sq.oninput = (e) => { const v = e.target.value; ssl.classList.toggle('has', !!v); clearTimeout(sT); sT = setTimeout(() => go(v), 420); };
+      sq.onkeydown = (e) => { if (e.key === 'Enter') { clearTimeout(sT); go(sq.value); } else if (e.key === 'Escape') { sq.value = ''; ssl.classList.remove('has'); go(''); sq.blur(); } };
+      $('#sx').onclick = () => { sq.value = ''; ssl.classList.remove('has'); go(''); sq.focus(); };
+      sh.querySelectorAll('#tb button').forEach((b) => b.addEventListener('click', () => { sq.value = ''; ssl.classList.remove('has', 'ld'); })); }
     { const w = sh.querySelector('.w'), tp = $('#tp'); if (w && tp) { w.addEventListener('scroll', () => tp.classList.toggle('on', w.scrollTop > 500), { passive: true }); tp.addEventListener('click', () => w.scrollTo({ top: 0, behavior: 'smooth' })); } }
     on(window, 'keydown', (e) => { if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && sh.activeElement !== $('#q') && cur !== 'search') { const st = ST[cur], pgs = st.total || 1, n = st.cur + (e.key === 'ArrowRight' ? 1 : -1); if (n >= 1 && n <= pgs) goPage(n); } });
-    on(window, 'keydown', (e) => { if (e.key === '/' && sh.activeElement !== $('#q')) { e.preventDefault(); $('#q').focus(); } });
+    on(window, 'keydown', (e) => { if (e.key === '/' && sh.activeElement !== $('#q') && sh.activeElement !== $('#sq')) { e.preventDefault(); (cur === 'new' || cur === 'search' ? $('#sq') : $('#q')).focus(); } });
     { const w = sh.querySelector('.w'), bar = sh.querySelector('.bar'); if (w && bar) w.addEventListener('scroll', () => bar.classList.toggle('sc', w.scrollTop > 12), { passive: true }); }
     hoverPill(sh); const s0 = Q.get('s'); if (s0) { $('#q').value = s0; }
     setTab(cur, 0); setTimeout(moveAc, 60); setTimeout(moveAc, 700);
