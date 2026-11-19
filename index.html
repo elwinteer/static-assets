@@ -3720,9 +3720,9 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
         <div class="ind" id="ind"></div>
         <nav class="nav">
           <a data-v="home"><span id="i-home"></span>Inicio</a>
+          <a data-v="web"><span id="i-web"></span>Catálogo</a>
           <a data-v="profile"><span id="i-profile"></span>Perfil</a>
           <a data-v="games"><span id="i-games"></span>Biblioteca</a>
-          <a data-v="web"><span id="i-web"></span>Navegador</a>
           <a data-v="cat" style="display:none"><span id="i-cat"></span>Catálogo</a>
           <a data-v="dl" style="display:none"><span id="i-dl"></span>Descargas<b id="dl-bd" class="dlbd" hidden></b></a>
           <a data-v="sagas"><span id="i-sagas"></span>Sagas</a>
@@ -11333,7 +11333,7 @@ Object.assign(A,{
 
 /* ===/X5A=== */
 /* ---------- navegador + descargas ---------- */
-P.web='<circle cx="12" cy="12" r="9"/><path d="M3.2 9.5h17.6M3.2 14.5h17.6"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9z"/>';
+P.web='<rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><path d="M17 13.2v7.6M13.2 17h7.6"/><path d="M5.6 7.2l1.4 1.4 2.4-2.8"/>';
 P.wdl='<path d="M12 3.5v11"/><path d="M7.6 10.6 12 15l4.4-4.4"/><path d="M4.5 16.2v1.9a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-1.9"/>';
 P.wrl='<path d="M19.6 12.2a7.6 7.6 0 1 1-2.3-5.5"/><path d="M19.8 4.2v4.4h-4.4"/>';
 P.whm='<path d="M4 11.2 12 4.2l8 7"/><path d="M6.2 9.8v8.7a1.6 1.6 0 0 0 1.6 1.6H10v-4.8h4v4.8h2.2a1.6 1.6 0 0 0 1.6-1.6V9.8"/>';
@@ -11405,7 +11405,7 @@ function wbBuild(root){const c=webCfg();
   const inp=$('#wbi');$('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();wbOpen(u)});
   inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));{const hot=$('#wbhot'),bt=root.querySelector('.wbt'),tb=$('#wbtb');hot.addEventListener('mouseenter',()=>wbPeek(1));[bt,tb].forEach(e=>{e.addEventListener('mouseenter',()=>wbPeek(1));e.addEventListener('mouseleave',()=>wbPeek(0))});inp.addEventListener('blur',()=>wbPeek(0))}root.dataset.built=1;wdDraw();wdBadge()}
 function wbEnter(){clearTimeout(WBR.disc);const root=$('#wbroot');if(!root)return;
-  if(!WN){root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Navegador</h2><p>Esta función está disponible en la app de escritorio de WINTEER.</p></div></div>`;return}
+  if(!WN){root.dataset.built='';root.innerHTML=`<div class="wbw"><div class="cd"><div class="gl">${ic('web')}</div><h2>Catálogo</h2><p>Esta función está disponible en la app de escritorio de WINTEER.</p></div></div>`;return}
   const c=webCfg();wbTabsInit();try{if(c.dir)winteerNative.webDl('tmp',{dir:c.dir})}catch(e){}
   if(!root.dataset.built){wbKill();wbBuild(root)}else{wbTabsDraw();wdBadge()}
   if(!WBR.ads){WBR.ads=Promise.resolve().then(()=>winteerNative.webDl('ads',{on:c.ads!==false})).catch(()=>0);Promise.race([WBR.ads,new Promise(z=>setTimeout(z,6000))]).then(()=>{if(S.view==='web')wbEnsureWv()});return}
