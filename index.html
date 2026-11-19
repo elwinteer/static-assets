@@ -11514,7 +11514,7 @@ function dlLists(){
   const act=all.filter(dlActive),done=all.filter(i=>i.status==='completed').reverse(),err=all.filter(i=>i.status==='error');
   const sec=(t,l,em)=>`<h2>${t}${l.length?` · ${l.length}`:''}</h2>`+(l.length?l.map(dlCard).join(''):(em?`<div class="dlempty">${em}</div>`:''));
   return sec('En curso',act,'No hay descargas en curso.')+(err.length?sec('Con errores',err):'')+sec('Completadas',done,'Todavía no instalaste nada desde acá.')}
-function dlBadge(){const n=[...DLS.items.values()].filter(dlActive).length,e=$('#dl-bd');if(e){e.hidden=!n;e.textContent=n}}
+function dlBadge(){const L=[...DLS.items.values()],n=L.filter(dlActive).length,e=$('#dl-bd');if(e){e.hidden=!n;e.textContent=n}try{const a=document.querySelector('a[data-v=dl]');if(a)a.style.display=(n||L.some(i=>i.status==='error')||S.view==='dl')?'':'none'}catch(x){}}
 function dlDiskTxt(){const d=DLS.disk;return d&&d.free>=0?`Espacio libre en ${esc(d.path||'')}: <b>${dlBytes(d.free)}</b>`:''}
 V.dl=()=>{setTimeout(dlInit,0);const c=DLS.cfg||{};
   if(!(window.winteerNative&&winteerNative.dlAdd))return `<div class="dlv"><h1>Descargas</h1><div class="dlempty">El centro de descargas funciona en la app de escritorio de WINTEER.</div></div>`;
