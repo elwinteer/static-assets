@@ -1630,6 +1630,18 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .vtabs.sv-tg{left:6px;right:auto;transform:none}
 ::view-transition-old(svchat),::view-transition-new(svchat){animation-duration:.38s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 .fr2{view-transition-name:svchat}
+
+/* ---- Tarjeta pública: 5 pasos numerados ---- */
+.cedt{justify-content:center;gap:8px}.cedt .ced-n{display:flex;gap:9px;align-items:center;padding:8px 16px 8px 8px}.cedt .ced-n i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-style:normal;background:rgba(255,255,255,.12)}.cedt .ced-n.on i{background:rgba(0,0,0,.2)}.cedt .ced-n .i{display:none}
+.ced-ft{flex:none;display:flex;justify-content:space-between;align-items:center;padding:2px 2px 0}.ced-ft span{font-size:12px;opacity:.5}.ced-ft .hm-go[disabled]{opacity:.35;pointer-events:none}
+.ced-im{grid-template-columns:1fr 1fr!important;grid-template-rows:1fr 1fr}.ced-im>.ced-s:first-child{grid-row:span 2}.ced-im .ob-avg{grid-template-columns:repeat(auto-fill,minmax(64px,1fr))!important;gap:6px!important}.ced-im .ob-avt{padding:6px 2px!important;gap:3px!important}.ced-im .ob-avt span{font-size:11px}
+.ced-st{grid-template-columns:1fr 1fr}
+.ced-b.ced-ani{animation:ctup .35s both cubic-bezier(.2,.9,.25,1)}
+.cedt{gap:6px!important}.cedt .ced-n{padding:6px 12px 6px 6px!important;font-size:12.5px}.cedt .ced-n i{width:22px;height:22px}
+.ced-aj .row{padding:6px 12px!important;gap:3px!important}.ced-aj .row small,.ced-aj .row .sub0{font-size:11px;margin:0}.ced-aj .row .cp,.ced-aj .row .seg button{padding:5px 11px!important;font-size:12px}
+.ced-aj:not(.ced-ax) .sgrid{grid-template-columns:1fr 1fr!important}
+.cedt .ced-n:not(.on) span{display:none}.cedt .ced-n:not(.on){padding:6px!important}.cedt .ced-n{transition:padding .3s cubic-bezier(.2,.9,.25,1),background .3s}
+.ced-ti .sgrid{grid-template-columns:1fr!important}
 @media (max-height:760px){.h2.fix{height:auto}.h2-g{grid-template-columns:1fr}.h2-hero{min-height:360px}}
 
 
@@ -7536,13 +7548,15 @@ function cedSecs(){const d=W.d,mes=['Enero','Febrero','Marzo','Abril','Mayo','Ju
    <input class="txt" id="cedq" placeholder="Buscar en tu biblioteca…" value="${esc(W.q2||'')}"><div id="cedfl" class="ob-gl"></div></section>`;
   const ajR=(()=>{const t=document.createElement('template');t.innerHTML=setX('per');const rs=[...t.content.querySelectorAll('.row')].filter(r=>!r.querySelector('[data-a="obedit"],#uname'));
    const es=rs.filter(r=>/^(Marco del avatar|Efecto del nombre|Saludo de Inicio|Título)/i.test(r.textContent.trim())),ot=rs.filter(r=>!es.includes(r));
-   return [es,ot].map(a=>a.map(r=>r.outerHTML).join(''))})();
+   const ti=es.filter(r=>/^Título/i.test(r.textContent.trim())),es2=es.filter(r=>!ti.includes(r));return [es2,ot,ti].map(a=>a.map(r=>r.outerHTML).join(''))})();
   const aj=`<section class="ced-s w set ced-aj"><h4>${ic('edit')} Estilo de tu perfil</h4><div class="sgrid">${ajR[0]}</div></section>`;
+  const ti=`<section class="ced-s w set ced-aj"><h4>${ic('crown')} Título</h4><div class="sgrid">${ajR[2]}</div></section>`;
   const ax=`<section class="ced-s w set ced-aj ced-ax"><h4>${ic('gear')} Efectos, sonido y arranque</h4><div class="sgrid">${ajR[1]}</div></section>`;
-  const CT=[['id','Identidad','edit',id],['av','Avatar','star',av],['ban','Portada','img',ban],['ty','Jugador','compass',ty],['fav','Favoritos','crown',fv],['aj','Estilo','flake',aj],['ax','Extras','gear',ax]];
+  const CT=[['id','Identidad','edit',id],['im','Imagen','star',av+ban],['ty','Jugador','compass',ty],['fav','Favoritos','crown',fv],['aj','Estilo','flake',aj],['ti','Título','crown',ti],['ax','Extras','gear',ax]];
   if(!CT.some(x=>x[0]===S.ced))S.ced='id';
-  const nav=`<nav class="cedt">${CT.map(([k,l,i])=>`<button class="stab ${k===S.ced?'on':''}" data-a="cedt" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
-  return nav+`<div class="ced-b ced-${S.ced}">${CT.find(x=>x[0]===S.ced)[3]}</div>`}
+  const ix=CT.findIndex(x=>x[0]===S.ced),nav=`<nav class="cedt">${CT.map(([k,l,i],n)=>`<button class="stab ced-n ${k===S.ced?'on':''}" data-a="cedt" data-v="${k}" title="${l}"><i>${n+1}</i><span>${l}</span></button>`).join('')}</nav>`,
+   ft=`<div class="ced-ft"><button class="hm-go hm-gh" data-a="cedm" data-v="-1" ${ix===0?'disabled':''}>← Anterior</button><span>${ix+1} de ${CT.length}</span><button class="hm-go" data-a="cedm" data-v="1">${ix===CT.length-1?'Listo':'Siguiente →'}</button></div>`;
+  return nav+`<div class="ced-b ced-${S.ced}">${CT[ix][3]}</div>`+ft}
 function cedLists(){const mk=(q,act,on)=>{const t=(q||'').toLowerCase().trim();return G.filter(g=>!t||g.name.toLowerCase().includes(t)).sort((a,b)=>b.hours-a.hours).slice(0,40).map(g=>`<button class="ob-gr ${on(g)?'on':''}" data-a="${act}" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<div class="empty">No hay coincidencias.</div>'};
   const b=$('#obl');if(b)b.innerHTML=mk(W.q,'obgsel',g=>W.d.ban.k==='game'&&W.d.ban.id===g.id);const f=$('#cedfl');if(f)f.innerHTML=mk(W.q2,'obfav',g=>W.d.fav.includes(g.id))}
 function cedRef(){const r=$('#cedr');if(!r)return;r.innerHTML=cedSecs();cedLists();cedPrev()}
@@ -7576,7 +7590,8 @@ Object.assign(A,{
  frxp:()=>{S.frTab='perfil';A.frexp()},
  ptab:a=>{S.ptab=a.dataset.v;S.avp=null;go('profile')},
  soctab:a=>{const k=a.dataset.k;if(k==='friends'){S.frX=0;go('friends');return}S.ptab=k;S.avp=null;go('profile')},
- cedt:a=>{S.ced=a.dataset.v;cedRef()},
+ cedt:a=>{S.ced=a.dataset.v;cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
+ cedm:a=>{const K=['id','im','ty','fav','aj','ti','ax'],i=K.indexOf(S.ced)+ +a.dataset.v;if(i>=K.length){S.ptab='home';go('profile');return}S.ced=K[Math.max(0,i)];cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
  avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
  avgen:a=>{ST.avc=avCur();ST.avc.g=a.dataset.v==='f'?'f':'m';S.avp=null;avSync();avRef()},
  avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;S.avp=null;avRef()},
