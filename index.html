@@ -11607,7 +11607,59 @@ Object.assign(A,{
 
 function wbImm(u){const x=$('.wbx');if(!x)return;let h='';try{h=new URL(u).hostname}catch(e){}const on=/(^|\.)(fitgirl-repacks\.site|steamrip\.com)$/i.test(h);x.classList.toggle('imm',on);if(!on)x.classList.remove('peek')}
 function wbPeek(on){const x=$('.wbx');if(!x)return;clearTimeout(WBR.pk);if(on)x.classList.add('peek');else WBR.pk=setTimeout(()=>{const f=document.activeElement;if(f&&f.id==='wbi')return;x.classList.remove('peek')},450)}
-function wbSite(k){if(k==='gear'){A.wbset();return}const re=k==='steamrip'?/(^|\.)steamrip\.com$/i:/(^|\.)fitgirl-repacks\.site$/i,home=k==='steamrip'?'https://steamrip.com/':'https://fitgirl-repacks.site/',c=webCfg();wbTabsInit();const t=(c.tabs||[]).find(x=>re.test(wbHost(x.url)||''));if(t){if(c.act!==t.id)wbSwitch(t.id)}else{WBR.nt=0;wbNewTab(home,true)}}
+/* ===== Panel "Descargas" del navegador: todo lo importante en un solo lugar, sin términos técnicos ===== */
+(function(){const st=document.createElement('style');st.textContent=`
+.dcpm{z-index:85}
+.dcp{width:min(560px,92vw);max-height:86vh;overflow:auto;padding:22px 24px 20px;border-radius:26px;background:linear-gradient(180deg,rgba(30,30,44,.94),rgba(14,14,22,.95));border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 110px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.1);animation:dcpin .6s cubic-bezier(.16,1,.3,1) both;scrollbar-width:thin}
+.dcpm.out .dcp{animation:dcpout .26s ease both}
+@keyframes dcpin{from{opacity:0;transform:translateY(26px) scale(.94);filter:blur(10px)}}@keyframes dcpout{to{opacity:0;transform:translateY(14px) scale(.97);filter:blur(6px)}}
+@keyframes dcsin{from{opacity:0;transform:translateY(16px)}}
+.dcph{display:flex;align-items:center;gap:14px;margin-bottom:18px}.dcph small{display:block;font:600 11px "Segoe UI",system-ui;letter-spacing:.16em;text-transform:uppercase;color:#8e90a4}.dcph b{font:800 22px "Segoe UI",system-ui;color:#fff;letter-spacing:-.3px}
+.dcpi{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#fff,#c9cad6);color:#0b0b13;box-shadow:0 10px 26px rgba(255,255,255,.18)}
+.dcpx{all:unset;cursor:pointer;margin-left:auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);color:#d6d7e2;font:600 19px/1 "Segoe UI";transition:transform .45s cubic-bezier(.16,1,.3,1),background .25s}.dcpx:hover{background:rgba(255,255,255,.2);transform:rotate(90deg)}
+.dcs{padding:15px 16px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);margin-bottom:11px;animation:dcsin .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--d)*70ms + 120ms)}
+.dcs h4{margin:0 0 10px;font:700 12px "Segoe UI",system-ui;letter-spacing:.16em;text-transform:uppercase;color:#9a9bad}.dcs p{margin:8px 0 0;font:500 12.5px "Segoe UI",system-ui;color:#8e90a4}
+.dcf{display:flex;align-items:center;gap:10px}.dcf span{flex:1;min-width:0;padding:11px 14px;border-radius:13px;background:rgba(0,0,0,.28);color:#e6e7f0;font:500 13.5px "Segoe UI",system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left}
+.dcb{all:unset;cursor:pointer;flex:none;padding:10px 16px;border-radius:13px;background:rgba(255,255,255,.1);color:#fff;font:700 13px "Segoe UI",system-ui;transition:background .25s,transform .35s cubic-bezier(.16,1,.3,1)}.dcb:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}.dcb:active{transform:scale(.95)}.dcb.r{background:rgba(255,90,90,.16);color:#ff9a9a}.dcb.r:hover{background:rgba(255,90,90,.3)}
+.dcc{display:flex;flex-wrap:wrap;gap:7px}.dcc button{all:unset;cursor:pointer;padding:9px 15px;border-radius:99px;background:rgba(255,255,255,.07);color:#b8b9ca;font:700 13px "Segoe UI",system-ui;transition:background .35s,color .35s,transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s}.dcc button:hover{background:rgba(255,255,255,.15);color:#fff;transform:translateY(-1px)}.dcc button.on{background:#f4f4f8;color:#0b0b13;box-shadow:0 6px 18px rgba(255,255,255,.2);transform:scale(1.04)}
+.dcsw{display:flex;align-items:center;gap:14px;cursor:pointer}.dcsw span{flex:1;font:600 14px "Segoe UI",system-ui;color:#e6e7f0}.dcsw i{position:relative;flex:none;width:46px;height:27px;border-radius:99px;background:rgba(255,255,255,.14);transition:background .35s}.dcsw i:after{content:'';position:absolute;left:3px;top:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:transform .45s cubic-bezier(.34,1.4,.64,1)}.dcsw.on i{background:#3ddc84}.dcsw.on i:after{transform:translateX(19px)}
+.dci{display:grid;gap:8px}.dcit{padding:12px 13px;border-radius:14px;background:rgba(0,0,0,.26);animation:dcsin .5s cubic-bezier(.16,1,.3,1) both}.dcit b{display:block;font:700 14px "Segoe UI",system-ui;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dcit small{display:block;margin:3px 0 8px;font:500 12px "Segoe UI",system-ui;color:#9a9bad}
+.dcit .pb{height:6px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}.dcit .pb i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#fff,#b8b9ca);transition:width .9s cubic-bezier(.22,1,.36,1)}.dcit .ac{display:flex;gap:8px;margin-top:10px}
+.dce{padding:14px;text-align:center;color:#8e90a4;font:500 13.5px "Segoe UI",system-ui}`;document.head.appendChild(st)})();
+function dcpList(){const L=[...DLS.items.values()].filter(i=>i.status!=='completed').sort((a,b)=>a.createdAt-b.createdAt);
+ if(!L.length)return '<div class="dce">No hay nada descargándose ahora</div>';
+ return '<div class="dci">'+L.map(i=>{const er=i.status==='error',pct=Math.round(((i.p&&i.p.pct)||0)*100),sp=i.status==='downloading'&&i.p&&i.p.speed?dlBytes(i.p.speed)+'/s · ':'';
+  const t=er?esc(i.error?i.error.msg:'Hubo un error'):sp+(i.status==='paused'?'En pausa · ':i.status==='queued'?'En espera · ':'')+pct+'%'+((i.transport==='torrent')?' · torrent':'');
+  const b=(k,x,c)=>`<button class="dcb ${c||''}" data-a="dlact" data-k="${k}" data-id="${i.id}">${x}</button>`;
+  const ac=er?b('retry','Reintentar')+b('cancel','Quitar','r'):i.status==='paused'?b('resume','Seguir')+b('cancel','Cancelar','r'):b('pause','Pausar')+b('cancel','Cancelar','r');
+  return `<div class="dcit"><b>${esc(i.name||'Descarga')}</b><small>${t}</small><div class="pb"><i style="width:${er?0:pct}%"></i></div><div class="ac">${ac}</div></div>`}).join('')+'</div>'}
+function dcpPaint(){const m=$('#dcp');if(!m){clearInterval(dcpPaint.t);return}const l=$('#dcl');if(l){const h=dcpList(),k=h.replace(/style="width:\d+%"/g,'');if(dcpPaint.k!==k){l.innerHTML=h;dcpPaint.k=k}else l.querySelectorAll('.dcit').forEach((e,n)=>{const w=/width:(\d+)%/.exec(h.split('class="dcit"')[n+1]||'');const f=e.querySelector('.pb i');if(f&&w)f.style.width=w[1]+'%'})}}
+function dcpChips(g,vals,cur,fmt){const l=vals.includes(cur)?vals:vals.concat([cur]).sort((a,b)=>a-b);return `<div class="dcc" data-g="${g}">`+l.map(v=>`<button data-a="dcchip" data-g="${g}" data-v="${v}" class="${v===cur?'on':''}">${fmt(v)}</button>`).join('')+'</div>'}
+async function dcpSave(p){const c=Object.assign({},DLS.cfg||{},p);const r=await winteerNative.dlSetCfg({dlDir:c.dlDir,installDir:c.installDir,speedLimit:c.speedLimit||0,maxActive:c.maxActive||3,keepArchives:!!c.keepArchives});if(r&&r.ok){DLS.cfg=r.r;clearTimeout(dcpSave.t);dcpSave.t=setTimeout(()=>toast('Guardado'),150)}else toast('No pude guardar ese cambio')}
+const DCP_SP=[0,5,10,20,50],DCP_MA=[1,2,3,4,5];
+Object.assign(A,{
+ wbdlp:async()=>{if($('#dcp'))return;if(!(window.winteerNative&&winteerNative.dlGetCfg)){toast('Las descargas funcionan en la app de escritorio');return}
+  try{const [l,c]=await Promise.all([winteerNative.dlList(),winteerNative.dlGetCfg()]);if(l&&l.ok)DLS.items=new Map(l.r.map(i=>[i.id,i]));if(c&&c.ok)DLS.cfg=c.r}catch(e){}
+  const c=DLS.cfg||{},sp=c.speedLimit?Math.round(c.speedLimit/1048576):0,m=document.createElement('div');m.className='wdm dcpm';m.id='dcp';
+  const sec=(d,h,b,p)=>`<section class="dcs" style="--d:${d}"><h4>${h}</h4>${b}${p?`<p>${p}</p>`:''}</section>`;
+  m.innerHTML=`<div class="dcp"><div class="dcph"><div class="dcpi"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></div><div><small>Navegador</small><b>Descargas</b></div><button class="dcpx" data-a="dcpx" aria-label="Cerrar">×</button></div>`
+   +sec(0,'Ahora mismo','<div id="dcl">'+dcpList()+'</div>')
+   +sec(1,'Guardar en',`<div class="dcf"><span id="dcf-dl" title="${esc(c.dlDir||'')}">${esc(c.dlDir||'Descargas de Windows')}</span><button class="dcb" data-a="dcpick" data-t="dl">Cambiar</button></div>`,'Acá caen tus descargas y torrents.')
+   +sec(2,'Instalar juegos en',`<div class="dcf"><span id="dcf-in" title="${esc(c.installDir||'')}">${esc(c.installDir||'Sin elegir')}</span><button class="dcb" data-a="dcpick" data-t="in">Cambiar</button></div>`)
+   +sec(3,'Velocidad máxima',dcpChips('sp',DCP_SP,sp,v=>v?v+' MB/s':'Sin límite'),'Bajala si necesitás internet para otra cosa.')
+   +sec(4,'Descargas a la vez',dcpChips('ma',DCP_MA,c.maxActive||3,v=>v),'Las demás esperan su turno.')
+   +sec(5,'Al terminar',`<div class="dcsw ${c.keepArchives?'on':''}" data-a="dcsw"><span>Guardar los archivos descargados</span><i></i></div>`,'Apagado: se borran solos después de instalar y ahorrás espacio.')
+   +'</div>';
+  m.addEventListener('mousedown',e=>{if(e.target===m)A.dcpx()});$('#app').appendChild(m);
+  clearInterval(dcpPaint.t);dcpPaint.k='';dcpPaint.t=setInterval(dcpPaint,1000)},
+ dcpx:()=>{const m=$('#dcp');if(m){m.classList.add('out');clearInterval(dcpPaint.t);setTimeout(()=>m.remove(),280)}},
+ dcpick:async a=>{const t=a.dataset.t,r=await winteerNative.dlPickDir(t==='dl'?'Carpeta de descargas':'Carpeta para instalar juegos');if(!r)return;const e=$('#dcf-'+t);if(e){e.textContent=r;e.title=r}
+  if(t==='dl'){const w=webCfg();w.dir=r;save();try{winteerNative.webDl('tmp',{dir:r})}catch(x){}await dcpSave({dlDir:r})}else await dcpSave({installDir:r})},
+ dcchip:async a=>{const g=a.dataset.g,v=+a.dataset.v;a.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a));await dcpSave(g==='sp'?{speedLimit:v*1048576}:{maxActive:v})},
+ dcsw:async a=>{a.classList.toggle('on');await dcpSave({keepArchives:a.classList.contains('on')})},
+});
+
+function wbSite(k){if(k==='gear'){A.wbset();return}if(k==='dl'){A.wbdlp();return}const re=k==='steamrip'?/(^|\.)steamrip\.com$/i:/(^|\.)fitgirl-repacks\.site$/i,home=k==='steamrip'?'https://steamrip.com/':'https://fitgirl-repacks.site/',c=webCfg();wbTabsInit();const t=(c.tabs||[]).find(x=>re.test(wbHost(x.url)||''));if(t){if(c.act!==t.id)wbSwitch(t.id)}else{WBR.nt=0;wbNewTab(home,true)}}
 function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
   const nav=()=>{try{if(wv!==WBR.wv)return;const u=wv.getURL();try{wbImm(u)}catch(e){}if(u&&u!=='about:blank'){const T=wbAct();const stale=WBR.pu&&Date.now()-(WBR.pt||0)<2500&&u!==WBR.pu&&!WBR.seen;if(u===WBR.pu)WBR.seen=1;if(T&&T.url!==u&&!stale){T.url=u;wbSave()}if(!stale&&document.activeElement!==inp)inp.value=u;const lk=$('#wbl');if(lk){const sec=/^https:/i.test(u);lk.classList.toggle('bad',!sec);lk.innerHTML=ic(sec?'wlk':'wul')}}$('[data-a=wbback]').classList.toggle('dis',!wv.canGoBack());$('[data-a=wbfwd]').classList.toggle('dis',!wv.canGoForward())}catch(e){}};
   ['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>wv.addEventListener(e,nav));
