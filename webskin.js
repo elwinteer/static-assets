@@ -31,7 +31,7 @@ const SKINS = [
     #wt-console>[slot=c] :is(button,input[type=submit]):hover{transform:translateY(-2px)}
     ::selection{background:rgba(255,255,255,.25)!important;color:#fff!important}
     ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#08080d}::-webkit-scrollbar-thumb{background:#2a2a34;border-radius:10px}::-webkit-scrollbar-thumb:hover{background:#3b3b48}
-    html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console):not([slot]){visibility:hidden!important}
+    html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console):not([slot]){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
     @media (prefers-reduced-motion:reduce){html,.wt-frame{animation:none!important}*{transition:none!important}}
   `, mono: true },
   { name: 'fitgirl', test: /(^|\.)fitgirl-repacks\.site$/i, css: `
@@ -732,7 +732,7 @@ function fitgirlConsole() {
     { const cu = sh.querySelector('.cur'); window.addEventListener('pointermove', (e) => { cu.style.opacity = '1'; cu.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)'; }, { passive: true }); document.addEventListener('pointerleave', () => { cu.style.opacity = '0'; }); }
     { const w = sh.querySelector('.w'), bar = () => sh.querySelector('.bar'); w.addEventListener('scroll', () => { const b = bar(); if (b) b.classList.toggle('sc', w.scrollTop > 24); }, { passive: true }); }
     document.documentElement.appendChild(h);
-    const st = document.createElement('style'); st.textContent = 'html.wt-console-on body{visibility:hidden!important}html.wt-console-on{overflow:hidden!important;background:transparent!important}'; document.head.appendChild(st);
+    const st = document.createElement('style'); st.textContent = 'html.wt-console-on body{visibility:hidden!important}html.wt-console-on body>*:not(#wt-console){opacity:0!important;pointer-events:none!important}html.wt-console-on{overflow:hidden!important;background:transparent!important}'; document.head.appendChild(st);
     document.documentElement.classList.add('wt-console-on'); return sh;
   };
   const swapGrid = (gr, fw, apply, after) => {
