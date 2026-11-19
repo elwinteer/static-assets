@@ -1627,6 +1627,7 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .sv-ce{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;opacity:.8;padding:20px}.sv-ce .i{width:34px;height:34px;opacity:.6}.sv-ce span{font-size:13px;opacity:.7}
 .sv-back{position:absolute;right:4px;top:-52px;z-index:6;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.09);backdrop-filter:blur(12px);color:#fff;border-radius:999px;padding:9px 18px;font-size:13px;cursor:pointer}
 .stack.fr{position:relative}
+.vtabs.sv-tg{left:6px;right:auto;transform:none}
 ::view-transition-old(svchat),::view-transition-new(svchat){animation-duration:.38s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 .fr2{view-transition-name:svchat}
 @media (max-height:760px){.h2.fix{height:auto}.h2-g{grid-template-columns:1fr}.h2-hero{min-height:360px}}
@@ -5107,7 +5108,7 @@ setTimeout(()=>{try{autoDoneAll()}catch(e){}},1800);setInterval(()=>{try{autoDon
 const VGROUPS=[['stats','hitos','wrapped']];
 const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
 function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;const o=ce.querySelector(':scope>.vtabs');if(o)o.remove();el.classList.remove('vtp');
-  if(v==='friends'||(v==='profile'&&(S.ptab==='home'||S.ptab==='card'))){const cur=v==='friends'?'friends':S.ptab==='card'?'card':'home',d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['card','Tarjeta pública']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
+  if(v==='friends'||v==='profile'){const cur=v==='friends'?'friends':S.ptab==='card'?'card':'home',d=document.createElement('div');if(v==='profile'&&(S.ptab==='av'||S.ptab==='pet')){const pe=(()=>{try{return petCur()}catch(e){return null}})(),tg=document.createElement('div');tg.className='h2-tabs vtabs sv-tg';tg.innerHTML=`<button class="${S.ptab==='av'?'on':''}" data-a="ptab" data-v="av">Winter</button><button class="${S.ptab==='pet'?'on':''}" data-a="ptab" data-v="pet">${esc(pe?pe.name:'Mascota')}</button>`;ce.insertBefore(tg,el)}d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['card','Tarjeta pública']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
   const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
   const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="gtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
   if(v!=='games')el.classList.add('vtp');ce.insertBefore(d,el)}
@@ -7563,7 +7564,7 @@ function pfCol(){const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,
   <h4 class="shd">Próximos desbloqueos</h4><div class="av-grid">${nx.length?nx.map(([k,it])=>avCard(k,it,cur)).join(''):'<p class="mut">Ya desbloqueaste todo lo que se puede por nivel.</p>'}</div>`}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;if(t==='col')return pfCol();if(t==='look')return `<div class="sgrid">${setX('look')}</div><h4 class="shd">Personalizar</h4><div class="sgrid">${setX('per')}</div>`;return ''}
 V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',col:'home',pet:'home'})[S.ptab]||'home';const t=S.ptab;if(t!=='card'&&W&&W.inline)W=null;
-  const nav=(t==='home'||t==='card')?'':`<nav class="ptabs rise" style="--i:0">${PTABS.map(([k,l,i])=>`<button class="stab ${k===t?'on':''}" data-a="ptab" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
+  const nav='';
   if(t==='home')return `<div class="stack avp">${nav}${pfHome()}</div>`;
   if(t==='pet'){petLife();return `<div class="stack avp pt">${nav}${petTabHTML()}</div>`}
   if(t==='av')return `<div class="stack avp">${nav}<div class="avedit rise" style="--i:1"><section class="card avl"><div class="avs-st" id="avst">${avStage()}</div><div class="avl-b"><button class="hm-go" data-a="avrand">${ic('flake')} Sorprendeme</button><button class="hm-go hm-gh" data-a="avreset">Restablecer</button></div></section><section class="card set spane" id="avpane">${profTabBody('av')}</section></div></div>`;
@@ -8195,9 +8196,9 @@ function petFx(em,n){const f=$('#petfx');if(!f)return;for(let i=0;i<(n||5);i++){
 function petBar(l,v,c){return `<div class="pt-b"><span>${l}</span><div><i style="--w:${Math.round(v)}%;background:${c}"></i></div><em>${Math.round(v)}</em></div>`}
 const PPRE={kiku:{name:'Kiku',breed:'caniche',coat:3,ccol:'#f4ead9',ear:'down',pat:'none',photo:'',bd:'',acc:'',xp:0,pre:'kiku',sex:'f',sz:.78,bg:'casa'},oso:{name:'Oso',breed:'caniche',coat:3,ccol:'#efe0c8',ear:'down',pat:'none',photo:'',bd:'',acc:'',xp:0,pre:'oso',srs:1,bg:'casa'},noah:{name:'Noah',breed:'caniche',coat:3,ccol:'#f1e6d3',ear:'down',pat:'none',photo:'',bd:'',acc:'',xp:0,pre:'noah',top:.62,bg:'casa'}};
 const PCHOP={name:'Chop',coat:7,ear:'down',pat:'none',photo:'',bd:'05-11',acc:'',xp:0,pre:'chop',bg:'casa'};
-function petInner(){const p=petCur();if(!p)return '';petBdCheck(p);const m=petMood(p),L=pLvl(p),w=petWalks(p),td=(ST.log||{})[today()]||0,goalOk=td>=1,claimed=p.gd===pTK(),MD=PMOOD[m],d=petDay(p),LM=petLim(p),bg=bgOk(p,p.bg||'casa')?(p.bg||'casa'):'casa',tab=S.petTab||'ropa',cur=(L-1)*(L-1)*20,nx=L*L*20,list=PETS();
+function petInner(){const p=petCur();if(!p)return '';petBdCheck(p);const m=petMood(p),L=pLvl(p),w=petWalks(p),td=(ST.log||{})[today()]||0,goalOk=td>=1,claimed=p.gd===pTK(),MD=PMOOD[m],d=petDay(p),LM=petLim(p),bg=bgOk(p,p.bg||'casa')?(p.bg||'casa'):'casa',tab=(S.petTab==='casas'?'ropa':S.petTab)||'ropa',cur=(L-1)*(L-1)*20,nx=L*L*20,list=PETS();
   const lv=[...Object.values(PACC).map(v=>v[1]),...PBG.map(b=>b[2])].filter(x=>x>L),nl=lv.length?Math.min(...lv):0;
-  const nn=nl?[...Object.values(PACC).filter(v=>v[1]===nl).map(v=>v[0]),...PBG.filter(b=>b[2]===nl).map(b=>b[1])].join(' · '):'';
+  const nn=nl?Object.values(PACC).filter(v=>v[1]===nl).map(v=>v[0]).join(' · '):'';
   const ropa=[['',['Sin ropa',0,'']],...Object.entries(PACC)].map(([k,[nm0,lv2,tg]],ix)=>{const nm=k===''?'Sin ropa':'Ropa '+String(ix).padStart(2,'0'),ok=L>=lv2;return `<button class="pt-a ${(p.acc||'')===k?'on':''} ${ok?'':'lock'}" data-a="petacc" data-k="${k}" title="${nm}"><span class="pt-ai">${k===''?'<i>∅</i>':petSVG({...p,photo:''},'happy',{size:58,acc:k})}</span><b>${nm}</b><small>${ok?(tg==='fun'?'😂 Gracioso':tg==='cool'?'😎 Cool':'Al natural'):'🔒 Nivel '+lv2}</small></button>`}).join('');
   const casas=PBG.map((b,ix)=>{const ok=bgOk(p,b[0]),cn='Casita '+String(ix+1).padStart(2,'0');return `<button class="pt-bg1 ${bg===b[0]?'on':''} ${ok?'':'lock'}" data-a="petbg" data-k="${b[0]}" title="${cn}"><div class="pt-bgt">${petThumb(b[0])}<div class="pt-bgf pf-${b[0]}"></div></div><b>${cn}</b>${ok?'':`<em>🔒 ${bgReq(b)}</em>`}</button>`}).join('');
   const nA=petUnl(p),nB=PBG.filter(b=>bgOk(p,b[0])).length,pt2=S.pt2||'care',cc=p.ccol||PCOAT[p.coat||0][1];
@@ -8216,8 +8217,8 @@ function petInner(){const p=petCur();if(!p)return '';petBdCheck(p);const m=petMo
    </section>
    <div class="pt-side">
     <section class="card pt-c"><h3>Misión de hoy</h3><div class="pt-ms ${claimed?'ok':''}"><div><b>Jugá 1 hora hoy</b><small>${claimed?'¡Cumplida! Vuelve mañana.':`${Math.min(td,1).toFixed(1)} / 1 h · +30 XP`}</small></div>${claimed?'<span>✔</span>':`<button class="hm-go ${goalOk?'':'dis'}" data-a="petgoal">Reclamar</button>`}</div><div class="pt-pb"><i style="--w:${Math.min(td,1)*100}%"></i></div></section>
-    <section class="card pt-k"><div class="pt-ch"><h3>Personalizar</h3><div class="seg pt-tabs"><button data-a="pettab" data-v="ropa" class="${tab==='ropa'?'on':''}">👕 Ropa <small>${nA}/${Object.keys(PACC).length}</small></button><button data-a="pettab" data-v="casas" class="${tab==='casas'?'on':''}">🏡 Casitas <small>${nB}/${PBG.length}</small></button><button data-a="pettab" data-v="pelaje" class="${tab==='pelaje'?'on':''}">🎨 Pelaje</button><button data-a="pettab" data-v="datos" class="${tab==='datos'?'on':''}">⚙ Datos</button></div></div>
-     ${tab==='datos'||tab==='pelaje'?'':(nl?`<p class="sub0 pt-next">Próximo premio · Nivel ${nl}: <b>${nn}</b></p>`:'<p class="sub0 pt-next">¡Desbloqueaste todos los premios de nivel! 👑</p>')}
+    <section class="card pt-k"><div class="pt-ch"><h3>Personalizar</h3><div class="seg pt-tabs"><button data-a="pettab" data-v="ropa" class="${tab==='ropa'?'on':''}">👕 Ropa <small>${nA}/${Object.keys(PACC).length}</small></button><button data-a="pettab" data-v="pelaje" class="${tab==='pelaje'?'on':''}">🎨 Pelaje</button><button data-a="pettab" data-v="datos" class="${tab==='datos'?'on':''}">⚙ Datos</button></div></div>
+     ${tab==='datos'||tab==='pelaje'?'':(nl&&nn?`<p class="sub0 pt-next">Próximo premio · Nivel ${nl}: <b>${nn}</b></p>`:'<p class="sub0 pt-next">¡Desbloqueaste todos los premios de nivel! 👑</p>')}
      ${tab==='casas'?`<div class="pt-bgg">${casas}</div>`:tab==='pelaje'?pel:tab==='datos'?dat:`<div class="pt-ac">${ropa}</div>`}</section>
    </div>
   </div>`}
