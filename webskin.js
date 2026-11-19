@@ -154,7 +154,7 @@ function steamripConsole() {
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const reqCard = (t, o) => { const ks = Object.keys(o); return ks.length ? '<div class="rq"><h4>' + t + '</h4>' + ks.map((k) => '<div class="rw"><span>' + k + '</span><b>' + esc(o[k]) + '</b></div>').join('') + '</div>' : ''; };
   // pestañas compartidas (portada y página de juego)
-  const TABS = () => [{ k: 'new', t: 'Lanzamientos', sub: 'Agregados recientemente', url: '' }, { k: 'top', t: 'Más populares', sub: 'Los más descargados', url: navLink(/top\s*games/i) }, { k: 'upd', t: 'Actualizados', sub: 'Con versión nueva', url: navLink(/recent\s*updates|updated/i) }, { k: 'all', t: 'Todos los juegos', sub: 'Lista completa', url: navLink(/games?\s*list|all\s*games|a\s*-?\s*z\b/i) || location.origin + '/games-list-page/' }].filter((x) => x.k === 'new' || x.url);
+  const TABS = () => [{ k: 'all', t: 'Todos los juegos', sub: 'Lista completa', url: navLink(/games?\s*list|all\s*games|a\s*-?\s*z\b/i) || location.origin + '/games-list-page/' }, { k: 'top', t: 'Más populares', sub: 'Los más descargados', url: navLink(/top\s*games/i) }, { k: 'new', t: 'Lanzamientos', sub: 'Agregados recientemente', url: '' }, { k: 'upd', t: 'Actualizados', sub: 'Con versión nueva', url: navLink(/recent\s*updates|updated/i) }].filter((x) => x.k === 'new' || x.url);
   const BARCSS = `@keyframes swp{0%,100%{background-position:0 0;opacity:.35}50%{background-position:100% 0;opacity:1}}@keyframes lgp{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}@keyframes xl{from{opacity:0;transform:translateX(46px);filter:blur(7px)}}@keyframes xr{from{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes ol{to{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes or{to{opacity:0;transform:translateX(46px);filter:blur(7px)}}
       .pn.on.fr{animation:xl .55s cubic-bezier(.22,1,.36,1)!important}.pn.on.fl{animation:xr .55s cubic-bezier(.22,1,.36,1)!important}
       @keyframes brt{0%,100%{box-shadow:0 14px 40px rgba(255,255,255,.12)}50%{box-shadow:0 14px 56px rgba(255,255,255,.3)}}
@@ -725,7 +725,7 @@ function fitgirlConsole() {
   const SRCH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
   const BACK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
   const P = location.pathname.replace(/\/+$/, '') || '/', Q = new URLSearchParams(location.search), O = location.origin;
-  const TABS = [['new', 'Lanzamientos', '/'], ['pop', 'Más populares', '/popular-repacks/'], ['upd', 'Actualizados', '/updates-list/'], ['all', 'Todos los juegos', '/all-my-repacks-a-z/']];
+  const TABS = [['all', 'Todos los juegos', '/all-my-repacks-a-z/'], ['pop', 'Más populares', '/popular-repacks/'], ['new', 'Lanzamientos', '/'], ['upd', 'Actualizados', '/updates-list/']];
   const SV = ['#eef0fb', '#aeb4d2', '226,229,248'];
   const TC = { new: SV, pop: SV, up: SV, all: SV, upd: SV };
   const D = ' fill="currentColor" fill-opacity=".24"';
