@@ -168,7 +168,7 @@ function steamripConsole() {
   const ic = (k) => '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + IC[k] + '</svg>';
   const tabBtns = (tabs) => tabs.map((x) => '<button data-k="' + x.k + '">' + ic(x.k) + '<span>' + x.t + '</span></button>').join('');
   const BAR2 = `.bar{display:grid!important;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin:14px auto 0!important;max-width:1240px;padding:0 6px!important;background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:0!important}.bar:after{display:none!important}
-      .bar:before{content:'';position:absolute;inset:-16px calc(50% - 50vw) -14px;background:linear-gradient(180deg,rgba(7,6,15,.92) 30%,rgba(7,6,15,0));z-index:-1;pointer-events:none}
+      .bar:before{display:none!important}
       .app .bar{width:100%;max-width:1320px;padding:0 36px!important;position:relative}.app .bar:before{display:none}
       .bar>:first-child{justify-self:start}.bar>:last-child{justify-self:end}
       .bar .tb,.bar .tbw{justify-self:center;padding:6px!important;gap:4px!important;border-radius:99px;background:rgba(16,16,26,.74)!important;border:1px solid rgba(255,255,255,.11)!important;backdrop-filter:blur(22px);box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08)!important}
@@ -463,7 +463,8 @@ function steamripConsole() {
     const $ = (x) => sh.querySelector(x), w = $('#w'), gr = $('#gr'), ft = $('#ft'), hero = $('#hero');
     const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root: w, threshold: 0.04, rootMargin: '0px 0px 120px 0px' }) : null;
     const arm = () => gr.querySelectorAll('.rv:not(.in):not([data-a])').forEach((e, i) => { e.dataset.a = 1; e.style.transitionDelay = (i % 9) * 50 + 'ms'; io ? io.observe(e) : e.classList.add('in'); });
-    const filt = () => { const it = (ST[cur].items || []), qq = q.trim().toLowerCase(); return qq ? it.filter((c) => c.title.toLowerCase().includes(qq)) : it; };
+    let RS = { q: '', items: [] };
+    const filt = () => { const it = (ST[cur].items || []), qq = q.trim().toLowerCase(); if (!qq) return it; const loc = it.filter((c) => c.title.toLowerCase().includes(qq)); if (RS.q !== qq) return loc; const have = new Set(loc.map((c) => c.href)); return loc.concat(RS.items.filter((c) => !have.has(c.href))); };
     const pill = () => { const b = sh.querySelector('#tb button.on'), p = $('#pill'); if (b) { p.style.left = b.offsetLeft + 'px'; p.style.width = b.offsetWidth + 'px'; } };
     const shotCache = {};
     const shotOf = (href) => shotCache[href] || (shotCache[href] = fetch(href, { credentials: 'include' }).then((r) => r.ok ? r.text() : '').then((t) => { if (!t) return ''; const doc = new DOMParser().parseFromString(t, 'text/html'), og = (doc.querySelector('meta[property="og:image"]') || {}).content || '', root = doc.querySelector('.entry-content, .post-content, article') || doc.body; const us = [...root.querySelectorAll('img')].map((i) => i.getAttribute('data-lazy-src') || i.getAttribute('data-src') || i.getAttribute('src') || '').filter((u) => u && !/^data:/.test(u) && !/logo|avatar|emoji|icon|gravatar|banner|button|badge/i.test(u)).map((u) => { try { return new URL(u, href).href; } catch (e) { return ''; } }).filter((u, i, a) => u && u !== og && a.indexOf(u) === i); return us[1] || us[0] || ''; }).catch(() => ''));
@@ -478,7 +479,7 @@ function steamripConsole() {
       return { img: ab(u), ver: vm ? 'v' + vm[1] : '', size: szm ? szm[1].replace(/\s+/g, ' ').toUpperCase() : '', date: tm ? T(tm) : '', cats, desc };
     }).catch(() => ({})));
     const coverOf = (href) => metaOf(href).then((m) => m.img || '');
-    const allItems = () => Object.values(ST).flatMap((x) => (x.pages && Object.keys(x.pages).length ? Object.values(x.pages).flat() : (x.items || [])));
+    const allItems = () => Object.values(ST).flatMap((x) => (x.pages && Object.keys(x.pages).length ? Object.values(x.pages).flat() : (x.items || []))).concat(RS.items);
     const covQ = []; let covBusy = 0;
     const covPump = () => { while (covBusy < 4 && covQ.length) { const cd = covQ.shift(); covBusy++; metaOf(cd.href).then((m) => { const it = allItems().find((c) => c.href === cd.href); if (it) { it.m = m; if (m.img) it.img = m.img; }
       if (cd.classList.contains('up2') || cd.classList.contains('alr')) { if (it) { const t = document.createElement('div'); t.innerHTML = (cd.classList.contains('alr') ? lrow : row)(it, +cd.dataset.i); const n = t.firstChild; n.classList.add('in'); n.dataset.cv = 1; n.style.opacity = '0'; cd.replaceWith(n); requestAnimationFrame(() => { n.style.transition = 'opacity .7s'; n.style.opacity = '1'; }); } return; }
@@ -583,7 +584,17 @@ function steamripConsole() {
       }, 230);
     };
     sh.querySelectorAll('#tb button').forEach((b) => { b.onclick = () => b.dataset.k !== cur && sw(b.dataset.k); });
-    let qt = 0; $('#q').oninput = (e) => { const val = e.target.value; clearTimeout(qt); qt = setTimeout(() => { q = val; shown = PAGE; pgN = 1; draw(); drawHero(); }, 120); };
+    const remote = async (val) => {
+      const qq = val.trim().toLowerCase(); if (qq.length < 3) { if (RS.q) { RS = { q: '', items: [] }; draw(); } return; }
+      let items = [];
+      try {
+        const r = await fetch(location.origin + '/wp-json/wp/v2/posts?search=' + encodeURIComponent(qq) + '&per_page=40&_embed=wp:featuredmedia&_fields=link,title,_links,_embedded', { credentials: 'include', headers: { Accept: 'application/json' } });
+        if (r.ok) { const j = await r.json().catch(() => null); if (Array.isArray(j)) items = j.map((p) => { const m = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0], sz = m && m.media_details && m.media_details.sizes; const img = (sz && ((sz.medium_large || sz.large || sz.full || {}).source_url)) || (m && m.source_url) || ''; return { href: p.link, title: clean(decH(p.title && p.title.rendered)), img, build: '' }; }).filter((x) => x.href && x.title); }
+      } catch (e) {}
+      if (!items.length) { try { const u = location.origin + '/?s=' + encodeURIComponent(qq), r2 = await fetch(u, { credentials: 'include' }); if (r2.ok) items = cardsFrom(new DOMParser().parseFromString(await r2.text(), 'text/html'), u, 'x'); } catch (e) {} }
+      if (q.trim().toLowerCase() !== qq) return; RS = { q: qq, items }; draw();
+    };
+    let qt = 0; $('#q').oninput = (e) => { const val = e.target.value; clearTimeout(qt); qt = setTimeout(() => { q = val; shown = PAGE; pgN = 1; draw(); drawHero(); remote(val); }, 120); };
     // inclinación 3D con brillo en cada tarjeta
     gr.addEventListener('mousemove', (e) => { const im = e.target.closest && e.target.closest('.cd .im'); if (!im || cur === 'upd') return; const r = im.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; im.style.transition = 'transform .08s linear,box-shadow .5s'; im.style.transform = 'rotateY(' + ((x - .5) * 10) + 'deg) rotateX(' + ((.5 - y) * 10) + 'deg) translateY(-6px)'; im.querySelector('.gl').style.setProperty('--mx', x * 100 + '%'); im.querySelector('.gl').style.setProperty('--my', y * 100 + '%'); }, { passive: true });
     gr.addEventListener('mouseout', (e) => { const im = e.target.closest && e.target.closest('.cd .im'); if (im && !im.contains(e.relatedTarget)) { im.style.transition = 'transform .7s cubic-bezier(.22,1,.36,1),box-shadow .5s'; im.style.transform = ''; } });
@@ -631,7 +642,7 @@ function fitgirlConsole() {
     .w{animation:wi .9s cubic-bezier(.16,1,.3,1) backwards}@keyframes wi{from{opacity:0;transform:scale(1.025) translateY(12px);filter:blur(10px)}}
     @keyframes cin{from{opacity:0;transform:translateX(var(--dx,40px)) scale(.93);filter:blur(6px)}}@keyframes cout{to{opacity:0;transform:translateX(calc(var(--dx,40px)*-.7)) scale(.94);filter:blur(6px)}}
     .gr.ent .cs,.gr.ent .rw{animation:cin .62s calc(var(--i)*36ms) cubic-bezier(.16,1,.3,1) backwards!important}
-    .bar{transition:padding .45s cubic-bezier(.16,1,.3,1)}.bar.sc{padding-top:9px;padding-bottom:9px}.bar:before{transition:background .4s}.bar.sc:before{background:linear-gradient(180deg,rgba(7,6,15,.98) 60%,rgba(7,6,15,0))}
+    .bar{transition:padding .45s cubic-bezier(.16,1,.3,1)}.bar.sc{padding-top:9px;padding-bottom:9px}.bar:before{transition:background .4s}
     .bar.sc .tbw,.bar.sc .back,.bar.sc .sr{box-shadow:0 12px 32px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08)}
     .rt{display:flex;justify-content:flex-end;animation:up .7s .14s backwards}
     .tg{display:inline-flex;align-items:center;gap:11px;height:42px;padding:0 18px 0 8px;border-radius:99px;font:600 13.5px ${FONT};color:#a6a7b8;background:rgba(16,16,26,.74);border:1px solid rgba(255,255,255,.11);backdrop-filter:blur(22px);cursor:pointer;transition:color .3s,border-color .3s,box-shadow .4s}.tg em{font-style:normal}
@@ -649,7 +660,7 @@ function fitgirlConsole() {
     @keyframes swp{0%,100%{background-position:0 0;opacity:.35}50%{background-position:100% 0;opacity:1}}@keyframes lgp{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
     @keyframes xl{from{opacity:0;transform:translateX(46px);filter:blur(7px)}}@keyframes xr{from{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes ol{to{opacity:0;transform:translateX(-46px);filter:blur(7px)}}@keyframes or{to{opacity:0;transform:translateX(46px);filter:blur(7px)}}
     .bar{position:sticky;top:0;z-index:8;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:16px max(28px,calc(50% - 620px)) 14px}
-    .bar:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,6,15,.94) 40%,rgba(7,6,15,0));z-index:-1;pointer-events:none}
+    .bar:before{display:none!important}
     .bar>:first-child{justify-self:start}.bar>:last-child{justify-self:end}
     .lg{font:800 14px ${FONT};letter-spacing:.3em;color:#fff;display:flex;align-items:center;gap:12px;animation:up .7s backwards}
     .lg:before{content:'';width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 14px #fff;animation:lgp 2.6s ease-in-out infinite}
@@ -1022,6 +1033,9 @@ function fitgirlConsole() {
         c.addEventListener('pointerleave', () => { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
         c.addEventListener('click', (e) => { e.preventDefault(); if (c.dataset.t) { c.parentNode.classList.toggle('open'); return; } ripple(c, e); openPage(sh, c.dataset.h); }); c.addEventListener('pointerenter', () => prefetch(c.dataset.h));
       });
+      const need = [...gr.querySelectorAll('.fc')].filter((c) => c.dataset.h && c.querySelector('.im b')); let ni = 0;
+      const runC = async () => { while (ni < need.length) { const c = need[ni++]; try { const d = await getDoc(c.dataset.h); if (!d || !c.isConnected) continue; const u = imgOf(d.querySelector('.entry-content') || d, c.dataset.h); if (!u) continue; const im = c.querySelector('.im'); im.innerHTML = '<img src="' + esc(u) + '" alt="">'; const i2 = im.querySelector('img'); i2.onload = () => i2.classList.add('ld'); setTimeout(() => i2.classList.add('ld'), 2500); } catch (e) {} } };
+      runC(); runC(); runC();
       };
       post();
       const pgs = []; for (let i = 1; i <= pages; i++) if (i === 1 || i === pages || Math.abs(i - st.cur) <= 2) pgs.push(i); const out = []; pgs.forEach((n, i) => { if (i && n - pgs[i - 1] > 1) out.push('<span>…</span>'); out.push('<button data-p="' + n + '" class="' + (n === st.cur ? 'on' : '') + '">' + n + '</button>'); });
