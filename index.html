@@ -1627,7 +1627,7 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .sv-ce{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;opacity:.8;padding:20px}.sv-ce .i{width:34px;height:34px;opacity:.6}.sv-ce span{font-size:13px;opacity:.7}
 .sv-back{position:absolute;right:4px;top:-52px;z-index:6;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.09);backdrop-filter:blur(12px);color:#fff;border-radius:999px;padding:9px 18px;font-size:13px;cursor:pointer}
 .stack.fr{position:relative}
-.vtabs.sv-tg{left:6px;right:auto;transform:none}
+.vtabs.sv-tg{left:auto;right:6px;transform:none}.vtabs.sv-tg button{padding:11px 15px;font-size:13px}
 ::view-transition-old(svchat),::view-transition-new(svchat){animation-duration:.38s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 .fr2{view-transition-name:svchat}
 
@@ -1642,6 +1642,7 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .ced-aj:not(.ced-ax) .sgrid{grid-template-columns:1fr 1fr!important}
 .cedt .ced-n:not(.on) span{display:none}.cedt .ced-n:not(.on){padding:6px!important}.cedt .ced-n{transition:padding .3s cubic-bezier(.2,.9,.25,1),background .3s}
 .ced-ti .sgrid{grid-template-columns:1fr!important}
+::view-transition-group(root){animation-duration:.3s;animation-timing-function:cubic-bezier(.2,.9,.25,1)}
 @media (max-height:760px){.h2.fix{height:auto}.h2-g{grid-template-columns:1fr}.h2-hero{min-height:360px}}
 
 
@@ -2118,20 +2119,6 @@ body.eg-twd .logo-mark,body.eg-twd .brand svg{filter:grayscale(1) contrast(1.4)}
 .pf2-pv .pt-svg{filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}.pf-pre{margin:-4px 0 12px}
 @media(max-width:1200px){.pt .pt-stage{height:600px}}
 
-/* easter egg Chop */
-body.eg-chop{--a:#f59e3b;--a2:#ea580c;--argb:245,158,59;--bg:#0b0807;--shell:#0e0a08;--panel:rgba(32,20,14,.68);--card:rgba(48,30,20,.6);--card2:rgba(66,42,26,.56);--text:#fff1e0;--muted:#d9a874}
-body.eg-chop #app{animation:chin .7s ease-out}@keyframes chin{from{opacity:.2;filter:brightness(2)}to{opacity:1;filter:none}}
-body.eg-chop #amb b:nth-of-type(1){background:rgba(245,120,30,.45)}body.eg-chop #amb b:nth-of-type(2){background:rgba(150,50,10,.45)}
-body.eg-chop .side{box-shadow:inset 0 0 0 1.5px rgba(245,158,59,.45),inset 0 0 0 6px rgba(0,0,0,.22),inset 0 0 0 6px rgba(245,158,59,.14),0 0 50px rgba(245,120,30,.14)}
-body.eg-chop .logo-mark,body.eg-chop .brand svg{filter:sepia(1) saturate(2.4) hue-rotate(-14deg)}
-body.eg-chop .card{border-color:rgba(245,158,59,.2)}body.eg-chop h1{text-shadow:0 0 28px rgba(245,120,30,.45)}
-body.eg-chop .nav a.active,body.eg-chop .nav a.on{background:linear-gradient(120deg,rgba(245,158,59,.3),rgba(234,88,12,.2))!important}
-body.eg-chop .pt-stage{box-shadow:0 0 0 2px rgba(245,158,59,.55),0 24px 80px rgba(245,120,30,.28)}
-body.eg-chop .pm{box-shadow:0 0 0 1.5px rgba(245,158,59,.5),0 0 30px rgba(245,120,30,.3)}
-#egfx.egx-chop .v{inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 58%,rgba(20,6,0,.42))}
-#egfx.egx-chop .gl{inset:0;background:radial-gradient(ellipse at 0% 100%,rgba(251,146,60,.3),transparent 45%),radial-gradient(ellipse at 100% 100%,rgba(234,88,12,.24),transparent 45%);mix-blend-mode:screen;animation:sfpl 5s ease-in-out infinite}
-#egfx.egx-chop .fr{inset:7px;border:2px dashed rgba(245,158,59,.4);border-radius:28px}
-#egfx.egx-chop{color:#ffd9a8}
 #egfx .p.em2{bottom:-10px;border-radius:50%;background:#fb923c;box-shadow:0 0 8px #f59e3b;animation:chem var(--dur) linear var(--dl) infinite}
 @keyframes chem{0%{transform:translate(0,0);opacity:0}12%{opacity:.9}100%{transform:translate(var(--sw),-108vh);opacity:0}}
 #egfx .p.bn{top:0;opacity:.28;animation:chbn var(--dur) linear var(--dl) infinite}
@@ -2144,8 +2131,6 @@ body.eg-chop .pm{box-shadow:0 0 0 1.5px rgba(245,158,59,.5),0 0 30px rgba(245,12
 #egfx .tg .tb b{font:900 17px/1 Impact,'Arial Black',sans-serif;letter-spacing:.06em}#egfx .tg .tb small{font-size:10px;font-weight:800;margin-top:3px}
 #egfx .pk{right:26px;bottom:-200px;animation:chpk 26s ease-in-out infinite}@keyframes chpk{0%,66%{transform:translateY(0)}70%,78%{transform:translateY(-182px) rotate(-4deg)}74%{transform:translateY(-182px) rotate(4deg)}82%,100%{transform:translateY(0)}}
 #egfx .pk span{position:absolute;left:-12px;top:6px;padding:5px 12px;border-radius:14px;background:#fff;color:#1b1633;font-weight:800;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
-#egfx.egx-chop .k{color:#fdba74}
-#egfx.egx-chop .n{background:#1a0f0a;border:2px solid #f59e3b;color:#fff1e0;border-radius:18px;box-shadow:0 0 30px rgba(245,158,59,.4)}
 .chpaw{position:fixed;z-index:59;pointer-events:none;font-size:18px;transform:translate(-50%,-50%) rotate(var(--r));animation:chpwf 1.5s ease-out forwards}@keyframes chpwf{0%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r)) scale(.7)}}
 .pm{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:22px;cursor:pointer}
 .pm-av{position:relative;flex:none;width:54px;height:54px}.pm-av .pt-svg,.pm-av .pt-ph{width:54px;height:54px}.pm-t{min-width:0;flex:1}.pm-t small,.pm-t b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pm-av .pm-b{left:34px;top:-4px}
@@ -5119,7 +5104,7 @@ setTimeout(()=>{try{autoDoneAll()}catch(e){}},1800);setInterval(()=>{try{autoDon
 const VGROUPS=[['stats','hitos','wrapped']];
 const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
 function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;const o=ce.querySelector(':scope>.vtabs');if(o)o.remove();el.classList.remove('vtp');
-  if(v==='friends'||v==='profile'||v==='diary'){const cur=v==='friends'?'friends':v==='diary'?'diary':S.ptab==='card'?'card':'home',d=document.createElement('div');if(v==='profile'&&(S.ptab==='av'||S.ptab==='pet')){const pe=(()=>{try{return petCur()}catch(e){return null}})(),tg=document.createElement('div');tg.className='h2-tabs vtabs sv-tg';tg.innerHTML=`<button class="${S.ptab==='av'?'on':''}" data-a="ptab" data-v="av">Winter</button><button class="${S.ptab==='pet'?'on':''}" data-a="ptab" data-v="pet">${esc(pe?pe.name:'Mascota')}</button>`;ce.insertBefore(tg,el)}d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['diary','Diario'],['card','Tarjeta pública']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
+  if(v==='friends'||v==='profile'||v==='diary'){const cur=v==='friends'?'friends':v==='diary'?'diary':'home',d=document.createElement('div');if(v==='profile'){const pe=(()=>{try{return petCur()}catch(e){return null}})(),tg=document.createElement('div'),pt=['av','pet','card'].includes(S.ptab)?S.ptab:'home';tg.className='h2-tabs vtabs sv-tg';tg.innerHTML=[['home','Resumen'],['av','Winter'],['pet',pe?pe.name:'Mascota'],['card','Tarjeta pública']].map(([k,l])=>`<button class="${pt===k?'on':''}" data-a="ptab" data-v="${k}">${esc(l)}</button>`).join('');ce.insertBefore(tg,el)}d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['diary','Diario']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
   const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
   const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="gtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
   if(v!=='games')el.classList.add('vtp');ce.insertBefore(d,el)}
@@ -7587,8 +7572,8 @@ Object.assign(A,{
  frexp:()=>{const r=()=>{S.frX=1;go('friends')};document.startViewTransition?document.startViewTransition(r):r()},
  frx0:()=>{const r=()=>{S.frX=0;go('friends')};document.startViewTransition?document.startViewTransition(r):r()},
  frxp:a=>{const c=a&&a.dataset&&a.dataset.id;if(c){S.frSel=c;const f=FR();f.sn[c]=Date.now();f.un[c]=0;save()}S.frTab='perfil';A.frexp()},
- ptab:a=>{S.ptab=a.dataset.v;S.avp=null;go('profile')},
- soctab:a=>{const k=a.dataset.k;if(k==='friends'){S.frX=0;go('friends');return}if(k==='diary'){go('diary');return}S.ptab=k;S.avp=null;go('profile')},
+ ptab:a=>{const r=()=>{S.ptab=a.dataset.v;S.avp=null;go('profile')};document.startViewTransition?document.startViewTransition(r):r()},
+ soctab:a=>{const k=a.dataset.k;if(k==='friends'){S.frX=0;go('friends');return}if(k==='diary'){go('diary');return}S.ptab='home';S.avp=null;go('profile')},
  cedt:a=>{S.ced=a.dataset.v;cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
  cedm:a=>{const K=['id','im','ty','fav','aj','ti','ax'],i=K.indexOf(S.ced)+ +a.dataset.v;if(i>=K.length){S.ptab='home';go('profile');return}S.ced=K[Math.max(0,i)];cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
  avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
@@ -8249,8 +8234,8 @@ function petMini(){return;const e=$('#petmini');if(!e)return;PETS().forEach(p=>{
   const m=petMood(p),MD=PMOOD[m],bar=(v,c)=>`<i style="--w:${Math.round(v)}%;--c:${c}"></i>`;
   e.innerHTML=`<div class="pm ${m}${on}" data-a="go" data-v="pet" title="${esc(p.name)} · ${MD[0]}"><span class="pm-av">${petFace(p,58)}${m==='hungry'?'<i class="pm-b">🍖</i>':m==='sad'?'<i class="pm-b">💧</i>':m==='sleepy'?'<i class="pm-b">💤</i>':m==='grumpy'?'<i class="pm-b">💢</i>':petBd(p)?'<i class="pm-b">🎂</i>':''}</span><div class="pm-t"><em class="pm-l">MASCOTA · NV ${pLvl(p)}</em><b>${esc(p.name)}</b><small>${MD[1]} ${MD[0]}</small><span class="pm-bars">${bar(p.food,'#fb923c')}${bar(p.joy,'#38bdf8')}${bar(p.love,'#f472b6')}</span><span class="pm-x"><i style="width:${pLvlPct(p)}%"></i></span></div></div>`}
 const petOn=()=>S.view==='profile'&&S.ptab==='pet';
-function chopEg(v){try{return (v==='pet'||(v==='profile'&&S.ptab==='pet'))&&(petCur()||{}).pre==='chop'?'chop':''}catch(e){return ''}}
-const _pgo=go;go=function(v,o){const r=_pgo(v,o);try{petMini();if((v==='pet'||v==='profile')&&petOn()&&chopEg('pet'))setTimeout(()=>{if(petOn())petBark()},500)}catch(e){}return r};
+function chopEg(v){return ''}
+const _pgo=go;go=function(v,o){const r=_pgo(v,o);try{petMini();if((v==='pet'||v==='profile')&&petOn()&&((petCur()||{}).pre==='chop'))setTimeout(()=>{if(petOn())petBark()},500)}catch(e){}return r};
 
 setInterval(()=>{try{petLife();petMini();if(petOn()&&!$('.modal')){const b=$('#petb');if(b){S.petMsg='';const bub=$('.pt-bub');if(bub)bub.textContent=petSay(petCur())}}}catch(e){}},60000);
 setTimeout(()=>{try{petMini();const p=petCur();if(p&&petBd(p)&&ST.petBdT!==pTK()){ST.petBdT=pTK();save();toast('🎂 ¡Hoy cumple '+p.name+'!')}}catch(e){}},2500);
@@ -10283,12 +10268,12 @@ async function fbDel(id,col='winteer_profiles'){
 const frN=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const frImg=(src,w,h)=>new Promise(r=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas'),k=Math.max(w/i.width,h/i.height),W=i.width*k,H=i.height*k;c.width=w;c.height=h;c.getContext('2d').drawImage(i,(w-W)/2,(h-H)/2,W,H);r(c.toDataURL('image/jpeg',.74))};i.onerror=()=>r('');i.src=src});
 function frSnap(){const p=PR()||{},l=lvlOf(),f=FR(),pl=S.playing&&gm(S.playing.id),av=p.av||{k:'letter',c:0},bn=p.ban||{k:'g',i:0},bg=bn.k==='game'?gm(bn.id):null;
-  const top=(p.fav||[]).map(gm).filter(Boolean).slice(0,5).map(g=>({n:g.name,h:Math.round(g.hours*10)/10}));
+  const top=(p.fav||[]).map(gm).filter(Boolean).slice(0,5).map(g=>({n:g.name,h:Math.round(g.hours*10)/10,a:g.app||0}));
   const cs=getComputedStyle(document.body),rk={l:0,e:1,r:2,c:3};
   const ac=f.ac?GA.filter(a=>(ST.gach||{})[a[0]]).sort((x,y)=>rk[x[4]]-rk[y[4]]||ST.gach[y[0]]-ST.gach[x[0]]).slice(0,80).map(a=>({n:a[1],d:(a[2]||'').slice(0,90),i:a[3],r:a[4]})):[];
   const rv=f.rv?RV().filter(r=>r.text||r.head).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,40).map(r=>{const g=gm(r.gid);return{g:g?g.name:'',r:r.rate||0,h:(r.head||'').slice(0,80),t:(r.text||'').slice(0,320),s:r.spoil?1:0,ts:r.ts||0}}).filter(x=>x.g):[];
   return{name:p.name||UN(),handle:p.handle||hnd(p.name||UN()),bio:(p.bio||'').slice(0,200),genres:(p.genres||[]).slice(0,6),av:{k:av.k,c:av.c||0},avx:av.k==='custom'?avNorm(p.avx||ST.avc):undefined,ban:{k:bn.k,i:bn.i||0,n:bg?bg.name:''},th:{a:cs.getPropertyValue('--a').trim(),a2:cs.getPropertyValue('--a2').trim(),rgb:cs.getPropertyValue('--argb').trim()},
-   pet:(()=>{try{const q=petCur();if(!q)return undefined;const o={n:q.name,coat:q.coat||0,ear:q.ear||'down',pat:q.pat||'none',xp:q.xp||0};if(q.ccol)o.ccol=q.ccol;if(q.acc)o.acc=q.acc;if(q.bd)o.bd=q.bd;return o}catch(e){return undefined}})(),lv:l.l,lt:rwTitle()||l.t,h:Math.round(totalH()),n:G.length,d:doneN(),ga:gaN(),top,ac,rv,now:(f.now&&pl&&!f.inv)?pl.name:'',dnd:0,cl:1,lib:f.lib?G.map(g=>g.name).join('\n'):'',lc:f.lib?G.filter(g=>!g.hide&&x8Coop(g)).map(g=>g.name).join('\n'):'',seen:f.inv?0:Date.now(),v:2}}
+   pet:(()=>{try{const q=petCur();if(!q)return undefined;const o={n:q.name,coat:q.coat||0,ear:q.ear||'down',pat:q.pat||'none',xp:q.xp||0};if(q.ccol)o.ccol=q.ccol;if(q.acc)o.acc=q.acc;if(q.bd)o.bd=q.bd;return o}catch(e){return undefined}})(),lv:l.l,lt:rwTitle()||l.t,h:Math.round(totalH()),n:G.length,d:doneN(),ga:gaN(),top,ac,rv,now:(f.now&&pl&&!f.inv)?pl.name:'',na:(f.now&&pl&&!f.inv)?(pl.app||0):0,dnd:0,cl:1,lib:f.lib?G.map(g=>g.name).join('\n'):'',lc:f.lib?G.filter(g=>!g.hide&&x8Coop(g)).map(g=>g.name).join('\n'):'',seen:f.inv?0:Date.now(),v:2}}
 async function frMedia(){const p=PR()||{},f=FR(),bu=p.ban&&p.ban.k==='img'?(p.banUrl||ART['p:banner']):'',sig=(p.pic?p.pic.length:0)+'|'+(bu||'');
   if(f.mSig===sig||(!p.pic&&!bu&&!f.mSig))return;const o={pic:p.pic?await frImg(p.pic,192,192):'',ban:bu?await frImg(bu,760,220):''};
   await fbSet(frId(frCode()),o,'winteer_media');f.mSig=sig;save()}
@@ -10439,7 +10424,7 @@ function frStats(d){const n=d.n||0,dn=d.d||0,pc=n?Math.round(100*dn/n):0;
 function frCover(g,n){return g?`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`:`<b>${esc((n||'?')[0])}</b>`}
 function frPBody(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),t=S.fpT||'res',x=frCmp(d);
   if(t==='res'){
-   const top=(d.top||[]).map((q,i)=>{const g=mine.get(frN(q.n));return `<div class="fp2-t" style="--i:${i}" title="${esc(q.n)}">${frCover(g,q.n)}<span>${i+1}</span><em>${esc(q.n)}<small>${q.h||0} h${g?' · lo tenés':''}</small></em></div>`}).join('');
+   const top=(d.top||[]).map((q,i)=>{const g=mine.get(frN(q.n)),gc=g||(q.a?{id:'f'+q.a,app:q.a,name:q.n}:null);return `<div class="fp2-t" style="--i:${i}" title="${esc(q.n)}">${frCover(gc,q.n)}<span>${i+1}</span><em>${esc(q.n)}<small>${q.h||0} h${g?' · lo tenés':''}</small></em></div>`}).join('');
    const n=d.n||0,avg=n?Math.round((d.h||0)/n*10)/10:0,pc=n?Math.round(100*(d.d||0)/n):0,tp=(d.top||[]).slice().sort((p,q)=>(q.h||0)-(p.h||0)),mx=Math.max(1,(tp[0]||{}).h||1);
    const rows=[['Horas por juego',avg+' h'],['Terminados',pc+'%'],['Hitos por juego',n?(Math.round((d.ga||0)/n*10)/10)+'':'—'],['Más jugado',tp[0]?esc(tp[0].n):'—'],['Género favorito',(d.genres||[])[0]?esc(d.genres[0]):'—']];
    return `${frStats(d)}<div class="fp2-sec"><h4>Top 5 favoritos</h4>${top?`<div class="fp2-top">${top}</div>`:'<p class="fp2-em">Todavía no eligió su top 5.</p>'}</div>
@@ -10482,18 +10467,18 @@ function frRender(){if(BP&&BP.sec==='friends'){bpFrPaint();return}const el=$('#v
 function frWire(){setTimeout(frProfFx,30);const t=$('#fr-txt');if(t){t.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();A.frsend()}});t.addEventListener('input',()=>{t.style.height='auto';t.style.height=Math.min(110,t.scrollHeight)+'px';if(t.value.trim())frTyping()});t.addEventListener('paste',e=>{const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));if(it){e.preventDefault();frPick(it.getAsFile())}});const m=$('#fr-msgs');if(m)m.scrollTop=m.scrollHeight}
   const q=$('#fr-q');if(q)q.addEventListener('input',()=>{S.frQ=q.value;if(S.frSel)frChatDraw(S.frSel,true)})}
 function svHomeV(){const f=FR();frCode();if(Date.now()-(f.lastSync||0)>20000)setTimeout(()=>{frPub();frSync();frUnread()},60);if(S.frSel&&!f.list.includes(S.frSel))S.frSel=null;const h=svHome(),c=S.frSel;if(c){frLoadM(c).then(()=>{if(frOn()&&$('#fr-main')&&!document.querySelector('.modal'))frRender()});f.sn[c]=Date.now();f.un[c]=0;save();frBadge(Object.values(f.un).reduce((a,b)=>a+b,0));frChatPull(c).then(ch=>{if(ch)frChatDraw(c);frRead(c)})}setTimeout(frWire,30);return h}
-const svGm=n=>n?G.find(g=>g.name===n):null;
+const svGm=(n,a)=>n?(G.find(g=>g.name===n)||(a?{id:'f'+a,app:a,name:n}:null)):null;
 function svEv(c,o,d){if(!o||!d)return;const E=ST.frEv=ST.frEv||[],now=Date.now();
-  if(d.now&&d.now!==o.now&&frOnl(d))E.unshift({c,t:'play',g:d.now,ts:now});
+  if(d.now&&d.now!==o.now&&frOnl(d))E.unshift({c,t:'play',g:d.now,a:d.na||0,ts:now});
   const oa=(o.ac||[]).length,na=(d.ac||[]).length;if(na>oa&&oa>0){const x=(d.ac||[]).slice(0,na-oa)[0]||{};E.unshift({c,t:'ach',g:x.n||'un logro',ts:now})}
   if(E.length>40)E.length=40}
 function svNews(){const f=FR(),E=(ST.frEv||[]).filter(e=>f.c[e.c]).slice(0,6);
   if(!E.length)return `<div class="sv-ne"><b>Todo tranquilo</b><span>Cuando tus amigos empiecen un juego o desbloqueen un logro, lo ves acá.</span></div>`;
   const day=ts=>{const n=Math.floor((Date.now()-ts)/864e5);return n<=0?'Hoy':n===1?'Ayer':'Esta semana'};let last='',h='';
-  E.forEach(e=>{const d=f.c[e.c],g=svGm(e.g),dd=day(e.ts);if(dd!==last){h+=`<div class="sv-nd">${dd}</div>`;last=dd}
+  E.forEach(e=>{const d=f.c[e.c],g=svGm(e.g,e.a),dd=day(e.ts);if(dd!==last){h+=`<div class="sv-nd">${dd}</div>`;last=dd}
     h+=`<div class="sv-ni"><div class="sv-nt" style="${g?`background-image:url('${art.grid(g)}')`:''}"><i>${e.t==='ach'?'⭐':'▶'}</i></div><div><div><b>${esc(d.name)}</b> ${e.t==='ach'?'desbloqueó':'empezó'} <b>${esc(e.g)}</b></div><small>${frAgo(e.ts)}</small></div></div>`});return h}
 function svCards(){const f=FR(),L=f.list.map(c=>[c,f.c[c]]).filter(x=>x[1]).sort((a,b)=>(frOnl(b[1])?1:0)-(frOnl(a[1])?1:0)||(b[1].now?1:0)-(a[1].now?1:0)).slice(0,2);
-  const card=([c,d])=>{const g=svGm(d.now),on=frOnl(d);return `<div class="sv-fc ${S.frSel===c?'sel':''}" style="${g?`background-image:url('${art.wide(g)}')`:''}"><button class="sv-fp" data-a="frxp" data-id="${c}" title="Ver el perfil de ${esc(d.name)}"></button><span class="sv-st ${on?'on':''}">${on?(d.now?'● jugando':'● en línea'):frAgoL(d)}</span><div class="sv-fb">${frAv(d,(FRM[c]||{}).d||{},40)}<div><b>${esc(d.name)}</b><small>${d.now&&on?esc(d.now):frAgoL(d)}</small></div><span class="sv-fg"><button data-a="frxp" data-id="${c}">${ic('profile')}Perfil</button><button data-a="frsel" data-id="${c}">Chat</button></span></div></div>`};
+  const card=([c,d])=>{const g=svGm(d.now,d.na),on=frOnl(d);return `<div class="sv-fc ${S.frSel===c?'sel':''}" style="${g?`background-image:url('${art.wide(g)}')`:''}"><button class="sv-fp" data-a="frxp" data-id="${c}" title="Ver el perfil de ${esc(d.name)}"></button><span class="sv-st ${on?'on':''}">${on?(d.now?'● jugando':'● en línea'):frAgoL(d)}</span><div class="sv-fb">${frAv(d,(FRM[c]||{}).d||{},40)}<div><b>${esc(d.name)}</b><small>${d.now&&on?esc(d.now):frAgoL(d)}</small></div><span class="sv-fg"><button data-a="frxp" data-id="${c}">${ic('profile')}Perfil</button><button data-a="frsel" data-id="${c}">Chat</button></span></div></div>`};
   let h=L.map(card).join('');while((h.match(/sv-fc|sv-add/g)||[]).length<2)h+=`<button class="sv-add" data-a="fradd2">${ic('useradd')}<b>Agregar amigo</b><small>Con su código</small></button>`;return h}
 function svChatHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
   if(!d)return `<div class="sv-ce">${ic('friends')}<b>Tu chat</b><span>${f.list.length?'Elegí a un amigo arriba para chatear.':'Agregá a un amigo con su código para chatear.'}</span>${f.list.length?'':'<button class="hm-go" data-a="fradd2">Agregar amigo</button>'}</div>`;
@@ -10501,7 +10486,7 @@ function svChatHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
   return `<div class="sv-ch"><div class="sv-chh"><button class="sv-chp" data-a="frxp" data-id="${c}" title="Ver su perfil">${frAv(d,m,36)}<div class="fr-pi"><b>${esc(d.name)}</b><small>${frSub(d)}</small></div></button>${fbOn()?`<button class="fr-ib" data-a="frcall" title="Llamar a ${esc(d.name)}">${ic('phone')}</button>`:''}<button class="fr-ib on" data-a="frexp" title="Ampliar el chat"><svg class="i" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
    <div class="fr-msgs" id="fr-msgs">${frChatHTML(c)}</div><div class="fr-bw sv-bw"><div id="fr-bar">${frBarHTML(c)}</div><div class="fr-send"><button class="fr-ab" data-a="frimg" title="Enviar una foto">${ic('img')}</button><button class="fr-ab" data-a="frgm" data-v="inv" title="Invitarlo a jugar">${ic('games')}</button><textarea id="fr-txt" rows="1" maxlength="500" placeholder="Escribile a ${esc(d.name)}…"></textarea><button class="hm-go" data-a="frsend">${'➤'}</button></div></div></div>`}
 function svWinter(){const L=lvlOf(),p=PR()||{},nm=p.name||UN();
-  return `<div class="sv-w"><div class="avs-st" id="avst">${avStage()}</div><div class="sv-wt"><button class="sv-gl" data-a="ptab" data-v="av">${ic('edit')} Personalizar</button><button class="sv-gl" data-a="ptab" data-v="pet">${ic('pet')} Mascota</button></div><div class="sv-wb"><div class="sv-wn"><div class="pf-av">${avHTML(p.name?p:{name:nm,av:{k:'letter',c:0}},50)}</div><div><b>${esc(nm)}</b><small>Nivel ${L.l} · ${rwTitle()||L.t}</small></div></div><div class="sv-xp"><i style="width:${L.pct}%"></i></div></div></div>`}
+  return `<div class="sv-w"><div class="avs-st" id="avst">${avStage()}</div><div class="sv-wb"><div class="sv-wn"><div class="pf-av">${avHTML(p.name?p:{name:nm,av:{k:'letter',c:0}},50)}</div><div><b>${esc(nm)}</b><small>Nivel ${L.l} · ${rwTitle()||L.t}</small></div></div><div class="sv-xp"><i style="width:${L.pct}%"></i></div></div></div>`}
 function svHome(){const f=FR();if(!S.frSel||!f.list.includes(S.frSel)){const u=f.list.find(c=>(f.un[c]||0)>0)||f.list.find(c=>f.c[c]&&frOnl(f.c[c]))||f.list[0];S.frSel=u||null}
   return `<div class="stack svh"><div class="sv-g">${svWinter()}<div class="sv-r"><div class="sv-fr">${svCards()}</div><div class="sv-bt"><section class="sv-news"><h4>Novedades</h4>${svNews()}</section><section class="sv-chat" id="fr-main">${svChatHTML()}</section></div></div></div></div>`}
 V.friends=()=>{S.fpLast=null;const f=FR(),ok=fbOn();frCode();S.frTab=S.frTab||'chat';
