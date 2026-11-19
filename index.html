@@ -6578,12 +6578,16 @@ async function nxmGo(r){toast('Bajando de Nexus…');try{const f=await nxR(`/gam
 /* ===== Descargas -> biblioteca (el motor vive en dl.js; aca solo se registra el resultado) ===== */
 const dlAppid=gid=>{const m=/^steam:(\d+)$/.exec(String(gid||''));return m?+m[1]:0};
 const dlLow=s=>String(s||'').toLowerCase();
+const dlNm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[™®©]/g,'').replace(/[\(\[].*?[\)\]]/g,'').replace(/\bv?\d+(\.\d+){1,}\b/g,'').replace(/\b(edicion|edition|definitive|definitiva|goty|game of the year|remastered|deluxe|complete|completa|ultimate|enhanced)\b/g,'').replace(/[^a-z0-9]/g,'');
+function dlAsk(nid,cid){const n=G.find(x=>x.id===nid),c=G.find(x=>x.id===cid);if(!n||!c)return;modal(`<h3>¿Es el mismo juego?</h3><p>Descargaste <b>${esc(n.name)}</b> y en tu biblioteca ya tenés <b>${esc(c.name)}</b>. Si es el mismo, se unen y conservás tus horas y notas.</p><div class="bs"><button class="b2 g" data-a="close">No, son distintos</button><button class="b2" data-a="dlmy" data-id="${n.id}" data-c="${c.id}">Sí, unirlos</button></div>`)}
+Object.assign(A,{dlmy:a=>{const n=G.find(x=>x.id===a.dataset.id),c=G.find(x=>x.id===a.dataset.c);const m=a.closest('.modal');if(m)m.remove();if(!n||!c)return;if(n.exe)c.exe=n.exe;c.inst=true;if(c.instM===false)c.instM=true;c.dl=n.dl;G.splice(G.indexOf(n),1);save();try{renderList()}catch(e){}toast(c.name+': unido con la descarga')}});
 function dlAdopt(it){
   if(!it||it.status!=='completed'||!it.result||!it.result.dir)return null;
   const r=it.result,exe=r.exe||'',app=dlAppid(it.gid);
   const info={id:it.id,gid:it.gid,dir:r.dir,version:it.version||'',at:r.at||Date.now(),src:(it.source&&it.source.name)||''};
   let g=G.find(x=>x.dl&&x.dl.id===it.id)||G.find(x=>x.dl&&x.dl.gid===it.gid)||(app&&G.find(x=>x.app===app))||(exe&&G.find(x=>x.exe&&dlLow(x.exe)===dlLow(exe)));
   let st='new';
+  if(!g){const nn=dlNm(it.name);if(nn){const ex=G.filter(x=>dlNm(x.name)===nn);if(ex.length===1)g=ex[0]}}
   if(g){
     if(g.exe&&dlLow(g.exe)!==dlLow(exe)&&instOf(g)&&!(g.dl&&g.dl.id===it.id)){st='dup';if(!g.dl)g.dl=info}
     else{st='linked';if(exe)g.exe=exe;g.inst=true;if(g.instM===false)g.instM=true;g.dl=info}
@@ -6592,6 +6596,7 @@ function dlAdopt(it){
     if(app)g.app=app;
     if(it.cover)g.cover=it.cover;
     G.push(g);
+    const nn=dlNm(it.name),cd=nn.length>=5&&G.find(x=>x!==g&&!x.dl&&(()=>{const y=dlNm(x.name);return y.length>=5&&(y.includes(nn)||nn.includes(y))})());if(cd)setTimeout(()=>dlAsk(g.id,cd.id),600);
   }
   save();try{renderList()}catch(e){}
   return{g,st};
