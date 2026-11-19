@@ -108,25 +108,26 @@ function steamripConsole() {
       @keyframes br{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const AMB = '<div class="amb"><div class="beam"></div>' + [0, 1, 2].map((i) => '<div class="orb" style="left:' + [8, 62, 34][i] + '%;top:' + [12, 55, 78][i] + '%;width:' + [420, 520, 380][i] + 'px;height:' + [420, 520, 380][i] + 'px;--x:' + [120, -160, 90][i] + 'px;--y:' + [90, -70, -110][i] + 'px;--d:' + [19, 26, 22][i] + 's"></div>').join('') + Array.from({ length: 30 }, () => { const sz = rnd(1.5, 4.5); return '<i class="pt" style="--l:' + rnd(0, 100).toFixed(1) + '%;--s:' + sz.toFixed(1) + 'px;--a:' + rnd(.25, .8).toFixed(2) + ';--b:' + (sz > 3.4 ? 1.2 : 0) + 'px;--t:' + rnd(14, 30).toFixed(1) + 's;--dl:-' + rnd(0, 30).toFixed(1) + 's;--dx:' + rnd(-90, 90).toFixed(0) + 'px"></i>'; }).join('') + '<div class="vig"></div></div>';
-  const build = () => {
+  const build = (lax) => {
     const h1 = document.querySelector('h1.entry-title, .entry-header h1, article h1, h1'); if (!h1) return 0;
     const raw = T(h1), title = clean(raw); if (!title) return 0;
     const root = document.querySelector('.entry-content, .post-content, .post-entry, article .content, article') || document.body;
     let cover = (document.querySelector('meta[property="og:image"]') || {}).content || '';
     const imgs = [...root.querySelectorAll('img')].filter((i) => (i.naturalWidth || i.width) >= 200 && !/logo|avatar|emoji|icon/i.test(i.src + i.className));
     if (!cover && imgs[0]) cover = imgs[0].currentSrc || imgs[0].src;
-    if (!cover) return 0;
+    if (!cover && !lax) return 0;
     const seen = new Set(), links = [];
     for (const a of root.querySelectorAll('a[href]')) {
       const href = a.href; if (!href || seen.has(href) || /^javascript:|^#/.test(href) || href === location.href) continue;
       const hn = host(href), tx = T(a), mg = /^magnet:/i.test(href), tor = /\.torrent(\?|$)/i.test(href);
       if (BAD.test(hn)) continue;
       const known = Object.keys(HOSTS).find((k) => hn === k || hn.endsWith('.' + k));
-      if (!(known || mg || tor || (/^(download|mirror|direct|link|torrent|magnet|click|here)/i.test(tx) && hn))) continue;
+      if (!(known || mg || tor || (/^(download|mirror|direct|link|torrent|magnet|click|here)/i.test(tx) && hn) || (lax && hn && hn !== host(location.href) && /download|mirror|direct|link|here|part|\bgb\b/i.test(tx)))) continue;
       seen.add(href);
       links.push({ href, name: mg || tor ? 'Torrent' : known ? HOSTS[known] : /steamrip/i.test(hn) ? (tx || 'Descarga') : hn.split('.').slice(-2, -1)[0].replace(/^./, (c) => c.toUpperCase()), sub: mg ? 'Enlace magnet' : tor ? 'Archivo .torrent' : (tx && tx.length < 40 ? tx : hn) });
     }
     const pri = (l) => /bzzhr|bzzheavier|buzzheavier/i.test(l.href) ? 0 : 1; links.sort((x, y) => pri(x) - pri(y));
+    if (!links.length && lax) links.push({ href: location.href, name: 'Página original', sub: 'Abrir en la web' });
     if (!links.length) return 0;
     const cats = [...document.querySelectorAll('a[rel~=tag], a[rel~=category], .post-cat a, .meta-category a, .post-categories a')].map(T).filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 6);
     const tm = document.querySelector('time'), date = tm ? T(tm) : '';
@@ -613,8 +614,8 @@ function steamripConsole() {
     { const hm = /wt=(\w+)/.exec(location.hash); if (hm && hm[1] !== 'new' && ST[hm[1]]) sw(hm[1]); }
   };
   let htries = 0; const goHome = () => { try { const c = cardsFrom(document, location.href, 'new'); if (c.length >= 4) { mountHome(c); return; } } catch (e) {} if (++htries < 8) setTimeout(goHome, 900); };
-  let tries = 0; const go = () => { try { const d = build(); if (d) { mount(d); return; } } catch (e) {} if (++tries < 6) setTimeout(go, 1000); };
-  if (/free-download/i.test(location.pathname)) go(); else if (/^\/(page\/\d+\/?)?$/.test(location.pathname)) goHome();
+  let tries = 0; const go = () => { try { const d = build(tries >= 3); if (d) { mount(d); return; } } catch (e) {} if (++tries < 7) setTimeout(go, 1000); };
+  if (/free-download/i.test(location.pathname) || (!/^\/(page\/\d+\/?)?$/.test(location.pathname) && document.querySelector('h1') && !/^\/(category|tag|top|search|games-list|\?s=)/i.test(location.pathname) && document.querySelector('article'))) go(); else if (/^\/(page\/\d+\/?)?$/.test(location.pathname)) goHome();
 }
 // FitGirl Repacks: portada con pestañas y páginas numeradas, y página de repack estilo consola (tamaño, idiomas, descargas).
 function fitgirlConsole() {
