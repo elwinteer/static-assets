@@ -593,6 +593,7 @@ function steamripConsole() {
         if (r.ok) { const j = await r.json().catch(() => null); if (Array.isArray(j)) items = j.map((p) => { const m = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0], sz = m && m.media_details && m.media_details.sizes; const img = (sz && ((sz.medium_large || sz.large || sz.full || {}).source_url)) || (m && m.source_url) || ''; return { href: p.link, title: clean(decH(p.title && p.title.rendered)), img, build: '' }; }).filter((x) => x.href && x.title); }
       } catch (e) {}
       if (!items.length) { try { const u = location.origin + '/?s=' + encodeURIComponent(qq), r2 = await fetch(u, { credentials: 'include' }); if (r2.ok) items = cardsFrom(new DOMParser().parseFromString(await r2.text(), 'text/html'), u, 'x'); } catch (e) {} }
+      const nz = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, ''), ws = qq.split(/\s+/).map(nz).filter(Boolean); items = items.filter((c) => ws.every((w) => nz(c.title).indexOf(w) >= 0));
       if (q.trim().toLowerCase() !== qq) return; RS = { q: qq, items }; draw();
     };
     let qt = 0; $('#q').oninput = (e) => { const val = e.target.value; clearTimeout(qt); qt = setTimeout(() => { q = val; shown = PAGE; pgN = 1; draw(); drawHero(); remote(val); }, 120); };
