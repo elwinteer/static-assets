@@ -1572,6 +1572,31 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .h2-nwb .nbl{margin-top:10px;font-size:12.5px;color:var(--a2);cursor:pointer;display:flex;align-items:center;gap:6px}.h2-nwb .nbl svg{width:14px;height:14px}
 .center{position:relative}.vtabs{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:30;backdrop-filter:blur(14px);background:rgba(18,16,24,.72)}
 #view.vtp{padding-top:70px}
+/* ---- Estadísticas nueva + Wrapped anual ---- */
+.st3{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1.15fr);gap:18px;height:100%;min-height:640px}
+.s3c{background:rgba(var(--pnrgb),.82);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}
+.s3c h3{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0}
+.s3h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.s3big{font-size:44px;font-weight:800;line-height:1;margin-top:8px}.s3h p{font-size:13.5px;color:var(--muted);margin:6px 0 0}.s3h p b{color:var(--a2)}
+.s3b{display:flex;gap:9px;align-items:flex-end;flex:1;min-height:0;margin-top:12px}.s3b>div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:6px}
+.s3b i{display:block;width:100%;height:var(--h);border-radius:9px;background:rgba(var(--argb),.38);transition:height .8s var(--ease)}.s3b .hi i{background:linear-gradient(180deg,var(--a3),var(--a))}.s3b span{font-size:11.5px;color:var(--muted)}
+.s3e{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:10px}
+.s3ks{display:flex;gap:12px;margin-top:12px}.s3k{flex:1;padding:11px 13px;border-radius:14px;background:rgba(255,255,255,.06)}.s3k b{display:block;font-size:22px;font-weight:800}.s3k small{font-size:12px;color:var(--muted)}
+.s3t{position:relative;border-radius:22px;overflow:hidden;cursor:pointer;border:1px solid rgba(255,255,255,.1);min-height:0;display:flex;align-items:flex-end;transition:transform .3s var(--ease)}.s3t:hover{transform:translateY(-3px)}
+.s3t .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.s3t .sh{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,7,12,.92) 8%,rgba(8,7,12,.05) 70%)}
+.s3t .in{position:relative;padding:22px}.s3t small{font-size:11px;letter-spacing:.16em;font-weight:700;color:var(--a2)}.s3t b{display:block;font-size:28px;font-weight:800;margin:6px 0 3px}.s3t p{margin:0;font-size:14px;color:#d8d0c6}
+.s3top{display:flex;flex-direction:column;justify-content:space-around;flex:1;min-height:0;margin-top:8px}.s3top>div{display:flex;gap:13px;align-items:center;cursor:pointer}
+.s3top em{width:16px;font-style:normal;font-weight:700;color:var(--muted)}.s3top img{width:50px;height:50px;border-radius:12px;object-fit:cover;flex:none}.s3top>div>div{flex:1;min-width:0}
+.s3r{display:flex;justify-content:space-between;gap:8px;font-size:14px}.s3r b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.s3r span{color:var(--muted);font-size:13px;white-space:nowrap}
+.s3p{height:7px;border-radius:7px;background:rgba(255,255,255,.09);margin-top:7px}.s3p i{display:block;height:100%;width:var(--w);border-radius:7px;background:linear-gradient(90deg,var(--a),var(--a3))}
+.s3s{display:grid;grid-template-rows:1fr 1fr;gap:18px;min-height:0}.s3q{font-size:18px;font-weight:700;margin-top:7px}.s3q span{color:var(--a2)}
+.s3g{display:flex;height:15px;border-radius:9px;overflow:hidden;gap:3px;margin:auto 0 12px}.s3g i{display:block}.s3l{list-style:none;margin:0 0 auto;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:9px 16px}.s3l li{display:flex;align-items:center;gap:8px;font-size:13.5px}.s3l li i{width:10px;height:10px;border-radius:50%}.s3l li b{margin-left:auto;color:var(--muted);font-weight:600}
+.wg2-w{display:flex;flex-direction:column;height:100%;min-height:640px;gap:6px}.wg2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr);grid-auto-rows:minmax(230px,1fr);gap:18px;flex:1;min-height:0;margin-top:14px}
+.wp2{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:flex-end;min-height:0;background:#0b0a12;transition:transform .3s var(--ease),box-shadow .3s}.wp2:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.45)}
+.wp2.big{grid-row:span 2;outline:2px solid rgba(var(--argb),.9);box-shadow:0 0 40px rgba(var(--argb),.28)}
+.wp2 .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wp2 .sh{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,7,12,.94) 10%,rgba(8,7,12,.1) 78%)}
+.wp2 .in{position:relative;padding:22px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.wp2 b{font-size:38px;font-weight:800;line-height:1}.wp2.big b{font-size:58px}.wp2 small{font-size:13.5px;color:#d9cfc3}.wp2 .hm-go{margin-top:12px;height:46px;padding:0 24px;font-size:14px;border-radius:14px}
+.wp2.lk{cursor:default;border-style:dashed;background:rgba(255,255,255,.03);align-items:center;justify-content:center;text-align:center}.wp2.lk:hover{transform:none;box-shadow:none}.wp2.lk .in{align-items:center}.wp2.lk b{color:var(--text)}.wp2 .lc svg{width:34px;height:34px}
+.wt.wback{margin-right:8px;opacity:.85}
 @media (max-height:760px){.h2.fix{height:auto}.h2-g{grid-template-columns:1fr}.h2-hero{min-height:360px}}
 
 
@@ -4258,6 +4283,28 @@ V.stats=()=>{
       <section class="card rise" style="--i:9"><h3>Datos curiosos</h3><div class="insg">${ins.map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div></section></div></div></div>`};
 
 
+V.statsOld=V.stats;
+V.stats=()=>{
+  const cy=new Date().getFullYear(),ys=wrapYears().filter(x=>x>=2026),y=ys.includes(S.sy)?S.sy:cy,d=statYear(y);
+  const played=G.filter(g=>g.hours>0),top=[...played].sort((a,b)=>b.hours-a.hours).slice(0,5),tg=top[0],th=totalH();
+  const gen={};played.forEach(g=>{const l=genresOf(g);(l.length?l:((INFO[g.id]||{}).gen||[])).forEach(t=>gen[t]=(gen[t]||0)+g.hours)});
+  const gl=Object.entries(gen).sort((a,b)=>b[1]-a[1]).slice(0,4),gt=gl.reduce((t,x)=>t+x[1],0)||1,GC=['#ff9a3c','#ffcf6a','#8ea2ff','#7be0b0'];
+  const hrD=(()=>{const a=Array(24).fill(0);for(const x of (ST.ses||[])){let t=x.s,end=x.s+x.h*36e5;while(t<end){const e=Math.min(end,t+6e5);a[new Date(t).getHours()]+=(e-t)/36e5;t=e}}return a})();
+  const hrB=hrD.indexOf(Math.max(...hrD)),hasH=hrD.some(v=>v>0),part=hrB<6?'de madrugada':hrB<12?'a la mañana':hrB<19?'a la tarde':'a la noche';
+  const WD=['lunes','martes','miércoles','jueves','viernes','sábados','domingos'],wdAll=Array(7).fill(0);{const L=ST.log||{};for(const k in L){const [Y,M,D]=k.split('-').map(Number);if(L[k]>0)wdAll[(new Date(Y,M-1,D).getDay()+6)%7]+=L[k]}}
+  const wmx=Math.max(...wdAll),bw=wmx>0?wdAll.indexOf(wmx):-1,mm=Math.max(...d.month),bm=mm>0?d.month.indexOf(mm):-1;
+  const bars=(arr,lab,mx,hi)=>`<div class="s3b">${arr.map((h,i)=>`<div class="${i===hi?'hi':''}" title="${h.toFixed(1)} h"><i style="--h:${mx>0?Math.max(4,h/mx*100):4}%"></i><span>${lab[i]}</span></div>`).join('')}</div>`;
+  const dias=Math.round(th/24),pill=ys.length>1?`<div class="ypills">${ys.map(v=>`<button class="pill ${v===y?'on':''}" data-a="sy" data-v="${v}">${v}</button>`).join('')}</div>`:'';
+  const chip=(a,b)=>`<div class="s3k"><b>${a}</b><small>${b}</small></div>`;
+  return `<div class="st3">
+   <section class="s3c s3a rise" style="--i:0"><div class="s3h"><div><h3>Tu tiempo de juego</h3><div class="s3big">${Math.round(th).toLocaleString('es-AR')} h</div><p>${dias>=1?`Equivale a <b>${dias} ${dias===1?'día':'días'}</b> seguidos jugando`:'Recién empezás, ¡a jugar!'}</p></div>${pill}</div>
+     ${d.tot>0?bars(d.month,['E','F','M','A','M','J','J','A','S','O','N','D'],mm,bm):`<div class="s3e">Las barras por mes se llenan con las partidas que jugás desde WINTEER.</div>`}
+     <div class="s3ks">${chip(doneN(),'terminados')}${chip(streakAll()+' d','racha actual')}${chip(played.length,'juegos jugados')}${chip(gaN(),'hitos')}</div></section>
+   ${tg?`<section class="s3t rise" style="--i:1" data-a="open" data-id="${tg.id}"><img class="bg" src="${art.hero(tg)}" data-fb="${art.wide(tg)}" alt=""><i class="sh"></i><div class="in"><small>TU JUEGO MÁS JUGADO</small><b>${esc(tg.name)}</b><p>${fh(tg.hours)} en total</p></div></section>`:`<section class="s3c rise" style="--i:1"><h3>Tu juego más jugado</h3><div class="s3e">Todavía no jugaste nada. Cuando juegues, aparece acá.</div></section>`}
+   <section class="s3c rise" style="--i:2"><h3>Lo más jugado</h3><div class="s3top">${top.map((g,i)=>`<div data-a="open" data-id="${g.id}"><em>${i+1}</em><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><div><div class="s3r"><b>${esc(g.name)}</b><span>${fh(g.hours)}</span></div><div class="s3p"><i style="--w:${g.hours/top[0].hours*100}%"></i></div></div></div>`).join('')||'<div class="s3e">Sin juegos todavía.</div>'}</div></section>
+   <div class="s3s"><section class="s3c rise" style="--i:3"><h3>Cuándo jugás</h3>${bw>=0||hasH?`<div class="s3q">${bw>=0?'Los <span>'+WD[bw]+'</span> ':'Jugás '}${hasH?'<span>'+part+'</span>':''}</div>${bars(wdAll,['L','M','X','J','V','S','D'],wmx,bw)}`:`<div class="s3e">Con tus próximas partidas vas a ver acá tus hábitos.</div>`}</section>
+   <section class="s3c rise" style="--i:4"><h3>Tus géneros</h3>${gl.length?`<div class="s3g">${gl.map(([n,h],i)=>`<i style="width:${h/gt*100}%;background:${GC[i]}"></i>`).join('')}</div><ul class="s3l">${gl.map(([n,h],i)=>`<li><i style="background:${GC[i]}"></i>${esc(n)}<b>${Math.round(h/gt*100)}%</b></li>`).join('')}</ul>`:'<div class="s3e">Sin datos de género todavía.</div>'}</section></div></div>`};
+
 /* ---------- WRAPPED ---------- */
 const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const yOf=t=>t?new Date(t).getFullYear():0;
@@ -4288,7 +4335,6 @@ function wrapData(y,q){q=q||0;const inQ=m=>!q||(m>=(q-1)*3+1&&m<=q*3),inP=t=>t&&
 const QN=['','1.er trimestre','2.º trimestre','3.er trimestre'];
 function wrapPeriods(){const now=new Date(),cy=now.getFullYear(),m=now.getMonth()+1,out=[];
   for(const y of wrapYears()){
-    for(let q=1;q<=3;q++){if(y!==cy)break;const un=m>=q*3+1;if(!un)continue;const d=wrapData(y,q);if(!(d.played||d.tot||d.done.length))continue;out.push({y,q,key:y+':'+q,label:'Q'+q+' '+y,un:new Date(y,q*3,1).getTime()})}
     const un=y<cy||(y===cy&&m>=12);if(un)out.push({y,q:0,key:y+':0',label:'Año '+y,un:new Date(y,11,1).getTime()})}
   return out}
 function wrapNew(){const seen=ST.wseen||{},now=Date.now();return wrapPeriods().filter(p=>!seen[p.key]&&now-p.un<60*864e5&&p.y===new Date().getFullYear()).sort((a,b)=>b.un-a.un)}
@@ -4299,11 +4345,11 @@ function wrapPers(d){const t=d.pool[0],pe=d.q?'este trimestre':'este año';
   if(d.played>=10)return ['Explorador del hielo',`Probaste ${d.played} juegos distintos`];
   if(d.played>0)return ['Jugador de invierno','Cada partida suma a tu historia'];
   return ['Año en blanco','Todavía no hay partidas registradas']}
-V.wrapped=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="stack"><section class="card rise"><div class="empty">Todavía no hay ningún Wrapped listo. Aparecen solos al terminar cada trimestre y al final del año.</div></section></div>`;
+const wrapDetail=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="stack"><section class="card rise"><div class="empty">Todavía no hay ningún Wrapped listo. Aparece solo al terminar el año.</div></section></div>`;
   let cur0=ps.find(p=>p.y===S.wy&&p.q===(S.wq||0));if(!cur0){cur0=ps[ps.length-1];S.wy=cur0.y;S.wq=cur0.q}
   const q=S.wq||0;ST.wseen=ST.wseen||{};if(!ST.wseen[cur0.key]){ST.wseen[cur0.key]=1;save()}
   const d=wrapData(S.wy,q),p=wrapPers(d),cur=S.wy===new Date().getFullYear()&&!q;
-  const tabs=`<div class="wtabs">${ps.map(x=>`<button class="wt ${x.key===cur0.key?'on':''}" data-a="wyear" data-id="${x.key}">${x.label}</button>`).join('')}</div>`;
+  const tabs=`<div class="wtabs"><button class="wt wback" data-a="wback">← Todos</button>${ps.map(x=>`<button class="wt ${x.key===cur0.key?'on':''}" data-a="wyear" data-id="${x.key}">${x.label}</button>`).join('')}</div>`;
   if(!d.played&&!d.done.length&&!d.tot)return `<div class="stack">${tabs}<section class="card rise"><div class="empty">Todavía no hay datos de este período.</div></section></div>`
   const dash='<b>—</b>',k=(l,v,suf='',dec=0)=>`<div class="wk"><small>${l}</small>${v===null?dash:`<b data-count="${dec?v.toFixed(dec):v}" data-dec="${dec}" data-suf="${suf}">0</b>`}</div>`;
   const mx=Math.max(1,...d.month),mxg=d.gen.length?d.gen[0][1]:1;
@@ -4318,6 +4364,14 @@ V.wrapped=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="stack"><
   ${d.fb?'':`<section class="card rise" style="--i:3"><h3>Mes a mes${d.bm>=0?` · tu mes fuerte fue <span style="color:var(--a2)">${MN[d.bm]}</span>`:''}</h3><div class="mbars">${d.month.map((h,i)=>q&&(i<(q-1)*3||i>=q*3)?'':`<div class="mb2"><div class="mcol"><i style="--h:${h/mx*100}%;--d:${i}" title="${h.toFixed(1)} h"></i></div><span>${MN[i]}</span></div>`).join('')}</div></section>`}
   <section class="card rise" style="--i:4"><h3>Completados ${q?'en el '+QN[q]:'en '+S.wy}</h3>${d.done.length?`<div class="wdone">${d.done.map(g=>`<div class="wdc" data-a="open" data-id="${g.id}"><div class="cover"><img src="${art.wide(g)}" alt=""></div><b>${esc(g.name)}</b><small>${doneDate(g)?new Date(doneDate(g)).toLocaleDateString('es-AR'):'Sin fecha'}</small></div>`).join('')}</div>`:'<div class="empty">Ningún juego completado en este período… todavía.</div>'}</section></div>`};
 
+
+function wrapGallery(){const now=Date.now(),cy=new Date().getFullYear(),ps=wrapPeriods().sort((a,b)=>b.y-a.y);
+  const cards=ps.map((x,i)=>{const d=wrapData(x.y,0),g=d.pool[0]&&d.pool[0][0],pe=wrapPers(d),big=i===0;
+    const sub=(d.fb?(d.played?d.played+' juegos':''):(d.tot?fh(d.tot):''))+(pe&&pe[0]?(d.fb&&!d.played?'':' · ')+'“'+esc(pe[0])+'”':'');
+    return `<div class="wp2 ${big?'big':''}" data-a="wropen" data-id="${x.key}">${g?`<img class="bg" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt="">`:''}<i class="sh"></i><div class="in"><b>${x.y}</b><small>${sub}</small>${big?`<button class="hm-go" data-a="wplay" data-id="${x.key}">${ic('play')} Ver como película</button>`:''}</div></div>`}).join('');
+  const un=new Date(cy,11,1).getTime(),lock=ps.some(x=>x.y===cy)?'':`<div class="wp2 lk${ps.length?'':' big'}"><div class="in"><span class="lc">${ic('lock')}</span><b>${cy}</b><small>Se abre el 1 de diciembre · en ${Math.max(1,Math.ceil((un-now)/864e5))} días</small></div></div>`;
+  return `<div class="wg2-w"><header class="st-h rise"><div><small>Tu año de un vistazo</small><h1>Wrapped</h1></div></header><div class="wg2">${cards}${lock}</div></div>`}
+V.wrapped=()=>S.wdet?wrapDetail():wrapGallery();
 
 async function bkApplyJSON(j,dir){
   if(!j||!j.winteer2)throw 0;
@@ -4477,7 +4531,7 @@ function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$(
   clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(v==='prog')v=S.lp||'stats';if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
+function go(v,o){if(v==='prog'){v=S.lp||'stats';if(v==='wrapped')S.wdet=0}if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
@@ -4580,8 +4634,9 @@ const A={
   shkeyset:a=>{a.textContent='Apretá la tecla… (Esc cancela)';const h=e=>{e.preventDefault();e.stopPropagation();if(e.key==='Escape'){document.removeEventListener('keydown',h,true);go('settings');return}const k=shKey(e);if(!k)return;document.removeEventListener('keydown',h,true);const cl=a.dataset.w==='clip';winteerNative.shotCfg(cl?{clipKey:k}:{key:k}).then(c=>{BGC=Object.assign(BGC,c);go('settings');toast((cl?'Tecla de clip: ':'Tecla de captura: ')+k)})};document.addEventListener('keydown',h,true)},
   bgsw:a=>{const k=a.dataset.k;winteerNative.cfgSet(k,!BGC[k]).then(c=>{BGC=Object.assign(BGC,c);go('settings')})},
   snow:a=>{ST.snow=!ST.snow;a.classList.toggle('on');initSnow();save()},
-  wyear:a=>{const [y,qq]=a.dataset.id.split(':');S.wy=+y;S.wq=+qq;go('wrapped')},
-  wropen:a=>{const [y,qq]=a.dataset.id.split(':');S.wy=+y;S.wq=+qq;go('wrapped')},
+  wyear:a=>{const [y,qq]=a.dataset.id.split(':');S.wy=+y;S.wq=0;S.wdet=1;go('wrapped')},
+  wback:()=>{S.wdet=0;go('wrapped')},
+  wropen:a=>{const [y,qq]=a.dataset.id.split(':');S.wy=+y;S.wq=0;S.wdet=1;go('wrapped')},
   dark:a=>{ST.dark=ST.dark===false;a.classList.toggle('on',ST.dark);document.body.classList.toggle('dark',ST.dark);save()},
   inforetry:a=>{IFAIL.clear();renderTab()},
   mdesc:a=>{const g=gm(a.dataset.id);if(!g)return;modal(`<h3>Descripción de ${esc(g.name)}</h3><p>Escribila a tu gusto. Queda guardada solo para este juego.</p><div class="ed" style="text-align:left"><textarea class="txt" id="md-t" rows="7" style="width:100%;resize:vertical">${esc(g.mdesc||'')}</textarea></div><div class="bs" style="margin-top:16px"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="mdescsave" data-id="${g.id}">Guardar</button></div>`)},
@@ -4959,7 +5014,7 @@ function wrapTabBody(){const ps=wrapPeriods().sort((a,b)=>b.un-a.un),now=Date.no
   for(const y of [cy,cy+1]){[1,2,3].forEach(q=>cand.push({q,y,t:new Date(y,q*3,1).getTime()}));cand.push({q:0,y,t:new Date(y,11,1).getTime()})}
   const nx=cand.filter(c=>c.t>now).sort((a,b)=>a.t-b.t)[0],days=Math.ceil((nx.t-now)/864e5),nl=nx.q?QN[nx.q]+' '+nx.y:'Año '+nx.y,seen=ST.wseen||{};
   const soon=`<div class="wcard soon"><small>Próximo</small><b>¿?</b></div>`;
-  if(!ps.length)return `<section class="card rise wt-empty" style="--i:2"><div class="empty">Todavía no hay ningún Wrapped listo. Aparecen solos al terminar cada trimestre y al final del año.</div></section><div class="wr-row rise" style="--i:3">${soon}</div>`;
+  if(!ps.length)return `<section class="card rise wt-empty" style="--i:2"><div class="empty">Todavía no hay ningún Wrapped listo. Aparece solo al terminar el año.</div></section><div class="wr-row rise" style="--i:3">${soon}</div>`;
   const cur=ps.find(x=>x.key===S.hwk)||ps[0],d=wrapData(cur.y,cur.q),p=wrapPers(d),top=d.pool.slice(0,3).map(x=>x[0]),ns=(()=>{try{return wmSlides(cur.y,cur.q).length}catch(e){return 0}})();
   return `<section class="wt-hero rise" style="--i:2"><div class="wt-l"><small>${cur.q?'TU '+QN[cur.q].toUpperCase():'TU AÑO'} · WINTEER</small><h1>${cur.q?'Q'+cur.q+' · '+cur.y:cur.y}</h1><p class="wt-p">“${esc(p[0])}”</p><button class="wt-play" data-a="wplay" data-id="${cur.key}">${ic('play')} Ver como película</button><span class="wt-n">Presentación animada con música${ns?' · '+ns+' escenas':''}</span></div>
    <div class="wt-r">${top.map((g,i)=>`<div class="wt-p${i}"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""></div>`).join('')}</div></section>
@@ -5021,7 +5076,7 @@ const VGROUPS=[['games','sagas'],['stats','hitos','wrapped']];
 const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
 function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;const o=ce.querySelector(':scope>.vtabs');if(o)o.remove();el.classList.remove('vtp');
   const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
-  const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="vtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
+  const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="gtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
   if(v!=='games')el.classList.add('vtp');ce.insertBefore(d,el)}
 /* ---------- INICIO v2 (ventana fija) ---------- */
 const H2T=[];
@@ -5087,7 +5142,7 @@ Object.assign(A,{
  h2nopen:()=>{S.h2nw=1;const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
  h2nclose:()=>{S.h2nw=0;const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
  wdismiss:a=>{ST.wseen=ST.wseen||{};ST.wseen[a.dataset.id]=1;save();const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
- vtab:a=>go(a.dataset.v),
+ gtab:a=>{if(a.dataset.v==="wrapped")S.wdet=0;go(a.dataset.v)},
  h2next:()=>{const b=$('#hbody');if(b){b.innerHTML=h2Para(true);S.h2t='para'}}
 });
 
