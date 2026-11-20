@@ -1631,9 +1631,12 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 ::view-transition-old(svchat),::view-transition-new(svchat){animation-duration:.38s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 .fr2{view-transition-name:svchat}
 
-.pf-dock{flex:none;align-self:center;display:flex;gap:4px;padding:5px;margin-top:14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px)}
-.pf-dock button{position:relative;display:flex;align-items:center;gap:8px;border:0;background:none;color:var(--muted);font:600 13.5px inherit;font-family:inherit;padding:11px 20px;border-radius:13px;cursor:pointer;transition:background .3s cubic-bezier(.2,.9,.25,1),color .3s,transform .3s}
-.pf-dock button:hover{color:#fff;transform:translateY(-1px)}.pf-dock button.on{background:linear-gradient(180deg,#ffb066,var(--a,#ff9a3c));color:#1a1208;box-shadow:0 6px 18px rgba(255,154,60,.28)}.pf-dock .i{width:16px;height:16px}
+.pf-dock{flex:none;align-self:center;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px;margin-top:12px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.pf-dock button{position:relative;display:flex;align-items:center;gap:12px;min-width:190px;border:0;background:none;color:var(--muted);font-family:inherit;text-align:left;padding:9px 18px 9px 10px;border-radius:16px;cursor:pointer;transition:background .3s cubic-bezier(.2,.9,.25,1),color .3s,transform .3s,box-shadow .3s}
+.pf-dock button i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.07);transition:background .3s,color .3s}.pf-dock .i{width:19px;height:19px}
+.pf-dock b{display:block;font-size:14px;font-weight:700;line-height:1.2}.pf-dock small{display:block;font-size:11.5px;opacity:.65;margin-top:2px;white-space:nowrap}
+.pf-dock button:hover{color:#fff;background:rgba(255,255,255,.06);transform:translateY(-1px)}
+.pf-dock button.on{background:rgba(255,154,60,.14);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,154,60,.55)}.pf-dock button.on i{background:linear-gradient(180deg,#ffb066,var(--a,#ff9a3c));color:#1a1208}.pf-dock button.on small{opacity:.8}
 .pfh-r .ob-fv{max-height:150px}.pfh-r .ob-fv>*{height:150px!important;aspect-ratio:2/3;object-fit:cover}.pfh-r{scrollbar-width:none}.pfh-r::-webkit-scrollbar{display:none}
 .pfh-card .pf-ban.sm{height:118px!important}
 #avpane,.avedit .spane,.ced-p,.ced-r{scrollbar-width:none}#avpane::-webkit-scrollbar,.avedit .spane::-webkit-scrollbar{display:none}
@@ -7588,7 +7591,7 @@ function pfCol(){const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,
   return `<div class="col-h"><div class="col-t"><b>${have}</b> de ${tot.length} cosméticos desbloqueados</div></div><div class="col-rs">${rar}</div>
   <h4 class="shd">Próximos desbloqueos</h4><div class="av-grid">${nx.length?nx.map(([k,it])=>avCard(k,it,cur)).join(''):'<p class="mut">Ya desbloqueaste todo lo que se puede por nivel.</p>'}</div>`}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;if(t==='col')return pfCol();if(t==='look')return `<div class="sgrid">${setX('look')}</div><h4 class="shd">Personalizar</h4><div class="sgrid">${setX('per')}</div>`;return ''}
-function pfDock(){const pe=(()=>{try{return petCur()}catch(e){return null}})(),t=['av','pet','card'].includes(S.ptab)?S.ptab:'home';return `<nav class="pf-dock">${[['home','Resumen','profile'],['av','Winter','edit'],['pet',pe?pe.name:'Mascota','pet'],['card','Tarjeta pública','star']].map(([k,l,i])=>`<button class="${t===k?'on':''}" data-a="ptab" data-v="${k}">${ic(i)}<span>${esc(l)}</span></button>`).join('')}</nav>`}
+function pfDock(){const pe=(()=>{try{return petCur()}catch(e){return null}})(),t=['av','pet','card'].includes(S.ptab)?S.ptab:'home';return `<nav class="pf-dock">${[['home','Vista general','Tu perfil de un vistazo','profile'],['av','Mi Winter','Ropa, pelo y escena','edit'],['pet',pe?esc(pe.name):'Mi mascota',pe?'Cuidala y vestila':'Adoptá una','pet'],['card','Mi tarjeta','Lo que ven tus amigos','star']].map(([k,l,d,i])=>`<button class="${t===k?'on':''}" data-a="ptab" data-v="${k}" title="${l}: ${d}"><i>${ic(i)}</i><span><b>${l}</b><small>${d}</small></span></button>`).join('')}</nav>`}
 V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',col:'home',pet:'home'})[S.ptab]||'home';const t=S.ptab;if(t!=='card'&&W&&W.inline)W=null;
   const nav='',dk=pfDock();
   if(t==='home')return `<div class="stack avp">${nav}${pfHome()}${dk}</div>`;
