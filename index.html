@@ -4035,6 +4035,21 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes nwOut{to{opacity:0;transform:scale(1.03) translateY(14px)}}
 .nwclose{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font:700 13px inherit;font-family:inherit;cursor:pointer;transition:.3s var(--ease)}.nwclose:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
 .stack.nwx .st-h{display:flex;align-items:center}
+
+/* perfil (vista Perfiles): todo entra en la ventana, sin barra */
+.pv-body .fr-prof.fp2{overflow:hidden;padding:16px 18px 16px;gap:18px;grid-template-rows:minmax(0,1fr);align-items:stretch;height:100%}
+.pv-body .fp2-sg{min-height:0!important}.pv-body .fp2-sg>.avx{height:86%!important;max-height:none!important}
+.pv-body .fp2-r{min-height:0;height:100%;gap:12px}
+.pv-body .fp2-hero{flex:none}.pv-body .fp2-hc{padding:clamp(26px,5vh,56px) 22px 16px}.pv-body .fp2-nm h2{font-size:28px}
+.pv-body .fp2-tb{flex:none}
+.pv-body .fp2-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}.pv-body .fp2-body::-webkit-scrollbar{display:none}
+.pv-body .fp2-body>.fp2-sec{flex:1;min-height:0;display:flex;flex-direction:column;margin-bottom:12px}.pv-body .fp2-body>.fp2-2{flex:none}
+.pv-body .fp2-2 .fp2-cd{padding:12px 16px}.pv-body .fp2-2 .fp2-cd h4{margin-bottom:8px}.pv-body .fp2-rw{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.pv-body .fp2-rw>div{flex-direction:column;align-items:flex-start;gap:3px;padding:0 0 0 12px;border:0;border-left:2px solid rgba(var(--argb),.5);font-size:12px}.pv-body .fp2-rw>div:last-child{padding:0 0 0 12px}.pv-body .fp2-rw b{text-align:left;font-size:15px;max-width:100%}
+.pv-body .fp2-body .fp2-top{flex:1;min-height:0}.pv-body .fp2-body .fp2-top .fp2-t{aspect-ratio:auto;height:100%;min-height:0}
+.pv-body .fp2-st{flex:none}.pv-body .fp2-sc{padding:11px 14px 10px}.pv-body .fp2-sc b{font-size:23px}
+.pv-body .fp2-sec h4{margin-bottom:9px}
+.pv-body .fp2-body .fp2-top{min-height:70px}
+@media (max-height:820px){.pv-body .fp2-hc{padding:16px 20px 12px}.pv-body .fp2-nm h2{font-size:24px}.pv-body .fr-prof.fp2{padding:12px 14px;gap:14px}.pv-body .fp2-r{gap:8px}.pv-body .fp2-sc{padding:8px 12px 7px}.pv-body .fp2-sc b{font-size:19px}.pv-body .fp2-sc small,.pv-body .fp2-sc u{display:none}.pv-body .fp2-tb button{height:30px}.pv-body .fp2-2 .fp2-cd{padding:9px 14px}.pv-body .fp2-2 .fp2-cd h4{margin-bottom:5px}.pv-body .fp2-sec{margin-bottom:8px!important}.pv-body .fp2-sec h4{margin-bottom:6px}.pv-body .fp2-t em small{display:none}}
 </style>
 </head>
 <body>
