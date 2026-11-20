@@ -8144,8 +8144,6 @@ g+='<path d="M-20 187H220" stroke="#ff2d95" stroke-width="1.6"/><path d="M-20 18
 g+='<path d="M-20 190H220V240H-20Z" fill="url(#c15m)"/><path d="M20 190L74 190L34 240L-20 240Z M118 190L152 190L132 240L84 240Z" fill="#fff" opacity=".045"/>';
 // reflejos de los neones en el suelo mojado
 [[24,'c15r',20],[40,'c15q',10],[168,'c15q',14],[184,'c15r',12],[100,'c15r',8],[120,'c15q',9],[76,'c15q',8]].forEach(([x,id,w],i)=>{g+=`<rect x="${x-w/2}" y="188" width="${w}" height="${34+i%3*8}" fill="url(#${id})" opacity=".7" filter="url(#c15g)"><animate attributeName="opacity" values=".45;.8;.5;.75" dur="${f(2.2+i*.3)}s" repeatCount="indefinite"/></rect>`});
-// tiras de luz del piso
-g+='<g><path d="M18 226h46M136 226h46" stroke="#ff2d95" stroke-width="1.6" opacity=".6"/><path d="M34 220h30M136 220h30" stroke="#22d3ee" stroke-width="1.3" opacity=".6"/><animate attributeName="opacity" values=".6;1;.7" dur="2.6s" repeatCount="indefinite"/></g>';
 const FLOOR=g;
 // ---------- primer plano ----------
 const FG='<ellipse cx="30" cy="206" rx="46" ry="14" fill="#ff2d95" opacity=".1" style="mix-blend-mode:screen"><animate attributeName="opacity" values=".06;.14;.08" dur="2.4s" repeatCount="indefinite"/></ellipse><ellipse cx="172" cy="206" rx="46" ry="14" fill="#22d3ee" opacity=".1" style="mix-blend-mode:screen"><animate attributeName="opacity" values=".06;.14;.08" dur="3s" repeatCount="indefinite"/></ellipse>';
