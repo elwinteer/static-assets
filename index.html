@@ -1631,6 +1631,14 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 ::view-transition-old(svchat),::view-transition-new(svchat){animation-duration:.38s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 .fr2{view-transition-name:svchat}
 
+.pf-dock{flex:none;align-self:center;display:flex;gap:4px;padding:5px;margin-top:14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px)}
+.pf-dock button{position:relative;display:flex;align-items:center;gap:8px;border:0;background:none;color:var(--muted);font:600 13.5px inherit;font-family:inherit;padding:11px 20px;border-radius:13px;cursor:pointer;transition:background .3s cubic-bezier(.2,.9,.25,1),color .3s,transform .3s}
+.pf-dock button:hover{color:#fff;transform:translateY(-1px)}.pf-dock button.on{background:linear-gradient(180deg,#ffb066,var(--a,#ff9a3c));color:#1a1208;box-shadow:0 6px 18px rgba(255,154,60,.28)}.pf-dock .i{width:16px;height:16px}
+.pfh-r .ob-fv{max-height:150px}.pfh-r .ob-fv>*{height:150px!important;aspect-ratio:2/3;object-fit:cover}.pfh-r{scrollbar-width:none}.pfh-r::-webkit-scrollbar{display:none}
+.pfh-card .pf-ban.sm{height:118px!important}
+#avpane,.avedit .spane,.ced-p,.ced-r{scrollbar-width:none}#avpane::-webkit-scrollbar,.avedit .spane::-webkit-scrollbar{display:none}
+.ced-p{justify-content:center}
+#avpane{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 34px),transparent)}
 /* ---- Social: pulido (entrada escalonada, hover, vacíos) ---- */
 .sv-w .avs-bg{scale:1.32;transform-origin:50% 100%}.sv-w .avx-st{scale:1.32;transform-origin:50% 96%;translate:0 -96px}
 @keyframes svin{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
@@ -5118,7 +5126,7 @@ setTimeout(()=>{try{autoDoneAll()}catch(e){}},1800);setInterval(()=>{try{autoDon
 const VGROUPS=[['stats','hitos','wrapped']];
 const VTL={games:'Todos',sagas:'Sagas',hitos:'Hitos',stats:'Estadísticas',wrapped:'Wrapped'};
 function vtabs(v){const el=$('#view');if(!el)return;const ce=el.parentElement;ce.querySelectorAll(':scope>.vtabs').forEach(o=>o.remove());el.classList.remove('vtp');
-  if(v==='friends'||v==='profile'||v==='diary'){const cur=v==='friends'?'friends':v==='diary'?'diary':'home',d=document.createElement('div');if(v==='profile'){const pe=(()=>{try{return petCur()}catch(e){return null}})(),tg=document.createElement('div'),pt=['av','pet','card'].includes(S.ptab)?S.ptab:'home';tg.className='h2-tabs vtabs sv-tg';tg.innerHTML=[['home','Resumen'],['av','Winter'],['pet',pe?pe.name:'Mascota'],['card','Tarjeta pública']].map(([k,l])=>`<button class="${pt===k?'on':''}" data-a="ptab" data-v="${k}">${esc(l)}</button>`).join('');ce.insertBefore(tg,el)}d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['diary','Diario']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
+  if(v==='friends'||v==='profile'||v==='diary'){const cur=v==='friends'?'friends':v==='diary'?'diary':'home',d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=[['friends','Amigos'],['home','Mi perfil'],['diary','Diario']].map(([k,l])=>`<button class="${k===cur?'on':''}" data-a="soctab" data-k="${k}">${l}</button>`).join('');el.classList.add('vtp');ce.insertBefore(d,el);return}
   const g=VGROUPS.find(x=>x.includes(v));if(!g)return;
   const d=document.createElement('div');d.className='h2-tabs vtabs';d.innerHTML=g.map(k=>`<button class="${k===v?'on':''}" data-a="gtab" data-v="${k}">${VTL[k]}${k==='wrapped'&&typeof wrapNew==='function'&&wrapNew().length?'<i></i>':''}</button>`).join('');
   if(v!=='games')el.classList.add('vtp');ce.insertBefore(d,el)}
@@ -7573,20 +7581,21 @@ document.addEventListener('input',e=>{if(!W||!W.inline)return;const t=e.target,d
   const p=$('#cedp');if(p)p.innerHTML=pcard(d);cedPrev()});
 function pfHome(){const p=(()=>{try{return petCur()}catch(e){return null}})(),L=lvlOf(),m=p?petMood(p):'';
   const pet=p?`<div class="pfh-pet">${p.photo?petFace(p,200):petSVG(p,m,{size:200,body:true})}<span><b>${esc(p.name)}</b> · Nivel ${pLvl(p)}</span></div>`:`<button class="pfh-pet pfh-ad" data-a="go" data-v="pet">${ic('pet')}<span>Adoptá una mascota</span></button>`;
-  return `<section class="card pfh rise" style="--i:1"><div class="pfh-st avs-st" id="avst">${avStage({pet:'none'})}${pet}</div><div class="pfh-r">${pfBig()}<div class="pfh-b"><button class="hm-go" data-a="ptab" data-v="av">${ic('edit')} Personalizar mi Winter</button><button class="hm-go hm-gh" data-a="ptab" data-v="card">Editar tarjeta</button></div></div></section>`}
+  return `<section class="card pfh rise" style="--i:1"><div class="pfh-st avs-st" id="avst">${avStage({pet:'none'})}${pet}</div><div class="pfh-r">${pfBig()}</div></section>`}
 function pfCol(){const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,
   rar=AVR.map((r,i)=>{const a=tot.filter(([k,it])=>it[2]===i),n=a.filter(([k,it])=>avOk(it)).length;return `<div class="col-r" style="--rc:${r[1]}"><b>${r[0]}</b><span>${n} / ${a.length}</span><i style="--w:${a.length?Math.round(n/a.length*100):0}%"></i></div>`}).join('');
   const nx=tot.filter(([k,it])=>!avOk(it)&&typeof it[3]==='number').sort((a,b)=>a[1][3]-b[1][3]).slice(0,12),cur=avCur();
   return `<div class="col-h"><div class="col-t"><b>${have}</b> de ${tot.length} cosméticos desbloqueados</div></div><div class="col-rs">${rar}</div>
   <h4 class="shd">Próximos desbloqueos</h4><div class="av-grid">${nx.length?nx.map(([k,it])=>avCard(k,it,cur)).join(''):'<p class="mut">Ya desbloqueaste todo lo que se puede por nivel.</p>'}</div>`}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;if(t==='col')return pfCol();if(t==='look')return `<div class="sgrid">${setX('look')}</div><h4 class="shd">Personalizar</h4><div class="sgrid">${setX('per')}</div>`;return ''}
+function pfDock(){const pe=(()=>{try{return petCur()}catch(e){return null}})(),t=['av','pet','card'].includes(S.ptab)?S.ptab:'home';return `<nav class="pf-dock">${[['home','Resumen','profile'],['av','Winter','edit'],['pet',pe?pe.name:'Mascota','pet'],['card','Tarjeta pública','star']].map(([k,l,i])=>`<button class="${t===k?'on':''}" data-a="ptab" data-v="${k}">${ic(i)}<span>${esc(l)}</span></button>`).join('')}</nav>`}
 V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',col:'home',pet:'home'})[S.ptab]||'home';const t=S.ptab;if(t!=='card'&&W&&W.inline)W=null;
-  const nav='';
-  if(t==='home')return `<div class="stack avp">${nav}${pfHome()}</div>`;
-  if(t==='pet'){petLife();return `<div class="stack avp pt">${nav}${petTabHTML()}</div>`}
-  if(t==='av')return `<div class="stack avp">${nav}<div class="avedit rise" style="--i:1"><section class="card avl"><div class="avs-st" id="avst">${avStage()}</div><div class="avl-b"><button class="hm-go" data-a="avrand">${ic('flake')} Sorprendeme</button><button class="hm-go hm-gh" data-a="avreset">Restablecer</button></div></section><section class="card set spane" id="avpane">${profTabBody('av')}</section></div></div>`;
-  if(t==='card')return `<div class="stack avp">${nav}${cedView()}</div>`;
-  return `<div class="stack avp">${nav}<section class="card set spane rise" style="--i:1">${profTabBody(t)}</section></div>`};
+  const nav='',dk=pfDock();
+  if(t==='home')return `<div class="stack avp">${nav}${pfHome()}${dk}</div>`;
+  if(t==='pet'){petLife();return `<div class="stack avp pt">${nav}${petTabHTML()}${dk}</div>`}
+  if(t==='av')return `<div class="stack avp">${nav}<div class="avedit rise" style="--i:1"><section class="card avl"><div class="avs-st" id="avst">${avStage()}</div><div class="avl-b"><button class="hm-go" data-a="avrand">${ic('flake')} Sorprendeme</button><button class="hm-go hm-gh" data-a="avreset">Restablecer</button></div></section><section class="card set spane" id="avpane">${profTabBody('av')}</section></div>${dk}</div>`;
+  if(t==='card')return `<div class="stack avp">${nav}${cedView()}${dk}</div>`;
+  return `<div class="stack avp">${nav}<section class="card set spane rise" style="--i:1">${profTabBody(t)}</section>${dk}</div>`};
 Object.assign(A,{
  frexp:()=>{const r=()=>{S.frX=1;go('friends')};document.startViewTransition?document.startViewTransition(r):r()},
  frx0:()=>{const r=()=>{S.frX=0;go('friends')};document.startViewTransition?document.startViewTransition(r):r()},
