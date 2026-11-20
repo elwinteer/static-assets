@@ -7693,38 +7693,51 @@ const pm=`<g><animateTransform attributeName="transform" type="translate" values
 return {sky:sky+scan,grid,pm}})();
 const W13=(()=>{let q=29;const R=()=>(q=(q*9301+49297)%233280)/233280,f=n=>n.toFixed(1);
 const pick=a=>a[Math.floor(R()*a.length)];
-let bg='';
-// montañas lejanas (bloques, con nieve)
-const FH=[7,8,10,11,9,8,7,8,10,12,11,9,8,7,6,8,9,10,8,7];
-FH.forEach((h,i)=>{const y=176-h*8;bg+=`<rect x="${i*10}" y="${y}" width="10" height="${176-y}" fill="#a4c8de"/><rect x="${i*10}" y="${y}" width="10" height="4" fill="${h>=10?'#ffffff':'#bcd8ea'}"/><rect x="${i*10}" y="${y+4}" width="10" height="${h>=10?4:3}" fill="${h>=10?'#dcecf7':'#a9cde3'}"/>`});
-bg+='<rect y="150" width="200" height="30" fill="#cfe9f5" opacity=".35"/>';
-// colinas medias en escalones
+let bg='<defs><linearGradient id="w13h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f6ff" stop-opacity="0"/><stop offset="1" stop-color="#e9f6ff" stop-opacity=".85"/></linearGradient><linearGradient id="w13g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f6ff" stop-opacity=".55"/><stop offset="1" stop-color="#e9f6ff" stop-opacity="0"/></linearGradient><radialGradient id="w13s" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6b0" stop-opacity=".8"/><stop offset="1" stop-color="#fff6b0" stop-opacity="0"/></radialGradient></defs>';
+// sol cuadrado con halo y rayos de bloques
+bg+='<circle cx="159" cy="33" r="62" fill="url(#w13s)"/><rect x="140" y="14" width="38" height="38" fill="#fff3a0" fill-opacity=".3"/><rect x="146" y="20" width="26" height="26" fill="#fff3a0"/><rect x="150" y="24" width="18" height="18" fill="#fffbd0"/>';
+bg+='<g fill="#fff6b0" opacity=".5"><rect x="156" y="2" width="6" height="8"/><rect x="156" y="56" width="6" height="8"/><rect x="128" y="30" width="8" height="6"/><rect x="182" y="30" width="8" height="6"/></g>';
+// nubes de bloques con sombra inferior (flotan lento)
+const cl=(x,y,d,rev)=>`<g class="bgd" style="animation-duration:${d}s${rev?';animation-direction:alternate-reverse':''}"><rect x="${x}" y="${y+8}" width="44" height="10" fill="#e3eefa"/><rect x="${x+4}" y="${y}" width="22" height="10" fill="#fff"/><rect x="${x+14}" y="${y-8}" width="14" height="10" fill="#fff"/><rect x="${x}" y="${y+4}" width="44" height="6" fill="#fff"/><rect x="${x+30}" y="${y+2}" width="14" height="8" fill="#fff"/></g>`;
+bg+=cl(14,52,30,0)+cl(108,80,38,1)+cl(60,22,46,0);
+// montañas lejanas (2 capas) con cara en sombra y nieve
+const far=(H,y0,c1,c2,c3,sn)=>{let o='';H.forEach((h,i)=>{const y=y0-h*8;o+=`<rect x="${i*10}" y="${y}" width="10" height="${y0-y}" fill="${c1}"/><rect x="${i*10+6}" y="${y}" width="4" height="${y0-y}" fill="${c2}"/><rect x="${i*10}" y="${y}" width="10" height="4" fill="${h>=sn?'#fff':c3}"/>`;if(h>=sn)o+=`<rect x="${i*10}" y="${y+4}" width="10" height="4" fill="#e3f0fa"/><rect x="${i*10+6}" y="${y+4}" width="4" height="4" fill="#c9dcec"/>`});return o};
+bg+=far([5,6,8,7,6,5,6,8,9,7,6,5,5,7,8,9,8,6,5,6],178,'#bcd6e8','#a9c6dc','#cfe3f1',99);
+bg+=far([7,8,10,11,9,8,7,8,10,12,11,9,8,7,6,8,9,10,8,7],178,'#9cc0d8','#8bb0cb','#b4d0e4',10);
+bg+='<rect y="120" width="200" height="60" fill="url(#w13g)"/>';
+// colinas medias: escalones con cara frontal moteada
 const MH=[4,4,5,5,6,5,4,4,3,3,4,5,5,4,3,3,4,5,5,4];
-MH.forEach((h,i)=>{const y=176-h*7;bg+=`<rect x="${i*10}" y="${y}" width="10" height="${176-y}" fill="#4f9f3d"/><rect x="${i*10}" y="${y}" width="10" height="3.5" fill="#6cc24a"/><rect x="${i*10}" y="${y+3.5}" width="10" height="2" fill="#3f8a2e"/>`;if(R()>.55)bg+=`<rect x="${i*10+2}" y="${y+9+R()*8|0}" width="4" height="4" fill="#3f8a2e"/>`});
-// árboles de bloques
-const tree=(x,yb,s)=>{let o='';const B=8*s,tw=B,th=B*3.2;o+=`<rect x="${f(x)}" y="${f(yb-th)}" width="${f(tw)}" height="${f(th)}" fill="#6b4a2a"/><rect x="${f(x+tw*.55)}" y="${f(yb-th)}" width="${f(tw*.22)}" height="${f(th)}" fill="#543a20"/><rect x="${f(x+tw*.15)}" y="${f(yb-th*.6)}" width="${f(tw*.2)}" height="${f(B*.9)}" fill="#7d5a34"/>`;
-const rows=[[3,-1],[5,-2],[5,-2],[3,-1]];rows.forEach((r,ri)=>{const y=yb-th-B*(ri+.2)+B*.2*0;for(let k=0;k<r[0];k++){const bx=x+tw/2+(k-(r[0]-1)/2)*B-B/2;o+=`<rect x="${f(bx)}" y="${f(yb-th-B*(3-ri)+B*.9)}" width="${f(B)}" height="${f(B)}" fill="${pick(['#3f9d3a','#4fb84a','#358a31','#47a843'])}"/>`}});
+MH.forEach((h,i)=>{const y=178-h*7;bg+=`<rect x="${i*10}" y="${y}" width="10" height="${178-y}" fill="#4f9f3d"/><rect x="${i*10+7}" y="${y}" width="3" height="${178-y}" fill="#448f33"/><rect x="${i*10}" y="${y}" width="10" height="3.5" fill="#72c84e"/><rect x="${i*10}" y="${y+3.5}" width="10" height="2" fill="#3a7f2a"/>`;for(let n=0;n<2;n++)if(R()>.4)bg+=`<rect x="${i*10+R()*6|0}" y="${y+8+R()*10|0}" width="3" height="3" fill="${pick(['#3f8a2e','#5fb243'])}"/>`});
+// árboles de bloques: tronco con corteza y copa texturada
+const leaf=['#3f9d3a','#4fb84a','#358a31','#47a843','#2f7a2c'];
+const tree=(x,yb,s)=>{let o='';const B=8*s,tw=B,th=B*5.2;
+o+=`<rect x="${f(x)}" y="${f(yb-th)}" width="${f(tw)}" height="${f(th)}" fill="#6b4a2a"/><rect x="${f(x+tw*.6)}" y="${f(yb-th)}" width="${f(tw*.4)}" height="${f(th)}" fill="#4f351c"/>`;
+for(let k=0;k<5;k++)o+=`<rect x="${f(x+tw*(.1+(k%2)*.35))}" y="${f(yb-th+B*(.4+k*.62))}" width="${f(tw*.22)}" height="${f(B*.5)}" fill="#855f38"/>`;
+const rows=[3,5,5,3];rows.forEach((n,ri)=>{const by=yb-th-B*(3-ri)+B*.9;for(let k=0;k<n;k++){const bx=x+tw/2+(k-(n-1)/2)*B-B/2,base=pick(leaf);o+=`<rect x="${f(bx)}" y="${f(by)}" width="${f(B)}" height="${f(B)}" fill="${base}"/>`;for(let u=0;u<2;u++)for(let v=0;v<2;v++)if(R()>.45)o+=`<rect x="${f(bx+u*B/2)}" y="${f(by+v*B/2)}" width="${f(B/2)}" height="${f(B/2)}" fill="${pick(leaf)}"/>`;o+=`<rect x="${f(bx)}" y="${f(by+B-1.2)}" width="${f(B)}" height="1.2" fill="#1f5a20" opacity=".45"/>`}});
 return o};
-bg+=tree(26,176,.9)+tree(150,176,1.1)+tree(98,176,.65);
-// sol: cuadrado con halo (como antes)
-const sun='<rect x="146" y="20" width="26" height="26" fill="#fff3a0"/><rect x="140" y="14" width="38" height="38" fill="#fff3a0" fill-opacity=".3"/>';
-bg=sun+bg;
-// ---- suelo (césped plano de bloques)
-let gr='<rect x="-20" y="184" width="240" height="60" fill="#5cb83a"/>';
-const GC=['#5cb83a','#52ad35','#66c244','#4fa633'];
-for(let y=184;y<240;y+=8)for(let x=-16;x<216;x+=8){gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(GC)}"/>`;if(R()>.82)gr+=`<rect x="${x+2}" y="${y+2}" width="3" height="3" fill="${pick(['#3f8f2a','#7dd35a'])}"/>`}
-gr+='<rect x="-20" y="184" width="240" height="3" fill="#7dd35a"/><rect x="-20" y="187" width="240" height="2" fill="#3f8f2a" opacity=".6"/>';
-// camino de tierra (se ensancha hacia adelante)
+bg+=tree(30,176,.9)+tree(156,178,1.1)+tree(100,174,.6);
+bg+='<rect y="168" width="200" height="14" fill="url(#w13h)" opacity=".15"/>';
+// ---- suelo
+let gr='<defs><linearGradient id="w13f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f6ff" stop-opacity=".18"/><stop offset="1" stop-color="#e9f6ff" stop-opacity="0"/></linearGradient></defs><rect x="-20" y="184" width="240" height="60" fill="#5cb83a"/>';
+const GC=['#5cb83a','#52ad35','#66c244','#4fa633','#5ab53a'];
+for(let y=184;y<240;y+=8)for(let x=-16;x<216;x+=8){gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(GC)}"/>`;if(R()>.78)gr+=`<rect x="${x+2}" y="${y+2}" width="3" height="3" fill="${pick(['#3f8f2a','#7dd35a','#6cc04a'])}"/>`;gr+=`<rect x="${x}" y="${y}" width="8" height=".8" fill="#fff" opacity=".1"/><rect x="${x+7.2}" y="${y}" width=".8" height="8" fill="#000" opacity=".08"/>`}
+gr+='<rect x="-20" y="184" width="240" height="3" fill="#7dd35a"/><rect x="-20" y="187" width="240" height="2" fill="#3f8f2a" opacity=".6"/><rect x="-20" y="184" width="240" height="40" fill="url(#w13f)"/>';
+// sombras de los árboles sobre el pasto
+[[30,34],[156,40],[100,24]].forEach(([x,w])=>gr+=`<rect x="${x-w/2+4}" y="185" width="${w}" height="6" fill="#1f5a20" opacity=".22"/>`);
+// camino de tierra con bordes irregulares
 const DC=['#8f6334','#9b6b38','#84582c','#a4733e'];
-for(let k=0;k<7;k++){const y=184+k*8,hw=Math.round((12+k*5)/8)*8;for(let x=100-hw;x<100+hw;x+=8){gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(DC)}"/>`;if(R()>.7)gr+=`<rect x="${x+2}" y="${y+3}" width="3" height="2" fill="#6b4420"/>`}}
-// charco / estanque
+for(let k=0;k<7;k++){const y=184+k*8,hw=Math.round((12+k*5)/8)*8+(k%2?0:0);for(let x=100-hw;x<100+hw;x+=8){gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(DC)}"/>`;if(R()>.6)gr+=`<rect x="${x+2}" y="${y+3}" width="3" height="2" fill="#6b4420"/>`;if(R()>.85)gr+=`<rect x="${x+4}" y="${y+1}" width="2" height="2" fill="#b98954"/>`}
+if(R()>.3)gr+=`<rect x="${100-hw-8}" y="${y}" width="8" height="8" fill="#7a5a2a"/>`;if(R()>.3)gr+=`<rect x="${100+hw}" y="${y}" width="8" height="8" fill="#7a5a2a"/>`}
+// estanque con brillo animado
 const WC=['#3d7fd4','#4b92e6','#3470c0'];
-for(let y=208;y<232;y+=8)for(let x=150;x<198;x+=8){const e=(y===208||y===224)&&(x===150||x===190);if(e)continue;gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(WC)}"/>`;if(R()>.6)gr+=`<rect x="${x+1}" y="${y+2}" width="5" height="1.6" fill="#bfe0ff" opacity=".7"/>`}
+for(let y=208;y<232;y+=8)for(let x=150;x<198;x+=8){if((y===208||y===224)&&(x===150||x===190))continue;gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(WC)}"/>`}
 gr+='<rect x="150" y="206" width="48" height="2" fill="#e3cf8e"/><rect x="150" y="232" width="48" height="2" fill="#e3cf8e"/>';
-// flores y pasto alto
-const fl=(x,y,c)=>`<rect x="${x}" y="${y}" width="2" height="6" fill="#2f7a24"/><rect x="${x-2}" y="${y-4}" width="6" height="4" fill="${c}"/><rect x="${x}" y="${y-3}" width="2" height="2" fill="#ffd54f"/>`;
-[[22,200,'#e0302c'],[50,214,'#ffe24a'],[66,196,'#e0302c'],[134,200,'#ffffff'],[130,222,'#ffe24a'],[14,226,'#ffffff'],[38,230,'#e0302c']].forEach(a=>gr+=fl(...a));
-[[10,196],[44,204],[78,222],[122,214],[142,190],[176,196],[196,214],[26,218]].forEach(a=>gr+=`<rect x="${a[0]}" y="${a[1]}" width="2" height="6" fill="#2f7a24"/><rect x="${a[0]+3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/><rect x="${a[0]-3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/>`);
+[[154,212,0],[172,216,1.1],[160,224,.5],[182,226,1.7],[188,212,.8]].forEach(([x,y,d])=>gr+=`<rect x="${x}" y="${y}" width="8" height="1.6" fill="#d8eeff"><animate attributeName="opacity" values="0;.85;0" dur="2.6s" begin="-${d}s" repeatCount="indefinite"/></rect>`);
+// flores y pasto alto (se mecen)
+const sw=(o,v,d)=>`<animateTransform attributeName="transform" type="rotate" values="-${v} ${o};${v} ${o};-${v} ${o}" dur="${d}s" repeatCount="indefinite"/>`;
+const fl=(x,y,c,d)=>`<g>${sw(x+1+' '+(y+6),4,d)}<rect x="${x}" y="${y}" width="2" height="6" fill="#2f7a24"/><rect x="${x-2}" y="${y-4}" width="6" height="4" fill="${c}"/><rect x="${x}" y="${y-3}" width="2" height="2" fill="#ffd54f"/></g>`;
+[[22,200,'#e0302c'],[50,214,'#ffe24a'],[66,196,'#e0302c'],[134,200,'#ffffff'],[130,222,'#ffe24a'],[14,226,'#ffffff'],[38,230,'#e0302c'],[196,196,'#e0302c'],[84,230,'#ffffff']].forEach((a,i)=>gr+=fl(a[0],a[1],a[2],2.4+i%3*.6));
+[[10,196],[44,204],[78,222],[122,214],[142,190],[176,196],[196,214],[26,218],[60,188]].forEach((a,i)=>gr+=`<g>${sw(a[0]+1+' '+(a[1]+6),5,2.8+i%3*.5)}<rect x="${a[0]}" y="${a[1]}" width="2" height="6" fill="#2f7a24"/><rect x="${a[0]+3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/><rect x="${a[0]-3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/></g>`);
 return {bg,gr}})();
 const GL=(d,f,o)=>`<path d="${d}" fill="${f}" fill-opacity="${o||.3}"/>`+inkP(d,3.4);
 const TSHD='M132 140H190V272H167L134 152Z';
@@ -8103,7 +8116,7 @@ const DF=g.slice(0,g.indexOf('</defs>')+7),ST=g.slice(0,CUT),SVi='<svg xmlns="ht
  ['w10','Galaxia',4,'p9','radial-gradient(80% 60% at 30% 20%,rgba(168,85,247,.7),transparent),radial-gradient(70% 60% at 80% 80%,rgba(56,189,248,.6),transparent),#05030f',BGX('<g class="bgrot" style="transform-origin:100px 118px;animation-duration:90s"><ellipse cx="100" cy="118" rx="86" ry="26" fill="url(#bgG1)" fill-opacity=".55" transform="rotate(25 100 118)"/><ellipse cx="100" cy="118" rx="86" ry="26" fill="url(#bgG1)" fill-opacity=".45" transform="rotate(85 100 118)"/><ellipse cx="100" cy="118" rx="86" ry="26" fill="url(#bgG1)" fill-opacity=".4" transform="rotate(145 100 118)"/></g><circle cx="100" cy="118" r="12" fill="#fff" fill-opacity=".7"/>'+BTW([[20,30,1.4,0],[60,70,1,.4],[110,25,1.3,.9],[170,60,1.4,1.4],[150,170,1,.7],[40,150,1.3,1.9],[180,130,1,.2],[90,195,1.2,1.1],[130,90,1,1.6],[15,100,1.1,2.2],[70,15,1,1.3],[190,20,1.2,.5]])+'<g><circle cx="42" cy="58" r="13" fill="url(#bgG2)"/><ellipse cx="42" cy="58" rx="22" ry="5" fill="none" stroke="#fde68a" stroke-opacity=".8" stroke-width="1.6" transform="rotate(-18 42 58)"/></g><path class="bgss" d="M190 20L172 30" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>','<radialGradient id="bgG1"><stop offset="0" stop-color="#c084fc"/><stop offset=".6" stop-color="#6366f1" stop-opacity=".5"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/></radialGradient><radialGradient id="bgG2" cx=".35" cy=".35"><stop offset="0" stop-color="#fda4af"/><stop offset="1" stop-color="#7c3aed"/></radialGradient>')],
  ['w11','Dorado',4,33,'radial-gradient(75% 60% at 50% 36%,#fff4bd 0%,#f7c548 38%,#9a6410 76%,#2a1504 100%)',BG11()],
  ['w12','Reino de la pradera',2,16,'linear-gradient(180deg,#8ed0ff,#d8f1ff 62%,#bfe8a8)',BG12()],
- ['w13','Mundo de cubos',2,14,'linear-gradient(180deg,#78c5ff,#bfe6ff)',BGX('<rect x="146" y="20" width="26" height="26" fill="#fff3a0"/><rect x="140" y="14" width="38" height="38" fill="#fff3a0" fill-opacity=".3"/><g class="bgd" style="animation-duration:28s"><rect x="20" y="52" width="40" height="10" fill="#fff"/><rect x="30" y="44" width="24" height="10" fill="#fff"/><rect x="44" y="60" width="26" height="8" fill="#e6f2ff"/></g><g class="bgd" style="animation-duration:36s;animation-direction:alternate-reverse"><rect x="110" y="82" width="36" height="10" fill="#fff"/><rect x="118" y="74" width="20" height="10" fill="#fff"/></g>'+W13.bg)],
+ ['w13','Mundo de cubos',2,14,'linear-gradient(180deg,#78c5ff,#bfe6ff)',BGX(W13.bg)],
  ['w14','Hoguera olvidada',3,27,'linear-gradient(180deg,#0c0a10,#1d1620 70%,#2a1c1c)',BGX('<path d="M6 220V122Q6 72 50 72Q94 72 94 122V220H82V124Q82 86 50 86Q18 86 18 124V220Z" fill="#07060a"/><path d="M130 220V150L138 140V120H152V148L166 156V220Z" fill="#07060a"/><g class="bgd" style="animation-duration:26s"><ellipse cx="60" cy="190" rx="60" ry="9" fill="#fff" fill-opacity=".07"/></g><g class="bgd" style="animation-duration:34s;animation-direction:alternate-reverse"><ellipse cx="150" cy="200" rx="56" ry="8" fill="#fff" fill-opacity=".06"/></g><circle class="bgfl" cx="104" cy="178" r="46" fill="#ff7a18" fill-opacity=".22"/><path d="M82 206L126 196" stroke="#3a2412" stroke-width="7" stroke-linecap="round"/><path d="M84 196L124 206" stroke="#4a2e18" stroke-width="7" stroke-linecap="round"/><g class="bgfl"><path d="M104 140Q122 170 114 192Q104 200 94 192Q86 170 104 140Z" fill="#ff7a18"/><path d="M104 160Q112 176 108 192Q100 194 98 186Q97 174 104 160Z" fill="#ffd34d"/></g>'+BUP([[96,0,4,184],[110,1.2,5,182],[104,2.4,3.6,180],[118,.6,4.6,186],[90,3,5.4,188],[108,3.8,4.2,182]],'#ffb347',1.5))],
  ['w15','Ciudad cyber',3,30,'linear-gradient(180deg,#0a0620,#2a0f4a 60%,#0a0620)',BG15()],
  ['w16','Colina nostálgica',1,7,'linear-gradient(180deg,#2d7be8,#7fb9f5 55%,#cfe8ff)',BGX(W16.sky)]]}
