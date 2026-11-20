@@ -34,6 +34,10 @@ const SKINS = [
     html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console):not([slot]){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
     @media (prefers-reduced-motion:reduce){html,.wt-frame{animation:none!important}*{transition:none!important}}
   `, mono: true },
+  { name: 'buzz', test: /(^|\.)(buzzheavier\.com|bzzheavier\.com|bzzhr\.(co|to)|flashbang\.sh)$/i, css: `
+    html,body{background:transparent!important;background-image:none!important}
+    html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+  `, mono: false },
   { name: 'fitgirl', test: /(^|\.)fitgirl-repacks\.site$/i, css: `
     html,body{background:transparent!important;color:#d6d7e2!important}
     a{color:#fff}
@@ -1287,6 +1291,102 @@ function fitgirlConsole() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 }
 
+
+function buzzConsole() {
+  if (window.__wtConsole) return; window.__wtConsole = 1;
+  const T = (n) => (n && n.textContent || '').replace(/\s+/g, ' ').trim();
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const acc = (window.__wtAcc && window.__wtAcc.argb) || '255,255,255';
+  const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], EN = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  const grab = () => {
+    const body = document.body ? document.body.innerText : ''; if (!body) return null;
+    const btn = [...document.querySelectorAll('a,button')].find((e) => /^\s*download\s*file/i.test(e.textContent || '') || /^\s*(download|descargar)\s*$/i.test(e.textContent || ''));
+    if (!btn) return null;
+    let name = T(document.querySelector('h1')); if (!name || /bzzhr|buzzheavier/i.test(name)) { const m = /([^\s\/\\]+\.(?:rar|zip|7z|iso|exe|msi|bin|part\d*|r\d\d|torrent|pkg|dmg|mp4|mkv|001))\b/i.exec(body); name = m ? m[1] : ''; }
+    if (!name) name = T(document.querySelector('h2,h3,title')).replace(/\s*[-|·].*$/, '');
+    if (!name) return null;
+    const num = (re) => { const m = re.exec(body); return m ? m[1] : ''; };
+    const size = (/(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B|bytes))/i.exec(T(btn)) || /(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B))/i.exec(body) || [])[1] || '';
+    const up = (/Uploaded\s+([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})/i.exec(body) || []);
+    let date = ''; if (up[1]) { const mi = EN.indexOf(up[1].toLowerCase()); date = mi >= 0 ? up[2] + ' ' + MES[mi].slice(0, 3) + ' ' + up[3] : up[0]; }
+    const links = [...document.querySelectorAll('a[href]')], find = (re) => links.find((a) => re.test(T(a)));
+    return { name, size, dl: num(/([\d.,]+)\s*downloads?/i), views: num(/([\d.,]+)\s*views?/i), date, md5: num(/MD5\s*:?\s*([a-f0-9]{32})/i), sha: num(/SHA-?256\s*:?\s*([a-f0-9]{64})/i), btn, mirror: find(/mirror/i), copy: [...document.querySelectorAll('a,button')].find((e) => /copy download link/i.test(T(e))) };
+  };
+  const ICO = { arc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M10 11h4M10 14h4M10 17h4"/>', iso: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3a9 9 0 0 1 9 9"/>', exe: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/>', vid: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>', gen: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>' };
+  const kind = (n) => /\.(rar|zip|7z|part\d*|r\d\d|001|tar|gz)$/i.test(n) ? 'arc' : /\.(iso|bin|img)$/i.test(n) ? 'iso' : /\.(exe|msi)$/i.test(n) ? 'exe' : /\.(mp4|mkv|avi)$/i.test(n) ? 'vid' : 'gen';
+  const mount = (d) => {
+    const hostEl = document.createElement('div'); hostEl.id = 'wt-console'; hostEl.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:block';
+    const sh = hostEl.attachShadow({ mode: 'open' }), k = kind(d.name), ext = (/\.([a-z0-9]+)$/i.exec(d.name) || [, 'archivo'])[1].toUpperCase();
+    const base = d.name.replace(/\.(part\d+\.)?[a-z0-9]+$/i, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+    const chip = (ic, v, l) => v ? '<div class="ch"><svg viewBox="0 0 24 24">' + ic + '</svg><div><b data-cu="' + esc(v) + '">' + esc(v) + '</b><small>' + l + '</small></div></div>' : '';
+    const hash = (l, v, id) => v ? '<div class="hs" data-c="' + esc(v) + '" title="Copiar"><span>' + l + '</span><code>' + esc(v) + '</code><i><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg></i></div>' : '';
+    sh.innerHTML = `<style>
+      :host{all:initial}*{box-sizing:border-box;font-family:inherit}
+      @keyframes fi{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(26px) scale(.97);filter:blur(8px)}}@keyframes pop{from{opacity:0;transform:scale(.6) rotate(-14deg)}60%{transform:scale(1.1) rotate(3deg)}}@keyframes fl{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-9px) rotate(1.5deg)}}@keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.25)}}@keyframes fup{0%{transform:translate(0,0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translate(var(--dx),-108vh);opacity:0}}@keyframes sh{0%{transform:translateX(-120%) skewX(-18deg)}55%,100%{transform:translateX(260%) skewX(-18deg)}}@keyframes sp{to{transform:rotate(360deg)}}@keyframes rg{0%{transform:scale(.8);opacity:.7}100%{transform:scale(2.2);opacity:0}}@keyframes bar{from{transform:scaleX(0)}}@keyframes wv{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+      .base{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 0%,rgba(${acc},.06),transparent 60%);overflow:hidden;color:#ececf3;font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+      .orb{position:absolute;border-radius:50%;filter:blur(90px);background:radial-gradient(circle,rgba(${acc},.3),transparent 65%);opacity:.5;animation:orb var(--d) ease-in-out infinite alternate}
+      .pt{position:absolute;bottom:-12px;left:var(--l);width:var(--s);height:var(--s);border-radius:50%;background:rgba(255,255,255,var(--a));animation:fup var(--t) linear var(--w) infinite}
+      .vig{position:absolute;inset:0;background:radial-gradient(110% 90% at 50% 45%,transparent 50%,rgba(0,0,0,.55))}
+      .w{position:absolute;inset:0;display:grid;place-items:center;padding:24px;overflow:auto}
+      .card{position:relative;width:min(640px,100%);padding:34px 34px 26px;border-radius:28px;background:linear-gradient(165deg,rgba(26,26,38,.88),rgba(14,14,22,.82));border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(26px);animation:up .9s cubic-bezier(.22,1,.36,1) backwards;overflow:hidden}
+      .card:before{content:"";position:absolute;left:12%;right:12%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(${acc},.8),transparent)}
+      .top{display:flex;gap:20px;align-items:center}
+      .ic{position:relative;flex:none;width:84px;height:84px;border-radius:24px;display:grid;place-items:center;background:linear-gradient(150deg,rgba(${acc},.28),rgba(${acc},.06));border:1px solid rgba(${acc},.45);box-shadow:0 12px 34px rgba(${acc},.2);animation:pop .8s .25s cubic-bezier(.34,1.56,.4,1) backwards,fl 5s 1.1s ease-in-out infinite}
+      .ic svg{width:42px;height:42px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+      .ic em{position:absolute;right:-8px;bottom:-8px;font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:99px;background:#fff;color:#0b0b13}
+      .tt{min-width:0}.tt small{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;animation:up .7s .35s backwards}
+      .tt h1{margin:5px 0 4px;font-size:24px;line-height:1.2;font-weight:800;color:#fff;word-break:break-word;animation:up .8s .42s cubic-bezier(.22,1,.36,1) backwards}
+      .tt p{margin:0;font-size:12.5px;color:rgba(255,255,255,.45);word-break:break-all;animation:up .8s .5s backwards}
+      .st{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:26px 0 20px}
+      .ch{display:flex;gap:11px;align-items:center;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);animation:up .7s backwards;transition:transform .35s cubic-bezier(.34,1.56,.4,1),background .25s}.ch:hover{transform:translateY(-3px);background:rgba(255,255,255,.09)}
+      .ch:nth-child(1){animation-delay:.55s}.ch:nth-child(2){animation-delay:.62s}.ch:nth-child(3){animation-delay:.69s}.ch:nth-child(4){animation-delay:.76s}
+      .ch svg{width:20px;height:20px;flex:none;fill:none;stroke:rgba(${acc},1);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ch b{display:block;font-size:16px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}.ch small{font-size:11.5px;color:rgba(255,255,255,.5)}
+      .go{position:relative;width:100%;height:60px;border:0;border-radius:18px;cursor:pointer;font:800 17px "Segoe UI",system-ui,sans-serif;color:#0b0b13;background:linear-gradient(180deg,#fff,rgba(${acc},.85));box-shadow:0 14px 40px rgba(${acc},.35),inset 0 1px 0 #fff;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .35s cubic-bezier(.34,1.56,.4,1),box-shadow .3s,filter .3s;animation:up .8s .8s cubic-bezier(.22,1,.36,1) backwards}
+      .go:before{content:"";position:absolute;top:0;bottom:0;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);animation:sh 3.4s 1.6s ease-in-out infinite}
+      .go:hover{transform:translateY(-3px) scale(1.012);box-shadow:0 20px 50px rgba(${acc},.5),inset 0 1px 0 #fff}.go:active{transform:scale(.98)}
+      .go svg{width:24px;height:24px;fill:none;stroke:#0b0b13;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:wv 1.8s ease-in-out infinite}.go span{position:relative}
+      .go.bz{pointer-events:none;filter:saturate(.8)}.go.bz svg{animation:none}.go.bz .sp{display:block}.sp{display:none;width:22px;height:22px;border-radius:50%;border:3px solid rgba(11,11,19,.25);border-top-color:#0b0b13;animation:sp .8s linear infinite}.go.bz svg{display:none}
+      .rg{position:absolute;inset:0;border-radius:18px;border:2px solid rgba(255,255,255,.9);animation:rg .9s ease-out;pointer-events:none}
+      .sec{display:flex;gap:10px;margin-top:12px;animation:up .8s .9s backwards}.sec button{flex:1;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#e8e8f1;font:600 13.5px "Segoe UI",system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .25s,transform .35s cubic-bezier(.34,1.56,.4,1),border-color .25s}
+      .sec button:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);border-color:rgba(${acc},.5)}.sec button:active{transform:scale(.97)}.sec svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+      .hh{margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);display:grid;gap:8px;animation:fi 1s 1s backwards}.hh h4{margin:0 0 2px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+      .hs{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.28);cursor:pointer;transition:background .25s}.hs:hover{background:rgba(255,255,255,.08)}.hs span{flex:none;width:58px;font-size:11px;font-weight:700;color:rgba(255,255,255,.55)}.hs code{flex:1;min-width:0;font:11.5px ui-monospace,Consolas,monospace;color:#cfd0dc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hs i{flex:none;display:grid;place-items:center}.hs i svg{width:15px;height:15px;fill:none;stroke:rgba(255,255,255,.55);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.hs.ok i svg{stroke:#7be0b0}
+      .ft{margin-top:14px;text-align:center;font-size:11.5px;color:rgba(255,255,255,.35);animation:fi 1s 1.1s backwards}
+      .tw{position:fixed;left:50%;bottom:34px;transform:translate(-50%,30px);padding:11px 20px;border-radius:99px;background:rgba(18,18,28,.92);border:1px solid rgba(255,255,255,.14);color:#fff;font:600 13px "Segoe UI",system-ui,sans-serif;opacity:0;pointer-events:none;transition:opacity .3s,transform .45s cubic-bezier(.34,1.56,.4,1);box-shadow:0 14px 40px rgba(0,0,0,.5)}.tw.on{opacity:1;transform:translate(-50%,0)}
+      @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    </style>
+    <div class="base"><div class="orb" style="left:6%;top:10%;width:460px;height:460px;--d:19s;--x:90px;--y:60px"></div><div class="orb" style="left:62%;top:52%;width:520px;height:520px;--d:24s;--x:-80px;--y:-50px"></div><div class="orb" style="left:34%;top:76%;width:380px;height:380px;--d:21s;--x:60px;--y:-70px"></div>${Array.from({ length: 16 }, (_, i) => '<i class="pt" style="--l:' + (Math.random() * 100).toFixed(1) + '%;--s:' + (2 + Math.random() * 3).toFixed(1) + 'px;--a:' + (.2 + Math.random() * .5).toFixed(2) + ';--t:' + (14 + Math.random() * 14).toFixed(1) + 's;--w:-' + (Math.random() * 20).toFixed(1) + 's;--dx:' + (Math.random() * 120 - 60).toFixed(0) + 'px"></i>').join('')}<div class="vig"></div></div>
+    <div class="w"><div class="card">
+      <div class="top"><div class="ic"><svg viewBox="0 0 24 24">${ICO[k]}</svg><em>${esc(ext)}</em></div><div class="tt"><small>Descarga lista</small><h1>${esc(base || d.name)}</h1><p>${esc(d.name)}</p></div></div>
+      <div class="st">${chip('<path d="M3 17l3-3 4 4 7-8 4 4"/><path d="M3 21h18"/>', d.size, 'Tamaño')}${chip('<path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/>', d.dl, 'Descargas')}${chip('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', d.views, 'Visitas')}${chip('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>', d.date, 'Subido')}</div>
+      <button class="go" id="go"><svg viewBox="0 0 24 24"><path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/></svg><i class="sp"></i><span id="gt">Descargar${d.size ? ' · ' + esc(d.size) : ''}</span></button>
+      <div class="sec">${d.mirror ? '<button id="mi"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.3-2.3A5.5 5.5 0 0 0 6.5 12"/><path d="M20 12a8 8 0 0 1-14 5l-2 2v-6h6l-2.3 2.3A5.5 5.5 0 0 0 17.5 12"/></svg>Servidor alternativo</button>' : ''}<button id="cp"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Copiar enlace</button><button id="or"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/></svg>Ver página original</button></div>
+      ${d.md5 || d.sha ? '<div class="hh"><h4>Verificación del archivo</h4>' + hash('MD5', d.md5) + hash('SHA-256', d.sha) + '</div>' : ''}
+      <div class="ft">La descarga se abre en WINTEER: vas a poder elegir dónde guardarla.</div>
+    </div></div><div class="tw" id="tw"></div>`;
+    document.documentElement.classList.add('wt-console-on'); document.body.appendChild(hostEl);
+    const $ = (q) => sh.querySelector(q), toast = (m) => { const t = $('#tw'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2200); };
+    // contador animado de descargas y visitas
+    sh.querySelectorAll('.ch b').forEach((b) => { const raw = b.dataset.cu, m = /^[\d.,]+$/.test(raw) ? parseInt(raw.replace(/[.,]/g, ''), 10) : NaN; if (!isFinite(m) || m < 2) return; const t0 = performance.now() + 700, D = 1300, f = (v) => Math.round(v).toLocaleString('es-AR'); const tk = (n) => { const p = Math.min(1, Math.max(0, (n - t0) / D)), e = 1 - Math.pow(1 - p, 3); b.textContent = f(m * e); if (p < 1) requestAnimationFrame(tk); }; requestAnimationFrame(tk); });
+    const go = $('#go');
+    go.onclick = () => {
+      if (go.classList.contains('bz')) return;
+      const r = document.createElement('i'); r.className = 'rg'; go.appendChild(r); setTimeout(() => r.remove(), 900);
+      go.classList.add('bz'); $('#gt').textContent = 'Preparando la descarga…';
+      try { d.btn.click(); } catch (e) {}
+      setTimeout(() => { go.classList.remove('bz'); $('#gt').textContent = 'Descargar' + (d.size ? ' · ' + d.size : ''); toast('Si no apareció el cuadro de descarga, probá de nuevo o con el servidor alternativo'); }, 14000);
+    };
+    const mi = $('#mi'); if (mi) mi.onclick = () => { try { d.mirror.click(); } catch (e) { location.href = d.mirror.href; } };
+    $('#cp').onclick = () => { try { if (d.copy) d.copy.click(); else navigator.clipboard.writeText(location.href); } catch (e) {} toast('Enlace copiado'); };
+    $('#or').onclick = () => { document.documentElement.classList.remove('wt-console-on'); hostEl.remove(); };
+    sh.querySelectorAll('.hs').forEach((h) => h.addEventListener('click', () => { try { navigator.clipboard.writeText(h.dataset.c); } catch (e) {} h.classList.add('ok'); setTimeout(() => h.classList.remove('ok'), 1400); toast('Copiado'); }));
+    return hostEl;
+  };
+  let tries = 0;
+  const run = () => { const d = grab(); if (d) { mount(d); return; } if (++tries < 25) setTimeout(run, 200); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+}
+
 const skinFor = (url) => { try { const h = new URL(url).hostname; return SKINS.find((s) => s.test.test(h)) || null; } catch (e) { return null; } };
 // Botón flotante para cambiar entre SteamRIP y FitGirl sin cerrar pestañas (lo recibe el navegador del launcher por console.log)
 const SW_JS = (cur) => '(' + function (cur) {
@@ -1298,4 +1398,4 @@ const SW_JS = (cur) => '(' + function (cur) {
   document.documentElement.appendChild(h);
 }.toString() + ')(' + JSON.stringify(cur) + ')';
 
-module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()' } };
+module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()', buzz: '(' + buzzConsole.toString() + ')()' } };
