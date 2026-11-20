@@ -491,7 +491,7 @@ code{background:var(--card2);padding:2px 7px;border-radius:6px;font-size:12px}
 .avi:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
 .avi.on{border-color:var(--rc);box-shadow:0 0 0 1px var(--rc),0 0 18px -4px var(--rc)}.avi.pv{border-style:dashed;border-color:var(--rc)}
 .avi-p{position:relative;width:100%;aspect-ratio:1;border-radius:13px;background:rgba(255,255,255,.05);display:grid;place-items:center;overflow:hidden}
-.avi-p .avx{width:100%;height:100%}.avi-bg{position:absolute;inset:0}
+.avi-p .avx{width:100%;height:100%}.avi-bg{position:absolute;inset:0}.avi-bgi{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 100%;pointer-events:none}.av-pg{display:flex;align-items:center;justify-content:center;gap:14px;margin:14px 0 4px;font-size:12px;color:var(--mut,#9aa3b5)}.av-pg button{padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-weight:600;cursor:pointer}.av-pg button:disabled{opacity:.35;cursor:default}
 .avi b{font-size:12px;line-height:1.2}.avi small{font-size:10.5px;color:var(--rc);font-weight:600}
 .avi.r4{background:linear-gradient(160deg,rgba(251,191,36,.14),rgba(255,255,255,.03))}.avi.r3{background:linear-gradient(160deg,rgba(192,132,252,.12),rgba(255,255,255,.03))}
 .avi.lk .avi-p>:not(u){filter:grayscale(1) brightness(.55)}.avi.lk b{opacity:.65}.avi.lk small{color:var(--muted)}
@@ -9019,8 +9019,13 @@ function avStage(o){o=o||{};const v=avView(),bg=avItem('bg',v.bg)[4],p=(()=>{try
   return `<div class="avs-bg" style="background:${bg}">${bgSc(v.bg)}</div>${avSVG(v,{cls:'avx-st'})}
   <div class="avs-pet" ${o.pet==='face'?'':'hidden'}>${p?`<span class="avs-pf">${petFace(p,112)}</span><b>${esc(p.name)}</b><small>Nivel ${pLvl(p)}</small>`:`<button class="avs-ad" data-a="go" data-v="pet">${ic('pet')}<span>Adoptá una mascota</span></button>`}</div>
   ${it?`<div class="avs-pv"><b>Vista previa · ${esc(avNm(S.avp.c,it))}</b><span>Se desbloquea con ${avLbl(it)}</span><button data-a="avnp">Quitar</button></div>`:''}`}
+const BGTH={};
+function bgThumb(it){if(!it[5])return '';if(BGTH[it[0]]!==undefined)return BGTH[it[0]];
+  let s=String(it[5]).replace(/<animate(?:Transform|Motion)?\b[^>]*?(?:\/>|>\s*<\/animate(?:Transform|Motion)?>)/g,'').replace(/<set\b[^>]*\/>/g,'');
+  if(!/xmlns=/.test(s))s=s.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ');
+  return BGTH[it[0]]='<img class="avi-bgi" alt="" draggable="false" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)+'">'}
 function avCard(c,it,cur){const ok=avOk(it),on=cur[c]===it[0]&&!S.avp,pv=S.avp&&S.avp.c===c&&S.avp.id===it[0],vb=AVVB[AVD[c].v];
-  let pic;if(c==='bg')pic=`<i class="avi-bg" style="background:${it[4]}">${it[5]||''}</i>`;
+  let pic;if(c==='bg')pic=`<i class="avi-bg" style="background:${it[4]}">${bgThumb(it)}</i>`;
   else if(c==='skin'||c==='hc')pic=avSVG({...cur,[c]:it[0]},{vb:AVVB.h,floor:false});
   else pic=avSVG({...cur,[c]:it[0]},{vb,floor:false});
   return `<button class="avi r${it[2]} ${on?'on':''} ${pv?'pv':''} ${ok?'':'lk'}" style="--rc:${AVR[it[2]][1]};--n:${S.avn=(S.avn||0)+1}" data-a="avpick" data-c="${c}" data-id="${it[0]}"><span class="avi-p">${pic}${ok?'':`<u>${ic('shield')}</u>`}${on?'<i class="avi-ck">✓</i>':''}</span><b>${avNm(c,it)}</b><small>${ok?AVR[it[2]][0]:avLbl(it)}</small></button>`}
@@ -9033,9 +9038,10 @@ function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G
   const colk={top:'topc',bot:'botc',hat:'hatc',glass:'glassc',shoes:'shoesc',back:'backc',hand:'handc'}[c]||'',sw=colk?(NOCOL.has(cur[c])?`<div class="avcol"><span>Color</span><em class="avnc">Este objeto conserva su color original</em></div>`:avColUI(colk,cur)):'';
   let items=[...avList(c)].sort((a,b)=>(avOk(b)-avOk(a))||(a[2]-b[2]));if(F==='ok')items=items.filter(avOk);if(F==='lk')items=items.filter(x=>!avOk(x));
   const fl=[['all','Todos'],['ok','Desbloqueados'],['lk','Próximos']].map(([k,l])=>`<button class="${F===k?'on':''}" data-a="avflt" data-v="${k}">${l}</button>`).join('');
-  S.avn=0;const nI=items.length;
+  S.avn=0;const nI=items.length,PG=30,np=Math.max(1,Math.ceil(nI/PG));S.avpg=S.avpg||{};const pg=Math.min(Math.max(0,S.avpg[c]||0),np-1);S.avpg[c]=pg;items=items.slice(pg*PG,pg*PG+PG);
+  const pager=np>1?`<div class="av-pg"><button data-a="avpg" data-v="-1" ${pg?'':'disabled'}>← Anterior</button><span>Página ${pg+1} de ${np} · ${nI} en total</span><button data-a="avpg" data-v="1" ${pg>=np-1?'disabled':''}>Siguiente →</button></div>`:'';
   return `<div class="av-top"><span class="av-tt"><b>${have}</b> de ${tot.length} cosméticos desbloqueados</span><span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span><em>${Math.round(have/tot.length*100)}%</em></div>
-  ${G[0]==='head'?`<div class="avgs avgn"><span class="mut">Cuerpo</span><div class="avseg sm"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Hombre</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Mujer</button></div></div>`:''}<div class="av-hd"><div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div>${sw}<div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
+  ${G[0]==='head'?`<div class="avgs avgn"><span class="mut">Cuerpo</span><div class="avseg sm"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Hombre</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Mujer</button></div></div>`:''}<div class="av-hd"><div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div><div class="av-sw" style="display:contents">${sw}</div><div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>${pager}`}
 (()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}if(!drag||!drag.pu){avPush();if(drag)drag.pu=1}else{}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
  const hv=()=>+(($('.avwv')||{}).value||100)/100,pick=(w,e)=>{const r=w.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,R=r.width/2,d=Math.min(1,Math.hypot(x,y)/R),h=(Math.atan2(y,x)*180/Math.PI+90+360)%360,dot=w.querySelector('i');const kk=Math.hypot(x,y)/R>1?R/Math.hypot(x,y):1;dot.style.left=(50+x/R*kk*50)+'%';dot.style.top=(50+y/R*kk*50)+'%';S.avh=h;S.avs=d;setC(w.parentNode.dataset.k,hsv2hex(h,d,hv()))};
  document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.avwheel');if(!w)return;drag=w;try{w.setPointerCapture(e.pointerId)}catch(_){}pick(w,e)});
@@ -9043,6 +9049,10 @@ function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G
  document.addEventListener('pointerup',()=>{if(drag){drag=null;avSync()}});
  document.addEventListener('input',e=>{const t=e.target;if(t.classList&&t.classList.contains('avwv')){S.avwv=+t.value;const p=t.closest('.avwp');setC(p.dataset.k,hsv2hex(S.avh==null?0:S.avh,S.avs==null?0:S.avs,t.value/100))}});
  document.addEventListener('change',e=>{const t=e.target;if(t.classList&&t.classList.contains('avhex')&&/^#[0-9a-f]{6}$/i.test(t.value.trim())){const k=t.closest('.avwp').dataset.k;setC(k,t.value.trim().toLowerCase(),1)}})})();
+function avLite(){const s=$('#avst');if(!s||!$('#avbody'))return avRef();const cur=avCur(),g=$('.av-grid');s.innerHTML=avStage();if(!g)return avRef();const c=g.dataset.k;
+  g.querySelectorAll('.avi.on,.avi.pv').forEach(e=>{e.classList.remove('on','pv');const k=e.querySelector('.avi-ck');if(k)k.remove()});
+  g.querySelectorAll('.avi').forEach(e=>{const id=e.dataset.id;if(cur[c]===id&&!S.avp){e.classList.add('on');const p=e.querySelector('.avi-p');if(p)p.insertAdjacentHTML('beforeend','<i class="avi-ck">✓</i>')}else if(S.avp&&S.avp.c===c&&S.avp.id===id)e.classList.add('pv')});
+  const w=$('.av-sw');if(w){const colk={top:'topc',bot:'botc',hat:'hatc',glass:'glassc',shoes:'shoesc',back:'backc',hand:'handc'}[c]||'';w.innerHTML=colk?(NOCOL.has(cur[c])?`<div class="avcol"><span>Color</span><em class="avnc">Este objeto conserva su color original</em></div>`:avColUI(colk,cur)):''}}
 function avRef(){const s=$('#avst'),b=$('#avbody');if(!s||!b)return;const sc=($('#view')||{}).scrollTop;s.innerHTML=avStage();b.innerHTML=avBody();if($('#view'))$('#view').scrollTop=sc}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;return `<div class="sgrid">${setX(t)}</div>`}
 const PFX=()=>{const p=PR()||{name:UN(),handle:hnd(UN()),av:{k:ST.avc?'custom':'letter',c:0},ban:{k:'g',i:0},genres:[],fav:[]};return p};
@@ -9133,8 +9143,9 @@ Object.assign(A,{
  avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;S.avp=null;avRef()},
  avflt:a=>{S.avf=a.dataset.v;avRef()},
  avpick:a=>{const c=a.dataset.c,id=a.dataset.id,it=avItem(c,id);if(!it)return;if(c==='hat'&&xmasWin()){toast(seaHat()==='ht27'?'🎃 En Halloween todos llevan calabaza en la cabeza. Los sombreros vuelven el 3 de noviembre':'🎅 En Navidad todos llevan gorro navideño. Los sombreros vuelven el 27 de diciembre');return}
-  if(!avOk(it)){S.avp={c,id};toast(`${avNm(c,it)}: se desbloquea con ${avLbl(it)}`);avRef();return}
-  avPush();ST.avc=avCur();ST.avc[c]=id;S.avp=null;avSync();avRef()},
+  if(!avOk(it)){S.avp={c,id};toast(`${avNm(c,it)}: se desbloquea con ${avLbl(it)}`);avLite();return}
+  avPush();ST.avc=avCur();ST.avc[c]=id;S.avp=null;avSync();avLite()},
+ avpg:a=>{const c=S.avcat||(AVGR.find(x=>x[0]===S.avg)||AVGR[0])[2][0],k=($('.av-grid')||{dataset:{}}).dataset.k||c;S.avpg=S.avpg||{};S.avpg[k]=(S.avpg[k]||0)+ +a.dataset.v;avRef();const v=$('#view');if(v&&$('.av-hd'))$('.av-hd').scrollIntoView({block:'start'})},
  avcol:a=>{avPush();ST.avc=avCur();ST.avc[a.dataset.k]=a.dataset.v===''?null:+a.dataset.v;S.avp=null;avSync();avRef()},
  avwheel:a=>{S.avw=S.avw===a.dataset.k?null:a.dataset.k;avRef()},
  avnp:()=>{S.avp=null;avRef()},
