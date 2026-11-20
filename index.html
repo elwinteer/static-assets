@@ -7929,17 +7929,17 @@ const dk0=bc=>avSh(bc,-.5);
 const SKo=(d,c,w,o='')=>SK(d,INK,w+3.2,o)+SK(d,c,w,o);
 /* emblemas del pecho */
 const E={
- star:p=>STAR(100,190,17,p[0])+inkP(STARD(100,190,17),2.2),
- bolt:p=>ol('M108 166L88 196H101L94 224L118 188H104Z',p[0],2.6),
- heart:p=>ol('M100 216C68 194 76 166 92 168Q100 170 100 180Q100 170 108 168C124 166 132 194 100 216Z',p[0],2.6),
+ star:p=>STAR(100,190,17,p[0])+Pa('M100 190L100 173L108 187Z',avSh(p[0],-.2),'opacity=".55"')+Pa('M100 190L117 187L105 197Z',avSh(p[0],-.2),'opacity=".55"')+Pa('M100 190L106 207L100 200Z',avSh(p[0],-.2),'opacity=".55"')+inkP(STARD(100,190,17),2.2)+SK('M92 186L98 178','#fff',2,'opacity=".7"'),
+ bolt:p=>ol('M108 166L88 196H101L94 224L118 188H104Z',p[0],2.6)+SK('M105 172L94 190','#ffffff',2.4,'opacity=".7"')+Pa('M104 188H118L94 224L100 196Z',avSh(p[0],-.22),'opacity=".45"'),
+ heart:p=>ol('M100 216C68 194 76 166 92 168Q100 170 100 180Q100 170 108 168C124 166 132 194 100 216Z',p[0],2.6)+SK('M86 178Q82 184 85 191','#ffffff',3,'opacity=".65"')+Ci(90,174,1.8,'#ffffff','opacity=".75"')+Pa('M100 180Q108 168 124 176C128 190 118 204 104 212Q112 196 100 180Z',avSh(p[0],-.25),'opacity=".35"'),
  snow:p=>SKo('M100 168V212M81 179L119 201M81 201L119 179M92 172L100 180L108 172M92 208L100 200L108 208',p[0],3)+Ci(100,190,5,p[0],'stroke="#14110f" stroke-width="2.2"'),
- moon:p=>ol('M112 168A22 22 0 1 0 112 214A17 17 0 1 1 112 168Z',p[0],2.6)+STAR(120,178,6,p[1]||'#fff'),
+ moon:p=>ol('M112 168A26 26 0 1 0 112 214A26 26 0 0 1 112 168Z',p[0],2.6)+Ci(84,182,3.6,avSh(p[0],-.2),'opacity=".7"')+Ci(82,197,2.8,avSh(p[0],-.2),'opacity=".7"')+Ci(90,206,2.2,avSh(p[0],-.2),'opacity=".7"')+SK('M98 173Q84 180 80 192','#ffffff',2.2,'opacity=".65"')+STAR(124,180,6.5,p[1]||'#fff')+STAR(120,205,4,p[1]||'#fff'),
  sun:p=>L(8,i=>{const a=i*Math.PI/4;return SKo(`M${100+Math.cos(a)*16} ${190+Math.sin(a)*16}L${100+Math.cos(a)*23} ${190+Math.sin(a)*23}`,p[0],3)})+Ci(100,190,12,p[0],'stroke="#14110f" stroke-width="2.6"')+Ci(96,186,4,'#ffffff','opacity=".45"'),
- crown:p=>ol('M78 208L82 176L93 192L100 170L107 192L118 176L122 208Z',p[0],2.6)+Ci(100,198,3,p[1]||'#ef4444'),
- skull:p=>ol('M80 192Q80 168 100 168Q120 168 120 192Q120 202 112 206V214H88V206Q80 202 80 192Z','#f4f4f6',2.6)+El(91,192,5,6,INK)+El(109,192,5,6,INK)+Pa('M98 200L100 205L102 200Z',INK),
- ghost:p=>ol('M80 216V188Q80 166 100 166Q120 166 120 188V216L111 209L100 216L89 209Z','#fff',2.6)+El(92,188,3,4.4,INK)+El(108,188,3,4.4,INK)+Ci(100,199,3,INK),
- cat:p=>ol('M78 206L78 172L92 182Q100 180 108 182L122 172L122 206Q122 218 100 218Q78 218 78 206Z',p[0],2.6)+Ci(92,194,3,INK)+Ci(108,194,3,INK)+inkP('M96 202Q100 206 104 202',2),
- planet:p=>Ci(100,190,15,p[0],'stroke="#14110f" stroke-width="2.4"')+El(100,190,28,7,'none',`transform="rotate(-20 100 190)" stroke="${p[1]||'#fff'}" stroke-width="3.4"`),
+ crown:p=>ol('M78 208L82 176L93 192L100 170L107 192L118 176L122 208Z',p[0],2.6)+Re(78,202,44,8,2,avSh(p[0],-.2),'stroke="#14110f" stroke-width="2.4"')+Ci(82,174,3.2,'#ef4444','stroke="#14110f" stroke-width="1.6"')+Ci(100,168,3.6,'#60a5fa','stroke="#14110f" stroke-width="1.6"')+Ci(118,174,3.2,'#4ade80','stroke="#14110f" stroke-width="1.6"')+Ci(100,194,3.4,p[1]||'#ef4444','stroke="#14110f" stroke-width="1.6"')+SK('M84 186L88 196','#fff',2,'opacity=".6"'),
+ skull:p=>ol('M80 192Q80 168 100 168Q120 168 120 192Q120 202 112 206V214H88V206Q80 202 80 192Z','#f4f4f6',2.6)+El(91,192,5,6,INK)+El(109,192,5,6,INK)+Pa('M98 200L100 205L102 200Z',INK)+inkP('M93 208V213M100 208V213M107 208V213',1.6)+El(84,200,3,2,'#fda4af','opacity=".6"')+El(116,200,3,2,'#fda4af','opacity=".6"'),
+ ghost:p=>ol('M80 216V188Q80 166 100 166Q120 166 120 188V216L111 209L100 216L89 209Z','#fff',2.6)+El(92,188,3,4.4,INK)+El(108,188,3,4.4,INK)+Ci(100,199,3,INK)+El(85,196,3.4,2.2,'#fda4af','opacity=".75"')+El(115,196,3.4,2.2,'#fda4af','opacity=".75"')+SK('M88 176Q84 182 84 190','#a5b4fc',2,'opacity=".7"'),
+ cat:p=>ol('M78 206L78 172L92 182Q100 180 108 182L122 172L122 206Q122 218 100 218Q78 218 78 206Z',p[0],2.6)+Ci(92,193,3,INK)+Ci(108,193,3,INK)+Ci(93,192,1,'#fff')+Ci(109,192,1,'#fff')+Pa('M80 176L90 183L80 188Z','#fda4af')+Pa('M120 176L110 183L120 188Z','#fda4af')+Pa('M98 199L102 199L100 202Z','#fb7185')+inkP('M96 204Q100 208 104 204',2)+SK('M78 198L88 200M78 204L88 203M122 198L112 200M122 204L112 203',INK,1.4),
+ planet:p=>El(100,190,30,8,'none',`transform="rotate(-20 100 190)" stroke="${INK}" stroke-width="7"`)+Ci(100,190,15,p[0],'stroke="#14110f" stroke-width="2.4"')+SK('M88 184Q100 190 112 186M88 195Q100 199 112 196',avSh(p[0],-.25),2.2,'opacity=".7"')+Ci(94,184,3,'#ffffff','opacity=".4"')+El(100,190,28,6.4,'none',`transform="rotate(-20 100 190)" stroke="${p[1]||'#fff'}" stroke-width="3.4" stroke-dasharray="0 0"`)+Pa('M72 198Q100 208 128 182',INK,'opacity="0"'),
  rocket:p=>ol('M100 164Q116 180 114 206H86Q84 180 100 164Z',p[0],2.6)+Ci(100,184,5,'#7dd3fc','stroke="#14110f" stroke-width="2"')+ol('M86 198L74 212L88 208Z',p[1]||'#ef4444',2.2)+ol('M114 198L126 212L112 208Z',p[1]||'#ef4444',2.2)+Pa('M94 208Q100 224 106 208Z','#ff9a3c'),
  pad:p=>ol('M76 186Q76 174 90 174H110Q124 174 124 186L128 204Q130 214 120 212Q112 210 108 202H92Q88 210 80 212Q70 214 72 204Z',p[0],2.6)+SK('M88 186H98M93 181V191','#14110f',2.4)+Ci(110,184,2.4,'#ef4444')+Ci(116,189,2.4,'#4ade80'),
  sword:p=>SKo('M78 214L122 170M122 214L78 170',p[0],4.4)+SKo('M74 206L86 218M126 206L114 218',p[1]||'#ffcf4a',4)+Ci(78,214,3.4,p[1]||'#ffcf4a','stroke="#14110f" stroke-width="2"')+Ci(122,214,3.4,p[1]||'#ffcf4a','stroke="#14110f" stroke-width="2"'),
@@ -7949,14 +7949,14 @@ const E={
  eye:p=>ol('M72 192Q100 166 128 192Q100 218 72 192Z','#fff',2.6)+Ci(100,192,9,p[0],'stroke="#14110f" stroke-width="2.4"')+Ci(100,192,4,INK),
  note:p=>SKo('M104 212V172L124 180',p[0],4)+El(96,212,10,7,p[0],'stroke="#14110f" stroke-width="2.4"')+El(93,210,3,2,'#ffffff','opacity=".5"'),
  leaf:p=>ol('M80 214Q74 176 112 168Q124 200 90 214Z',p[0],2.6)+SK('M82 212Q96 192 108 176',p[1]||'#14110f',2),
- paw:p=>El(100,204,13,10,p[0])+Ci(84,186,5.4,p[0])+Ci(96,178,5.4,p[0])+Ci(108,178,5.4,p[0])+Ci(120,186,5.4,p[0]),
+ paw:p=>[[100,204,13,10],[84,187,5.6,6.4],[96,178,5.6,6.6],[108,178,5.6,6.6],[120,187,5.6,6.4]].map(q=>El(q[0],q[1],q[2]+1.8,q[3]+1.8,INK)).join('')+[[100,204,13,10],[84,187,5.6,6.4],[96,178,5.6,6.6],[108,178,5.6,6.6],[120,187,5.6,6.4]].map(q=>El(q[0],q[1],q[2],q[3],p[0])).join('')+El(96,201,4,2.4,'#ffffff','opacity=".4"'),
  anchor:p=>SKo('M100 176V214M88 186H112M80 200Q84 214 100 214Q116 214 120 200',p[0],4)+Ci(100,172,5,'none',`stroke="${INK}" stroke-width="6.6"`)+Ci(100,172,5,'none',`stroke="${p[0]}" stroke-width="3.4"`),
  beat:p=>SKo('M70 192H90L96 174L106 210L112 192H130',p[0],3.8),
  smile:p=>Ci(100,192,19,p[0],'stroke="#14110f" stroke-width="2.6"')+Ci(92,186,2.8,INK)+Ci(108,186,2.8,INK)+inkP('M90 198Q100 208 110 198',2.8),
  crest:p=>ol('M80 172H120V198Q120 212 100 220Q80 212 80 198Z',p[0],2.8)+STAR(100,192,9,p[1]||'#fff'),
  key:p=>Ci(88,184,9,'none',`stroke="${INK}" stroke-width="7.4"`)+Ci(88,184,9,'none',`stroke="${p[0]}" stroke-width="4.2"`)+SKo('M96 192L124 214M116 208L122 202M122 214L128 208',p[0],4),
- cherry:p=>Ci(88,208,8,p[0],'stroke="#14110f" stroke-width="2.4"')+Ci(112,208,8,p[0],'stroke="#14110f" stroke-width="2.4"')+SK('M88 200Q92 180 106 170M112 200Q110 182 106 170',p[1]||'#4ade80',2.8),
- fish:p=>ol('M74 192Q92 172 112 192Q92 212 74 192Z',p[0],2.6)+ol('M110 192L128 178V206Z',p[0],2.6)+Ci(86,189,2.4,INK),
+ cherry:p=>Ci(88,208,8,p[0],'stroke="#14110f" stroke-width="2.4"')+Ci(112,208,8,p[0],'stroke="#14110f" stroke-width="2.4"')+Ci(85,205,2.2,'#fff','opacity=".7"')+Ci(109,205,2.2,'#fff','opacity=".7"')+SK('M88 200Q92 180 106 170M112 200Q110 182 106 170',p[1]||'#4ade80',2.8),
+ fish:p=>ol('M74 192Q92 172 112 192Q92 212 74 192Z',p[0],2.6)+ol('M110 192L128 178V206Z',avSh(p[0],-.12),2.6)+SK('M96 182Q102 192 96 202M102 184Q108 192 102 200',avSh(p[0],-.3),1.8,'opacity=".7"')+Ci(85,189,3,'#fff','stroke="#14110f" stroke-width="1.6"')+Ci(85.6,189,1.4,INK)+SK('M80 196Q84 199 88 197',INK,1.6),
  pizza:p=>ol('M72 176Q100 164 128 176L100 220Z','#ffcf4a',2.6)+Ci(94,184,4,p[0])+Ci(108,186,4,p[0])+Ci(100,200,4,p[0]),
  coffee:p=>ol('M80 178H116V204Q116 216 98 216Q80 216 80 204Z','#fff',2.6)+SK('M116 184Q130 184 126 198Q122 204 116 202',INK,3)+SK('M90 168Q86 174 92 178M102 166Q98 172 104 176',p[0],2.6),
  dice:p=>Re(80,172,40,40,7,'#fff','stroke="#14110f" stroke-width="2.8"')+Ci(92,184,3.4,INK)+Ci(108,184,3.4,INK)+Ci(100,192,3.4,INK)+Ci(92,200,3.4,INK)+Ci(108,200,3.4,INK),
@@ -8125,12 +8125,12 @@ SP.forEach((s,i)=>{
   const body=PT(B.d,TSHD,{s:bc,sd:sh},40+i);
   const hd=co==='hood',g=layers.filter(l=>P[l[0]]).map(([k,p])=>`<g clip-path="url(#${clip})">${P[k](p)}</g>`).join('');
   const em=layers.filter(l=>!P[l[0]]).map(([k,p])=>hd?`<g transform="translate(100 199) scale(.76) translate(-100 -192)">${E[k](p)}</g>`:`<g transform="translate(100 192) scale(1.12) translate(-100 -192)">${E[k](p)}</g>`).join('');
-  const seam=`<g clip-path="url(#${clip})">${SK('M90 150Q76 151 66 160',dk0(bc),1.5,'stroke-dasharray="3 2.2" opacity=".65"')}${SK('M110 150Q124 151 134 160',dk0(bc),1.5,'stroke-dasharray="3 2.2" opacity=".65"')}${SK('M66 162V204',dk0(bc),1.3,'stroke-dasharray="3 2.2" opacity=".45"')}${SK('M134 162V204',dk0(bc),1.3,'stroke-dasharray="3 2.2" opacity=".45"')}</g>`;
-  const tag=co==='bmb'||hd?'':Re(72,236,9,6,1.4,avSh(bc,.45),`stroke="${INK}" stroke-width="1.3"`)+SK('M74.5 239H78.5',dk0(bc),1,'');
-  const dk=avSh(bc,-.42),md=avSh(bc,-.16);
-  const fin=`<g clip-path="url(#${clip})"><path d="${TSHD}" fill="${sh}" opacity=".5"/><path d="M26 150L92 146L72 252H30Z" fill="#fff" opacity=".07"/>${SK('M82 214Q78 226 84 242',dk,1.8,'opacity=".4"')}${SK('M120 218Q124 230 118 244',dk,1.8,'opacity=".4"')}${SK('M100 226Q98 236 102 246',dk,1.6,'opacity=".3"')}${SK('M70 180Q76 192 70 206',dk,1.8,'opacity=".35"')}${SK('M130 180Q124 192 130 206',dk,1.8,'opacity=".35"')}</g>`;
-  const hemb=co==='bmb'?'':`<g clip-path="url(#${clip})">${R(60,239,80,10,md)}${SK('M66 239H134',dk,1.5,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`;
-  const cuffs=co==='bmb'&&base!=='vest'?`<g clip-path="url(#${clip})">${R(20,236,160,12,md)}${R(20,222,48,20,md)}${R(132,222,48,20,md)}${SK('M20 238H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".6"')}</g>`:base==='lng'?`<g clip-path="url(#${clip})">${R(20,228,48,16,md)}${R(132,228,48,16,md)}${SK('M20 229H68M132 229H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`:base==='tee'?`<g clip-path="url(#${clip})">${R(20,193,48,13,md)}${R(132,193,48,13,md)}${SK('M20 194H68M132 194H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`:'';
+  const seam=`<g clip-path="url(#${clip})">${SK('M90 150Q76 151 66 160',dk0(bc),1.3,'stroke-dasharray="2.6 2.4" opacity=".4"')}${SK('M110 150Q124 151 134 160',dk0(bc),1.3,'stroke-dasharray="2.6 2.4" opacity=".4"')}</g>`;
+  const tag='';
+  const dk=avSh(bc,-.45),md='#000';const mo='opacity=".16"';
+  const fin=`<g clip-path="url(#${clip})"><path d="${TSHD}" fill="${sh}" opacity=".32"/><path d="M26 150L92 146L72 252H30Z" fill="#fff" opacity=".07"/>${SK('M82 214Q78 226 84 242',dk,1.8,'opacity=".4"')}${SK('M120 218Q124 230 118 244',dk,1.8,'opacity=".4"')}${SK('M100 226Q98 236 102 246',dk,1.6,'opacity=".3"')}${SK('M70 180Q76 192 70 206',dk,1.8,'opacity=".35"')}${SK('M130 180Q124 192 130 206',dk,1.8,'opacity=".35"')}</g>`;
+  const hemb=co==='bmb'?'':`<g clip-path="url(#${clip})">${R(60,239,80,10,md,mo)}${SK('M66 239H134',dk,1.4,'stroke-dasharray="3 2.4" opacity=".5"')}</g>`;
+  const cuffs=co==='bmb'&&base!=='vest'?`<g clip-path="url(#${clip})">${R(20,236,160,12,md,mo)}${R(20,222,48,20,md,mo)}${R(132,222,48,20,md,mo)}${SK('M20 238H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".5"')}</g>`:base==='lng'?`<g clip-path="url(#${clip})">${R(20,228,48,16,md,mo)}${R(132,228,48,16,md,mo)}${SK('M20 229H68M132 229H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".5"')}</g>`:base==='tee'?`<g clip-path="url(#${clip})">${R(20,193,48,13,md,mo)}${R(132,193,48,13,md,mo)}${SK('M20 194H68M132 194H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".5"')}</g>`:'';
   const out=(base==='tee'?inkP('M66 206V244',3.4)+inkP('M134 206V244',3.4):base==='lng'?inkP('M66 182V240',3.4)+inkP('M134 182V240',3.4)+inkP('M23 240Q44 246 64 242',3.4)+inkP('M177 240Q156 246 136 242',3.4):'');
   return `<clipPath id="${clip}"><path d="${B.d}"/></clipPath>`+body+g+(hd?'':em)+seam+fin+hemb+cuffs+tag+out+CO[co](bc)+(hd?em:'')
  }]);
