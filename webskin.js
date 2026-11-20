@@ -1,6 +1,10 @@
 /* Estilos de WINTEER para sitios web del navegador integrado: fondo oscuro neutro y colores en escala de grises (sin tintes de marca).
    Se aplica por sitio (ver SKINS); no toca imágenes ni videos. */
 'use strict';
+const BZCSS = `
+    html,body{background:transparent!important;background-image:none!important}
+    html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+  `;
 const SKINS = [
   { name: 'steamrip', test: /(^|\.)steamrip\.com$/i, css: `
     html{background:transparent!important;background-image:none!important}
@@ -34,10 +38,9 @@ const SKINS = [
     html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console):not([slot]){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
     @media (prefers-reduced-motion:reduce){html,.wt-frame{animation:none!important}*{transition:none!important}}
   `, mono: true },
-  { name: 'buzz', test: /(^|\.)(buzzheavier\.com|bzzheavier\.com|bzzhr\.(co|to)|flashbang\.sh)$/i, css: `
-    html,body{background:transparent!important;background-image:none!important}
-    html.wt-console-on{overflow:hidden!important}html.wt-console-on body>*:not(#wt-console){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-  `, mono: false },
+  { name: 'buzz', test: /(^|\.)(buzzheavier\.com|bzzheavier\.com|bzzhr\.(co|to)|flashbang\.sh)$/i, css: BZCSS, mono: false },
+  { name: 'megadb', test: /(^|\.)megadb\.net$/i, css: BZCSS, mono: false },
+  { name: 'gofile', test: /(^|\.)gofile\.io$/i, css: BZCSS, mono: false },
   { name: 'fitgirl', test: /(^|\.)fitgirl-repacks\.site$/i, css: `
     html,body{background:transparent!important;color:#d6d7e2!important}
     a{color:#fff}
@@ -1300,15 +1303,15 @@ function buzzConsole() {
   const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], EN = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
   const grab = () => {
     const body = document.body ? document.body.innerText : ''; if (!body) return null;
-    const btn = [...document.querySelectorAll('a,button')].find((e) => /^\s*download\s*file/i.test(e.textContent || '') || /^\s*(download|descargar)\s*$/i.test(e.textContent || ''));
+    const btn = [...document.querySelectorAll('a,button')].find((e) => /^\s*(download\s*file|download|descargar)\b/i.test(T(e)) && T(e).length < 40);
     if (!btn) return null;
     let name = T(document.querySelector('h1')); if (!name || /bzzhr|buzzheavier/i.test(name)) { const m = /([^\s\/\\]+\.(?:rar|zip|7z|iso|exe|msi|bin|part\d*|r\d\d|torrent|pkg|dmg|mp4|mkv|001))\b/i.exec(body); name = m ? m[1] : ''; }
     if (!name) name = T(document.querySelector('h2,h3,title')).replace(/\s*[-|·].*$/, '');
     if (!name) return null;
     const num = (re) => { const m = re.exec(body); return m ? m[1] : ''; };
-    const size = (/(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B|bytes))/i.exec(T(btn)) || /(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B))/i.exec(body) || [])[1] || '';
+    const size = (/(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B|bytes))/i.exec(T(btn)) || /(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B))\b/i.exec(body) || [])[1] || '';
     const up = (/Uploaded\s+([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})/i.exec(body) || []);
-    let date = ''; if (up[1]) { const mi = EN.indexOf(up[1].toLowerCase()); date = mi >= 0 ? up[2] + ' ' + MES[mi].slice(0, 3) + ' ' + up[3] : up[0]; }
+    let date = ''; const dm = /\b(\d{1,2}\/\d{1,2}\/\d{4})\b/.exec(body); if (!up[1] && dm) date = dm[1]; if (up[1]) { const mi = EN.indexOf(up[1].toLowerCase()); date = mi >= 0 ? up[2] + ' ' + MES[mi].slice(0, 3) + ' ' + up[3] : up[0]; }
     const links = [...document.querySelectorAll('a[href]')], find = (re) => links.find((a) => re.test(T(a)));
     return { name, size, dl: num(/([\d.,]+)\s*downloads?/i), views: num(/([\d.,]+)\s*views?/i), date, md5: num(/MD5\s*:?\s*([a-f0-9]{32})/i), sha: num(/SHA-?256\s*:?\s*([a-f0-9]{64})/i), btn, mirror: find(/mirror/i), copy: [...document.querySelectorAll('a,button')].find((e) => /copy download link/i.test(T(e))) };
   };
@@ -1383,7 +1386,7 @@ function buzzConsole() {
     return hostEl;
   };
   let tries = 0;
-  const run = () => { const d = grab(); if (d) { mount(d); return; } if (++tries < 25) setTimeout(run, 200); };
+  const run = () => { const d = grab(); if (d) { mount(d); return; } if (++tries < 70) setTimeout(run, 200); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 }
 
@@ -1398,4 +1401,4 @@ const SW_JS = (cur) => '(' + function (cur) {
   document.documentElement.appendChild(h);
 }.toString() + ')(' + JSON.stringify(cur) + ')';
 
-module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()', buzz: '(' + buzzConsole.toString() + ')()' } };
+module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()', buzz: '(' + buzzConsole.toString() + ')()', megadb: '(' + buzzConsole.toString() + ')()', gofile: '(' + buzzConsole.toString() + ')()' } };
