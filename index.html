@@ -9983,13 +9983,13 @@ o+='<circle cx="450" cy="296" r="34" fill="#fff3bd"/><circle cx="450" cy="296" r
 // aves lejanas
 o+='<g transform="scale(4)">'+BIRD(20,34,0,'#3a1d3f',1.1)+BIRD(27,38,9,'#3a1d3f',.9)+BIRD(33,36,19,'#3a1d3f',.8)+'</g>';
 // mesetas: capas con perspectiva atmosférica
-o+='<path d="M0 306V282H88L100 266H170L182 282H252L264 274H334V306Z" fill="#c26a7c" opacity=".8"/><path d="M500 306L512 290H538L550 252H642L654 276H724L738 266H800V306Z" fill="#c26a7c" opacity=".8"/>';
-o+='<path d="M0 308V294H60L74 268H152L162 288H244V308Z" fill="#92496a"/><path d="M540 308V290H614L628 250H702L714 290H800V308Z" fill="#92496a"/>';
+o+='<path d="M0 342V282H88L100 266H170L182 282H252L264 274H334V342Z" fill="#c26a7c" opacity=".8"/><path d="M500 342L512 290H538L550 252H642L654 276H724L738 266H800V342Z" fill="#c26a7c" opacity=".8"/>';
+o+='<path d="M0 342V294H60L74 268H152L162 288H244V342Z" fill="#92496a"/><path d="M540 342V290H614L628 250H702L714 290H800V342Z" fill="#92496a"/>';
 for(let i=0;i<6;i++){o+=`<path d="M0 ${272+i*5}H244" stroke="#6e3454" stroke-opacity=".35" stroke-width=".8"/><path d="M548 ${256+i*6}H800" stroke="#6e3454" stroke-opacity=".35" stroke-width=".8"/>`}
 // butte principal y aguja de roca
-o+='<path d="M492 312L514 304L528 236L544 226H636L650 238L670 304L704 312Z" fill="#5a2a4c"/><path d="M528 236L544 226H560L548 306L514 304Z" fill="#8a4a62"/><path d="M544 226H636L650 238" stroke="#ffb070" stroke-width="1.4" fill="none" stroke-opacity=".8"/><path d="M528 236L514 304" stroke="#ffb070" stroke-width="1.6" stroke-opacity=".75"/>';
+o+='<path d="M486 342L514 304L528 236L544 226H636L650 238L670 304L712 342Z" fill="#5a2a4c"/><path d="M528 236L544 226H560L548 306L514 304L500 330Z" fill="#8a4a62"/><path d="M544 226H636L650 238" stroke="#ffb070" stroke-width="1.4" fill="none" stroke-opacity=".8"/><path d="M528 236L514 304" stroke="#ffb070" stroke-width="1.6" stroke-opacity=".75"/>';
 for(let i=0;i<7;i++){o+=`<path d="M${524+i} ${246+i*9}H${660-i*2}" stroke="#2f1530" stroke-opacity=".35" stroke-width=".9"/>`}
-o+='<path d="M196 312L220 302L226 252L236 232L248 252L254 302L282 312Z" fill="#5a2a4c"/><path d="M226 252L236 232L238 304L220 302Z" fill="#8a4a62"/><path d="M226 252L236 232" stroke="#ffb070" stroke-width="1.4" stroke-opacity=".8"/>';
+o+='<path d="M188 342L220 302L226 252L236 232L248 252L254 302L290 342Z" fill="#5a2a4c"/><path d="M226 252L236 232L238 304L220 302L212 330Z" fill="#8a4a62"/><path d="M226 252L236 232" stroke="#ffb070" stroke-width="1.4" stroke-opacity=".8"/>';
 // bruma del horizonte
 o+='<rect x="0" y="262" width="800" height="58" fill="url(#owH)"/>';
 return o})()}`,
@@ -10063,6 +10063,15 @@ return o})()}<g transform="scale(4)">${BIRD(14,22,0,'#4a2a5e',1.2)+BIRD(22,26,6,
 o+='<g transform="translate(318 316)" fill="#2a1424"><path d="M-14 0Q-14 -14 0 -15Q14 -14 14 0Z"/><rect x="-16" y="-1" width="32" height="4" rx="1"/><circle cx="-9" cy="5" r="4.2" fill="none" stroke="#2a1424" stroke-width="1.2"/><circle cx="9" cy="5" r="4.2" fill="none" stroke="#2a1424" stroke-width="1.2"/><path d="M14 2L24 4" stroke="#2a1424" stroke-width="1.1"/></g>';
 // suelo polvoriento
 o+='<path d="M-20 334Q200 314 420 324T820 316V430H-20Z" fill="url(#owD)"/><path d="M-20 334Q200 314 420 324T820 316" stroke="#ffb070" stroke-opacity=".35" stroke-width="1.2" fill="none"/><path d="M-20 334Q200 314 420 324T820 316V348Q420 340 -20 352Z" fill="#c9774a" opacity=".22"/>';
+// lomas suaves con luz de borde y planicie lejana
+o+='<path d="M-20 340Q120 326 280 338T560 334T820 340V430H-20Z" fill="#6a3434" opacity=".7"/><path d="M-20 340Q120 326 280 338T560 334T820 340" stroke="#ffb070" stroke-opacity=".5" stroke-width="1.1" fill="none"/><path d="M-20 358Q200 342 420 356T820 350V430H-20Z" fill="#4a2428" opacity=".75"/><path d="M-20 358Q200 342 420 356T820 350" stroke="#ff9a5a" stroke-opacity=".35" stroke-width="1" fill="none"/>';
+for(let i=0;i<46;i++){const x=R()*800,y=322+R()*12,s=.5+R()*.8;o+=`<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(3*s)}" ry="${f(2*s)}" fill="${pick(['#4a3a3a','#3a2a34','#5a4040'])}" opacity=".7"/>`}
+// tierra seca agrietada, con perspectiva
+const sc=y=>.45+(y-334)/86*1.5;
+for(let i=0;i<22;i++){let x=R()*800,y=338+Math.pow(R(),.7)*80,pts=[[x,y]];const n=4+Math.floor(R()*5),s=sc(y);for(let k=0;k<n;k++){x+=(R()-.5)*34*s;y+=(R()*7+2)*s;pts.push([x,y])}const d='M'+pts.map(v=>f(v[0])+' '+f(v[1])).join('L');o+=`<path d="${d}" stroke="#12060a" stroke-opacity=".65" stroke-width="${f(1.1*s)}" fill="none" stroke-linejoin="round"/><path d="${d}" stroke="#d98a5a" stroke-opacity=".16" stroke-width="${f(.6*s)}" fill="none" transform="translate(${f(.8*s)} ${f(.9*s)})"/>`;if(R()>.5){const k=1+Math.floor(R()*(pts.length-2)),[bx,by]=pts[k];o+=`<path d="M${f(bx)} ${f(by)}l${f((R()-.3)*16*s)} ${f((3+R()*5)*s)}" stroke="#12060a" stroke-opacity=".55" stroke-width="${f(.8*s)}" fill="none"/>`}}
+// guijarros y motas de tierra
+for(let i=0;i<150;i++){const y=336+Math.pow(R(),.8)*84,x=R()*800,s=sc(y),w=(1+R()*2.6)*s;o+=`<ellipse cx="${f(x+w*.3)}" cy="${f(y+w*.35)}" rx="${f(w*1.1)}" ry="${f(w*.35)}" fill="#000" opacity=".3"/><path d="M${f(x-w)} ${f(y)}L${f(x-w*.5)} ${f(y-w*.7)}L${f(x+w*.5)} ${f(y-w*.75)}L${f(x+w)} ${f(y)}Z" fill="${pick(['#4a2c2c','#5a3a34','#3a2024','#6a4438'])}"/><path d="M${f(x-w*.5)} ${f(y-w*.7)}L${f(x+w*.5)} ${f(y-w*.75)}" stroke="#ffb070" stroke-opacity=".5" stroke-width="${f(.45*s)}"/>`}
+for(let i=0;i<260;i++){const y=332+R()*88,x=R()*800,s=sc(y);o+=`<rect x="${f(x)}" y="${f(y)}" width="${f(1.4*s)}" height="${f(.8*s)}" fill="${pick(['#e0a070','#2a1418','#8a5a48'])}" opacity="${f(.25+R()*.35)}"/>`}
 // huellas de carreta en perspectiva
 o+='<path d="M356 424Q392 372 424 328L434 328Q406 374 394 424Z" fill="#12080b" opacity=".55"/><path d="M468 424Q452 376 442 328L450 328Q466 374 508 424Z" fill="#12080b" opacity=".55"/>';
 // arbustos secos y pastos que se mecen
