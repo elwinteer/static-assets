@@ -8415,6 +8415,115 @@ SP.forEach((s,i)=>{
  NOCOL.add(id);
 });
 })();
+/* ===== sombreros nuevos v2: 66 diseños ===== */
+(function(){
+const R=(x,y,w,h,f,o='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${o}/>`;
+const L=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join('');
+const DM='M50 92Q48 46 100 42Q152 46 150 92Q100 82 50 92Z',VS='M96 86Q140 78 170 92Q150 104 100 94Z',BN='M48 94Q46 42 100 38Q154 42 152 94Q100 84 48 94Z',CF='M46 80H154V96Q100 104 46 96Z',HM='M50 96Q46 44 100 38Q154 44 150 96Z';
+let HI=0;
+const CLP=(d,inner)=>{const id='hz'+(HI++)+AVU;return `<clipPath id="${id}"><path d="${d}"/></clipPath><g clip-path="url(#${id})">${inner}</g>`};
+const gl=d=>SK(d,'#fff',3,'opacity=".32"');
+const PIX=(g,x,y,s,c)=>g.map((r,j)=>[...r].map((v,i)=>v==='1'?R(x+i*s,y+j*s,s,s,c):'').join('')).join('');
+const PIXO=(g,x,y,s,c)=>g.map((r,j)=>[...r].map((v,i)=>v==='1'?R(x+i*s-1.4,y+j*s-1.4,s+2.8,s+2.8,INK):'').join('')).join('')+PIX(g,x,y,s,c);
+const HRT=['0110110','1111111','1111111','0111110','0011100','0001000'];
+const EM={
+ star:(c)=>STAR(80,66,9,c),
+ heart:(c)=>Pa('M80 76Q66 66 70 59Q76 53 80 61Q84 53 90 59Q94 66 80 76Z',c),
+ bolt:(c)=>Pa('M84 54L72 68H80L76 80L90 64H82Z',c),
+ skull:(c)=>Ci(80,64,8,c)+R(75,68,10,8,0,c)+Ci(76.5,64,2.2,INK)+Ci(83.5,64,2.2,INK),
+ dpad:(c)=>R(76,54,8,24,2,c,'stroke="'+INK+'" stroke-width="1.8"')+R(68,62,24,8,2,c,'stroke="'+INK+'" stroke-width="1.8"')+R(77,63,6,6,0,avSh(c,-.3)),
+ gg:(c)=>PIX(['111','100','101','101','111'],66,58,4,c)+PIX(['111','100','101','101','111'],82,58,4,c),
+ flame:(c)=>Pa('M80 78Q68 70 72 60Q76 64 78 60Q78 54 82 50Q82 58 88 62Q92 70 80 78Z',c),
+ clock:(c)=>Ci(80,66,10,c,'stroke="'+INK+'" stroke-width="2.2"')+SK('M80 66V59M80 66L85 69',INK,2),
+ none:()=>''
+};
+const PAT={
+ camo:(a,b,c)=>[[60,60,12,7,20],[84,54,10,7,-30],[110,66,12,8,10],[132,56,9,6,-20],[70,82,11,6,0],[104,84,10,6,25],[140,80,8,6,-15]].map((q,i)=>`<ellipse cx="${q[0]}" cy="${q[1]}" rx="${q[2]}" ry="${q[3]}" fill="${[a,b,c][i%3]}" transform="rotate(${q[4]} ${q[0]} ${q[1]})"/>`).join(''),
+ rb:()=>['#ef4444','#fb923c','#fde047','#4ade80','#38bdf8','#a78bfa'].map((c,i)=>R(40,40+i*8,120,8.4,c)).join(''),
+ ck:(a)=>L(6,j=>L(12,i=>(i+j)%2?R(46+i*9,40+j*9,9,9,a):'')),
+ st:(a)=>[[64,62,3],[84,52,2.6],[110,58,3.4],[130,70,2.6],[96,74,2.4],[72,82,2.6],[122,86,2.6]].map(q=>STAR(q[0],q[1],q[2]*1.6,a)).join(''),
+ hs:(a)=>L(5,i=>R(40,44+i*10,120,4.6,a)),
+ mesh:(a)=>L(5,j=>L(9,i=>Ci(60+i*10+(j%2)*5,50+j*9,1.5,a))),
+ snow:(a)=>[[66,60],[92,52],[122,62],[104,80],[76,82]].map(p=>SK(`M${p[0]-4} ${p[1]}H${p[0]+4}M${p[0]-2} ${p[1]-3.5}L${p[0]+2} ${p[1]+3.5}M${p[0]+2} ${p[1]-3.5}L${p[0]-2} ${p[1]+3.5}`,a,1.6)).join(''),
+ zz:(a)=>L(4,j=>SK('M40 '+(52+j*11)+L(14,i=>'L'+(40+(i+1)*9)+' '+(52+j*11+(i%2?0:5))),a,2.2))
+};
+const cap=(c1,c2,pat,em,emc)=>ol(VS,c2,3.4)+ol(DM,c1,3.6)+(pat?CLP(DM,pat):'')+inkP(DM,3.6)+inkP('M100 44Q95 66 98 86',2.2)+Ci(100,43,4,c2,'stroke="'+INK+'" stroke-width="2.2"')+(em?EM[em](emc||'#fff'):'')+gl('M60 70Q64 54 82 46');
+const bean=(c1,c2,pat,pom,pc,em,emc)=>ol(BN,c1,3.6)+(pat?CLP(BN,pat):'')+inkP(BN,3.6)+ol(CF,c2,3.6)+L(8,i=>inkP('M'+(60+i*11)+' 84V98',2)).replace(/./,'$&')+(pom?olE(100,34,10,10,pc||'#e5e7eb',0,3.2):'')+(em?EM[em](emc||'#fff'):'')+gl('M58 62Q62 50 80 44');
+const brim=(bc,cc,band,rx)=>olE(100,88,rx||66,13,bc,0,3.6)+ol('M64 86Q60 44 100 44Q140 44 136 86Z',cc,3.6)+(band?ol('M63 76H137V87H63Z',band,3):'')+gl('M70 70Q72 56 88 50');
+const helm=(c1,c2,vis)=>ol(HM,c1,3.8)+(vis?ol('M52 76Q100 66 148 76V96Q100 88 52 96Z',vis,3.4):'')+SK('M62 62Q70 48 90 44',c2||'#fff',3,'opacity=".4"');
+const crownP=(c,j,n)=>{let d='M52 92L56 52L74 70L88 44L100 66L112 44L126 70L144 52L148 92Q100 84 52 92Z';return ol(d,c,3.6)+[[56,52],[88,44],[112,44],[144,52]].map(p=>Ci(p[0],p[1],4.2,j,'stroke="'+INK+'" stroke-width="2"')).join('')+(n||'')};
+const ears=(c,i,x1,x2,s)=>ol(`M${x1} 80Q${x1-8} 44 ${x1-2} ${12-(s||0)}Q${x1+20} 26 ${x1+30} 66Z`,c,3.6)+ol(`M${x2} 80Q${x2+8} 44 ${x2+2} ${12-(s||0)}Q${x2-20} 26 ${x2-30} 66Z`,c,3.6)+Pa(`M${x1+3} 66Q${x1} 44 ${x1+2} 26Q${x1+14} 36 ${x1+20} 62Z`,i)+Pa(`M${x2-3} 66Q${x2} 44 ${x2-2} 26Q${x2-14} 36 ${x2-20} 62Z`,i);
+const band=(c,y)=>ol(`M50 ${y}Q100 ${y-8} 150 ${y}V${y+12}Q100 ${y+4} 50 ${y+12}Z`,c,3.2);
+const HAT=[
+['Gorra celeste',()=>cap('#4fc3f7','#0277bd',null,'star','#fff')],
+['Gorra calavera',()=>cap('#1c1c24','#8a8a9a',null,'skull','#f4f4f6')],
+['Gorra corazón',()=>cap('#ff8fb8','#ec407a',null,'heart','#fff')],
+['Gorra rayo',()=>cap('#fdd835','#f57f17',null,'bolt','#212121')],
+['Gorra camuflaje',()=>cap('#4b5d34','#2b3a1b',PAT.camo('#6b7a4a','#2b3a1b','#8a9a5a'))],
+['Gorra arcoíris',()=>cap('#fafafa','#ef4444',PAT.rb())],
+['Gorra a cuadros',()=>cap('#f5f5f5','#14110f',PAT.ck('#14110f'))],
+['Gorra dorada',()=>cap('#f6c744','#c99a1a',null,'star','#fff8d6')],
+['Gorra galaxia',()=>cap('#1a103d','#7c3aed',PAT.st('#fde68a'))],
+['Gorra trucker',()=>cap('#fafafa','#14110f',R(40,40,120,28,'#fafafa')+R(40,68,120,40,'#2b2b33')+L(5,j=>L(10,i=>Ci(56+i*9+(j%2)*4.5,72+j*6,1.4,'#9aa0aa'))),'flame','#ef6c00')],
+['Gorro de rayas',()=>bean('#e53935','#fafafa',PAT.hs('#fafafa'),true,'#fafafa')],
+['Gorro de copos',()=>bean('#1565c0','#e3f2fd',PAT.snow('#fff'),true,'#fff')],
+['Gorro con pompón dorado',()=>bean('#7b1fa2','#f6c744',null,true,'#f6c744')],
+['Gorro pirata',()=>bean('#14110f','#e0e0e0',null,false,'','skull','#fff')],
+['Gorro de oso',()=>bean('#8d6e63','#5d4037',null,false)+olE(62,48,10,10,'#8d6e63',0,3.4)+olE(138,48,10,10,'#8d6e63',0,3.4)+Ci(62,48,4.5,'#d7b8a8')+Ci(138,48,4.5,'#d7b8a8')],
+['Gorro arcoíris',()=>bean('#fafafa','#ef4444',PAT.rb(),true,'#fde047')],
+['Gorro polar',()=>bean('#546e7a','#f4efe0',null,true,'#f4efe0')+SK('M52 88H148','#d7ccc8',3,'stroke-dasharray="4 3"')],
+['Gorro trenzado',()=>bean('#f5deb3','#d2b48c',PAT.zz('#c9a56b'),true,'#d2b48c')],
+['Sombrero de paja',()=>brim('#e6c568','#f0d584','#c0392b',72)+SK('M30 88Q100 100 170 88','#c9a43f',2,'stroke-dasharray="4 3"')],
+['Sombrero vaquero',()=>olE(100,86,70,12,'#8d5a2b',0,3.6)+ol('M62 86Q56 56 70 48Q84 56 100 52Q116 56 130 48Q144 56 138 86Z','#a1683a',3.6)+ol('M62 76H138V87H62Z','#4a2f1a',3)+Ci(100,81,3.6,'#f6c744')],
+['Sombrero explorador',()=>brim('#c8b47a','#d8c690','#6d4c2b',72)+Ci(100,70,4,'#f6c744','stroke="'+INK+'" stroke-width="2"')],
+['Sombrero de bruja',()=>ol('M108 -6Q104 30 140 86Q100 74 60 86Q92 30 94 4Q98 -8 108 -6Z','#2b1a45',3.6)+olE(100,86,66,12,'#1c1230',0,3.6)+ol('M66 76Q100 68 136 76L138 84Q100 76 64 84Z','#ff8a2a',3)+Ci(100,80,4,'#f6c744')],
+['Sombrero de copa',()=>olE(100,86,54,10,'#1c1c24',0,3.6)+ol('M70 24Q70 18 76 18H124Q130 18 130 24V86H70Z','#262633',3.6)+ol('M70 66H130V78H70Z','#2e7d32',3)+Ci(112,72,3.6,'#f6c744')],
+['Copa estrellada',()=>olE(100,86,54,10,'#1a103d',0,3.6)+ol('M70 24Q70 18 76 18H124Q130 18 130 24V86H70Z','#2a1a5e',3.6)+STAR(88,44,7,'#fde68a')+STAR(112,60,5,'#fde68a')+STAR(92,72,4,'#fde68a')+ol('M70 70H130V80H70Z','#f6c744',3)],
+['Boina',()=>ol('M46 88Q44 52 100 46Q156 52 154 88Q100 80 46 88Z','#c62828',3.6)+Ci(100,44,4,'#8e1c1c','stroke="'+INK+'" stroke-width="2.2"')+gl('M60 70Q66 58 84 54')],
+['Panamá',()=>olE(100,88,68,12,'#f2e6c9',0,3.6)+ol('M64 86Q60 52 100 50Q140 52 136 86Z','#f6edd6',3.6)+ol('M63 76H137V87H63Z','#14110f',3)],
+['Gorra marinera',()=>olE(100,86,56,10,'#f4f4f6',0,3.6)+ol('M56 86Q54 56 100 52Q146 56 144 86Z','#fafafa',3.6)+ol('M56 80H144V90Q100 98 56 90Z','#1a237e',3.2)+Ci(100,70,5,'#f6c744')],
+['Gorra de capitán',()=>ol(VS,'#14110f',3.4)+ol('M48 92Q46 52 100 46Q154 52 152 92Q100 84 48 92Z','#fafafa',3.6)+ol('M48 82H152V94Q100 86 48 94Z','#1a237e',3.2)+Ci(100,66,6,'#f6c744','stroke="'+INK+'" stroke-width="2.2"')+SK('M100 62V72M95 66H105',INK,1.6)],
+['Gorro de cocinero',()=>ol('M60 92V70Q44 66 50 50Q56 34 78 38Q86 24 104 30Q124 26 130 40Q154 42 150 58Q146 68 140 70V92Z','#fafafa',3.6)+ol('M60 82H140V94H60Z','#e0e0e0',3.2)],
+['Casco de carreras',()=>helm('#e53935','#fff','#14110f')+R(46,64,108,8,0,'#fafafa','opacity=".9"')+inkP(HM,3.8)+Ci(100,48,5,'#fafafa')],
+['Casco de bombero',()=>ol('M20 90Q50 80 100 80Q150 80 180 90Q150 100 100 100Q50 100 20 90Z','#c62828',3.6)+ol(HM,'#e53935',3.8)+ol('M96 36Q100 10 104 36Z','#c62828',3.4)+ol('M88 62H112V80H88Z','#f6c744',3)],
+['Casco de obra',()=>ol(HM,'#fdd835',3.8)+ol('M46 90Q100 80 154 90V98Q100 88 46 98Z','#f9a825',3.4)+SK('M84 44V92M116 44V92',INK,2.2,'opacity=".5"')],
+['Casco robot',()=>helm('#b0bec5','#fff','#37474f')+SK('M100 38V18',INK,3)+Ci(100,16,5,'#ef4444','stroke="'+INK+'" stroke-width="2.2"')+Ci(80,86,4,'#4fc3f7')+Ci(120,86,4,'#4fc3f7')],
+['Casco romano',()=>helm('#c9a43f','#fff')+ol('M92 38Q100 10 108 38Z','#c62828',3.4)+SK('M58 96V70M142 96V70',INK,2.4,'opacity=".5"')],
+['Casco de gladiador',()=>helm('#9aa4b5','#fff')+ol('M60 54Q100 -10 140 54Q100 36 60 54Z','#b71c1c',3.4)+ol('M52 76Q100 66 148 76V84Q100 74 52 84Z','#6b7588',3)],
+['Casco samurái',()=>helm('#37474f','#fff')+ol('M40 86Q60 76 76 86Q60 100 44 98Z','#546e7a',3.2)+ol('M160 86Q140 76 124 86Q140 100 156 98Z','#546e7a',3.2)+ol('M92 40Q60 12 52 -2Q80 8 96 34ZM108 40Q140 12 148 -2Q120 8 104 34Z','#f6c744',3.2)],
+['Casco ninja',()=>ol(HM,'#14141f',3.8)+ol('M48 70H152V86H48Z','#7b1fa2',3.2)+ol('M80 70H120V86H80Z','#cfd8dc',3)+SK('M52 78H46L34 96M148 78H154L168 96','#7b1fa2',5)],
+['Casco de minero',()=>ol(HM,'#fb8c00',3.8)+ol('M48 90Q100 80 152 90V98Q100 88 48 98Z','#e65100',3.4)+ol('M82 54H118V72H82Z','#cfd8dc',3)+Ci(100,63,6,'#fff59d','stroke="'+INK+'" stroke-width="2"')],
+['Casco motero',()=>helm('#14110f','#fff','#37474f')+SK('M58 56Q80 44 104 46','#fff',3,'opacity=".5"')+ol('M96 76H152V94H96Z','#e53935',3)],
+['Corona de laureles',()=>L(8,i=>`<ellipse cx="${56+i*5}" cy="${78-i*3}" rx="9" ry="4" fill="#4caf50" stroke="${INK}" stroke-width="2.2" transform="rotate(${-50+i*4} ${56+i*5} ${78-i*3})"/>`).replace(/$/,'')+L(8,i=>`<ellipse cx="${144-i*5}" cy="${78-i*3}" rx="9" ry="4" fill="#4caf50" stroke="${INK}" stroke-width="2.2" transform="rotate(${50-i*4} ${144-i*5} ${78-i*3})"/>`)+Ci(100,50,5,'#e53935','stroke="'+INK+'" stroke-width="2"')],
+['Tiara de diamantes',()=>ol('M56 90Q100 78 144 90L136 70L122 82L112 58L100 78L88 58L78 82L64 70Z','#cfd8dc',3.4)+[[88,58],[112,58],[100,48]].map(p=>Pa(`M${p[0]} ${p[1]-6}L${p[0]+5} ${p[1]}L${p[0]} ${p[1]+6}L${p[0]-5} ${p[1]}Z`,'#80deea','stroke="'+INK+'" stroke-width="2"')).join('')],
+['Corona de hielo',()=>ol('M52 92L58 46L74 72L88 34L100 68L112 34L126 72L142 46L148 92Q100 84 52 92Z','#b3e5fc',3.6)+SK('M60 56L68 80M92 46L98 70M110 46L106 70','#fff',2.4,'opacity=".7"')],
+['Corona de reina',()=>crownP('#f6c744','#ec407a',L(5,i=>Ci(66+i*17,84,3,'#fafafa','stroke="'+INK+'" stroke-width="1.6"')))],
+['Diadema de estrellas',()=>band('#7c3aed',82)+STAR(70,76,8,'#fde68a')+STAR(100,68,10,'#fde68a')+STAR(130,76,8,'#fde68a')],
+['Cuernos de dragón',()=>ol('M58 80Q44 50 62 18Q70 40 84 60Z','#d7ccc8',3.6)+ol('M142 80Q156 50 138 18Q130 40 116 60Z','#d7ccc8',3.6)+band('#7f0000',84)],
+['Orejas de lobo',()=>ears('#78909c','#cfd8dc',56,144,0)],
+['Orejas de zorro',()=>ears('#ef6c00','#fafafa',58,142,-4)],
+['Orejas de oso panda',()=>olE(62,52,14,14,'#14110f',0,3.4)+olE(138,52,14,14,'#14110f',0,3.4)+band('#fafafa',84)],
+['Aureola con alas',()=>olE(100,34,24,6,'none',0,3.6).replace('fill="none"','fill="none" stroke="#f6c744"')+SK('M76 34Q100 26 124 34','#fff59d',2,'opacity=".8"')+ol('M46 78Q22 64 14 36Q40 40 58 62Z','#f7f9ff',3.2)+ol('M154 78Q178 64 186 36Q160 40 142 62Z','#f7f9ff',3.2)],
+['Capucha de arquero',()=>ol('M44 96Q40 36 100 30Q160 36 156 96Q146 80 100 78Q54 80 44 96Z','#2e7d32',3.8)+ol('M60 96Q64 66 100 64Q136 66 140 96Q100 84 60 96Z','#1b5e20',3.4)+SK('M62 60Q70 44 92 38','#fff',3,'opacity=".3"')],
+['Capucha de ladrón',()=>ol('M44 98Q38 36 100 28Q162 36 156 98Q146 80 100 78Q54 80 44 98Z','#212121',3.8)+ol('M58 98Q62 64 100 62Q138 64 142 98Q100 86 58 98Z','#14110f',3.4)+SK('M82 74H118',INK,2.4)],
+['Diadema de vidas',()=>band('#263238',84)+PIXO(HRT,60,66,3.4,'#ef4444')+PIXO(HRT,89,62,3.4,'#ef4444')+PIXO(HRT,118,66,3.4,'#ef4444')],
+['Corona de píxeles',()=>PIXO(['101010101','111111111','111111111','111111111'],54,48,10,'#f6c744').replace(/$/,'')+PIX(['000000000','001000100','000000000','000000000'],54,48,10,'#ef4444')],
+['Visor de realidad virtual',()=>ol('M42 56Q100 34 158 56V92Q100 106 42 92Z','#263238',3.8)+ol('M54 62Q100 46 146 62V86Q100 96 54 86Z','#37474f',3.2)+R(60,66,80,16,6,'#22d3ee','opacity=".75"')+SK('M64 70Q100 64 136 70','#fff',2,'opacity=".6"')+SK('M42 74H30M158 74H170',INK,5)],
+['Auriculares de gato gamer',()=>ol('M58 70Q56 30 100 28Q144 30 142 70','none',5).replace('fill="none"','fill="none"')+SK('M58 74Q56 32 100 30Q144 32 142 74','#14141f',9)+ol('M54 52L48 22L78 38Z','#14141f',3.4)+ol('M146 52L152 22L122 38Z','#14141f',3.4)+olE(52,80,10,16,'#22d3ee',0,3.4)+olE(148,80,10,16,'#22d3ee',0,3.4)],
+['Gorra Game Over',()=>cap('#14110f','#ef4444',null,'gg','#ef4444')],
+['Gorra de control',()=>cap('#37474f','#14141f',null,'dpad','#cfd8dc')],
+['Gorra joystick',()=>cap('#e53935','#8e1c1c')+SK('M100 42V20',INK,5)+SK('M100 42V20','#cfd8dc',2.4)+Ci(100,16,8,'#ef4444','stroke="'+INK+'" stroke-width="2.6"')],
+['Casco de 8 bits',()=>PIXO(['0011111100','0111111110','1111111111','1111111111','1000000001'].map(r=>r),50,42,10,'#9aa4b5')+PIX(['0000000000','0000000000','0000000000','0001001000','0000000000'],50,42,10,'#cfd8dc')],
+['Diadema barra de vida',()=>band('#263238',82)+R(66,80,68,9,2,'#14110f')+R(68,82,48,5,1,'#4ade80')],
+['Gorro nivel 99',()=>bean('#7c3aed','#fde68a',null,true,'#fde68a')+PIX(['111','101','111','001','111'].map(r=>r),86,50,3.6,'#fff')+PIX(['111','101','111','001','111'],101,50,3.6,'#fff')],
+['Sombrero de mazmorra',()=>brim('#4a3a2a','#5d4a36','#8d6e63',70)+olE(100,34,5,5,'#ff7a18',0,2.6)+Pa('M100 24Q94 34 100 40Q106 34 100 24Z','#ffe082')+R(97,38,6,14,0,'#8d6e63','stroke="'+INK+'" stroke-width="2"')],
+['Casco de jefe final',()=>helm('#37474f','#fff','#14110f')+ol('M58 54Q36 36 44 6Q60 26 76 48Z','#c62828',3.4)+ol('M142 54Q164 36 156 6Q140 26 124 48Z','#c62828',3.4)+Ci(84,84,3.4,'#ef4444')+Ci(116,84,3.4,'#ef4444')],
+['Gorra de speedrun',()=>cap('#00b8d4','#006064',null,'clock','#fafafa')],
+['Sombrero de mago nivelado',()=>ol('M110 -8Q116 36 150 84Q100 70 50 84Q86 40 96 8Q100 -4 110 -8Z','#1a237e',3.6)+olE(100,84,60,10,'#0d1457',0,3.6)+R(70,72,60,7,2,'#14110f')+R(72,73.5,40,4,1,'#4ade80')+STAR(96,36,7,'#fde68a')+STAR(112,58,4.6,'#fde68a')]
+];
+const N=HAT.length,ht=AVD.hat.it;
+HAT.forEach((s,i)=>{const lv=20+Math.round(i*80/(N-1)),rar=lv<35?2:lv<65?3:4,id='hz'+(i+1);ht.push([id,s[0],rar,lv,k=>s[1]()]);NOCOL.add(id)});
+})();
 function RC(str,col){if(col==null||!str)return str;col=cvx(col);const re=/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g,cnt={};
  (str.match(re)||[]).forEach(x=>{const k=x.toLowerCase();cnt[k]=(cnt[k]||0)+1});
  let best=null,bn=0;for(const k in cnt){const q=rgb2hsl(hx2(k));if(q[2]<.12||q[2]>.985)continue;if(cnt[k]>bn){bn=cnt[k];best=q}}
