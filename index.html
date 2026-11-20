@@ -8402,6 +8402,11 @@ SP.forEach((s,i)=>{
   if(ty==='sl')r+=SKM('M58 298Q76 292 96 298',a,2.4)+SNI('M60 300Q76 295 94 300',2);
   if(hi)r+=SNK('M52 260H100V270H55Z',a,3)+SNI('M58 278H100',2.4)+SNI('M58 287H100',2.4)+SKM('M44 312H98',a,2.4)+BO(s=>Ci(px(66,s),275,4,'none',`stroke="${a}" stroke-width="1.8"`));
   else if(ty!=='sl')r+=SNI(LACE,2.2)+SNI(LACE2,2.2);
+  const d=avSh(u,-.4),sy=ty==='ch'?325:322;
+  r+=SKM('M46 311H98',d,3,'opacity=".22"')+SKM('M97 290V312',d,3.4,'opacity=".2"')+SKM('M60 291Q65 300 63 310',d,1.5,'opacity=".35"');
+  r+=[0,1,2,3,4,5,6,7].map(i=>SKM(`M${48+i*6} ${sy-3}V${sy}`,avSh(so,-.35),1.6,'opacity=".5"')).join('');
+  r+=SKM('M47 303Q49 296 57 292',avSh(u,.6),2.2,'opacity=".6"')+SKM('M50 316H96',avSh(so,.5),1.4,'opacity=".5"');
+  if(!hi&&ty!=='sl')r+=BO(s=>[[72,293],[78,299],[80,291],[86,297]].map(q=>Ci(px(q[0],s),q[1],1.3,'#fff','opacity=".8"')).join(''));
   return r+SKM('M46 308Q60 303 74 305',avSh(u,.4),1.6,'opacity=".55"')
  },hi?'under':'']);
  NOCOL.add(id);
