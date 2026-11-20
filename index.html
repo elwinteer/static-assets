@@ -8461,12 +8461,11 @@ Object.assign(A,{
 });
 function vPickFill(){const e=$('#vm-l');if(!e)return;const q=(($('#vm-q')||{}).value||'').toLowerCase().trim();
   e.innerHTML=[...G].filter(g=>!q||g.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,60).map(g=>`<button class="vl-pr" data-a="vmv" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<p class="mut">No hay coincidencias.</p>'}
-/* acceso oculto: 12 toques seguidos al copo del logo (cada uno dentro de 1,2 s). Se cierra sola al salir de la pantalla, al perder el foco 20 s o tras 2 min sin tocar nada */
+/* acceso oculto: 12 toques seguidos al copo del logo (cada uno dentro de 1,2 s). Ya no se cierra por inactividad ni al perder el foco: solo con Bloquear, Shift+Esc, el botón de pánico o al salir de la pantalla */
 (()=>{let c=0,t,bt;document.addEventListener('click',e=>{S.vlast=Date.now();if(!e.target.closest('.mark'))return;c++;clearTimeout(t);t=setTimeout(()=>c=0,1200);if(c>=12){c=0;vOpen()}},true);
  document.addEventListener('keydown',e=>{S.vlast=Date.now();if(S.vu&&e.key==='Escape'&&e.shiftKey)vLock()});
  document.addEventListener('mousemove',()=>{S.vlast=Date.now()},{passive:true});
- const away=()=>{clearTimeout(bt);if(S.vu)bt=setTimeout(()=>{if(S.vu&&(document.hidden||!document.hasFocus()))vLock()},20000)};window.addEventListener('blur',away);document.addEventListener('visibilitychange',()=>{if(document.hidden)away()});window.addEventListener('focus',()=>clearTimeout(bt));
- setInterval(()=>{if(S.vu&&Date.now()-(S.vlast||0)>600000)vLock()},5000)})();
+ })();
 setTimeout(()=>{try{vPurge()}catch(e){}},0);
 
 /* ===== mascotas ===== */
