@@ -7925,14 +7925,15 @@ const P={
  pix:p=>L(6,i=>L(9,j=>((i*7+j*3)%5<2)?R(26+j*16,148+i*16,12,12,p[0]):'')),
  rn:p=>L(4,i=>SK('M20 '+(156+i*24)+'q20 -14 40 0q20 14 40 0q20 -14 40 0q20 14 40 0',p[0],3.4))
 };
+const SKo=(d,c,w,o='')=>SK(d,INK,w+3.2,o)+SK(d,c,w,o);
 /* emblemas del pecho */
 const E={
  star:p=>STAR(100,190,17,p[0])+inkP(STARD(100,190,17),2.2),
  bolt:p=>ol('M108 166L88 196H101L94 224L118 188H104Z',p[0],2.6),
  heart:p=>ol('M100 216C68 194 76 166 92 168Q100 170 100 180Q100 170 108 168C124 166 132 194 100 216Z',p[0],2.6),
- snow:p=>SK('M100 168V212M81 179L119 201M81 201L119 179',p[0],3.2)+Ci(100,190,4,p[0]),
+ snow:p=>SKo('M100 168V212M81 179L119 201M81 201L119 179M92 172L100 180L108 172M92 208L100 200L108 208',p[0],3)+Ci(100,190,5,p[0],'stroke="#14110f" stroke-width="2.2"'),
  moon:p=>ol('M112 168A22 22 0 1 0 112 214A17 17 0 1 1 112 168Z',p[0],2.6)+STAR(120,178,6,p[1]||'#fff'),
- sun:p=>Ci(100,190,11,p[0],'stroke="#14110f" stroke-width="2.4"')+L(8,i=>{const a=i*Math.PI/4;return SK(`M${100+Math.cos(a)*16} ${190+Math.sin(a)*16}L${100+Math.cos(a)*23} ${190+Math.sin(a)*23}`,p[0],3.2)}),
+ sun:p=>L(8,i=>{const a=i*Math.PI/4;return SKo(`M${100+Math.cos(a)*16} ${190+Math.sin(a)*16}L${100+Math.cos(a)*23} ${190+Math.sin(a)*23}`,p[0],3)})+Ci(100,190,12,p[0],'stroke="#14110f" stroke-width="2.6"')+Ci(96,186,4,'#ffffff','opacity=".45"'),
  crown:p=>ol('M78 208L82 176L93 192L100 170L107 192L118 176L122 208Z',p[0],2.6)+Ci(100,198,3,p[1]||'#ef4444'),
  skull:p=>ol('M80 192Q80 168 100 168Q120 168 120 192Q120 202 112 206V214H88V206Q80 202 80 192Z','#f4f4f6',2.6)+El(91,192,5,6,INK)+El(109,192,5,6,INK)+Pa('M98 200L100 205L102 200Z',INK),
  ghost:p=>ol('M80 216V188Q80 166 100 166Q120 166 120 188V216L111 209L100 216L89 209Z','#fff',2.6)+El(92,188,3,4.4,INK)+El(108,188,3,4.4,INK)+Ci(100,199,3,INK),
@@ -7940,40 +7941,40 @@ const E={
  planet:p=>Ci(100,190,15,p[0],'stroke="#14110f" stroke-width="2.4"')+El(100,190,28,7,'none',`transform="rotate(-20 100 190)" stroke="${p[1]||'#fff'}" stroke-width="3.4"`),
  rocket:p=>ol('M100 164Q116 180 114 206H86Q84 180 100 164Z',p[0],2.6)+Ci(100,184,5,'#7dd3fc','stroke="#14110f" stroke-width="2"')+ol('M86 198L74 212L88 208Z',p[1]||'#ef4444',2.2)+ol('M114 198L126 212L112 208Z',p[1]||'#ef4444',2.2)+Pa('M94 208Q100 224 106 208Z','#ff9a3c'),
  pad:p=>ol('M76 186Q76 174 90 174H110Q124 174 124 186L128 204Q130 214 120 212Q112 210 108 202H92Q88 210 80 212Q70 214 72 204Z',p[0],2.6)+SK('M88 186H98M93 181V191','#14110f',2.4)+Ci(110,184,2.4,'#ef4444')+Ci(116,189,2.4,'#4ade80'),
- sword:p=>SK('M78 214L122 170M122 214L78 170',p[0],4.4)+SK('M74 206L86 218M126 206L114 218',p[1]||'#ffcf4a',4),
+ sword:p=>SKo('M78 214L122 170M122 214L78 170',p[0],4.4)+SKo('M74 206L86 218M126 206L114 218',p[1]||'#ffcf4a',4)+Ci(78,214,3.4,p[1]||'#ffcf4a','stroke="#14110f" stroke-width="2"')+Ci(122,214,3.4,p[1]||'#ffcf4a','stroke="#14110f" stroke-width="2"'),
  wing:p=>ol('M98 210Q70 206 60 176Q80 182 90 176Q76 172 70 160Q94 162 100 176Q104 162 130 160Q124 172 110 176Q120 182 140 176Q130 206 102 210Z',p[0],2.4),
  flame:p=>ol('M100 168Q112 184 114 198Q114 214 100 216Q86 214 86 198Q86 190 92 184Q94 192 98 192Q96 180 100 168Z',p[0],2.6)+Pa('M100 196Q106 204 104 210Q100 214 96 210Q94 204 100 196Z',p[1]||'#ffe27a'),
  gem:p=>ol('M84 180H116L124 190L100 216L76 190Z',p[0],2.6)+SK('M76 190H124M92 180L100 190L108 180M100 190V216',p[1]||'#fff',1.8),
  eye:p=>ol('M72 192Q100 166 128 192Q100 218 72 192Z','#fff',2.6)+Ci(100,192,9,p[0],'stroke="#14110f" stroke-width="2.4"')+Ci(100,192,4,INK),
- note:p=>SK('M104 212V172L122 178',p[0],4)+El(96,212,9,6,p[0],'stroke="#14110f" stroke-width="2.2"'),
+ note:p=>SKo('M104 212V172L124 180',p[0],4)+El(96,212,10,7,p[0],'stroke="#14110f" stroke-width="2.4"')+El(93,210,3,2,'#ffffff','opacity=".5"'),
  leaf:p=>ol('M80 214Q74 176 112 168Q124 200 90 214Z',p[0],2.6)+SK('M82 212Q96 192 108 176',p[1]||'#14110f',2),
  paw:p=>El(100,204,13,10,p[0])+Ci(84,186,5.4,p[0])+Ci(96,178,5.4,p[0])+Ci(108,178,5.4,p[0])+Ci(120,186,5.4,p[0]),
- anchor:p=>SK('M100 172V214M88 184H112M80 200Q84 214 100 214Q116 214 120 200',p[0],4)+Ci(100,174,4.4,'none',`stroke="${p[0]}" stroke-width="3.4"`),
- beat:p=>SK('M72 192H90L96 176L106 208L112 192H128',p[0],3.6),
+ anchor:p=>SKo('M100 176V214M88 186H112M80 200Q84 214 100 214Q116 214 120 200',p[0],4)+Ci(100,172,5,'none',`stroke="${INK}" stroke-width="6.6"`)+Ci(100,172,5,'none',`stroke="${p[0]}" stroke-width="3.4"`),
+ beat:p=>SKo('M70 192H90L96 174L106 210L112 192H130',p[0],3.8),
  smile:p=>Ci(100,192,19,p[0],'stroke="#14110f" stroke-width="2.6"')+Ci(92,186,2.8,INK)+Ci(108,186,2.8,INK)+inkP('M90 198Q100 208 110 198',2.8),
  crest:p=>ol('M80 172H120V198Q120 212 100 220Q80 212 80 198Z',p[0],2.8)+STAR(100,192,9,p[1]||'#fff'),
- key:p=>Ci(88,186,8,'none',`stroke="${p[0]}" stroke-width="4"`)+SK('M96 192L124 214M116 208L122 202M122 214L128 208',p[0],4),
+ key:p=>Ci(88,184,9,'none',`stroke="${INK}" stroke-width="7.4"`)+Ci(88,184,9,'none',`stroke="${p[0]}" stroke-width="4.2"`)+SKo('M96 192L124 214M116 208L122 202M122 214L128 208',p[0],4),
  cherry:p=>Ci(88,208,8,p[0],'stroke="#14110f" stroke-width="2.4"')+Ci(112,208,8,p[0],'stroke="#14110f" stroke-width="2.4"')+SK('M88 200Q92 180 106 170M112 200Q110 182 106 170',p[1]||'#4ade80',2.8),
  fish:p=>ol('M74 192Q92 172 112 192Q92 212 74 192Z',p[0],2.6)+ol('M110 192L128 178V206Z',p[0],2.6)+Ci(86,189,2.4,INK),
  pizza:p=>ol('M72 176Q100 164 128 176L100 220Z','#ffcf4a',2.6)+Ci(94,184,4,p[0])+Ci(108,186,4,p[0])+Ci(100,200,4,p[0]),
  coffee:p=>ol('M80 178H116V204Q116 216 98 216Q80 216 80 204Z','#fff',2.6)+SK('M116 184Q130 184 126 198Q122 204 116 202',INK,3)+SK('M90 168Q86 174 92 178M102 166Q98 172 104 176',p[0],2.6),
  dice:p=>Re(80,172,40,40,7,'#fff','stroke="#14110f" stroke-width="2.8"')+Ci(92,184,3.4,INK)+Ci(108,184,3.4,INK)+Ci(100,192,3.4,INK)+Ci(92,200,3.4,INK)+Ci(108,200,3.4,INK),
  cube:p=>ol('M100 168L126 182V206L100 220L74 206V182Z',p[0],2.6)+SK('M74 182L100 196L126 182M100 196V220',INK,2.2),
- rain:p=>[['#ef4444',20],['#fb923c',17],['#fde047',14],['#4ade80',11],['#60a5fa',8]].map(q=>SK('M'+(100-q[1]*2)+' 210A'+q[1]*2+' '+q[1]*2+' 0 0 1 '+(100+q[1]*2)+' 210',q[0],3.4)).join('')
+ rain:p=>[['#ef4444',22],['#fb923c',18.5],['#fde047',15],['#4ade80',11.5],['#60a5fa',8]].map(q=>SK('M'+(100-q[1]*2)+' 212A'+q[1]*2+' '+q[1]*2+' 0 0 1 '+(100+q[1]*2)+' 212',INK,5.6)).join('')+[['#ef4444',22],['#fb923c',18.5],['#fde047',15],['#4ade80',11.5],['#60a5fa',8]].map(q=>SK('M'+(100-q[1]*2)+' 212A'+q[1]*2+' '+q[1]*2+' 0 0 1 '+(100+q[1]*2)+' 212',q[0],3.2)).join('')
 };
 /* texto estampado */
 const T=(s,x,y,sz,f,st)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${sz}" font-weight="900" font-family="Arial Black,Impact,sans-serif" fill="${f}" stroke="${st||'#14110f'}" stroke-width="1.2">${s}</text>`;
 /* cuellos y detalles */
 const CO={
- crew:(bc)=>inkP('M86 149Q100 162 114 149',3.2),
+ crew:(bc)=>ol('M84 148Q100 164 116 148L113 142Q100 153 87 142Z',avSh(bc,-.22),3)+SK('M89 146Q100 156 111 146',avSh(bc,-.5),1.4,'stroke-dasharray="2.4 2"'),
  rib:(bc)=>ol('M84 149Q100 162 116 149L114 142Q100 152 86 142Z',avSh(bc,-.3),3),
  vn:(bc)=>ol('M88 148L100 170L112 148Q100 154 88 148Z',avSh(bc,-.4),3),
  polo:(bc)=>ol('M86 148L100 166L96 148L86 142Z',avSh(bc,.4),3)+ol('M114 148L100 166L104 148L114 142Z',avSh(bc,.4),3)+Ci(100,176,2.2,INK)+Ci(100,188,2.2,INK),
- hood:(bc)=>ol('M72 149Q100 182 128 149Q122 140 100 140Q78 140 72 149Z',avSh(bc,-.25),3.4)+inkP('M74 214H126L130 240H70Z',3,'')+SK('M93 166V190','#f4f4f8',3)+SK('M107 166V190','#f4f4f8',3),
- zip:(bc)=>inkP('M100 158V248',2.6)+ol('M84 149Q100 160 116 149L114 139Q100 145 86 139Z',avSh(bc,-.15),3.2)+Ci(100,166,2.4,'#d7dde6'),
- bmb:(bc)=>ol('M82 150Q100 162 118 150L116 138Q100 146 84 138Z',avSh(bc,-.3),3.2)+inkP('M100 160V248',2.6)+Ci(100,166,2.4,'#d7dde6'),
- sh:(bc)=>ol('M84 148Q100 176 116 148L110 141Q100 156 90 141Z',avSh(bc,-.2),3.2)+inkP('M100 168V248',2.4)+Ci(100,200,2.6,INK)+Ci(100,222,2.6,INK),
- pk:(bc)=>inkP('M86 149Q100 162 114 149',3.2)+inkP('M78 198H98V218H78Z',2.6)+inkP('M78 204H98',2.2)
+ hood:(bc)=>ol('M70 150Q100 186 130 150Q124 138 100 138Q76 138 70 150Z',avSh(bc,-.3),3.4)+ol('M80 150Q100 172 120 150Q112 144 100 144Q88 144 80 150Z',avSh(bc,-.5),2.6)+ol('M72 214H128L134 244Q100 250 66 244Z',avSh(bc,-.1),3)+inkP('M80 214L74 240',2.2)+inkP('M120 214L126 240',2.2)+SKo('M93 166V190',"#f4f4f8",2.6)+SKo('M107 166V190',"#f4f4f8",2.6)+Ci(93,192,2.6,'#e5e7eb','stroke="#14110f" stroke-width="1.6"')+Ci(107,192,2.6,'#e5e7eb','stroke="#14110f" stroke-width="1.6"'),
+ zip:(bc)=>SK('M100 158V248','#e5e9f0',3.2,'stroke-dasharray="1.8 1.6"')+inkP('M100 158V248',1.4)+ol('M83 149Q100 161 117 149L114 138Q100 145 86 138Z',avSh(bc,-.15),3.2)+Re(97,160,6,10,2,'#d7dde6','stroke="#14110f" stroke-width="1.8"')+inkP('M76 214L80 238',2.4)+inkP('M124 214L120 238',2.4),
+ bmb:(bc)=>ol('M82 150Q100 162 118 150L116 138Q100 146 84 138Z',avSh(bc,-.3),3.2)+SK('M84 144Q100 152 116 144',avSh(bc,-.6),1.6,'stroke-dasharray="2.2 1.8"')+SK('M100 160V248','#e5e9f0',3,'stroke-dasharray="1.8 1.6"')+inkP('M100 160V248',1.4)+Re(97,162,6,10,2,'#d7dde6','stroke="#14110f" stroke-width="1.8"'),
+ sh:(bc)=>ol('M84 148Q100 176 116 148L110 141Q100 156 90 141Z',avSh(bc,.18),3.2)+inkP('M100 168V248',2.2)+Ci(100,184,2.6,'#f5f5f5','stroke="#14110f" stroke-width="1.6"')+Ci(100,204,2.6,'#f5f5f5','stroke="#14110f" stroke-width="1.6"')+Ci(100,224,2.6,'#f5f5f5','stroke="#14110f" stroke-width="1.6"'),
+ pk:(bc)=>ol('M84 148Q100 164 116 148L113 142Q100 153 87 142Z',avSh(bc,-.22),3)+ol('M76 196H98V220H76Z',avSh(bc,-.08),2.6)+inkP('M76 202H98',2)+Ci(87,202,1.8,INK)+ol('M102 196H124V220H102Z',avSh(bc,-.08),2.6)+inkP('M102 202H124',2)+Ci(113,202,1.8,INK)
 };
 /* especificaciones: nombre, base, cuello, capas [patrón/emblema, paleta], color base (null = el que elija el jugador) */
 const SP=[
@@ -8121,10 +8122,13 @@ SP.forEach((s,i)=>{
  top.push([id,name,rar,lv,c=>{
   const bc=bcol||c,clip='avZ'+AVU+id,sh=avSh(bc,-.2);
   const body=PT(B.d,TSHD,{s:bc,sd:sh},40+i);
-  const g=layers.map(([k,p])=>P[k]?`<g clip-path="url(#${clip})">${P[k](p)}</g>`:`<g>${E[k](p)}</g>`).join('');
-  const cuffs=co==='bmb'&&base!=='vest'?`<g clip-path="url(#${clip})">${R(20,236,160,12,avSh(bc,-.3))}${R(20,222,48,20,avSh(bc,-.3))}${R(132,222,48,20,avSh(bc,-.3))}</g>`:'';
+  const g=layers.map(([k,p])=>P[k]?`<g clip-path="url(#${clip})">${P[k](p)}</g>`:`<g transform="translate(100 192) scale(1.12) translate(-100 -192)">${E[k](p)}</g>`).join('');
+  const dk=avSh(bc,-.42),md=avSh(bc,-.16);
+  const fin=`<g clip-path="url(#${clip})"><path d="${TSHD}" fill="${sh}" opacity=".5"/><path d="M26 150L92 146L72 252H30Z" fill="#fff" opacity=".07"/>${SK('M82 214Q78 226 84 242',dk,1.8,'opacity=".4"')}${SK('M120 218Q124 230 118 244',dk,1.8,'opacity=".4"')}${SK('M100 226Q98 236 102 246',dk,1.6,'opacity=".3"')}${SK('M70 180Q76 192 70 206',dk,1.8,'opacity=".35"')}${SK('M130 180Q124 192 130 206',dk,1.8,'opacity=".35"')}</g>`;
+  const hemb=co==='bmb'?'':`<g clip-path="url(#${clip})">${R(60,239,80,10,md)}${SK('M66 239H134',dk,1.5,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`;
+  const cuffs=co==='bmb'&&base!=='vest'?`<g clip-path="url(#${clip})">${R(20,236,160,12,md)}${R(20,222,48,20,md)}${R(132,222,48,20,md)}${SK('M20 238H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".6"')}</g>`:base==='lng'?`<g clip-path="url(#${clip})">${R(20,228,48,16,md)}${R(132,228,48,16,md)}${SK('M20 229H68M132 229H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`:base==='tee'?`<g clip-path="url(#${clip})">${R(20,193,48,13,md)}${R(132,193,48,13,md)}${SK('M20 194H68M132 194H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`:'';
   const out=(base==='tee'?inkP('M66 206V244',3.4)+inkP('M134 206V244',3.4):base==='lng'?inkP('M66 182V240',3.4)+inkP('M134 182V240',3.4)+inkP('M23 240Q44 246 64 242',3.4)+inkP('M177 240Q156 246 136 242',3.4):'');
-  return `<clipPath id="${clip}"><path d="${B.d}"/></clipPath>`+body+g+cuffs+out+CO[co](bc)
+  return `<clipPath id="${clip}"><path d="${B.d}"/></clipPath>`+body+g+fin+hemb+cuffs+out+CO[co](bc)
  }]);
  if(bcol)NOCOL.add(id);
 });
