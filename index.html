@@ -7802,6 +7802,8 @@ puffs.forEach(([x,y,r],i)=>{const k=1-(y-32)/40,c=k<.3?'#241008':k<.6?'#1a0b09':
 o+='</g>';
 // relámpagos dentro de la nube
 [[104,34,6.2],[88,26,9.4]].forEach(([x,y,b])=>o+=`<path d="M${x} ${y}l-3 5l4 2l-4 6l3 2l-2 6" stroke="#e8e0ff" stroke-width=".9" fill="none" stroke-linejoin="round" opacity="0"><animate attributeName="opacity" values="0;0;1;0;.8;0;0" keyTimes="0;.9;.92;.94;.96;.98;1" dur="${b}s" repeatCount="indefinite"/></path>`);
+const fl=(d,fill,dur,sc)=>`<path d="${d}" fill="${fill}" style="transform-origin:100px 95px"><animateTransform attributeName="transform" type="scale" values="1 1;${sc};1 .9;1 1" dur="${dur}s" repeatCount="indefinite" additive="sum"/></path>`;o+='<g transform="translate(100 96) scale(1.2 .52) translate(-100 -95)">';
+o+=fl('M86 95Q84 82 91 74Q90 66 95 60Q95 52 100 44Q105 53 105 60Q110 66 109 74Q116 82 114 95Q100 99 86 95Z','#ff5a10',1.1,'.95 1.1')+fl('M90 95Q89 84 94 77Q94 68 98 62Q99 56 100 52Q102 58 102 62Q106 68 106 77Q111 84 110 95Q100 98 90 95Z','#ff9a2e',.9,'1.05 1.14')+fl('M94 95Q94 86 97 80Q98 73 100 68Q102 73 103 80Q106 86 106 95Q100 97 94 95Z','#ffe08a',.7,'.95 1.18');o+='</g>';
 // cuerpo del volcán: cuñas facetadas de roca
 o+='<g clip-path="url(#vc)"><rect x="0" y="90" width="200" height="110" fill="#1c0e0b"/>';
 const N=13,cx=i=>86+i*(28/(N-1)),bx=i=>-6+i*(212/(N-1)),ctl=i=>{const m=(cx(i)+bx(i))/2;return m+(i-6)*1.6+((i*37)%7-3)};
@@ -7825,9 +7827,8 @@ o+=flow([[[91,98],[76,128],[66,150]],[[66,150],[58,170],[52,192]]],2.8,5,2.2)+fl
 // cráter: labio de roca, lago de lava y fuente de fuego
 o+='<ellipse cx="100" cy="86" rx="46" ry="30" fill="url(#vg2)"><animate attributeName="opacity" values=".7;1;.7" dur="1.6s" repeatCount="indefinite"/></ellipse><ellipse cx="100" cy="95.4" rx="12.5" ry="3" fill="url(#vg3)"><animate attributeName="opacity" values=".85;1;.85" dur="1.4s" repeatCount="indefinite"/></ellipse>';
 // fuente de fuego en 3 capas que laten
-const fl=(d,fill,dur,sc)=>`<path d="${d}" fill="${fill}" style="transform-origin:100px 95px"><animateTransform attributeName="transform" type="scale" values="1 1;${sc};1 .9;1 1" dur="${dur}s" repeatCount="indefinite" additive="sum"/></path>`;
-o+='<g transform="translate(100 95) scale(1.5 .62) translate(-100 -95)">';
-o+=fl('M86 95Q84 82 91 74Q90 66 95 60Q95 52 100 44Q105 53 105 60Q110 66 109 74Q116 82 114 95Q100 99 86 95Z','#ff5a10',1.1,'.95 1.1')+fl('M90 95Q89 84 94 77Q94 68 98 62Q99 56 100 52Q102 58 102 62Q106 68 106 77Q111 84 110 95Q100 98 90 95Z','#ff9a2e',.9,'1.05 1.14')+fl('M94 95Q94 86 97 80Q98 73 100 68Q102 73 103 80Q106 86 106 95Q100 97 94 95Z','#ffe08a',.7,'.95 1.18');o+='</g>';
+
+
 // chorros de lava en arco
 for(let i=0;i<14;i++){const s=(i/13-.5)*2,dx=s*(22+R()*26),pk=96-(34+R()*30),d=(1.6+R()*1.2).toFixed(1),bg=(R()*3).toFixed(1);o+=`<path d="M${f(100+s*3)} 94Q${f(100+dx*.55)} ${f(pk)} ${f(100+dx)} ${f(120+R()*18)}" stroke="${pick(['#ffb347','#ff7a18','#ffd34d'])}" stroke-width="${f(.8+R()*.9)}" fill="none" stroke-linecap="round" stroke-dasharray="7 80" opacity=".9"><animate attributeName="stroke-dashoffset" values="8;-70" dur="${d}s" begin="-${bg}s" repeatCount="indefinite"/></path>`}
 // ceniza incandescente subiendo a la nube
