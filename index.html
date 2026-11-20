@@ -4098,6 +4098,38 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .hiin .hi-tg em i{animation:hiScale 1.1s calc(.9s + var(--k,0)*70ms) cubic-bezier(.22,.8,.3,1) backwards}@keyframes hiScale{from{transform:scaleX(0)}}
 .hiin .dy-fb{animation:sgN .7s .55s both}
 @media (max-width:1280px){.hi2{flex-wrap:wrap}.hi2-rar{grid-template-columns:repeat(4,1fr);width:100%}}
+
+/* Hitos: cabecera v2 */
+@property --hia{syntax:'<angle>';inherits:false;initial-value:0deg}
+.hi2{padding:30px 34px;gap:34px;min-height:190px;border:0;background:linear-gradient(135deg,rgba(18,14,30,.92),rgba(10,8,18,.96));isolation:isolate}
+.hi2::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--hia),transparent 0 55%,var(--a,#ff9a3c) 75%,var(--a2,#ffb86b) 88%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:hiSpin 7s linear infinite;pointer-events:none;z-index:3}
+@keyframes hiSpin{to{--hia:360deg}}
+.hi2-bg{overflow:hidden;border-radius:inherit}.hi2-bg u{position:absolute;border-radius:50%;filter:blur(46px);opacity:.55;animation:hiDrift 14s ease-in-out infinite alternate}
+.hi2-bg u:nth-child(1){width:380px;height:240px;left:-60px;top:-90px;background:rgba(var(--argb,255,154,60),.55)}.hi2-bg u:nth-child(2){width:320px;height:220px;right:10%;bottom:-120px;background:rgba(168,85,247,.38);animation-delay:-5s}.hi2-bg u:nth-child(3){width:260px;height:180px;left:38%;top:-100px;background:rgba(251,191,36,.28);animation-delay:-9s}
+@keyframes hiDrift{to{transform:translate(70px,34px) scale(1.18)}}
+.hi2-sp{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none}.hi2-sp i{position:absolute;left:var(--x);bottom:-10px;width:var(--s);height:var(--s);background:#fff3c4;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0;animation:hiSp 6s var(--d) ease-in infinite}
+@keyframes hiSp{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-210px) rotate(160deg)}}
+.hi2-ring{width:150px;height:150px}.hi2-ring svg{overflow:visible}.hi2-ring .o{stroke:rgba(255,255,255,.12);stroke-width:1;stroke-dasharray:2 7;transform-origin:center;animation:hiRot 40s linear infinite}@keyframes hiRot{to{transform:rotate(360deg)}}
+.hi2-ring circle{stroke-width:10}.hi2-ring .o{stroke-width:1.2}.hi2-ring .v{stroke:url(#hig);filter:drop-shadow(0 0 10px var(--a,#ff9a3c));animation:hiRing 1.9s .3s cubic-bezier(.22,.8,.3,1) backwards}
+.hi2-ring b{font-size:40px;letter-spacing:-.03em}.hi2-ring b em{font-size:18px}
+.hi2-t h1{font-size:60px;line-height:1;letter-spacing:-.035em;background:linear-gradient(100deg,#fff 30%,var(--a2,#ffb86b) 48%,#fff 66%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hiShine 5s 1.4s ease-in-out infinite}
+@keyframes hiShine{0%{background-position:120% 0}60%,100%{background-position:-120% 0}}
+.hi2-t small{color:var(--a2,#ffb86b);opacity:.9}
+.hi2-st{display:flex;gap:30px;margin-top:14px}.hi2-st div{display:flex;flex-direction:column}.hi2-st b{font-size:28px;font-weight:800;line-height:1.1}.hi2-st span{font-size:12px;color:var(--muted)}
+.hi2-st div+div{padding-left:30px;border-left:1px solid rgba(255,255,255,.12)}
+.hi2-rar{grid-template-columns:repeat(4,112px);gap:12px}
+.hi2-rar div{padding:14px 14px 16px;background:linear-gradient(170deg,rgba(255,255,255,.07),rgba(0,0,0,.35));border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
+.hi2-rar div::after{content:"";position:absolute;inset:0;background:radial-gradient(80px 60px at 80% 0,color-mix(in srgb,var(--c) 30%,transparent),transparent);pointer-events:none}
+.hi2-rar .gm{width:22px;height:22px;margin-bottom:6px;fill:var(--c);stroke:rgba(255,255,255,.65);stroke-width:1;stroke-linejoin:round;filter:drop-shadow(0 0 7px var(--c));animation:hiGem 3.2s ease-in-out infinite}
+@keyframes hiGem{50%{transform:translateY(-3px) rotate(6deg);filter:drop-shadow(0 0 12px var(--c))}}
+.hi2-rar div:nth-child(2) .gm{animation-delay:-.8s}.hi2-rar div:nth-child(3) .gm{animation-delay:-1.6s}.hi2-rar div:nth-child(4) .gm{animation-delay:-2.4s}
+.hi2-rar div:hover{transform:translateY(-5px) scale(1.04);box-shadow:0 14px 30px -8px var(--c)}
+.hiin .hi2-t>*{animation:sgN .9s both cubic-bezier(.22,.8,.3,1)}.hiin .hi2-t h1{animation:hiTitle 1.1s .3s both cubic-bezier(.22,.8,.3,1),hiShine 5s 1.6s ease-in-out infinite}
+@keyframes hiTitle{from{opacity:0;transform:translateX(-30px);filter:blur(10px);letter-spacing:.08em}to{opacity:1;transform:none;filter:none}}
+.hiin .hi2-st{animation-delay:.55s}.hiin .hi2-ring{animation:hiRingIn 1.1s .1s cubic-bezier(.34,1.4,.5,1) both}@keyframes hiRingIn{from{opacity:0;transform:scale(.5) rotate(-90deg)}to{opacity:1;transform:none}}
+@media (max-width:1280px){.hi2{flex-wrap:wrap}.hi2-t h1{font-size:48px}}
+.hi .hi-tg em i{transform:none!important}.hi .hi-tg.hiin em i,.hiin .hi-tg em i{transform:none}
+.hi2-ring b span{font-size:inherit;letter-spacing:0;text-transform:none;color:inherit;margin:0;display:inline}
 </style>
 </head>
 <body>
@@ -7201,11 +7233,11 @@ function hitoBurst(col,r){let cv=$('#hitocv');if(!cv){cv=document.createElement(
 /* vista Hitos */
 S.hf=S.hf||{c:'all',s:'all'};
 V.hitos=()=>{S.hopen={};setTimeout(()=>{const e=$('.hi.hiin');if(e)e.classList.remove('hiin')},3400);const un=GA.filter(a=>(ST.gach||{})[a[0]]),pts=hitoPts(),tp=GA.reduce((s,a)=>s+HPTS[a[4]],0),pc=un.length/GA.length*100;
-  const rc={c:0,r:0,e:0,l:0},rt={c:0,r:0,e:0,l:0};un.forEach(a=>rc[a[4]]++);GA.forEach(a=>rt[a[4]]++);const R=46,C=2*Math.PI*R;
-  return `<div class="stack hi hiin"><header class="hi2 rise"><div class="hi2-bg"></div>
-   <div class="hi2-ring"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="${R}" class="t"/><circle cx="55" cy="55" r="${R}" class="v" style="--c:${C.toFixed(1)};--o:${(C*(1-pc/100)).toFixed(1)}"/></svg><div><b>${Math.round(pc)}<em>%</em></b><span>completado</span></div></div>
-   <div class="hi2-t"><small>Todo lo que fuiste logrando</small><h1>Hitos</h1><p><b data-count="${un.length}">0</b> de ${GA.length} desbloqueados · <b data-count="${pts}">0</b> puntos de ${tp}</p></div>
-   <div class="hi2-rar">${Object.entries(RAR).map(([k,v])=>`<div style="--c:${v[1]};--p:${rt[k]?Math.round(100*rc[k]/rt[k]):0}%"><b>${rc[k]}<em>/${rt[k]}</em></b><span>${v[0]}</span><i></i></div>`).join('')}</div></header>
+  const rc={c:0,r:0,e:0,l:0},rt={c:0,r:0,e:0,l:0};un.forEach(a=>rc[a[4]]++);GA.forEach(a=>rt[a[4]]++);const R=52,C=2*Math.PI*R;
+  return `<div class="stack hi hiin"><header class="hi2 rise"><div class="hi2-bg"><u></u><u></u><u></u></div><div class="hi2-sp">${[8,18,31,47,62,74,88,95].map((x,k)=>`<i style="--x:${x}%;--d:${k*.7}s;--s:${6+k%3*3}px"></i>`).join('')}</div>
+   <div class="hi2-ring"><svg viewBox="0 0 130 130"><defs><linearGradient id="hig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--a2,#ffb86b)"/><stop offset="1" stop-color="var(--a,#ff9a3c)"/></linearGradient></defs><circle cx="65" cy="65" r="60" class="o"/><circle cx="65" cy="65" r="${R}" class="t"/><circle cx="65" cy="65" r="${R}" class="v" style="--c:${C.toFixed(1)};--o:${(C*(1-pc/100)).toFixed(1)}"/></svg><div><b><span data-count="${Math.round(pc)}">0</span><em>%</em></b><span>completado</span></div></div>
+   <div class="hi2-t"><small>Todo lo que fuiste logrando</small><h1>Hitos</h1><div class="hi2-st"><div><b data-count="${un.length}">0</b><span>de ${GA.length} desbloqueados</span></div><div><b data-count="${pts}">0</b><span>puntos ganados</span></div></div></div>
+   <div class="hi2-rar">${Object.entries(RAR).map(([k,v])=>`<div style="--c:${v[1]};--p:${rt[k]?Math.round(100*rc[k]/rt[k]):0}%"><svg class="gm" viewBox="0 0 24 24"><path d="M12 2.5 21 9.2 12 21.5 3 9.2Z"/><path d="M3 9.2h18M8.2 9.2 12 21.5l3.8-12.3L12 2.5Z" fill="none"/></svg><b>${rc[k]}<em>/${rt[k]}</em></b><span>${v[0]}</span><i></i></div>`).join('')}</div></header>
    <div class="dy-fb rise" style="--i:2"><div class="chips">${['all',...HCATS].map(c=>`<button class="cp ${S.hf.c===c?'on':''}" data-a="hfc" data-v="${c}">${c==='all'?'Todos':c}</button>`).join('')}</div><select id="hfs" class="txt">${[['all','Todos'],['on','Desbloqueados'],['off','Pendientes']].map(([k,l])=>`<option value="${k}" ${S.hf.s===k?'selected':''}>${l}</option>`).join('')}</select></div>
    <div id="hgrid" class="rise" style="--i:3">${hitoGrid()}</div></div>`}
 function hitoGrid(){const f=S.hf;let h='';S.hopen=S.hopen||{};const all=f.c==='all';
