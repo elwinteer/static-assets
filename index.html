@@ -129,6 +129,7 @@ hr{border:0;border-top:1px solid #272238;margin:18px 0}
 
 /* library */
 .lib{display:grid;grid-template-columns:270px 1fr;gap:16px;height:100%}
+.vwx{display:flex;flex-direction:column;gap:10px;height:100%;min-height:0}.vwb{display:flex;gap:8px;align-items:center}.vwu{flex:1;height:40px;display:flex;align-items:center;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:13px;color:#c9cad6;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.vwx webview{flex:1;min-height:0;border-radius:16px;overflow:hidden;background:#0b0b11;border:1px solid rgba(255,255,255,.08)}
 .libl{background:var(--panel);border-radius:var(--r);padding:16px 12px;display:flex;flex-direction:column;min-height:0}
 .lh{display:flex;align-items:center;justify-content:space-between;padding:0 6px 12px}
 .lh h2{font-size:24px;font-weight:600}
@@ -4708,7 +4709,7 @@ function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$(
   clearTimeout(moveInd.t);moveInd.t=setTimeout(()=>{const b=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`);if(!b||!$('#ind'))return;const y=Math.round(b.getBoundingClientRect().top-nw.getBoundingClientRect().top);$('#ind').style.transform=`translateY(${y}px)`},520)}
 let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i');if(!g||!el.length)return;const u=art.hero(g),k=u+'|'+(S.view);if(amb.k===u)return;amb.k=u;
   const n=el[ambI^1],o=el[ambI];ambI^=1;const im=new Image();im.onload=()=>{n.style.backgroundImage=`url("${u}")`;n.classList.add('on');o.classList.remove('on')};im.onerror=()=>{const fb=art.wide(g);if(fb&&fb!==u){amb.k=0}};im.src=u}
-function go(v,o){if(v==='social'){v=S.ls||'friends';S.frX=0}if(v==='friends'||v==='profile'||v==='diary')S.ls=v;if(v==='prog'){v=S.lp||'stats';if(v==='wrapped')S.wdet=0}if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault')S.vu=0;if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
+function go(v,o){if(v==='social'){v=S.ls||'friends';S.frX=0}if(v==='friends'||v==='profile'||v==='diary')S.ls=v;if(v==='prog'){v=S.lp||'stats';if(v==='wrapped')S.wdet=0}if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault'){S.vu=0;S.vweb=0}if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
@@ -7999,7 +8000,7 @@ const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-$
 const VMK='3c4a6db0e2c839b13df3920df2f2f9e10e2b7fc268a931d870a884234186cead';
 async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function vMaster(code){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(code),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode('wtv-m1'),iterations:100000},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===VMK}
-function vLock(go_){S.vu=0;if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
+function vLock(go_){S.vu=0;S.vweb=0;if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
 /* pantalla de PIN: no dice qué es ni para qué; igual exista o no una bóveda */
 function vOpen(){if(S.vu){go('vault');return}
   if(!(window.crypto&&crypto.subtle&&crypto.subtle.deriveBits))return;
@@ -8010,17 +8011,18 @@ async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.trim(),L
   if(S.vwait&&Date.now()<S.vwait){toast('PIN incorrecto');return}
   if(pin.length>=4&&pin.length<=16&&await vMaster(pin)){S.vtry=0;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
   S.vtry=(S.vtry||0)+1;i.value='';if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0}toast('PIN incorrecto')}
-function vOk(){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vu=Date.now();S.vlast=Date.now();S.vq='';go('vault')}
+function vOk(){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';go('vault')}
 /* vista: mismo diseño que la biblioteca, con ids propios para no mezclarse con ella */
 V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></div>';
-  return `<div class="lib"><section class="libl"><div class="lh"><h2>Bóveda</h2><div style="display:flex;gap:8px"><button class="ib" data-a="vmove" title="Mover desde mi biblioteca">${ic('arrow')}</button><button class="ib" data-a="vaddx" title="Agregar un juego (.exe o AppID)">${ic('plus')}</button><button class="ib" data-a="vopts" title="Opciones">${ic('edit')}</button><button class="ib" data-a="vlock" title="Cerrar">${ic('lock')}</button></div></div>
+  if(S.vweb)return `<div class="vwx"><div class="vwb"><button class="b2 sm" data-a="vwx" title="Volver a la Bóveda" style="height:40px;padding:0 18px">Bóveda</button><button class="ib" data-a="vwb" title="Atrás">${ic('chl')}</button><button class="ib" data-a="vwf" title="Adelante">${ic('chr')}</button><button class="ib" data-a="vwr" title="Recargar">${ic('wrl')}</button><div class="vwu" id="vwu">f95zone.to</div></div><webview id="vwv" partition="persist:wt-vault" src="https://f95zone.to/"></webview></div>`;
+  return `<div class="lib"><section class="libl"><div class="lh"><h2>Bóveda</h2><div style="display:flex;gap:8px"><button class="ib" data-a="vmove" title="Mover desde mi biblioteca">${ic('arrow')}</button><button class="ib" data-a="vaddx" title="Agregar un juego (.exe o AppID)">${ic('plus')}</button><button class="ib" data-a="vweb" title="Explorar juegos +18 (F95zone)">${ic('world')}</button><button class="ib" data-a="vopts" title="Opciones">${ic('edit')}</button><button class="ib" data-a="vlock" title="Cerrar">${ic('lock')}</button></div></div>
   <div class="ls">${ic('search')}<input id="vlq" placeholder="Buscar…" value="${esc(S.vq||'')}"></div><div class="cnt" id="vcnt"></div><div class="list" id="vlist"></div></section><section class="detail" id="vdetail"></section></div>`};
 function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq||'').toLowerCase();
   const arr=[...L.g].filter(g=>g.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
   e.innerHTML=arr.length?arr.map(g=>{const run=S.vplay&&S.vplay.id===g.id,t=run?'Jugando':stOf(g);
     return `<div class="it ${g.id===S.vsel?'sel':''} ${g.status==='Terminado'?'done':''}" data-a="vsel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${esc(g.name)}</b></div>${t==='Jugando'?'<i class="sdt g"></i>':t==='Pausado'?'<i class="sdt b"></i>':''}</div>`}).join(''):`<p style="color:var(--muted);padding:14px;font-size:13px">${L.g.length?'Sin resultados':'Todavía no hay nada. Con el botón de la flecha movés un juego desde tu biblioteca.'}</p>`;
   const c=$('#vcnt');if(c)c.textContent=arr.length+(arr.length===1?' juego':' juegos')}
-function vRender(){if(S.view!=='vault'||!S.vu)return;const L=vL();if(!L)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
+function vRender(){if(S.view!=='vault'||!S.vu)return;if(S.vweb){const w=$('#vwv'),u=$('#vwu');if(w&&u&&!w._w){w._w=1;const f=()=>{try{u.textContent=w.getURL().replace(/^https?:\/\//,'')}catch(e){}};['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>w.addEventListener(e,f))}return}const L=vL();if(!L)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
   vList();vDetail(true);const i=$('#vlq');if(i&&!i._v){i._v=1;i.addEventListener('input',e=>{S.vq=e.target.value;vList()})}}
 function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
   if(!g){d.className='detail';d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
@@ -8097,7 +8099,7 @@ function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;try{winteerNative.vp
   if(g.hl&&g.hl.m&&g.status!=='Terminado'&&g.hours>=parseFloat(g.hl.m)){g.status='Terminado'}
   try{const s=ggS(g);if(h>s.max)s.max=+h.toFixed(3)}catch(e){}save();try{ggCheck(g)}catch(e){}if(S.view==='vault'&&S.vu)vRender()}
 Object.assign(A,{
- vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),vadult:()=>{const L=vL();if(!L)return;L.adult=!L.adult;save();toast(L.adult?'Juegos +18 visibles (al recargar el catálogo)':'Juegos +18 ocultos (al recargar el catálogo)');A.vclose();A.vopts()},vpanic:()=>{try{winteerNative.vpanicNow()}catch(e){}},
+ vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),vweb:()=>{S.vweb=1;go('vault')},vwx:()=>{S.vweb=0;go('vault')},vwb:()=>{try{$('#vwv').goBack()}catch(e){}},vwf:()=>{try{$('#vwv').goForward()}catch(e){}},vwr:()=>{try{$('#vwv').reload()}catch(e){}},vadult:()=>{const L=vL();if(!L)return;L.adult=!L.adult;save();toast(L.adult?'Juegos +18 visibles (al recargar el catálogo)':'Juegos +18 ocultos (al recargar el catálogo)');A.vclose();A.vopts()},vpanic:()=>{try{winteerNative.vpanicNow()}catch(e){}},
  vsel:a=>{S.vsel=a.dataset.id;S.vtab='res';vList();vDetail(false)},
  vtab:a=>{S.vtab=a.dataset.id;vTab()},
  vplay:a=>{const g=vG(a.dataset.id);if(!g)return;

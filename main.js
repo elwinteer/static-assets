@@ -2149,10 +2149,11 @@ function createWindow() {
     icon: path.join(__dirname, 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, spellcheck: false, backgroundThrottling: false, webviewTag: true },
   });
-  win.webContents.on('will-attach-webview', (_e, wp, params) => { delete wp.preload; delete wp.preloadURL; wp.nodeIntegration = false; wp.contextIsolation = true; wp.sandbox = true; params.partition = WEB_PART; });
+  win.webContents.on('will-attach-webview', (_e, wp, params) => { delete wp.preload; delete wp.preloadURL; wp.nodeIntegration = false; wp.contextIsolation = true; wp.sandbox = true; params.partition = params.partition === 'persist:wt-vault' ? 'persist:wt-vault' : WEB_PART; });
   win.webContents.on('did-attach-webview', (_e, wc) => {
     try {
       try { wc.setBackgroundColor('#00000000'); } catch (e) {}
+      try { if (wc.session === session.fromPartition('persist:wt-vault')) { wc.setWindowOpenHandler(({ url }) => { if (/^https?:/i.test(String(url)) && !adUrlHit(url)) wc.loadURL(url).catch(() => {}); return { action: 'deny' }; }); return; } } catch (e) {}
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
         try { if (/(^|\.)megadb\.net$/i.test(new URL(wc.getURL()).hostname) && !/^magnet:/i.test(String(url))) { adBlocked++; note('Bloqueé una ventana extra de MegaDB'); return { action: 'deny' }; } } catch (e) {}
