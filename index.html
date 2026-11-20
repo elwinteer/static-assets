@@ -4173,6 +4173,18 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .av-col{grid-template-columns:auto auto 1fr;grid-template-areas:"n t b";align-items:center;gap:0 12px;width:100%}.av-col .av-cb{margin:0}.av-col b{font-size:26px}
 .av-rar span{padding:5px 10px 7px;border-radius:99px;flex-direction:row;gap:6px}.av-rar b{font-size:12px;white-space:nowrap}.av-rar b small{font-size:11px}.av-rar em{white-space:nowrap}.av-rar u{height:2px;left:10px;right:10px;width:auto;max-width:var(--p);border-radius:2px}
 .av-rar b{display:inline-flex;align-items:baseline;gap:1px}.av-rar b small{display:inline;margin:0}
+
+/* cosméticos: más aire */
+#avpane.spane,.avedit .spane{padding:22px 26px}
+.av-top{margin-bottom:16px;padding:16px 20px;gap:12px}
+.av-hd{margin:0 -26px 16px;padding:14px 26px 14px}
+.av-hd .avgs{margin:0}.av-cats{margin-top:12px;gap:8px}.av-cats .cp{padding:9px 16px}
+.avseg .avg{padding:12px 16px}
+.avfl{margin:4px 0 16px;gap:14px;flex-wrap:wrap}.avfl>span{flex:1}
+.av-grid{gap:16px;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));padding-bottom:20px}
+.avi{padding:11px 11px 13px;gap:5px}
+.avcol{margin:0 0 16px;padding:12px 16px;gap:10px}
+.av-top .av-rar{gap:5px;flex-wrap:nowrap}.av-rar span{padding:5px 8px 7px;gap:5px}.av-rar em,.av-rar b{font-size:11px}
 </style>
 </head>
 <body>
@@ -7912,7 +7924,7 @@ function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G
   const fl=[['all','Todos'],['ok','Desbloqueados'],['lk','Próximos']].map(([k,l])=>`<button class="${F===k?'on':''}" data-a="avflt" data-v="${k}">${l}</button>`).join('');
   S.avn=0;const nI=items.length;
   return `<div class="av-top"><div class="av-col"><b>${have}</b><span>de ${tot.length} cosméticos desbloqueados</span><span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span></div><div class="av-rar">${rc.map(x=>`<span style="--rc:${x[0][1]};--p:${x[2]?Math.round(100*x[1]/x[2]):0}%"><i></i><em>${x[0][0]}</em><b>${x[1]}<small>/${x[2]}</small></b><u></u></span>`).join('')}</div></div>
-  <div class="av-hd">${G[0]==='head'?`<div class="avgs avgn"><span class="mut">Cuerpo</span><div class="avseg sm"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div></div>`:''}<div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div>${sw}<div class="avfl"><span><b>${d.n}</b> · ${nI} ${nI===1?'objeto':'objetos'}</span><div class="avseg sm">${fl}</div></div><div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
+  <div class="av-hd"><div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div>${sw}<div class="avfl"><span><b>${d.n}</b> · ${nI} ${nI===1?'objeto':'objetos'}</span>${G[0]==='head'?`<div class="avseg sm avgn2"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div>`:''}<div class="avseg sm">${fl}</div></div><div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
 (()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}if(!drag||!drag.pu){avPush();if(drag)drag.pu=1}else{}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
  const hv=()=>+(($('.avwv')||{}).value||100)/100,pick=(w,e)=>{const r=w.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,R=r.width/2,d=Math.min(1,Math.hypot(x,y)/R),h=(Math.atan2(y,x)*180/Math.PI+90+360)%360,dot=w.querySelector('i');const kk=Math.hypot(x,y)/R>1?R/Math.hypot(x,y):1;dot.style.left=(50+x/R*kk*50)+'%';dot.style.top=(50+y/R*kk*50)+'%';S.avh=h;S.avs=d;setC(w.parentNode.dataset.k,hsv2hex(h,d,hv()))};
  document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.avwheel');if(!w)return;drag=w;try{w.setPointerCapture(e.pointerId)}catch(_){}pick(w,e)});
