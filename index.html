@@ -4178,6 +4178,29 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .av-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
 .avi{padding:7px 7px 9px;border-radius:16px;gap:2px}.avi-p{border-radius:12px}.avi b{font-size:11.5px;margin-top:2px}.avi small{font-size:10px}
 .avi-ck{width:19px;height:19px;font-size:11px;left:5px;top:5px}
+
+/* cosméticos: pulido */
+.avg .avg-i{display:inline-flex;width:18px;height:18px}.avg .avg-i svg{width:100%;height:100%}
+.avseg .avg{gap:9px}
+.av-cats{gap:6px;margin-bottom:10px}.av-cats .cp{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
+.av-cats .cp small{margin:0;font-size:11px;padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.08);opacity:1;color:var(--muted)}
+.av-cats .cp.on{background:rgba(var(--argb),.22);border-color:rgba(var(--argb),.85)}.av-cats .cp.on small{background:rgba(var(--argb),.5);color:#fff}
+.av-cats .cp:hover:not(.on){background:rgba(255,255,255,.09)}
+.avgs.avgn{margin-bottom:10px;gap:12px}
+.av-hd{padding-bottom:6px}
+.avfl{margin:10px 0 14px}.avfl>span b{font-size:16px}
+.avi{background:linear-gradient(175deg,color-mix(in srgb,var(--rc) 9%,rgba(255,255,255,.05)),rgba(255,255,255,.015));border-color:color-mix(in srgb,var(--rc) 22%,rgba(255,255,255,.05))}
+.avi-p{box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.avi b{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avi small{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,var(--rc) 16%,transparent);margin-top:2px}
+.avi.lk small{background:rgba(255,255,255,.07)}
+.avi u{background:rgba(10,8,16,.75);backdrop-filter:blur(4px);box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.avi.on small{background:var(--rc);color:#14110a}
+.av-top{background:linear-gradient(135deg,rgba(var(--argb),.14),rgba(255,255,255,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.av-rar span{background:rgba(255,255,255,.04)}
+.avl-b .hm-go{height:46px;border-radius:14px}
+.av-cats .cp{padding:6px 10px;gap:6px;font-size:12px}.av-cats .cp small{padding:0 6px;font-size:10.5px}.av-cats{gap:5px;flex-wrap:nowrap}.av-hd{top:-22px}
+.av-cats .cp small{display:none}.av-cats .cp{padding:8px 15px;font-size:12.5px;flex:0 1 auto}.av-cats{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -7910,14 +7933,14 @@ function avColUI(k,cur){const v=cur[k],hex=v==null?'':cvx(v),orig=(k==='topc'||k
   return `<div class="avcol"><span>Color</span>${orig}${AVCL.map((x,i)=>`<button class="${v===i?'on':''}" style="background:${x[0]}" title="${x[1]}" data-a="avcol" data-k="${k}" data-v="${i}"></button>`).join('')}<button class="avwb ${S.avw===k?'on':''}" title="Rueda de color" data-a="avwheel" data-k="${k}"></button></div>${S.avw===k?`<div class="avwp" data-k="${k}"><div class="avwheel"><i style="left:50%;top:50%"></i></div><div class="avwr"><label>Brillo</label><input type="range" class="avwv" min="15" max="100" value="${S.avwv||100}"><label>Hex</label><input type="text" class="avhex" maxlength="7" value="${hex}" placeholder="#rrggbb"></div></div>`:''}`}
 function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G[2],c=cats.includes(S.avcat)?S.avcat:cats[0],d=AVD[c],F=S.avf||'all';
   const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,rc=AVR.map((r,i)=>[r,tot.filter(([k,it])=>it[2]===i&&avOk(it)).length,tot.filter(([k,it])=>it[2]===i).length]);
-  const grp=AVGR.map(g=>{const n=g[2].reduce((q,k)=>q+avList(k).filter(avOk).length,0),m=g[2].reduce((q,k)=>q+avList(k).length,0);return `<button class="avg ${g[0]===G[0]?'on':''}" data-a="avgrp" data-v="${g[0]}">${g[1]}<small>${n}/${m}</small></button>`}).join('');
+  const grp=AVGR.map(g=>{const n=g[2].reduce((q,k)=>q+avList(k).filter(avOk).length,0),m=g[2].reduce((q,k)=>q+avList(k).length,0);return `<button class="avg ${g[0]===G[0]?'on':''}" data-a="avgrp" data-v="${g[0]}"><i class="avg-i">${({head:PFI.u,cloth:PFI.w,acc:ic('crown'),scene:ic('img')})[g[0]]}</i>${g[1]}<small>${n}/${m}</small></button>`}).join('');
   const chips=cats.length>1?cats.map(k=>{const l=avList(k),n=l.filter(avOk).length;return `<button class="cp ${k===c?'on':''}" data-a="avcat" data-v="${k}">${AVD[k].n} <small>${n}/${l.length}</small></button>`}).join(''):'';
   const colk={top:'topc',bot:'botc',hat:'hatc',glass:'glassc',shoes:'shoesc',back:'backc',hand:'handc'}[c]||'',sw=colk?(NOCOL.has(cur[c])?`<div class="avcol"><span>Color</span><em class="avnc">Este objeto conserva su color original</em></div>`:avColUI(colk,cur)):'';
   let items=[...avList(c)].sort((a,b)=>(avOk(b)-avOk(a))||(a[2]-b[2]));if(F==='ok')items=items.filter(avOk);if(F==='lk')items=items.filter(x=>!avOk(x));
   const fl=[['all','Todos'],['ok','Desbloqueados'],['lk','Próximos']].map(([k,l])=>`<button class="${F===k?'on':''}" data-a="avflt" data-v="${k}">${l}</button>`).join('');
   S.avn=0;const nI=items.length;
   return `<div class="av-top"><div class="av-col"><b>${have}</b><span>de ${tot.length} cosméticos desbloqueados</span><span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span></div><div class="av-rar">${rc.map(x=>`<span style="--rc:${x[0][1]};--p:${x[2]?Math.round(100*x[1]/x[2]):0}%"><i></i><em>${x[0][0]}</em><b>${x[1]}<small>/${x[2]}</small></b><u></u></span>`).join('')}</div></div>
-  <div class="av-hd">${G[0]==='head'?`<div class="avgs avgn"><span class="mut">Cuerpo</span><div class="avseg sm"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div></div>`:''}<div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div>${sw}<div class="avfl"><span><b>${d.n}</b> · ${nI} ${nI===1?'objeto':'objetos'}</span><div class="avseg sm">${fl}</div></div><div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
+  ${G[0]==='head'?`<div class="avgs avgn"><span class="mut">Cuerpo</span><div class="avseg sm"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div></div>`:''}<div class="av-hd"><div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div>${sw}<div class="avfl"><span><b>${d.n}</b> · ${nI} ${nI===1?'objeto':'objetos'}</span><div class="avseg sm">${fl}</div></div><div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
 (()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}if(!drag||!drag.pu){avPush();if(drag)drag.pu=1}else{}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
  const hv=()=>+(($('.avwv')||{}).value||100)/100,pick=(w,e)=>{const r=w.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,R=r.width/2,d=Math.min(1,Math.hypot(x,y)/R),h=(Math.atan2(y,x)*180/Math.PI+90+360)%360,dot=w.querySelector('i');const kk=Math.hypot(x,y)/R>1?R/Math.hypot(x,y):1;dot.style.left=(50+x/R*kk*50)+'%';dot.style.top=(50+y/R*kk*50)+'%';S.avh=h;S.avs=d;setC(w.parentNode.dataset.k,hsv2hex(h,d,hv()))};
  document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.avwheel');if(!w)return;drag=w;try{w.setPointerCapture(e.pointerId)}catch(_){}pick(w,e)});
