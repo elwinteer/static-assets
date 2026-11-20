@@ -7717,27 +7717,35 @@ const rows=[3,5,5,3];rows.forEach((n,ri)=>{const by=yb-th-B*(3-ri)+B*.9;for(let 
 return o};
 bg+=tree(30,176,.9)+tree(156,178,1.1)+tree(100,174,.6);
 bg+='<rect y="168" width="200" height="14" fill="url(#w13h)" opacity=".15"/>';
-// ---- suelo
-let gr='<defs><linearGradient id="w13f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f6ff" stop-opacity=".18"/><stop offset="1" stop-color="#e9f6ff" stop-opacity="0"/></linearGradient></defs><rect x="-20" y="184" width="240" height="60" fill="#5cb83a"/>';
-const GC=['#5cb83a','#52ad35','#66c244','#4fa633','#5ab53a'];
-for(let y=184;y<240;y+=8)for(let x=-16;x<216;x+=8){gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(GC)}"/>`;if(R()>.78)gr+=`<rect x="${x+2}" y="${y+2}" width="3" height="3" fill="${pick(['#3f8f2a','#7dd35a','#6cc04a'])}"/>`;gr+=`<rect x="${x}" y="${y}" width="8" height=".8" fill="#fff" opacity=".1"/><rect x="${x+7.2}" y="${y}" width=".8" height="8" fill="#000" opacity=".08"/>`}
-gr+='<rect x="-20" y="184" width="240" height="3" fill="#7dd35a"/><rect x="-20" y="187" width="240" height="2" fill="#3f8f2a" opacity=".6"/><rect x="-20" y="184" width="240" height="40" fill="url(#w13f)"/>';
-// sombras de los árboles sobre el pasto
+// ---- suelo en perspectiva
+let gr='<defs><linearGradient id="w13f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f6ff" stop-opacity=".2"/><stop offset="1" stop-color="#e9f6ff" stop-opacity="0"/></linearGradient><linearGradient id="w13p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0b3a10" stop-opacity=".28"/></linearGradient></defs><rect x="-20" y="184" width="240" height="60" fill="#5cb83a"/>';
+const GC=['#5cb83a','#52ad35','#66c244','#4fa633','#5ab53a'],GS=['#3f8f2a','#7dd35a','#6cc04a','#4a9e30'];
+const YS=[184,188.5,194,200.5,208.5,218,229.5,244],NR=YS.length-1,rowsB=[];
+for(let r=0;r<NR;r++){const y=YS[r],h=YS[r+1]-y,w=h*2.4,n=Math.ceil(116/w),row=[];for(let k=-n;k<n;k++){const x=100+k*w;row.push({x,w,y,h,cx:x+w/2})}rowsB.push(row)}
+const sub=(bl,pal)=>{let o='';const sw=bl.w/3,sh=bl.h/2;for(let u=0;u<3;u++)for(let v=0;v<2;v++)if(R()>.5)o+=`<rect x="${f(bl.x+u*sw)}" y="${f(bl.y+v*sh)}" width="${f(sw)}" height="${f(sh)}" fill="${pick(pal)}"/>`;return o};
+const blk=(bl,c)=>`<rect x="${f(bl.x)}" y="${f(bl.y)}" width="${f(bl.w+.3)}" height="${f(bl.h+.3)}" fill="${c}"/>`;
+const PD=['#8f6334','#9b6b38','#84582c','#a4733e'],PS=['#6b4420','#b98954','#7a5028'];
+const WD=['#3d7fd4','#4b92e6','#3470c0'],WDD=['#2c62ad','#3470c0','#285a9e'];
+rowsB.forEach((row,r)=>{const hw=10+r*7.5;row.forEach(bl=>{const dx=Math.abs(bl.cx-100),inWat=r>=3&&r<=5&&bl.cx>148&&bl.cx<204,sand=(r===2||r===6)&&bl.cx>148&&bl.cx<204;
+if(inWat){const deep=r===4&&bl.cx>158&&bl.cx<194;gr+=blk(bl,pick(deep?WDD:WD));return}
+if(sand){gr+=blk(bl,pick(['#e3cf8e','#d8c27c']))+sub(bl,['#f1e0a4','#c9b46c']);return}
+if(dx<hw){gr+=blk(bl,pick(PD))+sub(bl,PS);return}
+if(dx<hw+bl.w*.9&&R()>.45){gr+=blk(bl,pick(['#7a5a2a','#6c8f35']))+sub(bl,GS);return}
+gr+=blk(bl,pick(GC))+sub(bl,GS)});
+gr+=`<rect x="-20" y="${f(YS[r])}" width="240" height=".7" fill="#fff" opacity=".08"/>`});
+gr+='<rect x="-20" y="184" width="240" height="3" fill="#7dd35a"/><rect x="-20" y="187" width="240" height="2" fill="#3f8f2a" opacity=".55"/><rect x="-20" y="184" width="240" height="40" fill="url(#w13f)"/><rect x="-20" y="200" width="240" height="44" fill="url(#w13p)"/>';
+// sombras de árboles y de nubes que pasan
 [[30,34],[156,40],[100,24]].forEach(([x,w])=>gr+=`<rect x="${x-w/2+4}" y="185" width="${w}" height="6" fill="#1f5a20" opacity=".22"/>`);
-// camino de tierra con bordes irregulares
-const DC=['#8f6334','#9b6b38','#84582c','#a4733e'];
-for(let k=0;k<7;k++){const y=184+k*8,hw=Math.round((12+k*5)/8)*8+(k%2?0:0);for(let x=100-hw;x<100+hw;x+=8){gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(DC)}"/>`;if(R()>.6)gr+=`<rect x="${x+2}" y="${y+3}" width="3" height="2" fill="#6b4420"/>`;if(R()>.85)gr+=`<rect x="${x+4}" y="${y+1}" width="2" height="2" fill="#b98954"/>`}
-if(R()>.3)gr+=`<rect x="${100-hw-8}" y="${y}" width="8" height="8" fill="#7a5a2a"/>`;if(R()>.3)gr+=`<rect x="${100+hw}" y="${y}" width="8" height="8" fill="#7a5a2a"/>`}
-// estanque con brillo animado
-const WC=['#3d7fd4','#4b92e6','#3470c0'];
-for(let y=208;y<232;y+=8)for(let x=150;x<198;x+=8){if((y===208||y===224)&&(x===150||x===190))continue;gr+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${pick(WC)}"/>`}
-gr+='<rect x="150" y="206" width="48" height="2" fill="#e3cf8e"/><rect x="150" y="232" width="48" height="2" fill="#e3cf8e"/>';
-[[154,212,0],[172,216,1.1],[160,224,.5],[182,226,1.7],[188,212,.8]].forEach(([x,y,d])=>gr+=`<rect x="${x}" y="${y}" width="8" height="1.6" fill="#d8eeff"><animate attributeName="opacity" values="0;.85;0" dur="2.6s" begin="-${d}s" repeatCount="indefinite"/></rect>`);
-// flores y pasto alto (se mecen)
+gr+='<g><animateTransform attributeName="transform" type="translate" values="-90 0;260 0" dur="46s" repeatCount="indefinite"/><rect x="0" y="190" width="70" height="26" fill="#0b3a10" opacity=".13"/><rect x="14" y="216" width="40" height="14" fill="#0b3a10" opacity=".1"/></g>';
+// estanque: brillo, nenúfares
+[[156,210,0],[172,215,1.1],[162,222,.5],[184,224,1.7],[190,211,.8]].forEach(([x,y,d])=>gr+=`<rect x="${x}" y="${y}" width="9" height="1.4" fill="#d8eeff"><animate attributeName="opacity" values="0;.85;0" dur="2.6s" begin="-${d}s" repeatCount="indefinite"/></rect>`);
+[[166,216],[186,219]].forEach(([x,y])=>gr+=`<rect x="${x}" y="${y}" width="9" height="4" fill="#3f9d3a"/><rect x="${x+2}" y="${y}" width="4" height="2" fill="#2f7a2c"/><rect x="${x+6}" y="${y-2}" width="3" height="3" fill="#ff9ecb"/>`);
+// flores, hongos y pasto alto
 const sw=(o,v,d)=>`<animateTransform attributeName="transform" type="rotate" values="-${v} ${o};${v} ${o};-${v} ${o}" dur="${d}s" repeatCount="indefinite"/>`;
 const fl=(x,y,c,d)=>`<g>${sw(x+1+' '+(y+6),4,d)}<rect x="${x}" y="${y}" width="2" height="6" fill="#2f7a24"/><rect x="${x-2}" y="${y-4}" width="6" height="4" fill="${c}"/><rect x="${x}" y="${y-3}" width="2" height="2" fill="#ffd54f"/></g>`;
-[[22,200,'#e0302c'],[50,214,'#ffe24a'],[66,196,'#e0302c'],[134,200,'#ffffff'],[130,222,'#ffe24a'],[14,226,'#ffffff'],[38,230,'#e0302c'],[196,196,'#e0302c'],[84,230,'#ffffff']].forEach((a,i)=>gr+=fl(a[0],a[1],a[2],2.4+i%3*.6));
-[[10,196],[44,204],[78,222],[122,214],[142,190],[176,196],[196,214],[26,218],[60,188]].forEach((a,i)=>gr+=`<g>${sw(a[0]+1+' '+(a[1]+6),5,2.8+i%3*.5)}<rect x="${a[0]}" y="${a[1]}" width="2" height="6" fill="#2f7a24"/><rect x="${a[0]+3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/><rect x="${a[0]-3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/></g>`);
+[[22,200,'#e0302c'],[50,214,'#ffe24a'],[66,196,'#4a7ae0'],[134,200,'#ffffff'],[132,226,'#ffe24a'],[14,226,'#ffffff'],[38,231,'#e0302c'],[196,196,'#e0302c'],[78,232,'#ff9ecb'],[120,236,'#4a7ae0']].forEach((a,i)=>gr+=fl(a[0],a[1],a[2],2.4+i%3*.6));
+[[10,196],[44,204],[80,222],[124,214],[142,190],[176,196],[196,236],[26,220],[60,188],[116,198]].forEach((a,i)=>gr+=`<g>${sw(a[0]+1+' '+(a[1]+6),5,2.8+i%3*.5)}<rect x="${a[0]}" y="${a[1]}" width="2" height="6" fill="#2f7a24"/><rect x="${a[0]+3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/><rect x="${a[0]-3}" y="${a[1]+2}" width="2" height="4" fill="#3f9a30"/></g>`);
+[[28,210],[140,232]].forEach(([x,y])=>gr+=`<rect x="${x+1.5}" y="${y+2}" width="2" height="3" fill="#e8d8b8"/><rect x="${x}" y="${y}" width="5" height="3" fill="#d6302c"/><rect x="${x+1}" y="${y+.6}" width="1.2" height="1.2" fill="#fff"/><rect x="${x+3}" y="${y+1}" width="1" height="1" fill="#fff"/>`);
 return {bg,gr}})();
 const GL=(d,f,o)=>`<path d="${d}" fill="${f}" fill-opacity="${o||.3}"/>`+inkP(d,3.4);
 const TSHD='M132 140H190V272H167L134 152Z';
