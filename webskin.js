@@ -1030,6 +1030,27 @@ function fitgirlConsole() {
       .fc{aspect-ratio:2/3;border-radius:18px!important}.fc .go{display:none!important}
       .fc .mi{gap:8px}.fc .mi span,.fc .mi span:first-child{background:none!important;border:0;padding:0;backdrop-filter:none;font:600 10.5px ${FONT};color:#c4c5d4}.fc .mi span:nth-child(n+3){display:none}
       .hd .sr{width:260px;height:42px;animation:none}.hd .sr:focus-within{width:300px}
+      /* ---- animación de carga v2 (FitGirl) ---- */
+      @keyframes ldBar{from{opacity:0;transform:translateY(-26px) scale(.97);filter:blur(10px)}}
+      @keyframes ldTt{from{opacity:0;transform:translateY(20px);filter:blur(9px)}}
+      @keyframes ldAz{from{opacity:0;transform:translateY(-14px) scale(.96);filter:blur(6px)}}
+      @keyframes ldLt{from{opacity:0;transform:translateY(14px) scale(.4)}}
+      @keyframes ldBr{0%{transform:scaleY(0);opacity:1}55%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
+      @keyframes ldSh{from{transform:translateX(-130%)}to{transform:translateX(130%)}}
+      @keyframes ldRise{from{opacity:0;transform:perspective(1000px) translateY(36px) rotateX(9deg) scale(.96);filter:blur(9px)}}
+      @keyframes ldCv{from{transform:scale(.78) rotate(-7deg)}}
+      .bar.hb{animation:ldBar .95s cubic-bezier(.16,1,.3,1) backwards}
+      .hd{animation:ldTt 1s .2s cubic-bezier(.16,1,.3,1) backwards}
+      .azb.ent{animation:ldAz .9s .3s cubic-bezier(.16,1,.3,1) backwards}
+      .azb.ent button{animation:ldLt .6s calc(.5s + var(--n,0)*22ms) cubic-bezier(.34,1.5,.64,1) backwards}
+      ${Array.from({ length: 28 }, (_, i) => '.azb button:nth-child(' + (i + 1) + '){--n:' + i + '}').join('')}
+      .ar2{animation:ldRise .9s calc(.35s + var(--i)*45ms) cubic-bezier(.16,1,.3,1) backwards}
+      .ar2 .acv{animation:ldCv 1.1s calc(.45s + var(--i)*45ms) cubic-bezier(.34,1.4,.64,1) backwards}
+      .ar2 .an{animation:ldTt .8s calc(.6s + var(--i)*45ms) ease backwards}
+      .ar2:before{content:'';position:absolute;left:0;top:14%;bottom:14%;width:3px;border-radius:3px;background:linear-gradient(#fff,hsl(260 80% 65%));transform-origin:center;animation:ldBr 1.1s calc(.55s + var(--i)*45ms) ease-out both;pointer-events:none}
+      .ar2:after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.13) 50%,transparent 62%);animation:ldSh 1.3s calc(.7s + var(--i)*45ms) ease-out both}
+      .up3{animation:ldRise .9s calc(.3s + var(--i,0)*70ms) cubic-bezier(.16,1,.3,1) backwards}
+      .fc{animation-name:ldRise!important;animation-duration:1s!important;animation-delay:calc(.25s + var(--i)*45ms)!important}.fc.done{animation:none!important}
       .gr.az2{display:block;max-width:1000px;width:100%;margin:0 auto}#ar{display:grid;gap:12px}
       .azb{display:flex;justify-content:space-between;gap:2px;margin:0 0 18px;padding:8px;border-radius:20px;background:rgba(16,16,26,.82);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(16px);position:sticky;top:84px;z-index:6;box-shadow:0 16px 40px rgba(0,0,0,.4)}
       .azb button{all:unset;box-sizing:border-box;cursor:pointer;min-width:0;flex:1;height:32px;text-align:center;line-height:32px;border-radius:10px;color:#aeb0c0;font:700 13px ${FONT};transition:background .3s,color .3s,transform .4s cubic-bezier(.34,1.5,.64,1)}.azb button:hover{background:rgba(255,255,255,.14);color:#fff;transform:translateY(-2px) scale(1.12)}.azb button.on{background:#f4f4f8;color:#0b0b13}
@@ -1081,7 +1102,7 @@ function fitgirlConsole() {
         gr.innerHTML = '<div class="azb" id="az"></div><div id="ar"></div>';
         const ar = gr.querySelector('#ar');
         const paint = () => {
-          const azb = gr.querySelector('#az'); azb.innerHTML = keys.map((k) => '<button data-l="' + k + '">' + k + '</button>').join('');
+          const azb = gr.querySelector('#az'); azb.innerHTML = keys.map((k) => '<button data-l="' + k + '">' + k + '</button>').join(''); if (!azb.dataset.s) { azb.dataset.s = 1; azb.classList.add('ent'); setTimeout(() => azb.classList.remove('ent'), 2200); }
           const ts = $('#ts'); if (ts) cancelAnimationFrame(ts._r), ts.textContent = L.length + ' repacks' + (ST.all.ld ? ' · cargando el resto…' : '');
           const q = norm(qv); let arr;
           if (q) { const ws = q.split(' '); arr = idx.filter((o) => ws.every((w) => o.n.indexOf(w) >= 0)).sort((a, b) => (a.n.indexOf(q) === 0 ? 0 : 1) - (b.n.indexOf(q) === 0 ? 0 : 1) || a.n.length - b.n.length).map((o) => o.x); } else arr = by[AZ.l] || [];
