@@ -4072,6 +4072,32 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .sgin .sgpgs button{animation:sgPop .6s calc(1.2s + var(--n,0)*45ms) cubic-bezier(.34,1.6,.5,1) both}
 @keyframes sgPop{from{opacity:0;transform:scale(.4) translateY(10px)}to{opacity:1;transform:none}}
 .sgin .sgpgs button:nth-child(1){--n:0}.sgin .sgpgs button:nth-child(2){--n:1}.sgin .sgpgs button:nth-child(3){--n:2}.sgin .sgpgs button:nth-child(4){--n:3}.sgin .sgpgs button:nth-child(5){--n:4}.sgin .sgpgs button:nth-child(6){--n:5}.sgin .sgpgs button:nth-child(7){--n:6}.sgin .sgpgs button:nth-child(8){--n:7}.sgin .sgpgs button:nth-child(9){--n:8}.sgin .sgpgs button:nth-child(10){--n:9}
+
+/* Hitos: cabecera nueva, categorías en tarjetas, animación de entrada */
+.hi2{position:relative;display:flex;align-items:center;gap:26px;padding:22px 28px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.hi2-bg{position:absolute;inset:0;pointer-events:none;background:radial-gradient(520px 220px at 8% 0,rgba(var(--argb,255,154,60),.28),transparent 70%),radial-gradient(420px 200px at 100% 100%,rgba(251,191,36,.12),transparent 70%)}
+.hi2>*{position:relative}
+.hi2-ring{position:relative;width:118px;height:118px;flex:none}.hi2-ring svg{width:100%;height:100%;transform:rotate(-90deg)}.hi2-ring circle{fill:none;stroke-width:9}.hi2-ring .t{stroke:rgba(255,255,255,.09)}.hi2-ring .v{stroke:var(--a,#ff9a3c);stroke-linecap:round;stroke-dasharray:var(--c);stroke-dashoffset:var(--o);filter:drop-shadow(0 0 8px var(--a,#ff9a3c))}
+.hi2-ring>div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.hi2-ring b{font-size:30px;font-weight:800;line-height:1}.hi2-ring b em{font-style:normal;font-size:15px;opacity:.7}.hi2-ring span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.hi2-t{flex:1;min-width:0}.hi2-t small{display:block;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;font-size:11px;margin-bottom:6px}.hi2-t h1{font-size:40px;font-weight:800;margin:0;letter-spacing:-.02em}.hi2-t p{margin:8px 0 0;color:var(--muted);font-size:14px}.hi2-t p b{color:var(--text);font-size:15px}
+.hi2-rar{display:grid;grid-template-columns:repeat(4,104px);gap:10px}
+.hi2-rar div{position:relative;overflow:hidden;display:flex;flex-direction:column;padding:12px 14px 14px;border-radius:16px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.07);transition:transform .35s var(--spring),border-color .3s}.hi2-rar div:hover{transform:translateY(-3px);border-color:var(--c)}
+.hi2-rar b{font-size:24px;font-weight:800;line-height:1.1;color:var(--c)}.hi2-rar b em{font-style:normal;font-size:12px;color:var(--muted);font-weight:600}.hi2-rar span{font-size:11.5px;color:var(--muted);margin-top:2px}.hi2-rar i{position:absolute;left:0;bottom:0;height:4px;width:var(--p);background:var(--c);border-radius:0 4px 0 0;box-shadow:0 0 12px var(--c)}
+.hi .hi-tg{display:grid;grid-template-columns:150px minmax(0,1fr) auto;align-items:center;gap:18px;width:100%;margin:0 0 10px;padding:0 20px;height:54px;border-radius:16px;border:1px solid rgba(255,255,255,.07);background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:var(--text);transition:background .3s,border-color .3s,transform .35s var(--spring)}
+.hi .hi-tg:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px);background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03))}
+.hi .hi-tg b{font-size:13px;letter-spacing:.16em;text-transform:uppercase;text-align:left}.hi .hi-tg em{display:block;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.hi .hi-tg em i{display:block;height:100%;width:var(--p);border-radius:99px;background:linear-gradient(90deg,var(--a,#ff9a3c),var(--a2,#ffb86b));transform-origin:left}
+.hi .hi-tg span{opacity:.85;font-size:13px}.hi .hi-tg.open{border-color:rgba(var(--argb,255,154,60),.45)}
+.hi .hi-g{margin-bottom:14px}.hi .hi-g .hi-c{animation:hiC .5s calc(var(--i)*35ms) cubic-bezier(.22,.8,.3,1) backwards}
+@keyframes hiC{from{opacity:0;transform:translateY(16px) scale(.97)}}
+.hiin .hi2{animation:sgTop .9s cubic-bezier(.22,.8,.3,1) both}
+.hiin .hi2-ring .v{animation:hiRing 1.6s .3s cubic-bezier(.22,.8,.3,1) backwards}@keyframes hiRing{from{stroke-dashoffset:var(--c)}}
+.hiin .hi2-ring b{animation:sgN .8s .4s both}.hiin .hi2-t>*{animation:sgN .8s both cubic-bezier(.22,.8,.3,1)}.hiin .hi2-t small{animation-delay:.2s}.hiin .hi2-t h1{animation-delay:.3s}.hiin .hi2-t p{animation-delay:.42s}
+.hiin .hi2-rar div{animation:sgPop .7s calc(.45s + var(--n,0)*90ms) cubic-bezier(.34,1.5,.5,1) both}.hiin .hi2-rar div:nth-child(2){--n:1}.hiin .hi2-rar div:nth-child(3){--n:2}.hiin .hi2-rar div:nth-child(4){--n:3}
+.hiin .hi2-rar i{animation:hiBar 1.3s calc(.9s + var(--n,0)*90ms) cubic-bezier(.22,.8,.3,1) backwards}@keyframes hiBar{from{width:0}}
+.hiin .hi-tg{animation:sgN .7s calc(.7s + var(--k,0)*70ms) cubic-bezier(.22,.8,.3,1) backwards}
+.hiin .hi-tg em i{animation:hiScale 1.1s calc(.9s + var(--k,0)*70ms) cubic-bezier(.22,.8,.3,1) backwards}@keyframes hiScale{from{transform:scaleX(0)}}
+.hiin .dy-fb{animation:sgN .7s .55s both}
+@media (max-width:1280px){.hi2{flex-wrap:wrap}.hi2-rar{grid-template-columns:repeat(4,1fr);width:100%}}
 </style>
 </head>
 <body>
@@ -7174,18 +7200,19 @@ function hitoBurst(col,r){let cv=$('#hitocv');if(!cv){cv=document.createElement(
     if(alive)requestAnimationFrame(tick);else cv.remove()};requestAnimationFrame(tick)}
 /* vista Hitos */
 S.hf=S.hf||{c:'all',s:'all'};
-V.hitos=()=>{S.hopen=S.hopen||{};if(!Object.values(S.hopen).some(Boolean))S.hopen[HCATS[0]]=true;const un=GA.filter(a=>(ST.gach||{})[a[0]]),pts=hitoPts(),tp=GA.reduce((s,a)=>s+HPTS[a[4]],0),pc=un.length/GA.length*100;
-  const rc={c:0,r:0,e:0,l:0};un.forEach(a=>rc[a[4]]++);
-  return `<div class="stack hi"><header class="hi-h rise"><div><small>Todo lo que fuiste logrando</small><h1>Hitos</h1></div>
-   <div class="hi-top"><div class="hi-big"><b data-count="${un.length}">0</b><span>de ${GA.length}</span></div><div class="hi-big"><b data-count="${pts}">0</b><span>puntos</span></div><div class="hi-rar">${Object.entries(RAR).map(([k,v])=>`<div style="--c:${v[1]}"><i></i><b>${rc[k]}</b><span>${v[0]}</span></div>`).join('')}</div></div></header>
-   <div class="pf-bar rise" style="--i:1;height:10px"><i style="--w:${pc}%"></i></div>
+V.hitos=()=>{S.hopen={};setTimeout(()=>{const e=$('.hi.hiin');if(e)e.classList.remove('hiin')},3400);const un=GA.filter(a=>(ST.gach||{})[a[0]]),pts=hitoPts(),tp=GA.reduce((s,a)=>s+HPTS[a[4]],0),pc=un.length/GA.length*100;
+  const rc={c:0,r:0,e:0,l:0},rt={c:0,r:0,e:0,l:0};un.forEach(a=>rc[a[4]]++);GA.forEach(a=>rt[a[4]]++);const R=46,C=2*Math.PI*R;
+  return `<div class="stack hi hiin"><header class="hi2 rise"><div class="hi2-bg"></div>
+   <div class="hi2-ring"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="${R}" class="t"/><circle cx="55" cy="55" r="${R}" class="v" style="--c:${C.toFixed(1)};--o:${(C*(1-pc/100)).toFixed(1)}"/></svg><div><b>${Math.round(pc)}<em>%</em></b><span>completado</span></div></div>
+   <div class="hi2-t"><small>Todo lo que fuiste logrando</small><h1>Hitos</h1><p><b data-count="${un.length}">0</b> de ${GA.length} desbloqueados · <b data-count="${pts}">0</b> puntos de ${tp}</p></div>
+   <div class="hi2-rar">${Object.entries(RAR).map(([k,v])=>`<div style="--c:${v[1]};--p:${rt[k]?Math.round(100*rc[k]/rt[k]):0}%"><b>${rc[k]}<em>/${rt[k]}</em></b><span>${v[0]}</span><i></i></div>`).join('')}</div></header>
    <div class="dy-fb rise" style="--i:2"><div class="chips">${['all',...HCATS].map(c=>`<button class="cp ${S.hf.c===c?'on':''}" data-a="hfc" data-v="${c}">${c==='all'?'Todos':c}</button>`).join('')}</div><select id="hfs" class="txt">${[['all','Todos'],['on','Desbloqueados'],['off','Pendientes']].map(([k,l])=>`<option value="${k}" ${S.hf.s===k?'selected':''}>${l}</option>`).join('')}</select></div>
    <div id="hgrid" class="rise" style="--i:3">${hitoGrid()}</div></div>`}
 function hitoGrid(){const f=S.hf;let h='';S.hopen=S.hopen||{};const all=f.c==='all';
   for(const cat of HCATS){if(f.c!=='all'&&f.c!==cat)continue;let l=GA.filter(a=>(a[6]||'Biblioteca')===cat);const on=a=>!!(ST.gach||{})[a[0]];
     if(f.s==='on')l=l.filter(on);else if(f.s==='off')l=l.filter(a=>!on(a));if(!l.length)continue;
     const nu=l.filter(on).length,op=!all||S.hopen[cat];
-    h+=(all?`<button class="hi-cat hi-tg ${op?'open':''}" data-a="hcat" data-v="${cat}">${cat}<span>${nu} / ${l.length}<i>▾</i></span></button>`:`<div class="hi-cat">${cat}<span>${nu} / ${l.length}</span></div>`);if(!op)continue;
+    h+=(all?`<button class="hi-cat hi-tg ${op?'open':''}" data-a="hcat" data-v="${cat}" style="--p:${Math.round(100*nu/l.length)}%;--k:${HCATS.indexOf(cat)}"><b>${cat}</b><em><i></i></em><span>${nu} / ${l.length}<i>▾</i></span></button>`:`<div class="hi-cat">${cat}<span>${nu} / ${l.length}</span></div>`);if(!op)continue;
     h+=`<div class="hi-g">${l.map((a,i)=>{const o=on(a),r=RAR[a[4]],pg=!o&&a[7]?a[7]():null,sec=a[8]&&!o;
       return `<div class="hi-c ${o?'on':''} r-${a[4]}" style="--c:${r[1]};--i:${i%12}" ${o?`data-a="hreplay" data-id="${a[0]}" title="Ver el aviso de nuevo"`:''}><div class="hi-ci">${hic(o?a[3]:(sec?'lock':a[3]))}</div><div class="hi-cb"><b>${sec?'Hito secreto':esc(a[1])}</b><span>${sec?'Descubrilo jugando':esc(a[2])}</span>${pg?`<div class="hi-pb"><i style="width:${pg[1]?pg[0]/pg[1]*100:0}%"></i></div><small>${Math.floor(pg[0]*10)/10} / ${pg[1]}</small>`:''}${o?`<small>${new Date(ST.gach[a[0]]).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'})}</small>`:''}</div><em>${r[0]}<br><b>+${HPTS[a[4]]}</b></em></div>`}).join('')}</div>`}
   return h||'<div class="empty">Nada para mostrar con este filtro.</div>'}
