@@ -4130,6 +4130,49 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @media (max-width:1280px){.hi2{flex-wrap:wrap}.hi2-t h1{font-size:48px}}
 .hi .hi-tg em i{transform:none!important}.hi .hi-tg.hiin em i,.hiin .hi-tg em i{transform:none}
 .hi2-ring b span{font-size:inherit;letter-spacing:0;text-transform:none;color:inherit;margin:0;display:inline}
+
+/* Cosméticos: UI renovada */
+.av-top{display:grid;grid-template-columns:auto 1fr;gap:14px 26px;align-items:center;padding:16px 18px;margin-bottom:14px;border-radius:20px;background:linear-gradient(135deg,rgba(var(--argb),.18),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08)}
+.av-col{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"n t" "b b";align-items:baseline;gap:4px 10px;min-width:260px}.av-col b{grid-area:n;font-size:34px;font-weight:800;line-height:1}.av-col>span:not(.av-cb){grid-area:t;font-size:12.5px;color:var(--muted)}
+.av-cb{grid-area:b;display:block;height:7px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:6px}.av-cb i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a),var(--a2));box-shadow:0 0 12px var(--a);animation:avGrow 1s cubic-bezier(.22,.8,.3,1) backwards}@keyframes avGrow{from{width:0!important}}
+.av-rar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.av-rar span{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 10px 11px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);overflow:hidden;font-size:11px}
+.av-rar span>i{position:absolute;left:10px;top:10px;width:7px;height:7px;border-radius:50%;background:var(--rc);box-shadow:0 0 8px var(--rc)}.av-rar em{font-style:normal;margin-left:14px;color:var(--muted);white-space:nowrap}.av-rar b{font-size:15px;color:var(--text)}.av-rar b small{font-size:10.5px;color:var(--muted)}
+.av-rar u{position:absolute;left:0;bottom:0;height:3px;width:var(--p);background:var(--rc);border-radius:0 3px 0 0;animation:avGrow 1.1s .2s cubic-bezier(.22,.8,.3,1) backwards}
+.av-hd{position:sticky;top:-18px;z-index:5;margin:0 -20px 12px;padding:12px 20px 10px;background:linear-gradient(180deg,rgba(14,12,22,.97) 80%,rgba(14,12,22,0));backdrop-filter:blur(10px)}
+.avseg{display:flex;gap:4px;padding:4px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06)}
+.avseg .avg,.avseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:transparent;border-radius:12px;padding:11px 14px;font:700 14px inherit;font-family:inherit;color:var(--muted);cursor:pointer;transition:background .3s,color .3s,transform .3s var(--spring),box-shadow .3s}
+.avseg .avg:hover,.avseg button:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.avseg .avg.on,.avseg button.on{color:#1a1208;background:linear-gradient(135deg,var(--a2),var(--a));box-shadow:0 6px 18px -4px rgba(var(--argb),.7);border:0}
+.avseg .avg small{opacity:.7;font-weight:600;margin:0}
+.avseg.sm{display:inline-flex;padding:3px;border-radius:12px}.avseg.sm button,.avseg.sm .avg{flex:none;padding:6px 13px;font-size:12.5px;border-radius:9px}
+.avgn{display:flex;align-items:center;gap:12px;margin:0 0 10px}.avgn .mut{font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.av-cats{display:flex;gap:7px;margin:10px 0 0;flex-wrap:wrap}.av-cats .cp{padding:8px 14px;font-size:13px;border-radius:12px;transition:.3s var(--ease)}.av-cats .cp small{opacity:.65}.av-cats .cp.on{background:rgba(var(--argb),.25);border-color:rgba(var(--argb),.9);color:#fff}
+.avfl{margin:6px 0 12px}.avfl>span{font-size:13px;color:var(--muted)}.avfl>span b{color:var(--text);font-size:15px}
+.av-grid{grid-template-columns:repeat(auto-fill,minmax(134px,1fr));gap:12px}
+.av-grid .avi{animation:avIn .5s calc(var(--n,0)*22ms) cubic-bezier(.22,.8,.3,1) backwards}@keyframes avIn{from{opacity:0;transform:translateY(14px) scale(.94)}}
+.avi{padding:9px 9px 11px;gap:4px;border-radius:20px;border:1.5px solid rgba(255,255,255,.07);background:linear-gradient(170deg,rgba(255,255,255,.07),rgba(255,255,255,.02));transition:transform .35s var(--spring),border-color .3s,box-shadow .35s,background .3s}
+.avi:hover{transform:translateY(-4px) scale(1.02);border-color:color-mix(in srgb,var(--rc) 70%,transparent);box-shadow:0 14px 28px -10px var(--rc);background:linear-gradient(170deg,rgba(255,255,255,.1),rgba(255,255,255,.03))}
+.avi:active{transform:scale(.97)}
+.avi-p{border-radius:15px;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--rc) 22%,rgba(255,255,255,.04)),rgba(0,0,0,.25))}
+.avi b{font-size:12.5px;margin-top:3px}.avi small{font-size:11px;letter-spacing:.03em}
+.avi.on{border-color:var(--rc);background:linear-gradient(170deg,color-mix(in srgb,var(--rc) 22%,transparent),rgba(255,255,255,.03));box-shadow:0 0 0 1px var(--rc),0 10px 30px -8px var(--rc)}
+.avi-ck{position:absolute;left:7px;top:7px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:800;color:#12100a;background:var(--rc);box-shadow:0 3px 10px rgba(0,0,0,.5);animation:avPop .45s cubic-bezier(.34,1.8,.5,1) both}@keyframes avPop{from{transform:scale(0)}}
+.avi.lk{opacity:.8}.avi.lk:hover{opacity:1}
+.avi.r4::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(110deg,transparent 40%,rgba(255,236,170,.22) 50%,transparent 60%);background-size:250% 100%;animation:avSh 4.5s ease-in-out infinite}@keyframes avSh{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
+.avcol{padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-bottom:12px}.avcol button{width:26px;height:26px;transition:transform .3s var(--spring)}.avcol button:hover{transform:scale(1.18)}
+.avl-b{padding:14px}
+.av-top{grid-template-columns:1fr}.av-rar{grid-column:1/-1}.av-col{min-width:0}
+.av-hd{background:#110f1b;backdrop-filter:none;margin-top:-4px;padding:12px 20px 12px;border-bottom:1px solid rgba(255,255,255,.07);box-shadow:0 14px 18px -12px rgba(0,0,0,.6)}
+.avseg .avg.on small,.avseg .avg.on small *{color:rgba(26,18,8,.7)!important}
+.avfl{margin-top:2px}
+.av-top{grid-template-columns:auto 1fr;padding:12px 16px;gap:10px 20px;margin-bottom:8px}.av-top .av-rar{grid-column:auto;grid-template-columns:repeat(5,minmax(0,auto));justify-content:end;gap:6px}
+.av-col{grid-template-areas:"n t" "b b";min-width:200px}.av-col b{font-size:28px}.av-col>span:not(.av-cb){font-size:11.5px;line-height:1.2}
+.av-rar span{flex-direction:row;align-items:center;gap:6px;padding:7px 10px 9px}.av-rar span>i{position:static;flex:none}.av-rar em{margin:0;font-size:11px}.av-rar b{font-size:12.5px}
+.av-top{grid-template-columns:1fr;gap:9px;padding:12px 16px}.av-top .av-rar{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:6px}
+.av-col{grid-template-columns:auto auto 1fr;grid-template-areas:"n t b";align-items:center;gap:0 12px;width:100%}.av-col .av-cb{margin:0}.av-col b{font-size:26px}
+.av-rar span{padding:5px 10px 7px;border-radius:99px;flex-direction:row;gap:6px}.av-rar b{font-size:12px;white-space:nowrap}.av-rar b small{font-size:11px}.av-rar em{white-space:nowrap}.av-rar u{height:2px;left:10px;right:10px;width:auto;max-width:var(--p);border-radius:2px}
+.av-rar b{display:inline-flex;align-items:baseline;gap:1px}.av-rar b small{display:inline;margin:0}
 </style>
 </head>
 <body>
@@ -7857,7 +7900,7 @@ function avCard(c,it,cur){const ok=avOk(it),on=cur[c]===it[0]&&!S.avp,pv=S.avp&&
   let pic;if(c==='bg')pic=`<i class="avi-bg" style="background:${it[4]}">${it[5]||''}</i>`;
   else if(c==='skin'||c==='hc')pic=avSVG({...cur,[c]:it[0]},{vb:AVVB.h,floor:false});
   else pic=avSVG({...cur,[c]:it[0]},{vb,floor:false});
-  return `<button class="avi r${it[2]} ${on?'on':''} ${pv?'pv':''} ${ok?'':'lk'}" style="--rc:${AVR[it[2]][1]}" data-a="avpick" data-c="${c}" data-id="${it[0]}"><span class="avi-p">${pic}${ok?'':`<u>${ic('shield')}</u>`}</span><b>${avNm(c,it)}</b><small>${ok?AVR[it[2]][0]:avLbl(it)}</small></button>`}
+  return `<button class="avi r${it[2]} ${on?'on':''} ${pv?'pv':''} ${ok?'':'lk'}" style="--rc:${AVR[it[2]][1]};--n:${S.avn=(S.avn||0)+1}" data-a="avpick" data-c="${c}" data-id="${it[0]}"><span class="avi-p">${pic}${ok?'':`<u>${ic('shield')}</u>`}${on?'<i class="avi-ck">✓</i>':''}</span><b>${avNm(c,it)}</b><small>${ok?AVR[it[2]][0]:avLbl(it)}</small></button>`}
 function avColUI(k,cur){const v=cur[k],hex=v==null?'':cvx(v),orig=(k==='topc'||k==='botc')?'':`<button class="${v==null?'on':''} avo" title="Original" data-a="avcol" data-k="${k}" data-v="">${ic('x')}</button>`;
   return `<div class="avcol"><span>Color</span>${orig}${AVCL.map((x,i)=>`<button class="${v===i?'on':''}" style="background:${x[0]}" title="${x[1]}" data-a="avcol" data-k="${k}" data-v="${i}"></button>`).join('')}<button class="avwb ${S.avw===k?'on':''}" title="Rueda de color" data-a="avwheel" data-k="${k}"></button></div>${S.avw===k?`<div class="avwp" data-k="${k}"><div class="avwheel"><i style="left:50%;top:50%"></i></div><div class="avwr"><label>Brillo</label><input type="range" class="avwv" min="15" max="100" value="${S.avwv||100}"><label>Hex</label><input type="text" class="avhex" maxlength="7" value="${hex}" placeholder="#rrggbb"></div></div>`:''}`}
 function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G[2],c=cats.includes(S.avcat)?S.avcat:cats[0],d=AVD[c],F=S.avf||'all';
@@ -7867,8 +7910,9 @@ function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G
   const colk={top:'topc',bot:'botc',hat:'hatc',glass:'glassc',shoes:'shoesc',back:'backc',hand:'handc'}[c]||'',sw=colk?(NOCOL.has(cur[c])?`<div class="avcol"><span>Color</span><em class="avnc">Este objeto conserva su color original</em></div>`:avColUI(colk,cur)):'';
   let items=[...avList(c)].sort((a,b)=>(avOk(b)-avOk(a))||(a[2]-b[2]));if(F==='ok')items=items.filter(avOk);if(F==='lk')items=items.filter(x=>!avOk(x));
   const fl=[['all','Todos'],['ok','Desbloqueados'],['lk','Próximos']].map(([k,l])=>`<button class="${F===k?'on':''}" data-a="avflt" data-v="${k}">${l}</button>`).join('');
-  return `<div class="av-top"><div class="av-col"><b>${have}</b> de ${tot.length} cosméticos<span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span></div><div class="av-rar">${rc.map(x=>`<span style="--rc:${x[0][1]}"><i></i>${x[0][0]} ${x[1]}/${x[2]}</span>`).join('')}</div></div>
-  ${G[0]==='head'?`<div class="avgs avgn"><span class="mut" style="align-self:center">Cuerpo</span><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div>`:''}<div class="avgs">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}${sw}<div class="avfl"><span>${d.n}</span><div>${fl}</div></div><div class="av-grid">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
+  S.avn=0;const nI=items.length;
+  return `<div class="av-top"><div class="av-col"><b>${have}</b><span>de ${tot.length} cosméticos desbloqueados</span><span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span></div><div class="av-rar">${rc.map(x=>`<span style="--rc:${x[0][1]};--p:${x[2]?Math.round(100*x[1]/x[2]):0}%"><i></i><em>${x[0][0]}</em><b>${x[1]}<small>/${x[2]}</small></b><u></u></span>`).join('')}</div></div>
+  <div class="av-hd">${G[0]==='head'?`<div class="avgs avgn"><span class="mut">Cuerpo</span><div class="avseg sm"><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div></div>`:''}<div class="avgs avseg">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}</div>${sw}<div class="avfl"><span><b>${d.n}</b> · ${nI} ${nI===1?'objeto':'objetos'}</span><div class="avseg sm">${fl}</div></div><div class="av-grid" data-k="${c}">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
 (()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}if(!drag||!drag.pu){avPush();if(drag)drag.pu=1}else{}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
  const hv=()=>+(($('.avwv')||{}).value||100)/100,pick=(w,e)=>{const r=w.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,R=r.width/2,d=Math.min(1,Math.hypot(x,y)/R),h=(Math.atan2(y,x)*180/Math.PI+90+360)%360,dot=w.querySelector('i');const kk=Math.hypot(x,y)/R>1?R/Math.hypot(x,y):1;dot.style.left=(50+x/R*kk*50)+'%';dot.style.top=(50+y/R*kk*50)+'%';S.avh=h;S.avs=d;setC(w.parentNode.dataset.k,hsv2hex(h,d,hv()))};
  document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.avwheel');if(!w)return;drag=w;try{w.setPointerCapture(e.pointerId)}catch(_){}pick(w,e)});
