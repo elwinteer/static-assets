@@ -4030,8 +4030,8 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .h2-n1 .n1t p{margin:0;font-size:13px;line-height:1.55;color:var(--muted);display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden}
 .h2-n1 .n1m{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
 .h2.h2in{animation:nwHi .45s cubic-bezier(.22,.8,.3,1) both}@keyframes nwHi{from{opacity:0;transform:scale(.97) translateY(-10px)}to{opacity:1;transform:none}}
-.xghost{position:fixed;z-index:60;pointer-events:none;overflow:hidden;opacity:1;transform:none;filter:none;transition:opacity .5s .2s cubic-bezier(.4,0,.2,1),transform .8s cubic-bezier(.22,.8,.3,1),filter .5s .2s}.xghost.go{opacity:0;transform:scale(.975);filter:blur(5px)}
-.xin .rise,.xin [class*=rise]{animation:none!important;opacity:1!important}.xin{animation:xIn .6s cubic-bezier(.22,.8,.3,1) both!important}@keyframes xIn{from{opacity:0;transform:scale(1.025) translateY(10px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+.xghost{position:fixed;z-index:60;pointer-events:none;overflow:hidden;opacity:1;transform:none;filter:none;transition:opacity .5s .2s cubic-bezier(.4,0,.2,1),transform .8s cubic-bezier(.22,.8,.3,1),filter .5s .2s}.xghost,.xghost *{animation:none!important}.xghost *{transition:none!important}.xghost.go{opacity:0;transform:scale(.975);filter:blur(5px)}
+.xin{animation:xIn .6s cubic-bezier(.22,.8,.3,1) both!important}@keyframes xIn{from{transform:scale(1.02) translateY(10px)}to{transform:none}}
 .h2-n1 .n1t b,.h2-n1 .n1m{flex:none}
 .vin{animation:nwIn .45s cubic-bezier(.22,.8,.3,1) both}
 .h2-hero .bg{animation:h2kb 24s ease-in-out infinite alternate;will-change:transform}
