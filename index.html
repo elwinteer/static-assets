@@ -7925,6 +7925,7 @@ const P={
  pix:p=>L(6,i=>L(9,j=>((i*7+j*3)%5<2)?R(26+j*16,148+i*16,12,12,p[0]):'')),
  rn:p=>L(4,i=>SK('M20 '+(156+i*24)+'q20 -14 40 0q20 14 40 0q20 -14 40 0q20 14 40 0',p[0],3.4))
 };
+const dk0=bc=>avSh(bc,-.5);
 const SKo=(d,c,w,o='')=>SK(d,INK,w+3.2,o)+SK(d,c,w,o);
 /* emblemas del pecho */
 const E={
@@ -7970,7 +7971,7 @@ const CO={
  rib:(bc)=>ol('M84 149Q100 162 116 149L114 142Q100 152 86 142Z',avSh(bc,-.3),3),
  vn:(bc)=>ol('M88 148L100 170L112 148Q100 154 88 148Z',avSh(bc,-.4),3),
  polo:(bc)=>ol('M86 148L100 166L96 148L86 142Z',avSh(bc,.4),3)+ol('M114 148L100 166L104 148L114 142Z',avSh(bc,.4),3)+Ci(100,176,2.2,INK)+Ci(100,188,2.2,INK),
- hood:(bc)=>ol('M70 150Q100 186 130 150Q124 138 100 138Q76 138 70 150Z',avSh(bc,-.3),3.4)+ol('M80 150Q100 172 120 150Q112 144 100 144Q88 144 80 150Z',avSh(bc,-.5),2.6)+ol('M72 214H128L134 244Q100 250 66 244Z',avSh(bc,-.1),3)+inkP('M80 214L74 240',2.2)+inkP('M120 214L126 240',2.2)+SKo('M93 166V190',"#f4f4f8",2.6)+SKo('M107 166V190',"#f4f4f8",2.6)+Ci(93,192,2.6,'#e5e7eb','stroke="#14110f" stroke-width="1.6"')+Ci(107,192,2.6,'#e5e7eb','stroke="#14110f" stroke-width="1.6"'),
+ hood:(bc)=>ol('M70 150Q100 186 130 150Q124 138 100 138Q76 138 70 150Z',avSh(bc,-.3),3.4)+ol('M80 150Q100 172 120 150Q112 144 100 144Q88 144 80 150Z',avSh(bc,-.5),2.6)+ol('M72 214H128L134 244Q100 250 66 244Z',avSh(bc,-.1),3)+inkP('M80 214L74 240',2.2)+inkP('M120 214L126 240',2.2)+SKo('M93 166V182',"#f4f4f8",2.6)+SKo('M107 166V182',"#f4f4f8",2.6)+Ci(93,184,2.6,'#e5e7eb','stroke="#14110f" stroke-width="1.6"')+Ci(107,184,2.6,'#e5e7eb','stroke="#14110f" stroke-width="1.6"'),
  zip:(bc)=>SK('M100 158V248','#e5e9f0',3.2,'stroke-dasharray="1.8 1.6"')+inkP('M100 158V248',1.4)+ol('M83 149Q100 161 117 149L114 138Q100 145 86 138Z',avSh(bc,-.15),3.2)+Re(97,160,6,10,2,'#d7dde6','stroke="#14110f" stroke-width="1.8"')+inkP('M76 214L80 238',2.4)+inkP('M124 214L120 238',2.4),
  bmb:(bc)=>ol('M82 150Q100 162 118 150L116 138Q100 146 84 138Z',avSh(bc,-.3),3.2)+SK('M84 144Q100 152 116 144',avSh(bc,-.6),1.6,'stroke-dasharray="2.2 1.8"')+SK('M100 160V248','#e5e9f0',3,'stroke-dasharray="1.8 1.6"')+inkP('M100 160V248',1.4)+Re(97,162,6,10,2,'#d7dde6','stroke="#14110f" stroke-width="1.8"'),
  sh:(bc)=>ol('M84 148Q100 176 116 148L110 141Q100 156 90 141Z',avSh(bc,.18),3.2)+inkP('M100 168V248',2.2)+Ci(100,184,2.6,'#f5f5f5','stroke="#14110f" stroke-width="1.6"')+Ci(100,204,2.6,'#f5f5f5','stroke="#14110f" stroke-width="1.6"')+Ci(100,224,2.6,'#f5f5f5','stroke="#14110f" stroke-width="1.6"'),
@@ -8084,9 +8085,9 @@ const SP=[
  ['Camiseta visitante','tee','crew',[['sv',['#fde047']]],'#1d4ed8'],
  ['Camiseta alternativa','tee','crew',[['sash',['#ffffff']]],'#047857'],
  ['Camiseta de basquet','vest','crew',[['bd',['#fde047','#ffffff']]],'#6d28d9'],
- ['Musculosa deportiva','vest','crew',[['blB',['#14110f']]],'#f97316'],
- ['Top de entrenamiento','vest','crew',[['hem',['#14110f','#f43f5e']]],'#ec4899'],
- ['Remera de skate','tee','crew',[['hem',['#14110f','#fde047']]],'#78350f'],
+ ['Musculosa deportiva','vest','crew',[['bd',['#14110f','#ffffff']]],'#f97316'],
+ ['Top de entrenamiento','vest','crew',[['bd',['#be185d','#ffffff']]],'#ec4899'],
+ ['Remera de skate','tee','crew',[['sh2',['#14110f','#fde047']]],'#78350f'],
  ['Remera surfera','tee','crew',[['wav',['#ffffff']]],'#0ea5e9'],
  ['Remera tropical','tee','crew',[['sh2',['#fde047','#4ade80']]],'#f43f5e'],
  ['Remera dorada','tee','crew',[['shf',['#fde68a']]],'#b45309'],
@@ -8122,13 +8123,16 @@ SP.forEach((s,i)=>{
  top.push([id,name,rar,lv,c=>{
   const bc=bcol||c,clip='avZ'+AVU+id,sh=avSh(bc,-.2);
   const body=PT(B.d,TSHD,{s:bc,sd:sh},40+i);
-  const g=layers.map(([k,p])=>P[k]?`<g clip-path="url(#${clip})">${P[k](p)}</g>`:`<g transform="translate(100 192) scale(1.12) translate(-100 -192)">${E[k](p)}</g>`).join('');
+  const hd=co==='hood',g=layers.filter(l=>P[l[0]]).map(([k,p])=>`<g clip-path="url(#${clip})">${P[k](p)}</g>`).join('');
+  const em=layers.filter(l=>!P[l[0]]).map(([k,p])=>hd?`<g transform="translate(100 199) scale(.76) translate(-100 -192)">${E[k](p)}</g>`:`<g transform="translate(100 192) scale(1.12) translate(-100 -192)">${E[k](p)}</g>`).join('');
+  const seam=`<g clip-path="url(#${clip})">${SK('M90 150Q76 151 66 160',dk0(bc),1.5,'stroke-dasharray="3 2.2" opacity=".65"')}${SK('M110 150Q124 151 134 160',dk0(bc),1.5,'stroke-dasharray="3 2.2" opacity=".65"')}${SK('M66 162V204',dk0(bc),1.3,'stroke-dasharray="3 2.2" opacity=".45"')}${SK('M134 162V204',dk0(bc),1.3,'stroke-dasharray="3 2.2" opacity=".45"')}</g>`;
+  const tag=co==='bmb'||hd?'':Re(72,236,9,6,1.4,avSh(bc,.45),`stroke="${INK}" stroke-width="1.3"`)+SK('M74.5 239H78.5',dk0(bc),1,'');
   const dk=avSh(bc,-.42),md=avSh(bc,-.16);
   const fin=`<g clip-path="url(#${clip})"><path d="${TSHD}" fill="${sh}" opacity=".5"/><path d="M26 150L92 146L72 252H30Z" fill="#fff" opacity=".07"/>${SK('M82 214Q78 226 84 242',dk,1.8,'opacity=".4"')}${SK('M120 218Q124 230 118 244',dk,1.8,'opacity=".4"')}${SK('M100 226Q98 236 102 246',dk,1.6,'opacity=".3"')}${SK('M70 180Q76 192 70 206',dk,1.8,'opacity=".35"')}${SK('M130 180Q124 192 130 206',dk,1.8,'opacity=".35"')}</g>`;
   const hemb=co==='bmb'?'':`<g clip-path="url(#${clip})">${R(60,239,80,10,md)}${SK('M66 239H134',dk,1.5,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`;
   const cuffs=co==='bmb'&&base!=='vest'?`<g clip-path="url(#${clip})">${R(20,236,160,12,md)}${R(20,222,48,20,md)}${R(132,222,48,20,md)}${SK('M20 238H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".6"')}</g>`:base==='lng'?`<g clip-path="url(#${clip})">${R(20,228,48,16,md)}${R(132,228,48,16,md)}${SK('M20 229H68M132 229H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`:base==='tee'?`<g clip-path="url(#${clip})">${R(20,193,48,13,md)}${R(132,193,48,13,md)}${SK('M20 194H68M132 194H180',dk,1.4,'stroke-dasharray="3 2.4" opacity=".7"')}</g>`:'';
   const out=(base==='tee'?inkP('M66 206V244',3.4)+inkP('M134 206V244',3.4):base==='lng'?inkP('M66 182V240',3.4)+inkP('M134 182V240',3.4)+inkP('M23 240Q44 246 64 242',3.4)+inkP('M177 240Q156 246 136 242',3.4):'');
-  return `<clipPath id="${clip}"><path d="${B.d}"/></clipPath>`+body+g+fin+hemb+cuffs+out+CO[co](bc)
+  return `<clipPath id="${clip}"><path d="${B.d}"/></clipPath>`+body+g+(hd?'':em)+seam+fin+hemb+cuffs+tag+out+CO[co](bc)+(hd?em:'')
  }]);
  if(bcol)NOCOL.add(id);
 });
