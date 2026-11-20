@@ -4116,7 +4116,7 @@ const vIsId=id=>{const L=vL();return !!(L&&id&&L.g.some(v=>v.id===id))};
 const vX=id=>{const L=vL();if(!L)return {};L.x=L.x||{};return L.x[id]=L.x[id]||{}};
 const vNrm=t=>String(t||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/[^a-z0-9]/g,'');
 const vIs=g=>{const L=vL();if(!L||!g||!L.g.length)return false;return L.g.some(v=>v.id===g.id||(v.app&&g.app&&v.app===g.app)||(v.name&&g.name&&vNrm(v.name)===vNrm(g.name)))};
-function vPurge(){const L=vL();if(!L||!L.g.length)return;const n=G.length;G=G.filter(g=>!vIs(g));if(G.length!==n&&S.sel&&!gm(S.sel))S.sel=G[0]&&G[0].id}
+function vPurge(){const L=vL();if(!L||!L.g.length)return;try{if(ST.sgdb){L.x=L.x||{};L.x.sg=L.x.sg||{};for(const v of L.g){const k=sgk(v);if(ST.sgdb[k]!==undefined&&!G.some(q=>sgk(q)===k)){L.x.sg[k]=ST.sgdb[k];delete ST.sgdb[k]}}}}catch(e){}const n=G.length;G=G.filter(g=>!vIs(g));if(G.length!==n&&S.sel&&!gm(S.sel))S.sel=G[0]&&G[0].id}
 const GPUSH=g=>{if(vIs(g))return;G.push(g)};
 
 const UN=()=>ST.name||'Jugador',P_=(k,d)=>ST[k]===undefined?d:ST[k];
@@ -4173,7 +4173,7 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');cl
 function counters(root){$$('[data-count]',root).forEach(el=>{const to=+el.dataset.count,dec=+(el.dataset.dec||0),suf=el.dataset.suf||'',t0=performance.now();
   (function f(t){const k=Math.min(1,(t-t0)/1100),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec)+suf;if(k<1)requestAnimationFrame(f)})(t0)})}
 /* arte: SteamGridDB si está configurado, si no, CDN de Steam */
-const sgk=g=>g.app||('x'+g.id),sg=g=>(ST.sgdb[sgk(g)]||{});
+const sgk=g=>g.app||('x'+g.id),SGM=g=>{if(vIsId(g.id)){const x=vL().x;return x.sg=x.sg||{}}return ST.sgdb},sg=g=>(SGM(g)[sgk(g)]||{});
 const nf=async(u,o)=>{if(window.winteerNative){const r=await winteerNative.http({url:u,method:o&&o.method,headers:o&&o.headers,body:o&&o.body});return {ok:r.status>=200&&r.status<300,status:r.status,json:async()=>JSON.parse(r.text||'null')}}return fetch(u,o)};
 async function sgget(g,B,H,oi){const gid=g.app?'steam/'+g.app:await(async()=>{const r=await nf(B+'search/autocomplete/'+encodeURIComponent(g.name.replace(/[™®©]/g,'').trim()),H);if(!r.ok)throw r.status;const j=await r.json();if(!j.data||!j.data[0])throw 404;return 'game/'+j.data[0].id})();
   const get=async p=>{const r=await nf(B+p,H);if(r.status===404)return '';if(!r.ok)throw r.status;const j=await r.json();return j.data&&j.data[0]?j.data[0].url:''};
@@ -4228,9 +4228,9 @@ let THN=0;const thumb=g=>{if(!WN)return `<div class="th"><img decoding="async" $
 
 let sgFail=false;
 async function sgdb(g){
-  if(!ST.useSgdb||!ST.key||(ST.sgdb[sgk(g)]&&ST.sgdb[sgk(g)].icon!==undefined)||g._sg)return;g._sg=true;
+  if(!ST.useSgdb||!ST.key||(SGM(g)[sgk(g)]&&SGM(g)[sgk(g)].icon!==undefined)||g._sg)return;g._sg=true;
   const H={headers:{Authorization:'Bearer '+ST.key}},B='https://www.steamgriddb.com/api/v2/';
-  try{ST.sgdb[sgk(g)]=await sgget(g,B,H);save();renderList();if(S.view==='games'&&S.sel===g.id)renderDetail(false)}
+  try{SGM(g)[sgk(g)]=await sgget(g,B,H);save();renderList();if(S.view==='games'&&S.sel===g.id)renderDetail(false)}
   catch(e){if(!sgFail){sgFail=true;toast('SteamGridDB no respondió (clave inválida o bloqueo del navegador). Uso el arte de Steam.')}}}
 
 /* ---------- vistas ---------- */
