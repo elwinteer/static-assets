@@ -8323,6 +8323,90 @@ SP.forEach((s,i)=>{
  NOCOL.add(id);
 });
 })();
+/* ===== zapatillas nuevas v2: 40 diseños ===== */
+(function(){
+const R=(x,y,w,h,f,o='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${o}/>`;
+const BO=(fn)=>fn(1)+fn(-1);                                   /* dibuja a ambos lados */
+const px=(x,s)=>s>0?x:200-x;
+const HT=(x,y,r,c)=>`<path d="M${x} ${y+r}Q${x-r*1.8} ${y-r*.2} ${x-r*.8} ${y-r}Q${x} ${y-r*1.2} ${x} ${y-r*.4}Q${x} ${y-r*1.2} ${x+r*.8} ${y-r}Q${x+r*1.8} ${y-r*.2} ${x} ${y+r}Z" fill="${c}"/>`;
+const SOLE={n:SS,c:'M42 312H98V324Q98 328 82 328H54Q42 328 42 312Z',p:'M41 308H98V326Q98 330 82 330H54Q41 330 41 308Z'};
+const LACE='M72 293L78 299',LACE2='M80 291L86 297';
+const DEC={
+ stripe:(a)=>SKM('M50 309Q70 308 92 303',a,3),
+ stripe2:(a,u,b)=>SKM('M50 308Q70 307 92 301',a,2.6)+SKM('M50 311.5Q70 310.5 92 306',b||a,1.8),
+ star:(a)=>BO(s=>STAR(px(62,s),304,3.6,a)+STAR(px(78,s),297,3,a)+STAR(px(88,s),306,2.6,a)),
+ dots:(a)=>BO(s=>[[56,302],[66,297],[78,303],[70,309],[88,300]].map(p=>Ci(px(p[0],s),p[1],2.2,a)).join('')),
+ check:(a)=>BO(s=>[0,1,2,3,4,5].map(i=>[0,1,2].map(j=>(i+j)%2?R(s>0?48+i*8:152-i*8-8,292+j*7,8,7,a):'').join('')).join('')),
+ flame:(a,u,b)=>Pa('M46 312Q48 302 54 298Q52 305 58 303Q58 297 64 293Q62 304 72 312Z',a)+Pa(MX('M46 312Q48 302 54 298Q52 305 58 303Q58 297 64 293Q62 304 72 312Z'),a)+Pa('M52 312Q54 306 58 305Q58 309 64 308Q64 311 66 312Z',b||'#ffe082')+Pa(MX('M52 312Q54 306 58 305Q58 309 64 308Q64 311 66 312Z'),b||'#ffe082'),
+ heart:(a)=>BO(s=>HT(px(62,s),303,3.8,a)+HT(px(78,s),296,3,a)+HT(px(84,s),306,2.6,a)),
+ bolt:(a)=>BO(s=>Pa(`M${px(70,s)} 291L${px(62,s)} 303H${px(68,s)}L${px(64,s)} 313L${px(76,s)} 299H${px(70,s)}Z`,a)),
+ cross:(a)=>BO(s=>SK(`M${px(58,s)} 298L${px(66,s)} 306M${px(66,s)} 298L${px(58,s)} 306`,a,2.2)+SK(`M${px(76,s)} 296L${px(84,s)} 304M${px(84,s)} 296L${px(76,s)} 304`,a,2.2)),
+ zig:(a)=>SKM('M48 306L54 300L60 306L66 300L72 306L78 300L84 306L90 300',a,2.4),
+ tiger:(a)=>SKM('M50 300Q60 296 70 302',a,3)+SKM('M50 307Q64 302 80 309',a,3)+SKM('M62 292Q72 294 84 300',a,2.6),
+ camo:(a,u,b)=>BO(s=>[[58,300,6,4],[74,296,5,3.6],[68,308,6,3.4],[88,304,4,3]].map((q,i)=>El(px(q[0],s),q[1],q[2],q[3],i%2?a:b)).join('')),
+ wing:(a)=>SKM('M52 310Q60 298 80 296Q74 300 78 302Q70 304 74 308Q64 308 62 312Z',a,2),
+ rb:(a)=>['#ef4444','#fb923c','#fde047','#4ade80','#38bdf8','#a78bfa'].map((c,i)=>SKM(`M48 ${296+i*3.6}Q70 ${292+i*3.6} 98 ${296+i*3.6}`,c,2.8)).join(''),
+ snow:(a)=>BO(s=>[[60,302],[74,297],[86,305]].map(p=>SK(`M${px(p[0]-3.4,s)} ${p[1]}H${px(p[0]+3.4,s)}M${px(p[0]-1.7,s)} ${p[1]-3}L${px(p[0]+1.7,s)} ${p[1]+3}M${px(p[0]+1.7,s)} ${p[1]-3}L${px(p[0]-1.7,s)} ${p[1]+3}`,a,1.5)).join('')),
+ none:()=>''
+};
+const SP=[
+['Clásicas blancas','lo','#f7f7fb','#e6e8ef','#e53935','stripe'],
+['Clásicas negras','lo','#1c1c24','#f4f4f6','#f4f4f6','stripe'],
+['Rojas de calle','lo','#e53935','#f7f7fb','#ffffff','stripe'],
+['Azul marino','lo','#1a3a8a','#f7f7fb','#ffd54f','stripe'],
+['Verde bosque','lo','#2e7d32','#e8f5e9','#ffffff','stripe'],
+['Amarillo sol','lo','#fdd835','#fff8e1','#14110f','stripe'],
+['Rosa chicle','lo','#ff8fb8','#ffe0ec','#ffffff','stripe'],
+['Violeta mágico','lo','#7e57c2','#ede7f6','#fff59d','stripe'],
+['Naranja fuego','lo','#fb8c00','#fff3e0','#ffffff','stripe2'],
+['Turquesa tropical','lo','#26c6da','#e0f7fa','#ffffff','stripe2'],
+['Doradas','lo','#f6c744','#fff3b0','#ffffff','stripe2'],
+['Plateadas','lo','#cfd8dc','#ffffff','#90a4ae','stripe2'],
+['Arcoíris','lo','#fafafa','#e8ecf4','#ffffff','rb'],
+['Galaxia','lo','#1a103d','#2b1a5e','#fde68a','star'],
+['Llamas','lo','#212121','#f4f4f6','#ef6c00','flame','#ffe082'],
+['Hielo','lo','#b3e5fc','#ffffff','#ffffff','snow'],
+['Camuflaje bosque','lo','#4b5d34','#d7c79a','#8a9a5a','camo','#2b3a1b'],
+['Tigre','lo','#ef8a17','#fff3e0','#14110f','tiger'],
+['Cebra','lo','#fafafa','#14110f','#14110f','tiger'],
+['Corazones','lo','#ffd1e3','#ff7aa8','#ec407a','heart'],
+['Rayos','lo','#fdd835','#14110f','#14110f','bolt'],
+['Estrellas fugaces','hi','#1a237e','#f7f7fb','#ffd54f','star'],
+['Altas negras','hi','#14110f','#f7f7fb','#e53935','stripe'],
+['Altas blancas','hi','#f7f7fb','#e6e8ef','#1a3a8a','stripe'],
+['Altas violeta neón','hi','#2a1252','#a78bfa','#a78bfa','zig'],
+['Altas de mago','hi','#311b92','#fde68a','#fde68a','star'],
+['Altas doradas','hi','#f6c744','#fff3b0','#ffffff','cross'],
+['Chunky rosa','ch','#ffb3d1','#ffffff','#ff4d94','stripe'],
+['Chunky celeste','ch','#b3e5fc','#ffffff','#1e88e5','stripe'],
+['Chunky neón','ch','#14141f','#22d3ee','#22d3ee','zig'],
+['Plataformas arcoíris','ch','#ffffff','#e8ecf4','#ffffff','rb'],
+['Plataformas góticas','ch','#14110f','#3a3a48','#b0bec5','cross'],
+['Slip-on a cuadros','sl','#fafafa','#14110f','#14110f','check'],
+['Slip-on negras','sl','#1c1c24','#f4f4f6','#8a8a9a','none'],
+['Slip-on rojas','sl','#c62828','#f4f4f6','#ffffff','stripe'],
+['Runner verde neón','sp','#14141f','#76ff03','#76ff03','wing'],
+['Runner naranja','sp','#fafafa','#ff6d00','#ff6d00','wing'],
+['Runner azul eléctrico','sp','#1565c0','#e3f2fd','#ffffff','wing'],
+['Retro 90','sp','#f4f4f6','#7e57c2','#26c6da','stripe2'],
+['Zapatillas de leyenda','hi','#101024','#f6c744','#f6c744','star']
+];
+const N=SP.length,sh=AVD.shoes.it;
+SP.forEach((s,i)=>{
+ const [name,ty,u,so,a,dk,b]=s,lv=14+Math.round(i*86/(N-1)),rar=lv<35?2:lv<65?3:4,id='sz'+(i+1);
+ const hi=ty==='hi',up=hi?SBT:ty==='sl'?'M44 308Q43 298 56 294H100V312Q100 321 84 321H54Q44 321 44 308Z':SB,sole=ty==='ch'?SOLE.p:ty==='sp'?SOLE.c:SS;
+ sh.push([id,name,rar,lv,k=>{
+  let r=SNK(up,u)+SNK(sole,so)+DEC[dk](a,u,b);
+  if(ty==='sp')r+=SNK('M46 306Q62 297 98 301V313H46Z',so,3)+SKM('M52 309Q72 302 94 305',a==='#76ff03'||a==='#ff6d00'?'#fff':a,2.4)+SKM('M44 318H98',a,2);
+  if(ty==='ch')r+=SKM('M43 317H97',a,2.4);
+  if(ty==='sl')r+=SKM('M58 298Q76 292 96 298',a,2.4)+SNI('M60 300Q76 295 94 300',2);
+  if(hi)r+=SNK('M52 260H100V270H55Z',a,3)+SNI('M58 278H100',2.4)+SNI('M58 287H100',2.4)+SKM('M44 312H98',a,2.4)+BO(s=>Ci(px(66,s),275,4,'none',`stroke="${a}" stroke-width="1.8"`));
+  else if(ty!=='sl')r+=SNI(LACE,2.2)+SNI(LACE2,2.2);
+  return r+SKM('M46 308Q60 303 74 305',avSh(u,.4),1.6,'opacity=".55"')
+ },hi?'under':'']);
+ NOCOL.add(id);
+});
+})();
 function RC(str,col){if(col==null||!str)return str;col=cvx(col);const re=/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g,cnt={};
  (str.match(re)||[]).forEach(x=>{const k=x.toLowerCase();cnt[k]=(cnt[k]||0)+1});
  let best=null,bn=0;for(const k in cnt){const q=rgb2hsl(hx2(k));if(q[2]<.12||q[2]>.985)continue;if(cnt[k]>bn){bn=cnt[k];best=q}}
