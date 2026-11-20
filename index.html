@@ -2878,7 +2878,7 @@ body:has(.app>.modal) #amb{filter:brightness(.12);transition:filter .3s}
 .stack.nwx{height:100%;min-height:0;display:flex;flex-direction:column;gap:12px}
 .nwx .st-h{flex:none}.nwx .st-h h1{font-size:28px}
 .nwx-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex:none}.nwx-bar .chips{margin:0;flex-wrap:nowrap}
-.nwx-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:16px}
+.nwx-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
 #nwb{display:flex;flex-direction:column}
 .nwx-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;border-radius:24px;padding:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}
 .nwx-main .empty{margin:auto}
@@ -4012,6 +4012,26 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .ctdg{display:flex;gap:10px}.ctdg button{height:50px;padding:0 22px;border-radius:15px;border:0;background:linear-gradient(135deg,#fff,#d9dbe6);color:#0b0b13;font-weight:800;cursor:pointer;font-size:15px;flex:1;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(255,255,255,.12)}.ctdg button:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(255,255,255,.22)}.ctdg button.s{background:rgba(255,255,255,.1);color:#f3f4f6;flex:0 0 auto;box-shadow:none}
 .ctc.wide img{height:auto;position:absolute;top:50%;transform:translateY(-50%)}.ctc.wide .ctm{opacity:1}
 
+
+/* novedades: tarjeta única + transición abrir/cerrar */
+.h2-n1 .n1all{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg,var(--a),var(--a2));color:#1a1208;font:800 12.5px inherit;font-family:inherit;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .3s var(--ease),box-shadow .3s var(--ease),filter .3s}
+.h2-n1 .n1all svg{width:14px;height:14px;transition:transform .3s var(--ease)}.h2-n1 .n1all:hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 10px 24px rgba(0,0,0,.45)}.h2-n1 .n1all:hover svg{transform:translateX(3px)}
+.h2-n1 .n1{flex:1;min-height:0;display:flex;gap:16px;cursor:pointer;padding:12px;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.06);overflow:hidden;transition:border-color .3s}
+.h2-n1 .n1:hover{border-color:rgba(255,255,255,.2)}
+.h2-n1 .n1 img{height:100%;width:auto;aspect-ratio:2/3;max-width:46%;object-fit:cover;border-radius:13px;flex:none;box-shadow:0 10px 26px rgba(0,0,0,.5);transition:transform .5s var(--ease)}.h2-n1 .n1:hover img{transform:scale(1.03)}
+.h2-n1 .n1t{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:8px;overflow:hidden}
+.h2-n1 .n1t b{font-size:15.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.h2-n1 .n1t p{margin:0;font-size:13px;line-height:1.55;color:var(--muted);display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden}
+.h2-n1 .n1m{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
+.h2.h2in{animation:nwHi .45s cubic-bezier(.22,.8,.3,1) both}@keyframes nwHi{from{opacity:0;transform:scale(.97) translateY(-10px)}to{opacity:1;transform:none}}
+.h2.h2out{animation:nwHo .32s cubic-bezier(.4,0,.6,1) both}
+@keyframes nwHo{to{opacity:0;transform:scale(.97) translateY(-10px)}}
+.stack.nwx.nwin{animation:nwIn .45s cubic-bezier(.22,.8,.3,1) both}
+.stack.nwx.nwout{animation:nwOut .32s cubic-bezier(.4,0,.6,1) both}
+@keyframes nwIn{from{opacity:0;transform:scale(1.03) translateY(14px)}to{opacity:1;transform:none}}
+@keyframes nwOut{to{opacity:0;transform:scale(1.03) translateY(14px)}}
+.nwclose{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font:700 13px inherit;font-family:inherit;cursor:pointer;transition:.3s var(--ease)}.nwclose:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+.stack.nwx .st-h{display:flex;align-items:center}
 </style>
 </head>
 <body>
@@ -5384,7 +5404,7 @@ function recMini(){if(!S.rec||!gm(S.rec.id))recPick();const r=S.rec,g=r&&gm(r.id
   <div class="chs">${fe.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p class="why">${esc(r.why)}</p>
   <div class="bt">${canPlay(g)?`<button class="hm-go" data-a="hplay" data-id="${g.id}">${ic('play')} Jugar</button>`:`<button class="hm-go" data-a="open" data-id="${g.id}">Ver ficha</button>`}<button class="hm-go hm-gh" data-a="recnext">${ic('flake')} Otra</button><button class="hm-go hm-gh" data-a="recno" title="No me interesa">✕</button></div></section>`}
 function newsRows(n){const L=newsItems().slice(0,n);return L.length?L.map(x=>`<div class="h2-nr" data-a="go" data-v="news"><img src="${art.grid(x.g)}" data-fb="${art.wide(x.g)}" alt=""><div><b>${esc(x.te||x.t)}</b><p>${esc(x.ce||x.c||'')}</p><small>${h2nago(x.d)} · ${esc(x.g.name)}</small></div></div>`).join(''):'<p class="sub0" style="margin:0">Cuando haya novedades de tus juegos, aparecen acá.</p>'}
-function newsMini(){return `<section class="h2-c h2-nw rise" style="--i:3"><h3><b class="hdt"><i class="hdi">${ic('news')}</i>Novedades</b><a data-a="h2nopen"><i class="lv"></i>Ver todas</a></h3><div class="h2-nl two">${newsRows(6)}</div></section>`}
+function newsMini(){const x=newsItems()[0];return `<section class="h2-c h2-nw h2-n1 rise" style="--i:3"><h3><b class="hdt"><i class="hdi">${ic('news')}</i>Novedades</b><button class="n1all" data-a="h2nopen">Ver todas ${ic('arrow')}</button></h3>${x?`<div class="n1" data-a="h2nopen"><img src="${art.grid(x.g)}" data-fb="${art.wide(x.g)}" alt=""><div class="n1t"><small class="n1m"><i class="lv"></i>${h2nago(x.d)} · ${esc(x.g.name)}</small><b>${esc(x.te||x.t)}</b><p>${esc(x.ce||x.c||'')}</p></div></div>`:'<p class="sub0" style="margin:0">Cuando haya novedades de tus juegos, aparecen acá.</p>'}</section>`}
 function h2Top5(){const pp=PR()||{fav:[]},fv=(pp.fav||[]).map(gm).filter(Boolean);
   return `<section class="h2-c h2-t5 rise" style="--i:2"><h3>Tu top 5 <a data-a="obedit" data-s="5">${ic('edit')}</a></h3><div class="g5">${[0,1,2,3,4].map(i=>fv[i]?`<div data-a="open" data-id="${fv[i].id}" title="${esc(fv[i].name)}"><img src="${art.grid(fv[i])}" data-fb="${art.wide(fv[i])}" alt=""><b>${i+1}</b></div>`:`<div class="e" data-a="obedit" data-s="5">${ic('plus')}</div>`).join('')}</div></section>`}
 function h2Goals(n){const L=lvlOf(),g=goalsList(),bar=f=>`<div class="h2pb"><i style="--w:${Math.round(f*100)}%"></i></div>`,fm=n=>n>=100?Math.round(n):+n.toFixed(1);
@@ -5410,15 +5430,15 @@ function h2Body(t,adv){
 function homeBody(){return h2Body(S.h2t||'para')}
 V.home=()=>{
   const p=PR(),L=lvlOf();if(S.ht==='wrapped'||S.ht==='rarezas'){S.h2t='act';S.ht=null}
-  S.h2t='para';const h2f=!S.h2seen;S.h2seen=1;
+  S.h2t='para';const h2f=!S.h2seen;S.h2seen=1;const h2bk=S.h2back;setTimeout(()=>{S.h2back=0},50);
   const h=new Date().getHours(),sal=rwGreet(h<6?'Buenas noches':h<12?'Buen día':h<20?'Buenas tardes':'Buenas noches'),fecha=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}),nm=(p&&p.name)||UN(),wn=wrapNew()[0];
-  return `<div class="h2 ${S.h2t==='para'?'fix':''}${h2f?' h2first':''}" id="h2r"><header class="h2-top rise" style="--i:0"><div class="l"><small>${fecha}</small><h2>${sal}, ${esc(nm)}</h2></div>
+  return `<div class="h2 ${S.h2t==='para'?'fix':''}${h2f?' h2first':''}${S.h2back?' h2in':''}" id="h2r"><header class="h2-top rise" style="--i:0"><div class="l"><small>${fecha}</small><h2>${sal}, ${esc(nm)}</h2></div>
    <div class="r">${wn?`<button class="h2-pill wr" data-a="wplay" data-id="${wn.key}">🎁 Wrapped listo</button>`:''}${x7Pill()}${rjPill()}<button class="h2-pill" data-a="go" data-v="profile" title="Mi perfil">Nv ${L.l} · ${Math.round(L.x)} XP<span class="xb"><i style="width:${L.pct}%"></i></span></button><button class="h2-dice" data-a="rand" title="¿Qué juego hoy? Elegir uno al azar" aria-label="Elegir un juego al azar"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.6" cy="8.6" r="1.35"/><circle cx="15.4" cy="8.6" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.6" cy="15.4" r="1.35"/><circle cx="15.4" cy="15.4" r="1.35"/></svg></button></div></header>
    <div id="hbody" class="h2-body">${h2Body(S.h2t,S.h2t==='para')}</div></div>`};
 Object.assign(A,{
  h2tab:a=>{const t=a.dataset.v,was=S.h2t;S.h2t=t;$$('#h2tb button').forEach(b=>b.classList.toggle('on',b===a));const r=$('#h2r');if(r)r.classList.toggle('fix',t==='para');const b=$('#hbody');if(b){b.innerHTML=h2Body(t,t==='para'&&was!=='para'||t==='para');counters(b)}},
- h2nopen:()=>{S.h2nw=1;const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
- h2nclose:()=>{S.h2nw=0;const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
+ h2nopen:()=>{const r=$('#h2r');if(!r||S.nwbusy){go('news');return}S.nwbusy=1;r.classList.add('h2out');setTimeout(()=>{S.nwbusy=0;S.nwin=1;go('news')},320)},
+ nwclose:()=>{const r=$('.stack.nwx');if(!r||S.nwbusy){go('home');return}S.nwbusy=1;r.classList.add('nwout');setTimeout(()=>{S.nwbusy=0;S.h2back=1;go('home')},320)},
  wdismiss:a=>{ST.wseen=ST.wseen||{};ST.wseen[a.dataset.id]=1;save();const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
  gtab:a=>{if(a.dataset.v==="wrapped")S.wdet=0;go(a.dataset.v)},
  h2next:()=>{const b=$('#hbody');if(b){b.innerHTML=h2Para(true);S.h2t='para'}}
@@ -5516,10 +5536,10 @@ V.news=()=>{S.nf=S.nf||'all';S.nsec=S.nsec||'m';if(S.nsec==='fav')S.nsec='m';set
   setTimeout(()=>{ST.newsSeen=Math.floor(Date.now()/1000);save();newsBadge();newsFetch()},400);
   const TB=[['all','Todo'],['fav','Mis favoritos'],['play','Jugando'],['patch','Parches']];
   S.npg=0;
-  return `<div class="stack nw nwx"><header class="st-h rise"><div><small>Lo último de tus juegos</small><h1>Novedades</h1></div></header>
+  const nin=S.nwin;S.nwin=0;return `<div class="stack nw nwx${nin?' nwin':''}"><header class="st-h rise"><div><small>Lo último de tus juegos</small><h1>Novedades</h1></div><button class="nwclose" data-a="nwclose">✕ Cerrar</button></header>
   <div class="nwx-bar rise" style="--i:1"><div class="chips">${[['m','Mis juegos'],['w','Mundo gamer'],['up','Próximos lanzamientos'],['p','Parches'],['fr','Gratis'+(radarNew()?' ('+radarNew()+')':'')]].map(([k,l])=>`<button class="cp ${S.nsec===k?'on':''}" data-a="newssec" data-v="${k}">${l}</button>`).join('')}</div>
   <button class="hm-go hm-gh nwx-rf" data-a="newsrefresh">${ic('flake')} Actualizar</button></div>
-  <div class="nwx-body"><div id="nwb" class="rise" style="--i:2;min-height:0"></div><aside class="nwx-side">${ydCard()}${recCard()}</aside></div></div>`};
+  <div class="nwx-body"><div id="nwb" class="rise" style="--i:2;min-height:0"></div></div></div>`};
 /* ---------- Radar de juegos gratis: Epic (semanales), Steam (100% de descuento) y GOG ---------- */
 const RAD={b:0};
 const radR=()=>{const R=(ST.rad=ST.rad||{});R.items=R.items||[];R.seen=R.seen||{};R.ann=R.ann||{};R.t=R.t||0;return R};
