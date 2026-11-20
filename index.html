@@ -1651,7 +1651,7 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 @keyframes h2float{50%{transform:translateY(-3px)}}
 .h2-nr{will-change:transform}.h2-nr::after{content:"";position:absolute;left:0;top:18%;bottom:18%;width:3px;border-radius:3px;background:linear-gradient(var(--a),var(--a2));transform:scaleY(0);transition:transform .4s var(--spring)}.h2-nr:hover::after{transform:scaleY(1)}
 .h2 .h2-nw .lv{animation:h2pulse 1.6s infinite}
-.h2-hero .bg{transition:transform 1.2s var(--ease)}.h2-hero:hover .bg{transform:scale(1.04)}
+.h2-hero .bg{transition:transform 1.2s var(--ease)}
 .h2-ring{transition:filter .4s}.h2-hero:hover .h2-ring{filter:drop-shadow(0 0 14px rgba(255,184,107,.55))}
 .h2first .h2-nr{animation:h2slide .85s var(--ease) both}.h2first .h2-nr:nth-child(1){animation-delay:1.7s}.h2first .h2-nr:nth-child(2){animation-delay:1.82s}.h2first .h2-nr:nth-child(3){animation-delay:1.94s}.h2first .h2-nr:nth-child(4){animation-delay:2.06s}.h2first .h2-nr:nth-child(5){animation-delay:2.18s}.h2first .h2-nr:nth-child(6){animation-delay:2.3s}
 @keyframes h2slide{from{opacity:0;transform:translateX(30px)}}
@@ -4014,8 +4014,8 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 
 
 /* novedades: tarjeta única + transición abrir/cerrar */
-.h2-n1 .n1all{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg,var(--a),var(--a2));color:#1a1208;font:800 12.5px inherit;font-family:inherit;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .3s var(--ease),box-shadow .3s var(--ease),filter .3s}
-.h2-n1 .n1all svg{width:14px;height:14px;transition:transform .3s var(--ease)}.h2-n1 .n1all:hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 10px 24px rgba(0,0,0,.45)}.h2-n1 .n1all:hover svg{transform:translateX(3px)}
+.h2-c h3 .n1all{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg,var(--a),var(--a2));color:#1a1208;font:800 12.5px inherit;font-family:inherit;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .3s var(--ease),box-shadow .3s var(--ease),filter .3s}
+.h2-c h3 .n1all svg{width:14px;height:14px;transition:transform .3s var(--ease)}.h2-c h3 .n1all:hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 10px 24px rgba(0,0,0,.45)}.h2-c h3 .n1all:hover svg{transform:translateX(3px)}
 .h2-n1 .n1{flex:1;min-height:0;display:flex;gap:16px;cursor:pointer;padding:12px;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.06);overflow:hidden;transition:border-color .3s}
 .h2-n1 .n1:hover{border-color:rgba(255,255,255,.2)}
 .h2-n1 .n1 img{height:100%;width:auto;aspect-ratio:2/3;max-width:46%;object-fit:cover;border-radius:13px;flex:none;box-shadow:0 10px 26px rgba(0,0,0,.5);transition:transform .5s var(--ease)}.h2-n1 .n1:hover img{transform:scale(1.03)}
@@ -4024,6 +4024,9 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .h2-n1 .n1t p{margin:0;font-size:13px;line-height:1.55;color:var(--muted);display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden}
 .h2-n1 .n1m{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
 .h2.h2in{animation:nwHi .45s cubic-bezier(.22,.8,.3,1) both}@keyframes nwHi{from{opacity:0;transform:scale(.97) translateY(-10px)}to{opacity:1;transform:none}}
+.vin{animation:nwIn .45s cubic-bezier(.22,.8,.3,1) both}
+.h2-hero .bg{animation:h2kb 24s ease-in-out infinite alternate;will-change:transform}
+@keyframes h2kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.11) translate(-1.6%,-1.2%)}}
 .h2.h2out{animation:nwHo .32s cubic-bezier(.4,0,.6,1) both}
 @keyframes nwHo{to{opacity:0;transform:scale(.97) translateY(-10px)}}
 .stack.nwx.nwin{animation:nwIn .45s cubic-bezier(.22,.8,.3,1) both}
@@ -5409,7 +5412,7 @@ function h2Top5(){const pp=PR()||{fav:[]},fv=(pp.fav||[]).map(gm).filter(Boolean
   return `<section class="h2-c h2-t5 rise" style="--i:2"><h3>Tu top 5 <a data-a="obedit" data-s="5">${ic('edit')}</a></h3><div class="g5">${[0,1,2,3,4].map(i=>fv[i]?`<div data-a="open" data-id="${fv[i].id}" title="${esc(fv[i].name)}"><img src="${art.grid(fv[i])}" data-fb="${art.wide(fv[i])}" alt=""><b>${i+1}</b></div>`:`<div class="e" data-a="obedit" data-s="5">${ic('plus')}</div>`).join('')}</div></section>`}
 function h2Goals(n){const L=lvlOf(),g=goalsList(),bar=f=>`<div class="h2pb"><i style="--w:${Math.round(f*100)}%"></i></div>`,fm=n=>n>=100?Math.round(n):+n.toFixed(1);
   const rows0=[`<div class="h2gr"><div><span>Nivel ${L.l+1}</span><small>faltan ${Math.max(0,Math.round(L.next))} XP · ${Math.round(L.pct)}%</small></div>${bar(L.pct/100)}</div>`].concat(g.map(x=>`<div class="h2gr"><div><span>${esc(x.n)}</span><small>${x.t>1?fm(x.c)+' / '+fm(x.t):'casi'}</small></div>${bar(x.f)}</div>`));
-  return `<section class="h2-c h2-go rise" style="--i:3"><h3><b class="hdt"><i class="hdi">${ic('trophy')}</i>Próximos objetivos</b><a data-a="go" data-v="hitos">Hitos ${ic('arrow')}</a></h3>${rows0.slice(0,n||99).join('')}</section>`}
+  return `<section class="h2-c h2-go rise" style="--i:3"><h3><b class="hdt"><i class="hdi">${ic('trophy')}</i>Próximos objetivos</b><button class="n1all" data-a="h2to" data-v="hitos">Hitos ${ic('arrow')}</button></h3>${rows0.slice(0,n||99).join('')}</section>`}
 function h2Week(){const w=week(),st=h2streak(),nm=['D','L','M','X','J','V','S'];
   return `<section class="h2-c h2-wk rise" style="--i:4"><h3><b class="hdt"><i class="hdi fi">${ic('flame')}</i>Racha semanal</b><span class="fire">${st>0?'🔥 '+st+(st===1?' día':' días'):'Jugá hoy para empezar'}</span></h3><div class="wk">${w.map((x,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return `<span class="${x[1]>0?'f':''}${i===6?' t':''}" style="--d:${i}" title="${x[1].toFixed(1)} h"><i></i>${nm[d.getDay()]}</span>`}).join('')}</div></section>`}
 function h2Pet(){const p=petCur();if(!p)return `<section class="h2-c h2-pt rise" style="--i:5" data-a="go" data-v="pet"><h3>Mi mascota</h3><p class="sub0" style="margin:0">Adoptá una mascota y acompañá tu launcher.</p></section>`;
@@ -5417,7 +5420,7 @@ function h2Pet(){const p=petCur();if(!p)return `<section class="h2-c h2-pt rise"
 function h2Tick(){const g=goalsList()[0],p=petCur(),it=[`${G.length} juegos en tu biblioteca`,`${Math.round(totalH())} h jugadas`,`${gaN()} hitos desbloqueados`,`${doneN()} juegos completados`];
   if(g)it.push(`Te faltan ${Math.max(0,Math.round((g.t-g.c)*10)/10)} para «${g.n}»`);if(p)it.push(`${p.name} está en nivel ${pLvl(p)}`);const st=h2streak();if(st>1)it.push(`Racha de ${st} días`);
   const h=it.map(x=>`<span>${esc(x)}</span>`).join('');return `<div class="h2-tick rise" style="--i:6"><b>HOY</b><div class="mv"><div class="tr" style="--d:${it.length*5}s">${h}${h}</div></div></div>`}
-function h2Resumen(){return `<section class="h2-c h2-rs rise" style="--i:2" data-a="go" data-v="stats"><h3><b class="hdt"><i class="hdi">${ic('chart')}</i>Tu resumen</b><a>Estadísticas ${ic('arrow')}</a></h3><div class="rs3"><div><i class="ri">${ic('clock')}</i><b>${Math.round(totalH()).toLocaleString('es-AR')}</b><small>horas</small></div><div><i class="ri">${ic('check')}</i><b>${doneN()}</b><small>completados</small></div><div><i class="ri">${ic('trophy')}</i><b>${gaN()}</b><small>hitos</small></div></div></section>`}
+function h2Resumen(){return `<section class="h2-c h2-rs rise" style="--i:2" ><h3><b class="hdt"><i class="hdi">${ic('chart')}</i>Tu resumen</b><button class="n1all" data-a="h2to" data-v="stats">Estadísticas ${ic('arrow')}</button></h3><div class="rs3"><div><i class="ri">${ic('clock')}</i><b>${Math.round(totalH()).toLocaleString('es-AR')}</b><small>horas</small></div><div><i class="ri">${ic('check')}</i><b>${doneN()}</b><small>completados</small></div><div><i class="ri">${ic('trophy')}</i><b>${gaN()}</b><small>hitos</small></div></div></section>`}
 function h2WrapCard(w){const nm=w.q?QN[w.q]+' '+w.y:'Año '+w.y;return `<section class="h2-c h2-wc rise" style="--i:2"><h3><b class="hdt"><i class="hdi">${ic('star')}</i>Tu Wrapped</b><a data-a="wdismiss" data-id="${w.key}" title="Más tarde">✕</a></h3><div class="wcb"><span class="wtag">NUEVO</span><b>Tu ${esc(nm)} ya está listo</b><p>Mirá cómo jugaste, en una presentación animada.</p><div class="wbt"><button class="hm-go" data-a="wplay" data-id="${w.key}">${ic('play')} Verlo</button><button class="hm-go hm-gh" data-a="wropen" data-id="${w.key}">Ver detalle</button></div></div></section>`}
 function h2NewsBig(){return `<section class="h2-c h2-nwb rise" style="--i:1"><h3>Novedades <a data-a="h2nclose">✕ Cerrar</a></h3><div class="h2-nl big">${newsRows(10)}</div><a class="nbl" data-a="go" data-v="news">Abrir todas las novedades ${ic('arrow')}</a></section>`}
 function h2Right(){if(S.h2nw)return h2NewsBig();const w=(typeof wrapNew==='function'?wrapNew():[])[0];return `${w?h2WrapCard(w):h2Resumen()}${h2Week()}${h2Goals(2)}${newsMini()}`}
@@ -5438,6 +5441,7 @@ V.home=()=>{
 Object.assign(A,{
  h2tab:a=>{const t=a.dataset.v,was=S.h2t;S.h2t=t;$$('#h2tb button').forEach(b=>b.classList.toggle('on',b===a));const r=$('#h2r');if(r)r.classList.toggle('fix',t==='para');const b=$('#hbody');if(b){b.innerHTML=h2Body(t,t==='para'&&was!=='para'||t==='para');counters(b)}},
  h2nopen:()=>{const r=$('#h2r');if(!r||S.nwbusy){go('news');return}S.nwbusy=1;r.classList.add('h2out');setTimeout(()=>{S.nwbusy=0;S.nwin=1;go('news')},320)},
+ h2to:a=>{const v=a.dataset.v,r=$('#h2r');if(!r||S.nwbusy){go(v);return}S.nwbusy=1;r.classList.add('h2out');setTimeout(()=>{S.nwbusy=0;go(v);const c=$('#view')&&$('#view').firstElementChild;if(c){c.classList.add('vin');setTimeout(()=>c.classList.remove('vin'),600)}},320)},
  nwclose:()=>{const r=$('.stack.nwx');if(!r||S.nwbusy){go('home');return}S.nwbusy=1;r.classList.add('nwout');setTimeout(()=>{S.nwbusy=0;S.h2back=1;go('home')},320)},
  wdismiss:a=>{ST.wseen=ST.wseen||{};ST.wseen[a.dataset.id]=1;save();const r=$('#h2rt');if(r)r.innerHTML=h2Right()},
  gtab:a=>{if(a.dataset.v==="wrapped")S.wdet=0;go(a.dataset.v)},
