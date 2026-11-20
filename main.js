@@ -2155,6 +2155,7 @@ function createWindow() {
       try { wc.setBackgroundColor('#00000000'); } catch (e) {}
       const note = (m) => wsend({ st: 'note', msg: m }), own = (u) => /^https?:/i.test(String(u));
       wc.setWindowOpenHandler(({ url, disposition, referrer }) => {
+        try { if (/(^|\.)megadb\.net$/i.test(new URL(wc.getURL()).hostname) && !/^magnet:/i.test(String(url))) { adBlocked++; note('Bloqueé una ventana extra de MegaDB'); return { action: 'deny' }; } } catch (e) {}
         if (/^magnet:/i.test(String(url))) { webTorrent(url); return { action: 'deny' }; }
         if (own(url) && adUrlHit(url)) { adBlocked++; note('Bloqueé una ventana de anuncios (' + (() => { try { return new URL(url).hostname; } catch (e) { return ''; } })() + ')'); return { action: 'deny' }; }
         if (own(url)) { let ref = ''; try { ref = (referrer && referrer.url) || wc.getURL(); } catch (e) {} autoMark(url, ref); wsend({ st: 'newtab', url, fg: disposition !== 'background-tab', ref }); return { action: 'deny' }; }
