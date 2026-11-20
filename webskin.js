@@ -1040,7 +1040,7 @@ function fitgirlConsole() {
     on(window, 'resize', moveAc);
     const title = () => cur === 'search' ? 'Resultados para «' + ST.search.q + '»' : TABS.find((t) => t[0] === cur)[1];
     const draw = () => {
-      const st = ST[cur], L = st.pages[st.cur] || []; $('#bg') && 0;
+      const st = ST[cur], L = (st.pages[st.cur] || []).filter((x) => !isAd(x)); $('#bg') && 0; scan(st.pages[st.cur]); window.__fgDraw = () => { try { draw(); } catch (e) {} };
       $('.ct').classList.toggle('ss1', cur === 'new' || cur === 'search');
       setTitle($('#ti'), title()); const pages = st.total || (st.pages[st.cur] ? st.cur : 1);
       countTo($('#ts'), L.length, (cur === 'up' ? ' próximos lanzamientos' : ' repacks') + (pages > 1 ? ' · página ' + st.cur + ' de ' + pages : ''));
@@ -1096,7 +1096,7 @@ function fitgirlConsole() {
         if (HL.length > 1) window.__fgHT = setInterval(() => { if (!hr.isConnected || document.hidden) return; if (!hr.querySelector('#hm')) { clearInterval(window.__fgHT); return; } showH((hi + 1) % HL.length); }, 8000);
         hr.onclick = (e) => { const b = e.target.closest('.dts'); if (b) return; const t = e.target.closest('[data-h]'); if (!t) return; e.preventDefault(); openPage(sh, t.dataset.h); };
         hr.onpointerover = (e) => { const t = e.target.closest && e.target.closest('[data-h]'); if (t) prefetch(t.dataset.h); };
-        const fillTop = () => { const P = ST.pop && ST.pop.pages[1]; const e = hr.querySelector('#p3'); if (!e || !P) return; e.innerHTML = P.slice(0, 3).map((x, i) => '<a class="p3" data-h="' + esc(x.href) + '"><b class="m' + (i + 1) + '">' + (i + 1) + '</b><span>' + esc(x.title) + '</span></a>').join(''); };
+        const fillTop = () => { const P = ST.pop && ST.pop.pages[1]; const e = hr.querySelector('#p3'); if (!e || !P) return; e.innerHTML = P.filter((x) => !isAd(x)).slice(0, 3).map((x, i) => '<a class="p3" data-h="' + esc(x.href) + '"><b class="m' + (i + 1) + '">' + (i + 1) + '</b><span>' + esc(x.title) + '</span></a>').join(''); };
         if (ST.pop && ST.pop.pages[1]) fillTop(); else load('pop', 1).then(fillTop).catch(() => {});
       } else hr.innerHTML = cur === 'new' && st.cur > 1 ? '<div class="ctl" id="ctl"><button data-f="all">Todos</button><button data-f="hv">Sin HV</button><button data-f="sm">&lt; 10 GB</button><span class="sp"></span><button data-v="g">▦ Grilla</button><button data-v="l">☰ Lista</button></div>' : '';
       const LL = hx ? L.filter((x) => x !== hx) : L;
@@ -1142,6 +1142,16 @@ function fitgirlConsole() {
       const pgs = []; for (let i = 1; i <= pages; i++) if (i === 1 || i === pages || Math.abs(i - st.cur) <= 2) pgs.push(i); const out = []; pgs.forEach((n, i) => { if (i && n - pgs[i - 1] > 1) out.push('<span>…</span>'); out.push('<button data-p="' + n + '" class="' + (n === st.cur ? 'on' : '') + '">' + n + '</button>'); });
       $('#pg').innerHTML = pages > 1 ? '<button data-p="' + (st.cur - 1) + '"' + (st.cur < 2 ? ' disabled' : '') + '>‹</button>' + out.join('') + '<button data-p="' + (st.cur + 1) + '"' + (st.cur >= pages ? ' disabled' : '') + '>›</button>' : '';
       $('#pg').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => goPage(+b.dataset.p))); fx(sh);
+    };
+    const ADON = !!window.__wtAdult;
+    const KW_T = /(hentai|porn|\bsex|erotic|nsfw|milf|\blust\b|nude|naked|waifu|futanari|succubus|\bfap|bdsm|femboy|lewd|18\+|\badult\b)/i, KW_G = /(adult|hentai|erotic|18\+|nsfw|sexual|porn|nudity|lewd|ecchi|eroge)/i, KW_D = /(hentai|erotic|porn|nsfw|18\+|lewd|sex scenes?|nudity|adult (game|content)|explicit sex)/i;
+    let AC = {}; try { AC = JSON.parse(localStorage.getItem('wt_fg_adult_v1') || '{}') || {}; } catch (e) {}
+    const isAd = (x) => { if (ADON || !x) return false; const v = AC[x.href]; if (v !== undefined) return !!v; return KW_T.test(x.title || '') || KW_G.test(x.gen || ''); };
+    let scanBusy = 0;
+    const scan = (arr) => {
+      if (ADON || scanBusy) return; const q = (arr || []).filter((x) => x && x.href && AC[x.href] === undefined && !KW_T.test(x.title || '')).slice(0, 60); if (!q.length) return; scanBusy = 1; let fresh = 0, i = 0;
+      const wk = async () => { while (i < q.length) { const x = q[i++]; try { const d = await fetchDoc(x.href); if (!d) continue; const ar = d.querySelector('article') || d.body, tx = T(ar), gen = rx(tx, /Genres\/Tags:\s*(.{1,120}?)(?=\s*(?:Companies|Languages|Original|Repack|Download|Screenshots|$))/i), tg = [...d.querySelectorAll('a[rel~=tag], .tags-links a, .cat-links a')].map((a) => T(a)).join(' '), hit = KW_G.test(gen + ' ' + tg) || KW_D.test(tx.slice(0, 8000)); AC[x.href] = hit ? 1 : 0; if (hit) fresh++; } catch (e) {} } };
+      Promise.all([wk(), wk(), wk()]).then(() => { scanBusy = 0; try { localStorage.setItem('wt_fg_adult_v1', JSON.stringify(AC)); } catch (e) {} if (fresh && window.__fgDraw) window.__fgDraw(); });
     };
     const PER = 60;
     const crawlAll = (u, doc, items, st, live) => {

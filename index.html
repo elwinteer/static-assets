@@ -8097,7 +8097,7 @@ function vStop(end){const L=vL(),p=S.vplay;if(!L||!p)return;try{winteerNative.vp
   if(g.hl&&g.hl.m&&g.status!=='Terminado'&&g.hours>=parseFloat(g.hl.m)){g.status='Terminado'}
   try{const s=ggS(g);if(h>s.max)s.max=+h.toFixed(3)}catch(e){}save();try{ggCheck(g)}catch(e){}if(S.view==='vault'&&S.vu)vRender()}
 Object.assign(A,{
- vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),vpanic:()=>{try{winteerNative.vpanicNow()}catch(e){}},
+ vclose:()=>$$('.modal.vm').forEach(m=>m.remove()),vin:()=>{vIn()},vlock:()=>vLock(),vadult:()=>{const L=vL();if(!L)return;L.adult=!L.adult;save();toast(L.adult?'Juegos +18 visibles (al recargar el catálogo)':'Juegos +18 ocultos (al recargar el catálogo)');A.vclose();A.vopts()},vpanic:()=>{try{winteerNative.vpanicNow()}catch(e){}},
  vsel:a=>{S.vsel=a.dataset.id;S.vtab='res';vList();vDetail(false)},
  vtab:a=>{S.vtab=a.dataset.id;vTab()},
  vplay:a=>{const g=vG(a.dataset.id);if(!g)return;
@@ -8108,7 +8108,7 @@ Object.assign(A,{
   if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:'',exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl,vault:true}).then(r=>{const tk=!!(r&&r.tracking);vLock();if(tk&&winteerNative.toBg)setTimeout(()=>winteerNative.toBg(),1200)}).catch(()=>{vLock()})}
   else{vLock();if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
  vdone:a=>{const g=vG(a.dataset.id);if(!g)return;g.status=g.status==='Terminado'?'':'Terminado';save();try{ggCheck(g)}catch(e){}vDetail(false)},
- vopts:()=>modal(`<h3>Opciones</h3><div class="bs" style="flex-direction:column;align-items:stretch;gap:10px"><button class="b2" data-a="vaudit">Verificar que no quede rastro</button><button class="b2" data-a="vpanic">Salida rápida (doble toque de Ctrl durante el juego)</button><button class="b2 g" data-a="close">Cerrar</button></div>`),
+ vopts:()=>modal(`<h3>Opciones</h3><div class="bs" style="flex-direction:column;align-items:stretch;gap:10px"><button class="b2" data-a="vaudit">Verificar que no quede rastro</button><button class="b2" data-a="vadult">Catálogo: juegos +18 · ${vL()&&vL().adult?'Visibles':'Ocultos'}</button><button class="b2" data-a="vpanic">Salida rápida (doble toque de Ctrl durante el juego)</button><button class="b2 g" data-a="close">Cerrar</button></div>`),
  vmove:()=>{modal(`<h3>Mover a la Bóveda</h3><p>El juego se va de tu biblioteca, perfil, estadísticas, Inicio y actividad, y queda solo acá con su historial.</p><input class="txt" id="vm-q" placeholder="Buscar en tu biblioteca…" autocomplete="off"><div id="vm-l" class="vl-pick"></div><div class="bs"><button class="b2 g" data-a="close">Cerrar</button></div>`);vPickFill();$('#vm-q').addEventListener('input',vPickFill);$('#vm-q').focus()},
  vmv:a=>{const id=a.dataset.id,o=vMove(id),mo=a.closest('.modal');if(mo)mo.remove();
   if(o.err){toast(o.err);return}S.vsel=id;S.vtab='res';vRender();
