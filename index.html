@@ -8137,6 +8137,192 @@ SP.forEach((s,i)=>{
  if(bcol)NOCOL.add(id);
 });
 })();
+/* ===== pantalones nuevos v2: 100 diseños de nivel alto ===== */
+(function(){
+const R=(x,y,w,h,f,o='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${o}/>`;
+const L=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join('');
+const mx=(a,b,t)=>{const p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+const SHP={sl:[308,48],rg:[308,54],wd:[312,60],bg:[316,66],cp:[284,52],bm:[294,56],sh:[272,54],ms:[262,52],jg:[304,52],fl:[314,64]};
+const SKT={sk1:['M62 244H138L152 296Q100 308 48 296Z',296,'M52 290Q100 302 148 290'],sk2:['M62 244H138L148 286Q100 294 52 286Z',286,'M56 280Q100 288 144 280'],sk3:['M64 244H136L172 284Q100 304 28 284Z',284,'M34 278Q100 298 166 278'],sk4:['M62 244H138L158 316Q100 328 42 316Z',316,'M46 310Q100 322 154 310']};
+const legs=(h,o)=>{const y2=Math.max(h-34,254),y3=Math.max(h-58,252);return [`M62 243L100 246V${h}H${100-o}L${104-o} ${y2}Q58 ${y3} 62 243Z`,`M138 243L100 246V${h}H${100+o}L${96+o} ${y2}Q142 ${y3} 138 243Z`]};
+/* adornos chicos que se repiten */
+const E={
+ star:(x,y,p)=>STAR(x,y,4.6,p[0]),
+ heart:(x,y,p)=>Pa(`M${x} ${y+3.6}C${x-6} ${y-.5} ${x-3.4} ${y-5} ${x} ${y-1.8}C${x+3.4} ${y-5} ${x+6} ${y-.5} ${x} ${y+3.6}Z`,p[0]),
+ bolt:(x,y,p)=>Pa(`M${x+1} ${y-5}L${x-3} ${y+1}H${x}L${x-1} ${y+5}L${x+3} ${y-1}H${x}Z`,p[0]),
+ moon:(x,y,p)=>Pa(`M${x+2} ${y-4.6}A4.8 4.8 0 1 0 ${x+2} ${y+4.6}A3.8 3.8 0 0 1 ${x+2} ${y-4.6}Z`,p[0]),
+ snow:(x,y,p)=>SK(`M${x-4} ${y}H${x+4}M${x-2} ${y-3.5}L${x+2} ${y+3.5}M${x+2} ${y-3.5}L${x-2} ${y+3.5}`,p[0],1.5),
+ flower:(x,y,p)=>[[-2.6,0],[2.6,0],[0,-2.6],[0,2.6]].map(q=>Ci(x+q[0],y+q[1],2.2,p[0])).join('')+Ci(x,y,1.7,p[1]||'#ffd54f'),
+ dot:(x,y,p,b,k)=>Ci(x,y,2.5,p[k%p.length]),
+ dia:(x,y,p)=>Pa(`M${x} ${y-4}L${x+3.2} ${y}L${x} ${y+4}L${x-3.2} ${y}Z`,p[0]),
+ paw:(x,y,p)=>Ci(x,y+1.4,2.8,p[0])+[[-3.4,-1.8],[-1.2,-3.6],[1.2,-3.6],[3.4,-1.8]].map(q=>Ci(x+q[0],y+q[1],1.3,p[0])).join(''),
+ skull:(x,y,p)=>Ci(x,y-.6,3.6,p[0])+R(x-2,y+1.6,4,3,p[0])+Ci(x-1.4,y-.6,1,INK)+Ci(x+1.4,y-.6,1,INK),
+ leaf:(x,y,p)=>Pa(`M${x-4} ${y+3}Q${x-3} ${y-4} ${x+4} ${y-4}Q${x+3} ${y+3} ${x-4} ${y+3}Z`,p[0]),
+ cherry:(x,y,p)=>SK(`M${x-2} ${y+1}Q${x-1} ${y-4} ${x+2} ${y-5}M${x+3} ${y+1}Q${x+3} ${y-3} ${x+2} ${y-5}`,'#2e7d32',1.2)+Ci(x-2.4,y+2.4,2.4,p[0])+Ci(x+3,y+2.4,2.4,p[0]),
+ fish:(x,y,p)=>El(x-1,y,4.4,2.6,p[0])+Pa(`M${x+3} ${y}L${x+6.4} ${y-2.6}V${y+2.6}Z`,p[0]),
+ cross:(x,y,p)=>R(x-1,y-3.6,2,7.2,p[0])+R(x-3.6,y-1,7.2,2,p[0]),
+ tri:(x,y,p)=>Pa(`M${x} ${y-3.6}L${x+3.6} ${y+3}H${x-3.6}Z`,p[0]),
+ note:(x,y,p)=>Ci(x-1.6,y+3,2.2,p[0])+SK(`M${x+.4} ${y+3}V${y-4}L${x+3.6} ${y-2.6}`,p[0],1.4),
+ clover:(x,y,p)=>[[-2,-1.6],[2,-1.6],[-2,1.6],[2,1.6]].map(q=>Ci(x+q[0],y+q[1],2.2,p[0])).join('')+SK(`M${x} ${y+1}L${x+1.4} ${y+5}`,p[0],1.2),
+ px:(x,y,p,b,k)=>R(x-2.6,y-2.6,5.2,5.2,p[k%p.length]),
+ spot:(x,y,p,b,k)=>El(x,y,4.4,3.2,p[0],'transform="rotate('+(k*37%90)+' '+x+' '+y+')"')+El(x+.4,y,2,1.4,b,'transform="rotate('+(k*37%90)+' '+x+' '+y+')"'),
+ sun:(x,y,p)=>Ci(x,y,2.6,p[0])+SK(`M${x-5} ${y}H${x-3.6}M${x+3.6} ${y}H${x+5}M${x} ${y-5}V${y-3.6}M${x} ${y+3.6}V${y+5}`,p[0],1.3),
+ lace:(x,y,p)=>SK(`M${x-3} ${y-3}L${x+3} ${y+3}M${x+3} ${y-3}L${x-3} ${y+3}`,p[0],1.6)
+};
+const SC=(k,sx,sy,jt)=>(h,o,p,b)=>{let s='';for(let j=0,y=260;y<h-3;j++,y+=sy)for(let i=0,x=34+(j%2)*sx/2;x<168;i++,x+=sx){if(Math.abs(x-100)<3)continue;const jx=jt?((i*7+j*13)%5-2)*jt:0,jy=jt?((i*11+j*5)%5-2)*jt:0;s+=E[k](x+jx,y+jy,p,b,i+j)}return s};
+const BLB=[[52,260,12,7,20],[78,272,10,7,-30],[60,292,12,6,10],[88,300,9,6,-20],[46,310,10,6,0],[72,250,9,5,30],[128,264,11,7,-20],[150,276,10,7,25],[120,290,12,6,5],[142,302,10,6,-15],[110,312,9,6,20],[134,250,9,5,-30],[90,284,8,5,40],[112,274,8,5,-40]];
+const P={
+ ss:(h,o,p)=>SK(`M64 250Q56 ${h-60} ${106-o} ${h-34}L${102-o} ${h}`,p[0],4.2)+SK(`M136 250Q144 ${h-60} ${94+o} ${h-34}L${98+o} ${h}`,p[0],4.2),
+ ss2:(h,o,p)=>P.ss(h,o,p)+SK(`M70 250Q62 ${h-60} ${112-o} ${h-34}L${108-o} ${h}`,p[1]||p[0],2)+SK(`M130 250Q138 ${h-60} ${88+o} ${h-34}L${92+o} ${h}`,p[1]||p[0],2),
+ sti:(h,o,p)=>{const y2=Math.max(h-34,254),y3=Math.max(h-58,252),d='stroke-dasharray="3.4 2.6"';return SK(`M66 249Q63 ${y3+4} ${109-o} ${y2}L${105-o} ${h-4}`,p[0],1.5,d+' opacity=".85"')+SK(`M134 249Q137 ${y3+4} ${91+o} ${y2}L${95+o} ${h-4}`,p[0],1.5,d+' opacity=".85"')+SK(`M96 250V${h-4}`,p[0],1.4,d+' opacity=".7"')+SK(`M104 250V${h-4}`,p[0],1.4,d+' opacity=".7"')},
+ pk:(h,o,p,b)=>SK('M63 250Q75 256 77 271',avSh(b,-.45),2,'opacity=".6"')+SK('M137 250Q125 256 123 271',avSh(b,-.45),2,'opacity=".6"'),
+ hs:(h,o,p)=>L(Math.ceil((h-244)/12),i=>R(30,250+i*12,140,5,p[0])),
+ vs:(h,o,p)=>L(18,i=>SK(`M${34+i*8} 244V340`,p[0],1.7,'opacity=".9"')),
+ pl:(h,o,p)=>L(10,i=>R(26+i*16,240,6,110,0,p[0],'opacity=".5"')).replace(/rx="0"/g,'')+L(7,i=>R(26,246+i*16,150,6,p[0],'opacity=".5"'))+L(10,i=>R(36+i*16,240,1.8,110,p[1]||'#fff'))+L(7,i=>R(26,256+i*16,150,1.8,p[1]||'#fff')),
+ ck:(h,o,p)=>L(12,j=>L(14,i=>(i+j)%2?R(30+i*10,244+j*10,10,10,p[0]):'')),
+ ar:(h,o,p)=>L(14,k=>SK(`M${10+k*20} 240L${90+k*20} 330`,p[0],1.8,'opacity=".85"')+SK(`M${10+k*20+80} 240L${k*20+10} 330`,p[0],1.8,'opacity=".85"')),
+ pt:(h,o,p,b)=>L(22,i=>SK(`M${30+i*7} 246V340`,avSh(b,-.5),1.2,'opacity=".4"')),
+ zz:(h,o,p)=>L(Math.ceil((h-250)/16),j=>SK('M30 '+(258+j*16)+L(18,i=>'L'+(30+(i+1)*8)+' '+(258+j*16+(i%2?0:5))),p[0],2.6)),
+ wv:(h,o,p)=>L(Math.ceil((h-248)/12),j=>SK(`M30 ${256+j*12}`+L(9,i=>`Q${42+i*16} ${256+j*12+(i%2?-5:5)} ${46+i*16} ${256+j*12}`),p[j%p.length],2.4)),
+ camo:(h,o,p,b)=>BLB.map((q,i)=>`<ellipse cx="${q[0]}" cy="${q[1]}" rx="${q[2]}" ry="${q[3]}" fill="${p[i%p.length]}" transform="rotate(${q[4]} ${q[0]} ${q[1]})"/>`).join(''),
+ bl:(h,o,p)=>BLB.filter((q,i)=>i%2===0).map(q=>`<ellipse cx="${q[0]}" cy="${q[1]}" rx="${q[2]}" ry="${q[3]+2}" fill="${p[0]}" transform="rotate(${q[4]*3} ${q[0]} ${q[1]})"/>`).join(''),
+ tg:(h,o,p)=>L(Math.ceil((h-250)/11),j=>SK(`M30 ${254+j*11}Q62 ${248+j*11} 100 ${258+j*11}Q140 ${248+j*11} 170 ${258+j*11}`,p[0],p[1]||3.4)),
+ flm:(h,o,p)=>{const f=(s,c)=>`<path d="M30 ${h+6}`+L(10,i=>{const x=30+i*14,t=h-(16+(i%3)*7)*s;return `Q${x+2} ${h-8*s} ${x+7} ${t}Q${x+10} ${h-6*s} ${x+14} ${h+6}`})+`Z" fill="${c}"/>`;return f(1,p[0])+f(.55,p[1]||'#ffe082')},
+ ic:(h,o,p)=>L(18,i=>Pa(`M${30+i*8} ${h-18}L${34+i*8} ${h-6+(i%3)*4}L${38+i*8} ${h-18}Z`,p[0])),
+ cr:(h,o,p)=>[`M64 258L70 270L64 282L72 296`,`M132 262L126 276L134 290`,`M84 270L92 280L86 290`,`M116 288L108 298`].map(d=>SK(d,p[0],2.4)).join(''),
+ gx:(h,o,p)=>El(60,270,38,18,p[0],'opacity=".5" transform="rotate(-20 60 270)"')+El(140,292,40,16,p[1],'opacity=".5" transform="rotate(25 140 292)"')+SC('dot',18,14,3)(h,o,[p[2]||'#fff'],'')+El(100,300,26,9,p[0],'opacity=".35"'),
+ gr:(h,o,p)=>L(9,i=>R(30,244+i*((h-240)/9),140,(h-240)/9+1,mx(p[0],p[1],i/8))),
+ rb:(h,o,p)=>p.map((c,i)=>R(30,244+i*((h-240)/p.length),140,(h-240)/p.length+1,c)).join(''),
+ fd:(h,o,p)=>L(6,i=>R(30,h-8-i*10,140,10,p[0],`opacity="${(.5-i*.08).toFixed(2)}"`)),
+ rip:(h,o,p,b)=>[[74,278],[126,288]].map(q=>Pa(`M${q[0]-9} ${q[1]-4}L${q[0]+9} ${q[1]-1}L${q[0]+7} ${q[1]+6}L${q[0]-10} ${q[1]+3}Z`,avSh(b,.3))+L(4,i=>SK(`M${q[0]-8+i*4} ${q[1]-3+i*.4}V${q[1]+4}`,'#fff',1,'opacity=".8"'))).join(''),
+ patch:(h,o,p)=>[[63,268,16,14,0],[121,282,14,12,1]].map(q=>R(q[0],q[1],q[2],q[3],p[q[4]%p.length],'rx="2" stroke="'+INK+'" stroke-width="1.6"')+R(q[0]+2,q[1]+2,q[2]-4,q[3]-4,'none','rx="1" stroke="#fff" stroke-width="1" stroke-dasharray="2 1.6" opacity=".8"')).join(''),
+ knee:(h,o,p)=>[[64,266],[120,266]].map(q=>R(q[0],q[1],20,24,p[0],'rx="5" stroke="'+INK+'" stroke-width="1.8"')+SK(`M${q[0]+3} ${q[1]+6}H${q[0]+17}M${q[0]+3} ${q[1]+12}H${q[0]+17}`,'#fff',1.2,'opacity=".5"')).join(''),
+ cargo:(h,o,p,b)=>[100-o+4,100+o-26].map((x,i)=>R(x,266,22,22,avSh(b,-.12),'rx="2" stroke="'+INK+'" stroke-width="2.2"')+SK(`M${x+1} 274H${x+21}`,INK,2)+Ci(x+11,278,1.8,p[0]||'#ffd54f','stroke="'+INK+'" stroke-width="1"')).join(''),
+ zip:(h,o,p)=>[106-o,94+o].map(x=>SK(`M${x} ${h-28}V${h-4}`,'#d7dde6',2.6,'stroke-dasharray="2 2"')+Ci(x,h-30,2.2,'#d7dde6','stroke="'+INK+'" stroke-width="1"')).join(''),
+ rf:(h,o,p)=>R(30,h-26,140,5,p[0]||'#e0e0e0','opacity=".95"')+R(30,h-17,140,5,p[0]||'#e0e0e0','opacity=".95"'),
+ cuff:(h,o,p)=>R(30,h-9,140,9,p[0])+SK(`M30 ${h-9}H170`,INK,1.8,'opacity=".6"'),
+ ruf:(h,o,p)=>SK('M40 262'+L(8,i=>`Q${55+i*14} 270 ${62+i*14} 262`),p[0],2,'opacity=".8"')+SK('M30 276'+L(9,i=>`Q${45+i*14} 284 ${52+i*14} 276`),p[0],2,'opacity=".8"'),
+ star:SC('star',22,16,2),heart:SC('heart',20,16,2),bolt:SC('bolt',22,18,2),moon:SC('moon',22,18,2),snow:SC('snow',20,15,1),flower:SC('flower',22,16,2),dot:SC('dot',13,12,0),dia:SC('dia',16,13,0),paw:SC('paw',24,18,2),skull:SC('skull',24,18,2),leaf:SC('leaf',20,16,2),cherry:SC('cherry',24,18,2),fish:SC('fish',22,16,2),cross:SC('cross',16,13,0),tri:SC('tri',16,13,0),note:SC('note',22,18,2),clover:SC('clover',22,16,2),px:SC('px',12,12,0),spot:SC('spot',16,14,3),sun:SC('sun',24,18,2),lace:SC('lace',16,14,0)
+};
+const SP=[
+['Jean recto azul','rg','#3f63b0',[['sti',['#ffd27a']],['pk']]],
+['Jean negro de salida','sl','#23232e',[['sti',['#8a8a9a']],['pk']]],
+['Jean lavado claro','rg','#8fb4e8',[['fd',['#ffffff']],['sti',['#ffffff']],['pk']]],
+['Jean gastado','sl','#4a6fb8',[['rip'],['sti',['#ffd27a']]]],
+['Jean de parches','rg','#3b5ba8',[['patch',['#ef5350','#ffd54f']],['sti',['#ffd27a']]]],
+['Chándal rojo','rg','#c62828',[['ss',['#ffffff']]]],
+['Chándal marino','rg','#1a237e',[['ss2',['#ffffff','#ef5350']]]],
+['Short deportivo','sh','#212121',[['ss',['#ffd54f']]]],
+['Short de básquet','bm','#7b1fa2',[['ss2',['#ffd54f','#ffffff']],['cuff',['#ffd54f']]]],
+['Bermuda cargo','bm','#8d7b52',[['cargo',['#ffd54f']],['sti',['#d7c79a']]]],
+['Capri violeta','cp','#6a1b9a',[['fd',['#ce93d8']],['sti',['#e1bee7']]]],
+['Jogger gris','jg','#78909c',[['cuff',['#546e7a']],['sti',['#cfd8dc']]]],
+['Jogger con cierres','jg','#1c1c24',[['zip'],['cuff',['#3a3a48']],['ss',['#8a8a9a']]]],
+['Pijama de nubes','rg','#bbdefb',[['dot',['#ffffff']]]],
+['Escocés rojo','rg','#9d1c1f',[['pl',['#111111','#ffd54f']]]],
+['Escocés verde','rg','#1b5e3a',[['pl',['#0a1f14','#ffd54f']]]],
+['Escocés azul','rg','#1b3a8a',[['pl',['#0a1640','#ffffff']]]],
+['Ajedrez clásico','rg','#f5f5f5',[['ck',['#14110f']]]],
+['Rombos solares','rg','#ffe082',[['ar',['#e65100']]]],
+['Pijama de rayas','rg','#e3f2fd',[['vs',['#1565c0']]]],
+['Marinero','rg','#fafafa',[['vs',['#1a237e']]]],
+['Pirata rayado','cp','#212121',[['hs',['#e0e0e0']]]],
+['Camuflaje bosque','wd','#3f5a2b',[['camo',['#6b7a4a','#2b3a1b','#a09a6a']],['cargo',['#c0c0a0']]]],
+['Camuflaje desierto','wd','#b89a5e',[['camo',['#d8c08a','#8a6f3c','#6b5530']]]],
+['Camuflaje nieve','wd','#e8eef5',[['camo',['#b8c9dc','#8fa6c0','#ffffff']]]],
+['Camuflaje urbano','wd','#4a4f58',[['camo',['#6f7682','#2b2e35','#9aa0aa']]]],
+['Camuflaje neón','wd','#14101f',[['camo',['#ff2d95','#22d3ee','#7c3aed']]]],
+['Cebra','rg','#fafafa',[['tg',['#14110f',4.4]]]],
+['Tigre','rg','#ef8a17',[['tg',['#14110f',3.4]]]],
+['Leopardo','rg','#e0b050',[['spot',['#6b4423']]]],
+['Vaquita','rg','#fafafa',[['bl',['#14110f']]]],
+['Dálmata','rg','#fafafa',[['spot',['#14110f']]]],
+['Pantalón de estrellas','rg','#1a1a4a',[['star',['#ffd54f']]]],
+['Corazones locos','rg','#ff7aa8',[['heart',['#ffffff']]]],
+['Rayos amarillos','rg','#ffd740',[['bolt',['#212121']]]],
+['Lunas de papel','rg','#311b92',[['moon',['#fff59d']]]],
+['Copos de nieve','rg','#1565c0',[['snow',['#ffffff']]]],
+['Jardín de flores','rg','#fff176',[['flower',['#ec407a','#ffffff']]]],
+['Hojas de otoño','rg','#8d4a1f',[['leaf',['#ffb74d']]]],
+['Cerezas','rg','#fafafa',[['cherry',['#e53935']]]],
+['Pececitos','rg','#0277bd',[['fish',['#ffd54f']]]],
+['Huellitas','rg','#ffcc80',[['paw',['#6d4c2b']]]],
+['Calaveritas','rg','#14110f',[['skull',['#fafafa']]]],
+['Notas musicales','rg','#4527a0',[['note',['#ffffff']]]],
+['Tréboles','rg','#1b5e20',[['clover',['#a5d6a7']]]],
+['Píxeles','rg','#212121',[['px',['#ef4444','#22d3ee','#fde047','#4ade80']]]],
+['Diamantes de hielo','rg','#0d47a1',[['dia',['#b3e5fc']]]],
+['Soles de verano','rg','#ff9800',[['sun',['#fff3b0']]]],
+['Llamas','rg','#212121',[['flm',['#ef6c00','#ffe082']]]],
+['Llamas azules','rg','#101840',[['flm',['#2979ff','#b3e5fc']]]],
+['Aliento de dragón','wd','#7f0000',[['flm',['#ff6d00','#ffee58']],['cuff',['#4a0000']]]],
+['Hielo cristalino','rg','#b3e5fc',[['ic',['#ffffff']],['fd',['#ffffff']]]],
+['Lava ardiente','rg','#1c1917',[['cr',['#ff7a18']]]],
+['Galaxia','rg','#1a103d',[['gx',['#7c3aed','#ec4899','#ffffff']]]],
+['Aurora boreal','rg','#0d2b45',[['wv',['#4ade80','#a78bfa','#22d3ee']]]],
+['Atardecer','rg','#ff8a3c',[['gr',['#ff6b3c','#5b2a8c']]]],
+['Arcoíris','rg','#ffffff',[['rb',['#ef4444','#fb923c','#fde047','#4ade80','#38bdf8','#a78bfa']]]],
+['Océano profundo','wd','#0a4a7a',[['wv',['#38bdf8','#7dd3fc']],['cuff',['#082f4f']]]],
+['Neón urbano','sl','#0b0b16',[['ss',['#22d3ee']],['ss2',['#ff2d95','#22d3ee']]]],
+['Cíber violeta','sl','#10101c',[['zip'],['ss',['#a78bfa']],['cross',['#7c3aed']]]],
+['Holográfico','rg','#c4b5fd',[['gr',['#f9a8d4','#67e8f9']],['sti',['#ffffff']]]],
+['Retro 80','rg','#ff6ec7',[['zz',['#00e5ff']]]],
+['Zigzag','rg','#fafafa',[['zz',['#14110f']]]],
+['Olas pop','rg','#ffd54f',[['wv',['#e53935','#1e88e5']]]],
+['Triángulos','rg','#263238',[['tri',['#ffb300']]]],
+['Cruces de bordado','rg','#f4efe0',[['lace',['#c0392b']]]],
+['Smoking de gala','sl','#101018',[['ss',['#3c3c4a']],['pk']]],
+['Gala dorada','sl','#14110f',[['ss',['#f6c744']],['cuff',['#f6c744']]]],
+['Seda violeta','rg','#7e57c2',[['fd',['#d1c4e9']],['sti',['#d1c4e9']]]],
+['Pantalón del rey','rg','#4a148c',[['ar',['#f6c744']],['cuff',['#f6c744']]]],
+['Pantalón de la reina','rg','#880e4f',[['heart',['#f6c744']],['cuff',['#f6c744']]]],
+['Oro macizo','rg','#f6c744',[['tri',['#c99a1a']],['sti',['#fff3b0']]]],
+['Plata brillante','rg','#cfd8dc',[['dia',['#ffffff']],['sti',['#90a4ae']]]],
+['Cristal de cuarzo','rg','#b2ebf2',[['ar',['#ffffff']],['fd',['#ffffff']]]],
+['Grebas de placas','wd','#78909c',[['ar',['#cfd8dc']],['knee',['#b0bec5']],['cuff',['#546e7a']]]],
+['Caballero del reino','rg','#546e7a',[['knee',['#b0bec5']],['sti',['#cfd8dc']],['cuff',['#37474f']]]],
+['Pantalón de mago','wd','#311b92',[['star',['#fde68a']],['moon',['#ffffff']],['cuff',['#fde68a']]]],
+['Capitán pirata','cp','#263238',[['hs',['#8a1f1f']],['cuff',['#6d4c2b']]]],
+['Pantalón vaquero','wd','#8d5a2b',[['sti',['#ffe0b2']],['pk']]],
+['Hakama samurái','bg','#1a1a2e',[['pt'],['cuff',['#b71c1c']]]],
+['Aladino','bg','#ffb300',[['star',['#ffffff']],['cuff',['#e65100']]]],
+['Ninja de las sombras','sl','#101010',[['cuff',['#7b1fa2']],['zip']]],
+['Astronauta','rg','#eceff1',[['knee',['#ff7043']],['zip'],['cuff',['#90a4ae']]]],
+['Bombero','wd','#f9a825',[['rf',['#e0e0e0']],['pk']]],
+['Obrero','rg','#f57c00',[['rf',['#fafafa']],['cargo',['#fafafa']]]],
+['Chef','rg','#fafafa',[['ck',['#cfd8dc']]]],
+['Piloto de pruebas','rg','#263238',[['zip'],['knee',['#455a64']],['cuff',['#14110f']]]],
+['Motero','sl','#14110f',[['knee',['#424242']],['zip'],['ss',['#fafafa']]]],
+['DJ de neón','bg','#6a1b9a',[['cargo',['#22d3ee']],['ss',['#22d3ee']]]],
+['Skater','bg','#5d4037',[['patch',['#ffd54f','#4fc3f7']],['sti',['#d7ccc8']]]],
+['Punk','sl','#14110f',[['pl',['#b71c1c','#14110f']],['rip'],['zip']]],
+['Campeón de oro','rg','#1b1b2f',[['ss',['#f6c744']],['star',['#f6c744']]]],
+['Leyenda estelar','wd','#101024',[['star',['#f6c744']],['moon',['#ffffff']],['cuff',['#f6c744']]]],
+['Invierno eterno','wd','#e1f5fe',[['snow',['#4fc3f7']],['ic',['#b3e5fc']]]],
+['Pollera plisada','sk1','#7b1f1f',[['pl',['#111111','#ffd54f']],['pt']]],
+['Falda de tenis','sk2','#fafafa',[['pt'],['ss',['#4fc3f7']]]],
+['Tutú rosa','sk3','#ff8fb8',[['ruf',['#ffd1e3']],['pt']]],
+['Falda larga de flores','sk4','#fff3e0',[['flower',['#ec407a','#ffd54f']],['pt']]],
+['Falda de cuero','sk1','#1c1c24',[['sti',['#8a8a9a']],['pt']]],
+['Falda de galaxia','sk1','#1a103d',[['gx',['#7c3aed','#ec4899','#ffffff']]]],
+['Falda de corazones','sk2','#ff7aa8',[['heart',['#ffffff']]]],
+['Falda de jean','sk1','#4a6fb8',[['sti',['#ffd27a']],['pk']]]
+];
+const N=SP.length,bot=AVD.bot.it;
+SP.forEach((s,i)=>{
+ const [name,shape,bcol,layers]=s,lv=26+Math.round(i*74/(N-1)),rar=lv<42?2:lv<68?3:4,id='bz'+(i+1);
+ const sk=SKT[shape],h=sk?sk[1]:SHP[shape][0],o=sk?54:SHP[shape][1];
+ bot.push([id,name,rar,lv,c=>{
+  const bc=bcol,clip='avB'+AVU+id,dk=avSh(bc,-.45),ds=sk?[sk[0]]:legs(h,o);
+  const pat=layers.filter(l=>!['cuff','zip','rip','knee','patch','cargo'].includes(l[0])).map(l=>P[l[0]](h,o,l[1]||[],bc)).join('');
+  const top=layers.filter(l=>['cuff','zip','rip','knee','patch','cargo'].includes(l[0])).map(l=>P[l[0]](h,o,l[1]||[],bc)).join('');
+  const cuffHem=sk&&layers.some(l=>l[0]==='cuff')?'':'';
+  const fold=sk?[80,100,120].map(x=>SK(`M${x} 252L${x+(x-100)*.4} ${h-6}`,dk,1.6,'opacity=".28"')).join(''):SK(`M${108-o} ${Math.round((h+250)/2)}Q${116-o} ${Math.round((h+250)/2)+5} ${124-o} ${Math.round((h+250)/2)}`,dk,1.6,'opacity=".3"')+SK(`M${92+o} ${Math.round((h+250)/2)}Q${84+o} ${Math.round((h+250)/2)+5} ${76+o} ${Math.round((h+250)/2)}`,dk,1.6,'opacity=".3"');
+  return `<clipPath id="${clip}">${ds.map(d=>`<path d="${d}"/>`).join('')}</clipPath>`+ds.map(d=>`<path d="${d}" fill="${bc}"/>`).join('')+`<g clip-path="url(#${clip})">${pat}<path d="M124 240H176V340H124Z" fill="#000" opacity=".16"/><path d="M30 244H170V252H30Z" fill="#000" opacity=".1"/>${fold}${top}</g>`+ds.map(d=>inkP(d,3.6)).join('')+(sk?'':inkP('M100 248V'+h,3.4))+WB(bc)+(layers.some(l=>l[0]==='cuff')&&sk?SK(sk[2],layers.find(l=>l[0]==='cuff')[1][0],4):'')
+ }]);
+ NOCOL.add(id);
+});
+})();
 function RC(str,col){if(col==null||!str)return str;col=cvx(col);const re=/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g,cnt={};
  (str.match(re)||[]).forEach(x=>{const k=x.toLowerCase();cnt[k]=(cnt[k]||0)+1});
  let best=null,bn=0;for(const k in cnt){const q=rgb2hsl(hx2(k));if(q[2]<.12||q[2]>.985)continue;if(cnt[k]>bn){bn=cnt[k];best=q}}
