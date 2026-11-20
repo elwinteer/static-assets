@@ -10311,6 +10311,7 @@ o+=`<path d="M${CX} ${CY+8}V${CY+16}" stroke="${GK}" stroke-width="3"/><path d="
 +[[-28,6],[-14,10],[14,10],[28,6]].map(([dx,l])=>{const x=CX+dx,y=CY+Math.sqrt(1-(dx/RX)**2)*(RY+3.4);return `<path d="M${f(x)} ${f(y)}v${l}" stroke="${GD}" stroke-width=".9"/><path d="M${f(x)} ${f(y+l)}l-2.2 3l2.2 3.6l2.2-3.6Z" fill="#bfe6ff" stroke="${GK}" stroke-width=".7" opacity=".9"/>`}).join('');
 // velas delanteras
 cs.filter(c=>c.y>=CY).forEach(c=>{o+=candle(c)});
+o+=`<clipPath id="ccl"><rect x="${CX-RX-10}" y="${CY-RY-6}" width="${2*RX+20}" height="${RY+6-1}"/></clipPath><g clip-path="url(#ccl)">`+ring(RX,RY,7,GK)+ring(RX,RY,4.4,GD)+ring(RX-3,RY-1.6,1.2,GL,.6)+ring(RX,RY-1.4,.9,GL,.85)+'</g>';
 }
 // ---- rayos de luz de los vitrales ----
 const RC=['#2563eb','#f59e0b','#dc2626'];
