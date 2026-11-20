@@ -1655,6 +1655,12 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .sv-fc{cursor:pointer}
 .pvv{position:relative;display:flex;flex-direction:column;height:100%;min-height:0;gap:14px}
 
+
+.avl-b .hm-go.off{opacity:.4;pointer-events:none}.avl-b .hm-go.busy{pointer-events:none;opacity:.85}.avl-b .hm-go.busy svg{animation:spin .6s linear infinite}
+.avs-st.av-shuf .avx{animation:avshuf .22s ease-in-out infinite alternate}@keyframes avshuf{from{transform:scale(.96) rotate(-2deg);filter:drop-shadow(0 0 14px rgba(255,200,120,.7))}to{transform:scale(1.04) rotate(2deg);filter:drop-shadow(0 0 26px rgba(255,160,60,.9))}}
+.avs-st.av-shuf{box-shadow:inset 0 0 90px rgba(255,170,80,.35)}
+.avs-st.av-pop .avx{animation:avpop 1s cubic-bezier(.34,1.56,.4,1)}@keyframes avpop{0%{transform:scale(.7) rotate(-8deg);filter:brightness(2.2)}55%{transform:scale(1.1) rotate(3deg);filter:brightness(1.2)}100%{transform:none;filter:none}}
+.avs-st.av-pop::after{animation:avring 1s ease-out;opacity:1;inset:auto;left:50%;top:50%;width:46%;height:auto;aspect-ratio:1;bottom:auto;margin:-23% 0 0 -23%;border-radius:50%;background:none;border:4px solid rgba(255,255,255,.9)}@keyframes avring{from{transform:scale(.2);opacity:.9}to{transform:scale(3.2);opacity:0}}
 .pv-self .fp2-ac,.pv-self .fp2-wv{display:none}.pv-self .fp2-cd{grid-column:1/-1}.pv-dock{margin:0 auto 10px}.pv-dock button i{background:none!important;border-radius:50%;overflow:visible;animation:none!important}.pv-dock button.on i{background:none!important}.pv-dock button:hover i{transform:scale(1.08)}
 .pv-dy{flex:none;margin-top:10px}.pv-dy>h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}.pv-dy .dy-rg{grid-template-columns:repeat(3,1fr);gap:10px}.pv-dy .dy-rc{padding:8px 10px;gap:10px;height:74px;overflow:hidden}.pv-dy .dy-p{width:42px;flex:none}.pv-dy .dy-th,.pv-dy .pf-chips,.pv-dy .dy-rb h4,.pv-dy .dy-sp{display:none}.pv-dy .dy-rb{min-width:0}.pv-dy .dy-ex{margin:2px 0 0;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:12px}
 /* winters: ambiente tipo Wrapped */
@@ -7521,6 +7527,8 @@ const AVVB={h:'38 -12 124 150',t:'10 130 180 124',b:'30 212 140 116',f:'30 262 1
 const PTABS=[['home','Mi perfil','crown'],['av','Personalizar','edit'],['pet','Mascota','pet'],['card','Tarjeta pública','compass']];
 const AVGR=[['head','Cabeza',['skin','hair','hc','eyes','brow','mouth','beard']],['cloth','Ropa',['top','bot','shoes']],['acc','Accesorios',['hat','glass','back','hand']],['scene','Escena',['bg']]];
 const avCur=()=>avNorm(ST.avc);
+function avPush(){const H=S.avH=S.avH||[],j=JSON.stringify(avCur());if(H.length&&H[H.length-1]===j)return;H.push(j);if(H.length>40)H.shift();avUndoBtn()}
+function avUndoBtn(){const b=$('#avundo');if(b)b.classList.toggle('off',!(S.avH&&S.avH.length))}
 const avView=()=>{const a=avCur();if(S.avp)a[S.avp.c]=S.avp.id;return a};
 const HAIRF=new Set(['h30','h31','h32','h33']),HAIRM=new Set(['h34','h35','h36','h37','h38','h39','h40','h41','h42']);
 const hairOk=(id,g)=>!(g==='f'?HAIRM:HAIRF).has(id);
@@ -7550,7 +7558,7 @@ function avBody(){const cur=avCur(),G=AVGR.find(x=>x[0]===S.avg)||AVGR[0],cats=G
   const fl=[['all','Todos'],['ok','Desbloqueados'],['lk','Próximos']].map(([k,l])=>`<button class="${F===k?'on':''}" data-a="avflt" data-v="${k}">${l}</button>`).join('');
   return `<div class="av-top"><div class="av-col"><b>${have}</b> de ${tot.length} cosméticos<span class="av-cb"><i style="width:${Math.round(have/tot.length*100)}%"></i></span></div><div class="av-rar">${rc.map(x=>`<span style="--rc:${x[0][1]}"><i></i>${x[0][0]} ${x[1]}/${x[2]}</span>`).join('')}</div></div>
   ${G[0]==='head'?`<div class="avgs avgn"><span class="mut" style="align-self:center">Cuerpo</span><button class="avg ${cur.g==='f'?'':'on'}" data-a="avgen" data-v="m">Winteer</button><button class="avg ${cur.g==='f'?'on':''}" data-a="avgen" data-v="f">Winteer mujer</button></div>`:''}<div class="avgs">${grp}</div>${chips?`<div class="chips av-cats">${chips}</div>`:''}${sw}<div class="avfl"><span>${d.n}</span><div>${fl}</div></div><div class="av-grid">${items.map(it=>avCard(c,it,cur)).join('')||'<p class="mut">No hay nada para mostrar con este filtro.</p>'}</div>`}
-(()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
+(()=>{let drag=null;const setC=(k,hex,keep)=>{if(k==='petcc'){const p=petCur();if(p){p.ccol=hex;const d=$('.pt-dog');if(d)d.innerHTML=petSVG(p,petMood(p),{size:290,body:1});const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)save()}return}if(!drag||!drag.pu){avPush();if(drag)drag.pu=1}else{}ST.avc=avCur();ST.avc[k]=hex;S.avp=null;const s=$('#avst');if(s)s.innerHTML=avStage();const h=$('.avhex');if(h&&!keep)h.value=hex;if(!drag)avSync()};
  const hv=()=>+(($('.avwv')||{}).value||100)/100,pick=(w,e)=>{const r=w.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,R=r.width/2,d=Math.min(1,Math.hypot(x,y)/R),h=(Math.atan2(y,x)*180/Math.PI+90+360)%360,dot=w.querySelector('i');const kk=Math.hypot(x,y)/R>1?R/Math.hypot(x,y):1;dot.style.left=(50+x/R*kk*50)+'%';dot.style.top=(50+y/R*kk*50)+'%';S.avh=h;S.avs=d;setC(w.parentNode.dataset.k,hsv2hex(h,d,hv()))};
  document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.avwheel');if(!w)return;drag=w;try{w.setPointerCapture(e.pointerId)}catch(_){}pick(w,e)});
  document.addEventListener('pointermove',e=>{if(drag)pick(drag,e)});
@@ -7624,7 +7632,7 @@ V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',
   if(S.ptab==='home')S.ptab='av';const nav='',dk=pfDock();
   if(t==='home')return `<div class="stack avp">${nav}${pfHome()}${dk}</div>`;
   if(t==='pet'){petLife();return `<div class="stack avp pt">${nav}${petTabHTML()}${dk}</div>`}
-  if(t==='av')return `<div class="stack avp">${nav}<div class="avedit rise" style="--i:1"><section class="card avl"><div class="avs-st" id="avst">${avStage()}</div><div class="avl-b"><button class="hm-go" data-a="avrand">${ic('flake')} Sorprendeme</button><button class="hm-go hm-gh" data-a="avreset">Restablecer</button></div></section><section class="card set spane" id="avpane">${profTabBody('av')}</section></div>${dk}</div>`;
+  if(t==='av')return `<div class="stack avp">${nav}<div class="avedit rise" style="--i:1"><section class="card avl"><div class="avs-st" id="avst">${avStage()}</div><div class="avl-b"><button class="hm-go" data-a="avrand">${ic('flake')} Sorprendeme</button><button class="hm-go hm-gh ${(S.avH&&S.avH.length)?'':'off'}" id="avundo" data-a="avundo">${ic('undo')} Restaurar cambio</button></div></section><section class="card set spane" id="avpane">${profTabBody('av')}</section></div>${dk}</div>`;
   if(t==='card')return `<div class="stack avp">${nav}${cedView()}${dk}</div>`;
   return `<div class="stack avp">${nav}<section class="card set spane rise" style="--i:1">${profTabBody(t)}</section>${dk}</div>`};
 V.profiles=()=>{const f=FR();let sel=S.pvSel||'me';if(sel!=='me'&&!f.c[sel])sel='me';S.pvSel=sel;const p=PR()||{},nm=p.name||UN();
@@ -7643,16 +7651,19 @@ Object.assign(A,{
  cedt:a=>{S.ced=a.dataset.v;cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
  cedm:a=>{const K=['id','im','ty','fav','aj','ti','ax'],i=K.indexOf(S.ced)+ +a.dataset.v;if(i>=K.length){S.ptab='home';go('profile');return}S.ced=K[Math.max(0,i)];cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
  avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
- avgen:a=>{ST.avc=avCur();ST.avc.g=a.dataset.v==='f'?'f':'m';S.avp=null;avSync();avRef()},
+ avgen:a=>{avPush();ST.avc=avCur();ST.avc.g=a.dataset.v==='f'?'f':'m';S.avp=null;avSync();avRef()},
  avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;S.avp=null;avRef()},
  avflt:a=>{S.avf=a.dataset.v;avRef()},
  avpick:a=>{const c=a.dataset.c,id=a.dataset.id,it=avItem(c,id);if(!it)return;if(c==='hat'&&xmasWin()){toast(seaHat()==='ht27'?'🎃 En Halloween todos llevan calabaza en la cabeza. Los sombreros vuelven el 3 de noviembre':'🎅 En Navidad todos llevan gorro navideño. Los sombreros vuelven el 27 de diciembre');return}
   if(!avOk(it)){S.avp={c,id};toast(`${avNm(c,it)}: se desbloquea con ${avLbl(it)}`);avRef();return}
-  ST.avc=avCur();ST.avc[c]=id;S.avp=null;avSync();avRef()},
- avcol:a=>{ST.avc=avCur();ST.avc[a.dataset.k]=a.dataset.v===''?null:+a.dataset.v;S.avp=null;avSync();avRef()},
+  avPush();ST.avc=avCur();ST.avc[c]=id;S.avp=null;avSync();avRef()},
+ avcol:a=>{avPush();ST.avc=avCur();ST.avc[a.dataset.k]=a.dataset.v===''?null:+a.dataset.v;S.avp=null;avSync();avRef()},
  avwheel:a=>{S.avw=S.avw===a.dataset.k?null:a.dataset.k;avRef()},
  avnp:()=>{S.avp=null;avRef()},
- avrand:()=>{const n={};for(const c of AVCATS){const l=avList(c).filter(avOk);n[c]=l[Math.floor(Math.random()*l.length)][0]}n.g=avCur().g;n.topc=Math.floor(Math.random()*AVCL.length);n.botc=Math.floor(Math.random()*AVCL.length);ST.avc=n;S.avp=null;avSync();avRef()},
+ avrand:()=>{if(S.avBusy)return;S.avBusy=1;avPush();const rnd=()=>{const n={};for(const c of AVCATS){const l=avList(c).filter(avOk);n[c]=l[Math.floor(Math.random()*l.length)][0]}n.g=avCur().g;n.topc=Math.floor(Math.random()*AVCL.length);n.botc=Math.floor(Math.random()*AVCL.length);return n},st=$('#avst'),fin=rnd(),D=[90,90,100,110,130,160,200,260];if(st)st.classList.add('av-shuf');const b=$('[data-a=avrand]');if(b)b.classList.add('busy');
+  const step=i=>{if(i>=D.length){ST.avc=fin;S.avp=null;avSync();S.avBusy=0;if(b)b.classList.remove('busy');const s2=$('#avst');if(s2){s2.classList.remove('av-shuf');s2.classList.remove('av-pop');void s2.offsetWidth;s2.classList.add('av-pop');setTimeout(()=>s2.classList.remove('av-pop'),1300)}avRef();return}
+   ST.avc=rnd();const s2=$('#avst');if(s2)s2.innerHTML=avStage();setTimeout(()=>step(i+1),D[i])};step(0)},
+ avundo:()=>{if(S.avBusy)return;const H=S.avH||[];if(!H.length){toast('No hay cambios para restaurar');return}ST.avc=JSON.parse(H.pop());S.avp=null;avSync();avRef();avUndoBtn();const st=$('#avst');if(st){st.classList.remove('av-pop');void st.offsetWidth;st.classList.add('av-pop');setTimeout(()=>st.classList.remove('av-pop'),1300)}toast('Cambio restaurado')},
  avreset:()=>{ST.avc={...AVDEF};S.avp=null;avSync();avRef();toast('Winter restablecido')}});
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.avp')){S.inPf=1;setTimeout(()=>{S.inPf=0},0)}},true);
 
