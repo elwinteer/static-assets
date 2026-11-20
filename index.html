@@ -9716,6 +9716,8 @@ const PBG=[['casa','Sala acogedora',1,0,''],['patio','Patio soleado',2,0,''],['c
 (()=>{const w=r=>r<=17?r:Math.round(17+(r-17)*83/21),m=r=>r<=3?r:Math.round(3+(r-3)*26/17);
  Object.values(AVD).forEach(d=>d.it.forEach(it=>{const r=it[3];if(typeof r==='number')it[3]=w(r);else if(typeof r==='string'&&r[0]==='p')it[3]='p'+m(+r.slice(1))}));
  Object.values(PACC).forEach(v=>{if(typeof v[1]==='number')v[1]=m(v[1])});PBG.forEach(v=>{if(typeof v[2]==='number'&&v[2]>0)v[2]=m(v[2])})})();
+/* ropa (remeras, pantalones, zapatillas, sombreros): lo que pasa de nivel 29 se reparte parejo entre 30 y 130 */
+(()=>{const K=['top','bot','shoes','hat'],all=K.flatMap(k=>AVD[k].it.map(i=>i[3]).filter(v=>typeof v==='number'&&v>=30)),lo=Math.min(...all),hi=Math.max(...all);K.forEach(k=>AVD[k].it.forEach(it=>{if(typeof it[3]==='number'&&it[3]>=30)it[3]=Math.round(30+(it[3]-lo)*100/(hi-lo))}))})();
 const AVNM={skin:'Piel',hc:'Color de pelo',hair:'Peinado',eyes:'Ojos',brow:'Cejas',mouth:'Boca',beard:'Barba',hat:'Sombrero',glass:'Anteojos',top:'Prenda',bot:'Pantalón',shoes:'Calzado',back:'Espalda',hand:'Objeto',bg:'Fondo'};
 const avNm=(c,it)=>(AVNM[c]||c)+' '+String(AVD[c].it.indexOf(it)+1).padStart(2,'0');
 const bgOk=(p,k)=>{const b=PBG.find(x=>x[0]===k);if(!b)return false;if(b[2])return pLvl(p)>=b[2];if(b[3]===1)return (p.wk||0)>=15;if(b[3]===2)return LOGH()-(p.h0||0)>=20;if(b[3]===3)return (p.bdok||0)>0;return true};
