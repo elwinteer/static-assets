@@ -10235,7 +10235,7 @@ o+=col(179)+col(621);
 // ---- vitrales ----
 const PAN=['#2563eb','#dc2626','#f59e0b','#16a34a','#7c3aed','#0ea5e9','#e11d48'];
 const win=(cx,id,lit)=>{let s=`<path d="M${cx-34} 268V150Q${cx-34} 92 ${cx} 54Q${cx+34} 92 ${cx+34} 150V268Z" fill="#2c313c"/><path d="M${cx-27} 262V152Q${cx-27} 100 ${cx} 70Q${cx+27} 100 ${cx+27} 152V262Z" fill="#101428"/><clipPath id="${id}"><path d="M${cx-27} 262V152Q${cx-27} 100 ${cx} 70Q${cx+27} 100 ${cx+27} 152V262Z"/></clipPath><g clip-path="url(#${id})">`;
-for(let yy=66,j=0;yy<270;yy+=16,j++)for(let xx=cx-34+(j%2)*8,i=0;xx<cx+34;xx+=16,i++){const c=PAN[((i*3+j*5+(R()*2|0))%PAN.length)];s+=`<path d="M${xx} ${yy}l8 8l-8 8l-8 -8z" fill="${c}" opacity=".95"/>`}
+for(let yy=66,j=0;yy<270;yy+=16,j++)for(let xx=cx-34+(j%2)*8,i=0;xx<cx+34;xx+=16,i++){const c=PAN[((i*3+j*5+((i+j)%2))%PAN.length)];s+=`<path d="M${xx} ${yy}l8 8l-8 8l-8 -8z" fill="${c}" opacity=".95"/>`}
 s+=(lit?`<rect x="${cx-27}" y="66" width="54" height="204" fill="#fff" opacity=".1"/><ellipse cx="${cx}" cy="150" rx="40" ry="70" fill="#fff" opacity=".18" filter="url(#csb2)"><animate attributeName="opacity" values=".12;.26;.14" dur="5s" repeatCount="indefinite"/></ellipse>`:`<rect x="${cx-27}" y="66" width="54" height="204" fill="#0b1020" opacity=".42"/>`)+`<path d="M${cx-34} 66L${cx+34} 270M${cx+34} 66L${cx-34} 270" stroke="${K}" stroke-width="1.2" opacity=".6"/></g><path d="M${cx} 70V262M${cx-27} 168H${cx+27}" stroke="#2c313c" stroke-width="3.2"/><circle cx="${cx}" cy="120" r="10" fill="none" stroke="#2c313c" stroke-width="2.6"/><circle cx="${cx}" cy="120" r="4" fill="#fde68a"/><path d="M${cx-27} 262V152Q${cx-27} 100 ${cx} 70Q${cx+27} 100 ${cx+27} 152V262Z" fill="none" stroke="#c9cfdb" stroke-width="2.4"/><path d="M${cx-34} 268V150Q${cx-34} 92 ${cx} 54Q${cx+34} 92 ${cx+34} 150V268Z" fill="none" stroke="#1a1d26" stroke-width="2.6"/><rect x="${cx-42}" y="266" width="84" height="12" rx="2" fill="#9aa1af" stroke="#1a1d26" stroke-width="2"/><path d="M${cx-40} 268H${cx+40}" stroke="#d4d9e2" stroke-width="1.4" opacity=".6"/>`;return s};
 o+=win(231,'csw1',true)+win(569,'csw2',false);
 // ---- estandartes ----
@@ -10421,8 +10421,16 @@ for(let y=346,k=0;y<430;k++){const s=sc(y),rx=30*s,ry=10*s;o+=`<ellipse cx="400"
 // pliegues y brillo
 o+=`<path d="M${L(-.5,330)} 330Q${L(-.4,372)} 372 ${L(-.56,420)} 420" stroke="#000" stroke-width="2.6" fill="none" opacity=".12"/><path d="M${L(.46,330)} 330Q${L(.52,376)} 376 ${L(.44,420)} 420" stroke="#fff" stroke-width="2" fill="none" opacity=".06"/><path d="${quad(-1,1,330,420)}" fill="url(#cx5)"/><path d="${quad(-.2,.2,330,420)}" fill="#fff" opacity=".05"/><rect y="330" width="800" height="6" fill="#000" opacity=".25"/>`;
 // ---- luz de vitrales proyectada en el piso ----
-const PAN=['#2563eb','#f59e0b','#dc2626'];
-{let s='<g style="mix-blend-mode:screen">';for(let j=0;j<4;j++)for(let i=0;i<3;i++){const x0=304+i*18+j*7,y0=338+j*14,w=17,h=12+j;s+=`<path d="M${x0} ${y0}h${w}l5 ${h}h${-w}Z" fill="${PAN[(i+j)%3]}" opacity=".3"><animate attributeName="opacity" values=".22;.38;.25" dur="${f(5+i*.5+j*.3)}s" repeatCount="indefinite"/></path>`}s+=`<ellipse cx="336" cy="364" rx="46" ry="22" fill="#cfe0ff" opacity=".12" filter="url(#cxb)"/></g>`;o+=s}
+// la mancha de luz es la proyección del mismo vitral: mismos rombos y colores, deformados sobre el piso
+{const PAN=['#2563eb','#dc2626','#f59e0b','#16a34a','#7c3aed','#0ea5e9','#e11d48'],cx=231,pr=(x,y)=>[+(x+70+(262-y)*.3).toFixed(1),+(336+(262-y)/196*80).toFixed(1)];
+const pt=(x,y)=>pr(x,y).join(' ');
+const outline=[];outline.push([cx-27,262],[cx-27,152]);for(let k=0;k<=12;k++){const a=Math.PI*k/12,xx=cx-27+54*(k/12),yy=152-82*Math.sin(Math.acos(1-2*k/12)*0+Math.sqrt(Math.max(0,1-Math.pow((xx-cx)/27,2)))*Math.PI/2);outline.push([xx,152-82*Math.sqrt(Math.max(0,1-Math.pow((xx-cx)/27,2)))])}outline.push([cx+27,152],[cx+27,262]);
+let s=`<clipPath id="cxc"><path d="M${outline.map(([x,y])=>pt(x,y)).join('L')}Z"/></clipPath><g style="mix-blend-mode:screen"><g clip-path="url(#cxc)"><path d="M${outline.map(([x,y])=>pt(x,y)).join('L')}Z" fill="#dfeaff" opacity=".12"/>`;
+for(let yy=66,j=0;yy<270;yy+=16,j++)for(let xx=cx-34+(j%2)*8,i=0;xx<cx+34;xx+=16,i++){const c=PAN[((i*3+j*5+((i+j)%2))%PAN.length)];s+=`<path d="M${pt(xx,yy)}L${pt(xx+8,yy+8)}L${pt(xx,yy+16)}L${pt(xx-8,yy+8)}Z" fill="${c}" opacity=".36"><animate attributeName="opacity" values=".3;.44;.32" dur="${f(5+(i+j)%3*.6)}s" repeatCount="indefinite"/></path>`}
+s+='</g></g>';
+// sombras del plomo y del parteluz proyectadas
+s+=`<g clip-path="url(#cxc)" opacity=".4"><path d="M${pt(cx,70)}L${pt(cx,262)}M${pt(cx-27,168)}L${pt(cx+27,168)}" stroke="#1a1d26" stroke-width="2.4" fill="none"/><path d="M${pt(cx-34,66)}L${pt(cx+34,270)}M${pt(cx+34,66)}L${pt(cx-34,270)}" stroke="#1a1d26" stroke-width="1" fill="none"/></g>`;
+o+=s}
 // ---- luz de antorchas sobre el piso ----
 [290,510].forEach((x,i)=>{o+=`<ellipse cx="${x}" cy="372" rx="90" ry="24" fill="url(#cx3)" style="mix-blend-mode:screen"><animate attributeName="opacity" values=".6;1;.7;.95;.6" dur="${f(1.5+i*.3)}s" repeatCount="indefinite"/></ellipse>`});
 // ---- polvo flotando en los rayos de luz ----
