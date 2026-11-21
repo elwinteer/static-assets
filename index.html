@@ -12441,15 +12441,19 @@ function wmSesion(){const B=wmGenBase();if(!B){wmReveal();return}const {r,nr,ok,
   /* 4) cabeceo cada vez más largo */
   [[5700,10,.2],[6500,14,.4],[7300,18,.6]].forEach(([ms,a,m])=>{P(ms,{hd:a,lean:a*.6,by:a*.45,meh:.7,sq:m},{w:7,z:.7});P(ms+350,{hd:-6,lean:-2,by:0,sq:0},{w:22,z:.5})});
   yawn(8100);
+  [[5200,.0],[6100,.0],[6900,.0],[7700,.0],[8900,.0],[9200,.0]].forEach(([ms],k)=>{P(ms,{sq:1},{w:30,z:.8});P(ms+180+k*90,{sq:0},{w:30,z:.8})});
+  [[10150,9],[10500,-9],[10850,8],[10050,0]].forEach(([ms,a])=>P(ms,{lean:14+a,rot:a*.6,hd:16-a*.5,sq:1},{w:6,z:.8}));
   /* 5) se duerme de pie, roncando con "Z" */
   Q(9600,()=>{wrPose(r,{sq:1,meh:0,hd:14,lean:11,by:7,la:4,ra:-4,sy:.98},{w:5,z:.95});let n=0;const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}n++;if(!WM.lying)wrPose(r,{by:n%2?9:6,lean:n%2?12:10},{w:5,z:.95});const q=win(),sz=H*(.03+(n%3)*.012),z=wmPropEl(el,`left:${q.left+q.width*.62}px;top:${q.top+q.height*.12}px;font:900 ${sz}px/1 Inter,system-ui,sans-serif;color:#e0f2fe;text-shadow:0 2px 0 #1e3a8a,0 0 10px rgba(147,197,253,.8)`,'Z');z.style.opacity=1;z.animate([{transform:'translate(0,0) rotate(-8deg) scale(.5)',opacity:0},{transform:`translate(${H*.04}px,${-H*.07}px) rotate(6deg) scale(1)`,opacity:1,offset:.35},{transform:`translate(${H*.09}px,${-H*.17}px) rotate(-6deg) scale(1.25)`,opacity:0}],{duration:1500,easing:'ease-out',fill:'forwards'});setTimeout(()=>z.remove(),1560)},520);J.cl.push(()=>clearInterval(iv));WM.snore=iv});
   Q(10900,()=>wrPose(r,{rot:16,hd:20,lean:16,la:14,ra:-14,by:6},{w:4,z:.95}));
   Q(11500,()=>{WM.lying=1;wrPose(r,{rot:90,hd:4,lean:0,by:-44,la:30,ra:-30,ll:6,rl:-6,sy:1},{w:13,z:.5});setTimeout(()=>{if(!ok())return;sfx('chunk');const q=win();wmPuff(el,q.left+q.width*.5,q.bottom-q.height*.05,q.height*.5,'rgba(226,232,240,.95)');wmPuff(el,q.left+q.width*.8,q.bottom-q.height*.04,q.height*.35,'rgba(226,232,240,.9)');try{(document.querySelector('#wm .wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:'translate(-3px,5px)'},{transform:'translate(2px,-3px)'},{transform:'translate(0,0)'}],{duration:320,easing:'ease-out'})}catch(e){}},330)});
+  P(11950,{rot:82,by:-62,ll:14,rl:-10,la:50,ra:-44},{w:22,z:.45});P(12150,{rot:90,by:-44,ll:6,rl:-6,la:28,ra:-26},{w:18,z:.55});
   Q(12400,()=>wrPose(r,{by:-44,la:24,ra:-24},{w:6,z:.9}));
+  [[12700,{ll:16,rl:-4}],[12950,{ll:6,rl:-12}],[13150,{ll:10,rl:-6}]].forEach(([ms,p])=>P(ms,p,{w:14,z:.6}));
   /* 6) aparece la cifra: se despierta de golpe */
   Q(13400,()=>{WM.lying=0;clearInterval(WM.snore);sfx('chunk');wmReveal();tg.forEach(e=>{e.style.visibility='';e.style.opacity=''});wrPose(r,{rot:0,sq:0,meh:0,wide:1,sy:1.06,by:-14,la:156,ra:-156,lean:-6,hd:-5,ll:8,rl:-8},{w:30,z:.35})});
   P(14100,{wide:0,sy:1,by:0,la:8,ra:-8,lean:0,hd:2,ll:0,rl:0},{w:10,z:.7});
-  P(14300,{la:-6,ra:6,by:3,hd:4,lean:2},{w:9,z:.8});
+  P(14300,{la:-6,ra:-135,sq:1,by:3,hd:-4,lean:2},{w:12,z:.7});P(14950,{ra:-8,sq:0,hd:3},{w:10,z:.8});
   Q(14600,()=>wmSay('Dormir es para los débiles. A eso me dedico.',0));
   P(16800,{la:6,ra:-6,by:0,hd:0,lean:0},{w:9,z:.9});
   Q(19000,()=>{tg.forEach(e=>{e.style.visibility=''})});
