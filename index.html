@@ -4641,6 +4641,16 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes icHd{0%,100%{transform:translateY(0)}40%{transform:translateY(-1.6px) scale(1.08)}}
 .nav a.active[data-v=prog] .i,.nav a.active[data-v=sagas] .i,.nav a.active[data-v=social] .i{animation:nvGlow 2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.nav .i .hd{animation:none!important}}
+.pwg{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:radial-gradient(80% 80% at 50% 30%,rgba(var(--argb),.18),transparent 60%),rgba(6,5,12,.94);backdrop-filter:blur(18px);animation:pwIn .5s ease both;transition:opacity .4s}.pwg.out{opacity:0}
+@keyframes pwIn{from{opacity:0}}
+.pwc{width:min(380px,90vw);text-align:center;padding:34px 30px 28px;border-radius:26px;background:linear-gradient(165deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(var(--argb),.15);animation:pwUp .7s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes pwUp{from{opacity:0;transform:translateY(24px) scale(.96)}}
+.pwc.sh{animation:pwSh .4s}@keyframes pwSh{20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.pwi{width:62px;height:62px;border-radius:20px;margin:0 auto 14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--a2),var(--a));color:var(--on-a,#1a1208);box-shadow:0 12px 30px rgba(var(--argb),.5)}.pwi svg{width:28px;height:28px}
+.pwc h2{font-size:22px;margin-bottom:6px}.pwc p{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+.pwc input{width:100%;height:48px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.35);color:var(--text);font:inherit;font-size:16px;text-align:center;letter-spacing:.12em;outline:none;transition:border-color .25s,box-shadow .25s}.pwc input:focus{border-color:var(--a);box-shadow:0 0 0 4px rgba(var(--argb),.25)}
+.pwe{min-height:20px;margin:8px 0 10px;color:#ff8a9a;font-size:12.5px;font-weight:600}
+.pwc .hm-go{width:100%;justify-content:center}
 </style>
 </head>
 <body>
@@ -5923,7 +5933,14 @@ function obFinish(){const d=W.d;let nm=(d.name||'').trim();if(!nm){toast('Poné 
   ST.prof=p;ST.name=nm;ST.obSkip=true;hcnt('edit');save();W=null;try{seaApply()}catch(e){}const e=$('#ob');if(e){e.classList.add('out');setTimeout(()=>e.remove(),350)}go('home');toast('Perfil guardado')}
 function pickImg(cb){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{if(i.files[0])cb(i.files[0])};i.click()}
 async function squarePic(f){const b=await createImageBitmap(f),s=Math.min(b.width,b.height),c=document.createElement('canvas');c.width=c.height=256;c.getContext('2d').drawImage(b,(b.width-s)/2,(b.height-s)/2,s,s,0,0,256,256);if(b.close)b.close();return c.toDataURL('image/jpeg',.88)}
-function obBoot(){if(ST.prof||ST.obSkip)return;const t=setInterval(()=>{const sp=$('#splash');if(!sp||!sp.isConnected||getComputedStyle(sp).display==='none'||getComputedStyle(sp).opacity==='0'){clearInterval(t);if(!ST.prof&&!W)obOpen(false)}},300)}
+/* ---- contraseña para quien nunca usó el launcher ---- */
+function pwGate(done){if(ST.acc){done();return}if($('#pwg'))return;
+const d=document.createElement('div');d.id='pwg';d.className='pwg';d.innerHTML=`<div class="pwc"><div class="pwi">${ic('lock')}</div><h2>Acceso</h2><p>Ingresá la contraseña para empezar a usar WINTEER.</p><input id="pwv" type="password" placeholder="Contraseña" autocomplete="off" spellcheck="false"><div class="pwe" id="pwe"></div><button class="hm-go" id="pwb" type="button">Entrar</button></div>`;document.body.appendChild(d);
+const inp=d.querySelector('#pwv'),er=d.querySelector('#pwe'),c=d.querySelector('.pwc');setTimeout(()=>inp.focus(),300);
+const cy=s=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0,c;i<s.length;i++){c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return (4294967296*(2097151&b)+(a>>>0)).toString(36)};
+const ok=()=>{const h=cy('winteer:'+inp.value.trim());if(h==='1h8cinhp693'){ST.acc=1;save();d.classList.add('out');setTimeout(()=>{d.remove();done()},400)}else{er.textContent='Contraseña incorrecta';c.classList.remove('sh');void c.offsetWidth;c.classList.add('sh');inp.select()}};
+d.querySelector('#pwb').onclick=ok;inp.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')ok()});d.addEventListener('keydown',e=>e.stopPropagation())}
+function obBoot(){if(ST.prof||ST.obSkip)return;const t=setInterval(()=>{const sp=$('#splash');if(!sp||!sp.isConnected||getComputedStyle(sp).display==='none'||getComputedStyle(sp).opacity==='0'){clearInterval(t);if(!ST.prof&&!W)pwGate(()=>obOpen(false))}},300)}
 
 /* ---- inicio: perfil ---- */
 
