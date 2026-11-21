@@ -11725,6 +11725,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/TERMINASTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20000;x.sd=19000;x.rx=()=>wmTerminaste()}
       if(/MES FUERTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20500;x.sd=19500;x.rx=()=>wmMes()}
       if(/TU DIARIO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=25000;x.sd=24000;x.rx=()=>wmDiario()}
+      if(/TU WINTER/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-lv=');x.pos={x:70,y:0,f:1};x.t=17000;x.sd=16000;x.rx=()=>wmEvo()}
       if(/LOGROS/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-dur="7000" data-delay="1500" data-cu=');x.pos={x:0,y:0,f:0};x.t=14500;x.sd=13500;x.rx=()=>wmLogros()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
@@ -11748,6 +11749,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/SESIÓN MÁS LARGA/.test(t))return '';
   if(/SESIÓN MÁS LARGA/.test(t))return R(['Ese día te olvidaste hasta de comer.','Una maratón así no se improvisa.']);
   if(/EL QUE DEJASTE/.test(t))return R(['Todavía te espera. No seas así.','Lo dejaste a medias. Se nota que le tenés rencor.']);
+  if(/TU WINTER/.test(t))return '';
   if(/TU WINTER/.test(t))return 'Mirá cómo crecí. Bueno, cómo crecimos.';
   if(/EN UNA FRASE/.test(t))return 'Esto lo dice todo sobre vos. Sin vueltas.';
   if(/^WINTEER/.test(t))return big?R(['Ey, soy yo. Sentate, que este año te dio para rato.','Llegó el momento. Y mirá que tenemos de qué hablar.']):mid?R(['Ey, soy yo. Te cuento cómo te fue.','Llegó el momento. Te vengo mirando jugar hace rato.']):R(['Ey, soy yo. Fue un año tranqui, pero lo repasamos igual.','Llegó el momento. Poco para contar, pero lo contamos bien.']);
@@ -12664,6 +12666,37 @@ function wmDiario(){const B=wmGenBase();if(!B){return}const {r,sv,ok,el,J,H,root
   [0,1,2].forEach(i=>T(tc+1300+i*420,()=>wrPose(r,{hd:i%2?-6:2,lean:i%2?-1:2},{w:12,z:.6})));
   T(tc+2700,()=>{sfx('clink');wrPose(r,{la:75,ra:-75,hd:0,lean:0,joy:0},{w:10,z:.8})});
   return tc+4000}
+function wmEvo(){const B=wmGenBase();if(!B){return}const {nr,root,el,J,H}=B,ii=WM.i,W=innerWidth;
+  const ok=()=>WM&&WM.i===ii&&WM.jug===J,sfx=k=>{try{wmSfx(k)}catch(e){}},TM=[];
+  const T=(ms,f)=>{TM.push(setTimeout(()=>{if(ok())f()},ms))};
+  const nb=root.querySelector('.wm-bn .wm-n'),lv=Math.max(1,nb?+nb.dataset.lv||1:1);
+  const real=avCur();
+  /* cambia el dibujo de Winter por otro (mismo sistema del editor) y reengancha el rig */
+  const swap=cfg=>{try{const h=document.createElement('div');h.innerHTML=avSVG(cfg,{floor:false,cls:'wm-win',rig:true});const n=h.firstElementChild,o=nr.querySelector('.wm-win');if(!n||!o)return null;o.replaceWith(n);if(WM&&WM.rig)WM.rig.alive=false;WM.rig=wrNew(n);return n}catch(e){return null}};
+  const rnd=()=>{const n={};for(const c of AVCATS){const l=avList(c).filter(avOk);n[c]=l[Math.floor(Math.random()*l.length)][0]}n.g=real.g;n.topc=Math.floor(Math.random()*AVCL.length);n.botc=Math.floor(Math.random()*AVCL.length);return n};
+  const gold=document.createElement('div');gold.style.cssText='position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .5s;background:radial-gradient(ellipse at 70% 70%,#fde68a 0%,#f59e0b 38%,#b45309 78%,#78350f 100%)';root.appendChild(gold);
+  const rays=document.createElement('div');rays.style.cssText='position:absolute;z-index:1;pointer-events:none;opacity:0;border-radius:50%';root.appendChild(rays);
+  const held=[];J.cl=[()=>{TM.forEach(clearTimeout);gold.remove();rays.remove();held.forEach(x=>x.remove());if(WM)swap(real)}];
+  const pulse=big=>{if(!nb)return;try{nb.animate([{transform:'scale(1)',filter:'brightness(1)'},{transform:`scale(${big?1.35:1.12})`,filter:`brightness(${big?2:1.5}) drop-shadow(0 0 ${big?18:8}px #fde68a)`},{transform:'scale(1)',filter:'brightness(1)'}],{duration:big?800:260,easing:'ease-out'})}catch(e){}};
+  const burst=(n,x,y)=>{const C=['#fde047','#fff7ed','#f59e0b','#fcd34d','#ffffff'];for(let k=0;k<n;k++){const a=-Math.PI/2+(k/n-.5)*Math.PI*1.9,sz=H*(.011+.008*(k%3)/2),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz*1.6}px;background:${C[k%5]};border-radius:2px`,'');p.style.opacity=1;const d=H*(.2+.3*((k*7)%10)/10);p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px) rotate(${(k%2?1:-1)*240}deg)`,opacity:1,offset:.55},{transform:`translate(${Math.cos(a)*d*1.15}px,${Math.sin(a)*d+H*.3}px) rotate(${(k%2?1:-1)*480}deg)`,opacity:0}],{duration:1600+(k%4)*150,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),2000)}};
+  const centre=()=>{const q=nr.querySelector('.wm-win').getBoundingClientRect();return {x:q.left+q.width/2,y:q.top+q.height*.5,q}};
+  if(nb)nb.textContent='1';
+  /* sorteo de aspectos: cada paso sube el contador y cambia el look, cada vez más lento */
+  const N=Math.max(10,Math.min(26,lv+6)),D=i=>Math.round(85+430*Math.pow(i/(N-1),2.3)),val=i=>Math.max(1,Math.round(1+(lv-1)*i/(N-1)));
+  let t=1200;
+  for(let i=0;i<N-1;i++){const d=D(i),k=i;T(t,()=>{const n=swap(rnd());if(nb)nb.textContent=String(val(k));pulse(false);if(n&&WM.rig){const r=WM.rig;wrPose(r,{sy:.92,by:4,la:30,ra:-30},{w:46,z:.5});setTimeout(()=>{if(ok()&&WM.rig===r)wrPose(r,{sy:1.05,by:-3,la:60,ra:-60},{w:30,z:.55})},Math.min(70,d*.5))}
+      if(d>130||k%2===0)sfx(d>260?'clink':'puff');gold.style.opacity=String(.12+.5*k/N)});t+=d}
+  /* forma final: el verdadero Winter, destello, luz dorada y fanfarria */
+  T(t+200,()=>{const n=swap(real);if(nb)nb.textContent=String(lv);pulse(true);sfx('fanfare');gold.style.opacity='1';
+    const fl=wmPropEl(el,'left:0;top:0;width:100vw;height:100vh;background:#fff','');fl.style.opacity=1;fl.animate([{opacity:.95},{opacity:0}],{duration:700,easing:'ease-out',fill:'forwards'});held.push(fl);
+    const c=centre(),z=H*.9;rays.style.cssText+=`;left:${c.x-z/2}px;top:${c.y-z/2}px;width:${z}px;height:${z}px;background:conic-gradient(from 0deg,rgba(255,251,235,0),rgba(255,251,235,.55),rgba(255,251,235,0) 9%,rgba(255,251,235,.5) 17%,rgba(255,251,235,0) 26%,rgba(255,251,235,.55) 34%,rgba(255,251,235,0) 43%,rgba(255,251,235,.5) 51%,rgba(255,251,235,0) 60%,rgba(255,251,235,.55) 68%,rgba(255,251,235,0) 77%,rgba(255,251,235,.5) 85%,rgba(255,251,235,0) 94%);-webkit-mask:radial-gradient(circle,#000 14%,transparent 66%);mask:radial-gradient(circle,#000 14%,transparent 66%)`;
+    rays.animate([{transform:'scale(.2) rotate(0)',opacity:0},{transform:'scale(1) rotate(40deg)',opacity:1,offset:.2},{transform:'scale(1.1) rotate(300deg)',opacity:.9}],{duration:6500,easing:'ease-out',fill:'forwards'});
+    burst(40,c.x,c.y-c.q.height*.35);try{(root.querySelector('.wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:'translate(-4px,3px)'},{transform:'translate(3px,-2px)'},{transform:'translate(0,0)'}],{duration:300})}catch(e){}
+    if(n&&WM.rig){const r=WM.rig;wrPose(r,{la:165,ra:-165,joy:1,sy:1.06,by:-6,hd:-3},{w:20,z:.55});T(500,()=>burst(26,centre().x,centre().y-centre().q.height*.3))}});
+  /* lo festeja: se balancea con los brazos en alto */
+  [[t+1300,{lean:2.5,hd:-1}],[t+1900,{lean:-2.5,hd:-5}],[t+2500,{lean:2.5,hd:-1}],[t+3100,{lean:-2.5,hd:-5}]].forEach(([ms,p])=>T(ms,()=>{if(WM.rig)wrPose(WM.rig,Object.assign({la:155,ra:-165,joy:1},p),{w:10,z:.6})}));
+  T(t+3900,()=>{if(WM.rig)wrPose(WM.rig,{la:8,ra:-8,joy:0,hd:0,lean:0,by:0,sy:1},{w:9,z:.9})});
+  return t+5400}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
