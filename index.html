@@ -5155,8 +5155,10 @@ const cids=(e,p)=>(((e.claims||{})[p])||[]).map(c=>c.mainsnak&&c.mainsnak.datava
 const SOC={P856:['Web',v=>v],P2002:['X',v=>'https://x.com/'+v],P2003:['Instagram',v=>'https://instagram.com/'+v],P2013:['Facebook',v=>'https://facebook.com/'+v],P2397:['YouTube',v=>'https://youtube.com/channel/'+v],P7085:['TikTok',v=>'https://tiktok.com/@'+v],P3984:['Reddit',v=>'https://reddit.com/r/'+v],P4264:['LinkedIn',v=>'https://linkedin.com/company/'+v]};
 const socials=e=>{const o=[];for(const p in SOC){const v=cids(e,p)[0];if(typeof v==='string'&&v)o.push([SOC[p][0],SOC[p][1](v)])}return o};
 const igOn=()=>WN&&ST.igid&&ST.igsec&&!window._igBad;
+/* nombre con el que se busca en IGDB: el que puso el usuario a mano, o el del juego sin [v0.5], (Win), versiones, etc. */
+function igName(g){if(g.sn&&g.sn.trim())return g.sn.trim();const o=String(g.name||'').replace(/[™®©]/g,'').trim();let n=o.replace(/\[[^\]]*\]/g,' ').replace(/\((?:v|ver|build|win|linux|mac|x64|\d)[^)]*\)/gi,' ').replace(/[\s_.-]+v?\d+(?:\.\d+)+[\w.-]*(?:\s.*)?$/i,' ').replace(/\s+-\s*(?:final|completo|complete|ch\.?\s*\d+).*$/i,' ').replace(/_/g,' ').replace(/\s+/g,' ').trim();return n.length>=2?n:o}
 async function fetchIg(g){
-  const r=await winteerNative.igdb({id:ST.igid,secret:ST.igsec,name:g.name.replace(/[™®©]/g,'').trim(),app:g.app||0});
+  const r=await winteerNative.igdb({id:ST.igid,secret:ST.igsec,name:igName(g),app:g.app||0});
   if(r&&r.error){if(r.error==='auth'){window._igBad=true;toast('IGDB: Client ID o Secret incorrectos');}return null}
   if(!r||r.none||!r.d)return r&&r.ig?{ig:r.ig,none:1,ig404:1,v:3,t:Date.now()}:{none:1,ig404:1,v:3,t:Date.now()};
   return {d:r.d,l:'en',u:r.u,dev:r.dev||[],pub:r.pub||[],gl:r.gl||[],gen:r.gen||[],ig:r.ig,src:'igdb',pcv:r.pcv?1:0,v:3,t:Date.now()}}
@@ -10601,7 +10603,7 @@ function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
   d.className='detail'+(g.status==='Terminado'?' done':'');
   d.innerHTML=`<div class="dbg"><img class="blur" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
   <div class="media"><img style="${kbd()}" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
-  <div class="dc ${swap?'swap':''}"><div class="dtop"><button class="chip btn2" data-a="vout" data-id="${g.id}">Sacar de la Bóveda</button></div>
+  <div class="dc ${swap?'swap':''}"><div class="dtop"><button class="chip btn2" data-a="vedit" data-id="${g.id}">${ic('edit')} Editar</button><button class="chip btn2" data-a="vout" data-id="${g.id}">Sacar de la Bóveda</button></div>
   <div class="logo"><img src="${art.logo(g)}" data-txt="${esc(g.name)}" alt="${esc(g.name)}"></div>
   <div class="tool"><button class="play ${run?'run':''}" data-a="vplay" data-id="${g.id}">${ic(run?'stop':'play')}<span>${run?'Detener':(!canPlay(g)?'Instalar en Steam':'Jugar')}</span></button>
    <div class="info">${ic('clock')}<div><small>Tiempo jugado</small><b>${fh(g.hours)}</b></div></div>
@@ -10617,7 +10619,7 @@ async function vLoadInfo(g){if(!vL()||VPEND[g.id]||VFAIL.has(g.id)||!igOn()||vOk
 async function vHltb(g){if(!WN||!winteerNative.hltb||VHP[g.id])return 0;VHP[g.id]=1;let r=0;try{const x=await winteerNative.hltb({name:g.name,app:g.app||0});g.hlt=Date.now();if(x&&!x.error&&(x.m||x.e||x.c)){g.hl={m:x.m,e:x.e,c:x.c};r=1}else if(x&&x.error)r=-1;save()}catch(e){r=-1}delete VHP[g.id];return r}
 function vInfoHTML(g){const M=vInf(),L=vL(),has=Object.prototype.hasOwnProperty.call(INFO,g.id),sv=INFO[g.id],si=ST.igtry;if(M[g.id])INFO[g.id]=M[g.id];else delete INFO[g.id];ST.igtry=L.x.igt||{};IFAIL.delete(g.id);if(VFAIL.has(g.id))IFAIL.add(g.id);let o;
   try{o=infoHTML(g)}finally{if(has)INFO[g.id]=sv;else delete INFO[g.id];ST.igtry=si;IFAIL.delete(g.id)}
-  return o.replace(/data-a="(mdesc|infoagain|inforetry|hltbgo)"/g,'data-a="v$1"')}
+  o=o.replace(/data-a="(mdesc|infoagain|inforetry|hltbgo)"/g,'data-a="v$1"');if(o.indexOf('IGDB no tiene información')>=0)o=o.replace('IGDB no tiene información de este juego.</p>','IGDB no tiene información de este juego.</p><button class="b2 g sm" data-a="vedit" data-id="'+g.id+'" style="margin:10px 8px 0 0">Cambiar nombre de búsqueda</button>');return o}
 function vTab(){const g=vG(S.vsel),el=$('#vtabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.vtab===k?'on':''}" data-a="vtab" data-id="${k}">${l}</button>`;
   const hasA=ggOwn(g),hasS=WN&&(!isSteamG(g)||BGC.stCap);if(!S.vtab||(S.vtab==='ach'&&!hasA)||(S.vtab==='shots'&&!hasS))S.vtab='inf';
@@ -10688,6 +10690,19 @@ Object.assign(A,{
  vinfoagain:a=>{const L=vL(),id=a.dataset.id;L.x.igt=L.x.igt||{};L.x.igt[id]=(L.x.igt[id]||0)+1;delete vInf()[id];VFAIL.delete(id);save();vTab()},
  vhltbgo:async a=>{const g=vG(a.dataset.id);if(!g)return;toast('Buscando en HowLongToBeat…');const r=await vHltb(g);toast(r===1?'Listo: duración cargada':r===-1?'HowLongToBeat no respondió ahora':'No encontré este juego en HowLongToBeat');if(S.vsel===g.id&&S.vtab==='inf')vTab()},
  vmdesc:a=>{const g=vG(a.dataset.id);if(!g)return;modal(`<h3>Descripción</h3><div class="ed" style="text-align:left"><textarea class="txt" id="md-t" rows="7" style="width:100%;resize:vertical">${esc(g.mdesc||'')}</textarea></div><div class="bs" style="margin-top:16px"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vmdescsave" data-id="${g.id}">Guardar</button></div>`,'vm');const m=$('.modal');if(m)m.classList.add('vm')},
+ vedit:a=>{const g=vG(a.dataset.id);if(!g)return;const own=g.exe!==undefined&&!g.app||String(g.id)[0]==='v';
+  modal(`<h3>Editar juego</h3><div class="ed" style="text-align:left"><label>Nombre<input class="txt" id="ve-n" value="${esc(g.name)}"></label>
+   <label>Nombre para buscar la información<input class="txt" id="ve-s" value="${esc(g.sn||'')}" placeholder="${esc(igName({name:g.name}))}"></label><p class="hint" style="margin:-4px 0 10px">Si no aparece la descripción, escribí acá el nombre tal cual está en IGDB (en inglés).</p>
+   <label>Horas jugadas<input class="txt" id="ve-h" type="number" step="0.1" min="0" value="${(g.hours||0).toFixed(1)}"></label>
+   <label>AppID de Steam<input class="txt" id="ve-a" type="number" value="${g.app||''}"></label>
+   ${own||g.exe?`<label>Ruta del .exe<input class="txt" id="ve-e" value="${esc(g.exe||'')}" placeholder="C:\\Juegos\\MiJuego\\juego.exe"></label>`:''}</div>
+   <div class="bs" style="margin-top:16px"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vesave" data-id="${g.id}">Guardar</button></div>`,'vm');const m=$('.modal');if(m)m.classList.add('vm')},
+ vesave:a=>{const g=vG(a.dataset.id);if(!g)return;const L=vL();const nm=$('#ve-n').value.trim();if(nm)g.name=nm;
+  const sn=$('#ve-s').value.trim();if(sn)g.sn=sn;else delete g.sn;
+  const h=parseFloat($('#ve-h').value);if(!isNaN(h)&&h>=0)g.hours=h;
+  const ap=parseInt($('#ve-a').value)||0;if(ap!==(g.app||0)){g.app=ap;try{delete ST.sgdb[ap]}catch(e){}}
+  const ex=$('#ve-e');if(ex){const v=ex.value.trim().replace(/^"|"$/g,'');if(v)g.exe=v;else if(g.exe!==undefined&&!g.app){toast('Falta la ruta del .exe');return}}
+  delete vInf()[g.id];VFAIL.delete(g.id);if(L.x.igt)delete L.x.igt[g.id];save();$$('.modal.vm').forEach(m=>m.remove());toast('Cambios guardados');vList();vDetail(false)},
  vmdescsave:a=>{const g=vG(a.dataset.id);if(!g)return;const v=(($('#md-t')||{}).value||'').trim();if(v)g.mdesc=v;else delete g.mdesc;save();$$('.modal.vm').forEach(m=>m.remove());vTab()},
  vinfoall:async()=>{const L=vL();if(!L||!L.g.length)return;if(!igOn()){toast('Cargá tu Client ID y Secret de IGDB en Ajustes → Conexiones');return}A.vclose();toast('Descargando información…');let n=0;for(const g of [...L.g]){await vLoadInfo(g);if(WN&&!g.hlt)await vHltb(g);n++}toast('Listo: '+n+' juego'+(n===1?'':'s')+' actualizado'+(n===1?'':'s'));if(S.view==='vault'&&S.vu)vTab()},
  vplay:a=>{const g=vG(a.dataset.id);if(!g)return;

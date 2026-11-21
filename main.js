@@ -1765,7 +1765,7 @@ async function igdb({ id, secret, name, app }) {
     const n = name.replace(/[™®©]/g, '').replace(/"/g, '').trim();
     const r = await igq(id, secret, 'games', `search "${n}"; fields ${F}; limit 8;`);
     const n0 = nrm(n);
-    g = r.find(x => nrm(x.name) === n0) || r.find(x => nrm(x.name).startsWith(n0) || n0.startsWith(nrm(x.name))) || null;
+    g = r.find(x => nrm(x.name) === n0) || r.find(x => nrm(x.name).startsWith(n0) || n0.startsWith(nrm(x.name))) || (n0.length >= 5 ? r.find(x => nrm(x.name).length >= 5 && (nrm(x.name).includes(n0) || n0.includes(nrm(x.name)))) : null) || null;
   }
   /* preferir la version de PC: si lo hallado no es de PC (port/consola), buscar la de PC */
   const hasPC = (x) => x && (x.platforms || []).some(pl => (pl && pl.id !== undefined ? pl.id : pl) === 6);
