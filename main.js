@@ -1817,53 +1817,6 @@ const wdlSafe = (n) => { n = String(n || 'archivo').replace(/[<>:"/\\|?*\x00-\x1
 function wdlUniq(dir, name) { let p = path.join(dir, name); if (!fs.existsSync(p)) return p; const e = path.extname(name), b = path.basename(name, e); for (let i = 1; i < 500; i++) { p = path.join(dir, b + ' (' + i + ')' + e); if (!fs.existsSync(p)) return p; } return p; }
 
 /* ---------- descarga en partes (varias conexiones a la vez, como un gestor de descargas) ---------- */
-const WDL_SEG = false; /* descarga en varias conexiones: apagada hasta confirmar que anda con todos los servidores */
-const WDL_CONN = 8, WDL_BLK = 4 * 1024 * 1024, WDL_MIN = 16 * 1024 * 1024;
-function wdlProbe(ses, url, ref) {
-  return new Promise((resolve) => {
-    let done = false, rq = null; const end = (v) => { if (done) return; done = true; clearTimeout(tm); try { rq && rq.abort(); } catch (e) {} resolve(v); };
-    const tm = setTimeout(() => end(null), 9000);
-    try {
-      rq = net.request({ url, session: ses, useSessionCookies: true, redirect: 'follow' });
-      rq.setHeader('Range', 'bytes=0-0'); if (ref) rq.setHeader('Referer', ref);
-      rq.on('response', (r) => { const cr = String(r.headers['content-range'] || ''), m = /\/(\d+)\s*$/.exec(cr); if (r.statusCode === 206 && m) end({ total: +m[1] }); else end(null); r.on('data', () => {}); r.on('error', () => end(null)); });
-      rq.on('error', () => end(null)); rq.end();
-    } catch (e) { end(null); }
-  });
-}
-function wdlSegRun(d, ses, url, total, ref, send) {
-  const nb = Math.ceil(total / WDL_BLK), blocks = [];
-  for (let i = 0; i < nb; i++) blocks.push({ s: i * WDL_BLK, e: Math.min(total, (i + 1) * WDL_BLK) - 1, got: 0, tries: 0, busy: false, ok: false });
-  d.seg = true; d.paused = false; d.cancelled = false; d.reqs = new Set(); d.got = 0; d.left = nb; d.failed = '';
-  let fd = -1; try { fd = fs.openSync(d.tmp, 'w'); fs.ftruncateSync(fd, total); } catch (e) { return false; }
-  d.fd = fd; let last = 0, lastT = Date.now(), spd = 0;
-  const tick = setInterval(() => { const now = Date.now(), dt = (now - lastT) / 1000; if (dt <= 0) return; const inst = (d.got - last) / dt; spd = spd ? spd * .7 + inst * .3 : inst; last = d.got; lastT = now; d.speed = d.paused ? 0 : spd; send({ id: d.id, st: d.paused ? 'pause' : 'prog', got: d.got, size: total, speed: d.speed }); }, 400);
-  const fetchBlock = (b) => new Promise((resolve, reject) => {
-    let rq; try { rq = net.request({ url, session: ses, useSessionCookies: true, redirect: 'follow' }); } catch (e) { return reject(e); }
-    d.reqs.add(rq); let st; const arm = () => { clearTimeout(st); st = setTimeout(() => { try { rq.abort(); } catch (e) {} }, 25000); }; arm(); const fin = (e) => { clearTimeout(st); d.reqs.delete(rq); e ? reject(e) : resolve(); };
-    rq.setHeader('Range', 'bytes=' + (b.s + b.got) + '-' + b.e); if (ref) rq.setHeader('Referer', ref);
-    rq.on('response', (r) => {
-      if (r.statusCode !== 206) { r.on('data', () => {}); return fin(Object.assign(new Error('El servidor no permite bajar en partes'), { fatal: true })); }
-      r.on('data', (ch) => { arm(); try { fs.writeSync(d.fd, ch, 0, ch.length, b.s + b.got); b.got += ch.length; d.got += ch.length; } catch (e) { try { rq.abort(); } catch (x) {} fin(Object.assign(new Error('No pude escribir en el disco'), { fatal: true })); } });
-      r.on('end', () => fin(b.got >= b.e - b.s + 1 ? null : new Error('corte'))); r.on('error', (e) => fin(e)); r.on('aborted', () => fin(new Error('corte')));
-    });
-    rq.on('error', (e) => fin(e)); rq.on('abort', () => fin(new Error('abort'))); rq.end();
-  });
-  const finish = (st) => { clearInterval(tick); try { d.reqs.forEach((q) => { try { q.abort(); } catch (e) {} }); } catch (e) {} try { fs.closeSync(d.fd); } catch (e) {} d.fd = -1; d.fin(st); };
-  d.stop = (cancel) => { if (cancel) { d.cancelled = true; } else d.paused = true; d.reqs.forEach((q) => { try { q.abort(); } catch (e) {} }); };
-  const worker = async () => {
-    while (!d.cancelled && d.left > 0 && !d.failed) {
-      if (d.paused) { await new Promise((r) => setTimeout(r, 200)); continue; }
-      const b = blocks.find((x) => !x.ok && !x.busy); if (!b) { await new Promise((r) => setTimeout(r, 150)); continue; }
-      b.busy = true;
-      try { await fetchBlock(b); b.ok = true; d.left--; }
-      catch (e) { if (d.cancelled) break; if (e && e.fatal) { d.failed = e.message; break; } if (d.paused) { b.busy = false; continue; } if (++b.tries > 6) { d.failed = 'La descarga se cortó'; break; } await new Promise((r) => setTimeout(r, 700 * b.tries)); }
-      b.busy = false;
-    }
-  };
-  Promise.all(Array.from({ length: Math.min(WDL_CONN, nb) }, worker)).then(() => { if (d.cancelled) finish('cancelled'); else if (d.failed || d.left > 0) finish('interrupted'); else finish('completed'); });
-  return true;
-}
 function wdlMove(d) {
   return new Promise((res, rej) => {
     try { fs.mkdirSync(path.dirname(d.final), { recursive: true }); fs.renameSync(d.tmp, d.final); return res(); } catch (e) { if (!e || e.code !== 'EXDEV') return rej(e); }
@@ -2072,7 +2025,7 @@ function webInit() {
     let host = ''; try { host = new URL(item.getURL()).hostname.replace(/^www\./, ''); } catch (e) {}
     wsend({ id, st: 'ask', name: d.name, size: item.getTotalBytes(), host });
     item.on('updated', (_ev, st) => {
-      if (d.state !== 'run' || d.seg) return;
+      if (d.state !== 'run') return;
       const now = Date.now(); if (now - d.lastT < 250) return;
       const got = item.getReceivedBytes(), dt = (now - d.lastT) / 1000, inst = dt > 0 ? (got - d.last) / dt : 0;
       d.speed = d.speed ? d.speed * 0.7 + inst * 0.3 : inst; d.last = got; d.lastT = now;
@@ -2098,7 +2051,7 @@ function webInit() {
       try { if (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused()) shotToast(null, d.name, 'dl', unz ? (ex.pick ? 'Descomprimido y agregado a tu Biblioteca' : ex.exes.length ? 'Descomprimido · falta elegir el .exe' : 'Descomprimido y listo') : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
     };
     d.fin = fin;
-    item.once('done', (_ev, st) => { if (d.seg) return; fin(st); });
+    item.once('done', (_ev, st) => { fin(st); });
   });
   ipcMain.handle('webDl', async (_e, m, a) => {
     a = a || {};
@@ -2126,30 +2079,22 @@ function webInit() {
         d.wd = setInterval(() => {
           try {
             if (d.state !== 'run') { clearInterval(d.wd); return; }
-            const paused = d.seg ? d.paused : (d.item && d.item.isPaused());
+            const paused = d.item && d.item.isPaused();
             if (paused) { d.wdT = Date.now(); return; }
-            const got = d.seg ? d.got : d.item.getReceivedBytes();
+            const got = d.item.getReceivedBytes();
             if (got !== d.wdB) { d.wdB = got; d.wdT = Date.now(); return; }
             if (Date.now() - d.wdT < (got > 0 ? 60000 : 35000)) return;
             clearInterval(d.wd); d.stall = 1; d.state = 'cancel';
-            if (d.seg) d.stop(true); else { try { d.item.cancel(); } catch (e) {} }
+            try { d.item.cancel(); } catch (e) {}
             setTimeout(() => { WDL.delete(d.id); wsend({ id: d.id, st: 'err', msg: got > 0 ? 'La descarga se quedó sin datos. Probá de nuevo.' : 'El enlace no respondió (puede haber vencido). Volvé a tocar Descargar para generar uno nuevo.' }); }, 400);
           } catch (e) { clearInterval(d.wd); }
         }, 5000);
-        let seg = false;
-        try {
-          const chain = d.item.getURLChain(), url = chain[chain.length - 1] || d.item.getURL(); let ref = ''; try { ref = new URL(chain[0] || url).origin + '/'; } catch (e) {}
-          if (WDL_SEG && /^https?:/i.test(url) && (sz <= 0 || sz >= WDL_MIN)) {
-            const pr = await wdlProbe(session.fromPartition(WEB_PART), url, ref);
-            if (pr && pr.total >= WDL_MIN && (sz <= 0 || Math.abs(pr.total - sz) < 4096) && d.state === 'run') { seg = wdlSegRun(d, session.fromPartition(WEB_PART), url, pr.total, ref, wsend); if (seg) { d.seg = true; try { d.item.cancel(); } catch (e) {} } }
-          }
-        } catch (e) { seg = false; }
-        if (!seg) { try { d.item.resume(); } catch (e) {} }
-        return { ok: 1, name: path.basename(d.final), path: d.final, seg };
+        try { d.item.resume(); } catch (e) {}
+        return { ok: 1, name: path.basename(d.final), path: d.final };
       }
-      if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run' && d.seg) { d.stop(false); wsend({ id: a.id, st: 'pause', got: d.got, size: d.total || 0, speed: 0 }); } else if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
-      if (m === 'resume') { const d = WDL.get(a.id); if (d && d.state === 'run' && d.seg) { d.paused = false; wsend({ id: a.id, st: 'prog', got: d.got, size: 0, speed: 0 }); } else if (d && d.state === 'run') { d.lastT = Date.now(); d.last = d.item.getReceivedBytes(); d.item.resume(); wsend({ id: a.id, st: 'prog', got: d.last, size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
-      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; try { clearInterval(d.wd); } catch (e) {} if (d.seg) d.stop(true); else { try { d.item.cancel(); } catch (e) {} } setTimeout(() => { if (WDL.get(a.id) === d) { try { fs.unlinkSync(d.tmp); } catch (e) {} WDL.delete(a.id); wsend({ id: a.id, st: 'cancel' }); } }, 2500); } else wsend({ id: a.id, st: 'cancel' }); return 1; }
+      if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
+      if (m === 'resume') { const d = WDL.get(a.id); if (d && d.state === 'run') { d.lastT = Date.now(); d.last = d.item.getReceivedBytes(); d.item.resume(); wsend({ id: a.id, st: 'prog', got: d.last, size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
+      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; try { clearInterval(d.wd); } catch (e) {} try { d.item.cancel(); } catch (e) {} setTimeout(() => { if (WDL.get(a.id) === d) { try { fs.unlinkSync(d.tmp); } catch (e) {} WDL.delete(a.id); wsend({ id: a.id, st: 'cancel' }); } }, 2500); } else wsend({ id: a.id, st: 'cancel' }); return 1; }
       if (m === 'show') { if (a.path && fs.existsSync(a.path)) shell.showItemInFolder(a.path); return 1; }
       if (m === 'open') { if (a.path && fs.existsSync(a.path)) await shell.openPath(a.path); return 1; }
       if (m === 'exists') return !!(a.path && fs.existsSync(a.path));
