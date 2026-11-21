@@ -11704,10 +11704,10 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   if(rvc)add('#581c87,#db2777',`<div class="wm-k">TU DIARIO</div><div class="wm-bn">${cu(rvc)}<span>entrada${rvc===1?'':'s'}</span></div><p class="wm-p">Tus partidas, ya escritas para siempre.</p>`);
   {const L=ST.log||{},wd=Array(7).fill(0);let bd=null,bh=0;for(const k in L){const [Y,M,D]=k.split('-').map(Number);if(Y!==y||!(L[k]>0)||(q&&Math.ceil(M/3)!==q))continue;wd[new Date(Y,M-1,D).getDay()]+=L[k];if(L[k]>bh){bh=L[k];bd=new Date(Y,M-1,D)}}
     const DN=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'],mxw=Math.max(...wd);
-    if(!fb&&mxw>0)add('#1e3a8a,#0ea5e9',`<div class="wm-k">TU DÍA FAVORITO</div><h2 class="wm-h2">Los ${DN[wd.indexOf(mxw)]}</h2><div class="wm-mb">${[1,2,3,4,5,6,0].map((n,i)=>`<div><i style="--h:${wd[n]/mxw*100}%;--d:${i}"></i><span>${DN[n].slice(0,2).toUpperCase()}</span></div>`).join('')}</div>${bd?`<p class="wm-p">Tu día récord: el ${bd.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][bd.getMonth()]}, con ${fh(bh)}.</p>`:''}`,6500)}
+    if(false&&!fb&&mxw>0)add('#1e3a8a,#0ea5e9',`<div class="wm-k">TU DÍA FAVORITO</div><h2 class="wm-h2">Los ${DN[wd.indexOf(mxw)]}</h2><div class="wm-mb">${[1,2,3,4,5,6,0].map((n,i)=>`<div><i style="--h:${wd[n]/mxw*100}%;--d:${i}"></i><span>${DN[n].slice(0,2).toUpperCase()}</span></div>`).join('')}</div>${bd?`<p class="wm-p">Tu día récord: el ${bd.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][bd.getMonth()]}, con ${fh(bh)}.</p>`:''}`,6500)}
   const X=wmX(y,q);
   if(X.streak)add('#7f1d1d,#f97316',`<div class="wm-k">TU RACHA MÁS LARGA</div><div class="wm-bn">${cu(X.streak.n)}<span>días seguidos</span></div><p class="wm-p">Del ${X.streak.from} al ${X.streak.to}, sin faltar ni un día.</p>`,6200);
-  if(X.hour){const nm={madrugada:'la madrugada',mañana:'la mañana',tarde:'la tarde',noche:'la noche'}[X.hour.part],hh=X.hour.best,hf=n=>String(n%24).padStart(2,'0')+':00';add('#0b1020,#1d4ed8',`<div class="wm-k">TU HORA FAVORITA</div><h2 class="wm-h2">Sos de ${nm}</h2><div class="wm-mb wm-hr">${X.hour.bk.map((v,i)=>`<div class="${i===hh?'pk':''}"><i style="--h:${Math.max(3,v/X.hour.mx*100)}%;--d:${i%12}"></i><span>${i%3===0?i:''}</span></div>`).join('')}</div><p class="wm-p">Donde más jugás es entre las ${hf(hh)} y las ${hf(hh+1)}.</p>`,6600)}
+  if(false&&X.hour){const nm={madrugada:'la madrugada',mañana:'la mañana',tarde:'la tarde',noche:'la noche'}[X.hour.part],hh=X.hour.best,hf=n=>String(n%24).padStart(2,'0')+':00';add('#0b1020,#1d4ed8',`<div class="wm-k">TU HORA FAVORITA</div><h2 class="wm-h2">Sos de ${nm}</h2><div class="wm-mb wm-hr">${X.hour.bk.map((v,i)=>`<div class="${i===hh?'pk':''}"><i style="--h:${Math.max(3,v/X.hour.mx*100)}%;--d:${i%12}"></i><span>${i%3===0?i:''}</span></div>`).join('')}</div><p class="wm-p">Donde más jugás es entre las ${hf(hh)} y las ${hf(hh+1)}.</p>`,6600)}
   if(X.long)add('#111827,#312e81',`<img class="wm-bg" src="${art.hero(X.long.g)}" data-fb="${art.wide(X.long.g)}" alt=""><div class="wm-fade"></div><div class="wm-k">TU SESIÓN MÁS LARGA</div><div class="wm-bn">${cu(X.long.h.toFixed(1),1)}<span>horas de corrido</span></div><h2 class="wm-h2">${esc(X.long.g.name)}</h2><p class="wm-p">El ${X.long.date}. Ahí no hubo quién te sacara.</p>`,6800);
   if(X.aband)add('#27272a,#52525b',`<div class="wm-k">EL QUE DEJASTE</div><div class="wm-3d"><img src="${art.grid(X.aband)}" data-fb="${art.wide(X.aband)}" alt="" style="filter:grayscale(.85) brightness(.85)"></div><h2 class="wm-h2">${esc(X.aband.name)}</h2><p class="wm-p">${fh(X.aband.hours)} y quedó ahí. Todavía te espera.</p>`,6400);
   if(d.ach>0)add('#4a044e,#7c3aed',`<div class="wm-k">LOGROS DE STEAM</div><div class="wm-bn">${cu(d.ach)}<span>logro${d.ach===1?'':'s'} desbloqueado${d.ach===1?'':'s'}</span></div><p class="wm-p">en ${d.ad} día${d.ad===1?'':'s'}${d.astreak>1?', con una racha de '+d.astreak+' seguidos cazando':''}.</p>`,6000);
@@ -11724,6 +11724,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/SESIÓN MÁS LARGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=19800;x.sd=18800;x.hid=1;x.rx=()=>wmSesion()}
       if(/TERMINASTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20000;x.sd=19000;x.rx=()=>wmTerminaste()}
       if(/MES FUERTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20500;x.sd=19500;x.rx=()=>wmMes()}
+      if(/TU DIARIO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20000;x.sd=19000;x.rx=()=>wmDiario()}
       if(/LOGROS/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-dur="7000" data-delay="1500" data-cu=');x.pos={x:0,y:0,f:0};x.t=14500;x.sd=13500;x.rx=()=>wmLogros()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
@@ -11761,6 +11762,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/MES FUERTE/.test(t))return '';
   if(/MES FUERTE/.test(t))return R(['Ese mes no tocaste el pasto, ¿eh?','Ese mes se te fue la mano, confesalo.']);
   if(/TERMINASTE/.test(t))return '';if(/TERMINASTE/.test(t))return d.done.length>=5?'¿Quién sos y qué hiciste con el de los 40 juegos empezados?':R(['Uno es uno, festejemos.','Mejor eso que nada.']);
+  if(/DIARIO/.test(t))return '';
   if(/DIARIO/.test(t))return 'Hasta escribiste tus partidas. Un genio de las letras.';
   if(/DÍA FAVORITO/.test(t))return 'Ya sé qué día no te puedo llamar para nada.';
   if(/LOGROS/.test(t))return '';
@@ -12590,6 +12592,53 @@ function wmMes(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,H,root}
   [[t+3900,{lean:2.5,hd:-1}],[t+4400,{lean:-2.5,hd:-5}],[t+4900,{lean:2.5,hd:-1}]].forEach(([ms,p])=>T(ms,()=>wrPose(r,Object.assign({la:155,ra:-165,joy:1},p),{w:10,z:.6})));
   T(t+5600,()=>{hop=null;wrPose(r,{la:8,ra:-8,joy:0,hd:0,lean:0,by:0,sy:1},{w:9,z:.9})});
   return t+7000}
+function wmDiario(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,H,root}=B,W=innerWidth;
+  const sfx=k=>{try{wmSfx(k)}catch(e){}},TM=[];
+  const gb=sv.getBoundingClientRect(),bw=H*.3,bh=bw*.64;
+  const shiftPx=Math.max(0,bw/2+14-(gb.left+gb.width/2)),shift=shiftPx/W*100;
+  const cx=gb.left+gb.width/2+shiftPx,bx=cx-bw/2,by=gb.top+gb.height*.4;
+  const T=(ms,f)=>{TM.push(setTimeout(()=>{if(ok())f()},ms))};
+  const bk=wmPropEl(el,`left:${bx}px;top:${by}px;width:${bw}px;height:${bh}px;z-index:8;perspective:${bw*3}px`,'');bk.style.opacity=0;bk.style.transformOrigin='50% 100%';
+  const pg=`position:absolute;top:0;height:100%;width:50%;background:#fefce8;`;
+  bk.innerHTML=`<div style="position:absolute;inset:-4% -3%;background:#4c1d95;border-radius:${bw*.03}px;box-shadow:0 ${bw*.04}px ${bw*.1}px rgba(0,0,0,.4)"></div><div class="pgl" style="${pg}left:0;border-radius:${bw*.015}px 0 0 ${bw*.015}px"></div><div class="pgr" style="${pg}left:50%;border-radius:0 ${bw*.015}px ${bw*.015}px 0"></div><div style="position:absolute;left:49.6%;top:0;width:.8%;height:100%;background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,.02),rgba(0,0,0,.18))"></div>`;
+  const L=bk.querySelector('.pgl'),R=bk.querySelector('.pgr');
+  const lines=(pgEl,pre,seed)=>{const out=[];for(let i=0;i<6;i++){const w=(50+((seed*37+i*23)%35)),d=document.createElement('div');d.style.cssText=`position:absolute;left:12%;top:${14+i*13.5}%;width:${w*.76}%;height:${Math.max(2,bw*.009)}px;border-radius:2px;background:repeating-linear-gradient(90deg,#334155 0 ${bw*.012}px,transparent ${bw*.012}px ${bw*.02}px);opacity:.85;transform-origin:0 50%;transform:scaleX(${pre?1:0})`;pgEl.appendChild(d);out.push({d,w:w*.76})}return out};
+  lines(L,1,3);
+  const pencil=wmPropEl(el,`left:0;top:0;width:${H*.028}px;height:${H*.12}px;z-index:9`,`<svg viewBox="0 0 12 60" width="100%" height="100%"><rect x="2" y="0" width="8" height="8" rx="1.5" fill="#f472b6"/><rect x="2" y="8" width="8" height="34" fill="#fbbf24"/><polygon points="2,42 10,42 6,56" fill="#fde68a"/><polygon points="4.6,51 7.4,51 6,56" fill="#1f2937"/></svg>`);pencil.style.opacity=0;pencil.style.transformOrigin='50% 100%';
+  const held=[];J.cl=[()=>{TM.forEach(clearTimeout);bk.remove();pencil.remove();held.forEach(x=>x.remove())}];
+  const write=(ln,t0,seed)=>{/* dibuja las líneas de a una y la lapicera las sigue */
+    const pw=H*.028,ph=H*.12;let t=t0;const q=R.getBoundingClientRect();
+    ln.forEach((o,i)=>{const dur=330+(i%3)*60,y=q.top+q.height*(.14+i*.135)-H*.004,x0=q.left+q.width*.12,x1=x0+q.width*o.w/100;
+      T(t,()=>{o.d.animate([{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{duration:dur,easing:'linear',fill:'forwards'});
+        const kf=[];for(let k=0;k<=6;k++)kf.push({transform:`translate(${(x0+(x1-x0)*k/6-pw/2).toFixed(1)}px,${(y-ph+(k%2?-3:2)).toFixed(1)}px) rotate(30deg)`});
+        pencil.style.opacity=1;pencil.animate(kf,{duration:dur,easing:'linear',fill:'forwards'});
+        if(i%2===0)wrPose(r,{hd:-4+(i%4?2:0),lean:2+(i%3),la:(i%2?70:50),ra:(i%2?-50:-70)},{w:22,z:.6})});
+      t+=dur+70});return t};
+  const flip=(t)=>{T(t,()=>{sfx('whoosh');const lf=document.createElement('div');lf.style.cssText=`${pg}left:50%;transform-origin:0 50%;transform-style:preserve-3d;`;
+      lf.innerHTML=`<div style="position:absolute;inset:0;backface-visibility:hidden;background:#fefce8;border-radius:0 ${bw*.015}px ${bw*.015}px 0">${R.innerHTML}</div><div style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);background:#fefce8;border-radius:${bw*.015}px 0 0 ${bw*.015}px"></div>`;
+      const back=lf.children[1];lines(back,1,7+Math.floor(t));bk.appendChild(lf);R.innerHTML='';
+      lf.animate([{transform:'rotateY(0deg)'},{transform:'rotateY(-90deg)',offset:.5},{transform:'rotateY(-180deg)'}],{duration:520,easing:'ease-in-out',fill:'forwards'});
+      pencil.style.opacity=0;
+      T(540,()=>{L.innerHTML=back.innerHTML;lf.remove()})})};
+  /* 0) Winter se acomoda y saca el cuaderno */
+  if(shift>.2)T(150,()=>wmWalk(shift,0,{dur:900,flip:0}));
+  const s0=shift>.2?1100:300;
+  T(s0,()=>{bk.style.opacity=1;try{bk.animate([{transform:'scale(.3) translateY(20px)',opacity:0},{transform:'scale(1.07)',opacity:1,offset:.7},{transform:'scale(1)',opacity:1}],{duration:520,easing:'cubic-bezier(.2,1.3,.4,1)'})}catch(e){}sfx('puff');wrPose(r,{la:60,ra:-60,hd:-5,lean:2},{w:16,z:.8})});
+  /* 1) escribe tres páginas, pasando la hoja entre una y otra */
+  let t=s0+800;
+  for(let p=0;p<3;p++){const seed=p+1;let tt=t;T(t-10,()=>{});const holder={};T(t,()=>{holder.ln=lines(R,0,seed*5);write(holder.ln,0,seed)});t+=6*430+200;if(p<2){flip(t);t+=700}}
+  /* 2) cierra de golpe */
+  const tc=t+300;
+  T(tc-250,()=>{pencil.style.opacity=0;wrPose(r,{la:100,ra:-100,sy:1.03,by:-2,hd:-2},{w:20,z:.6})});
+  T(tc,()=>{sfx('chunk');wrPose(r,{la:45,ra:-45,sy:.94,by:4,hd:3},{w:34,z:.55});
+    bk.innerHTML=`<div style="position:absolute;inset:-4% 20%;background:linear-gradient(135deg,#6d28d9,#4c1d95);border-radius:${bw*.03}px;box-shadow:0 ${bw*.04}px ${bw*.1}px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center"><div style="width:62%;height:12%;border:2px solid #fbbf24;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fbbf24;font:900 ${bw*.05}px/1 Inter,system-ui,sans-serif;letter-spacing:.2em">DIARIO</div></div><div style="position:absolute;left:19.5%;top:-4%;width:2.5%;height:108%;background:#2e1065;border-radius:3px"></div>`;
+    try{bk.animate([{transform:'scale(1.12,.86)'},{transform:'scale(.95,1.06)',offset:.45},{transform:'scale(1)'}],{duration:360,easing:'ease-out'});(root.querySelector('.wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:'translate(-4px,3px)'},{transform:'translate(3px,-2px)'},{transform:'translate(0,0)'}],{duration:280,easing:'ease-out'})}catch(e){}
+    wmPuff(el,cx-bw*.3,by+bh*.55,H*.09,'rgba(226,232,240,.85)');wmPuff(el,cx+bw*.3,by+bh*.55,H*.09,'rgba(226,232,240,.85)')});
+  /* 3) lo abraza contento y asiente */
+  T(tc+500,()=>wrPose(r,{la:70,ra:-70,sy:1,by:0,hd:-3,lean:1,joy:1},{w:14,z:.7}));
+  [0,1,2].forEach(i=>T(tc+1000+i*420,()=>wrPose(r,{hd:i%2?-6:2,lean:i%2?-1:2},{w:12,z:.6})));
+  T(tc+2400,()=>{sfx('clink');wrPose(r,{la:75,ra:-75,hd:0,lean:0,joy:0},{w:10,z:.8})});
+  return tc+3800}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
