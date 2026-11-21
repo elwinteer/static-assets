@@ -11690,7 +11690,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   const pv=(()=>{try{const x=wrapData(y-1,q);return x&&!x.fixed&&x.tot>0?x:null}catch(e){return null}})();d.pv=pv?pv.tot:0;
   const cmp=pv?(()=>{const df=d.tot-pv.tot,pc=Math.round(Math.abs(df)/pv.tot*100);return df>=1?`<p class="wm-p wm-cmp up">▲ ${fh(df)} más que en ${q?QN[q]+' '+(y-1):y-1} (${pc}%)</p>`:df<=-1?`<p class="wm-p wm-cmp dn">▼ ${fh(-df)} menos que en ${q?QN[q]+' '+(y-1):y-1} (${pc}%)</p>`:`<p class="wm-p wm-cmp">Casi igual que en ${q?QN[q]+' '+(y-1):y-1}</p>`})():'';
   if(!fb&&d.tot>0)add('#1e1b4b,#7c3aed',`<div class="wm-k">TIEMPO DE JUEGO</div><div class="wm-bn">${cu(d.tot.toFixed(1),1)}<span>horas</span></div><p class="wm-p">${d.tot>=24?'Eso es más de '+Math.floor(d.tot/24)+' día'+(Math.floor(d.tot/24)===1?'':'s')+' enteros jugando.':'Cada hora cuenta.'}</p>${cmp}`);
-  add('#0c4a6e,#2563eb',`<div class="wm-k">TU BIBLIOTECA ACTIVA</div><div class="wm-bn">${cu(d.played)}<span>juegos jugados</span></div>${!fb&&d.dn?`<p class="wm-p">en ${d.dn} día${d.dn===1?'':'s'} distintos${d.streak>1?', con una racha de '+d.streak+' seguidos':''}.</p>`:''}`);
+  if(false)add('#0c4a6e,#2563eb',`<div class="wm-k">TU BIBLIOTECA ACTIVA</div><div class="wm-bn">${cu(d.played)}<span>juegos jugados</span></div>${!fb&&d.dn?`<p class="wm-p">en ${d.dn} día${d.dn===1?'':'s'} distintos${d.streak>1?', con una racha de '+d.streak+' seguidos':''}.</p>`:''}`);
   if(top)add('#111827,#1f2937',`<img class="wm-bg" src="${art.hero(top)}" data-fb="${art.wide(top)}" alt=""><div class="wm-fade"></div><div class="wm-k">TU JUEGO Nº 1</div><img class="wm-logo" src="${art.logo(top)}" data-txt="${esc(top.name)}" alt=""><h2 class="wm-h2">${esc(top.name)}</h2><p class="wm-p">${fh(d.pool[0][1])} en ${per}</p>`,6800);
   try{const sg=wrapSaga(d);if(sg)add('#1e1b4b,'+sg.col,`<div class="wm-k">${q?'TU SAGA DEL TRIMESTRE':'TU SAGA DEL AÑO'}</div><div class="wm-sgp" style="--c:${sg.col}">${sgPoster(sg)}</div><h2 class="wm-h2">${esc(sg.name)}</h2><p class="wm-p">${fh(sg.wh)} en ${sg.wn} juego${sg.wn===1?'':'s'} de la saga${sg.dn>=sg.tot?'. La terminaste completa.':sg.dn?'. Terminaste '+sg.dn+' de '+sg.tot+'.':'.'}</p>`,6800)}catch(e){}
   if(d.pool.length>1){const mx=Math.max(1,d.pool[0][1]);add('#312e81,#be185d',`<div class="wm-k">TU TOP ${Math.min(5,d.pool.length)}</div><div class="wm-top">${d.pool.slice(0,5).map(([g,h],i)=>`<div class="wm-row" style="--r:${i};--w:${Math.max(8,h/mx*100)}%"><u></u><span>${i+1}</span><div class="th"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""></div><b>${esc(g.name)}</b><em>${fh(h)}</em></div>`).join('')}</div>`,7000)}
@@ -11716,7 +11716,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   if(false&&top){const frs=[X.hour?'Fuiste de '+{madrugada:'la madrugada',mañana:'la mañana',tarde:'la tarde',noche:'la noche'}[X.hour.part]:'Fuiste constante',esc(top.name)+' fue tu obsesión'];if(d.done.length)frs.push('terminaste '+d.done.length+' juego'+(d.done.length===1?'':'s'));if(X.streak&&X.streak.n>=5)frs.push('tuviste una racha de '+X.streak.n+' días');
     add('#312e81,#be185d',`<div class="wm-k">TU ${q?'TRIMESTRE':'AÑO'} EN UNA FRASE</div><h2 class="wm-h2 wm-phr">${frs.slice(0,-1).join(', ')} y ${frs[frs.length-1]}.</h2>`,7200)}
   const T=[];if(!fb&&d.tot>0)T.push([cu(d.tot.toFixed(0)),'horas']);T.push([cu(d.played),'juegos']);if(d.done.length)T.push([cu(d.done.length),'terminados']);if(!fb&&d.streak>1)T.push([cu(d.streak),'días de racha']);if(rvc)T.push([cu(rvc),'reseñas']);if(d.ach>0)T.push([cu(d.ach),'logros']);if(!fb&&d.dn>0&&d.tot>0)T.push([cu((d.tot/d.dn).toFixed(1),1),'h por día activo']);
-  if(T.length>=3)add('#134e4a,#4338ca',`<div class="wm-k">EN RESUMEN</div><div class="wm-rc">${T.slice(0,6).map(([n,l],i)=>`<div style="--r:${i}">${n}<span>${l}</span></div>`).join('')}</div>`,6000);
+  if(false&&T.length>=3)add('#134e4a,#4338ca',`<div class="wm-k">EN RESUMEN</div><div class="wm-rc">${T.slice(0,6).map(([n,l],i)=>`<div style="--r:${i}">${n}<span>${l}</span></div>`).join('')}</div>`,6000);
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
   try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d);if(/TIEMPO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:70,y:0,f:1};if(d.tot>=150)x.rx=()=>wmShock();else if(d.tot>=50)x.rx=()=>wmJoy();else x.rx=()=>wmMeh()}
       if(/JUEGO DEL AÑO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=13000;x.sd=9500;x.hid=1;x.rx=()=>wmPodio()}
@@ -12598,9 +12598,9 @@ function wmMes(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,H,root}
   return t+7000}
 function wmDiario(){const B=wmGenBase();if(!B){return}const {r,sv,ok,el,J,H,root}=B,W=innerWidth;
   const sfx=k=>{try{wmSfx(k)}catch(e){}},TM=[];
-  const gb=sv.getBoundingClientRect(),bw=H*.42,bh=bw*.6;
+  const gb=sv.getBoundingClientRect(),bw=H*.34,bh=bw*.6;
   const shiftPx=W/2-(gb.left+gb.width/2),shift=shiftPx/W*100;
-  const cx=gb.left+gb.width/2+shiftPx,bx=cx-bw/2,by=gb.top+gb.height*.36;
+  const cx=gb.left+gb.width/2+shiftPx,bx=cx-bw/2,by=gb.bottom-bh*1.02;
   const T=(ms,f)=>{TM.push(setTimeout(()=>{if(ok())f()},ms))};
   const nb=root.querySelector('.wm-bn .wm-n');
   const shk=k=>{try{(root.querySelector('.wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:`translate(${-3*k}px,${2*k}px)`},{transform:`translate(${2*k}px,${-2*k}px)`},{transform:'translate(0,0)'}],{duration:280,easing:'ease-out'})}catch(e){}};
