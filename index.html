@@ -12295,7 +12295,9 @@ function wmAdv(){const B=wmGenBase();if(!B){wmReveal();return}const {r,sv,ok,T,Q
 function wmNerd(){const B=wmGenBase();if(!B){wmReveal();return}const {r,nr,sv,ok,Q,J,H}=B,W=innerWidth;J.cl=[()=>{try{sv.style.transform='';nr.dataset.flip=''}catch(e){}}];const glint=()=>{try{const g=r.g.hd.querySelectorAll('.nglint');g.forEach(x=>x.style.opacity=1);setTimeout(()=>g.forEach(x=>x.style.opacity=0),240)}catch(e){}};
   Q(0,()=>wmDress(r,'nerd'));Q(700,()=>wmReveal());
   const b0=sv.getBoundingClientRect(),FW=b0.width;let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
-  let pos=[0,0],tw=0,spin=0;const setP=()=>{sv.style.transform=`translate(${pos[0].toFixed(1)}px,${pos[1].toFixed(1)}px)`};
+  let pos=[0,0],tw=0,spin=0;const bub=nr.querySelector('.wm-bub');const setP=()=>{sv.style.transform=`translate(${pos[0].toFixed(1)}px,${pos[1].toFixed(1)}px)`;if(bub)bub.style.translate=`${pos[0].toFixed(1)}px ${pos[1].toFixed(1)}px`};
+  /* frase repetida sin parar; en femenino si el Winter es mujer */
+  const FR=ST.winterF?'¡Lista, qué capa soy!':'¡Listo, qué capo soy!',say=()=>{if(ok()&&!J.stop)wmSay(FR,0)};Q(1300,say);const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}say()},2100);J.cl.push(()=>{clearInterval(iv);if(bub)bub.style.translate=''});
   const rest=()=>wrPose(r,{la:0,ra:0,ll:0,rl:0,lean:0,hd:0,sy:1,sx:1,by:0,run:0,spd:0,wide:.55,rot:0},{w:12,z:.8});
   const rot=v=>{r.x.rot=v;r.t.rot=v;r.v.rot=0};
   const mv=(dx,dy,D,ease,cb,spinDeg)=>{const a=pos.slice(),t0=performance.now(),tok=++tw,lo=-b0.left+8,hi=W-b0.left-FW-8,tx=Math.max(lo,Math.min(hi,a[0]+dx));if(Math.abs(tx-a[0])>20)nr.dataset.flip=tx<a[0]?1:'',ty=Math.max(-H*.24,Math.min(0,a[1]+dy));const f=now=>{if(!ok()||J.stop||tok!==tw)return;const k=Math.min(1,(now-t0)/D),e=ease(k);pos=[a[0]+(tx-a[0])*e,a[1]+(ty-a[1])*e];if(spinDeg)rot(spinDeg*e);setP();if(k<1)requestAnimationFrame(f);else{if(spinDeg)rot(0);cb&&cb()}};requestAnimationFrame(f)};
