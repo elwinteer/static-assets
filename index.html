@@ -11883,7 +11883,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=27500;x.sd=26500;x.rx=()=>wmRacha()}
       if(/SESIÓN MÁS LARGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=19800;x.sd=18800;x.hid=1;x.rx=()=>wmSesion()}
       if(/^WINTEER ·/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.n2=x.n;x.n='';x.pos={x:0,y:0,f:0};x.t=23500;x.sd=22500;x.rx=()=>wmIntro()}
-      if(/TERMINASTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20000;x.sd=19000;x.rx=()=>wmTerminaste()}
+      if(/TERMINASTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=16000;x.sd=15000;x.rx=()=>wmTerminaste()}
       if(/MES FUERTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20500;x.sd=19500;x.rx=()=>wmMes()}
       if(/TU DIARIO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=25000;x.sd=24000;x.rx=()=>wmDiario()}
       if(/TU WINTER/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-lv=');x.pos={x:0,y:0,f:0};x.t=18000;x.sd=17000;x.rx=()=>wmEvo()}
@@ -12673,8 +12673,8 @@ function wmLogros(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H,ro
 function wmTerminaste(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,H,root}=B,W=innerWidth;
   const sfx=k=>{try{wmSfx(k)}catch(e){}};
   const shake=k=>{try{(root.querySelector('.wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:`translate(${-3*k}px,${3*k}px)`},{transform:`translate(${2*k}px,${-2*k}px)`},{transform:'translate(0,0)'}],{duration:260,easing:'ease-out'})}catch(e){}};
-  const imgs=[...root.querySelectorAll('.wm-cv img')].slice(0,6),n=imgs.length,TM=[];
-  const gb=sv.getBoundingClientRect(),gx0=gb.left+gb.width/2;
+  const imgs=[...root.querySelectorAll('.wm-cv img')].slice(0,3),n=imgs.length,TM=[];
+  const gb=sv.getBoundingClientRect(),gx0=W*.03+gb.width/2-(WM.px||0)/100*W;
   const sw=H*.085,shh=sw*1.6;
   const st=wmPropEl(el,`left:0;top:0;width:${sw}px;height:${shh}px;z-index:9`,`<svg viewBox="0 0 60 96" width="100%" height="100%" style="transform:rotate(180deg)"><rect x="18" y="0" width="24" height="26" rx="12" fill="#7f1d1d"/><rect x="24" y="22" width="12" height="34" fill="#991b1b"/><rect x="4" y="56" width="52" height="14" rx="3" fill="#b91c1c"/><rect x="2" y="70" width="56" height="12" rx="2" fill="#450a0a"/></svg>`);
   st.style.opacity=0;let show=true,sl=null,ho=0,hoT=0;const marks=[];
@@ -12699,12 +12699,23 @@ function wmTerminaste(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,
   const go=k=>{if(k>=n)return fin();const q=imgs[k].getBoundingClientRect(),tx=(q.left+q.width/2-gx0)/W*100,flip=tx<(WM.px||0);show=true;hoT=0;
     wrPose(r,{la:20,ra:-20,hd:0},{w:12,z:.9});
     wmWalk(tx,0,{dur:k?700:1100,flip:flip?1:0,done:()=>{if(!ok())return;wrPose(r,{la:165,ra:-165,sy:1,by:0,lean:0},{w:20,z:.6});show=true;hoT=1;sfx('puff');T(380,()=>slam(imgs[k],()=>go(k+1)))}})};
-  const fin=()=>{hoT=0;imgs.forEach((im,i)=>T(i*110,()=>{try{im.animate([{transform:'scale(1)'},{transform:'scale(1.09)',offset:.4},{transform:'scale(1)'}],{duration:380,easing:'ease-out'})}catch(e){}}));wrPose(r,{la:20,ra:-20,sy:1,by:0},{w:12,z:.8});wmWalk(0,0,{dur:1100,flip:1,done:()=>{if(!ok())return;sfx('fanfare');wrPose(r,{la:150,ra:-150,joy:1,sy:1.04,by:-4},{w:16,z:.6});
-    T(700,()=>wrPose(r,{la:30,ra:-30,joy:0,sy:1,by:0},{w:12,z:.85}));
-    [0,1,2,3].forEach(i=>T(1000+i*170,()=>wrPose(r,i%2?{la:20,ra:-70,hd:-3}:{la:70,ra:-20,hd:3},{w:24,z:.5})));
-    T(1800,()=>{show=false;wrPose(r,{la:8,ra:-8,hd:0},{w:10,z:.9})})}})};
+  const fin=()=>{hoT=0;show=false;wrPose(r,{la:20,ra:-20,sy:1,by:0},{w:12,z:.8});
+    const tx=(W/2-gx0)/W*100;
+    wmWalk(tx,0,{dur:1100,flip:tx<(WM.px||0)?1:0,done:()=>{if(!ok())return;
+      wrPose(r,{la:10,ra:-10,hd:-8,sy:1,by:0},{w:12,z:.9});
+      const q=sv.getBoundingClientRect(),fs=Math.min(W*.12,H*.24),th=fs*1.15,land=q.top+q.height*.2;
+      const big=wmPropEl(el,`left:0;top:${land-th}px;width:${W}px;text-align:center;z-index:12;pointer-events:none`,`<div style="display:inline-block;color:#dc2626;border:${Math.max(4,fs*.06)}px solid #dc2626;border-radius:${fs*.1}px;padding:0 ${fs*.18}px;background:rgba(255,255,255,.9);font:900 ${fs}px/${1.1}em Inter,system-ui,sans-serif;letter-spacing:.04em;box-shadow:0 ${fs*.08}px ${fs*.25}px rgba(0,0,0,.5)">COMPLETADO</div>`);
+      big.style.opacity=0;marks.push(big);
+      T(700,()=>{sfx('puff');big.style.opacity=1;
+        big.animate([{transform:`translateY(${-(land+th+60)}px) rotate(-6deg)`,opacity:1,easing:'cubic-bezier(.55,0,1,.45)'},{transform:'translateY(0) rotate(-3deg)',opacity:1}],{duration:520,fill:'forwards'});
+        T(500,()=>{sfx('chunk');shake(4);wrPose(r,{sy:.42,by:12,la:100,ra:-100,hd:0},{w:14,z:.5});
+          try{sv.animate([{transform:'scaleY(1)',transformOrigin:'50% 100%'},{transform:'scaleY(.45)',transformOrigin:'50% 100%',offset:.25},{transform:'scaleY(.55)',transformOrigin:'50% 100%'}],{duration:500,fill:'forwards',easing:'ease-out'})}catch(e){}
+          wmPuff(el,q.left+q.width/2,q.bottom,H*.16,'rgba(226,232,240,.9)');wmPuff(el,q.left+q.width*.1,q.bottom,H*.1,'rgba(226,232,240,.8)');wmPuff(el,q.right-q.width*.1,q.bottom,H*.1,'rgba(226,232,240,.8)');
+          imgs.forEach((im,i)=>{try{im.animate([{transform:'scale(1)'},{transform:'scale(1.08)',offset:.3},{transform:'scale(1)'}],{duration:420,easing:'ease-out'})}catch(e){}});
+          big.animate([{transform:'translateY(0) rotate(-3deg)'},{transform:'translateY(-14px) rotate(-1deg)',offset:.3},{transform:'translateY(0) rotate(-3deg)'}],{duration:360,fill:'forwards',easing:'ease-out'});
+          T(1100,()=>{sfx('clink');try{sv.animate([{transform:'rotate(0)'},{transform:'rotate(-2deg)'},{transform:'rotate(2deg)'},{transform:'rotate(0)'}],{duration:500})}catch(e){}})})})}})};
   T(1400,()=>go(0));
-  return 1400+n*2300+4400}
+  return 15000}
 function wmMes(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,H,root}=B,W=innerWidth;
   const sfx=k=>{try{wmSfx(k)}catch(e){}},MS=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'],TM=[];
   const h2=root.querySelector('.wm-h2'),bm=Math.max(0,MS.indexOf(((h2&&h2.textContent)||'').trim().toUpperCase())),bars=[...root.querySelectorAll('.wm-mb>div')].map(d=>d.querySelector('i'));
