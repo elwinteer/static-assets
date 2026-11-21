@@ -4275,6 +4275,8 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes lbD{from{opacity:0;transform:translateX(22px) scale(.985)}}
 @keyframes lbM{from{opacity:0;transform:scale(1.06)}}
 @keyframes lbG{from{opacity:0;transform:translateY(10px) scale(.96)}}
+.dghost{position:absolute;inset:0;z-index:5;pointer-events:none;display:flex;flex-direction:column;animation:dgOut .34s cubic-bezier(.4,0,.6,1) forwards;will-change:opacity,transform}.dghost>*{pointer-events:none}@keyframes dgOut{to{opacity:0;transform:translateX(-14px)}}
+.dc.swap{animation:dcSw .42s cubic-bezier(.22,.8,.3,1)}@keyframes dcSw{from{opacity:0;transform:translateX(16px)}}
 </style>
 </head>
 <body>
@@ -4637,7 +4639,20 @@ function listHTML(){THN=0;
   return arr.map(g=>{const run=S.playing&&S.playing.id===g.id;
     return `<div class="it ${g.id===S.sel?'sel':''} ${stOf(g)==='Completado'?'done':''}" data-a="sel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em> ':''}${esc(g.name)}${g.isNew&&Date.now()-g.isNew<7*864e5?' <u class="nwl">Nuevo</u>':''}</b></div>${(()=>{const t=run?'Jugando':stOf(g);return t==='Jugando'?'<i class="sdt g" title="Jugando"></i>':t==='Pausado'?'<i class="sdt b" title="Pausado"></i>':''})()}</div>`}).join('')}
 function renderList(){const l=$('#list');if(l)l.innerHTML=listHTML();const c=$('#cnt');if(c)c.textContent=l?l.querySelectorAll('.it').length+' juegos':''}
+/* Detalle de juego: no parpadea al re-armarse (reusa el banner si es el mismo) y al cambiar de juego hace un cruce suave con el anterior */
 function renderDetail(swap=true){
+  const d=$('#detail');if(!d)return renderDetail0(swap);
+  const id=String(S.sel||''),prev=d.dataset.gid||'',oBg=d.querySelector(':scope>.dbg'),oMd=d.querySelector(':scope>.media');
+  let gh=null;
+  if(swap&&prev&&prev!==id&&d.children.length){gh=document.createElement('div');gh.className='dghost';[...d.children].forEach(c=>{if(!c.classList.contains('dghost'))gh.appendChild(c.cloneNode(true))})}
+  const rq=n=>{const i=n&&n.querySelector('img');return i?i.dataset.rq||'':''};
+  renderDetail0(swap);
+  d.dataset.gid=id;
+  const nB=d.querySelector(':scope>.dbg'),nM=d.querySelector(':scope>.media');
+  [nB,nM].forEach(n=>{const i=n&&n.querySelector('img');if(i&&!i.dataset.rq)i.dataset.rq=i.getAttribute('src')||''});
+  if(prev===id&&!swap&&oBg&&oMd&&nB&&nM&&rq(nB)&&rq(nB)===rq(oBg)&&rq(nM)===rq(oMd)){nB.replaceWith(oBg);nM.replaceWith(oMd)}
+  if(gh){d.appendChild(gh);setTimeout(()=>gh.remove(),420)}}
+function renderDetail0(swap=true){
   const d=$('#detail');if(!d)return;const g=gm(S.sel);if(g&&g.isNew){delete g.isNew;save();scanBadge()}
   if(!g){d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
   sgdb(g);setTimeout(amb,50);
