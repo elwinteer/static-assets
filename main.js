@@ -53,7 +53,7 @@ function mkTray() {
     tray = new Tray(ic); tray.setToolTip('WINTEER');
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Abrir WINTEER', click: () => showWin() },
-      { label: 'Modo mando', click: () => { fromBg = true; showWin(); win.webContents.send('bp', 'open'); } },
+      { label: 'Modo consola', click: () => { fromBg = true; showWin(); win.webContents.send('bp', 'open'); } },
       { type: 'separator' },
       { label: 'Salir', click: () => { quitting = true; app.quit(); } },
     ]));
@@ -3012,7 +3012,7 @@ app.whenReady().then(() => {
       if (!key || !name) return { none: true };
       fs.mkdirSync(TRL, { recursive: true });
       if (o && o.aud) {
-        /* música del Modo mando: la canción más conocida del juego (tema principal), se guarda aparte de los trailers */
+        /* música del Modo consola: la canción más conocida del juego (tema principal), se guarda aparte de los trailers */
         await ytEnsure();
         const tmpA = path.join(TRL, key + '.dl.m4a'), finA = path.join(TRL, key + '.mu.m4a');
         try { fs.unlinkSync(tmpA); } catch (e) {}
@@ -3053,7 +3053,7 @@ app.whenReady().then(() => {
       return { err: res.se.slice(-120) || 'sin resultado' };
     } catch (e) { tlog('error ' + String(e.message || e)); return { err: String(e.message || e) }; }
   });
-  /* canción propia del Modo mando */
+  /* canción propia del Modo consola */
   const musClean = (key) => { try { for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.mu.') || f === key + '.nm') { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} } } catch (e) {} };
   ipcMain.handle('musRead', (_e, u) => { try { const f = require('url').fileURLToPath(String(u)); if (path.dirname(f) !== path.resolve(TRL) && !f.startsWith(path.resolve(TRL))) return null; return fs.readFileSync(f); } catch (e) { return null; } });
   ipcMain.handle('musPick', async (_e, key) => {
@@ -3100,7 +3100,7 @@ app.whenReady().then(() => {
       return { url: pathToFileURL(fin).href };
     } catch (e) { return { err: String(e.message || e) }; }
   });
-  /* fondos de video del Modo mando: carpeta "fondos" dentro de la carpeta de datos */
+  /* fondos de video del Modo consola: carpeta "fondos" dentro de la carpeta de datos */
   const FONDOS = () => { const d = path.join(app.getPath('userData'), 'fondos'); try { fs.mkdirSync(d, { recursive: true }); } catch (e) {} return d; };
   const FOFI = () => app.isPackaged ? path.join(process.resourcesPath, 'fondos') : path.join(__dirname, 'fondos');
   const FVID = /\.(mp4|webm|mkv|mov)$/i;
