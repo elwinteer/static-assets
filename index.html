@@ -5477,7 +5477,7 @@ const wrapDetail=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="s
   <div class="wx-top">${tabs}</div>
   <section class="wx-hero">${hg?`<img class="wx-bg" src="${art.hero(hg)}" data-fb="${art.wide(hg)}" alt="">`:''}<i class="wx-sh"></i><i class="wx-gl"></i><i class="wx-gl2"></i>${Array.from({length:16},(_,i)=>`<b class="wx-pt" style="left:${(i*37+9)%97}%;--s:${3+(i%4)*2}px;--t:${9+(i%5)*2.4}s;--dl:${-(i*1.7)}s"></b>`).join('')}
     <div class="wx-hl"><span class="wx-eye">${q?'TU '+QN[q].toUpperCase():cur?'TU AÑO HASTA AHORA':'TU AÑO EN WINTEER'}</span><h1 class="wx-year">${q?'Q'+q+' · '+S.wy:S.wy}</h1><div class="wx-badge">${p[0]}</div><p>${p[1]}</p></div>
-    <div class="wx-hr"><button class="wx-mv ${hg?'has':''}" data-a="wmovie">${hg?`<img class="wx-mvb" src="${art.hero(hg)}" data-fb="${art.wide(hg)}" alt="">`:''}<i class="wx-mvo"></i><span class="wx-fl l"><i></i></span><span class="wx-fl r"><i></i></span><span class="wx-mvt"><u></u>ESTRENO</span>
+    <div class="wx-hr"><button class="wx-mv ${hg?'has':''}" data-a="wmovie">${hg?`<img class="wx-mvb" src="${art.grid(hg)}" data-fb="${art.wide(hg)}" alt="">`:''}<i class="wx-mvo"></i><span class="wx-fl l"><i></i></span><span class="wx-fl r"><i></i></span><span class="wx-mvt"><u></u>ESTRENO</span>
     <span class="wx-pw"><s class="wx-pr"></s><s class="wx-pr r2"></s><s class="wx-pc"></s><em>${ic('play')}</em></span>
     <b class="wx-mvh">Tu ${q?'trimestre':'año'} en película</b><small class="wx-mvs">Presentación animada con música</small>
     <span class="wx-eq"><i></i><i></i><i></i><i></i><i></i><i></i></span></button></div>
@@ -5503,7 +5503,7 @@ const wrapDetail=()=>{const ps=wrapPeriods();if(!ps.length)return `<div class="s
 function wrapGallery(){const now=Date.now(),cy=new Date().getFullYear(),ps=wrapPeriods().sort((a,b)=>b.y-a.y);
   const cards=ps.map((x,i)=>{const d=wrapData(x.y,0),g=d.pool[0]&&d.pool[0][0],pe=wrapPers(d),big=i===0;
     const sub=(d.fb?(d.played?d.played+' juegos':''):(d.tot?fh(d.tot):''))+(pe&&pe[0]?(d.fb&&!d.played?'':' · ')+'“'+esc(pe[0])+'”':'');
-    return `<div class="wp2 ${big?'big':''}" data-a="wropen" data-id="${x.key}">${g?`<img class="bg" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt="">`:''}<i class="sh"></i><div class="in"><b>${x.y}</b><small>${sub}</small>${big?`<button class="hm-go" data-a="wplay" data-id="${x.key}">${ic('play')} Ver como película</button>`:''}</div></div>`}).join('');
+    return `<div class="wp2 ${big?'big':''}" data-a="wropen" data-id="${x.key}">${g?(big?`<img class="bg" src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`:`<img class="bg" src="${art.wide(g)}" data-fb="${art.grid(g)}" alt="">`):''}<i class="sh"></i><div class="in"><b>${x.y}</b><small>${sub}</small>${big?`<button class="hm-go" data-a="wplay" data-id="${x.key}">${ic('play')} Ver como película</button>`:''}</div></div>`}).join('');
   const un=new Date(cy,11,1).getTime(),lock=ps.some(x=>x.y===cy)?'':`<div class="wp2 lk${ps.length?'':' big'}"><div class="in"><span class="lc">${ic('lock')}</span><b>${cy}</b><small>Se abre el 1 de diciembre · en ${Math.max(1,Math.ceil((un-now)/864e5))} días</small></div></div>`;
   return `<div class="wg2-w"><header class="st-h rise"><div><small>Tu año de un vistazo</small><h1>Wrapped</h1></div></header><div class="wg2">${cards}${lock}</div></div>`}
 V.wrapped=()=>S.wdet?wrapDetail():wrapGallery();
