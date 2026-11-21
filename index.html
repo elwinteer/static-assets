@@ -2029,6 +2029,7 @@ body.sea-spr #amb b:nth-of-type(1){background:rgba(244,114,182,.45)}body.sea-spr
 .cg-x{border:0;background:transparent;color:var(--muted);cursor:pointer;transform:rotate(45deg);display:grid;place-items:center;padding:4px;border-radius:8px}.cg-x:hover{color:#f87171;background:rgba(248,113,113,.12)}.cg-x .i{width:18px;height:18px}
 body.light .cg-i{background:rgba(0,0,0,.06)}body.light .cg-pb{background:rgba(0,0,0,.1)}body.light .cg-c{border-color:rgba(0,0,0,.35);color:#fff}
 .wm-cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.wm-cta span{color:var(--muted);font-size:13px}
+body.wmopen #app,body.wmopen #amb,body.wmopen #cpfx{display:none!important}
 #wm{position:fixed;inset:0;z-index:9990;color:#fff;overflow:hidden;background:linear-gradient(135deg,var(--c,#4c1d95),var(--c2,#0e7490));transition:background .8s;animation:wmo .5s}
 #wm.out{opacity:0;transition:opacity .4s}@keyframes wmo{from{opacity:0}}
 #wm::before{content:"";position:absolute;inset:-20%;background:radial-gradient(600px 400px at 20% 20%,rgba(255,255,255,.16),transparent 60%),radial-gradient(500px 500px at 85% 80%,rgba(255,255,255,.1),transparent 60%);animation:wmf 14s ease-in-out infinite alternate}
@@ -12858,9 +12859,12 @@ if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)if(ii!==0&&WM_
   {const ii2=WM.i;setTimeout(()=>{if(WM&&WM.i===ii2&&$('#wm .wm-top.srv')&&!$('#wm .wm-row.in'))$$('#wm .wm-top.srv .wm-row').forEach(r=>r.classList.add('in'))},6800)}
   WM.t0=Date.now();WM.left=s.t;WM.tm=setTimeout(()=>wmNext(),s.t)}
 function wmNext(){if(!WM)return;if(WM.i>=WM.s.length-1){wmClose(true);return}wmShow(WM.i+1)}
-function wmClose(done){if(!WM)return;try{wmJugStop()}catch(e){}clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);if(WM.rig){WM.rig.alive=false;wrStop(WM.rig)}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
+function wmClose(done){if(!WM)return;wmUnder(false);try{wmJugStop()}catch(e){}clearTimeout(WM.tm);clearTimeout(WM.tw);clearInterval(WM.ty);if(WM.rig){WM.rig.alive=false;wrStop(WM.rig)}clearInterval(WM.mi);if(done)hcnt('wm');try{if(WM.bus){const b=WM.bus;b.gain.setTargetAtTime(0,WAC.currentTime,.15)}}catch(e){}WM=null;const e=$('#wm');if(e){e.classList.add('out');setTimeout(()=>e.remove(),400)}document.removeEventListener('keydown',wmKey)}
 function wmKey(e){if(!WM)return;if(e.key==='Escape')wmClose();else if(e.key==='ArrowLeft')wmShow(WM.i-1);else if(e.key===' '){e.preventDefault();A.wmpause()}}
-function wmOpen(y,q){const sl=wmSlides(y,q);if(!sl.length)return;WM={s:sl,i:0,paused:false,snd:ST.hsnd!==false,P:[],L:1,st:0,nt:0,nf:0,fc:0};
+/* mientras el Wrapped está abierto la app de abajo no se ve: se oculta del todo (si no, sus ~100 animaciones y los fondos con blur siguen dibujándose y bajan los fps a 1/4) */
+let WMSC=null;
+function wmUnder(on){const b=document.body;if(on){if(b.classList.contains('wmopen'))return;try{WMSC=[];document.querySelectorAll('#app *').forEach(e=>{if(e.scrollTop>0||e.scrollLeft>0)WMSC.push([e,e.scrollTop,e.scrollLeft])})}catch(e){WMSC=[]}b.classList.add('wmopen')}else{if(!b.classList.contains('wmopen'))return;b.classList.remove('wmopen');const l=WMSC||[];WMSC=null;const f=()=>l.forEach(([e,t,x])=>{try{e.scrollTop=t;e.scrollLeft=x}catch(_){}});f();requestAnimationFrame(f)}}
+function wmOpen(y,q){const sl=wmSlides(y,q);if(!sl.length)return;wmUnder(true);WM={s:sl,i:0,paused:false,snd:ST.hsnd!==false,P:[],L:1,st:0,nt:0,nf:0,fc:0};
   const e=document.createElement('div');e.id='wm';e.innerHTML=`<div class="wm-beat"></div><canvas id="wmcv"></canvas><div class="wm-fl"></div><div class="wm-pg">${sl.map(()=>'<i></i>').join('')}</div><div class="wm-ctl"><button data-a="wmpause" title="Pausar (espacio)">❚❚</button><button data-a="wmsnd" title="Música" class="wm-snd">♪</button><button data-a="wmx" title="Cerrar (Esc)">×</button></div><div class="wm-s"></div><div class="wm-nar"><div class="wm-bub"></div>${(()=>{try{return avSVG(avCur(),{floor:false,cls:'wm-win',rig:true})}catch(e){return''}})()}</div><div class="wm-zl" data-a="wmprev"></div><div class="wm-zr" data-a="wmnext"></div>`;
   document.body.appendChild(e);{const sv=e.querySelector('.wm-win');if(sv)WM.rig=wrNew(sv)}setTimeout(wmEnter,0);document.addEventListener('keydown',wmKey);WM.mi=setInterval(wmMus,90);wmMus();wmShow(0);requestAnimationFrame(wmLoop)}
 Object.assign(A,{wmovie:()=>wmOpen(S.wy,S.wq||0),wmx:()=>wmClose(),wmnext:()=>{},wmprev:()=>wmShow(WM?WM.i-1:0),
@@ -12886,7 +12890,7 @@ const cv=$('#snow'),cx=cv.getContext('2d');let fl=[],raf=0;
 function initSnow(){cancelAnimationFrame(raf);const r=$('#app').getBoundingClientRect();cv.width=r.width;cv.height=r.height;cx.clearRect(0,0,cv.width,cv.height);
   if(!ST.snow||document.body.classList.contains('ultra'))return;
   fl=Array.from({length:Math.round(ST.dens*(SEA_K==='xmas'?1.7:1))},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*2.2+.6,v:Math.random()*.8+.3,p:Math.random()*6.3,o:Math.random()*.5+.35}));
-  (function loop(t){cx.clearRect(0,0,cv.width,cv.height);
+  (function loop(t){if(document.body.classList.contains('wmopen')){raf=requestAnimationFrame(loop);return}cx.clearRect(0,0,cv.width,cv.height);
     for(const f of fl){f.y+=f.v;f.x+=Math.sin(t/1400+f.p)*.35;if(f.y>cv.height+4){f.y=-4;f.x=Math.random()*cv.width}
       const sk=rwSel('snow');cx.beginPath();cx.fillStyle=`rgba(225,235,255,${f.o})`;cx.shadowColor='rgba(165,216,255,.8)';cx.shadowBlur=f.r*3;
       const sg=sk==='w0'?SEAD(f):null;if(sk==='w0'&&!sg){cx.arc(f.x,f.y,f.r,0,6.3);cx.fill()}else if(sk==='w3'){cx.fillRect(Math.round(f.x),Math.round(f.y),f.r*2.4,f.r*2.4)}else{cx.font=((f.r*5+6)*(SEA_K&&SEFE.includes(SEA_K)?1.5:1))+'px sans-serif';cx.globalAlpha=f.o;cx.fillText(sg||SNOWG[sk]||'●',f.x,f.y);cx.globalAlpha=1}}
