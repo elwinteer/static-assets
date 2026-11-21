@@ -12800,7 +12800,7 @@ Promise.race([loadArt(),new Promise(r=>setTimeout(r,2500))]).then(()=>{applyThem
 const FBC={key:'AIzaSyAtuOVtqa9awbvf_ba28Nrfe47jll2A-gU',pid:'elwinteer-6e4cd'};
 const fbKey=()=>ST.fbk||FBC.key,fbPid=()=>ST.fbp||FBC.pid;
 const fbOn=()=>!!(window.FBMOCK||(fbKey()&&fbPid()));
-const FR=()=>{const f=(ST.fr=ST.fr||{});if(f.on===undefined)Object.assign(f,{on:true,code:'',list:[],lib:true,now:true,rv:true,ac:true,c:{}});f.un=f.un||{};f.sn=f.sn||{};f.chat=f.chat||{};f.on=f.now=f.lib=f.rv=f.ac=true;f.inv=false;return f};
+const FR=()=>{const f=(ST.fr=ST.fr||{});if(f.on===undefined)Object.assign(f,{on:true,code:'',list:[],lib:true,now:true,rv:true,ac:true,c:{}});f.un=f.un||{};f.sn=f.sn||{};f.chat=f.chat||{};f.on=f.lib=f.rv=f.ac=true;f.now=false;f.inv=false;for(const k in f.c){if(f.c[k]){f.c[k].now='';f.c[k].na=0}}ST.frEv=[];return f};
 try{const f=FR(),c='DEMO0-00000';if((f.list||[]).includes(c)||f.c[c]){f.list=f.list.filter(x=>x!==c);[f.c,f.un,f.sn,f.chat].forEach(o=>{delete o[c]});if(S.frSel===c)S.frSel=null;save()}}catch(e){}
 const frId=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const frFmt=id=>id.slice(0,5)+'-'+id.slice(5);
@@ -12827,7 +12827,7 @@ function frSnap(){const p=PR()||{},l=lvlOf(),f=FR(),pl=S.playing&&gm(S.playing.i
   const ac=f.ac?GA.filter(a=>(ST.gach||{})[a[0]]).sort((x,y)=>rk[x[4]]-rk[y[4]]||ST.gach[y[0]]-ST.gach[x[0]]).slice(0,80).map(a=>({n:a[1],d:(a[2]||'').slice(0,90),i:a[3],r:a[4]})):[];
   const rv=f.rv?RV().filter(r=>r.text||r.head).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,40).map(r=>{const g=gm(r.gid);return{g:g?g.name:'',r:r.rate||0,h:(r.head||'').slice(0,80),t:(r.text||'').slice(0,320),s:r.spoil?1:0,ts:r.ts||0}}).filter(x=>x.g):[];
   return{name:p.name||UN(),handle:p.handle||hnd(p.name||UN()),bio:(p.bio||'').slice(0,200),genres:(p.genres||[]).slice(0,6),av:{k:av.k,c:av.c||0},avx:av.k==='custom'?avNorm(p.avx||ST.avc):undefined,ban:{k:bn.k,i:bn.i||0,n:bg?bg.name:''},th:{a:cs.getPropertyValue('--a').trim(),a2:cs.getPropertyValue('--a2').trim(),rgb:cs.getPropertyValue('--argb').trim()},
-   pet:(()=>{try{const q=petCur();if(!q)return undefined;const o={n:q.name,coat:q.coat||0,ear:q.ear||'down',pat:q.pat||'none',xp:q.xp||0};if(q.ccol)o.ccol=q.ccol;if(q.acc)o.acc=q.acc;if(q.bd)o.bd=q.bd;return o}catch(e){return undefined}})(),lv:l.l,lt:rwTitle()||l.t,h:Math.round(totalH()),n:G.length,d:doneN(),ga:gaN(),top,ac,rv,now:(f.now&&pl&&!f.inv)?pl.name:'',na:(f.now&&pl&&!f.inv)?(pl.app||0):0,dnd:0,cl:1,lib:f.lib?G.map(g=>g.name).join('\n'):'',lc:f.lib?G.filter(g=>!g.hide&&x8Coop(g)).map(g=>g.name).join('\n'):'',seen:f.inv?0:Date.now(),v:2}}
+   pet:(()=>{try{const q=petCur();if(!q)return undefined;const o={n:q.name,coat:q.coat||0,ear:q.ear||'down',pat:q.pat||'none',xp:q.xp||0};if(q.ccol)o.ccol=q.ccol;if(q.acc)o.acc=q.acc;if(q.bd)o.bd=q.bd;return o}catch(e){return undefined}})(),lv:l.l,lt:rwTitle()||l.t,h:Math.round(totalH()),n:G.length,d:doneN(),ga:gaN(),top,ac,rv,now:'',na:0,dnd:0,cl:1,lib:f.lib?G.map(g=>g.name).join('\n'):'',lc:f.lib?G.filter(g=>!g.hide&&x8Coop(g)).map(g=>g.name).join('\n'):'',seen:f.inv?0:Date.now(),v:2}}
 async function frMedia(){const p=PR()||{},f=FR(),bu=p.ban&&p.ban.k==='img'?(p.banUrl||ART['p:banner']):'',sig=(p.pic?p.pic.length:0)+'|'+(bu||'');
   if(f.mSig===sig||(!p.pic&&!bu&&!f.mSig))return;const o={pic:p.pic?await frImg(p.pic,192,192):'',ban:bu?await frImg(bu,760,220):''};
   await fbSet(frId(frCode()),o,'winteer_media');f.mSig=sig;save()}
@@ -12838,7 +12838,7 @@ const FRM={};
 async function frLoadM(c){const m=FRM[c];if(m&&Date.now()-m.t<10*6e4)return m.d;try{const d=await fbGet(frId(c),'winteer_media');FRM[c]={t:Date.now(),d:d||{}};return FRM[c].d}catch(e){return (m&&m.d)||{}}}
 let FRSY=0;
 async function frSync(){const f=FR();if(!fbOn()||FRSY||!f.list.length)return;FRSY=1;
-  await Promise.all(f.list.map(async c=>{try{const d=await fbGet(frId(c));if(d){try{svEv(c,f.c[c],d)}catch(e){}f.c[c]=d}else if(f.c[c])f.c[c].gone=1}catch(e){}}));
+  await Promise.all(f.list.map(async c=>{try{const d=await fbGet(frId(c));if(d){d.now='';d.na=0;f.c[c]=d}else if(f.c[c])f.c[c].gone=1}catch(e){}}));
   FRSY=0;f.lastSync=Date.now();const sig=JSON.stringify(Object.values(f.c).map(d=>[d.seen,d.now,d.lv,d.h]));if(sig!==frSync.sig){frSync.sig=sig;save();if(frOn()&&!document.querySelector('.modal')&&!(document.activeElement&&/^fr-/.test(document.activeElement.id||'')))frRender()}}
 const frAgo=t=>{if(!t)return '';const m=Math.floor((Date.now()-t)/6e4);return m<2?'ahora':m<60?'hace '+m+' min':m<1440?'hace '+Math.floor(m/60)+' h':'hace '+Math.floor(m/1440)+' d'};
 const frOnl=d=>d&&!d.gone&&Date.now()-d.seen<6*6e4;
