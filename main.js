@@ -1839,11 +1839,11 @@ function wdlSegRun(d, ses, url, total, ref, send) {
   const tick = setInterval(() => { const now = Date.now(), dt = (now - lastT) / 1000; if (dt <= 0) return; const inst = (d.got - last) / dt; spd = spd ? spd * .7 + inst * .3 : inst; last = d.got; lastT = now; d.speed = d.paused ? 0 : spd; send({ id: d.id, st: d.paused ? 'pause' : 'prog', got: d.got, size: total, speed: d.speed }); }, 400);
   const fetchBlock = (b) => new Promise((resolve, reject) => {
     let rq; try { rq = net.request({ url, session: ses, useSessionCookies: true, redirect: 'follow' }); } catch (e) { return reject(e); }
-    d.reqs.add(rq); const fin = (e) => { d.reqs.delete(rq); e ? reject(e) : resolve(); };
+    d.reqs.add(rq); let st; const arm = () => { clearTimeout(st); st = setTimeout(() => { try { rq.abort(); } catch (e) {} }, 25000); }; arm(); const fin = (e) => { clearTimeout(st); d.reqs.delete(rq); e ? reject(e) : resolve(); };
     rq.setHeader('Range', 'bytes=' + (b.s + b.got) + '-' + b.e); if (ref) rq.setHeader('Referer', ref);
     rq.on('response', (r) => {
       if (r.statusCode !== 206) { r.on('data', () => {}); return fin(Object.assign(new Error('El servidor no permite bajar en partes'), { fatal: true })); }
-      r.on('data', (ch) => { try { fs.writeSync(d.fd, ch, 0, ch.length, b.s + b.got); b.got += ch.length; d.got += ch.length; } catch (e) { try { rq.abort(); } catch (x) {} fin(Object.assign(new Error('No pude escribir en el disco'), { fatal: true })); } });
+      r.on('data', (ch) => { arm(); try { fs.writeSync(d.fd, ch, 0, ch.length, b.s + b.got); b.got += ch.length; d.got += ch.length; } catch (e) { try { rq.abort(); } catch (x) {} fin(Object.assign(new Error('No pude escribir en el disco'), { fatal: true })); } });
       r.on('end', () => fin(b.got >= b.e - b.s + 1 ? null : new Error('corte'))); r.on('error', (e) => fin(e)); r.on('aborted', () => fin(new Error('corte')));
     });
     rq.on('error', (e) => fin(e)); rq.on('abort', () => fin(new Error('abort'))); rq.end();
@@ -2148,7 +2148,7 @@ function webInit() {
       }
       if (m === 'pause') { const d = WDL.get(a.id); if (d && d.state === 'run' && d.seg) { d.stop(false); wsend({ id: a.id, st: 'pause', got: d.got, size: d.total || 0, speed: 0 }); } else if (d && d.state === 'run') { d.item.pause(); wsend({ id: a.id, st: 'pause', got: d.item.getReceivedBytes(), size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
       if (m === 'resume') { const d = WDL.get(a.id); if (d && d.state === 'run' && d.seg) { d.paused = false; wsend({ id: a.id, st: 'prog', got: d.got, size: 0, speed: 0 }); } else if (d && d.state === 'run') { d.lastT = Date.now(); d.last = d.item.getReceivedBytes(); d.item.resume(); wsend({ id: a.id, st: 'prog', got: d.last, size: d.item.getTotalBytes(), speed: 0 }); } return 1; }
-      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; if (d.seg) d.stop(true); else { try { d.item.cancel(); } catch (e) {} } } return 1; }
+      if (m === 'cancel') { const d = WDL.get(a.id); if (d) { d.state = 'cancel'; try { clearInterval(d.wd); } catch (e) {} if (d.seg) d.stop(true); else { try { d.item.cancel(); } catch (e) {} } setTimeout(() => { if (WDL.get(a.id) === d) { try { fs.unlinkSync(d.tmp); } catch (e) {} WDL.delete(a.id); wsend({ id: a.id, st: 'cancel' }); } }, 2500); } else wsend({ id: a.id, st: 'cancel' }); return 1; }
       if (m === 'show') { if (a.path && fs.existsSync(a.path)) shell.showItemInFolder(a.path); return 1; }
       if (m === 'open') { if (a.path && fs.existsSync(a.path)) await shell.openPath(a.path); return 1; }
       if (m === 'exists') return !!(a.path && fs.existsSync(a.path));

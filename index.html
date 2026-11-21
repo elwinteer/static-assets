@@ -3723,6 +3723,10 @@ body.bpon .pr-gr{height:44px}
 .wbv{position:relative;flex:1;min-height:0;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.1)}
 .wbv webview{position:absolute;inset:0;width:100%;height:100%}
 .wbd{position:absolute;top:10px;right:10px;bottom:10px;width:min(400px,92%);z-index:5;display:flex;flex-direction:column;border-radius:20px;background:rgba(18,18,22,.82);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.1);transform:translateX(112%);opacity:0;transition:transform .5s var(--ease),opacity .35s;color:var(--text)}
+.wbdt{position:absolute;right:12px;bottom:16px;z-index:6;width:46px;height:46px;border-radius:15px;border:0;display:grid;place-items:center;cursor:pointer;color:var(--text);background:linear-gradient(180deg,rgba(34,34,42,.92),rgba(16,16,20,.94));backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.12);transition:transform .3s var(--ease),opacity .3s,box-shadow .3s}
+.wbdt:hover{transform:scale(1.08);box-shadow:0 12px 34px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.28)}
+.wbdt svg{width:21px;height:21px}.wbd.on~.wbdt{opacity:0;pointer-events:none;transform:scale(.8)}
+.wbdt .wbn{top:-4px;right:-4px}.wbdt.busy svg{animation:wbbob 1.6s ease-in-out infinite}
 .wbd.on{transform:none;opacity:1}
 .wbdh{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 10px}.wbdh b{font-size:16px}.wbdh small{color:var(--muted);font-size:12.5px;display:block;margin-top:2px}
 .wbdl{flex:1;overflow:auto;padding:4px 12px 14px;display:flex;flex-direction:column;gap:10px}
@@ -15653,7 +15657,7 @@ function wbBuild(root){const c=webCfg();
    <div class="wbg"><button class="wbb wbdlb" data-a="wbdl" id="wbdlb" title="Descargas">${ic('wdl')}<svg class="wbring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="pg" id="wbrp" cx="22" cy="22" r="19" pathLength="100"/></svg><i class="wbn" id="wbn"></i></button><button class="wbb" data-a="wbset" title="Ajustes del navegador">${ic('wgr')}</button></div></div>
    <div class="wbtb" id="wbtb">${wbTabsHTML()}</div>
    <div class="wbhot" id="wbhot"><i></i></div><div class="wbv" id="wbv"><div class="wbld" id="wbpg"><i></i></div><div class="wbem" id="wbem"><div class="in"><div class="orb"><i></i><i></i><span>${WBG}</span></div><b>Tus sitios</b><span class="sb">Elegí uno para abrirlo en una pestaña. Sin pestañas abiertas el navegador no gasta recursos.</span><div class="mk" id="wbmk">${wbMarksHTML()}</div><div class="bt"><button class="b2 g" data-a="wbnt">${ic('plus')} Pestaña en blanco</button></div></div></div>
-   <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside></div></div>`;
+   <aside class="wbd ${WBR.open?'on':''}" id="wbd"></aside><button class="wbdt" data-a="wbdl" id="wbdt" title="Descargas">${ic('wdl')}<i class="wbn" id="wbn2"></i></button></div></div>`;
   const inp=$('#wbi');$('#wbf').addEventListener('submit',e=>{e.preventDefault();const u=webNorm(inp.value);if(!u){toast('Esa dirección no es válida');return}inp.blur();wbOpen(u)});
   inp.addEventListener('focus',()=>setTimeout(()=>inp.select(),0));{const hot=$('#wbhot'),bt=root.querySelector('.wbt'),tb=$('#wbtb');hot.addEventListener('mouseenter',()=>wbPeek(1));[bt,tb].forEach(e=>{e.addEventListener('mouseenter',()=>wbPeek(1));e.addEventListener('mouseleave',()=>wbPeek(0))});inp.addEventListener('blur',()=>wbPeek(0))}root.dataset.built=1;wdDraw();wdBadge()}
 function wbEnter(){clearTimeout(WBR.disc);const root=$('#wbroot');if(!root)return;
@@ -15920,7 +15924,7 @@ function webWire(wv){const inp=$('#wbi'),pg=$('#wbpg'),rl=$('#wbrel');
   wv.addEventListener('did-stop-loading',()=>{pg&&pg.classList.remove('on');rl&&rl.classList.remove('spin');nav()});
   wv.addEventListener('page-title-updated',e=>{const T=wbAct();if(T&&e.title&&wv===WBR.wv){T.t=e.title;wbTabsDraw();wbSave()}});
   wv.addEventListener('page-favicon-updated',e=>{const T=wbAct();if(T&&e.favicons&&e.favicons[0]&&T.fav!==e.favicons[0]&&wv===WBR.wv){T.fav=e.favicons[0];const mk=wbMarks().find(m=>wbHost(m.url)===wbHost(T.url));if(mk&&mk.fav!==e.favicons[0]){mk.fav=e.favicons[0];wbMarksDraw()}wbTabsDraw();wbSave()}})}
-function wdBadge(){wdKick();const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0)}
+function wdBadge(){wdKick();const n=$('#wbn');if(!n)return;const k=Object.values(WDR.l).filter(d=>d.st==='run'||d.st==='pause'||d.st==='move'||d.st==='unz').length;n.textContent=k||'';n.classList.toggle('on',k>0);const n2=$('#wbn2'),bt=$('#wbdt');if(n2){n2.textContent=k||'';n2.classList.toggle('on',k>0)}if(bt)bt.classList.toggle('busy',k>0)}
 function wdIcon(d){return d.st==='done'?`<svg class="i tick" viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`:esc(wdX(d.name))}
 function wdSub(d){
   if(d.st==='done')return d.unz?'Descomprimida en una carpeta · '+wdB(d.size||d.got):d.uerr?'Descargada, pero no se pudo descomprimir: '+d.uerr:'Completada · '+wdB(d.size||d.got);
@@ -16003,7 +16007,7 @@ Object.assign(A,{
    const unz=wdIsArc(name),del=unz,lib=unz;const r=await winteerNative.webDl('go',{id:d.id,dir,name,unz,del,lib});if(!r||!r.ok){const f=$('#wdfree');if(f){f.textContent=(r&&r.err)||'No pude empezar la descarga';f.classList.add('bad')}return}
    d.name=r.name;d.path=r.path;d.st='run';d.t=Date.now();const c=webCfg();c.dir=dir;winteerNative.webDl('tmp',{dir});save();wdShut();WBR.open=1;const dw=$('#wbd');if(dw){wdDraw();dw.classList.add('on')}wdBadge()},
  wdpause:a=>winteerNative.webDl('pause',{id:+a.dataset.id}),wdres:a=>winteerNative.webDl('resume',{id:+a.dataset.id}),
- wdcan:a=>winteerNative.webDl('cancel',{id:+a.dataset.id}),
+ wdcan:a=>{const id=+a.dataset.id;try{winteerNative.webDl('cancel',{id})}catch(e){}delete WDR.l[id];wdDraw();wdBadge()},
  wdshow:a=>{const d=WDR.l[a.dataset.id];const h=(webCfg().hist||[])[+String(a.dataset.id).slice(1)];winteerNative.webDl('show',{path:d?d.path:h&&h.p})},
  wdopen:a=>{const d=WDR.l[a.dataset.id];const h=(webCfg().hist||[])[+String(a.dataset.id).slice(1)];winteerNative.webDl('open',{path:d?d.path:h&&h.p})},
  wdrm:a=>{delete WDR.l[a.dataset.id];wdDraw()},
