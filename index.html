@@ -11748,7 +11748,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/TOP/.test(t))return 'Comimos bien este año.';
   if(/CALIFICADO/.test(t))return R(['Y es verdad, es una joya.','Gusto impecable.']);
   if(/CLIP|CAPTURA/.test(t))return 'Esto lo guardaste vos. Buen ojo.';
-  if(/GÉNEROS/.test(t)){const gk=wmGenKey(d.gen&&d.gen[0]&&d.gen[0][0]);if(gk==='action')return 'Mucha acción, poca paciencia.';if(gk==='rpg')return 'Subiste de nivel, campeón.';return R(['Mucho, bastante, casi siempre.','Se nota que te va.'])}
+  if(/GÉNEROS/.test(t)){const gk=wmGenKey(d.gen&&d.gen[0]&&d.gen[0][0]);if(gk==='action')return 'Mucha acción, poca paciencia. A eso me dedico.';if(gk==='rpg')return 'Magia, misiones y nivel de sobra. A eso me dedico.';if(gk==='sport')return 'Gol, festejo y a otra cosa. A eso me dedico.';return R(['Mucho, bastante, casi siempre. A eso me dedico.','Se nota que me va. A eso me dedico.'])}
   if(/MES FUERTE/.test(t))return R(['Ese mes no tocaste el pasto, ¿eh?','Ese mes se te fue la mano, confesalo.']);
   if(/TERMINASTE/.test(t))return d.done.length>=5?'¿Quién sos y qué hiciste con el de los 40 juegos empezados?':R(['Uno es uno, festejemos.','Mejor eso que nada.']);
   if(/DIARIO/.test(t))return 'Hasta escribiste tus partidas. Un genio de las letras.';
