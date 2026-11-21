@@ -11882,7 +11882,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/JUEGO DEL AÑO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=13000;x.sd=9500;x.hid=1;x.rx=()=>wmPodio()}
       if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=27500;x.sd=26500;x.rx=()=>wmRacha()}
       if(/SESIÓN MÁS LARGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=19800;x.sd=18800;x.hid=1;x.rx=()=>wmSesion()}
-      if(/^WINTEER ·/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.n2=x.n;x.n='';x.pos={x:0,y:0,f:0};x.t=21500;x.sd=20500;x.rx=()=>wmIntro()}
+      if(/^WINTEER ·/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.n2=x.n;x.n='';x.pos={x:0,y:0,f:0};x.t=23500;x.sd=22500;x.rx=()=>wmIntro()}
       if(/TERMINASTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20000;x.sd=19000;x.rx=()=>wmTerminaste()}
       if(/MES FUERTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20500;x.sd=19500;x.rx=()=>wmMes()}
       if(/TU DIARIO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=25000;x.sd=24000;x.rx=()=>wmDiario()}
@@ -12010,7 +12010,7 @@ const WRG={
  laugh:[[0,{lean:-4,sy:.98,by:2,la:30,ra:-30},{w:20,z:.6}],[150,{lean:4,by:-3,hd:6},{w:28,z:.4}],[300,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[450,{lean:4,by:-3,hd:6},{w:28,z:.4}],[600,{lean:-4,by:1,hd:-6},{w:28,z:.4}],[750,{lean:3,by:-2,hd:4},{w:28,z:.4}],[1100,{lean:0,by:0,hd:0,la:0,ra:0,sy:1},{w:10,z:.85}]],
  bow:[[0,{lean:-14,hd:-8,by:2,la:10,ra:-10},{w:11,z:.75}],[900,{lean:0,hd:0,by:0,la:0,ra:0},{w:9,z:.85}]]
 };
-function wmEnter(){const nr=$('#wm .wm-nar'),r=WM&&WM.rig;if(!nr||!r)return;const D=1500,X0=-46,st=performance.now()+380;let ph=0;
+function wmEnter(){const nr=$('#wm .wm-nar'),r=WM&&WM.rig;if(!nr||!r)return;const D=1500,X0=-46,st=performance.now()+380;WM.ent=st+D;let ph=0;
   nr.style.opacity=1;nr.style.transform=`translateX(${X0}vw)`;r.w.spd=r.w.run=30;
   wrPose(r,{sy:.92,sx:1.04,lean:-7,by:4,hd:-3},{w:15,z:.8});
   const f=now=>{if(!WM||!WM.rig||!nr.isConnected)return;const k=Math.max(0,Math.min(1,(now-st)/D)),e=1-Math.pow(1-k,3),v=Math.pow(1-k,2);nr.style.transform=`translateX(${(X0*(1-e)).toFixed(2)}vw)`;
@@ -13012,7 +13012,7 @@ function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));cons
   const box=$('#wm .wm-s');box.innerHTML=s.h;wmSplit(box);[...box.children].forEach((c,n)=>c.style.setProperty('--n',n));box.dataset.v=WM.i%4;box.classList.remove('go');void box.offsetWidth;box.classList.add('go');
   const fl=$('#wm .wm-fl');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
   $$('#wm .wm-pg i').forEach((b,n)=>{b.style.animation='none';b.style.backgroundSize=n<WM.i?'100% 100%':'0 100%';if(n===WM.i){void b.offsetWidth;b.style.animation=`wmpg ${s.t}ms linear forwards`;b.style.animationPlayState=WM.paused?'paused':'running'}});
-  wmJugStop();{const w=document.getElementById('wm');if(w){w.classList.remove('revwait');if(s.hid)w.classList.add('revwait')}}wmSay(s.n||'',s.sd);if(WM.rig&&(WM.i>0||s.rx)){const ii=WM.i,tg=s.pos||{x:0,y:0,f:0};setTimeout(()=>{if(!WM||WM.i!==ii)return;wmWalk(tg.x,tg.y,{flip:tg.f,dur:2300,delay:100,done:()=>{if(WM&&WM.i===ii&&s.rx)s.rx()}})},350)}
+  wmJugStop();{const w=document.getElementById('wm');if(w){w.classList.remove('revwait');if(s.hid)w.classList.add('revwait')}}wmSay(s.n||'',s.sd);if(WM.rig&&(WM.i>0||s.rx)){const ii=WM.i,tg=s.pos||{x:0,y:0,f:0};setTimeout(()=>{if(!WM||WM.i!==ii)return;wmWalk(tg.x,tg.y,{flip:tg.f,dur:2300,delay:100,done:()=>{if(WM&&WM.i===ii&&s.rx){const w=ii===0?Math.max(0,(WM.ent||0)-performance.now()+150):0;if(w)setTimeout(()=>{if(WM&&WM.i===ii)s.rx()},w);else s.rx()}}})},350)}
 if(WM.rig){const ii=WM.i;setTimeout(()=>{if(WM&&WM.rig&&WM.i===ii)if(ii!==0&&WM_GEST)wrPlay(WM.rig,s.ge)},500)}wmCount(box);if(WM.i>0||WM.fresh){wmBurst(0,innerHeight,26,'cl');wmBurst(innerWidth,innerHeight,26,'cl')}WM.fresh=1;
   {const ii3=WM.i;setTimeout(()=>{if(WM&&WM.i===ii3&&$('#wm .wm-st.srs')&&!$('#wm .wm-st.srs span.in'))$$('#wm .wm-st.srs span').forEach(e=>e.classList.add('in'))},7000)}
   {const ii2=WM.i;setTimeout(()=>{if(WM&&WM.i===ii2&&$('#wm .wm-top.srv')&&!$('#wm .wm-row.in'))$$('#wm .wm-top.srv .wm-row').forEach(r=>r.classList.add('in'))},6800)}
