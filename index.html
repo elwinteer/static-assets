@@ -11726,7 +11726,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/MES FUERTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=20500;x.sd=19500;x.rx=()=>wmMes()}
       if(/TU DIARIO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=25000;x.sd=24000;x.rx=()=>wmDiario()}
       if(/TU WINTER/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-lv=');x.pos={x:0,y:0,f:0};x.t=18000;x.sd=17000;x.rx=()=>wmEvo()}
-      if(/ASÍ FUE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.n2=x.n;x.n='';x.pos={x:70,y:0,f:1};x.t=23000;x.sd=22000;x.rx=()=>wmFin()}
+      if(/ASÍ FUE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.n2=x.n;x.n='';x.pos={x:60,y:0,f:1};x.t=23000;x.sd=22000;x.rx=()=>wmFin()}
       if(/LOGROS/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-dur="7000" data-delay="1500" data-cu=');x.pos={x:0,y:0,f:0};x.t=14500;x.sd=13500;x.rx=()=>wmLogros()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
@@ -12730,6 +12730,10 @@ function wmFin(){const B=wmGenBase();if(!B){return}const {nr,root,el,J,H}=B,ii=W
   /* recuerdos: las carátulas de los juegos del año, de las demás diapositivas */
   const imgs=[];{const seen={};WM.s.forEach(sl=>{const re=/<img\b[^>]*>/g;let m;while((m=re.exec(sl.h||''))){const tag=m[0],src=(tag.match(/\ssrc="([^"]+)"/)||[])[1],fb=(tag.match(/data-fb="([^"]+)"/)||[])[1],bg=/wm-bg|wm-logo/.test(tag);if(src&&!seen[src]&&!bg){seen[src]=1;imgs.push({src,fb})}}});}
   const layer=document.createElement('div');layer.style.cssText='position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden';root.appendChild(layer);
+  const mkL=(css,z)=>{const d=document.createElement('div');d.style.cssText=`position:absolute;inset:0;z-index:${z||1};pointer-events:none;opacity:0;${css}`;root.appendChild(d);return d};
+  const vig=mkL('transition:opacity 3s;background:radial-gradient(ellipse at 62% 52%,rgba(2,6,23,0) 28%,rgba(2,6,23,.78) 100%)'),warm=mkL('transition:opacity 3s;background:radial-gradient(ellipse at 80% 70%,rgba(253,224,71,.42),rgba(251,146,60,.18) 45%,transparent 75%)');held.push(vig,warm);
+  /* luces desenfocadas que suben despacio, frías al principio y cálidas al final */
+  const bok=[];for(let i=0;i<12;i++){const z=H*(.05+Math.random()*.08),d=document.createElement('div');d.style.cssText=`position:absolute;left:${Math.random()*W}px;top:${H*(.5+Math.random()*.6)}px;width:${z}px;height:${z}px;border-radius:50%;background:radial-gradient(circle,rgba(147,197,253,.55),rgba(147,197,253,0) 70%);opacity:0;filter:blur(2px)`;layer.appendChild(d);d.animate([{transform:'translateY(0)',opacity:0},{opacity:.7,offset:.3},{opacity:.6,offset:.7},{transform:`translateY(${-H*(.5+Math.random()*.4)}px)`,opacity:0}],{duration:7000+Math.random()*5000,iterations:Infinity,delay:Math.random()*5000});bok.push(d)}
   /* cara triste dentro de la cabeza: cejas, boca temblorosa y lagrimales */
   const INK='#2a1a14';let sad=null,mouth=null;
   const addFace=()=>{try{const hd=WM.rig&&WM.rig.g&&WM.rig.g.hd;if(!hd)return;const NS='http://www.w3.org/2000/svg',g=document.createElementNS(NS,'g');g.setAttribute('data-sad','1');g.style.cssText='opacity:0;transition:opacity .7s';
@@ -12739,29 +12743,40 @@ function wmFin(){const B=wmGenBase();if(!B){return}const {nr,root,el,J,H}=B,ii=W
   /* posición de los ojos para las lágrimas */
   const eyes=()=>{try{const r=WM.rig,hd=r&&r.g&&r.g.hd,svg=r&&r.svg;if(!hd||!svg)return null;const m=hd.getScreenCTM(),a=svg.createSVGPoint(),b=svg.createSVGPoint();a.x=76;a.y=122;b.x=124;b.y=122;const p=a.matrixTransform(m),q=b.matrixTransform(m);return {l:p.x,r:q.x,y:p.y}}catch(e){return null}};
   const streaks=[0,1].map(()=>{const d=document.createElement('div');d.style.cssText='position:absolute;width:3px;border-radius:3px;background:linear-gradient(rgba(186,230,253,.95),rgba(147,197,253,.5));height:0;opacity:.9';layer.appendChild(d);return d});
-  let sk=0;
+  let sk=0,settled=0;
   const loop=now=>{if(!ok()||J.stop||WM.jug!==J)return;J.raf=requestAnimationFrame(loop);const e=eyes();if(!e)return;streaks[0].style.left=(e.l-1)+'px';streaks[1].style.left=(e.r-1)+'px';streaks.forEach(d=>{d.style.top=e.y+'px';d.style.height=(sk*H*.075).toFixed(1)+'px'})};J.raf=requestAnimationFrame(loop);
   /* gotas que caen de cada ojo */
   const drop=side=>{const e=eyes();if(!e)return;const x=side?e.r:e.l,sz=H*.011,p=wmPropEl(el,`left:${x-sz/2}px;top:${e.y}px;width:${sz}px;height:${sz*1.5}px;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;background:radial-gradient(circle at 35% 30%,#fff,#7dd3fc 45%,#38bdf8);box-shadow:0 0 5px rgba(125,211,252,.8)`,'');p.style.opacity=1;
     const sx=(side?1:-1)*H*(.004+Math.random()*.006);p.animate([{transform:'translate(0,0) scale(.5)',opacity:0},{transform:`translate(${sx*.3}px,${H*.03}px) scale(1)`,opacity:1,offset:.18},{transform:`translate(${sx}px,${H*.1}px) scale(1)`,opacity:1,offset:.45,easing:'cubic-bezier(.5,0,1,.6)'},{transform:`translate(${sx*1.6}px,${H*.3}px) scale(.9)`,opacity:0}],{duration:1100,fill:'forwards'});setTimeout(()=>p.remove(),1150)};
-  let tearRate=0;const tearLoop=()=>{if(!ok())return;if(tearRate>0){drop(0);drop(1)}TM.push(setTimeout(tearLoop,tearRate?Math.max(160,tearRate):400))};
+  let tearRate=0,base=0;const tearLoop=()=>{if(!ok())return;if(tearRate>0){drop(0);drop(1)}TM.push(setTimeout(tearLoop,tearRate?Math.max(160,tearRate):400))};
   /* recuerdos que pasan flotando de izquierda a derecha, como fotos viejas */
-  const memo=(k)=>{if(!imgs.length)return;const it=imgs[k%imgs.length],w=H*.2,h=w*1.3,y=H*(.14+((k*37)%34)/100),rot=((k*53)%13)-6,dur=5600+(k%3)*500,x0=-w*1.2,x1=W*.64;
+  const memo=(k)=>{if(!imgs.length)return;const it=imgs[k%imgs.length],w=H*.2,h=w*1.3,y=H*(.14+((k*37)%34)/100),rot=((k*53)%13)-6,dur=5600+(k%3)*500,x0=-w*1.2,x1=W*.5;
     const d=document.createElement('div');d.style.cssText=`position:absolute;left:0;top:0;width:${w}px;padding:${H*.011}px ${H*.011}px ${H*.04}px;background:#fffbeb;border-radius:3px;box-shadow:0 0 ${H*.05}px rgba(255,255,255,.35),0 ${H*.01}px ${H*.03}px rgba(0,0,0,.4);opacity:0`;
     const im=document.createElement('img');im.src=it.src;im.style.cssText=`display:block;width:100%;height:${h}px;object-fit:cover;filter:sepia(.4) saturate(.85) brightness(.95) contrast(1.05)`;if(it.fb)im.onerror=()=>{im.onerror=null;im.src=it.fb};d.appendChild(im);layer.appendChild(d);
-    d.animate([{transform:`translate(${x0}px,${y}px) rotate(${rot-4}deg) scale(.9)`,opacity:0,offset:0},{transform:`translate(${x0+(x1-x0)*.16}px,${y-H*.01}px) rotate(${rot}deg) scale(.98)`,opacity:.92,offset:.16},{transform:`translate(${x0+(x1-x0)*.72}px,${y-H*.03}px) rotate(${rot+2}deg) scale(1.03)`,opacity:.9,offset:.72},{transform:`translate(${x1}px,${y-H*.045}px) rotate(${rot+4}deg) scale(1.06)`,opacity:0,offset:1}],{duration:dur,easing:'linear',fill:'forwards'});setTimeout(()=>d.remove(),dur+80)};
+    d.animate([{transform:`translate(${x0}px,${y}px) rotate(${rot-4}deg) scale(.9)`,opacity:0,offset:0},{transform:`translate(${x0+(x1-x0)*.16}px,${y-H*.01}px) rotate(${rot}deg) scale(.98)`,opacity:.92,offset:.16},{transform:`translate(${x0+(x1-x0)*.72}px,${y-H*.03}px) rotate(${rot+2}deg) scale(1.03)`,opacity:.9,offset:.72},{transform:`translate(${x1}px,${y-H*.045}px) rotate(${rot+4}deg) scale(1.06)`,opacity:0,offset:1}],{duration:dur,easing:'linear',fill:'forwards'});setTimeout(()=>d.remove(),dur+80);
+    /* flash de cámara al aparecer */
+    T(dur*.17,()=>{const q=d.getBoundingClientRect(),fz=H*.34,fl=wmPropEl(el,`left:${q.left+q.width/2-fz/2}px;top:${q.top+q.height/2-fz/2}px;width:${fz}px;height:${fz}px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.85),transparent 65%)`,'');fl.style.opacity=1;fl.animate([{opacity:.9,transform:'scale(.6)'},{opacity:0,transform:'scale(1.4)'}],{duration:420,easing:'ease-out',fill:'forwards'});setTimeout(()=>fl.remove(),460)});
+    /* Winter lo reconoce: levanta la cabeza, casi sonríe y vuelve a quebrarse */
+    T(dur*.38,()=>{if(WM.rig&&!settled)wrPose(WM.rig,{hd:-3,sy:1.01},{w:14,z:.7});if(sad&&!settled)sad.style.opacity='.3';tearRate=Math.max(base*2.2,600)});
+    T(dur*.38+520,()=>{if(sad&&!settled)sad.style.opacity='1';tearRate=base;if(WM.rig&&!settled)wrPose(WM.rig,{hd:-11},{w:12,z:.7})});
+    /* al irse se vuelve polvo dorado que va hacia Winter */
+    T(dur*.74,()=>{const q=d.getBoundingClientRect(),e=eyes();for(let i=0;i<10;i++){const sz=H*(.005+Math.random()*.006),p=wmPropEl(el,`left:${q.left+Math.random()*q.width}px;top:${q.top+Math.random()*q.height}px;width:${sz}px;height:${sz}px;border-radius:50%;background:#fde68a;box-shadow:0 0 6px #fbbf24`,'');p.style.opacity=1;const tx=(e?e.l:W*.88)-parseFloat(p.style.left)+(Math.random()*40-20),ty=(e?e.y+H*.12:H*.8)-parseFloat(p.style.top);p.animate([{transform:'translate(0,0)',opacity:0},{opacity:1,offset:.2},{transform:`translate(${tx}px,${ty}px)`,opacity:0}],{duration:1500+Math.random()*700,easing:'ease-in',fill:'forwards'});setTimeout(()=>p.remove(),2300)}})};
   /* 0) Winter se pone triste */
   T(150,()=>{addFace();setTimeout(()=>{if(sad)sad.style.opacity='1'},60);if(WM.rig)wrPose(WM.rig,{hd:-9,lean:1,la:14,ra:-14,sy:.98,by:2},{w:12,z:.8})});
   /* 1) llanto suave: pasan los primeros recuerdos y se seca un ojo */
-  T(900,()=>{tearRate=700;sk=.35;tearLoop()});
+  T(900,()=>{tearRate=base=700;sk=.35;tearLoop();vig.style.opacity='1'});
   for(let k=0;k<15;k++)T(700+k*1150,()=>memo(k));
   [[2600,{la:-18,ra:18,hd:-11,lean:1.5}],[3200,{la:-26,ra:14,hd:-10}],[3800,{la:-18,ra:22,hd:-11}],[4400,{la:6,ra:-6,hd:-9,lean:1}]].forEach(([ms,p])=>P(ms,p,{w:18,z:.65}));
+  {let hk=0;const hv=setInterval(()=>{if(!ok()||settled){clearInterval(hv);return}hk++;if(hk%3===0&&WM.rig)wrPose(WM.rig,{sy:.955,by:5,hd:-9},{w:80,z:.4})},1000);IV.push(hv)}
   /* 2) se quiebra: sollozos, el llanto se vuelve torrente */
-  T(6200,()=>{tearRate=260;sk=.8;if(mouth)mouth.animate([{transform:'scaleY(1)'},{transform:'scaleY(1.9)'}],{duration:260,iterations:Infinity,direction:'alternate'})});
+  T(6200,()=>{tearRate=base=260;sk=.8;if(mouth)mouth.animate([{transform:'scaleY(1)'},{transform:'scaleY(1.9)'}],{duration:260,iterations:Infinity,direction:'alternate'})});
   T(6400,()=>{let k=0;const iv=setInterval(()=>{if(!ok()||k>46){clearInterval(iv);return}k++;if(WM.rig)wrPose(WM.rig,{by:k%2?3:0,sy:k%2?.975:1.01,lean:k%2?1.2:-.6,hd:-11+(k%2?1:0)},{w:60,z:.45})},170);IV.push(iv)});
   [[9300,{la:-32,ra:32,hd:-12,lean:2}],[10300,{la:-24,ra:24,hd:-10,lean:1}],[12200,{la:-34,ra:34,hd:-12,lean:2}],[12900,{la:-28,ra:28,hd:-12}],[13500,{la:-34,ra:34,hd:-12}]].forEach(([ms,p])=>P(ms,p,{w:16,z:.6}));
   /* 3) se calma: sonríe entre lágrimas, se abraza y agradece */
-  T(15200,()=>{tearRate=520;sk=.4;if(mouth)mouth.getAnimations().forEach(a=>a.cancel());if(WM.rig)wrPose(WM.rig,{la:-40,ra:40,hd:-2,lean:0,by:0,sy:1,joy:1},{w:12,z:.75});if(sad)sad.style.opacity='0'});
+  T(15200,()=>{settled=1;tearRate=base=520;sk=.4;vig.style.opacity='0';warm.style.opacity='1';bok.forEach(d=>d.style.background='radial-gradient(circle,rgba(253,224,71,.6),rgba(253,224,71,0) 70%)');if(mouth)mouth.getAnimations().forEach(a=>a.cancel());if(WM.rig)wrPose(WM.rig,{la:-40,ra:40,hd:-2,lean:0,by:0,sy:1,joy:1},{w:12,z:.75});if(sad)sad.style.opacity='0'});
+  T(15600,()=>{if(!imgs.length)return;try{wmSfx('clink')}catch(e){}const n=Math.min(7,Math.max(4,imgs.length)),w=H*.115,orb=[];
+    for(let i=0;i<n;i++){const it=imgs[(i*2)%imgs.length],d=document.createElement('div');d.style.cssText=`position:absolute;left:0;top:0;width:${w}px;padding:${H*.007}px ${H*.007}px ${H*.024}px;background:#fffbeb;border-radius:2px;box-shadow:0 0 ${H*.04}px rgba(253,224,71,.5);opacity:0;transition:opacity 1.2s ${i*.18}s`;const im=document.createElement('img');im.src=it.src;im.style.cssText=`display:block;width:100%;height:${w*1.25}px;object-fit:cover;filter:sepia(.3) saturate(.95)`;if(it.fb)im.onerror=()=>{im.onerror=null;im.src=it.fb};d.appendChild(im);layer.appendChild(d);requestAnimationFrame(()=>{d.style.opacity='.95'});orb.push(d)}
+    const t0=performance.now();const spin=now=>{if(!ok()||J.stop)return;requestAnimationFrame(spin);const e=eyes();if(!e)return;const cx=(e.l+e.r)/2,cy=e.y+H*.1,ang=(now-t0)/4200;orb.forEach((d,i)=>{const a=ang+i*Math.PI*2/n,x=cx+Math.cos(a)*H*.34,y=cy+Math.sin(a)*H*.17-H*.02,sc=.85+.2*Math.sin(a);d.style.transform=`translate(${(x-w/2).toFixed(1)}px,${(y-w*.7).toFixed(1)}px) rotate(${(Math.sin(a*1.3)*9).toFixed(1)}deg) scale(${sc.toFixed(2)})`})};requestAnimationFrame(spin)});
   T(16300,()=>{try{const n=WM.s[ii].n2;if(n)wmSay(n,0)}catch(e){}});
   [[17400,{lean:1.8,hd:-3}],[18300,{lean:-1.8,hd:-1}],[19200,{lean:1.8,hd:-3}],[20100,{lean:-1.8,hd:-1}]].forEach(([ms,p])=>P(ms,Object.assign({la:-40,ra:40,joy:1},p),{w:10,z:.6}));
   T(19800,()=>{tearRate=0;sk=0});
