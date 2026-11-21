@@ -11720,6 +11720,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
   try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d);if(/TIEMPO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:70,y:0,f:1};if(d.tot>=150)x.rx=()=>wmShock();else if(d.tot>=50)x.rx=()=>wmJoy();else x.rx=()=>wmMeh()}
       if(/JUEGO DEL AÑO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=13000;x.sd=9500;x.hid=1;x.rx=()=>wmPodio()}
+      if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=17500;x.sd=17000;x.rx=()=>wmRacha()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
       if(/TOP/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-top"','class="wm-top srv"');x.pos={x:6,y:0,f:0};x.t=16500;x.sd=11800;x.rx=()=>wmServe()}
@@ -11736,6 +11737,7 @@ function wmGes(h,d){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'';
   if(/DIARIO/.test(t))return 'nod';if(/DÍA FAVORITO/.test(t))return 'point';if(/LOGROS/.test(t))return 'hop';if(/JUEGO DEL AÑO/.test(t))return 'cheer';if(/RESUMEN/.test(t))return 'nod';if(/ASÍ FUE/.test(t))return 'wave';return 'nod'}
 function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a=>a[Math.floor(Math.random()*a.length)],big=d.tot>=150,mid=d.tot>=50;
   if(/JUEGO DEL AÑO/.test(t))return '';
+  if(/RACHA/.test(t))return '';
   if(/RACHA/.test(t))return R(['Sin faltar un solo día. Qué disciplina, che.','Esa racha no la rompe ni un apagón.']);
   if(/HORA FAVORITA/.test(t))return R(['Ya sé a qué hora no te puedo molestar.','Tu horario de oro.']);
   if(/SESIÓN MÁS LARGA/.test(t))return R(['Ese día te olvidaste hasta de comer.','Una maratón así no se improvisa.']);
@@ -12375,6 +12377,28 @@ function wmPodio(){const B=wmGenBase();if(!B){wmReveal();return}const {r,nr,sv,o
     [2300,4700,7100,9500].forEach((ms,k)=>setTimeout(()=>{if(!ok())return;sfx(k%2?'clink':'fanfare');burst(tx,ty);if(k%2===0)wmSay(FR,0)},ms));
     let k=0;const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}k++;const s=k%2?1:-1;wrPose(r,{lean:s*3.5,hd:-4+s*4,by:-3,la:158+s*12,ra:-158-s*12,ll:s*5,rl:s*5,sy:1+s*.015,sx:1-s*.015},{w:10,z:.6})},480);J.cl.push(()=>clearInterval(iv))};
   return 13500}
+function wmRacha(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H}=B;J.cl=[()=>{try{nr.dataset.flip=''}catch(e){}}];
+  const P=(ms,p,o)=>Q(ms,()=>wrPose(r,p,o)),sfx=k=>{try{wmSfx(k)}catch(e){}},rest={la:0,ra:0,ll:0,rl:0,lean:0,hd:0,sy:1,sx:1,by:0,sq:0,run:0,spd:0};
+  /* 1) se pone la ropa de atleta */
+  Q(0,()=>{const q=r.g.root.getBoundingClientRect?document.querySelector('#wm .wm-win').getBoundingClientRect():null;wmDress(r,'run');sfx('puff');if(q)wmPuff(el,q.left+q.width/2,q.top+q.height*.5,q.width*.8,'rgba(226,232,240,.95)')});
+  P(100,{la:6,ra:-6,hd:-3},{w:8,z:.9});
+  /* 2) entrada en calor: círculos con los brazos */
+  P(800,{la:150,ra:-24,lean:-2,hd:-4},{w:14,z:.7});P(1250,{la:24,ra:-150,lean:2,hd:4},{w:14,z:.7});
+  P(1700,{la:150,ra:-24,lean:-2,hd:-4},{w:14,z:.7});P(2150,{la:24,ra:-150,lean:2,hd:4},{w:14,z:.7});
+  /* 3) toca la punta de los pies */
+  P(2700,{la:6,ra:-6,lean:0,hd:0},{w:12,z:.8});
+  P(2900,{lean:15,by:10,la:80,ra:-80,hd:12,sy:.97},{w:11,z:.75});P(3700,{lean:17,la:92,ra:-92},{w:20,z:.5});
+  P(4100,{lean:0,by:0,la:8,ra:-8,hd:0,sy:1},{w:12,z:.8});
+  /* 4) estira una pierna y la otra */
+  P(4400,{ll:38,lean:-3,la:-24,ra:24,hd:-3},{w:14,z:.6});P(5100,{ll:0,rl:38,lean:3,la:24,ra:-24},{w:14,z:.6});
+  /* 5) estira los brazos al cielo y sacude el cuerpo */
+  P(5800,{rl:0,la:168,ra:-168,sy:1.04,by:-4,lean:0,hd:-6},{w:12,z:.6});
+  P(6500,{la:10,ra:-10,sy:.98,by:2,hd:0},{w:14,z:.6});P(6700,{sy:1,by:0},{w:12,z:.8});
+  /* 6) "a sus marcas": se agacha listo para salir */
+  P(7100,{sq:1,lean:10,la:-32,ra:32,hd:4,ll:-6,rl:6},{w:12,z:.85});
+  /* 7) primer trote: cruza la pantalla despacio y vuelve */
+  Q(8200,()=>{sfx('whoosh');wrPose(r,{sq:0,lean:3},{w:16,z:.8});wmWalk(84,0,{dur:5200,flip:false,done:()=>{if(!ok())return;wmWalk(1,0,{dur:5200,flip:true,done:()=>{if(ok())wrPose(r,rest,{w:10,z:.85})}})}})});
+  return 17000}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
