@@ -12479,18 +12479,18 @@ function wmLogros(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H,ro
   const ring=(x,y)=>{const z=H*.24,w=wmPropEl(el,`left:${x-z/2}px;top:${y-z*.12}px;width:${z}px;height:${z*.24}px;border-radius:50%;border:3px solid rgba(255,255,255,.85)`,'');w.style.opacity=1;w.animate([{transform:'scale(.2)',opacity:.9},{transform:'scale(1.8)',opacity:0}],{duration:560,easing:'ease-out',fill:'forwards'});setTimeout(()=>w.remove(),600)};
   /* física de salto sobre el rig: arco real, giros y avance gradual */
   let xo=0,yo=0,jp=null;const rot=v=>{r.x.rot=v;r.t.rot=v;r.v.rot=0},setP=()=>{sv.style.transform=`translate(${xo.toFixed(1)}px,${yo.toFixed(1)}px)`};
-  const loop=now=>{if(!ok()||J.stop||WM.jug!==J)return;J.raf=requestAnimationFrame(loop);if(jp){const u=Math.min(1,(now-jp.t)/jp.T);yo=-jp.h*4*u*(1-u);xo=jp.x0+(jp.x1-jp.x0)*(u*u*(3-2*u));if(jp.flip){const e=u<.1?0:u>.9?1:(u-.1)/.8;rot(jp.flip*360*e*e*(3-2*e))}if(u>=1){const d=jp.done;jp=null;yo=0;rot(0);if(d)d()}}setP()};J.raf=requestAnimationFrame(loop);J.cl=[()=>{try{sv.style.transform=''}catch(e){}}];
-  const launch=(h,T,flip,dx,done)=>{jp={t:performance.now(),T,h,flip,x0:xo,x1:Math.min(W*.22,xo+dx),done}};
-  const land=(sc)=>{sfx('chunk');const q=win();wmPuff(el,q.left+q.width*.5,q.bottom-q.height*.02,q.width*(.5*sc),'rgba(226,232,240,.9)');wrPose(r,{sy:.88,by:8,la:30,ra:-30,ll:0,rl:0,joy:0,lean:0,hd:0},{w:26,z:.7});setTimeout(()=>{if(ok())wrPose(r,{sy:1,by:0},{w:12,z:.85})},170)};
+  const loop=now=>{if(!ok()||J.stop||WM.jug!==J)return;J.raf=requestAnimationFrame(loop);if(jp){const u=Math.min(1,(now-jp.t)/jp.T);yo=-jp.h*4*u*(1-u);xo=jp.x0+(jp.x1-jp.x0)*(u*u*(3-2*u));if(!jp.p1&&u>.3){jp.p1=1;wrPose(r,jp.flip?{sy:.9,by:-2,ll:42,rl:-42,la:40,ra:-40,hd:6,lean:0}:{sy:1,by:-5,ll:22,rl:-14,la:jp.big?120:70,ra:jp.big?-120:-70,lean:3,hd:-3},{w:20,z:.6})}if(!jp.p2&&u>.62){jp.p2=1;wrPose(r,{sy:1.05,by:-7,ll:-6,rl:6,la:jp.big?172:100,ra:jp.big?-172:-100,lean:-2,hd:-5},{w:18,z:.55})}if(!jp.p3&&u>.86){jp.p3=1;wrPose(r,{sy:1.08,by:-9,ll:0,rl:0,la:30,ra:-30,lean:-3,hd:2},{w:26,z:.7})}if(jp.flip){const e=u<.1?0:u>.9?1:(u-.1)/.8;rot(jp.flip*360*e*e*(3-2*e))}if(u>=1){const d=jp.done;jp=null;yo=0;rot(0);if(d)d()}}setP()};J.raf=requestAnimationFrame(loop);J.cl=[()=>{try{sv.style.transform=''}catch(e){}}];
+  const launch=(h,T,flip,dx,done)=>{jp={big:h>H*.1,t:performance.now(),T,h,flip,x0:xo,x1:Math.min(W*.22,xo+dx),done}};
+  const land=(sc)=>{sfx('chunk');const q=win();wmPuff(el,q.left+q.width*.5,q.bottom-q.height*.02,q.width*(.5*sc),'rgba(226,232,240,.9)');wrPose(r,{sy:sc>1.2?.82:.88,by:sc>1.2?12:8,la:40,ra:-40,ll:0,rl:0,joy:0,lean:2,hd:3},{w:30,z:.7});setTimeout(()=>{if(ok())wrPose(r,{sy:1.05,by:-3,la:-14,ra:14,lean:-1},{w:16,z:.6})},150);setTimeout(()=>{if(ok())wrPose(r,{sy:1,by:0,la:6,ra:-6,lean:0},{w:12,z:.85})},330)};
   /* 1) se pone la ropa */
   Q(0,()=>{const q=win();wmDress(r,'ach');sfx('puff');wmPuff(el,q.left+q.width/2,q.top+q.height*.5,q.width*.8,'rgba(226,232,240,.95)')});
   P(100,{la:6,ra:-6,hd:-3},{w:8,z:.9});P(700,{la:-18,ra:18,sy:.94,by:5,hd:3},{w:14,z:.8});P(1250,{la:8,ra:-8,sy:1,by:0,hd:0},{w:14,z:.8});
   /* 2) un salto por cada 5 logros: chico con giro de brazos, grande cada 10, y vuelta mortal en los hitos de 25 */
   let last=0,n=0;
   const hop=(v)=>{if(!ok())return;const big=v%10===0,mile=v%25===0,L=(++n)%2?1:-1;if(jp&&!big)return;
-    wrPose(r,{sy:.9,by:6,la:20,ra:-20,lean:-2*L},{w:28,z:.8});
+    wrPose(r,{sy:mile?.8:big?.85:.9,by:mile?12:big?9:6,la:mile?-34:big?-24:-14,ra:mile?34:big?24:14,lean:-3*L,hd:3},{w:28,z:.8});
     setTimeout(()=>{if(!ok())return;wrPose(r,mile?{sy:1.06,by:-6,la:90,ra:-90,ll:30,rl:-30,joy:1}:big?{sy:1.07,by:-8,la:158,ra:-158,ll:8*L,rl:-8*L,joy:1,lean:2*L,hd:-4}:{sy:1.04,by:-4,la:60*L+20,ra:-60*L-20,ll:6,rl:-6,lean:3*L},{w:22,z:.5});sfx(mile?'fanfare':big?'clink':'puff');spark(big);if(mile){shake(1.4);burstC(18)}
-      launch(H*(mile?.26:big?.17:.065),mile?.78:big?.58:.4,mile?1:0,W*.012,()=>{land(mile?1.3:big?1.1:.8);if(big)ring(win().left+win().width/2,win().bottom)})},95)};
+      launch(H*(mile?.26:big?.17:.065),mile?.78:big?.58:.4,mile?1:0,W*.012,()=>{land(mile?1.3:big?1.1:.8);if(big)ring(win().left+win().width/2,win().bottom)})},mile?190:big?150:95)};
   const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}if(!nb)return;const v=Math.floor(parseFloat(nb.textContent.replace(',','.'))||0);while(last+5<=v){last+=5;if(last<to-.5&&last<to-8)hop(last)}},40);J.cl.push(()=>clearInterval(iv));
   /* 3) cuenta regresiva final: se agacha y vibra mientras se acerca al número */
   const TB=1500+7000;let vib=0;
