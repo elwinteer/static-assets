@@ -4297,6 +4297,20 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .vtabs.vti button{z-index:1}.vtabs.vti button.on,.vtabs.vti button.on:hover{background:none;box-shadow:none}
 .vtabs button{transition:color .3s,background .25s,transform .2s cubic-bezier(.34,1.4,.5,1)}.vtabs button:active{transform:scale(.95)}
 @media (prefers-reduced-motion:reduce){.vtabs,.vt-ind{animation:none;transition:none}}
+/* Wrapped (galería): entrada escalonada, solo opacidad y movimiento */
+#view.in>.wg2-w{animation:none}
+@keyframes wpIn{from{opacity:0;transform:translate3d(0,44px,0) scale(.94)}}
+@keyframes wpBg{from{transform:scale(1.16)}}
+@keyframes wpTx{from{opacity:0;transform:translate3d(0,18px,0)}}
+@keyframes wpSw{from{transform:translate3d(-130%,0,0) skewX(-18deg);opacity:.9}to{transform:translate3d(260%,0,0) skewX(-18deg);opacity:0}}
+.wg2>.wp2{animation:wpIn 1s .12s backwards cubic-bezier(.16,1,.3,1)}
+.wg2>.wp2:nth-child(2){animation-delay:.26s}.wg2>.wp2:nth-child(3){animation-delay:.36s}.wg2>.wp2:nth-child(4){animation-delay:.46s}.wg2>.wp2:nth-child(5){animation-delay:.56s}
+.wp2 .bg{animation:wpBg 1.8s .1s backwards cubic-bezier(.16,1,.3,1);will-change:transform}
+.wp2 .in>*{animation:wpTx .8s backwards cubic-bezier(.16,1,.3,1)}
+.wp2 .in>:nth-child(1){animation-delay:.5s}.wp2 .in>:nth-child(2){animation-delay:.6s}.wp2 .in>:nth-child(3){animation-delay:.72s}
+.wp2:not(.lk)::after{content:'';position:absolute;top:0;bottom:0;left:0;width:38%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);pointer-events:none;animation:wpSw 1.3s .55s both cubic-bezier(.45,0,.2,1)}
+.wg2-w .st-h{animation-duration:.8s}
+@media (prefers-reduced-motion:reduce){.wg2>.wp2,.wp2 .bg,.wp2 .in>*,.wp2::after{animation:none}}
 </style>
 </head>
 <body>
