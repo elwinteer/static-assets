@@ -4596,7 +4596,7 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .nav a:hover .i .tl,.nav a:hover .i .b1,.nav a:hover .i .b2,.nav a:hover .i .dr{animation-duration:1.2s}
 @media (prefers-reduced-motion:reduce){.nav .i .tl,.nav .i .dr,.nav .i .wn,.nav .i .b1,.nav .i .b2,.nav .i .dp,.nav .i .pl{animation:none}}
 /* animaciones de los iconos: solo mientras la pestaña está seleccionada */
-.nav a:not(.active) .i .tl,.nav a:not(.active) .i .dr,.nav a:not(.active) .i .wn,.nav a:not(.active) .i .b1,.nav a:not(.active) .i .b2,.nav a:not(.active) .i .dp,.nav a:not(.active) .i .pl{animation:none!important}
+.nav a:not(.active):not(:hover) .i .tl,.nav a:not(.active):not(:hover) .i .dr,.nav a:not(.active):not(:hover) .i .wn,.nav a:not(.active):not(:hover) .i .b1,.nav a:not(.active):not(:hover) .i .b2,.nav a:not(.active):not(:hover) .i .dp,.nav a:not(.active):not(:hover) .i .pl{animation:none!important}
 .nav a.active .i .dr{animation-duration:1.8s}.nav a.active .i .wn{animation-duration:1.4s}.nav a.active .i .b1,.nav a.active .i .b2,.nav a.active .i .dp{animation-duration:1.6s}.nav a.active .i .tl{animation-duration:2.6s}
 .h2-hero .hvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease;pointer-events:none;transform:translate3d(var(--px,0px),var(--py,0px),0) scale(1.08)}.h2-hero .hvid.on{opacity:1}
 /* Progreso, Sagas, Social: detalles animados solo con la pestaña seleccionada */
@@ -4628,6 +4628,19 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes icAr{50%{transform:translateX(3px)}}
 .nav a[data-a=logout]:hover .i{animation:none}
 @media (prefers-reduced-motion:reduce){.nav .i .kn,.nav .i .ar{animation:none!important}}
+/* Progreso, Sagas y Social: también al pasar el mouse, y más marcados */
+.nav a[data-v=prog]:hover .i .st{transform-box:fill-box;transform-origin:center;animation:icSt 1.2s ease-in-out infinite}
+.nav a[data-v=prog]:hover .i .s1{animation:icSk 1.2s ease-in-out infinite}.nav a[data-v=prog]:hover .i .s2{animation:icSk 1.2s .6s ease-in-out infinite}
+.nav a[data-v=prog]:hover .i .sk{stroke:var(--a2);opacity:1}
+.nav a[data-v=sagas]:hover .i .bk{animation:icBk 1.4s ease-in-out infinite}.nav a[data-v=sagas]:hover .i .rb{animation:icRb 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:top}
+.nav a[data-v=social]:hover .i .od{animation:icOd 1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.nav a[data-v=social]:hover .i .rg{stroke:var(--a2);animation:icRg 1.2s ease-out infinite}
+.nav .i .hd{transform-box:fill-box;transform-origin:center}
+.nav a.active[data-v=social] .i .h1,.nav a[data-v=social]:hover .i .h1{animation:icHd 1.6s ease-in-out infinite}
+.nav a.active[data-v=social] .i .h2,.nav a[data-v=social]:hover .i .h2{animation:icHd 1.6s .8s ease-in-out infinite}
+@keyframes icHd{0%,100%{transform:translateY(0)}40%{transform:translateY(-1.6px) scale(1.08)}}
+.nav a.active[data-v=prog] .i,.nav a.active[data-v=sagas] .i,.nav a.active[data-v=social] .i{animation:nvGlow 2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.nav .i .hd{animation:none!important}}
 </style>
 </head>
 <body>
@@ -14897,7 +14910,7 @@ web:`<rect class="tl t1" x="3.2" y="3.2" width="7.8" height="7.8" rx="2.4"/><rec
 games:`<path d="M7.2 6.6h9.6a4.8 4.8 0 0 1 4.7 5.7l-.8 4.2a2.9 2.9 0 0 1-5 1.4l-1.6-2H9.9l-1.6 2a2.9 2.9 0 0 1-5-1.4l-.8-4.2a4.8 4.8 0 0 1 4.7-5.7z" fill="currentColor" fill-opacity=".18"/><path d="M7.6 4.4h2.6M13.8 4.4h2.6"/><path class="ac dp" d="M7.2 9.6h1.6v1.7h1.7v1.6H8.8v1.7H7.2v-1.7H5.5v-1.6h1.7z"/><circle class="ac b1" cx="15.4" cy="10.2" r="1.15"/><circle class="ac b2" cx="18.2" cy="12.4" r="1.15"/><circle class="ac b3" cx="15.4" cy="14.6" r=".01"/>`,
 prog:`<path d="M7 3.6h10v5.6a5 5 0 0 1-10 0z" fill="currentColor" fill-opacity=".18"/><path d="M7 5.4H3.8v1.9A3.7 3.7 0 0 0 7.4 11M17 5.4h3.2v1.9A3.7 3.7 0 0 1 16.6 11M12 14.2v3.6M8.2 20.8h7.6M9.2 17.8h5.6"/><path class="ac st" d="M12 5.3l1.05 2.15 2.35.34-1.7 1.66.4 2.35L12 10.7l-2.1 1.1.4-2.35-1.7-1.66 2.35-.34z"/><path class="sk s1" d="M20.6 1.8v2.6M19.3 3.1h2.6"/><path class="sk s2" d="M3.4 14.2v2M2.4 15.2h2"/>`,
 sagas:`<rect x="3.2" y="5" width="4.8" height="15.5" rx="1.4" fill="currentColor" fill-opacity=".18"/><path class="ac rb" d="M4.8 5v5.4l.8-.8.8.8V5z"/><g class="bk"><rect x="9.6" y="4" width="4.8" height="16.5" rx="1.4"/><path d="M11 8.2h1.8M11 10.6h1.8"/></g><path d="m16.5 6 3.9-1.1 2.9 14-3.9 1.1z"/>`,
-social:`<circle cx="9" cy="8.2" r="3.4" fill="currentColor" fill-opacity=".18"/><path d="M2.6 20.2c0-3.6 2.8-6 6.4-6s6.4 2.4 6.4 6"/><circle cx="17.2" cy="10" r="2.5"/><path d="M16.8 15.2c2.6.2 4.4 2 4.4 4.8"/><circle class="rg" cx="20.4" cy="4.8" r="1.7"/><circle class="ac od" cx="20.4" cy="4.8" r="1.7"/>`,
+social:`<circle class="hd h1" cx="9" cy="8.2" r="3.4" fill="currentColor" fill-opacity=".18"/><path d="M2.6 20.2c0-3.6 2.8-6 6.4-6s6.4 2.4 6.4 6"/><circle class="hd h2" cx="17.2" cy="10" r="2.5"/><path d="M16.8 15.2c2.6.2 4.4 2 4.4 4.8"/><circle class="rg" cx="20.4" cy="4.8" r="1.7"/><circle class="ac od" cx="20.4" cy="4.8" r="1.7"/>`,
 bp:`<rect x="2.5" y="5" width="19" height="14" rx="4"${F}/><path class="ac dp" d="M8 9.6v4.8M5.6 12h4.8" stroke="var(--a2)" stroke-width="1.7"/><circle class="ac b1" cx="15" cy="10.8" r="1"/><circle class="ac b2" cx="17.5" cy="13.2" r="1"/>`,
 settings:`<path d="M4 7h8.5M17 7h3M4 17h3M11.5 17H20"/><circle class="kn k1" cx="14.8" cy="7" r="2.4"${F}/><circle class="kn k2" cx="9.2" cy="17" r="2.4"${F}/>`,
 logout:`<path d="M10 21H6a2.5 2.5 0 0 1-2.5-2.5v-13A2.5 2.5 0 0 1 6 3h4"${F}/><path class="ar" d="m16 16.5 4.5-4.5L16 7.5M20.5 12H9.5"/>`});
