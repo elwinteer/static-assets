@@ -11722,6 +11722,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/JUEGO DEL AÑO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=13000;x.sd=9500;x.hid=1;x.rx=()=>wmPodio()}
       if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=27500;x.sd=26500;x.rx=()=>wmRacha()}
       if(/SESIÓN MÁS LARGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=19800;x.sd=18800;x.hid=1;x.rx=()=>wmSesion()}
+      if(/TERMINASTE/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=10500;x.sd=9500;x.rx=()=>wmTerminaste()}
       if(/LOGROS/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-dur="7000" data-delay="1500" data-cu=');x.pos={x:0,y:0,f:0};x.t=14500;x.sd=13500;x.rx=()=>wmLogros()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
@@ -11757,7 +11758,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/CLIP|CAPTURA/.test(t))return 'Esto lo guardaste vos. Buen ojo.';
   if(/GÉNEROS/.test(t)){const gk=wmGenKey(d.gen&&d.gen[0]&&d.gen[0][0]);if(gk==='action')return 'Mucha acción, poca paciencia. A eso me dedico.';if(gk==='rpg')return 'Magia, misiones y nivel de sobra. A eso me dedico.';if(gk==='sport')return 'Gol, festejo y a otra cosa. A eso me dedico.';if(gk==='nerd')return '';if(gk==='adv')return 'Ruinas, saltos y tesoros. A eso me dedico.';return R(['Mucho, bastante, casi siempre. A eso me dedico.','Se nota que me va. A eso me dedico.'])}
   if(/MES FUERTE/.test(t))return R(['Ese mes no tocaste el pasto, ¿eh?','Ese mes se te fue la mano, confesalo.']);
-  if(/TERMINASTE/.test(t))return d.done.length>=5?'¿Quién sos y qué hiciste con el de los 40 juegos empezados?':R(['Uno es uno, festejemos.','Mejor eso que nada.']);
+  if(/TERMINASTE/.test(t))return '';if(/TERMINASTE/.test(t))return d.done.length>=5?'¿Quién sos y qué hiciste con el de los 40 juegos empezados?':R(['Uno es uno, festejemos.','Mejor eso que nada.']);
   if(/DIARIO/.test(t))return 'Hasta escribiste tus partidas. Un genio de las letras.';
   if(/DÍA FAVORITO/.test(t))return 'Ya sé qué día no te puedo llamar para nada.';
   if(/LOGROS/.test(t))return '';
@@ -12501,6 +12502,31 @@ function wmLogros(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H,ro
   [[TB+1900,{lean:2.5,hd:-2,la:152,ra:-168}],[TB+2400,{lean:-2.5,hd:-6,la:168,ra:-152}],[TB+2900,{lean:2.5,hd:-2,la:152,ra:-168}]].forEach(([ms,p])=>P(ms,p,{w:10,z:.6}));
   P(TB+3500,{la:8,ra:-8,joy:0,hd:0,lean:0,by:0},{w:9,z:.9});
   return 14000}
+function wmTerminaste(){const B=wmGenBase();if(!B){return}const {r,sv,ok,Q,el,J,H,root}=B;
+  const P=(ms,p,o)=>Q(ms,()=>wrPose(r,p,o)),sfx=k=>{try{wmSfx(k)}catch(e){}};
+  const shake=k=>{try{(root.querySelector('.wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:`translate(${-3*k}px,${3*k}px)`},{transform:`translate(${2*k}px,${-2*k}px)`},{transform:'translate(0,0)'}],{duration:260,easing:'ease-out'})}catch(e){}};
+  J.cl=[];
+  const imgs=[...root.querySelectorAll('.wm-cv img')].slice(0,6),n=imgs.length;
+  const stamp=(im,k)=>{if(!ok()||!im)return;const q=im.getBoundingClientRect(),cx=q.left+q.width/2,cy=q.top+q.height/2,w=H*.09;
+    const st=wmPropEl(el,`left:${cx-w/2}px;top:${cy-w*1.9}px;width:${w}px;height:${w*1.6}px;z-index:9`,`<svg viewBox="0 0 60 96" width="100%" height="100%"><rect x="18" y="0" width="24" height="26" rx="12" fill="#7f1d1d"/><rect x="24" y="22" width="12" height="34" fill="#991b1b"/><rect x="4" y="56" width="52" height="14" rx="3" fill="#b91c1c"/><rect x="2" y="70" width="56" height="12" rx="2" fill="#450a0a"/></svg>`);
+    st.style.opacity=0;st.animate([{transform:`translateY(${-H*.12}px)`,opacity:0},{transform:`translateY(${-H*.12}px)`,opacity:1,offset:.2},{transform:'translateY(0)',opacity:1,offset:.62,easing:'cubic-bezier(.6,0,1,.6)'},{transform:'translateY(0)',opacity:1,offset:.8},{transform:`translateY(${-H*.1}px)`,opacity:0}],{duration:620,fill:'forwards'});
+    setTimeout(()=>{if(!ok())return;sfx('chunk');shake(1.2);wmPuff(el,cx,cy+q.height*.3,H*.1,'rgba(226,232,240,.9)');
+      const m=wmPropEl(el,`left:${cx-q.width*.52}px;top:${cy-H*.022}px;width:${q.width*1.04}px;z-index:8`,`<div style="border:3px solid #dc2626;color:#dc2626;background:rgba(255,255,255,.08);border-radius:6px;text-align:center;font:900 ${H*.021}px/1.5 Inter,system-ui,sans-serif;letter-spacing:.06em;transform:rotate(-12deg);text-shadow:0 0 2px rgba(0,0,0,.25);backdrop-filter:blur(1px)">COMPLETADO</div>`);
+      m.style.opacity=1;m.animate([{transform:'scale(1.7)',opacity:0},{transform:'scale(1)',opacity:1}],{duration:150,easing:'ease-out',fill:'forwards'});J.cl.push(()=>m.remove())},390);J.cl.push(()=>st.remove())};
+  /* Winter acompaña cada sello con un golpe de brazos */
+  P(300,{la:20,ra:-20,hd:-2},{w:10,z:.9});
+  imgs.forEach((im,k)=>{const t=1500+k*720;
+    P(t-260,{la:160,ra:-160,sy:1.03,by:-3,lean:k%2?1:-1},{w:22,z:.6});
+    Q(t,()=>stamp(im,k));
+    P(t+380,{la:-8,ra:8,sy:.93,by:5,lean:0},{w:34,z:.6});
+    P(t+620,{la:20,ra:-20,sy:1,by:0},{w:14,z:.85})});
+  const E=1500+n*720+500;
+  Q(E,()=>sfx('fanfare'));P(E,{la:150,ra:-150,joy:1,sy:1.04,by:-4},{w:16,z:.6});
+  P(E+700,{la:30,ra:-30,joy:0,sy:1,by:0},{w:12,z:.85});
+  /* se sacude las manos */
+  [0,1,2,3].forEach(i=>P(E+1000+i*170,i%2?{la:20,ra:-70,hd:-3}:{la:70,ra:-20,hd:3},{w:24,z:.5}));
+  P(E+1800,{la:8,ra:-8,hd:0},{w:10,z:.9});
+  return Math.max(9000,E+3000)}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
