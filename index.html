@@ -8325,8 +8325,22 @@ s+=eyes.map((e,i)=>`<g><ellipse cx="${e[0]}" cy="${e[1]}" rx="${e[2]}" ry="${f(e
 // cejas pesadas, destellos en los ojos, grietas incandescentes y púas de mejilla
 s+=`<path d="M-5 -78Q1 -81 4 -77M3 -81Q9 -83 10 -78M9 -77Q14 -78 16 -73" fill="none" stroke="#12040e" stroke-width="1.5" stroke-linecap="round"/>`+eyes.map(e=>`<circle cx="${f(e[0]-e[2]*.35)}" cy="${f(e[1]-e[2]*.35)}" r="${f(e[2]*.22)}" fill="#fff" opacity=".9"/>`).join('')+`<path d="M2 -83L5 -78L2 -74M10 -81L8 -77L11 -73M-4 -66L-1 -63" fill="none" stroke="#ff5a2a" stroke-width=".5"><animate attributeName="opacity" values=".4;1;.4" dur="2.2s" repeatCount="indefinite"/></path><path d="M-8 -68L-12 -66L-8 -64ZM16 -70L20 -69L16 -66ZM-8 -72L-13 -73L-8 -69Z" fill="#cfc5a4" stroke="#1a0a08" stroke-width=".35"/><path d="M-8 -66Q-10 -61 -6 -58M16 -66Q18 -60 14 -57" fill="none" stroke="#3a0a14" stroke-width=".7"/>`;
 // mandíbula abierta con dientes, lengua y baba
-s+=`<path d="M-6 -62Q-8 -50 2 -45Q10 -44 14 -52Q15 -58 12 -61Z" fill="#1a0206" stroke="#8a2030" stroke-width=".5"/><path d="M-2 -52Q4 -47 10 -52Q5 -55 -2 -52Z" fill="#a8142a"/>`;
-s+=`<path d="M-6 -62H12" stroke="#7a0e1c" stroke-width="1.4"/><path d="M-4 -61.5Q-4 -54 -3 -47M2 -61.5Q3 -53 2 -46M8 -61.5Q9 -54 9 -47" fill="none" stroke="#a8142a" stroke-width=".35" opacity=".8"/>`+teeth(-6,12,-61.4,7,1)+teeth(-4,13,-46.6,6,-1);
+s+=`<defs><radialGradient id="devm" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="#000"/><stop offset=".6" stop-color="#2a0208"/><stop offset="1" stop-color="#7a0e1c"/></radialGradient></defs>`;
+const MO='M-9 -62Q-14 -52 -6 -45Q3 -40 12 -45Q19 -51 16 -62Q4 -59 -9 -62Z';
+// garganta oscura y labios
+s+=`<path d="${MO}" fill="url(#devm)" stroke="#5a0a16" stroke-width=".6" stroke-linejoin="round"/><path d="M-6 -58Q4 -55 13 -58" fill="none" stroke="#3a0610" stroke-width="2.2" opacity=".6"/>`;
+// úvula y lengua que cuelga y se ondula
+s+=`<path d="M3 -59Q2 -55 3.6 -54Q5 -55 4 -59Z" fill="#8a1424"/><path d="M-5 -50Q0 -53 8 -50Q14 -48 12 -43Q10 -37 6 -38Q8 -42 4 -44Q-2 -44 -5 -50Z" fill="#b01a30" stroke="#3a0610" stroke-width=".45"><animate attributeName="d" dur="3.2s" repeatCount="indefinite" values="M-5 -50Q0 -53 8 -50Q14 -48 12 -43Q10 -37 6 -38Q8 -42 4 -44Q-2 -44 -5 -50Z;M-5 -50Q0 -53 8 -50Q14 -48 13 -43Q13 -35 8 -34Q9 -41 4 -44Q-2 -44 -5 -50Z;M-5 -50Q0 -53 8 -50Q14 -48 12 -43Q10 -37 6 -38Q8 -42 4 -44Q-2 -44 -5 -50Z"/></path><path d="M2 -50Q4 -46 3 -43" fill="none" stroke="#6a0c1c" stroke-width=".4"/>`;
+// colmillos superiores curvos de distinto tamaño
+const UP=[[-8.2,.8,5.5,-.6],[-5.6,1,3.2,-.2],[-2.8,1.2,4.4,0],[0,1.1,2.6,0],[2.8,1.2,3.8,.3],[5.6,1,2.8,.2],[8.4,1.2,5.2,.5],[11.2,1,3,.4],[13.8,.9,5,.8]];
+s+=UP.map(u=>{const x=u[0],w=u[1],l=u[2],c=u[3];return `<path d="M${f(x-w)} -61.4Q${f(x+c)} ${f(-61.4+l*.6)} ${f(x+c*2)} ${f(-61.4+l)}Q${f(x+w*.2+c)} ${f(-61.4+l*.5)} ${f(x+w)} -61.4Z" fill="#ece3c2" stroke="#2a0a0a" stroke-width=".3"/>`}).join('');
+// mandíbula inferior con dientes que suben y dos colmillos grandes
+s+=`<path d="M-9 -46Q-10 -41 -3 -39Q4 -37 10 -39Q16 -41 15 -47Q4 -44 -9 -46Z" fill="#1c0610" stroke="#7a1a2a" stroke-width=".5"/>`;
+const LO=[[-6,1,3],[-2.4,1,2.2],[1,1.1,3.2],[4.6,1,2.2],[8.2,1.1,3],[11.6,1,2.2]];
+s+=LO.map(u=>`<path d="M${f(u[0]-u[1])} -45.4L${f(u[0]+.3)} ${f(-45.4-u[2])}L${f(u[0]+u[1])} -45.4Z" fill="#ece3c2" stroke="#2a0a0a" stroke-width=".3"/>`).join('');
+s+=`<path d="M-10 -45Q-15 -49 -13 -57Q-10 -52 -8 -47Z" fill="#f4ecd0" stroke="#2a0a0a" stroke-width=".4"/><path d="M16 -45Q21 -49 19 -57Q16 -52 14 -47Z" fill="#f4ecd0" stroke="#2a0a0a" stroke-width=".4"/>`;
+// comisuras agrietadas y hilos de saliva
+s+=`<path d="M-9 -62Q-13 -64 -15 -62M16 -62Q20 -64 21 -61M-10 -52Q-14 -52 -15 -50M17 -52Q21 -52 22 -50" fill="none" stroke="#3a0a14" stroke-width=".6" stroke-linecap="round"/><path d="M-2 -61Q-1 -55 -2 -49M5 -61Q6 -56 5 -50M10 -61Q11 -56 10 -51" fill="none" stroke="#c8f0e0" stroke-width=".3" opacity=".55"><animate attributeName="opacity" values=".2;.7;.2" dur="3.4s" repeatCount="indefinite"/></path>`;
 s+=[-2,3,8].map((x,i)=>`<ellipse cx="${x}" cy="-47" rx=".5" ry="1.3" fill="#9affc8" opacity=".8"><animate attributeName="cy" values="-47;-30;-47" keyTimes="0;.8;1" dur="${f(2.6+i*.6)}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0;.9" keyTimes="0;.8;1" dur="${f(2.6+i*.6)}s" repeatCount="indefinite"/></ellipse>`).join('');
 return s+`</g></g>`};
 b+=DEV()+titan(184,.95,46,1);
