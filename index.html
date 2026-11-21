@@ -8320,6 +8320,26 @@ fl+='<path d="M100 44L105 56L100 62L95 56Z" fill="url(#thgd)" stroke="#2a1504" s
 for(const s of [-1,1])fl+=`<path d="M${100+s*56} 208V108L${100+s*60} 92L${100+s*52} 98Z" fill="url(#thgd)" stroke="#2a1504" stroke-width=".9"/><circle cx="${100+s*56}" cy="102" r="3" fill="url(#thgd)" stroke="#2a1504" stroke-width=".8"/>`;
 // asiento
 fl+='<path d="M44 196H156V210H44Z" fill="url(#thgd)" stroke="#2a1504" stroke-width="1.1"/><path d="M50 190H150L156 198H44Z" fill="#a81c24" stroke="#2a1504" stroke-width=".9"/><path d="M54 192H146" stroke="#ff8a8a" stroke-width=".5" opacity=".6"/><path d="M48 202H152" stroke="#fff6c0" stroke-width=".4" opacity=".6"/>'+gem(100,204,2.2,'#ff2a4a')+gem(56,204,1.6,'#7a5cff')+gem(144,204,1.6,'#7a5cff');
+// ---- detalles de orfebrería del trono ----
+{const Q=(a,b,c,u)=>[(1-u)*(1-u)*a[0]+2*(1-u)*u*b[0]+u*u*c[0],(1-u)*(1-u)*a[1]+2*(1-u)*u*b[1]+u*u*c[1]],D=(a,b,c,u)=>{const x=2*(1-u)*(b[0]-a[0])+2*u*(c[0]-b[0]),y=2*(1-u)*(b[1]-a[1])+2*u*(c[1]-b[1]),l=Math.hypot(x,y)||1;return[x/l,y/l]};
+// crestería: hojas de oro a lo largo del arco exterior
+for(const s of [-1,1]){const A=[100+s*56,112],B=[100+s*56,84],C=[100,58];for(let i=1;i<=9;i++){const u=i/10,[x,y]=Q(A,B,C,u),[dx,dy]=D(A,B,C,u),nx=dy*s*(s<0?-1:1)*-1,ny=-dx*s*(s<0?-1:1)*-1;const ox=s<0?dy:-dy,oy=s<0?-dx:dx,L=3.6+(i%2)*1.6;t_=0;fl+=`<path d="M${f(x-dx*1.3)} ${f(y-dy*1.3)}Q${f(x+ox*L*.8)} ${f(y+oy*L*.8)} ${f(x+ox*L+dx*.4)} ${f(y+oy*L+dy*.4)}Q${f(x+ox*L*.5+dx*1.2)} ${f(y+oy*L*.5+dy*1.2)} ${f(x+dx*1.3)} ${f(y+dy*1.3)}Z" fill="url(#thgd)" stroke="#2a1504" stroke-width=".5" stroke-linejoin="round"/>`}}
+// filigrana: volutas en el marco interior
+for(const s of [-1,1])for(let i=0;i<5;i++){const y=126+i*15,x=100+s*49;fl+=`<path d="M${x} ${y}c${s*-6} -1 ${s*-7} 7 ${s*-2} 7c${s*3} 0 ${s*3} -4 ${s*1} -4" fill="none" stroke="#ffd34d" stroke-width=".7" stroke-linecap="round" opacity=".85"/>`}
+// trébol gótico en la clave del arco
+fl+='<g transform="translate(100 82)">'+[[0,-3.2],[-3,2],[3,2]].map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="2.6" fill="none" stroke="#ffd34d" stroke-width=".8"/>`).join('')+'<circle r="1.1" fill="#ff2a4a"><animate attributeName="opacity" values=".5;1;.5" dur="2.6s" repeatCount="indefinite"/></circle></g>';
+// columnas: anillos y remates
+for(const s of [-1,1]){const x=100+s*56;for(const y of [128,152,176,198])fl+=`<rect x="${x-3.6}" y="${y}" width="7.2" height="2.6" rx="1.2" fill="url(#thgd)" stroke="#2a1504" stroke-width=".5"/>`;fl+=`<path d="M${x} 84L${x+2.2} 94H${x-2.2}Z" fill="url(#thgd)" stroke="#2a1504" stroke-width=".6"/>`}
+// cojín tapizado con botones, ribete y borlas
+fl+='<path d="M47 192Q100 182 153 192L157 200H43Z" fill="url(#thcr)" stroke="#2a1504" stroke-width=".9" stroke-linejoin="round"/><path d="M47 192Q100 182 153 192" fill="none" stroke="#ffd34d" stroke-width="1.1"/><path d="M43 200H157" stroke="#ffd34d" stroke-width="1.2"/>';
+for(let i=0;i<7;i++){const x=58+i*14;fl+=`<path d="M${x} 190.6L${x+7} 195.5L${x} 199.4L${x-7} 195.5Z" fill="none" stroke="#ff8a8a" stroke-width=".35" opacity=".45"/><circle cx="${x}" cy="195.5" r="1.2" fill="url(#thgd)" stroke="#2a1504" stroke-width=".4"/>`}
+for(const x of [45,155]){fl+=`<path d="M${x} 200v4" stroke="#ffd34d" stroke-width="1"/><path d="M${x-1.6} 204h3.2l.6 5h-4.4z" fill="url(#thgd)" stroke="#2a1504" stroke-width=".4"><animateTransform attributeName="transform" type="rotate" values="-5 ${x} 200;5 ${x} 200;-5 ${x} 200" dur="4s" repeatCount="indefinite"/></path>`}
+// panel frontal con arcos en relieve y garras
+fl+=Array.from({length:7},(_,i)=>{const x=52+i*16;return `<path d="M${x-5} 210V205Q${x} 199.5 ${x+5} 205V210" fill="#3a0a12" stroke="#ffd34d" stroke-width=".6"/>`}).join('');
+for(const s of [-1,1]){const x=100+s*50;fl+=`<path d="M${x-5} 210Q${x-7} 216 ${x-3} 217M${x} 210Q${x} 217 ${x+1} 218.5M${x+5} 210Q${x+7} 216 ${x+3} 217" fill="none" stroke="#e8b830" stroke-width="1.4" stroke-linecap="round"/>`}
+// destello que recorre el oro
+fl+='<defs><clipPath id="thgl"><path clip-rule="evenodd" d="M44 208V112Q44 84 100 58Q156 84 156 112V208Z M52 208V114Q52 90 100 68Q148 90 148 114V208Z"/><rect x="40" y="90" width="9" height="118"/><rect x="151" y="90" width="9" height="118"/></clipPath><linearGradient id="thgs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><g clip-path="url(#thgl)" style="mix-blend-mode:screen"><rect x="-30" y="40" width="22" height="180" fill="url(#thgs)" transform="skewX(-22)"><animate attributeName="x" values="-60;190;190" keyTimes="0;.35;1" dur="7s" repeatCount="indefinite"/></rect></g>';
+}
 fl+='</g>';
 // brasas, humo y destellos del trono
 let fg='';
