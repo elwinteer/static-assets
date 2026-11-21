@@ -15584,7 +15584,7 @@ Object.assign(A,{
     if(r.ok){DLS.cfg=r.r;toast('Ajustes guardados');dlDisk()}else dlErr(r)},
 });
 
-function wbImm(u){const x=$('.wbx');if(!x)return;let h='';try{h=new URL(u).hostname}catch(e){}const on=/(^|\.)(fitgirl-repacks\.site|steamrip\.com)$/i.test(h);x.classList.toggle('imm',on);if(!on)x.classList.remove('peek')}
+function wbImm(u){const x=$('.wbx');if(!x)return;let h='';try{h=new URL(u).hostname}catch(e){}const on=/(^|\.)(fitgirl-repacks\.site|steamrip\.com|buzzheavier\.com|bzzheavier\.com|bzzhr\.(co|to)|flashbang\.sh|megadb\.net|gofile\.io)$/i.test(h);x.classList.toggle('imm',on);if(!on)x.classList.remove('peek')}
 function wbPeek(on){const x=$('.wbx');if(!x)return;clearTimeout(WBR.pk);if(on)x.classList.add('peek');else WBR.pk=setTimeout(()=>{const f=document.activeElement;if(f&&f.id==='wbi')return;x.classList.remove('peek')},450)}
 /* ===== Panel "Descargas" del navegador: todo lo importante en un solo lugar, sin términos técnicos ===== */
 (function(){const st=document.createElement('style');st.textContent=`
