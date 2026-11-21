@@ -2078,6 +2078,7 @@ function webInit() {
       wsend({ id, st: item.isPaused() ? 'pause' : 'prog', got, size: item.getTotalBytes(), speed: d.speed });
     });
     const fin = async (st) => {
+      if (d.stall) { try { fs.unlinkSync(tmp); } catch (e) {} return; }
       if (d.state === 'cancel' || st === 'cancelled') { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'cancel' }); return; }
       if (st !== 'completed' || !d.final) { try { fs.unlinkSync(tmp); } catch (e) {} WDL.delete(id); wsend({ id, st: 'err', msg: 'La descarga se cortó' }); return; }
       d.state = 'move'; wsend({ id, st: 'moving', p: 0 });
@@ -2119,6 +2120,21 @@ function webInit() {
         const sz = d.item.getTotalBytes();
         if (sz > 0) { try { const s = fs.statfsSync(dir); if (s.bsize * s.bavail < sz + 5e7) return { err: 'No hay lugar suficiente en ese disco' }; } catch (e) {} }
         d.final = wdlUniq(dir, wdlSafe(a.name || d.name)); d.unz = !!a.unz; d.del = !!(a.unz && a.del); d.lib = !!(a.unz && a.lib); d.state = 'run'; d.lastT = Date.now(); d.last = 0;
+        /* vigilante: si no llega ningún dato (enlace vencido o servidor caído) se corta y se avisa, en vez de quedar en 0 % para siempre */
+        d.wdB = -1; d.wdT = Date.now();
+        d.wd = setInterval(() => {
+          try {
+            if (d.state !== 'run') { clearInterval(d.wd); return; }
+            const paused = d.seg ? d.paused : (d.item && d.item.isPaused());
+            if (paused) { d.wdT = Date.now(); return; }
+            const got = d.seg ? d.got : d.item.getReceivedBytes();
+            if (got !== d.wdB) { d.wdB = got; d.wdT = Date.now(); return; }
+            if (Date.now() - d.wdT < (got > 0 ? 60000 : 35000)) return;
+            clearInterval(d.wd); d.stall = 1; d.state = 'cancel';
+            if (d.seg) d.stop(true); else { try { d.item.cancel(); } catch (e) {} }
+            setTimeout(() => { WDL.delete(d.id); wsend({ id: d.id, st: 'err', msg: got > 0 ? 'La descarga se quedó sin datos. Probá de nuevo.' : 'El enlace no respondió (puede haber vencido). Volvé a tocar Descargar para generar uno nuevo.' }); }, 400);
+          } catch (e) { clearInterval(d.wd); }
+        }, 5000);
         let seg = false;
         try {
           const chain = d.item.getURLChain(), url = chain[chain.length - 1] || d.item.getURL(); let ref = ''; try { ref = new URL(chain[0] || url).origin + '/'; } catch (e) {}
