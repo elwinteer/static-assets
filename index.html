@@ -12470,24 +12470,36 @@ function wmSesion(){const B=wmGenBase();if(!B){wmReveal();return}const {r,nr,ok,
   P(16800,{la:6,ra:-6,by:0,hd:0,lean:0},{w:9,z:.9});
   Q(19000,()=>{tg.forEach(e=>{e.style.visibility=''})});
   return 19200}
-function wmLogros(){const B=wmGenBase();if(!B){return}const {r,ok,Q,el,J,H,root}=B,W=innerWidth;
-  const P=(ms,p,o)=>Q(ms,()=>wrPose(r,p,o)),sfx=k=>{try{wmSfx(k)}catch(e){}},win=()=>document.querySelector('#wm .wm-win').getBoundingClientRect();
-  const nb=root.querySelector('.wm-bn .wm-n'),to=nb?parseFloat(nb.dataset.cu):0;
-  const spark=(big)=>{if(!nb)return;const q=nb.getBoundingClientRect(),n=big?14:6,C=['#fde047','#f8fafc','#fb923c'];for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2,sz=H*(big?.012:.008),x=q.left+q.width*(.1+Math.random()*.8),y=q.top+q.height*(.2+Math.random()*.6),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${C[k%3]}`,'');p.style.opacity=1;p.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${Math.cos(a)*H*(big?.14:.07)}px,${Math.sin(a)*H*(big?.14:.07)}px)`,opacity:0}],{duration:620,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),660)}try{nb.animate([{transform:'scale(1)'},{transform:`scale(${big?1.1:1.04})`},{transform:'scale(1)'}],{duration:big?320:200,easing:'ease-out'})}catch(e){}};
-  const burstC=()=>{const q=win(),x=q.left+q.width/2,y=q.top+q.height*.05,C=['#fde047','#f8fafc','#fb923c','#f472b6','#60a5fa'];for(let k=0;k<30;k++){const a=-Math.PI/2+(k/30-.5)*Math.PI*1.4,sz=H*(.011+.008*(k%3)/2),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz*1.6}px;background:${C[k%5]};border-radius:2px`,'');p.style.opacity=1;const d=H*(.2+.25*((k*7)%10)/10);p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px) rotate(${(k%2?1:-1)*240}deg)`,opacity:1,offset:.55},{transform:`translate(${Math.cos(a)*d*1.15}px,${Math.sin(a)*d+H*.3}px) rotate(${(k%2?1:-1)*480}deg)`,opacity:0}],{duration:1500+(k%4)*150,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),1900)}};
-  /* 1) se pone la ropa de cazador de trofeos */
+function wmLogros(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H,root,sv}=B,W=innerWidth;
+  const P=(ms,p,o)=>Q(ms,()=>wrPose(r,p,o)),sfx=k=>{try{wmSfx(k)}catch(e){}},win=()=>document.querySelector('#wm .wm-win').getBoundingClientRect(),shake=(k)=>{try{(root.querySelector('.wm-s')||document.body).animate([{transform:'translate(0,0)'},{transform:`translate(${-3*k}px,${2*k}px)`},{transform:`translate(${2*k}px,${-2*k}px)`},{transform:'translate(0,0)'}],{duration:300,easing:'ease-out'})}catch(e){}};
+  const nb=root.querySelector('.wm-bn .wm-n'),to=nb?parseFloat(nb.dataset.cu):0,G=H*5;
+  const b0=sv.getBoundingClientRect(),FW=b0.width;
+  const spark=(big)=>{if(!nb)return;const q=nb.getBoundingClientRect(),n=big?16:6,C=['#fde047','#f8fafc','#fb923c'];for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2,sz=H*(big?.012:.008),x=q.left+q.width*(.1+Math.random()*.8),y=q.top+q.height*(.2+Math.random()*.6),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${C[k%3]}`,'');p.style.opacity=1;p.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${Math.cos(a)*H*(big?.15:.07)}px,${Math.sin(a)*H*(big?.15:.07)}px)`,opacity:0}],{duration:640,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),680)}try{nb.animate([{transform:'scale(1)',filter:'brightness(1)'},{transform:`scale(${big?1.12:1.04})`,filter:`brightness(${big?1.6:1.2})`},{transform:'scale(1)',filter:'brightness(1)'}],{duration:big?360:220,easing:'ease-out'})}catch(e){}};
+  const burstC=(n)=>{const q=win(),x=q.left+q.width/2,y=q.top+q.height*.05,C=['#fde047','#f8fafc','#fb923c','#f472b6','#60a5fa'];for(let k=0;k<n;k++){const a=-Math.PI/2+(k/n-.5)*Math.PI*1.5,sz=H*(.011+.008*(k%3)/2),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz*1.6}px;background:${C[k%5]};border-radius:2px`,'');p.style.opacity=1;const d=H*(.2+.28*((k*7)%10)/10);p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px) rotate(${(k%2?1:-1)*240}deg)`,opacity:1,offset:.55},{transform:`translate(${Math.cos(a)*d*1.15}px,${Math.sin(a)*d+H*.3}px) rotate(${(k%2?1:-1)*480}deg)`,opacity:0}],{duration:1500+(k%4)*150,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),1900)}};
+  const ring=(x,y)=>{const z=H*.24,w=wmPropEl(el,`left:${x-z/2}px;top:${y-z*.12}px;width:${z}px;height:${z*.24}px;border-radius:50%;border:3px solid rgba(255,255,255,.85)`,'');w.style.opacity=1;w.animate([{transform:'scale(.2)',opacity:.9},{transform:'scale(1.8)',opacity:0}],{duration:560,easing:'ease-out',fill:'forwards'});setTimeout(()=>w.remove(),600)};
+  /* física de salto sobre el rig: arco real, giros y avance gradual */
+  let xo=0,yo=0,jp=null;const rot=v=>{r.x.rot=v;r.t.rot=v;r.v.rot=0},setP=()=>{sv.style.transform=`translate(${xo.toFixed(1)}px,${yo.toFixed(1)}px)`};
+  const loop=now=>{if(!ok()||J.stop||WM.jug!==J)return;J.raf=requestAnimationFrame(loop);if(jp){const u=Math.min(1,(now-jp.t)/jp.T);yo=-jp.h*4*u*(1-u);xo=jp.x0+(jp.x1-jp.x0)*(u*u*(3-2*u));if(jp.flip){const e=u<.1?0:u>.9?1:(u-.1)/.8;rot(jp.flip*360*e*e*(3-2*e))}if(u>=1){const d=jp.done;jp=null;yo=0;rot(0);if(d)d()}}setP()};J.raf=requestAnimationFrame(loop);J.cl=[()=>{try{sv.style.transform=''}catch(e){}}];
+  const launch=(h,T,flip,dx,done)=>{jp={t:performance.now(),T,h,flip,x0:xo,x1:Math.min(W*.22,xo+dx),done}};
+  const land=(sc)=>{sfx('chunk');const q=win();wmPuff(el,q.left+q.width*.5,q.bottom-q.height*.02,q.width*(.5*sc),'rgba(226,232,240,.9)');wrPose(r,{sy:.88,by:8,la:30,ra:-30,ll:0,rl:0,joy:0,lean:0,hd:0},{w:26,z:.7});setTimeout(()=>{if(ok())wrPose(r,{sy:1,by:0},{w:12,z:.85})},170)};
+  /* 1) se pone la ropa */
   Q(0,()=>{const q=win();wmDress(r,'ach');sfx('puff');wmPuff(el,q.left+q.width/2,q.top+q.height*.5,q.width*.8,'rgba(226,232,240,.95)')});
-  P(100,{la:6,ra:-6,hd:-3},{w:8,z:.9});
-  P(700,{la:-18,ra:18,sy:.94,by:5,hd:3},{w:14,z:.8});P(1250,{la:8,ra:-8,sy:1,by:0,hd:0},{w:14,z:.8});
-  /* 2) cada 5 logros salta chico; cada 10, salto grande con destello en el número */
-  let last=0,hopN=0;
-  const hop=big=>{hopN++;const L=hopN%2?1:-1;wrPose(r,{sy:.9,by:6,la:20,ra:-20},{w:26,z:.8});setTimeout(()=>{if(!ok())return;wrPose(r,big?{sy:1.07,by:-34,la:158,ra:-158,ll:8*L,rl:-8*L,joy:1,lean:2*L,hd:-4}:{sy:1.04,by:-18,la:60*L+20,ra:-60*L-20,ll:6,rl:-6,lean:3*L},{w:big?20:22,z:.5});sfx(big?'fanfare':'clink');spark(big)},110);setTimeout(()=>{if(ok())wrPose(r,{sy:.94,by:4,la:30,ra:-30,ll:0,rl:0,joy:0,lean:0,hd:0},{w:26,z:.7})},big?520:380);setTimeout(()=>{if(ok())wrPose(r,{sy:1,by:0},{w:12,z:.85})},big?740:560)};
-  const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}if(!nb)return;const v=Math.floor(parseFloat(nb.textContent.replace(',','.'))||0);while(last+5<=v){last+=5;if(last<to-.5)hop(last%10===0)}},40);J.cl=[()=>clearInterval(iv)];
-  /* 3) final: brazos arriba, confeti y frase */
-  Q(1500+7000+250,()=>{if(!ok())return;sfx('fanfare');wrPose(r,{la:165,ra:-165,joy:1,sy:1.04,by:-20,lean:0,hd:-4,ll:6,rl:-6},{w:18,z:.5});spark(1);burstC()});
-  P(1500+7000+900,{sy:1,by:0,la:150,ra:-150},{w:12,z:.7});
-  Q(1500+7000+1100,()=>wmSay('Logro tras logro. A eso me dedico.',0));
-  P(1500+7000+3600,{la:8,ra:-8,joy:0,hd:0},{w:9,z:.9});
+  P(100,{la:6,ra:-6,hd:-3},{w:8,z:.9});P(700,{la:-18,ra:18,sy:.94,by:5,hd:3},{w:14,z:.8});P(1250,{la:8,ra:-8,sy:1,by:0,hd:0},{w:14,z:.8});
+  /* 2) un salto por cada 5 logros: chico con giro de brazos, grande cada 10, y vuelta mortal en los hitos de 25 */
+  let last=0,n=0;
+  const hop=(v)=>{if(!ok())return;const big=v%10===0,mile=v%25===0,L=(++n)%2?1:-1;if(jp&&!big)return;
+    wrPose(r,{sy:.9,by:6,la:20,ra:-20,lean:-2*L},{w:28,z:.8});
+    setTimeout(()=>{if(!ok())return;wrPose(r,mile?{sy:1.06,by:-6,la:90,ra:-90,ll:30,rl:-30,joy:1}:big?{sy:1.07,by:-8,la:158,ra:-158,ll:8*L,rl:-8*L,joy:1,lean:2*L,hd:-4}:{sy:1.04,by:-4,la:60*L+20,ra:-60*L-20,ll:6,rl:-6,lean:3*L},{w:22,z:.5});sfx(mile?'fanfare':big?'clink':'puff');spark(big);if(mile){shake(1.4);burstC(18)}
+      launch(H*(mile?.26:big?.17:.065),mile?.78:big?.58:.4,mile?1:0,W*.012,()=>{land(mile?1.3:big?1.1:.8);if(big)ring(win().left+win().width/2,win().bottom)})},95)};
+  const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}if(!nb)return;const v=Math.floor(parseFloat(nb.textContent.replace(',','.'))||0);while(last+5<=v){last+=5;if(last<to-.5&&last<to-8)hop(last)}},40);J.cl.push(()=>clearInterval(iv));
+  /* 3) cuenta regresiva final: se agacha y vibra mientras se acerca al número */
+  const TB=1500+7000;let vib=0;
+  Q(1500+7000*.88,()=>{wrPose(r,{sy:.86,by:10,la:-26,ra:26,lean:4,hd:3,joy:1},{w:10,z:.8});let k=0;vib=setInterval(()=>{if(!ok()||J.stop){clearInterval(vib);return}k++;wrPose(r,{lean:4+(k%2?3:-3),by:10+(k%2?1.5:-1.5)},{w:40,z:.5});if(k%3===0)spark(0)},70);J.cl.push(()=>clearInterval(vib))});
+  /* 4) final: súper salto con giro, confeti y frase */
+  Q(TB,()=>{clearInterval(vib);if(!ok())return;sfx('fanfare');wrPose(r,{sy:1.1,by:-10,la:168,ra:-168,ll:12,rl:-12,joy:1,lean:0,hd:-6},{w:24,z:.45});spark(1);burstC(34);shake(2);launch(H*.34,.95,1,W*.02,()=>{land(1.6);ring(win().left+win().width/2,win().bottom);shake(2.2);burstC(26);sfx('fanfare');wrPose(r,{la:160,ra:-160,joy:1,sy:1.03,by:-6},{w:16,z:.5})})});
+  Q(TB+1400,()=>wmSay('Logro tras logro. A eso me dedico.',0));
+  [[TB+1900,{lean:2.5,hd:-2,la:152,ra:-168}],[TB+2400,{lean:-2.5,hd:-6,la:168,ra:-152}],[TB+2900,{lean:2.5,hd:-2,la:152,ra:-168}]].forEach(([ms,p])=>P(ms,p,{w:10,z:.6}));
+  P(TB+3500,{la:8,ra:-8,joy:0,hd:0,lean:0,by:0},{w:9,z:.9});
   return 14000}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
