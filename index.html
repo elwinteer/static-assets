@@ -4318,6 +4318,18 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes dcSx{from{transform:translate3d(0,8px,0)}}
 .detail.dsw .dbg,.detail.dsw .media{animation:none}
 .detail.dsw .media img,.detail.dsw .dbg img{transition:none}
+/* ===== cambio de juego en la ficha: más suave ===== */
+.dghost.out{animation:none!important}
+.dghost.out>.dc{animation:dgTx .28s cubic-bezier(.4,0,1,1) forwards!important}
+.dghost.out>.dbg,.dghost.out>.media{animation:dgBg .66s cubic-bezier(.33,0,.2,1) forwards!important}
+@keyframes dgTx{to{opacity:0;transform:translate3d(-16px,0,0)}}
+@keyframes dgBg{to{opacity:0}}
+.lib:not(.lbin) .detail.dsw:not(.cp77):not(.dgo) .dc.swap,.lib:not(.lbin) .detail.dsw:not(.cp77):not(.dgo) .dc.swap>*{animation:none!important;opacity:0}
+.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap{animation:dcSw2 .55s cubic-bezier(.22,.8,.3,1) .1s both}
+.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.dtop,.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.logo,.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.tool{animation:dcSx2 .6s cubic-bezier(.22,.8,.3,1) backwards}
+.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.dtop{animation-delay:.12s}.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.logo{animation-delay:.18s}.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.tool{animation-delay:.25s}
+@keyframes dcSw2{from{opacity:0;transform:translate3d(18px,0,0)}}
+@keyframes dcSx2{from{opacity:0;transform:translate3d(0,10px,0)}}
 /* ===== Wrapped (año): rediseño ===== */
 .wx{gap:18px}
 .wx-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -5100,10 +5112,18 @@ function renderDetail(swap=true){
   const nB=d.querySelector(':scope>.dbg'),nM=d.querySelector(':scope>.media');
   [nB,nM].forEach(n=>{const i=n&&n.querySelector('img');if(i&&!i.dataset.rq)i.dataset.rq=i.getAttribute('src')||''});
   if(prev===id&&!swap&&oBg&&oMd&&nB&&nM&&rq(nB)&&rq(nB)===rq(oBg)&&rq(nM)===rq(oMd)){nB.replaceWith(oBg);nM.replaceWith(oMd)}
+  const zoom=()=>{try{const i=d.querySelector(':scope>.media img');if(i&&i.animate)i.animate([{scale:1.045},{scale:1}],{duration:950,easing:'cubic-bezier(.22,.8,.3,1)'})}catch(e){}};
   if(gh){d.appendChild(gh);
-    /* el juego nuevo ya está debajo a pleno; el anterior se desvanece por encima recién cuando la imagen nueva está lista (sin pantallazo negro) */
-    let done=0;const im=d.querySelector(':scope>.media img'),go=()=>{if(done)return;done=1;gh.classList.add('out');setTimeout(()=>gh.remove(),420)};
-    if(im&&!(im.complete&&im.naturalWidth)){im.addEventListener('load',()=>setTimeout(go,60),{once:true});im.addEventListener('error',()=>setTimeout(go,60),{once:true});setTimeout(go,1500)}else setTimeout(go,90)}}
+    /* el juego nuevo ya está debajo a pleno; el anterior se desvanece por encima recién cuando la imagen nueva está lista y decodificada (sin pantallazo negro ni tirón); el texto nuevo entra justo cuando el fondo viejo empieza a irse */
+    let done=0;const im=d.querySelector(':scope>.media img'),go=()=>{if(done)return;done=1;d.classList.add('dgo');zoom();gh.classList.add('out');setTimeout(()=>gh.remove(),700)};
+    const rdy=()=>{try{const p=im&&im.decode?im.decode():null;if(p)p.then(()=>setTimeout(go,30),()=>setTimeout(go,30));else setTimeout(go,60)}catch(e){setTimeout(go,60)}};
+    if(im&&!(im.complete&&im.naturalWidth)){im.addEventListener('load',rdy,{once:true});im.addEventListener('error',()=>setTimeout(go,60),{once:true});setTimeout(go,1500)}else rdy()}
+  else if(swap)requestAnimationFrame(()=>{d.classList.add('dgo');zoom()});
+  /* las imágenes de los vecinos de la lista se bajan de antemano para que al pasar de uno a otro ya estén listas */
+  try{const sl=$('#list .it.sel');[sl&&sl.nextElementSibling,sl&&sl.previousElementSibling].forEach(e=>e&&e.dataset&&e.dataset.id&&preG(e.dataset.id))}catch(e){}}
+const PREG={};
+function preG(id){if(PREG[id])return;PREG[id]=1;try{const g=gm(id);if(!g)return;[art.hero(g),art.logo(g)].forEach(u=>{if(u){const i=new Image();i.decoding='async';i.src=u}})}catch(e){}}
+document.addEventListener('pointerover',e=>{const t=e.target&&e.target.closest&&e.target.closest('#list .it[data-id]');if(t)preG(t.dataset.id)},{passive:true});
 function renderDetail0(swap=true){
   const d=$('#detail');if(!d)return;const g=gm(S.sel);if(g&&g.isNew){delete g.isNew;save();scanBadge()}
   if(!g){d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
