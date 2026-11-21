@@ -4330,6 +4330,23 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.dtop{animation-delay:.12s}.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.logo{animation-delay:.18s}.lib:not(.lbin) .detail.dsw.dgo:not(.cp77) .dc.swap>.tool{animation-delay:.25s}
 @keyframes dcSw2{from{opacity:0;transform:translate3d(18px,0,0)}}
 @keyframes dcSx2{from{opacity:0;transform:translate3d(0,10px,0)}}
+/* ===== Ajustes: entrada y cambio de pestaña suaves ===== */
+@keyframes stSide{from{opacity:0;transform:translate3d(-34px,0,0);filter:blur(6px)}}
+@keyframes stPane{from{opacity:0;transform:translate3d(0,26px,0) scale(.985);filter:blur(8px)}}
+@keyframes stItem{from{opacity:0;transform:translate3d(-18px,0,0)}}
+@keyframes stRow{from{opacity:0;transform:translate3d(var(--dx,0px),16px,0);filter:blur(5px)}}
+.sx3.sopen>.srl{animation:stSide .75s var(--ease) both}
+.sx3.sopen .srh{animation:stItem .6s .08s var(--ease) both}
+.sx3.sopen .ssq{animation:stItem .6s .14s var(--ease) both}
+.sx3.sopen .stab{animation:stItem .6s var(--ease) both}
+.sx3.sopen .stab:nth-child(1){animation-delay:.18s}.sx3.sopen .stab:nth-child(2){animation-delay:.22s}.sx3.sopen .stab:nth-child(3){animation-delay:.26s}.sx3.sopen .stab:nth-child(4){animation-delay:.30s}.sx3.sopen .stab:nth-child(5){animation-delay:.34s}.sx3.sopen .stab:nth-child(6){animation-delay:.38s}.sx3.sopen .stab:nth-child(7){animation-delay:.42s}.sx3.sopen .stab:nth-child(n+8){animation-delay:.46s}
+.sx3.sopen>.set{animation:stPane .85s .1s var(--ease) both}
+.sx3.sopen .sbody>*{animation:stRow .7s var(--ease) both}
+.sx3.sopen .sbody>*:nth-child(1){animation-delay:.28s}.sx3.sopen .sbody>*:nth-child(2){animation-delay:.34s}.sx3.sopen .sbody>*:nth-child(3){animation-delay:.40s}.sx3.sopen .sbody>*:nth-child(4){animation-delay:.46s}.sx3.sopen .sbody>*:nth-child(n+5){animation-delay:.52s}
+.sph.sbin{animation:stRow .5s var(--ease) both}
+.sbody.sbin>*{animation:stRow .6s var(--ease) both}
+.sbody.sbin>*:nth-child(1){animation-delay:.03s}.sbody.sbin>*:nth-child(2){animation-delay:.09s}.sbody.sbin>*:nth-child(3){animation-delay:.15s}.sbody.sbin>*:nth-child(4){animation-delay:.21s}.sbody.sbin>*:nth-child(n+5){animation-delay:.27s}
+@media (prefers-reduced-motion:reduce){.sx3.sopen *,.sx3.sopen,.sbin,.sbin>*{animation:none!important}}
 /* ===== Wrapped (año): rediseño ===== */
 .wx{gap:18px}
 .wx-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -5580,6 +5597,20 @@ V.settings=()=>{const bp=!!(typeof BP!=='undefined'&&BP&&BP.sec==='settings');if
   <section class="card set spane sp3"><header class="sph" id="sph">${setHead(t)}</header><div class="sbody" id="sbody">${setBody(t)}</div></section></div>`};
 document.addEventListener('input',e=>{if(e.target.id!=='sq')return;S.sq=e.target.value;const b=$('#sbody'),h=$('#sph');if(!b)return;const t=setT();b.innerHTML=setBody(t);if(h)h.innerHTML=setHead(t);const q=S.sq.trim();$$('.stabs .stab').forEach(x=>x.classList.toggle('on',!q&&x.dataset.v===t))});
 
+/* cableado de los campos de Ajustes (se usa al abrir y al cambiar de pestaña en el lugar) */
+function setWire(){const on=(id,ev,fn)=>{const e=$('#'+id);if(e)e.addEventListener(ev,fn)};
+    on('sdir','change',e=>{ST.steamDir=e.target.value.trim();save();toast('Guardado. Recargá WINTEER para aplicar el cambio')});on('dens','input',e=>{ST.dens=+e.target.value;initSnow();save()});
+    ['igid','igsec'].forEach(k=>on(k,'change',()=>{ST[k]=$('#'+k).value.trim();window._igBad=false;IFAIL.clear();save();toast('IGDB guardado');AIN=0;autoInfo()}));
+    on('sgk','change',e=>{ST.key=e.target.value.trim();ST.sgdb={};G.forEach(g=>delete g._sg);sgFail=false;save()});
+    on('uname','change',e=>{ST.name=e.target.value.trim()||'Jugador';if(ST.prof)ST.prof.name=ST.name;save();toast('Listo, '+ST.name);rp&&rp()});
+    on('icecol','input',e=>{ST.ice=e.target.value;applyLook();save()});on('ccol','input',e=>{setAccent(e.target.value);$$('.col').forEach(c=>c.classList.remove('on'));save()});
+    on('bkf','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{await bkApplyJSON(JSON.parse(r.result))}catch(x){toast('Ese archivo no es una copia de WINTEER')}};r.readAsText(f)})
+  if(window.winteerNative&&$('#cinf'))winteerNative.cacheInfo().then(c=>{const e=$('#cinf');if(e)e.innerHTML='Imágenes: <b>'+c.mb+' MB</b> ('+c.n+') · Trailers: <b>'+(c.tmb||0)+' MB</b> ('+(c.tn||0)+') · Música: <b>'+(c.mmb||0)+' MB</b> ('+(c.mn||0)+')'})}
+function setSwap(k){const sec=$('.sx3:not(.solo) .set'),b=$('#sbody'),h=$('#sph');if(!sec||!b||!h)return false;const ids=STABS.map(x=>x[0]),old=setT(),dir=ids.indexOf(k)>=ids.indexOf(old)?1:-1,tk=setSwap.k=(setSwap.k||0)+1;S.stab=k;S.sq='';const q=$('#sq');if(q)q.value='';
+  $$('.stabs .stab').forEach(x=>x.classList.toggle('on',x.dataset.v===k));
+  const fin=()=>{if(tk!==setSwap.k)return;const t=setT();b.innerHTML=setBody(t);h.innerHTML=setHead(t);sec.scrollTop=0;const v=$('#view');if(v)v.scrollTop=0;[h,b].forEach(e=>{e.style.setProperty('--dx',(dir*22)+'px');e.classList.remove('sbin');void e.offsetWidth;e.classList.add('sbin')});setWire();try{counters(sec)}catch(e){}setTimeout(()=>{if(tk===setSwap.k)[h,b].forEach(e=>e.classList.remove('sbin'))},1100)};
+  if(!b.animate||matchMedia('(prefers-reduced-motion:reduce)').matches){fin();return true}
+  const o={duration:170,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'};let n=0;[h,b].forEach(e=>{e.classList.remove('sbin');const an=e.animate([{opacity:1,transform:'translateX(0)',filter:'blur(0)'},{opacity:0,transform:'translateX('+(-dir*16)+'px)',filter:'blur(4px)'}],o);an.onfinish=()=>{an.cancel();if(++n===2)fin()}});return true}
 /* ---------- navegación ---------- */
 const NAVOF={hitos:'prog',stats:'prog',wrapped:'prog',news:'home',friends:'social',profile:'social',diary:'social',pet:'social',profiles:'social'};
 function moveInd(){const a=$(`.nav a[data-v="${NAVOF[S.view]||S.view}"]`),ind=$('#ind'),nw=$('.navwrap');if(!ind||!nw)return;const was=ind.style.opacity==='0'||ind.style.opacity==='';
@@ -5593,19 +5624,13 @@ let ambI=0;function amb(){const g=gm(S.sel),el=document.querySelectorAll('#amb i
 function xfade(fn){const v=$('#view');if(!v||!v.firstElementChild){fn();return}const r=v.getBoundingClientRect(),g=document.createElement('div');g.className='xghost';g.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;g.appendChild(v.firstElementChild.cloneNode(true));document.body.appendChild(g);fn();v.classList.add('xin');setTimeout(()=>v.classList.remove('xin'),800);requestAnimationFrame(()=>g.classList.add('go'));setTimeout(()=>g.remove(),760)}
 function go(v,o){if(v==='social'){v=S.ls||'friends';S.frX=0}if(v==='friends'||v==='profile'||v==='diary')S.ls=v;if(v==='prog'){v=S.lp||'stats';if(v==='wrapped')S.wdet=0}if(v==='hitos'||v==='stats'||v==='wrapped')S.lp=v;if(S.view==='vault'&&v!=='vault'){S.vu=0;S.vweb=0}if(v==='vault'&&!S.vu){vOpen();return}if(W&&W.inline&&v!=='profile')W=null;if(v==='pet'){S.ptab='pet';v='profile'}if(v==='settings'){const m={per:'card',me:'card',rew:'card',pet:'pet'};if(S.inPf||m[S.stab]){if(m[S.stab]==='pet'&&!S.inPf){v='pet';S.stab=null}else{v='profile';if(!S.inPf&&m[S.stab]){S.ptab=m[S.stab];S.stab=null}}}}
   document.body.classList.toggle('vset',v==='settings');if(S.view==='web'&&v!=='web')wbLeave();document.body.classList.toggle('vweb',v==='web');if(v!=='games'){document.body.classList.remove('cpg');egBody(chopEg(v))}
-  S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
+  const _pv=S.view;S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
   {const t=$('#tinst');if(t)t.textContent=G.filter(instOf).length}
-  const el=$('#view');el.classList.remove('in');void el.offsetWidth;el.innerHTML=V[v]();el.classList.add('in');if(v==='games'){const lb=el.querySelector('.lib');if(lb){lb.classList.add('lbin');setTimeout(()=>lb.classList.remove('lbin'),1500)}}el.scrollTop=0;vtabs(v);
+  const el=$('#view');el.classList.remove('in');void el.offsetWidth;el.innerHTML=V[v]();el.classList.add('in');if(v==='settings'&&_pv!=='settings'){const x=el.querySelector('.sx3:not(.solo)');if(x){x.classList.add('sopen');setTimeout(()=>x.classList.remove('sopen'),1600)}}if(v==='games'){const lb=el.querySelector('.lib');if(lb){lb.classList.add('lbin');setTimeout(()=>lb.classList.remove('lbin'),1500)}}el.scrollTop=0;vtabs(v);
   
   if(v==='games'){renderDetail();{const l=$('#list');if(l&&!l._sc){l._sc=1;let t;l.addEventListener('scroll',()=>{document.body.classList.add('scr');clearTimeout(t);t=setTimeout(()=>document.body.classList.remove('scr'),160)},{passive:true})}}renderList()}
-  if(v==='settings'||v==='profile'){const on=(id,ev,fn)=>{const e=$('#'+id);if(e)e.addEventListener(ev,fn)};
-    on('sdir','change',e=>{ST.steamDir=e.target.value.trim();save();toast('Guardado. Recargá WINTEER para aplicar el cambio')});on('dens','input',e=>{ST.dens=+e.target.value;initSnow();save()});
-    ['igid','igsec'].forEach(k=>on(k,'change',()=>{ST[k]=$('#'+k).value.trim();window._igBad=false;IFAIL.clear();save();toast('IGDB guardado');AIN=0;autoInfo()}));
-    on('sgk','change',e=>{ST.key=e.target.value.trim();ST.sgdb={};G.forEach(g=>delete g._sg);sgFail=false;save()});
-    on('uname','change',e=>{ST.name=e.target.value.trim()||'Jugador';if(ST.prof)ST.prof.name=ST.name;save();toast('Listo, '+ST.name);rp&&rp()});
-    on('icecol','input',e=>{ST.ice=e.target.value;applyLook();save()});on('ccol','input',e=>{setAccent(e.target.value);$$('.col').forEach(c=>c.classList.remove('on'));save()});
-    on('bkf','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{await bkApplyJSON(JSON.parse(r.result))}catch(x){toast('Ese archivo no es una copia de WINTEER')}};r.readAsText(f)})}
+  if(v==='settings'||v==='profile')setWire();
     if(window.winteerNative&&$('#cinf'))winteerNative.cacheInfo().then(c=>{const e=$('#cinf');if(e)e.innerHTML='Imágenes: <b>'+c.mb+' MB</b> ('+c.n+') · Trailers: <b>'+(c.tmb||0)+' MB</b> ('+(c.tn||0)+') · Música: <b>'+(c.mmb||0)+' MB</b> ('+(c.mn||0)+')'});
   counters(el);moveInd();if(v==='news')newsDraw();if(v==='vault')vRender();if(v==='games'){ST.newSeen=Date.now();save();scanBadge()}
 }
@@ -5826,7 +5851,7 @@ const A={
   rand2:()=>rollGame(),
   sy:a=>{S.sy=+a.dataset.v;go('stats')},
   goal:a=>{ST.goal=Math.max(1,(ST.goal||12)+parseInt(a.dataset.v));save();go('stats')},
-  stab:a=>{S.stab=a.dataset.v;S.sq='';go('settings')},
+  stab:a=>{const k=a.dataset.v;if(S.view==='settings'&&!S.inPf&&!({per:1,me:1,rew:1,pet:1})[k]&&$('.sx3:not(.solo) #sbody')){if(setT()===k&&!(S.sq||'').trim())return;if(setSwap(k))return}S.stab=k;S.sq='';go('settings')},
   sv:a=>{const k=a.dataset.k;ST[k]=a.dataset.v;$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));save()},
   efav:a=>{EFAV=!EFAV;a.classList.toggle('on',EFAV)},
   erate:a=>{const v=parseInt(a.dataset.v);ERATE=ERATE===v?0:v;$$('#e-st button').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=ERATE))},
