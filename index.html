@@ -4679,6 +4679,43 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes icDr2{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.55)}}
 .nav a[data-a=logout]:hover .i .xhn{animation:icHn .8s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.nav .i .xdr,.nav a .i .xgr,.nav a .i .xar{animation:none!important}}
+/* ===== Ajustes: nuevo diseño (menú lateral, buscador, grupos) ===== */
+.sx3{display:grid!important;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start;max-width:1500px}
+.sx3 .srl{position:sticky;top:0;display:flex;flex-direction:column;gap:14px}
+.srh h1{font-size:28px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(90deg,#fff 30%,var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}.srh small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+.ssq{display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border-radius:15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);transition:border-color .25s,box-shadow .25s,background .25s}.ssq svg{width:17px;height:17px;flex:none}
+.ssq:focus-within{border-color:rgba(var(--argb),.6);box-shadow:0 0 0 4px rgba(var(--argb),.18);background:rgba(255,255,255,.09);color:var(--a2)}
+.ssq input{flex:1;min-width:0;border:0;background:none;outline:none;color:var(--text);font:inherit;font-size:14px}.ssq input::-webkit-search-cancel-button{filter:invert(.8)}
+.sx3 .stabs{display:flex;flex-direction:column;flex-wrap:nowrap;gap:5px;position:static;margin:0}
+.sx3 .stab{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:16px;border:1px solid transparent;text-align:left;position:relative;overflow:hidden;transition:background .3s,border-color .3s,transform .35s cubic-bezier(.34,1.4,.4,1),box-shadow .3s}
+.sx3 .stab .stc{width:38px;height:38px;flex:none;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);transition:background .3s,color .3s,box-shadow .3s}.sx3 .stab .stc svg{width:19px;height:19px}
+.sx3 .stab span{display:flex;flex-direction:column;min-width:0}.sx3 .stab b{font-size:14.5px;font-weight:700;color:var(--text)}.sx3 .stab small{font-size:11.5px;color:var(--muted);font-weight:500;line-height:1.3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sx3 .stab:hover{background:rgba(255,255,255,.06);transform:translateX(4px)}.sx3 .stab:hover .stc{color:var(--a2);background:rgba(var(--argb),.16)}
+.sx3 .stab.on{background:linear-gradient(135deg,rgba(var(--argb),.3),rgba(var(--argb),.08));border-color:rgba(var(--argb),.5);box-shadow:0 10px 26px rgba(var(--argb),.2),inset 0 1px 0 rgba(255,255,255,.12)}
+.sx3 .stab.on .stc{background:linear-gradient(145deg,var(--a2),var(--a) 60%,var(--a3));color:var(--on-a,#1a1208);border-color:rgba(255,255,255,.35);box-shadow:0 6px 16px rgba(var(--argb),.5)}
+.sx3 .stab.on::before{content:"";position:absolute;left:0;top:18%;bottom:18%;width:3px;border-radius:0 3px 3px 0;background:var(--a2);box-shadow:0 0 12px var(--a2)}
+.sp3{min-height:0!important;padding:26px 28px 30px!important;animation:spIn .5s cubic-bezier(.2,.9,.25,1) both}
+@keyframes spIn{from{opacity:0;transform:translate3d(0,14px,0)}}
+.sph{display:flex;align-items:center;gap:16px;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sph .sphi{width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(var(--argb),.35),rgba(var(--argb),.1));border:1px solid rgba(var(--argb),.45);color:var(--a2);box-shadow:0 10px 26px rgba(var(--argb),.25),inset 0 1px 0 rgba(255,255,255,.2)}.sph .sphi svg{width:25px;height:25px}
+.sph h2{font-size:24px;font-weight:800;letter-spacing:-.01em}.sph p{color:var(--muted);font-size:13.5px;margin-top:2px}
+.sbody{display:flex;flex-direction:column;gap:26px}
+.sg h4{display:flex;align-items:center;gap:12px;margin:0 2px 12px;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.sg h4::before{content:"";width:4px;height:15px;border-radius:3px;background:linear-gradient(180deg,var(--a2),var(--a));box-shadow:0 0 10px rgba(var(--argb),.6)}.sg h4::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent)}
+.sgl{display:flex;flex-direction:column;gap:9px}
+.sx3 .sgl>.row{display:flex;align-items:center;gap:16px;padding:15px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.07)!important;background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.02));transition:border-color .3s,background .3s,transform .3s cubic-bezier(.2,.9,.25,1),box-shadow .3s}
+.sx3 .sgl>.row:last-child{border-bottom:1px solid rgba(255,255,255,.07)!important}
+.sx3 .sgl>.row:hover{border-color:rgba(var(--argb),.35)!important;background:linear-gradient(160deg,rgba(var(--argb),.1),rgba(255,255,255,.025));transform:translateX(3px);box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.sx3 .row .rwi{width:42px;height:42px;flex:none;border-radius:14px;display:grid;place-items:center;background:rgba(var(--argb),.13);border:1px solid rgba(var(--argb),.26);color:var(--a2);transition:transform .45s cubic-bezier(.34,1.56,.4,1),background .3s}.sx3 .row .rwi svg{width:20px;height:20px}
+.sx3 .row:hover .rwi{transform:rotate(-8deg) scale(1.1);background:rgba(var(--argb),.24)}
+.sx3 .row .rwi+div{flex:1;min-width:0}.sx3 .row .rwi+div:not(:last-child){font-size:15px;font-weight:700}
+.sx3 .row small{font-weight:500}
+.sx3 .row.dng{border-color:rgba(255,90,110,.25)!important;background:linear-gradient(160deg,rgba(255,90,110,.09),rgba(255,255,255,.015))}.sx3 .row.dng .rwi{background:rgba(255,90,110,.15);border-color:rgba(255,90,110,.35);color:#ff8a9a}
+.sx3 .row.dng .b2{border-color:rgba(255,90,110,.4);color:#ffb3bd}.sx3 .row.dng .b2:hover{background:rgba(255,90,110,.18)}
+.sx3 .sw{transition:background .35s}.sx3 .sw.on{box-shadow:0 0 16px rgba(var(--argb),.5)}
+.sempty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:60px 10px;color:var(--muted);text-align:center}.sempty svg{width:40px;height:40px;opacity:.5}.sempty b{color:var(--text);font-size:16px}
+@media(max-width:1000px){.sx3{grid-template-columns:1fr}.sx3 .srl{position:static}.sx3 .stabs{flex-direction:row;flex-wrap:wrap}.sx3 .stab small{display:none}}
+@media (prefers-reduced-motion:reduce){.sp3{animation:none}}
 </style>
 </head>
 <body>
@@ -5444,26 +5481,25 @@ function setPane(t){
   const N=!!window.winteerNative,XR=N&&typeof x8Rows==='function'?x8Rows():[],xr=re=>XR.find(r=>typeof r==='string'&&re.test(r))||'';
   if(N&&BGC&&BGC.win&&BGC.shots===false&&winteerNative.shotCfg)winteerNative.shotCfg({shots:true}).then(c=>{BGC=Object.assign(BGC,c)}).catch(()=>{});
   if(t==='gen')return [
-    ...(N&&BGC.win?[sR('Segundo plano','Al cerrar la ventana, WINTEER sigue en la bandeja casi sin gastar recursos.',sSw('bgsw',BGC.bg,'bg')),
+    ...(N&&BGC.win?[sH('Arranque y segundo plano'),sR('Segundo plano','Al cerrar la ventana, WINTEER sigue en la bandeja casi sin gastar recursos.',sSw('bgsw',BGC.bg,'bg')),
       sR('Iniciar con Windows','Arranca solo y oculto. Necesita el segundo plano.',sSw('bgsw',BGC.auto,'auto')),
       sR('Abrir el Modo mando con el mando','Botón Guía (o Atrás+Inicio 1 s), aunque WINTEER esté oculto.',sSw('bgsw',BGC.pad,'pad'))]:[]),
+    sH('Pantalla'),
     sR('Abrir WINTEER en','La pantalla con la que arranca.',segv('start',[['home','Inicio'],['games','Biblioteca']],ST.start||'home')),
     ...(N?[sR('Tamaño de la interfaz','Si ves todo muy grande o cortado (por ejemplo en una tele con escala de Windows 150%), achicalo acá.',segv0('uiz',[['1','Normal'],['.9','90%'],['.8','80%'],['.67','67%']],String(ST.uiz||1)))]:[]),
-    xr(/x8sitog/),xr(/x8vis/),
-    ...(N&&BGC.win?[sR('Capturas y clips',(BGC.stCap?'Captura, clip y carpeta, en tus juegos de Steam y en los que no.':'Captura, clip y carpeta, mientras jugás algo que no es de Steam.'),`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g sm" data-a="shkeyset">Captura ${esc(BGC.shotKey||'F12')}</button><button class="b2 g sm" data-a="shkeyset" data-w="clip">Clip ${esc(BGC.clipKey||'F9')}</button><button class="b2 g sm" data-a="shfolder" data-id="">Abrir carpeta</button></div>`)]:[]),
+    sH('Juego y privacidad'),xr(/x8sitog/),xr(/x8vis/),
+    ...(N&&BGC.win?[sH('Capturas y clips'),sR('Capturas y clips',(BGC.stCap?'Captura, clip y carpeta, en tus juegos de Steam y en los que no.':'Captura, clip y carpeta, mientras jugás algo que no es de Steam.'),`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g sm" data-a="shkeyset">Captura ${esc(BGC.shotKey||'F12')}</button><button class="b2 g sm" data-a="shkeyset" data-w="clip">Clip ${esc(BGC.clipKey||'F9')}</button><button class="b2 g sm" data-a="shfolder" data-id="">Abrir carpeta</button></div>`)]:[]),
     xr(/xoinst|xotog|xopt/),
     ...(N&&BGC.win?[sR('Capturas, clips y overlay en juegos de Steam','Usá lo de WINTEER también en tus juegos de Steam, así no hace falta migrar nada. No lo uses en juegos con anti trampas.','<div style="display:flex;gap:8px;align-items:center"><button class="b2 g sm" data-a="stcaphelp">Cómo evitar choques</button><button class="sw '+(BGC.stCap?'on':'')+'" data-a="stcap"></button></div>')]:[]),
     ];
   if(t==='look')return [...lookPane(),sR('Restablecer apariencia','Vuelve tema, color y efectos a como venían. No toca tus datos.','<button class="b2 g" data-a="rsap">Restablecer</button>')];
   if(t==='avi')return [
+    sH('Hitos'),
     sR('Volumen de los hitos','Qué tan fuerte suena el aviso.',`<input type="range" id="hvol" min="0" max="1" step="0.05" value="${ST.hvol==null?.6:ST.hvol}">`),
     
+    sH('Mensajes de amigos'),
     ...(typeof frSndPane==='function'?frSndPane():[]),
-    sH('Modo mando'),
-    sR('Música','Suena el tema del juego en el que estás parado. Acá ajustás el volumen.',`<div style="display:flex;gap:10px;align-items:center"><input type="range" id="bpmv" min="0.05" max="1" step="0.05" value="${ST.bpMusV||.35}"></div>`),
-    sR('Tráilers y canciones','Se bajan solos y se ven y escuchan en el Modo mando. <span id="trl-n"></span>','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2 g" data-a="tgopen">Administrar</button><button class="b2" data-a="trldl">Descargar ahora</button></div>'),
-    sR('Teclado en pantalla','Con un campo de texto elegido, el botón que pongas abre un teclado manejado con el mando.',`<div style="display:flex;gap:10px;align-items:center"><b id="oskl" style="font-size:13px">${oskName()}</b><button class="b2 g" data-a="oskbind">Elegir botón</button>${sSw('oskon',ST.oskOn)}</div>`),
-    sR('Centro de mandos','Probá botones y palancas, deriva, vibración y zona muerta.','<button class="b2" data-a="ccopen">Abrir</button>')];
+  ];
   if(t==='lib'){const d=dupGroups().length,c=clnList().length;return N?[
     sH('Cuentas'),
     sR('Steam','Toda tu biblioteca, con préstamo familiar. <span id="imp-sta"></span>','<div style="display:flex;gap:8px"><button class="b2" data-a="acct" data-s="steam">Conectar</button><button class="b2 g" data-a="imp">Importar horas</button></div>'),
@@ -5477,14 +5513,16 @@ function setPane(t){
     sR('Limpieza de juegos',c?c+' instalados sin jugar hace más de un mes.':'Nada para limpiar por ahora.',`<button class="b2" data-a="clnopen" ${c?'':'disabled'}>Ver</button>`)
   ]:['<p class="sub0" style="padding:14px 0">Estas opciones funcionan en la app de escritorio.</p>']}
   if(t==='mando'){const L=BPVL,cur=bpvPick(),uno=(ST.bpvM||'uno')==='uno',own=L.filter(v=>!v.o);return [
-    sH('Sonidos'),
+    sH('Mando y teclado'),
+    sR('Centro de mandos','Probá botones y palancas, deriva, vibración y zona muerta.','<button class="b2" data-a="ccopen">Abrir</button>'),
+    sR('Teclado en pantalla','Con un campo de texto elegido, el botón que pongas abre un teclado manejado con el mando.',`<div style="display:flex;gap:10px;align-items:center"><b id="oskl" style="font-size:13px">${oskName()}</b><button class="b2 g" data-a="oskbind">Elegir botón</button>${sSw('oskon',ST.oskOn)}</div>`),
+    sH('Sonidos y música'),
+    sR('Volumen de la música','Suena el tema del juego en el que estás parado.',`<input type="range" id="bpmv" min="0.05" max="1" step="0.05" value="${ST.bpMusV||.35}">`),
     sR('Estilo de sonido','Los sonidos al navegar, elegir, volver y lanzar un juego en el Modo mando.',segv0('bpsndset',[['ps2','PlayStation 2'],['orig','Original']],ST.bpSndS==='orig'?'orig':'ps2')),
     sH('Protector de pantalla'),
-    sR('Protector de pantalla','Si el Modo mando queda un rato sin usarse, aparece tu Winter en su fondo con la hora. Cualquier botón lo cierra.',segv0('bpssset',[['0','Apagado'],['120','2 min'],['180','3 min'],['300','5 min'],['600','10 min']],String(ST.bpss==null?180:ST.bpss))),
-    sR('Probar el protector','Se abre al instante dentro del Modo mando.','<button class="b2 g" data-a="bpsstest">Probar</button>'),
+    sR('Protector de pantalla','Si el Modo mando queda un rato sin usarse, aparece tu Winter en su fondo con la hora. Cualquier botón lo cierra.',segv0('bpssset',[['0','Apagado'],['120','2 min'],['180','3 min'],['300','5 min'],['600','10 min']],String(ST.bpss==null?180:ST.bpss))+'<button class="b2 g" data-a="bpsstest" style="margin-left:10px">Probar</button>'),
     sH('Trailers y música'),
     sR('Trailers y música del Modo mando','Busca y baja el trailer y la canción de cada juego. "Descargar todo" revisa toda tu biblioteca y baja lo que falte. <span id="trl-n"></span>',`<div style="display:flex;gap:8px;align-items:center"><button class="b2 g" data-a="tgopen">Administrar</button><button class="b2" data-a="trldl">Descargar todo</button></div>`),
-    sR('Bajarlos solos al arrancar','Los juegos nuevos reciben su trailer y canción sin que hagas nada. Viene activado.',sSw('trlauto',ST.trlAuto!==false)),
     sR('Trailer en el Inicio','Si el juego principal del Inicio tiene trailer bajado, se reproduce ahí solo y sin sonido en lugar del fondo. Viene activado.',sSw('hmtr',ST.hmTr!==false)),
     sH('Fondo de video'),
     sR('Fondo de video','Se ve detrás de Inicio, Sagas, Amigos, Estadísticas y Ajustes. La Biblioteca sigue con el arte de cada juego.',sSw('bpvon',ST.bpvOn!==false)),
@@ -5497,12 +5535,24 @@ function setPane(t){
     ...(N?[ (()=>{const b=ST.bk||{},cloud=b.dir&&/google|drive|mi unidad|my drive|onedrive|dropbox/i.test(b.dir);x1Drive();
       return sR('Carpeta de las copias',`${b.dir?esc(b.dir):'Todavía no elegiste una.'}<br>${cloud?'Está en la nube: te sigue a cualquier PC.':'Recomendado: una carpeta de Google Drive.'} Cada semana se guarda sola tu progreso y las partidas de tus juegos.`,`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" data-a="bkpick">Elegir carpeta</button>${X1D.p&&!(b.dir&&b.dir.startsWith(X1D.p))?'<button class="b2" data-a="bkdrive">Usar Google Drive</button>':''}<button class="b2 g" data-a="bknow">Copiar ahora</button><button class="b2 g" data-a="bkrest">Restaurar</button></div>`,1)})(),bkRowHTML()]:[]),
     ...(N?[sR('Espacio en disco','Imágenes, tráilers y música que WINTEER guarda en tu PC.','<b id="cinf" style="font-size:13px">calculando…</b>')]:[]),
+    sH('Mantenimiento'),
     sR('Limpiar caché de imágenes','Si una carátula quedó mal, la vuelve a buscar.','<button class="b2 g" data-a="clrimg">Limpiar</button>'),
     sR('Recalcular hitos','Vuelve a calcular tus hitos si algo quedó raro.','<button class="b2 g" data-a="rshit">Recalcular</button>'),
+    sH('Zona delicada'),
     sR('Restablecer biblioteca','Vuelve a la biblioteca de Steam y borra estados y notas.','<button class="b2 g" data-a="reset">Restablecer</button>')];
   return []}
-V.settings=()=>{const t=setT();return `<div class="sx2"><nav class="stabs">${STABS.map(([k,l,i])=>`<button class="stab ${k===t?'on':''}" data-a="stab" data-v="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>
-  <section class="card set spane"><div class="sgrid">${setPane(t).join('')}</div></section></div>`};
+const SINFO={gen:'Arranque, pantalla y capturas',look:'Tema, color y efectos',avi:'Sonido de hitos y mensajes',lib:'Cuentas, datos y limpieza',mando:'Mando, música, fondo y trailers',ext:'Emulación, logros retro e IA',data:'Copias, espacio y restablecer'};
+const SRI=[[/segundo plano/i,'bolt'],[/windows/i,'play'],[/con el mando/i,'games'],[/abrir winteer/i,'home'],[/tama[ñn]o/i,'scan'],[/intenci/i,'clock'],[/visita/i,'lock'],[/captura/i,'img'],[/volumen|sonido|m[uú]sica/i,'bell'],[/teclado/i,'edit'],[/centro de mandos/i,'games'],[/tr[aá]iler|trailer/i,'play'],[/fondo|brillo/i,'img'],[/protector/i,'star'],[/steam|epic|xbox/i,'games'],[/descargar/i,'dl'],[/carpeta|estaci/i,'compass'],[/duplicado/i,'filter'],[/limpi|restablecer/i,'trash'],[/recalcular|retro/i,'trophy'],[/espacio|copias/i,'shield'],[/asistente/i,'star'],[/tema|estilo|color|rendimiento/i,'flake']];
+const rowIc=h=>{const m=h.match(/^<div class="row[^"]*"><div>([\s\S]*?)<small/),s=m?m[1].replace(/<[^>]+>/g,''):'',f=SRI.find(([r])=>r.test(s));return f?f[1]:'gear'};
+const sDeco=r=>typeof r==='string'&&r.startsWith('<div class="row')?r.replace(/^(<div class="row)([^"]*)(">)/,(m0,a1,a2,a3)=>a1+a2+(/data-a="reset"/.test(r)?' dng':'')+a3+'<i class="rwi">'+ic(rowIc(r))+'</i>'):r;
+const sGroup=a=>{let out='',cur=null,buf=[];const fl=()=>{if(buf.length)out+=`<section class="sg">${cur?`<h4><span>${cur}</span></h4>`:''}<div class="sgl">${buf.map(sDeco).join('')}</div></section>`;buf=[]};a.forEach(r=>{const m=typeof r==='string'&&r.match(/^<h4 class="shd">([\s\S]*)<\/h4>$/);if(m){fl();cur=m[1]}else if(r)buf.push(r)});fl();return out};
+const setBody=t=>{const q=(S.sq||'').trim().toLowerCase();
+  if(q){let out='';STABS.forEach(([k,l])=>{let it=[];try{it=setPane(k)}catch(e){}it=it.filter(r=>typeof r==='string'&&r.startsWith('<div class="row')&&r.replace(/<[^>]+>/g,' ').toLowerCase().includes(q));if(it.length)out+=`<section class="sg"><h4><span>${l}</span></h4><div class="sgl">${it.map(sDeco).join('')}</div></section>`});return out||`<div class="sempty">${ic('search')}<b>No encontré ningún ajuste con eso</b><small>Probá con otra palabra, por ejemplo "sonido", "trailer" o "copia".</small></div>`}
+  return sGroup(setPane(t))};
+const setHead=t=>{const q=(S.sq||'').trim(),s=STABS.find(x=>x[0]===t)||STABS[0];return q?`<i class="sphi">${ic('search')}</i><div><h2>Resultados</h2><p>Ajustes que coinciden con "${esc(q)}"</p></div>`:`<i class="sphi">${ic(s[2])}</i><div><h2>${s[1]}</h2><p>${SINFO[s[0]]||''}</p></div>`};
+V.settings=()=>{const t=setT(),q=(S.sq||'').trim();return `<div class="sx2 sx3"><aside class="srl"><div class="srh"><h1>Ajustes</h1><small>Todo WINTEER, a tu manera</small></div><label class="ssq">${ic('search')}<input id="sq" type="search" placeholder="Buscar un ajuste…" value="${esc(S.sq||'')}" autocomplete="off" spellcheck="false"></label><nav class="stabs">${STABS.map(([k,l,i])=>`<button class="stab ${k===t&&!q?'on':''}" data-a="stab" data-v="${k}"><i class="stc">${ic(i)}</i><span><b>${l}</b><small>${SINFO[k]||''}</small></span></button>`).join('')}</nav></aside>
+  <section class="card set spane sp3"><header class="sph" id="sph">${setHead(t)}</header><div class="sbody" id="sbody">${setBody(t)}</div></section></div>`};
+document.addEventListener('input',e=>{if(e.target.id!=='sq')return;S.sq=e.target.value;const b=$('#sbody'),h=$('#sph');if(!b)return;const t=setT();b.innerHTML=setBody(t);if(h)h.innerHTML=setHead(t);const q=S.sq.trim();$$('.stabs .stab').forEach(x=>x.classList.toggle('on',!q&&x.dataset.v===t))});
 
 /* ---------- navegación ---------- */
 const NAVOF={hitos:'prog',stats:'prog',wrapped:'prog',news:'home',friends:'social',profile:'social',diary:'social',pet:'social',profiles:'social'};
@@ -5750,7 +5800,7 @@ const A={
   rand2:()=>rollGame(),
   sy:a=>{S.sy=+a.dataset.v;go('stats')},
   goal:a=>{ST.goal=Math.max(1,(ST.goal||12)+parseInt(a.dataset.v));save();go('stats')},
-  stab:a=>{S.stab=a.dataset.v;go('settings')},
+  stab:a=>{S.stab=a.dataset.v;S.sq='';go('settings')},
   sv:a=>{const k=a.dataset.k;ST[k]=a.dataset.v;$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));save()},
   efav:a=>{EFAV=!EFAV;a.classList.toggle('on',EFAV)},
   erate:a=>{const v=parseInt(a.dataset.v);ERATE=ERATE===v?0:v;$$('#e-st button').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=ERATE))},
