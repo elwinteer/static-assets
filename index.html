@@ -4389,6 +4389,37 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .bpvl2{display:flex;flex-wrap:wrap;gap:1.2vh}.bpvq{display:flex;align-items:center;gap:1vh;border:0;font:inherit;font-size:1.6vh;font-weight:600;color:#fff;padding:1.1vh 2vh;border-radius:99px;background:rgba(255,90,110,.14);box-shadow:inset 0 0 0 1px rgba(255,90,110,.35);cursor:pointer;transition:background .3s,transform .3s}.bpvq svg{width:2vh;height:2vh}.bpvq:hover,.bpvq.bpf{background:rgba(255,90,110,.3);transform:translateY(-.3vh)}
 @media (max-width:1100px){.bpvtop{grid-template-columns:1fr}}
 .bpsgv [data-a]{scroll-margin:14vh 0 12vh}
+/* ===== Juego del año: pantalla de elección ===== */
+@keyframes gxCard{from{opacity:0;transform:translate3d(0,26px,0) scale(.94)}}
+@keyframes gxUp{from{opacity:0;transform:translate3d(0,22px,0)}}
+@keyframes gxHd{from{opacity:0;transform:translate3d(0,-14px,0)}}
+.gx-c.gx2{display:flex;flex-direction:column;gap:18px;width:min(1240px,94vw);height:92vh;max-height:92vh;overflow:hidden;padding:2.6vh 20px 2vh}
+.gx2 .gx-hd{flex:none}.gx2.fresh .gx-hd{animation:gxHd .6s cubic-bezier(.22,1,.36,1) both}
+.gx2 .gx-hd h1{font-size:clamp(30px,4.2vh,44px);margin:6px 0 4px;text-shadow:0 6px 30px rgba(245,185,66,.3)}
+.gx2 .gx-q{margin:10px auto 0;max-width:440px;border-radius:99px;text-align:center}
+.gx-g2{flex:1;min-height:0;overflow:auto;scrollbar-width:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 18px;align-content:start;justify-items:center;padding:26px 14px 30px;margin-bottom:0;-webkit-mask-image:linear-gradient(transparent,#000 22px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(transparent,#000 22px,#000 calc(100% - 30px),transparent)}
+.gx-g2::-webkit-scrollbar{display:none}
+.gx-g2 .gx-n{width:100%;max-width:170px;animation:none;transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .35s,filter .35s}
+.gx2.fresh .gx-g2 .gx-n{animation:gxCard .6s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(.12s + var(--k)*45ms)}
+.gx-g2 .gx-n:hover{transform:translateY(-8px) scale(1.03)}
+.gx-i{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:2/3;box-shadow:0 14px 34px rgba(0,0,0,.55);transition:box-shadow .35s}
+.gx-g2 .gx-n img{width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none;object-fit:cover;display:block}
+.gx-rk{position:absolute;left:8px;top:8px;font-style:normal;font-size:12px;font-weight:800;padding:3px 9px;border-radius:99px;background:rgba(10,8,18,.78);color:#ffd98a;box-shadow:inset 0 0 0 1px rgba(245,185,66,.4)}
+.gx-ck{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#f5b942,#ffd98a);color:#2a1a00;transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}.gx-ck svg{width:17px;height:17px}
+.gx-g2 .gx-n.on{transform:translateY(-6px) scale(1.06)}
+.gx-g2 .gx-n.on .gx-i{box-shadow:0 0 0 3px #f5b942,0 0 46px rgba(245,185,66,.55),0 18px 40px rgba(0,0,0,.6)}
+.gx-g2 .gx-n.on .gx-ck{transform:scale(1)}
+.gx-g2.has .gx-n:not(.on){opacity:.55;filter:saturate(.7)}.gx-g2.has .gx-n:not(.on):hover{opacity:1;filter:none}
+.gx-g2 .gx-n b{font-size:13.5px;margin-top:9px}
+.gx-f2{flex:none;min-height:104px;display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:nowrap;border-radius:26px;padding:16px 22px;background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(255,255,255,.03));box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 -18px 50px rgba(0,0,0,.35);transition:background .4s,box-shadow .4s}
+.gx-f2.on{background:linear-gradient(165deg,rgba(245,185,66,.16),rgba(255,255,255,.04));box-shadow:inset 0 0 0 1px rgba(245,185,66,.4),0 -18px 60px rgba(245,185,66,.12)}
+.gx-f2.chg>*{animation:gxUp .5s cubic-bezier(.22,1,.36,1) both}.gx-f2.chg>*:nth-child(2){animation-delay:.06s}.gx-f2.chg>*:nth-child(3){animation-delay:.12s}
+.gx-f2 .gx-w{flex:none;min-width:0}.gx-f2 .gx-w img{width:200px;height:94px;border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+.gx-f2 .gx-w b{font-size:22px;display:block;max-width:300px}.gx-f2 .gx-w span{color:#bdb3dd;font-size:13px}
+.gx-f2 .gx-r{min-width:0}.gx-f2 .gx-r textarea{min-height:64px;max-height:90px}
+.gx-go{flex:none;white-space:nowrap}
+@media (max-width:900px){.gx-f2{flex-wrap:wrap}.gx-f2 .gx-w img{width:120px;height:56px}}
+@media (prefers-reduced-motion:reduce){.gx2 *{animation:none!important}}
 /* ===== Wrapped (año): rediseño ===== */
 .wx{gap:18px}
 .wx-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -10450,12 +10481,15 @@ function gyList(){const q=(S.gy.q||'').toLowerCase(),L=G.filter(g=>g.hours>0&&(!
 function gyNom(y){const hy={};for(const k in (ST.gl||{})){if(!k.startsWith(y+'-'))continue;for(const id in ST.gl[k])hy[id]=(hy[id]||0)+ST.gl[k][id]}
   let L=Object.entries(hy).map(([id,h])=>[gm(id),h]).filter(x=>x[0]&&x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
   if(L.length<6){const have=new Set(L.map(x=>x[0].id));G.filter(g=>g.hours>0&&!have.has(g.id)).sort((a,b)=>b.hours-a.hours).slice(0,10-L.length).forEach(g=>L.push([g,null]))}return L}
-function gyScreen(){const y=S.gy.y,sel=S.gy.pick&&gm(S.gy.pick);let o=$('#gyx');const keep=o?($('#gynote')||{}).value:'';if(!o){o=document.createElement('div');o.id='gyx';$('#app').appendChild(o)}
+function gyScreen(){const y=S.gy.y,sel=S.gy.pick&&gm(S.gy.pick);let o=$('#gyx');const fresh=!o,keep=o?($('#gynote')||{}).value:'',sc=o&&$('#gxg')?$('#gxg').scrollTop:0,prev=o?o.dataset.p:'';if(!o){o=document.createElement('div');o.id='gyx';$('#app').appendChild(o)}
   const q=(S.gy.q||'').toLowerCase(),nom=q?G.filter(g=>g.hours>0&&g.name.toLowerCase().includes(q)).sort((a,b)=>b.hours-a.hours).slice(0,12).map(g=>[g,null]):gyNom(y);
-  const rv=sel?rvOf(sel.id).find(r=>(r.text||r.head||'').trim()):null,quote=rv?((rv.head&&rv.head.trim())||rv.text.trim()).slice(0,140):'';
-  o.innerHTML=`<div class="gx-bg"></div><button class="gx-x" data-a="gyclose">×</button><div class="gx-c"><small>NOMINADOS A TU JUEGO DE ${y}</small><h1>¿Cuál fue tu juego del año?</h1><p>${q?'Resultados de tu búsqueda.':'Los que más jugaste en '+y+'. Si el tuyo no está, buscalo.'}</p><input class="txt gx-q" id="gyq" placeholder="Buscar en tus juegos jugados" value="${esc(S.gy.q||'')}">
-   <div class="gx-g">${nom.map(([g,h])=>`<div class="gx-n ${sel&&sel.id===g.id?'on':''}" data-a="gypick" data-id="${g.id}"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><b>${esc(g.name)}</b><small>${h?fh(h)+' en '+y:fh(g.hours)}</small></div>`).join('')||'<div class="empty">No encontré ese juego.</div>'}</div>
-   ${sel?`<div class="gx-f"><div class="gx-w"><img src="${art.wide(sel)}" alt=""><div><small>TU ELEGIDO</small><b>${esc(sel.name)}</b></div></div>${rv?`<div class="gx-r"><small>Tu reseña, usada como tu frase</small><p>“${esc(quote)}”</p></div>`:`<div class="gx-r"><small>Tu reseña (opcional · queda guardada en el juego)</small><textarea id="gynote" maxlength="400" placeholder="¿Por qué fue el mejor?">${esc(keep!==undefined&&keep!==null?keep:(S.gy.note||''))}</textarea></div>`}<button class="gb-btn" data-a="gysave">Coronar 🏆</button></div>`:'<div class="gx-h">Tocá un juego para elegirlo</div>'}</div>`;
+  const rv=sel?rvOf(sel.id).find(r=>(r.text||r.head||'').trim()):null,quote=rv?((rv.head&&rv.head.trim())||rv.text.trim()).slice(0,140):'',chg=sel&&prev!==sel.id;o.dataset.p=sel?sel.id:'';
+  const CK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const foot=sel?`<div class="gx-w"><img src="${art.wide(sel)}" data-fb="${art.grid(sel)}" alt=""><div><small>TU ELEGIDO</small><b>${esc(sel.name)}</b><span>${fh(sel.hours)} jugadas</span></div></div>${rv?`<div class="gx-r"><small>Tu reseña, usada como tu frase</small><p>“${esc(quote)}”</p></div>`:`<div class="gx-r"><small>Tu reseña (opcional · queda guardada en el juego)</small><textarea id="gynote" maxlength="400" placeholder="¿Por qué fue el mejor?">${esc(keep!==undefined&&keep!==null?keep:(S.gy.note||''))}</textarea></div>`}<button class="gb-btn gx-go" data-a="gysave">Coronar 🏆</button>`:'<div class="gx-h">Tocá un juego para elegirlo</div>';
+  o.innerHTML=`<div class="gx-bg"></div><button class="gx-x" data-a="gyclose" aria-label="Cerrar">×</button><div class="gx-c gx2 ${fresh?'fresh':''}"><header class="gx-hd"><small>NOMINADOS A TU JUEGO DE ${y}</small><h1>¿Cuál fue tu juego del año?</h1><p>${q?'Resultados de tu búsqueda.':'Los que más jugaste en '+y+'. Si el tuyo no está, buscalo.'}</p><input class="txt gx-q" id="gyq" placeholder="Buscar en tus juegos jugados" value="${esc(S.gy.q||'')}" autocomplete="off"></header>
+   <div class="gx-g gx-g2 ${sel?'has':''}" id="gxg">${nom.map(([g,h],i)=>`<div class="gx-n ${sel&&sel.id===g.id?'on':''}" style="--k:${i}" data-a="gypick" data-id="${g.id}"><div class="gx-i"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">${!q?`<em class="gx-rk">#${i+1}</em>`:''}<i class="gx-ck">${CK}</i></div><b>${esc(g.name)}</b><small>${h?fh(h)+' en '+y:fh(g.hours)}</small></div>`).join('')||'<div class="empty">No encontré ese juego.</div>'}</div>
+   <footer class="gx-f2 ${sel?'on':''} ${chg?'chg':''}" id="gxf">${foot}</footer></div>`;
+  const gg=$('#gxg');if(gg&&sc)gg.scrollTop=sc;
   const i=$('#gyq');if(i&&q){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}
 function gyCrown(g,note){const o=$('#gyx');if(!o)return;
   o.innerHTML=`<div class="gx-bg win"></div><div class="gx-c crown"><small>TU JUEGO DEL AÑO ${S.gy.y}</small><div class="gx-trophy">🏆</div><img class="gx-big" src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><h1>${esc(g.name)}</h1>${note?`<p class="gx-note">“${esc(note)}”</p>`:''}<button class="gb-btn" data-a="gyclose">Listo</button><span class="gx-s">Queda grabado en tu Wrapped ${S.gy.y} y en tu Salón del Juego del año.</span></div>`;
