@@ -5831,15 +5831,15 @@ const A={
   efav:a=>{EFAV=!EFAV;a.classList.toggle('on',EFAV)},
   erate:a=>{const v=parseInt(a.dataset.v);ERATE=ERATE===v?0:v;$$('#e-st button').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=ERATE))},
   edelm:a=>{S.sel=EG.id;a.closest('.modal').remove();A.delm()},
-  esave:async a=>{const g=EG,nm=$('#e-name').value.trim();if(nm)g.name=nm;g.fav=EFAV||undefined;g.rate=ERATE||undefined;
+  esave:async a=>{const g=EG,nm=$('#e-name').value.trim();if(nm)g.name=nm;if(EV){const sn=($('#e-sn')||{}).value.trim();if(sn)g.sn=sn;else delete g.sn;try{delete vInf()[g.id];VFAIL.delete(g.id);const L=vL();if(L.x.igt)delete L.x.igt[g.id]}catch(e){}}g.fav=EFAV||undefined;g.rate=ERATE||undefined;
     const h=parseFloat($('#e-h').value);if(!isNaN(h)&&h>=0)g.hours=h;
     const ap=parseInt(($('#e-app')||{}).value);if(ap&&ap!==g.app){g.app=ap;delete ST.sgdb[ap]}
-    if($('#e-im'))g.instM=$('#e-im').value==='1'?true:$('#e-im').value==='0'?false:undefined;if($('#e-l'))g.launch=$('#e-l').value.trim();if($('#e-bl')){if($('#e-bl').value==='1')g.bl=1;else delete g.bl}const was=g.status==='Terminado';g.status=EST;const dd=($('#e-dd')||{}).value,ddt=dd?new Date(dd+'T12:00:00').getTime():0;if(EST==='Terminado'&&!was){g.doneAt=ddt||achLast(g)||Date.now();window._cel=g}else if(EST!=='Terminado')delete g.doneAt;else if(ddt)g.doneAt=ddt;if($('#e-ex')){const ev=$('#e-ex').value.trim().replace(/^"|"$/g,'');if(isXbG(g)){const det=g.xdet||g.exe;if(ev&&ev!==det){g.xexe=ev;g.exe=ev}else{delete g.xexe;if(g.xdet)g.exe=g.xdet}}else g.exe=ev}if(!g.app&&!g.wimg){delete g.wno;wpImg(g)}if($('#e-hm'))g.hl={m:parseFloat($('#e-hm').value)||0,e:parseFloat($('#e-he').value)||0,c:parseFloat($('#e-hc').value)||0};
+    if($('#e-im'))g.instM=$('#e-im').value==='1'?true:$('#e-im').value==='0'?false:undefined;if($('#e-l'))g.launch=$('#e-l').value.trim();if($('#e-bl')){if($('#e-bl').value==='1')g.bl=1;else delete g.bl}const was=g.status==='Terminado';g.status=EST;const dd=($('#e-dd')||{}).value,ddt=dd?new Date(dd+'T12:00:00').getTime():0;if(EST==='Terminado'&&!was){g.doneAt=ddt||achLast(g)||Date.now();if(!EV)window._cel=g}else if(EST!=='Terminado')delete g.doneAt;else if(ddt)g.doneAt=ddt;if($('#e-ex')){const ev=$('#e-ex').value.trim().replace(/^"|"$/g,'');if(isXbG(g)){const det=g.xdet||g.exe;if(ev&&ev!==det){g.xexe=ev;g.exe=ev}else{delete g.xexe;if(g.xdet)g.exe=g.xdet}}else g.exe=ev}if(!g.app&&!g.wimg&&!EV){delete g.wno;wpImg(g)}if($('#e-hm'))g.hl={m:parseFloat($('#e-hm').value)||0,e:parseFloat($('#e-he').value)||0,c:parseFloat($('#e-hc').value)||0};
     for(const k of Object.keys(EP)){const key='c:'+g.id+':'+k;
       if(EP[k]){await artPut(key,EP[k]);if(ART[key])URL.revokeObjectURL(ART[key]);ART[key]=URL.createObjectURL(EP[k])}
       else{await artDel(key);if(ART[key]){URL.revokeObjectURL(ART[key]);delete ART[key]}}}
     save();a.closest('.modal').remove();toast('Cambios guardados');
-    if(S.view==='games'){S.sel=g.id;renderList();renderDetail(false)}else go(S.view);if(window._cel){const c=window._cel;window._cel=null;celebrate(c)}},
+    if(EV){EV=0;vList();vDetail(false)}else if(S.view==='games'){S.sel=g.id;renderList();renderDetail(false)}else go(S.view);if(window._cel){const c=window._cel;window._cel=null;celebrate(c)}},
   artm:()=>{modal(`<svg class="i" viewBox="0 0 24 24" style="font-size:42px;color:var(--ice);margin-bottom:12px;stroke-width:1.5">${P.img}</svg><h3>Cargar carátulas desde Steam</h3>
     <p>Elegí la carpeta <code>librarycache</code> de Steam. Pegá esta ruta en la barra de direcciones de la ventana que se abre:<br><code style="display:block;margin:8px 0;word-break:break-all">C:\\Program Files (x86)\\Steam\\appcache\\librarycache</code>WINTEER copia las imágenes de tus juegos a su propia memoria y no modifica nada de Steam. Puede tardar un minuto. El navegador te va a pedir confirmar que querés subir los archivos: es solo para que WINTEER los lea, no sale nada de tu PC.</p>
     <input type="file" id="artdir" webkitdirectory multiple hidden>
@@ -10690,19 +10690,7 @@ Object.assign(A,{
  vinfoagain:a=>{const L=vL(),id=a.dataset.id;L.x.igt=L.x.igt||{};L.x.igt[id]=(L.x.igt[id]||0)+1;delete vInf()[id];VFAIL.delete(id);save();vTab()},
  vhltbgo:async a=>{const g=vG(a.dataset.id);if(!g)return;toast('Buscando en HowLongToBeat…');const r=await vHltb(g);toast(r===1?'Listo: duración cargada':r===-1?'HowLongToBeat no respondió ahora':'No encontré este juego en HowLongToBeat');if(S.vsel===g.id&&S.vtab==='inf')vTab()},
  vmdesc:a=>{const g=vG(a.dataset.id);if(!g)return;modal(`<h3>Descripción</h3><div class="ed" style="text-align:left"><textarea class="txt" id="md-t" rows="7" style="width:100%;resize:vertical">${esc(g.mdesc||'')}</textarea></div><div class="bs" style="margin-top:16px"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vmdescsave" data-id="${g.id}">Guardar</button></div>`,'vm');const m=$('.modal');if(m)m.classList.add('vm')},
- vedit:a=>{const g=vG(a.dataset.id);if(!g)return;const own=g.exe!==undefined&&!g.app||String(g.id)[0]==='v';
-  modal(`<h3>Editar juego</h3><div class="ed" style="text-align:left"><label>Nombre<input class="txt" id="ve-n" value="${esc(g.name)}"></label>
-   <label>Nombre para buscar la información<input class="txt" id="ve-s" value="${esc(g.sn||'')}" placeholder="${esc(igName({name:g.name}))}"></label><p class="hint" style="margin:-4px 0 10px">Si no aparece la descripción, escribí acá el nombre tal cual está en IGDB (en inglés).</p>
-   <label>Horas jugadas<input class="txt" id="ve-h" type="number" step="0.1" min="0" value="${(g.hours||0).toFixed(1)}"></label>
-   <label>AppID de Steam<input class="txt" id="ve-a" type="number" value="${g.app||''}"></label>
-   ${own||g.exe?`<label>Ruta del .exe<input class="txt" id="ve-e" value="${esc(g.exe||'')}" placeholder="C:\\Juegos\\MiJuego\\juego.exe"></label>`:''}</div>
-   <div class="bs" style="margin-top:16px"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vesave" data-id="${g.id}">Guardar</button></div>`,'vm');const m=$('.modal');if(m)m.classList.add('vm')},
- vesave:a=>{const g=vG(a.dataset.id);if(!g)return;const L=vL();const nm=$('#ve-n').value.trim();if(nm)g.name=nm;
-  const sn=$('#ve-s').value.trim();if(sn)g.sn=sn;else delete g.sn;
-  const h=parseFloat($('#ve-h').value);if(!isNaN(h)&&h>=0)g.hours=h;
-  const ap=parseInt($('#ve-a').value)||0;if(ap!==(g.app||0)){g.app=ap;try{delete ST.sgdb[ap]}catch(e){}}
-  const ex=$('#ve-e');if(ex){const v=ex.value.trim().replace(/^"|"$/g,'');if(v)g.exe=v;else if(g.exe!==undefined&&!g.app){toast('Falta la ruta del .exe');return}}
-  delete vInf()[g.id];VFAIL.delete(g.id);if(L.x.igt)delete L.x.igt[g.id];save();$$('.modal.vm').forEach(m=>m.remove());toast('Cambios guardados');vList();vDetail(false)},
+ vedit:a=>edit(a.dataset.id,1),
  vmdescsave:a=>{const g=vG(a.dataset.id);if(!g)return;const v=(($('#md-t')||{}).value||'').trim();if(v)g.mdesc=v;else delete g.mdesc;save();$$('.modal.vm').forEach(m=>m.remove());vTab()},
  vinfoall:async()=>{const L=vL();if(!L||!L.g.length)return;if(!igOn()){toast('Cargá tu Client ID y Secret de IGDB en Ajustes → Conexiones');return}A.vclose();toast('Descargando información…');let n=0;for(const g of [...L.g]){await vLoadInfo(g);if(WN&&!g.hlt)await vHltb(g);n++}toast('Listo: '+n+' juego'+(n===1?'':'s')+' actualizado'+(n===1?'':'s'));if(S.view==='vault'&&S.vu)vTab()},
  vplay:a=>{const g=vG(a.dataset.id);if(!g)return;
@@ -13095,7 +13083,8 @@ function paintEP(){try{edPrev()}catch(e){}EK.forEach(([k])=>{const el=$('#ep-'+k
   const cb=$('#ec-'+k);if(cb)cb.style.display=own?'':'none'})}
 async function setEP(k,fl){try{EP[k]=await shrink(fl,k);paintEP()}catch(x){toast('No pude leer esa imagen')}}
 let ET='img';function etabInd(){const t=$('.edtabs'),on=t&&t.querySelector('button.on'),i=t&&t.querySelector('.edind');if(on&&i){i.style.width=on.offsetWidth+'px';i.style.transform=`translateX(${on.offsetLeft}px)`}}
-function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',sel:{},u:{}};EST=g.status==='Terminado'?'Terminado':'';EFAV=!!g.fav;ERATE=g.rate||0;
+let EV=0;
+function edit(id,v){EV=v?1:0;const g=EV?vG(id):gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',sel:{},u:{}};EST=g.status==='Terminado'?'Terminado':'';EFAV=!!g.fav;ERATE=g.rate||0;
   const used={};G.forEach(x=>(x.tags||[]).forEach(t=>used[t]=(used[t]||0)+1));
   const sug=[...Object.entries(used).sort((a,b)=>b[1]-a[1]).map(x=>x[0])].filter((t,i,a)=>a.indexOf(t)===i&&!(g.tags||[]).includes(t)).slice(0,8);
   const TB=[['img','Imágenes','img'],['gen','Datos','edit'],['play','Juego','play']];
@@ -13105,7 +13094,7 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',
     <nav class="edtabs">${TB.map(([k,l,i])=>`<button class="${k==='img'?'on':''}" data-a="etab" data-v="${k}">${ic(i)}${l}</button>`).join('')}<i class="edind"></i></nav>
     <div class="edb">
      <section class="edp" data-p="gen">
-      <label>Nombre<input class="txt" id="e-name" value="${esc(g.name)}"></label>
+      <label>Nombre<input class="txt" id="e-name" value="${esc(g.name)}"></label>${EV?`<label>Nombre para buscar la información<input class="txt" id="e-sn" value="${esc(g.sn||'')}" placeholder="${esc(igName({name:g.name}))}"></label><p class="hint" style="margin:-4px 0 10px">Si no aparece la descripción, escribí acá el nombre tal cual está en IGDB (en inglés).</p>`:''}
       <div class="two2" style="${EST==='Terminado'?'':'grid-template-columns:1fr'}"><label>Horas jugadas<div class="hrs"><input class="txt" id="e-h" type="number" step="0.1" min="0" value="${(g.hours||0).toFixed(1)}"></div></label>
       ${EST==='Terminado'?`<label>Fecha en que lo completaste<input class="txt" id="e-dd" type="date" value="${g.doneAt?new Date(g.doneAt-new Date(g.doneAt).getTimezoneOffset()*6e4).toISOString().slice(0,10):''}"></label>`:''}</div>
       <div class="two2"><div><label>Mi nota</label><div class="stars" id="e-st">${[1,2,3,4,5].map(n=>`<button data-a="erate" data-v="${n}" class="${n<=ERATE?'on':''}">★</button>`).join('')}</div></div>
@@ -13117,15 +13106,16 @@ function edit(id){const g=gm(id);if(!g)return;EG=g;EP={};ET='img';EDI={k:'grid',
       <label>Instalación<select class="txt" id="e-im"><option value="">Automática${isSteamG(g)?': detectar en Steam'+(g.inst?' (instalado ahora)':' (no instalado)'):': según el ejecutable ('+(g.exe&&g.inst!==false?'instalado':'no instalado')+')'}</option><option value="1" ${g.instM===true?'selected':''}>Instalado</option><option value="0" ${g.instM===false?'selected':''}>Desinstalado</option></select></label>
       ${g.exe!==undefined||isXbG(g)?`<label>Ejecutable del juego (.exe)${isXbG(g)?'<span class="hint" style="display:block;margin:4px 0 6px">Si el juego abre con otro .exe, elegilo acá: la entrada sigue siendo la misma y conserva horas, logros y capturas. '+(g.xexe?'Ahora usa uno elegido por vos. Para volver al automático, borrá el campo.':'')+'</span>':''}<div class="exr"><input class="txt" id="e-ex" value="${esc(g.exe||'')}" placeholder="C:\\Juegos\\MiJuego\\juego.exe">${window.winteerNative?'<button type="button" class="b2 sm" data-a="epickexe">Buscar en carpeta…</button>':''}</div></label>`:''}
       ${window.winteerNative&&winteerNative.launch&&!g.uri&&!g.shellApp?`<label>Pantalla del juego<select class="txt" id="e-bl"><option value="">Normal (como lo abre el juego)</option><option value="1" ${g.bl?'selected':''}>Ventana sin bordes: llena toda la pantalla</option></select><span class="hint" style="display:block;margin-top:6px">Sirve para juegos que solo tienen ventana o pantalla completa. WINTEER le saca los bordes y estira la imagen al tamaño del monitor.</span></label>`:''}
-      ${window.winteerNative&&winteerNative.trlPick?`<label>Trailer del Modo consola<div class="exr"><span class="hint" id="e-trs" style="flex:1;margin:0">${TRX[trk(g)]?'Tiene trailer':'Sin trailer'}</span><button type="button" class="b2 sm" data-a="etrpick">Elegir video…</button>${TRX[trk(g)]?'<button type="button" class="b2 sm" data-a="etrdel">Quitar</button>':''}</div><div class="exr" style="margin-top:8px"><input class="txt" id="e-turl" placeholder="O pegá un link de YouTube para bajar el trailer"><button type="button" class="b2 sm" data-a="etrurl">Ver</button></div><div id="e-trpv"></div></label>`:''}
-      ${window.winteerNative&&winteerNative.musPick?`<label>Canción del Modo consola<div class="exr"><span class="hint" id="e-mus" style="flex:1;margin:0">${TRX['a:'+trk(g)]?'Tiene canción':'Sin canción'}</span><button type="button" class="b2 sm" data-a="emuspick">Elegir archivo…</button>${TRX['a:'+trk(g)]?'<button type="button" class="b2 sm" data-a="emusdel">Quitar</button>':''}</div><div class="exr" style="margin-top:6px"><input class="txt" id="e-murl" placeholder="O pegá un link de YouTube"><button type="button" class="b2 sm" data-a="emusurl">Bajar</button></div></label>`:''}
+      ${window.winteerNative&&winteerNative.trlPick&&!EV?`<label>Trailer del Modo consola<div class="exr"><span class="hint" id="e-trs" style="flex:1;margin:0">${TRX[trk(g)]?'Tiene trailer':'Sin trailer'}</span><button type="button" class="b2 sm" data-a="etrpick">Elegir video…</button>${TRX[trk(g)]?'<button type="button" class="b2 sm" data-a="etrdel">Quitar</button>':''}</div><div class="exr" style="margin-top:8px"><input class="txt" id="e-turl" placeholder="O pegá un link de YouTube para bajar el trailer"><button type="button" class="b2 sm" data-a="etrurl">Ver</button></div><div id="e-trpv"></div></label>`:''}
+      ${window.winteerNative&&winteerNative.musPick&&!EV?`<label>Canción del Modo consola<div class="exr"><span class="hint" id="e-mus" style="flex:1;margin:0">${TRX['a:'+trk(g)]?'Tiene canción':'Sin canción'}</span><button type="button" class="b2 sm" data-a="emuspick">Elegir archivo…</button>${TRX['a:'+trk(g)]?'<button type="button" class="b2 sm" data-a="emusdel">Quitar</button>':''}</div><div class="exr" style="margin-top:6px"><input class="txt" id="e-murl" placeholder="O pegá un link de YouTube"><button type="button" class="b2 sm" data-a="emusurl">Bajar</button></div></label>`:''}
       <h4 class="edsh">Avanzado</h4>
       <label>AppID de Steam<input class="txt" id="e-app" type="number" value="${g.app||''}"></label>
       <p class="hint" style="margin-top:8px">Cambiarlo vuelve a buscar las imágenes y datos del juego con ese número.</p>
-      <div class="danger"><div><b>Quitar de la biblioteca</b><small>Se borra de WINTEER con sus horas y notas. No se desinstala.</small></div><button class="b2 g sm" data-a="edelm" style="color:#ff8aa0">Quitar</button></div>
+      ${EV?'':`<div class="danger"><div><b>Quitar de la biblioteca</b><small>Se borra de WINTEER con sus horas y notas. No se desinstala.</small></div><button class="b2 g sm" data-a="edelm" style="color:#ff8aa0">Quitar</button></div>`}
      </section>
     </div>
     <div class="edf"><small>Esc para cerrar sin guardar</small><div><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="esave">Guardar cambios</button></div></div>`,'wide2');
+  if(EV){const m=$('.modal');if(m)m.classList.add('vm')}
   const en=$('#e-name');if(en)en.addEventListener('input',()=>{const h=$('#edhn');if(h)h.textContent=en.value||g.name});
   etabInd();
   paintEP();EH='grid';edKind('grid');
