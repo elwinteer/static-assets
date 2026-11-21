@@ -1817,6 +1817,7 @@ const wdlSafe = (n) => { n = String(n || 'archivo').replace(/[<>:"/\\|?*\x00-\x1
 function wdlUniq(dir, name) { let p = path.join(dir, name); if (!fs.existsSync(p)) return p; const e = path.extname(name), b = path.basename(name, e); for (let i = 1; i < 500; i++) { p = path.join(dir, b + ' (' + i + ')' + e); if (!fs.existsSync(p)) return p; } return p; }
 
 /* ---------- descarga en partes (varias conexiones a la vez, como un gestor de descargas) ---------- */
+const WDL_SEG = false; /* descarga en varias conexiones: apagada hasta confirmar que anda con todos los servidores */
 const WDL_CONN = 8, WDL_BLK = 4 * 1024 * 1024, WDL_MIN = 16 * 1024 * 1024;
 function wdlProbe(ses, url, ref) {
   return new Promise((resolve) => {
@@ -2138,7 +2139,7 @@ function webInit() {
         let seg = false;
         try {
           const chain = d.item.getURLChain(), url = chain[chain.length - 1] || d.item.getURL(); let ref = ''; try { ref = new URL(chain[0] || url).origin + '/'; } catch (e) {}
-          if (/^https?:/i.test(url) && (sz <= 0 || sz >= WDL_MIN)) {
+          if (WDL_SEG && /^https?:/i.test(url) && (sz <= 0 || sz >= WDL_MIN)) {
             const pr = await wdlProbe(session.fromPartition(WEB_PART), url, ref);
             if (pr && pr.total >= WDL_MIN && (sz <= 0 || Math.abs(pr.total - sz) < 4096) && d.state === 'run') { seg = wdlSegRun(d, session.fromPartition(WEB_PART), url, pr.total, ref, wsend); if (seg) { d.seg = true; try { d.item.cancel(); } catch (e) {} } }
           }
