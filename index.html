@@ -4311,6 +4311,12 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .wp2:not(.lk)::after{content:'';position:absolute;top:0;bottom:0;left:0;width:38%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);pointer-events:none;animation:wpSw 1.3s .55s both cubic-bezier(.45,0,.2,1)}
 .wg2-w .st-h{animation-duration:.8s}
 @media (prefers-reduced-motion:reduce){.wg2>.wp2,.wp2 .bg,.wp2 .in>*,.wp2::after{animation:none}}
+.dghost{animation:none!important}.dghost.out{animation:dgOut .4s cubic-bezier(.4,0,.6,1) forwards!important}
+@keyframes dgOut{to{opacity:0;transform:translate3d(-12px,0,0)}}
+@keyframes dcSw{from{transform:translate3d(14px,0,0)}}
+@keyframes dcSx{from{transform:translate3d(0,8px,0)}}
+.detail.dsw .dbg,.detail.dsw .media{animation:none}
+.detail.dsw .media img,.detail.dsw .dbg img{transition:none}
 </style>
 </head>
 <body>
@@ -4685,7 +4691,10 @@ function renderDetail(swap=true){
   const nB=d.querySelector(':scope>.dbg'),nM=d.querySelector(':scope>.media');
   [nB,nM].forEach(n=>{const i=n&&n.querySelector('img');if(i&&!i.dataset.rq)i.dataset.rq=i.getAttribute('src')||''});
   if(prev===id&&!swap&&oBg&&oMd&&nB&&nM&&rq(nB)&&rq(nB)===rq(oBg)&&rq(nM)===rq(oMd)){nB.replaceWith(oBg);nM.replaceWith(oMd)}
-  if(gh){d.appendChild(gh);setTimeout(()=>gh.remove(),420)}}
+  if(gh){d.appendChild(gh);
+    /* el juego nuevo ya está debajo a pleno; el anterior se desvanece por encima recién cuando la imagen nueva está lista (sin pantallazo negro) */
+    let done=0;const im=d.querySelector(':scope>.media img'),go=()=>{if(done)return;done=1;gh.classList.add('out');setTimeout(()=>gh.remove(),420)};
+    if(im&&!(im.complete&&im.naturalWidth)){im.addEventListener('load',()=>setTimeout(go,60),{once:true});im.addEventListener('error',()=>setTimeout(go,60),{once:true});setTimeout(go,1500)}else setTimeout(go,90)}}
 function renderDetail0(swap=true){
   const d=$('#detail');if(!d)return;const g=gm(S.sel);if(g&&g.isNew){delete g.isNew;save();scanBadge()}
   if(!g){d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
