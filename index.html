@@ -4250,6 +4250,31 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .av-cats .cp.on,.av-cats .cp:focus{background:none!important;box-shadow:none!important;outline:0!important;border:0!important;color:#fff}.av-cats .cp{border-radius:0!important}
 .chips.av-cats button.cp,.chips.av-cats button.cp.on{background:none!important;box-shadow:none!important;border:0!important;outline:0!important;border-radius:0!important}
 .avg .avg-i .i,.avg .avg-i svg{width:18px!important;height:18px!important}
+/* cambio de juego: corto y sin desenfoque */
+.dc.swap{animation:dcSw .34s cubic-bezier(.22,.8,.3,1)}
+.dc.swap>.dtop,.dc.swap>.logo,.dc.swap>.tool{animation:dcSx .42s cubic-bezier(.22,.8,.3,1) backwards}
+.dc.swap>.logo{animation-delay:.04s}.dc.swap>.tool{animation-delay:.09s}
+.detail.dsw .dbg,.detail.dsw .media{animation:dcFd .4s ease-out}
+@keyframes dcSw{from{opacity:0}}
+@keyframes dcSx{from{opacity:0;transform:translateY(8px)}}
+@keyframes dcFd{from{opacity:0}}
+/* Biblioteca: entrada y cambio de juego (solo opacidad y movimiento, van por GPU) */
+.lbin .libl{animation:lbL .7s var(--ease) backwards}
+.lbin .libl .lh,.lbin .libl .ls{animation:lbU .6s var(--ease) backwards;animation-delay:.08s}
+.lbin .libl .it{animation:lbI .55s var(--ease) backwards}
+.lbin .libl .it:nth-child(n+15){animation:none}.lbin .libl .it:nth-child(1){animation-delay:152ms}.lbin .libl .it:nth-child(2){animation-delay:184ms}.lbin .libl .it:nth-child(3){animation-delay:216ms}.lbin .libl .it:nth-child(4){animation-delay:248ms}.lbin .libl .it:nth-child(5){animation-delay:280ms}.lbin .libl .it:nth-child(6){animation-delay:312ms}.lbin .libl .it:nth-child(7){animation-delay:344ms}.lbin .libl .it:nth-child(8){animation-delay:376ms}.lbin .libl .it:nth-child(9){animation-delay:408ms}.lbin .libl .it:nth-child(10){animation-delay:440ms}.lbin .libl .it:nth-child(11){animation-delay:472ms}.lbin .libl .it:nth-child(12){animation-delay:504ms}.lbin .libl .it:nth-child(13){animation-delay:536ms}.lbin .libl .it:nth-child(14){animation-delay:568ms}
+.lbin .detail{animation:lbD .85s var(--ease) .12s backwards}
+.lbin .detail .dc.swap,.lbin .detail.dsw .dbg,.lbin .detail.dsw .media{animation:none}.lbin .detail .dc.swap>.dtop{animation:none}
+.lbin .detail.dsw .media,.lbin .detail .media{animation:lbM 1.1s var(--ease) .2s backwards}
+.lbin .detail .logo{animation:lbG .8s var(--ease) .32s backwards}
+.lbin .detail .tool{animation:lbU .7s var(--ease) .44s backwards}
+.lbin .detail .tabs,.lbin .detail #tabc{animation:lbU .7s var(--ease) .56s backwards}
+@keyframes lbL{from{opacity:0;transform:translateX(-26px)}}
+@keyframes lbI{from{opacity:0;transform:translateX(-18px)}}
+@keyframes lbU{from{opacity:0;transform:translateY(14px)}}
+@keyframes lbD{from{opacity:0;transform:translateX(22px) scale(.985)}}
+@keyframes lbM{from{opacity:0;transform:scale(1.06)}}
+@keyframes lbG{from{opacity:0;transform:translateY(10px) scale(.96)}}
 </style>
 </head>
 <body>
@@ -4617,7 +4642,7 @@ function renderDetail(swap=true){
   if(!g){d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
   sgdb(g);setTimeout(amb,50);
   const run=S.playing&&S.playing.id===g.id;
-  const cp=isCP(g),eg=egK(g);document.body.classList.toggle('cpg',cp);egBody(eg);d.className='detail'+(stOf(g)==='Completado'?' done':'')+(cp?' cp77':'')+(eg?' egg egg-'+eg:'');d.innerHTML=`<div class="dbg"><img class="blur" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
+  const cp=isCP(g),eg=egK(g);document.body.classList.toggle('cpg',cp);egBody(eg);d.className='detail'+(swap?' dsw':'')+(stOf(g)==='Completado'?' done':'')+(cp?' cp77':'')+(eg?' egg egg-'+eg:'');d.innerHTML=`<div class="dbg"><img class="blur" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
   <div class="media"><img style="${kbd()}" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt="">${cp?`<img class="gl1" src="${art.hero(g)}" alt=""><img class="gl2" src="${art.hero(g)}" alt="">`:''}${eg?egFx(eg):''}</div>
   <div class="dc ${swap?'swap':''}">
     <div class="dtop">${eg?`<div class="eghud">${EGH[eg]}</div>`:''}${cp?'<div class="cphud"><i></i>NIGHT CITY // CONEXIÓN ESTABLECIDA<b>_</b><em id="cpclk"></em></div>':''}<button class="chip btn2" data-a="gcard" data-id="${g.id}" style="margin-right:8px">${ic('star')} Tarjeta</button><button class="chip btn2" data-a="edit">${ic('edit')} Editar</button></div>
@@ -5047,7 +5072,7 @@ function go(v,o){if(v==='social'){v=S.ls||'friends';S.frX=0}if(v==='friends'||v=
   S.view=v;if(o)Object.assign(S,o);setTimeout(amb,50);
   $('#app').classList.remove('has-right');
   {const t=$('#tinst');if(t)t.textContent=G.filter(instOf).length}
-  const el=$('#view');el.classList.remove('in');void el.offsetWidth;el.innerHTML=V[v]();el.classList.add('in');el.scrollTop=0;vtabs(v);
+  const el=$('#view');el.classList.remove('in');void el.offsetWidth;el.innerHTML=V[v]();el.classList.add('in');if(v==='games'){const lb=el.querySelector('.lib');if(lb){lb.classList.add('lbin');setTimeout(()=>lb.classList.remove('lbin'),1500)}}el.scrollTop=0;vtabs(v);
   
   if(v==='games'){renderDetail();{const l=$('#list');if(l&&!l._sc){l._sc=1;let t;l.addEventListener('scroll',()=>{document.body.classList.add('scr');clearTimeout(t);t=setTimeout(()=>document.body.classList.remove('scr'),160)},{passive:true})}}renderList()}
   if(v==='settings'||v==='profile'){const on=(id,ev,fn)=>{const e=$('#'+id);if(e)e.addEventListener(ev,fn)};
