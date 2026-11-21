@@ -4366,6 +4366,28 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .bpsk.on .bpsc{transform:rotate(180deg);background:rgba(255,255,255,.9);color:#111}
 .bpsp.pin{animation:bpsIn .6s cubic-bezier(.22,1,.36,1) both}
 @media (prefers-reduced-motion:reduce){.bpsk,.bpsp.pin{animation:none}}
+/* panel Fondo de video (Modo consola) */
+.bpvx{display:flex;flex-direction:column;gap:2.4vh}
+.bpvtop{display:grid;grid-template-columns:1.15fr 1fr;gap:2vh}
+.bpvbx{display:flex;align-items:center;gap:2vh;padding:2.2vh 2.4vh;border-radius:2.6vh;background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(255,255,255,.02));box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.bpvbx>div{flex:1;min-width:0}.bpvbx b{display:block;font-size:2.1vh;font-weight:800}.bpvbx small{display:block;margin-top:.5vh;font-size:1.45vh;line-height:1.35;color:rgba(255,255,255,.6)}
+.bpvbx.main{background:linear-gradient(165deg,rgba(var(--argb),.3),rgba(var(--argb),.08));box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.bpvci{display:grid;place-items:center;flex:none;width:7vh;height:7vh;border-radius:2.2vh;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}.bpvci svg{width:3.8vh;height:3.8vh}
+.bpvbx .seg{flex:none}
+.bpvh{display:flex;align-items:baseline;justify-content:space-between;gap:2vh;margin-top:.6vh}.bpvh b{font-size:1.7vh;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.8)}.bpvh em{font-style:normal;font-size:1.45vh;color:rgba(255,255,255,.5)}
+.bpvg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(26vh,1fr));gap:2vh;transition:opacity .4s,filter .4s}
+.bpvx.off .bpvg2{opacity:.4;filter:saturate(.4)}
+.bpvk{display:flex;flex-direction:column;gap:.7vh;padding:1.1vh 1.1vh 1.5vh;border-radius:2.4vh;border:0;font:inherit;color:#fff;text-align:left;cursor:pointer;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);transition:transform .4s cubic-bezier(.22,1,.36,1),background .3s,box-shadow .3s}
+.bpvk .bpvt{aspect-ratio:16/9;border-radius:1.7vh;overflow:hidden;position:relative;background:#000}
+.bpvk b{font-size:1.75vh;font-weight:700;margin:.5vh .6vh 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bpvk small{font-size:1.4vh;margin:0 .6vh;color:rgba(255,255,255,.55);line-height:1.3;white-space:normal}
+.bpvk:hover,.bpvk.bpf{transform:translateY(-.6vh) scale(1.02);background:rgba(255,255,255,.1)}
+.bpvk.on{background:linear-gradient(165deg,rgba(var(--argb),.38),rgba(var(--argb),.12));box-shadow:inset 0 0 0 .3vh #fff,0 1.6vh 4vh rgba(var(--argb),.3)}
+.bpvk.on .bpvt::after{display:none}
+.bpvb{position:absolute;left:1vh;top:1vh;font-size:1.25vh;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.5vh 1.1vh;border-radius:99px;background:#fff;color:#111}
+.bpvk .bpvt.rnd{display:grid;place-items:center;background:linear-gradient(135deg,rgba(var(--argb),.55),#14141c)}.bpvk .bpvt.rnd i{font-style:normal;display:grid;place-items:center}.bpvk .bpvt.rnd svg{width:6.5vh;height:6.5vh}.bpvk .bpvt.rnd i.pl{font-size:7vh;font-weight:300;line-height:1}
+.bpvk.add{background:transparent;box-shadow:inset 0 0 0 .25vh rgba(255,255,255,.22);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.25)}.bpvk.add .bpvt.rnd{background:rgba(255,255,255,.05)}
+.bpvl2{display:flex;flex-wrap:wrap;gap:1.2vh}.bpvq{display:flex;align-items:center;gap:1vh;border:0;font:inherit;font-size:1.6vh;font-weight:600;color:#fff;padding:1.1vh 2vh;border-radius:99px;background:rgba(255,90,110,.14);box-shadow:inset 0 0 0 1px rgba(255,90,110,.35);cursor:pointer;transition:background .3s,transform .3s}.bpvq svg{width:2vh;height:2vh}.bpvq:hover,.bpvq.bpf{background:rgba(255,90,110,.3);transform:translateY(-.3vh)}
+@media (max-width:1100px){.bpvtop{grid-template-columns:1fr}}
 /* ===== Wrapped (año): rediseño ===== */
 .wx{gap:18px}
 .wx-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -5619,13 +5641,23 @@ const BPSI={
  moon:'<rect x="3" y="4" width="18" height="12.5" rx="2.4"/><path d="M8.5 20.5h7M12 16.5v4"/><path d="M14.6 7.6a3.1 3.1 0 1 0 2.2 4.6 3.6 3.6 0 0 1-2.2-4.6z"/>',
  film:'<rect x="3" y="4.5" width="18" height="15" rx="2.6"/><path d="M3 9h18M3 15h18M7.5 4.5V9M7.5 15v4.5M16.5 4.5V9M16.5 15v4.5"/><path d="M10.4 10.6v2.8l2.6-1.4z" fill="currentColor"/>',
  img:'<rect x="3" y="4" width="18" height="16" rx="3.2"/><circle cx="9" cy="9.8" r="1.7"/><path d="M3.8 17l5.2-4.6 3.8 3 3.2-2.6 4.2 4"/>'};
+/* panel "Fondo de video" del Modo consola */
+function bpvPanel(){const L=BPVL||[],cur=bpvPick(),uno=(ST.bpvM||'uno')==='uno',own=L.filter(v=>!v.o),on=ST.bpvOn!==false;
+  const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',PLAY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.2 9.4v5.2l4.4-2.6z" fill="currentColor"/></svg>',DICE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"/></svg>';
+  const card=v=>{const sel=uno&&cur&&cur.k===v.k;return `<button class="bpvc bpvk ${sel?'on':''}" data-a="bpvf" data-v="${esc(v.k)}"><div class="bpvt"><video muted loop playsinline preload="${v.p?'none':'metadata'}" ${v.p?`poster="${v.p}"`:''} src="${v.u}${v.p?'':'#t=1'}"></video>${sel?'<span class="bpvb">En uso</span>':''}</div><b>${esc(bpvName(v.n))}</b><small>${v.o?'Oficial':'Tuyo'}</small></button>`};
+  return `<div class="bpvx ${on?'':'off'}"><div class="bpvtop">
+   <div class="bpvbx main"><i class="bpvci">${PLAY}</i><div><b>Fondo de video</b><small>Muestra un video de fondo en Inicio, Sagas, Amigos, Estadísticas y Ajustes. La Biblioteca conserva el arte de cada juego.</small></div>${sSw('bpvon',on)}</div>
+   <div class="bpvbx"><i class="bpvci">${SUN}</i><div><b>Brillo del video</b><small>Un brillo menor mejora la lectura de lo que se muestra encima.</small></div>${segv0('bpvd',[['.45','Suave'],['.65','Normal'],['.9','Fuerte']],String(ST.bpvB||'.65'))}</div></div>
+   <div class="bpvh"><b>Elegí tu video</b><em>${L.length} ${L.length===1?'video':'videos'}</em></div>
+   <div class="bpvg2"><button class="bpvc bpvk rnd ${uno?'':'on'}" data-a="bpvm" data-v="rot"><div class="bpvt rnd"><i>${DICE}</i>${uno?'':'<span class="bpvb">En uso</span>'}</div><b>Todos al azar</b><small>Uno distinto cada vez que abrís el Modo consola</small></button>${L.map(card).join('')}<button class="bpvc bpvk add" data-a="bpvadd"><div class="bpvt rnd"><i class="pl">+</i></div><b>Agregar video propio</b><small>.mp4 o .webm de tu PC</small></button></div>
+   ${own.length?`<div class="bpvh"><b>Tus videos</b><em>Quitar borra solo la copia guardada en WINTEER, no tu archivo original</em></div><div class="bpvl2">${own.map(v=>`<button class="bpvq" data-a="bpvdel" data-v="${esc(v.k)}">${TRASH}<span>Quitar ${esc(bpvName(v.n))}</span></button>`).join('')}</div>`:''}</div>`}
 function bpsView(){let arr=[];try{arr=setPane('mando')}catch(e){}const G=[];let cu=null;
   arr.forEach(r=>{const m=typeof r==='string'&&r.match(/^<h4 class="shd">([\s\S]*)<\/h4>$/);if(m){cu={t:m[1],rows:[]};G.push(cu)}else if(r&&cu)cu.rows.push(r)});
   const META={'Mando y teclado':['pad',()=>'Centro de mandos y teclado'],'Sonidos y música':['snd',()=>'Volumen y estilo de sonido'],'Protector de pantalla':['moon',()=>(ST.bpss===0||ST.bpss==='0')?'Apagado':'Se activa a los '+Math.round((ST.bpss==null?180:+ST.bpss)/60)+' min'],'Trailers y música':['film',()=>'Trailers y canciones de tus juegos'],'Fondo de video':['img',()=>ST.bpvOn===false?'Apagado':'Video de fondo activado']};
   if(S.bpsg&&!G.some(g=>g.t===S.bpsg))S.bpsg='';
   const op=G.find(g=>g.t===S.bpsg),an=S.bpsgA;S.bpsgA=0;
   const tiles=G.map(g=>{const m=META[g.t]||['pad',()=>''],on=op&&op.t===g.t;return `<button class="bpsk ${on?'on':''}" data-a="bpsgo" data-v="${esc(g.t)}"><i class="bpsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${BPSI[m[0]]}</svg></i><b>${g.t}</b><small>${m[1]()}</small><em class="bpsc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></em></button>`}).join('');
-  return `<div class="sx2 sx3 solo bpsx"><section class="card set spane sp3"><header class="sph" id="sph">${setHead('mando')}</header><div class="bpsg">${tiles}</div>${op?`<div class="bpsp ${an?'pin':''}" id="bpsp">${sGroup(op.rows)}</div>`:''}</section></div>`}
+  return `<div class="sx2 sx3 solo bpsx"><section class="card set spane sp3"><header class="sph" id="sph">${setHead('mando')}</header><div class="bpsg">${tiles}</div>${op?`<div class="bpsp ${an?'pin':''}" id="bpsp">${op.t==='Fondo de video'?bpvPanel():sGroup(op.rows)}</div>`:''}</section></div>`}
 V.settings=()=>{const bp=!!(typeof BP!=='undefined'&&BP&&BP.sec==='settings');if(bp){S.stab='mando';S.sq=''}const t=bp?'mando':setT(),q=(S.sq||'').trim();if(bp)return bpsView();return `<div class="sx2 sx3"><aside class="srl"><div class="srh"><h1>Ajustes</h1><small>Configuración general de WINTEER</small></div><label class="ssq">${ic('search')}<input id="sq" type="search" placeholder="Buscar un ajuste…" value="${esc(S.sq||'')}" autocomplete="off" spellcheck="false"></label><nav class="stabs">${STABS.map(([k,l,i])=>`<button class="stab ${k===t&&!q?'on':''}" data-a="stab" data-v="${k}"><i class="stc">${ic(i)}</i><span><b>${l}</b><small>${SINFO[k]||''}</small></span></button>`).join('')}</nav></aside>
   <section class="card set spane sp3"><header class="sph" id="sph">${setHead(t)}</header><div class="sbody" id="sbody">${setBody(t)}</div></section></div>`};
 document.addEventListener('input',e=>{if(e.target.id!=='sq')return;S.sq=e.target.value;const b=$('#sbody'),h=$('#sph');if(!b)return;const t=setT();b.innerHTML=setBody(t);if(h)h.innerHTML=setHead(t);const q=S.sq.trim();$$('.stabs .stab').forEach(x=>x.classList.toggle('on',!q&&x.dataset.v===t))});
