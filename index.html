@@ -4914,7 +4914,7 @@ if(!ST.thv){if((ST.accent||'').toLowerCase()==='#8b5cf6'){ST.accent=DEFA;delete 
 G.forEach(g=>{if('fam' in g)delete g.fam});
 G.forEach(g=>{if(g.tags&&g.tags.includes('Fuera de Steam'))g.tags=g.tags.filter(t=>t!=='Fuera de Steam')});
 try{const _d=s=>atob(s).split('').reverse().join('');if(!ST.igid)ST.igid=_d('ZGE3bjVoa3MwMXppbWVkZmtidXh6NXZleWtrdWsw');if(!ST.igsec)ST.igsec=_d('aHcyNWJvMHp6ZGU3b3JmcHltdmQ3Yno3bXF3cnpq');if(!ST.key)ST.key=_d('OTcwZGQ3OTcyYzEzODlmMGMxMmIyZjk5MjVlZGVmYzY=');if(ST.useSgdb!==false)ST.useSgdb=true;ST.useSgdb=true}catch(e){}
-const save=()=>{try{vPurge()}catch(e){}try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
+const save=()=>{XPC_T=0;try{vPurge()}catch(e){}try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
 const gm=id=>G.find(g=>g.id===id);
 const vL=()=>ST.vlt&&Array.isArray(ST.vlt.g)?ST.vlt:null;
 const vIsId=id=>{const L=vL();return !!(L&&id&&L.g.some(v=>v.id===id))};
@@ -5925,7 +5925,9 @@ function banHTML(p){const b=(p&&p.ban)||{k:'g',i:0};
   if(b.k==='img'){const u=p.banUrl||ART['p:banner'];if(u)return `<div class="pban"><img src="${u}" alt=""></div>`}
   if(b.k==='game'){const g=gm(b.id);if(g)return `<div class="pban" style="background:#0b0a12"><img src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>`}
   return `<div class="pban" style="background:${BANS[b.i||0]||BANS[0]}"></div>`}
-function xpOf(){let hp=0;try{hp=Math.round(hitoPts()/4)}catch(e){}return hp+totalH()+doneN()*25+gaN()*5+G.filter(g=>g.rate>0).length*3+RV().filter(r=>r.text).length*5+ggXP()}
+/* el XP se recalcula recorriendo todos los logros y juegos y se pedía decenas de veces por clic en el editor (cada prenda pregunta si está desbloqueada); se guarda un instante y se invalida en cada save() */
+var XPC_T=0,XPC_V=0;
+function xpOf(){const n=performance.now();if(n-XPC_T<1500&&XPC_T)return XPC_V;let hp=0;try{hp=Math.round(hitoPts()/4)}catch(e){}const v=hp+totalH()+doneN()*25+gaN()*5+G.filter(g=>g.rate>0).length*3+RV().filter(r=>r.text).length*5+ggXP();XPC_T=n;XPC_V=v;return v}
 const LV_T=20000,LV_MAX=100,LV_TT=['Recién llegado','Aprendiz','Jugador','Veterano','Experto','Maestro','Leyenda','Mítico'];
 const lvOld=x=>Math.max(1,Math.floor(Math.sqrt(x/12))+1);
 const lvNeed=(L,l0)=>L<=l0?0:LV_T*Math.pow((L-l0)/(LV_MAX-l0),2);
