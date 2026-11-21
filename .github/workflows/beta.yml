@@ -13,11 +13,19 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
+      - name: Ayudante ya compilado (se reutiliza si no cambió nada de bt/)
+        id: btexe
+        uses: actions/cache@v4
+        with:
+          path: bt/build/Release/winteer-bt.exe
+          key: btexe-${{ hashFiles('bt/CMakeLists.txt','bt/vcpkg.json','bt/winteer-bt.cpp') }}
+      - if: steps.btexe.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
         with:
           path: ~\AppData\Local\vcpkg\archives
           key: vcpkg-bt-${{ hashFiles('bt/vcpkg.json') }}
       - name: Compilar winteer-bt
+        if: steps.btexe.outputs.cache-hit != 'true'
         shell: bash
         run: |
           cmake -S bt -B bt/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static
