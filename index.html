@@ -11720,7 +11720,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
   add('#0f172a,#4c1d95',`<div class="wm-k">${q?'ASÍ FUE TU TRIMESTRE':'ASÍ FUE TU AÑO'}</div><h2 class="wm-h2">${esc(p[0])}</h2><p class="wm-p">${esc(p[1])}</p><div class="wm-end">Nivel ${lvlOf().l} · ${hitoPts().toLocaleString('es-AR')} puntos de hitos</div><div class="wm-brand">W I N T E E R</div>`,8500);
   try{S_.forEach(x=>{x.n=wmNarr(x.h,d,{q,y,per,top,rvc,p,br});x.ge=wmGes(x.h,d);if(/TIEMPO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:70,y:0,f:1};if(d.tot>=150)x.rx=()=>wmShock();else if(d.tot>=50)x.rx=()=>wmJoy();else x.rx=()=>wmMeh()}
       if(/JUEGO DEL AÑO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=13000;x.sd=9500;x.hid=1;x.rx=()=>wmPodio()}
-      if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=17500;x.sd=17000;x.rx=()=>wmRacha()}
+      if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=26500;x.sd=25500;x.rx=()=>wmRacha()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
       if(/TOP/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-top"','class="wm-top srv"');x.pos={x:6,y:0,f:0};x.t=16500;x.sd=11800;x.rx=()=>wmServe()}
@@ -11850,8 +11850,9 @@ function wmWalk(tx,ty,o){o=o||{};const nr=$('#wm .wm-nar'),r=WM&&WM.rig;if(!nr||
   const tok=WM.wk=(WM.wk||0)+1,D=o.dur||2300,t0=performance.now()+(o.delay||0);let ph=0;nr.dataset.flip=o.flip?1:'';r.w.spd=r.w.run=26;
   const f=now=>{if(!WM||!WM.rig||WM.wk!==tok)return;const k=Math.max(0,Math.min(1,(now-t0)/D)),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2,v=Math.sin(Math.PI*k);
     nr.style.transform=`translate(${(x0+(tx-x0)*e).toFixed(2)}vw,${(y0+(ty-y0)*e).toFixed(2)}vh)`;WM.px=x0+(tx-x0)*e;WM.py=y0+(ty-y0)*e;
-    if(k>0&&ph===0){ph=1;wrPose(r,{run:.8,lean:2,hd:1},{w:12,z:.9});r.w.spd=r.w.run=26}
-    if(ph===1){r.t.spd=.12+.4*v;if(k>.93){ph=2;r.t.run=0;r.t.spd=0;wrPose(r,{lean:-3,sy:.97,sx:1.02,by:2},{w:20,z:.65})}}
+    if(k>0&&ph===0){ph=1;wrPose(r,{run:o.run||.8,lean:o.lean||2,hd:1},{w:12,z:.9});r.w.spd=r.w.run=26}
+    if(o.cont&&ph===1&&k>=1){ph=3;WM.px=tx;WM.py=ty;if(o.done)o.done()}
+    if(ph===1){r.t.spd=(.12+.4*v)*(o.sp||1);if(k>.93&&!o.cont){ph=2;r.t.run=0;r.t.spd=0;wrPose(r,{lean:-3,sy:.97,sx:1.02,by:2},{w:20,z:.65})}}
     if(ph===2&&k>=1){ph=3;wrPose(r,{lean:0,sy:1,sx:1,by:0,hd:0},{w:14,z:.6});WM.px=tx;WM.py=ty;if(o.done)setTimeout(()=>{if(WM&&WM.wk===tok)o.done()},250)}
     if(ph<3)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function wmShock(){const r=WM&&WM.rig;if(!r)return;wrStop(r);const T=(ms,p,o)=>r.tl.push(setTimeout(()=>{if(WM&&WM.rig===r)wrPose(r,p,o)},ms));
@@ -12377,28 +12378,33 @@ function wmPodio(){const B=wmGenBase();if(!B){wmReveal();return}const {r,nr,sv,o
     [2300,4700,7100,9500].forEach((ms,k)=>setTimeout(()=>{if(!ok())return;sfx(k%2?'clink':'fanfare');burst(tx,ty);if(k%2===0)wmSay(FR,0)},ms));
     let k=0;const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}k++;const s=k%2?1:-1;wrPose(r,{lean:s*3.5,hd:-4+s*4,by:-3,la:158+s*12,ra:-158-s*12,ll:s*5,rl:s*5,sy:1+s*.015,sx:1-s*.015},{w:10,z:.6})},480);J.cl.push(()=>clearInterval(iv))};
   return 13500}
-function wmRacha(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H}=B;J.cl=[()=>{try{nr.dataset.flip=''}catch(e){}}];
+function wmRacha(){const B=wmGenBase();if(!B){return}const {r,nr,ok,Q,el,J,H}=B,W=innerWidth;J.cl=[()=>{try{nr.dataset.flip=''}catch(e){}}];
   const P=(ms,p,o)=>Q(ms,()=>wrPose(r,p,o)),sfx=k=>{try{wmSfx(k)}catch(e){}},rest={la:0,ra:0,ll:0,rl:0,lean:0,hd:0,sy:1,sx:1,by:0,sq:0,run:0,spd:0};
+  const win=()=>document.querySelector('#wm .wm-win').getBoundingClientRect();
   /* 1) se pone la ropa de atleta */
-  Q(0,()=>{const q=r.g.root.getBoundingClientRect?document.querySelector('#wm .wm-win').getBoundingClientRect():null;wmDress(r,'run');sfx('puff');if(q)wmPuff(el,q.left+q.width/2,q.top+q.height*.5,q.width*.8,'rgba(226,232,240,.95)')});
+  Q(0,()=>{const q=win();wmDress(r,'run');sfx('puff');wmPuff(el,q.left+q.width/2,q.top+q.height*.5,q.width*.8,'rgba(226,232,240,.95)')});
   P(100,{la:6,ra:-6,hd:-3},{w:8,z:.9});
-  /* 2) entrada en calor: círculos con los brazos */
+  /* 2) entrada en calor */
   P(800,{la:150,ra:-24,lean:-2,hd:-4},{w:14,z:.7});P(1250,{la:24,ra:-150,lean:2,hd:4},{w:14,z:.7});
-  P(1700,{la:150,ra:-24,lean:-2,hd:-4},{w:14,z:.7});P(2150,{la:24,ra:-150,lean:2,hd:4},{w:14,z:.7});
-  /* 3) toca la punta de los pies */
-  P(2700,{la:6,ra:-6,lean:0,hd:0},{w:12,z:.8});
-  P(2900,{lean:15,by:10,la:80,ra:-80,hd:12,sy:.97},{w:11,z:.75});P(3700,{lean:17,la:92,ra:-92},{w:20,z:.5});
-  P(4100,{lean:0,by:0,la:8,ra:-8,hd:0,sy:1},{w:12,z:.8});
-  /* 4) estira una pierna y la otra */
-  P(4400,{ll:38,lean:-3,la:-24,ra:24,hd:-3},{w:14,z:.6});P(5100,{ll:0,rl:38,lean:3,la:24,ra:-24},{w:14,z:.6});
-  /* 5) estira los brazos al cielo y sacude el cuerpo */
-  P(5800,{rl:0,la:168,ra:-168,sy:1.04,by:-4,lean:0,hd:-6},{w:12,z:.6});
-  P(6500,{la:10,ra:-10,sy:.98,by:2,hd:0},{w:14,z:.6});P(6700,{sy:1,by:0},{w:12,z:.8});
-  /* 6) "a sus marcas": se agacha listo para salir */
-  P(7100,{sq:1,lean:10,la:-32,ra:32,hd:4,ll:-6,rl:6},{w:12,z:.85});
-  /* 7) primer trote: cruza la pantalla despacio y vuelve */
-  Q(8200,()=>{sfx('whoosh');wrPose(r,{sq:0,lean:3},{w:16,z:.8});wmWalk(84,0,{dur:5200,flip:false,done:()=>{if(!ok())return;wmWalk(1,0,{dur:5200,flip:true,done:()=>{if(ok())wrPose(r,rest,{w:10,z:.85})}})}})});
-  return 17000}
+  P(1700,{la:6,ra:-6,lean:0,hd:0},{w:12,z:.8});
+  P(1900,{lean:15,by:10,la:80,ra:-80,hd:12,sy:.97},{w:11,z:.75});P(2500,{lean:17,la:92,ra:-92},{w:20,z:.5});
+  P(2900,{lean:0,by:0,la:8,ra:-8,hd:0,sy:1},{w:12,z:.8});
+  P(3200,{ll:38,lean:-3,la:-24,ra:24,hd:-3},{w:14,z:.6});P(3800,{ll:0,rl:38,lean:3,la:24,ra:-24},{w:14,z:.6});
+  P(4400,{rl:0,la:168,ra:-168,sy:1.04,by:-4,lean:0,hd:-6},{w:12,z:.6});P(5000,{la:10,ra:-10,sy:1,by:0,hd:0},{w:14,z:.7});
+  P(5300,{sq:1,lean:10,la:-32,ra:32,hd:4,ll:-6,rl:6},{w:12,z:.85});
+  /* 3) vueltas cada vez más rápidas */
+  const streak=()=>{const q=win(),dir=nr.dataset.flip?1:-1,L=H*(.08+Math.random()*.1),x=dir<0?q.left+q.width*.15:q.right-q.width*.15,y=q.top+q.height*(.25+Math.random()*.55),d=document.createElement('div');d.style.cssText=`position:fixed;left:${dir<0?x-L:x}px;top:${y}px;width:${L}px;height:${Math.max(2,H*.004)}px;border-radius:9px;background:linear-gradient(${dir<0?'90deg':'270deg'},rgba(255,255,255,0),rgba(255,255,255,.85));z-index:4;pointer-events:none`;el.appendChild(d);d.animate([{opacity:.9,transform:'translateX(0)'},{opacity:0,transform:`translateX(${dir*-H*.12}px)`}],{duration:380,fill:'forwards'});setTimeout(()=>d.remove(),420)};
+  let sv=0;const fast=on=>{clearInterval(sv);if(on){sv=setInterval(()=>{if(!ok()||J.stop){clearInterval(sv);return}streak();const q=win();wmPuff(el,(nr.dataset.flip?q.right:q.left)+(Math.random()-.5)*q.width*.2,q.bottom-q.height*.03,q.width*.25,'rgba(226,232,240,.8)')},90);J.cl.push(()=>clearInterval(sv))}};
+  const LAPS=[[84,4000,1,.8,2,0],[1,2900,1.5,.9,5,0],[84,2100,2.2,1,8,0],[1,1500,3,1,11,1],[84,1000,4,1,14,1]];
+  const lap=i=>{if(!ok())return;if(i>=LAPS.length){exit();return}const [tx,D,sp,run,ln,fs]=LAPS[i];if(i===0){sfx('whoosh');wrPose(r,{sq:0,lean:ln},{w:16,z:.8})}else{wrPose(r,{lean:ln},{w:14,z:.8});sfx(i>2?'whoosh':'puff')}fast(!!fs);
+    wmWalk(tx,0,{dur:D,flip:tx<50,sp,run,lean:ln,cont:1,done:()=>lap(i+1)})};
+  Q(6000,()=>lap(0));
+  /* 4) sale disparado, vuelve agitado y se planta */
+  const exit=()=>{fast(1);sfx('whoosh');wmWalk(126,0,{dur:650,flip:false,sp:5,run:1,lean:16,cont:1,done:()=>{fast(0);setTimeout(()=>{if(!ok())return;nr.style.transform='translate(-14vw,0vh)';WM.px=-14;WM.py=0;nr.dataset.flip='';wrPose(r,{run:.5,lean:6,hd:10,la:30,ra:-30},{w:10,z:.8});wmWalk(2,0,{dur:2600,flip:false,sp:.6,run:.5,lean:7,done:()=>{if(!ok())return;tired()}})},500)}})};
+  const tired=()=>{wrPose(r,{run:0,spd:0,lean:20,by:10,la:84,ra:-84,hd:16,sy:.96},{w:10,z:.8});sfx('puff');let k=0;const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}k++;wrPose(r,{by:k%2?13:8,lean:k%2?21:19},{w:10,z:.8})},420);J.cl.push(()=>clearInterval(iv));
+    setTimeout(()=>{clearInterval(iv);if(!ok())return;wrPose(r,{lean:0,by:0,la:150,ra:-150,hd:-4,sy:1,joy:1},{w:12,z:.6});sfx('fanfare');wmSay('Ni un día sin jugar. A eso me dedico.',0)},1900);
+    setTimeout(()=>{if(ok())wrPose(r,{la:10,ra:-10,joy:0,hd:0},{w:8,z:.9})},4600)};
+  return 25000}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
