@@ -4651,6 +4651,21 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .pwc input{width:100%;height:48px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.35);color:var(--text);font:inherit;font-size:16px;text-align:center;letter-spacing:.12em;outline:none;transition:border-color .25s,box-shadow .25s}.pwc input:focus{border-color:var(--a);box-shadow:0 0 0 4px rgba(var(--argb),.25)}
 .pwe{min-height:20px;margin:8px 0 10px;color:#ff8a9a;font-size:12.5px;font-weight:600}
 .pwc .hm-go{width:100%;justify-content:center}
+/* ===== Modo mando, Ajustes, Salir (v2) ===== */
+.nav .i .ast{fill:none;stroke:var(--a2);stroke-width:1.9}.nav a.active .i .ast{stroke:#fff}
+.nav .i .xtk{fill:currentColor;fill-opacity:.5;stroke:none}
+.nav .i .xsl{transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 3px var(--a2))}
+.nav a[data-a=bp]:hover .i .xsl{animation:icSl 2.4s ease-in-out infinite}
+@keyframes icSl{0%,12%{transform:translateX(0)}30%,45%{transform:translateX(-4.8px)}60%,75%{transform:translateX(4.8px)}100%{transform:translateX(0)}}
+.nav a[data-a=bp]:hover .i .xcn{animation:icCn 1.2s ease-in-out infinite}@keyframes icCn{50%{opacity:.2}}
+.nav .i .xgr,.nav .i .xgc,.nav .i .xar,.nav .i .xhn{transform-box:fill-box;transform-origin:center}
+.nav a[data-v=settings]:hover .i .xgr,.nav a.active[data-v=settings] .i .xgr{animation:icGr 5s linear infinite}
+.nav a[data-v=settings]:hover .i .xgc,.nav a.active[data-v=settings] .i .xgc{animation:icGc 1.6s ease-in-out infinite}
+@keyframes icGr{to{transform:rotate(360deg)}}@keyframes icGc{50%{transform:scale(1.35)}}
+.nav a[data-a=logout]:hover .i .xar{animation:icAr2 1s ease-in-out infinite}
+@keyframes icAr2{0%,100%{transform:translateX(0)}50%{transform:translateX(3.2px)}}
+.nav a[data-a=logout]:hover .i .xhn{animation:icHn 1s ease-in-out infinite}@keyframes icHn{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.nav .i .xsl,.nav .i .xcn,.nav .i .xgr,.nav .i .xgc,.nav .i .xar,.nav .i .xhn{animation:none!important}}
 </style>
 </head>
 <body>
@@ -14928,9 +14943,9 @@ games:`<path d="M7.2 6.6h9.6a4.8 4.8 0 0 1 4.7 5.7l-.8 4.2a2.9 2.9 0 0 1-5 1.4l-
 prog:`<path d="M7 3.6h10v5.6a5 5 0 0 1-10 0z" fill="currentColor" fill-opacity=".18"/><path d="M7 5.4H3.8v1.9A3.7 3.7 0 0 0 7.4 11M17 5.4h3.2v1.9A3.7 3.7 0 0 1 16.6 11M12 14.2v3.6M8.2 20.8h7.6M9.2 17.8h5.6"/><path class="ac st" d="M12 5.3l1.05 2.15 2.35.34-1.7 1.66.4 2.35L12 10.7l-2.1 1.1.4-2.35-1.7-1.66 2.35-.34z"/><path class="sk s1" d="M20.6 1.8v2.6M19.3 3.1h2.6"/><path class="sk s2" d="M3.4 14.2v2M2.4 15.2h2"/>`,
 sagas:`<rect x="3.2" y="5" width="4.8" height="15.5" rx="1.4" fill="currentColor" fill-opacity=".18"/><path class="ac rb" d="M4.8 5v5.4l.8-.8.8.8V5z"/><g class="bk"><rect x="9.6" y="4" width="4.8" height="16.5" rx="1.4"/><path d="M11 8.2h1.8M11 10.6h1.8"/></g><path d="m16.5 6 3.9-1.1 2.9 14-3.9 1.1z"/>`,
 social:`<circle class="hd h1" cx="9" cy="8.2" r="3.4" fill="currentColor" fill-opacity=".18"/><path d="M2.6 20.2c0-3.6 2.8-6 6.4-6s6.4 2.4 6.4 6"/><circle class="hd h2" cx="17.2" cy="10" r="2.5"/><path d="M16.8 15.2c2.6.2 4.4 2 4.4 4.8"/><circle class="rg" cx="20.4" cy="4.8" r="1.7"/><circle class="ac od" cx="20.4" cy="4.8" r="1.7"/>`,
-bp:`<rect x="2.5" y="5" width="19" height="14" rx="4"${F}/><path class="ac dp" d="M8 9.6v4.8M5.6 12h4.8" stroke="var(--a2)" stroke-width="1.7"/><circle class="ac b1" cx="15" cy="10.8" r="1"/><circle class="ac b2" cx="17.5" cy="13.2" r="1"/>`,
-settings:`<path d="M4 7h8.5M17 7h3M4 17h3M11.5 17H20"/><circle class="kn k1" cx="14.8" cy="7" r="2.4"${F}/><circle class="kn k2" cx="9.2" cy="17" r="2.4"${F}/>`,
-logout:`<path d="M10 21H6a2.5 2.5 0 0 1-2.5-2.5v-13A2.5 2.5 0 0 1 6 3h4"${F}/><path class="ar" d="m16 16.5 4.5-4.5L16 7.5M20.5 12H9.5"/>`});
+bp:`<rect x="2.8" y="3.6" width="18.4" height="12.8" rx="3.2" fill="currentColor" fill-opacity=".18"/><path d="M8.6 20.4h6.8M12 16.6v3.8"/><rect class="xtk" x="5.6" y="7.6" width="3.2" height="5" rx="1"/><rect class="xtk" x="15.2" y="7.6" width="3.2" height="5" rx="1"/><rect class="ac xsl" x="10.4" y="7.2" width="3.2" height="5.8" rx="1.1"/><path class="ast xcn" d="M9.3 6.2V5.4M14.7 6.2V5.4"/>`,
+settings:`<g class="xgr"><circle cx="12" cy="12" r="6.3" fill="currentColor" fill-opacity=".18"/><path d="M12 2.6v3M12 18.4v3M2.6 12h3M18.4 12h3M5.35 5.35l2.1 2.1M16.55 16.55l2.1 2.1M5.35 18.65l2.1-2.1M16.55 7.45l2.1-2.1"/></g><circle class="ac xgc" cx="12" cy="12" r="2.3"/>`,
+logout:`<path d="M10.8 3.2H7a2.8 2.8 0 0 0-2.8 2.8v12A2.8 2.8 0 0 0 7 20.8h3.8" fill="currentColor" fill-opacity=".18"/><circle class="ac xhn" cx="8.4" cy="12" r="1"/><g class="xar"><path class="ast" d="M11.5 12h9.2"/><path class="ast" d="m16.9 7.8 4.2 4.2-4.2 4.2"/></g>`});
 const map=[['[data-v=home]','home'],['[data-v=web]','web'],['[data-v=games]','games'],['[data-v=prog]','prog'],['[data-v=sagas]','sagas'],['[data-v=social]','social'],['[data-a=bp]','bp'],['[data-v=settings]','settings'],['[data-a=logout]','logout']];
 const go=()=>map.forEach(([s,k])=>{const a=document.querySelector('.nav a'+s);if(!a)return;const o=a.querySelector('svg.i');if(!o||o.dataset.nv)return;const n=document.createElement('template');n.innerHTML=ic(k);const e=n.content.firstChild;e.dataset.nv=1;o.replaceWith(e)});
 go();setTimeout(go,300);setTimeout(go,1500)})();
