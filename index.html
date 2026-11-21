@@ -5312,6 +5312,9 @@ function wrapYears(){const cy=new Date().getFullYear(),y=new Set([cy]);
   G.forEach(g=>{if(lastTs(g))y.add(yOf(lastTs(g)));if(g.doneAt)y.add(yOf(g.doneAt))});Object.values(ACHT).forEach(o=>Object.keys(o).forEach(k=>y.add(+k.slice(0,4))));
   return [...y].filter(x=>x>=2005&&x<=cy).sort((a,b)=>a-b)}
 const WFIX={2025:[[730],[3354750],[3164500],[1888930],[207610,261030,536220,866800]],2026:[[1091500],['xfifa16'],[1174180],[12210],[1222670]]};
+/* géneros del resumen anual: solo 5 grandes, con respaldo en los datos del juego */
+const WG5=[['Acción',/acci|action|shooter|fighting|hack|arcade|platform/i],['Aventura',/aventura|adventure|visual novel|point-and-click|casual|puzzle/i],['RPG',/^rpg$|role-playing|rpg/i],['Estrategia',/estrateg|strategy|tactical|simulaci|simulat/i],['Deportes',/deporte|sport|carrera|racing/i]];
+function wGen5(g){const l=genresOf(g),raw=l.length?l:((INFO[g.id]||{}).gen||[]),o=new Set();raw.forEach(n=>{n=String(n||'');for(const [k,re] of WG5){if(re.test(n)){o.add(k);break}}});return[...o]}
 function wrapData(y,q){q=q||0;const inQ=m=>!q||(m>=(q-1)*3+1&&m<=q*3),inP=t=>t&&yOf(t)===y&&inQ(new Date(t).getMonth()+1);const L=ST.log||{},GL=ST.gl||{},month=Array(12).fill(0),per={},days=[];let tot=0;
   for(const k in L){const [Y,M]=k.split('-').map(Number);if(Y!==y||!inQ(M)||!(L[k]>0))continue;tot+=L[k];month[M-1]+=L[k];days.push(dayN(k))}
   for(const k in GL){const kk=k.split('-');if(+kk[0]!==y||!inQ(+kk[1]))continue;for(const id in GL[k])per[id]=(per[id]||0)+GL[k][id]}
@@ -5327,7 +5330,7 @@ function wrapData(y,q){q=q||0;const inQ=m=>!q||(m>=(q-1)*3+1&&m<=q*3),inP=t=>t&&
       const g0=gs.length>1?{...gs[0],name:'The Walking Dead (saga)'}:gs[0];pool.push([g0,h])});pool.sort((a,b)=>b[1]-a[1])}
   const played=Object.keys(per).length||inY.length;
   const done=G.filter(g=>g.status==='Terminado'&&inP(doneDate(g))).sort((a,b)=>doneDate(a)-doneDate(b));
-  const gen={};(fixed?pool.map(p=>p[0]):fb?inY:Object.keys(per).map(gm).filter(Boolean)).forEach(g=>{const w=fb?1:per[g.id];genresOf(g).forEach(t=>gen[t]=(gen[t]||0)+w)});
+  const gen={};(fixed?pool.map(p=>p[0]):fb?inY:Object.keys(per).map(gm).filter(Boolean)).forEach(g=>{const w=fb?1:per[g.id];wGen5(g).forEach(t=>gen[t]=(gen[t]||0)+w)});
   const mx=Math.max(...month);
   const ad=[...aDays].map(k=>dayN(k)).sort((a,b)=>a-b);
   return {per,q,fixed,y,tot,month,bm:tot>0?month.indexOf(mx):-1,pool,fb,played,done,ach,ad:aDays.size,astreak:runs(ad),gen:Object.entries(gen).sort((a,b)=>b[1]-a[1]).slice(0,5),streak:runs(days),dn:days.length}}
