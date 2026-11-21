@@ -8609,25 +8609,42 @@ const BG12=()=>{let sd=12;const rn=()=>(sd=(sd*9301+49297)%233280)/233280,f=n=>(
  const hill1=`<path d="M-20 220V164Q20 140 70 156T130 158T220 146V220Z" fill="url(#g12h1)"/><path d="M-20 164Q20 140 70 156T130 158T220 146" fill="none" stroke="#d6f6b4" stroke-width="1.4"/>${[[64,156,3],[72,154,2.6],[84,157,3.2],[100,158,2.4]].map((t,i)=>tree(t[0],t[1],t[2],i)).join('')}`;
  const hill2=`<path d="M70 220V164Q110 134 150 146T220 138V220Z" fill="url(#g12h2)"/><path d="M70 164Q110 134 150 146T220 138" fill="none" stroke="#c9f3a2" stroke-width="1.5"/>`;
  // castillo
+ const crs=(x,y,w,h,n)=>Array.from({length:n},(_,i)=>`<path d="M${x} ${f(y+h*(i+1)/(n+1))}H${x+w}" stroke="${K}" stroke-opacity=".22" stroke-width=".4"/>`).join('');
+ const shut=(x,y)=>`<rect x="${f(x-4.2)}" y="${y-.4}" width="1.8" height="6" fill="#8a5a2a" stroke="#4a2e14" stroke-width=".3"/><rect x="${f(x+2.4)}" y="${y-.4}" width="1.8" height="6" fill="#8a5a2a" stroke="#4a2e14" stroke-width=".3"/>`;
+ const torch=(x,y)=>`<rect x="${x-.5}" y="${y}" width="1" height="3.4" fill="#5a3a1a"/><g class="bgfl"><path d="M${x} ${y-3.4}Q${x+2} ${y-1.4} ${x} ${y+.4}Q${x-2} ${y-1.4} ${x} ${y-3.4}Z" fill="#ff9a3a"/><path d="M${x} ${y-2}Q${x+1} ${y-.8} ${x} ${y}Q${x-1} ${y-.8} ${x} ${y-2}Z" fill="#ffe27a"/></g><circle cx="${x}" cy="${y-1}" r="4.4" fill="#ffb84a" opacity=".18"/>`;
+ const mach=(x,y,w)=>`<rect x="${x-.8}" y="${y}" width="${w+1.6}" height="2.2" fill="#dfe4f5" stroke="${K}" stroke-width=".6"/>${Array.from({length:Math.floor(w/2.4)},(_,i)=>`<path d="M${f(x+.6+i*2.4)} ${y+2.2}v1.8l1 .8 1 -.8v-1.8" fill="#c9d0ea" stroke="${K}" stroke-width=".4"/>`).join('')}`;
+ const ivy=(x,y,w,h)=>{let o='';for(let i=0;i<9;i++){const px=x+rn()*w,py=y+rn()*h;o+=`<circle cx="${f(px)}" cy="${f(py)}" r="${f(1+rn()*1.1)}" fill="${rn()<.5?'#4fa83a':'#3f9d4d'}" opacity=".85"/>`}return o};
  const castle=`<g>
-  <path d="M112 152Q146 158 182 152V148H112Z" fill="#6fa05a" opacity=".5"/>
-  <rect x="118" y="116" width="58" height="34" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="118" y="116" width="58" height="34" fill="url(#g12br)"/>
-  ${cren(118.6,112.4,9,3.8,2.8)}
-  <rect x="150" y="116" width="26" height="34" fill="#9aa6d4" opacity=".22"/>
-  <path d="M123 124v5M171 124v5M128 134v5M166 134v5" stroke="${K}" stroke-width="1.1" stroke-linecap="round"/>
-  <rect x="134" y="62" width="26" height="56" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="134" y="62" width="26" height="56" fill="url(#g12br)"/><rect x="151" y="62" width="9" height="56" fill="#9aa6d4" opacity=".28"/>
-  ${cren(134.6,58.4,5,3.2,1.6)}
-  <path d="M133 96H161" stroke="${K}" stroke-width="1"/><rect x="132" y="94.6" width="30" height="2.8" fill="#dfe4f5" stroke="${K}" stroke-width=".7"/>
-  <rect x="138" y="88" width="18" height="6" fill="#fff" fill-opacity=".0"/>
-  <path d="M137 94V89M141 94V89M145 94V89M149 94V89M153 94V89M157 94V89" stroke="${K}" stroke-width=".5"/><path d="M137 89H157" stroke="${K}" stroke-width=".6"/>
-  ${win(147,70,0,2.6)}${win(140,78,1.2)}${win(154,78,2.4)}${win(147,102,.8,2.6)}${win(136,104,1.9,2)}${win(158,104,.5,2)}
-  ${cone(147,62,17,30,'g12rr','#7a1a2a',5)}
-  <g><rect x="104" y="88" width="17" height="64" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="104" y="88" width="17" height="64" fill="url(#g12br)"/><rect x="113" y="88" width="8" height="64" fill="#9aa6d4" opacity=".3"/>${cren(104.4,84.4,4,2.8,1.4)}${win(112.5,98,1)}${win(112.5,118,2.2,1.8)}<path d="M104 126H121" stroke="${K}" stroke-width=".7"/></g>
-  <g><rect x="170" y="80" width="17" height="72" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="170" y="80" width="17" height="72" fill="url(#g12br)"/><rect x="179" y="80" width="8" height="72" fill="#9aa6d4" opacity=".3"/>${cren(170.4,76.4,4,2.8,1.4)}${win(178.5,92,.4)}${win(178.5,112,1.7,1.8)}<path d="M170 130H187" stroke="${K}" stroke-width=".7"/></g>
-  ${cone(112.5,88,13,28,'g12rb','#122a70',4)}${cone(178.5,80,13,30,'g12rb','#122a70',4)}
-  ${flag(112.5,60,'#ffd54f')}${flag(147,32,'#e4443f')}${flag(178.5,50,'#ffd54f')}
-  <path d="M138 150V140Q147 128 156 140V150Z" fill="#5a3a22" stroke="${K}" stroke-width="1"/><path d="M147 130V150M141 140V150M153 140V150" stroke="#2a1a10" stroke-width=".5"/><path d="M137 140Q147 126 157 140" fill="none" stroke="#c9d0ea" stroke-width="1.8"/><circle cx="144" cy="145" r=".8" fill="#ffd54f"/><circle cx="150" cy="145" r=".8" fill="#ffd54f"/>
-  <path d="M137 114H157V126L147 122L137 126Z" fill="#c92a3c" stroke="#5a0f1a" stroke-width=".6" opacity=".92"/><path d="M147 118L149 121L147 124L145 121Z" fill="#ffd54f"/>
+  <rect x="116" y="116" width="62" height="34" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="116" y="116" width="62" height="34" fill="url(#g12br)"/><rect x="156" y="116" width="22" height="34" fill="#9aa6d4" opacity=".24"/>
+  ${mach(116,111.4,62)}${cren(116.6,108,10,3.8,2.4)}
+  <path d="M124 126v5M170 126v5M132 134v5M162 134v5M124 140v4M170 140v4" stroke="${K}" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M121 116V150M173 116V150" stroke="${K}" stroke-opacity=".3" stroke-width=".7"/>
+  ${ivy(116,126,12,22)}${ivy(166,128,10,20)}
+  <rect x="131" y="62" width="32" height="56" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="131" y="62" width="32" height="56" fill="url(#g12br)"/><rect x="152" y="62" width="11" height="56" fill="#9aa6d4" opacity=".28"/>
+  <path d="M131 94H163M131 106H163" stroke="${K}" stroke-opacity=".5" stroke-width=".6"/>
+  ${mach(131,57.6,32)}${cren(131.6,54,6,3.4,1.2)}
+  <rect x="129.6" y="93.4" width="34.8" height="3" fill="#eef1fc" stroke="${K}" stroke-width=".7"/>
+  <path d="M133 93.4V89M137 93.4V89M141 93.4V89M145 93.4V89M149 93.4V89M153 93.4V89M157 93.4V89M161 93.4V89" stroke="${K}" stroke-width=".5"/><path d="M133 89H161" stroke="${K}" stroke-width=".6"/>
+  <g><circle cx="147" cy="76" r="5.6" fill="#fff" stroke="#b8860b" stroke-width="1.1"/><circle cx="147" cy="76" r="4.2" fill="#7aa8ff" opacity=".85"/>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M147 76L${f(147+Math.cos(i*.785)*4.2)} ${f(76+Math.sin(i*.785)*4.2)}" stroke="#b8860b" stroke-width=".4"/>`).join('')}<circle cx="147" cy="76" r="1.4" fill="#ffd54f" stroke="#b8860b" stroke-width=".3"/><path d="M144.4 74Q146 72.6 148 72.8" stroke="#fff" stroke-width=".6" fill="none" opacity=".8" stroke-linecap="round"/></g>
+  ${win(139,70,0,2)}${win(155,70,1.3,2)}${win(140,102,.8,2.2)}${win(154,102,2.1,2.2)}${win(147,102,1.6,2.4)}${shut(140,102)}${shut(154,102)}
+  <path d="M143 112H151V118H143Z" fill="#fff" fill-opacity="0"/>
+  <path d="M133.4 101.2H161" stroke="#b8860b" stroke-width=".5" opacity=".6"/>
+  <g><rect x="127" y="46" width="7" height="14" fill="url(#g12st)" stroke="${K}" stroke-width=".9"/>${cone(130.5,46,5.6,11,'g12rb','#122a70',3)}${win(130.5,50,.6,1.4)}</g>
+  <g><rect x="160" y="46" width="7" height="14" fill="url(#g12st)" stroke="${K}" stroke-width=".9"/>${cone(163.5,46,5.6,11,'g12rb','#122a70',3)}${win(163.5,50,1.8,1.4)}</g>
+  ${cone(147,54,19,36,'g12rr','#7a1a2a',6)}<circle cx="147" cy="18.4" r="1.6" fill="#ffd54f" stroke="#8a5a00" stroke-width=".4"/>
+  <g><rect x="102" y="88" width="21" height="64" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="102" y="88" width="21" height="64" fill="url(#g12br)"/><rect x="113" y="88" width="10" height="64" fill="#9aa6d4" opacity=".3"/>${crs(102,88,21,64,6)}${mach(102,83.4,21)}${cren(102.6,80,5,2.8,1.4)}${win(112.5,98,1,2)}${shut(112.5,98)}${win(112.5,118,2.2,2)}<path d="M102 128H123" stroke="${K}" stroke-width=".7"/><path d="M104 136v4M121 136v4" stroke="${K}" stroke-width=".9" stroke-linecap="round"/></g>
+  <g><rect x="170" y="80" width="21" height="72" fill="url(#g12st)" stroke="${K}" stroke-width="1.1"/><rect x="170" y="80" width="21" height="72" fill="url(#g12br)"/><rect x="181" y="80" width="10" height="72" fill="#9aa6d4" opacity=".3"/>${crs(170,80,21,72,7)}${mach(170,75.4,21)}${cren(170.6,72,5,2.8,1.4)}${win(180.5,90,.4,2)}${shut(180.5,90)}${win(180.5,112,1.7,2)}<path d="M170 132H191" stroke="${K}" stroke-width=".7"/>${ivy(170,124,8,24)}</g>
+  ${cone(112.5,80,15,30,'g12rb','#122a70',5)}${cone(180.5,72,15,32,'g12rb','#122a70',5)}
+  <circle cx="112.5" cy="49.6" r="1.3" fill="#ffd54f" stroke="#8a5a00" stroke-width=".4"/><circle cx="180.5" cy="39.6" r="1.3" fill="#ffd54f" stroke="#8a5a00" stroke-width=".4"/>
+  ${flag(112.5,49,'#ffd54f')}${flag(147,18,'#e4443f')}${flag(180.5,40,'#ffd54f')}
+  <g><rect x="129" y="126" width="9" height="24" fill="url(#g12st)" stroke="${K}" stroke-width=".9"/>${cone(133.5,126,6.4,12,'g12rb','#122a70',3)}<path d="M133.5 132v4" stroke="${K}" stroke-width=".9" stroke-linecap="round"/></g>
+  <g><rect x="156" y="126" width="9" height="24" fill="url(#g12st)" stroke="${K}" stroke-width=".9"/>${cone(160.5,126,6.4,12,'g12rb','#122a70',3)}<path d="M160.5 132v4" stroke="${K}" stroke-width=".9" stroke-linecap="round"/></g>
+  <path d="M138.4 150V141Q147 128.4 155.6 141V150Z" fill="#241810" stroke="${K}" stroke-width="1"/>
+  <g opacity=".9"><path d="M141 150V138M144 150V134M147 150V132M150 150V134M153 150V138M139 144H155.4M139.6 139H154.4" stroke="#6a6a7a" stroke-width=".6"/></g>
+  <path d="M137.4 141Q147 126.6 156.6 141" fill="none" stroke="#dfe4f5" stroke-width="2.2"/><path d="M137.4 141Q147 126.6 156.6 141" fill="none" stroke="${K}" stroke-width=".6"/><path d="M145.4 129.2L147 127.4L148.6 129.2L147 131Z" fill="#ffd54f" stroke="${K}" stroke-width=".5"/>
+  ${torch(139,139)}${torch(155,139)}
+  <path d="M139 116H155V124L147 120L139 124Z" fill="#c92a3c" stroke="#5a0f1a" stroke-width=".6" opacity=".95"/><path d="M147 118.4L148.8 121L147 123.6L145.2 121Z" fill="#ffd54f"/>
+  <path d="M168 96H175V106L171.5 103L168 106Z" fill="#2a5ac4" stroke="#14286a" stroke-width=".5" opacity=".95"/><path d="M171.5 98.4L172.6 100.6L171.5 102.8L170.4 100.6Z" fill="#ffd54f"/>
  </g>`;
  const path=`<path d="M138 150Q150 160 128 172T136 196Q138 210 130 224H158Q152 206 154 194T160 172Q166 160 156 150Z" fill="#f1dfae" stroke="#c9a96a" stroke-width=".9"/><path d="M146 158Q142 166 140 172M148 182Q146 190 146 198" stroke="#d9bf84" stroke-width=".8" fill="none" stroke-linecap="round" stroke-dasharray="2 3"/><circle cx="136" cy="168" r=".9" fill="#d9bf84"/><circle cx="152" cy="190" r=".8" fill="#d9bf84"/>`;
  // molino
@@ -10144,7 +10161,7 @@ return GRN('w6','#fbeabb','#d4a95c',' #fff3d0'.trim(),180,
   for(let i=0;i<8;i++){const x=r()*205,y=196+r()*30;bn+=`<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(.9+r()*.9)}" ry=".6" fill="#c9cdd9" stroke="#8a90a6" stroke-width=".25"/>`}
   let bl='';for(let i=0;i<150;i++){const x=r()*214-7,y=184+r()*44,z=.75+(y-184)/44*.55,h=(3+r()*4.8)*z,k=r();const c=k<.35?'#4fa83a':k<.65?'#7fd062':k<.85?'#2f7f3a':'#a6ec84';bl+=`<path ${sw(x*1.3,3+r()*2)} d="M${f(x)} ${f(y)}q${f(-1.6*z)} ${f(-h*.6)} ${f(-.6)} ${f(-h)}q${f(1.8*z)} ${f(h*.4)} ${f(1.2*z)} ${f(h)}z" fill="${c}"/>`}
   let tf='';[[12,206],[44,200],[158,204],[190,208],[22,222],[176,222],[60,224],[140,226]].forEach(([x,y],i)=>{const z=.8+(y-196)/30*.4;tf+=`<g ${sw(x*2,3.6)} transform="translate(${x} ${y}) scale(${f(z)})">${[-3,-1.4,0,1.4,3].map((dx,j)=>`<path d="M${dx*.6} 0Q${dx*1.2+(j%2?-1:1)} ${-5-(2-Math.abs(dx*.5))*1.8} ${dx*1.5} ${-8-(2-Math.abs(dx*.5))*1.6}Q${dx*.6+1} ${-4} ${dx*.6+1.2} 0Z" fill="${j%2?'#4fa83a':'#7fd062'}" stroke="#2f7f3a" stroke-width=".25"/>`).join('')}</g>`});
-  const fl=dai(24,208,1.15,'#c8c8e0')+dai(168,210,1.1,'#ffd4e6')+dai(8,222,1,'#c8c8e0')+dai(190,224,1.2,'#c8c8e0')+tul(40,216,1.1,'#ff6a9a','#c92a62')+tul(152,218,1.15,'#ffcf4a','#e0961a')+tul(12,200,.95,'#d9b8ff','#8a5ad0')+tul(186,202,1,'#ff6a9a','#c92a62')+poppy(54,224,1.05)+poppy(150,228,1)+bell(32,226,1.1,'#7aa8ff')+bell(176,226,1.05,'#a78bfa')+lav(200,214,1.1)+lav(2,212,1.05)+dand(66,214,1)+dand(136,214,.95)+dai(98,228,.8,'#ffd4e6')+tul(112,230,.8,'#ffcf4a','#e0961a');
+  const fl=dai(24,208,1.15,'#c8c8e0')+dai(168,210,1.1,'#ffd4e6')+dai(8,222,1,'#c8c8e0')+dai(190,224,1.2,'#c8c8e0')+tul(40,216,1.1,'#ff6a9a','#c92a62')+tul(152,218,1.15,'#ffcf4a','#e0961a')+tul(12,200,.95,'#d9b8ff','#8a5ad0')+tul(186,202,1,'#ff6a9a','#c92a62')+poppy(54,224,1.05)+poppy(150,228,1)+dand(66,214,1)+dand(136,214,.95)+dai(98,228,.8,'#ffd4e6')+tul(112,230,.8,'#ffcf4a','#e0961a');
   return GRN('w12','#9be06a','#56a238','#c4f29a',180,bn+bl+tf+fl+mush(30,220,1.05)+mush(172,218,.85)+rock(16,218,1.05)+rock(186,226,.85)+rock(104,230,.65))},
  w13:()=>W13.gr,
  w14:()=>W14.fl,
