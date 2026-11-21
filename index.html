@@ -11722,6 +11722,7 @@ function wmSlides(y,q){const d=wrapData(y,q),p=wrapPers(d),fb=d.fb,per=q?QN[q]+'
       if(/JUEGO DEL AÑO/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=13000;x.sd=9500;x.hid=1;x.rx=()=>wmPodio()}
       if(/RACHA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=27500;x.sd=26500;x.rx=()=>wmRacha()}
       if(/SESIÓN MÁS LARGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=19800;x.sd=18800;x.hid=1;x.rx=()=>wmSesion()}
+      if(/LOGROS/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-n" data-cu=','class="wm-n" data-dur="7000" data-delay="1500" data-cu=');x.pos={x:0,y:0,f:0};x.t=14500;x.sd=13500;x.rx=()=>wmLogros()}
       if(/Nº 1/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=12000;x.sd=8500;x.rx=()=>wmHypno()}
       if(/SAGA/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.pos={x:0,y:0,f:0};x.t=15000;x.sd=10400;let sg=null;try{sg=wrapSaga(d)}catch(e){}const dn=!!(sg&&sg.dn>=sg.tot);x.rx=()=>wmAdmire(dn)}
       if(/TOP/.test((x.h.match(/class="wm-k">([^<]*)</)||[])[1]||'')){x.h=x.h.replace('class="wm-top"','class="wm-top srv"');x.pos={x:6,y:0,f:0};x.t=16500;x.sd=11800;x.rx=()=>wmServe()}
@@ -11759,7 +11760,7 @@ function wmNarr(h,d,c){const t=(h.match(/class="wm-k">([^<]*)</)||[])[1]||'',R=a
   if(/TERMINASTE/.test(t))return d.done.length>=5?'¿Quién sos y qué hiciste con el de los 40 juegos empezados?':R(['Uno es uno, festejemos.','Mejor eso que nada.']);
   if(/DIARIO/.test(t))return 'Hasta escribiste tus partidas. Un genio de las letras.';
   if(/DÍA FAVORITO/.test(t))return 'Ya sé qué día no te puedo llamar para nada.';
-  if(/LOGROS/.test(t))return 'Cazaste de más, lo sabés.';
+  if(/LOGROS/.test(t))return '';
   if(/JUEGO DEL AÑO/.test(t))return 'El elegido. Se lo ganó, ni discusión.';
   if(/RESUMEN/.test(t))return 'Todo junto, así se ve más épico, ¿viste?';
   if(/ASÍ FUE/.test(t))return big?'Un año enorme. Gracias por jugarlo conmigo, nos vemos en el próximo.':'Y esto fue todo. Gracias por jugar conmigo, nos vemos en el próximo.';
@@ -11794,7 +11795,7 @@ function wmLoop(t){const cv=$('#wmcv');if(!WM||!cv)return;requestAnimationFrame(
   if(WM.i===WM.s.length-1&&t>WM.nf){WM.nf=t+R_(450,900);WM.fc=Math.floor(Math.random()*7);wmBurst(R_(.15,.85)*cv.width,R_(.15,.55)*cv.height,80,'fw')}
   WM.P=WM.P.filter(p=>p.l>0&&p.y<cv.height+40);for(const p of WM.P){p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;if(p.k==='r'){p.vx*=.985;p.vy*=.985;p.r+=p.vr}else if(p.k==='o'){p.vx*=.985;p.vy*=.985}p.l-=p.dl;x.globalAlpha=Math.max(0,Math.min(1,p.l*1.4));x.fillStyle=p.c;
     if(p.k==='r'){x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.6);x.restore()}else if(p.k==='s'){x.shadowColor='#fff';x.shadowBlur=10;x.beginPath();x.arc(p.x,p.y,p.s,0,7);x.fill();x.shadowBlur=0}else{x.shadowColor=p.c;x.shadowBlur=8;x.beginPath();x.arc(p.x,p.y,p.s*Math.max(.3,p.l),0,7);x.fill();x.shadowBlur=0}}x.globalAlpha=1}
-function wmCount(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu),dec=+el.dataset.dec||0,t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/1700),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec).replace('.',',')+(el.dataset.suf||'');if(k<1&&WM)requestAnimationFrame(f)})(t0)})}
+function wmCount(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu),dec=+el.dataset.dec||0,D=+el.dataset.dur||1700,dl=+el.dataset.delay||0,lin=!!el.dataset.dur,t0=performance.now()+dl;(function f(t){const k=Math.max(0,Math.min(1,(t-t0)/D)),e=lin?k:1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec).replace('.',',')+(el.dataset.suf||'');if(k<1&&WM)requestAnimationFrame(f)})(t0)})}
 function wmSplit(root){root.querySelectorAll('.wm-huge,.wm-h2').forEach(h=>{const tx=h.textContent;let n=0;h.innerHTML=tx.split(' ').map(w=>`<span class="w">${[...w].map(ch=>`<span class="ch" style="--i:${n++}">${esc(ch)}</span>`).join('')}</span>`).join(' ')})}
 /* ===== motor de animación del Winter: resortes críticamente amortiguados por articulación + gestos por línea de tiempo ===== */
 const WRP={spi:0,rot:0,bx:0,by:0,sx:1,sy:1,ll:0,rl:0,lean:0,hd:0,la:0,ra:0,run:0,spd:0,wv:0,wide:0,joy:0,meh:0,sq:0};
@@ -12469,6 +12470,25 @@ function wmSesion(){const B=wmGenBase();if(!B){wmReveal();return}const {r,nr,ok,
   P(16800,{la:6,ra:-6,by:0,hd:0,lean:0},{w:9,z:.9});
   Q(19000,()=>{tg.forEach(e=>{e.style.visibility=''})});
   return 19200}
+function wmLogros(){const B=wmGenBase();if(!B){return}const {r,ok,Q,el,J,H,root}=B,W=innerWidth;
+  const P=(ms,p,o)=>Q(ms,()=>wrPose(r,p,o)),sfx=k=>{try{wmSfx(k)}catch(e){}},win=()=>document.querySelector('#wm .wm-win').getBoundingClientRect();
+  const nb=root.querySelector('.wm-bn .wm-n'),to=nb?parseFloat(nb.dataset.cu):0;
+  const spark=(big)=>{if(!nb)return;const q=nb.getBoundingClientRect(),n=big?14:6,C=['#fde047','#f8fafc','#fb923c'];for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2,sz=H*(big?.012:.008),x=q.left+q.width*(.1+Math.random()*.8),y=q.top+q.height*(.2+Math.random()*.6),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${C[k%3]}`,'');p.style.opacity=1;p.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${Math.cos(a)*H*(big?.14:.07)}px,${Math.sin(a)*H*(big?.14:.07)}px)`,opacity:0}],{duration:620,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),660)}try{nb.animate([{transform:'scale(1)'},{transform:`scale(${big?1.1:1.04})`},{transform:'scale(1)'}],{duration:big?320:200,easing:'ease-out'})}catch(e){}};
+  const burstC=()=>{const q=win(),x=q.left+q.width/2,y=q.top+q.height*.05,C=['#fde047','#f8fafc','#fb923c','#f472b6','#60a5fa'];for(let k=0;k<30;k++){const a=-Math.PI/2+(k/30-.5)*Math.PI*1.4,sz=H*(.011+.008*(k%3)/2),p=wmPropEl(el,`left:${x}px;top:${y}px;width:${sz}px;height:${sz*1.6}px;background:${C[k%5]};border-radius:2px`,'');p.style.opacity=1;const d=H*(.2+.25*((k*7)%10)/10);p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px) rotate(${(k%2?1:-1)*240}deg)`,opacity:1,offset:.55},{transform:`translate(${Math.cos(a)*d*1.15}px,${Math.sin(a)*d+H*.3}px) rotate(${(k%2?1:-1)*480}deg)`,opacity:0}],{duration:1500+(k%4)*150,easing:'ease-out',fill:'forwards'});setTimeout(()=>p.remove(),1900)}};
+  /* 1) se pone la ropa de cazador de trofeos */
+  Q(0,()=>{const q=win();wmDress(r,'ach');sfx('puff');wmPuff(el,q.left+q.width/2,q.top+q.height*.5,q.width*.8,'rgba(226,232,240,.95)')});
+  P(100,{la:6,ra:-6,hd:-3},{w:8,z:.9});
+  P(700,{la:-18,ra:18,sy:.94,by:5,hd:3},{w:14,z:.8});P(1250,{la:8,ra:-8,sy:1,by:0,hd:0},{w:14,z:.8});
+  /* 2) cada 5 logros salta chico; cada 10, salto grande con destello en el número */
+  let last=0,hopN=0;
+  const hop=big=>{hopN++;const L=hopN%2?1:-1;wrPose(r,{sy:.9,by:6,la:20,ra:-20},{w:26,z:.8});setTimeout(()=>{if(!ok())return;wrPose(r,big?{sy:1.07,by:-34,la:158,ra:-158,ll:8*L,rl:-8*L,joy:1,lean:2*L,hd:-4}:{sy:1.04,by:-18,la:60*L+20,ra:-60*L-20,ll:6,rl:-6,lean:3*L},{w:big?20:22,z:.5});sfx(big?'fanfare':'clink');spark(big)},110);setTimeout(()=>{if(ok())wrPose(r,{sy:.94,by:4,la:30,ra:-30,ll:0,rl:0,joy:0,lean:0,hd:0},{w:26,z:.7})},big?520:380);setTimeout(()=>{if(ok())wrPose(r,{sy:1,by:0},{w:12,z:.85})},big?740:560)};
+  const iv=setInterval(()=>{if(!ok()||J.stop){clearInterval(iv);return}if(!nb)return;const v=Math.floor(parseFloat(nb.textContent.replace(',','.'))||0);while(last+5<=v){last+=5;if(last<to-.5)hop(last%10===0)}},40);J.cl=[()=>clearInterval(iv)];
+  /* 3) final: brazos arriba, confeti y frase */
+  Q(1500+7000+250,()=>{if(!ok())return;sfx('fanfare');wrPose(r,{la:165,ra:-165,joy:1,sy:1.04,by:-20,lean:0,hd:-4,ll:6,rl:-6},{w:18,z:.5});spark(1);burstC()});
+  P(1500+7000+900,{sy:1,by:0,la:150,ra:-150},{w:12,z:.7});
+  Q(1500+7000+1100,()=>wmSay('Logro tras logro. A eso me dedico.',0));
+  P(1500+7000+3600,{la:8,ra:-8,joy:0,hd:0},{w:9,z:.9});
+  return 14000}
 function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)return;clearTimeout(WM.ty);clearTimeout(WM.tw);clearTimeout(WM.tx);if(WM.rig)WM.rig.talk=0;w.classList.remove('talk');
   const had=b.dataset.on==='1';
   const out=()=>{if(!had)return;b.dataset.on='0';try{b.getAnimations().forEach(a=>a.cancel());b.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.82) translateY(8px)',opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,.8,.4)',fill:'forwards'})}catch(e){b.style.opacity=0}};
