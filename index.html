@@ -4388,6 +4388,7 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 .bpvk.add{background:transparent;box-shadow:inset 0 0 0 .25vh rgba(255,255,255,.22);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.25)}.bpvk.add .bpvt.rnd{background:rgba(255,255,255,.05)}
 .bpvl2{display:flex;flex-wrap:wrap;gap:1.2vh}.bpvq{display:flex;align-items:center;gap:1vh;border:0;font:inherit;font-size:1.6vh;font-weight:600;color:#fff;padding:1.1vh 2vh;border-radius:99px;background:rgba(255,90,110,.14);box-shadow:inset 0 0 0 1px rgba(255,90,110,.35);cursor:pointer;transition:background .3s,transform .3s}.bpvq svg{width:2vh;height:2vh}.bpvq:hover,.bpvq.bpf{background:rgba(255,90,110,.3);transform:translateY(-.3vh)}
 @media (max-width:1100px){.bpvtop{grid-template-columns:1fr}}
+.bpsgv [data-a]{scroll-margin:14vh 0 12vh}
 /* ===== Wrapped (año): rediseño ===== */
 .wx{gap:18px}
 .wx-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -13514,7 +13515,7 @@ function bpNewsOpen(x){if(!BP||!x||BP.nr)return;bpSnd('ok');const o=document.cre
 function bpNewsX(){if(!BP||!BP.nr)return;const o=BP.nr;BP.nr=null;bpSnd('bk');o.classList.remove('on');setTimeout(()=>o.remove(),450);bpHints()}
 function bpHomeGo(g){if(!BP||!g)return;BP.sec='lib';BP.el.classList.remove('home');BP.el.querySelectorAll('.bpnav button').forEach(b=>b.classList.toggle('cur',b.dataset.k==='games'));BP.tab='rec';BP.inst=false;BP.q='';const L=bpList();let j=L.findIndex(x=>x.id===g.id);if(j<0){BP.tab='all';j=bpList().findIndex(x=>x.id===g.id)}BP.i=Math.max(0,j);BP.last=null;bpRender();bpFicOpen(g)}
 function bpDown(){if(BP&&BP.qx)return;if(BP&&BP.cv){bpCvStep(0,1);return}if(bpPnl()&&BP.z==='row'&&!BP.fic&&!BP.nr){bpSgNav('down');return}if(BP&&BP.nr){const t=BP.nr.querySelector('.nrt');if(t)t.scrollBy({top:innerHeight*.12,behavior:'smooth'});return}if(!BP||BP.busy)return;if(BP.z==='nav'){bpZone('row');bpSnd('nav')}}
-function bpBack(){if(!BP||BP.busy)return;if(BP.qx){bpQX();bpSnd('bk');return}if(bpPnl()&&!BP.fic){const m=bpMo();if(m){m.remove();bpSnd('bk');setTimeout(bpStFix,50);return}}if(BP.cv){bpCvClose();return}if(BP.wel){BP.wel.remove();BP.wel=null;bpQuit();return}if(BP.nr){bpNewsX();return}if(BP.fic){bpFicClose();return}if(BP.sec==='sagas'&&S.sgo&&BP.z!=='nav'){bpSgBack();return}if(BP.sec==='settings'&&S.bpsg&&BP.z!=='nav'){bpSnd('bk');S.bpsg='';S.bpsgA=0;go('settings');bpHints();return}if(BP.z==='nav'){bpZone('row');bpSnd('bk')}else{bpSnd('bk');bpQuit()}}
+function bpBack(){if(!BP||BP.busy)return;if(BP.qx){bpQX();bpSnd('bk');return}if(bpPnl()&&!BP.fic){const m=bpMo();if(m){m.remove();bpSnd('bk');setTimeout(bpStFix,50);return}}if(BP.cv){bpCvClose();return}if(BP.wel){BP.wel.remove();BP.wel=null;bpQuit();return}if(BP.nr){bpNewsX();return}if(BP.fic){bpFicClose();return}if(BP.sec==='sagas'&&S.sgo&&BP.z!=='nav'){bpSgBack();return}if(BP.sec==='settings'&&S.bpsg&&BP.z!=='nav'){bpSnd('bk');{const t=document.querySelector('.bpsk.on');if(t)BP.sgk=bpSgKey(t)}S.bpsg='';S.bpsgA=0;go('settings');bpHints();return}if(BP.z==='nav'){bpZone('row');bpSnd('bk')}else{bpSnd('bk');bpQuit()}}
 function bpQuit(){if(!BP||BP.qx)return;BP.qx=1;BP.qs=0;const o=document.createElement('div');o.className='bpqx';o.innerHTML='<div class="bpqc"><h2>¿Salir del Modo consola?</h2><p>Se vuelve al launcher.</p><div class="bpqb"><button data-q="0" class="on">Quedarme</button><button data-q="1">Salir</button></div><div class="bpqh"><span><i>A</i>Elegir</span><span><i>B</i>Volver</span></div></div>';o.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;bpQSel(+b.dataset.q);bpQDo()});BP.el.appendChild(o);BP.qs=0;bpSnd('open')}
 function bpQSel(i){if(!BP||!BP.qx)return;BP.qs=i;BP.el.querySelectorAll('.bpqb button').forEach(b=>b.classList.toggle('on',+b.dataset.q===i));bpSnd('nav')}
 function bpQX(){if(!BP)return;BP.qx=0;const o=BP.el.querySelector('.bpqx');if(o)o.remove()}
@@ -13546,7 +13547,7 @@ function bpSgPaint(){const v=BP&&BP.el.querySelector(bpPn());if(!v)return;S.sge=
   if(chg)v.scrollTop=0;bpSgFocus(f,false)}
 function bpSgNav(dir){const E=bpSgEls(),cur=bpPv().querySelector('.bpf');if(!E.length)return false;if(!cur){bpSgFocus(E[0],true);return true}
   const r=cur.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,pq=bpPv().getBoundingClientRect(),C=[];
-  for(const e of E){if(e===cur)continue;const q=e.getBoundingClientRect();if(q.width<2||q.height<2)continue;if(q.top>pq.bottom-8||q.bottom<pq.top+8)continue;C.push([e,q])}
+  for(const e of E){if(e===cur)continue;const q=e.getBoundingClientRect();if(q.width<2||q.height<2)continue;if(BP.sec!=='settings'&&(q.top>pq.bottom-8||q.bottom<pq.top+8))continue;C.push([e,q])}
   let best=null;
   if(dir==='left'||dir==='right'){const sg=dir==='right'?1:-1;let bs=1e9;
     for(const [e,q] of C){const ov=Math.min(r.bottom,q.bottom)-Math.max(r.top,q.top);if(ov<Math.min(r.height,q.height)*.4)continue;const cdx=(q.left+q.width/2-cx)*sg;if(cdx<=2)continue;const gap=Math.max(0,sg>0?q.left-r.right:r.left-q.right),v=gap+cdx*.01;if(v<bs){bs=v;best=e}}}
