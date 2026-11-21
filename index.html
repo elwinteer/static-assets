@@ -12910,7 +12910,7 @@ function wmFin(){const B=wmGenBase();if(!B){return}const {nr,root,el,J,H}=B,ii=W
   /* cara triste dentro de la cabeza: cejas, boca temblorosa y lagrimales */
   const INK='#2a1a14';let sad=null,mouth=null;
   const addFace=()=>{try{const hd=WM.rig&&WM.rig.g&&WM.rig.g.hd;if(!hd)return;const NS='http://www.w3.org/2000/svg',g=document.createElementNS(NS,'g');g.setAttribute('data-sad','1');g.style.cssText='opacity:0;transition:opacity .7s';
-    g.innerHTML=`<ellipse cx="100" cy="132" rx="19" ry="11" fill="${avItem('skin',avCur().skin||0)[4]}"/><path d="M63 105L88 95M137 105L112 95" stroke="${INK}" stroke-width="3.6" stroke-linecap="round" fill="none"/><ellipse cx="76" cy="119" rx="10" ry="3.2" fill="#93c5fd" opacity=".6"/><ellipse cx="124" cy="119" rx="10" ry="3.2" fill="#93c5fd" opacity=".6"/><path class="smo" d="M87 137Q93 129 100 135Q107 129 113 137" stroke="${INK}" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" fill="none" style="transform-box:fill-box;transform-origin:50% 50%"/>`;
+    g.innerHTML=`<ellipse cx="100" cy="134" rx="28" ry="14" fill="${avItem('skin',avCur().skin||0)[4]}"/><path d="M62 101Q74 90 88 96M138 101Q126 90 112 96" stroke="${INK}" stroke-width="3.4" stroke-linecap="round" fill="none"/><ellipse cx="76" cy="119" rx="10" ry="3.2" fill="#93c5fd" opacity=".6"/><ellipse cx="124" cy="119" rx="10" ry="3.2" fill="#93c5fd" opacity=".6"/><path class="smo" d="M84 130Q100 148 116 130" stroke="${INK}" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" fill="none" style="transform-box:fill-box;transform-origin:50% 0%"/>`;
     hd.appendChild(g);sad=g;mouth=g.querySelector('.smo')}catch(e){}};
   J.cl=[()=>{TM.forEach(clearTimeout);IV.forEach(clearInterval);layer.remove();layerF.remove();held.forEach(x=>x.remove());try{if(sad)sad.remove()}catch(e){}}];
   /* posición de los ojos para las lágrimas */
@@ -12938,11 +12938,12 @@ function wmFin(){const B=wmGenBase();if(!B){return}const {nr,root,el,J,H}=B,ii=W
   T(150,()=>{addFace();setTimeout(()=>{if(sad)sad.style.opacity='1'},60);if(WM.rig)wrPose(WM.rig,{hd:-9,lean:1,la:14,ra:-14,sy:.98,by:2},{w:12,z:.8})});
   /* 1) llanto suave: pasan los primeros recuerdos y se seca un ojo */
   T(900,()=>{tearRate=base=700;sk=.35;tearLoop();vig.style.opacity='1'});
+  T(1700,()=>{try{wmSay('Tantos recuerdos…',0)}catch(e){}});
   for(let k=0;k<15;k++)T(700+k*1150,()=>memo(k));
   [[2600,{la:-18,ra:18,hd:-11,lean:1.5}],[3200,{la:-26,ra:14,hd:-10}],[3800,{la:-18,ra:22,hd:-11}],[4400,{la:6,ra:-6,hd:-9,lean:1}]].forEach(([ms,p])=>P(ms,p,{w:18,z:.65}));
   {let hk=0;const hv=setInterval(()=>{if(!ok()||settled){clearInterval(hv);return}hk++;if(hk%3===0&&WM.rig)wrPose(WM.rig,{sy:.955,by:5,hd:-9},{w:80,z:.4})},1000);IV.push(hv)}
   /* 2) se quiebra: sollozos, el llanto se vuelve torrente */
-  T(6200,()=>{tearRate=base=260;sk=.8;if(mouth)mouth.animate([{transform:'scaleY(1)'},{transform:'scaleY(1.9)'}],{duration:260,iterations:Infinity,direction:'alternate'})});
+  T(6200,()=>{tearRate=base=260;sk=.8;if(mouth)mouth.animate([{transform:'scaleY(1)'},{transform:'scaleY(1.35)'}],{duration:320,iterations:Infinity,direction:'alternate'})});
   T(6400,()=>{let k=0;const iv=setInterval(()=>{if(!ok()||k>46){clearInterval(iv);return}k++;if(WM.rig)wrPose(WM.rig,{by:k%2?3:0,sy:k%2?.975:1.01,lean:k%2?1.2:-.6,hd:-11+(k%2?1:0)},{w:60,z:.45})},170);IV.push(iv)});
   [[9300,{la:-32,ra:32,hd:-12,lean:2}],[10300,{la:-24,ra:24,hd:-10,lean:1}],[12200,{la:-34,ra:34,hd:-12,lean:2}],[12900,{la:-28,ra:28,hd:-12}],[13500,{la:-34,ra:34,hd:-12}]].forEach(([ms,p])=>P(ms,p,{w:16,z:.6}));
   /* 3) se calma: sonríe entre lágrimas, se abraza y agradece */
