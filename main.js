@@ -3096,7 +3096,7 @@ app.whenReady().then(() => {
     try {
       key = String(key || '').replace(/\W/g, ''); const pv = path.join(TRL, key + '.pv.mp4'); if (!key || !fs.existsSync(pv)) return { err: 'sin vista previa' };
       for (const f of fs.readdirSync(TRL)) if (f.startsWith(key + '.') && f !== key + '.pv.mp4' && !/\.(mu\.\w+|nm)$/.test(f)) { try { fs.unlinkSync(path.join(TRL, f)); } catch (e) {} }
-      const fin = path.join(TRL, key + '.mp4'); fs.renameSync(pv, fin); fs.writeFileSync(path.join(TRL, key + '.cu'), '');
+      const fin = path.join(TRL, key + '.mp4'); try { fs.renameSync(pv, fin); } catch (e) { fs.copyFileSync(pv, fin); try { fs.unlinkSync(pv); } catch (e2) {} } fs.writeFileSync(path.join(TRL, key + '.cu'), '');
       return { url: pathToFileURL(fin).href };
     } catch (e) { return { err: String(e.message || e) }; }
   });
