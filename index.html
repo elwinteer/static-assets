@@ -4595,6 +4595,9 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 @keyframes icBt{0%,70%,100%{transform:scale(1);opacity:.85}20%,40%{transform:scale(1.35);opacity:1}}
 .nav a:hover .i .tl,.nav a:hover .i .b1,.nav a:hover .i .b2,.nav a:hover .i .dr{animation-duration:1.2s}
 @media (prefers-reduced-motion:reduce){.nav .i .tl,.nav .i .dr,.nav .i .wn,.nav .i .b1,.nav .i .b2,.nav .i .dp,.nav .i .pl{animation:none}}
+/* animaciones de los iconos: solo mientras la pestaña está seleccionada */
+.nav a:not(.active) .i .tl,.nav a:not(.active) .i .dr,.nav a:not(.active) .i .wn,.nav a:not(.active) .i .b1,.nav a:not(.active) .i .b2,.nav a:not(.active) .i .dp,.nav a:not(.active) .i .pl{animation:none!important}
+.nav a.active .i .dr{animation-duration:1.8s}.nav a.active .i .wn{animation-duration:1.4s}.nav a.active .i .b1,.nav a.active .i .b2,.nav a.active .i .dp{animation-duration:1.6s}.nav a.active .i .tl{animation-duration:2.6s}
 </style>
 </head>
 <body>
