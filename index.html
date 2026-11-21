@@ -10148,7 +10148,7 @@ let AVN=0;function avSVG(av,o){o=o||{};AVU='_'+(++AVN);const a=avXm(avNorm(av)),
 const AVCATS=['skin','hair','hc','eyes','brow','mouth','beard','hat','glass','top','bot','shoes','back','hand','bg'];
 const AVVB={h:'38 -12 124 150',t:'10 130 180 124',b:'30 212 140 116',f:'30 262 140 72',x:'-24 -14 248 342',w:'-24 -14 248 342'};
 const PTABS=[['home','Mi perfil','crown'],['av','Personalizar','edit'],['pet','Mascota','pet'],['card','Tarjeta pública','compass']];
-const AVGR=[['head','Cabeza',['skin','hair','hc','eyes','brow','mouth','beard']],['cloth','Ropa',['top','bot','shoes']],['acc','Accesorios',['hat','glass','back','hand']],['scene','Escena',['bg']]];
+const AVGR=[['head','Cabeza',['skin','hair','hc','eyes','brow','mouth','beard']],['cloth','Ropa',['top','bot','shoes']],['acc','Accesorios',['hat','glass','back','hand']],['scene','Fondo',['bg']]];
 const avCur=()=>avNorm(ST.avc);
 function avPush(){const H=S.avH=S.avH||[],j=JSON.stringify(avCur());if(H.length&&H[H.length-1]===j)return;H.push(j);if(H.length>40)H.shift();avUndoBtn()}
 function avUndoBtn(){const b=$('#avundo');if(b)b.classList.toggle('off',!(S.avH&&S.avH.length))}
@@ -10165,11 +10165,18 @@ function avStage(o){o=o||{};const v=avView(),bg=avItem('bg',v.bg)[4],p=(()=>{try
   return `<div class="avs-bg" style="background:${bg}">${bgSc(v.bg,p)}</div>${avSVG(v,{cls:'avx-st'})}
   <div class="avs-pet" ${o.pet==='face'?'':'hidden'}>${p?`<span class="avs-pf">${petFace(p,112)}</span><b>${esc(p.name)}</b><small>Nivel ${pLvl(p)}</small>`:`<button class="avs-ad" data-a="go" data-v="pet">${ic('pet')}<span>Adoptá una mascota</span></button>`}</div>
   ${it?`<div class="avs-pv"><b>Vista previa · ${esc(avNm(S.avp.c,it))}</b><span>Se desbloquea con ${avLbl(it)}</span><button data-a="avnp">Quitar</button></div>`:''}`}
-const BGTH={};
-function bgThumb(it){if(!it[5])return '';if(BGTH[it[0]]!==undefined)return BGTH[it[0]];
-  let s=String(it[5]).replace(/<animate(?:Transform|Motion)?\b[^>]*?(?:\/>|>\s*<\/animate(?:Transform|Motion)?>)/g,'').replace(/<set\b[^>]*\/>/g,'');
-  if(!/xmlns=/.test(s))s=s.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ');
-  return BGTH[it[0]]='<img class="avi-bgi" alt="" draggable="false" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)+'">'}
+const BGTH={},BGQ=[],BGP='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';let BGRUN=0;
+/* Las miniaturas de fondo eran SVG enteros metidos como texto en el HTML (hasta 4 MB cada uno, 6 MB en total), y se volvían a leer y dibujar en cada cambio de pestaña. Ahora se pasan una sola vez a una imagen chica (una a la vez, sin trabar) y el HTML solo lleva un enlace corto. */
+function bgSvg(it){let s=String(it[5]).replace(/<animate(?:Transform|Motion)?\b[^>]*?(?:\/>|>\s*<\/animate(?:Transform|Motion)?>)/g,'').replace(/<set\b[^>]*\/>/g,'');if(!/xmlns=/.test(s))s=s.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ');return s}
+function bgPaint(id,url){BGTH[id]=url;document.querySelectorAll('.avi-bgi[data-bgt="'+id+'"]').forEach(i=>{i.src=url})}
+function bgNext(){if(BGRUN||!BGQ.length)return;const it=BGQ.shift();BGRUN=1;const id=it[0];let u1=null;
+  const fin=()=>{if(u1)try{URL.revokeObjectURL(u1)}catch(e){}BGRUN=0;setTimeout(bgNext,120)};
+  try{u1=URL.createObjectURL(new Blob([bgSvg(it)],{type:'image/svg+xml'}));const im=new Image();
+    im.onload=()=>{try{const W=272,H=Math.round(W*(im.naturalHeight||220)/(im.naturalWidth||200)),cv=document.createElement('canvas');cv.width=W;cv.height=H;cv.getContext('2d').drawImage(im,0,0,W,H);cv.toBlob(b=>{if(b)bgPaint(id,URL.createObjectURL(b));else bgPaint(id,'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(bgSvg(it)));fin()},'image/png')}catch(e){bgPaint(id,'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(bgSvg(it)));fin()}};
+    im.onerror=()=>{fin()};im.src=u1}catch(e){fin()}}
+function bgThumb(it){if(!it[5])return '';const id=it[0],u=BGTH[id];if(u)return '<img class="avi-bgi" alt="" draggable="false" data-bgt="'+id+'" src="'+u+'">';
+  if(!BGQ.some(x=>x[0]===id)){BGQ.push(it);BGQ.sort((x,y)=>String(x[5]).length-String(y[5]).length)}setTimeout(bgNext,60);
+  return '<img class="avi-bgi" alt="" draggable="false" data-bgt="'+id+'" src="'+BGP+'">'}
 function avCard(c,it,cur){const ok=avOk(it),on=cur[c]===it[0]&&!S.avp,pv=S.avp&&S.avp.c===c&&S.avp.id===it[0],vb=AVVB[AVD[c].v];
   let pic;if(c==='bg')pic=`<i class="avi-bg" style="background:${it[4]}">${bgThumb(it)}</i>`;
   else if(c==='skin'||c==='hc')pic=avSVG({...cur,[c]:it[0]},{vb:AVVB.h,floor:false});
@@ -10261,7 +10268,7 @@ function pfCol(){const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,
   <h4 class="shd">Próximos desbloqueos</h4><div class="av-grid">${nx.length?nx.map(([k,it])=>avCard(k,it,cur)).join(''):'<p class="mut">Ya desbloqueaste todo lo que se puede por nivel.</p>'}</div>`}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;if(t==='col')return pfCol();if(t==='look')return `<div class="sgrid">${setX('look')}</div><h4 class="shd">Personalizar</h4><div class="sgrid">${setX('per')}</div>`;return ''}
 const PFI={u:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.9-3.7 3.9-5.5 7.5-5.5s6.6 1.8 7.5 5.5"/></svg>',w:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 4 4 6.5l1.8 3.6 2.2-1V20h8V9.1l2.2 1L20 6.5 15.5 4c-.5 1.4-1.9 2.3-3.5 2.3S9 5.4 8.5 4Z"/></svg>',p:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.6" cy="11" r="2.1"/><circle cx="9.4" cy="6.4" r="2.1"/><circle cx="14.6" cy="6.4" r="2.1"/><circle cx="18.4" cy="11" r="2.1"/><path d="M12 11.2c-2.9 0-5.6 3.1-5.6 5.5 0 1.9 1.5 2.7 3 2.7 1 0 1.7-.4 2.6-.4s1.6.4 2.6.4c1.5 0 3-.8 3-2.7 0-2.4-2.7-5.5-5.6-5.5Z"/></svg>',c:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.5-1.5 1.7-2.3 3.2-2.3s2.7.8 3.2 2.3M14.5 10h3.5M14.5 13.5h2.5"/></svg>'};
-function pfDock(){const pe=(()=>{try{return petCur()}catch(e){return null}})(),t=['av','pet','card'].includes(S.ptab)?S.ptab:'av',H={av:'Cambiá la piel, el pelo, la ropa y la escena de tu Winter. Se guarda solo.',pet:pe?'Cuidá, mimá y vestí a '+esc(pe.name)+'.':'Adoptá una mascota para que te acompañe en el launcher.',card:'Armá la tarjeta que ven tus amigos al abrir tu perfil, paso a paso.'};return `<nav class="pf-dock"><span class="pf-ind"></span>${[['av','Personalizar Winter','w'],['pet',pe?'Vestir a '+esc(pe.name):'Adoptar mascota','p'],['card','Editar mi tarjeta','c']].map(([k,l,i])=>`<button class="${t===k?'on':''}" data-a="ptab" data-v="${k}"><i>${PFI[i]}</i><b>${l}</b></button>`).join('')}</nav><div class="pf-hint pf-hint2"><span>${H[t]}</span></div>`}
+function pfDock(){const pe=(()=>{try{return petCur()}catch(e){return null}})(),t=['av','pet','card'].includes(S.ptab)?S.ptab:'av',H={av:'Cambiá la piel, el pelo, la ropa y el fondo de tu Winter. Se guarda solo.',pet:pe?'Cuidá, mimá y vestí a '+esc(pe.name)+'.':'Adoptá una mascota para que te acompañe en el launcher.',card:'Armá la tarjeta que ven tus amigos al abrir tu perfil, paso a paso.'};return `<nav class="pf-dock"><span class="pf-ind"></span>${[['av','Personalizar Winter','w'],['pet',pe?'Vestir a '+esc(pe.name):'Adoptar mascota','p'],['card','Editar mi tarjeta','c']].map(([k,l,i])=>`<button class="${t===k?'on':''}" data-a="ptab" data-v="${k}"><i>${PFI[i]}</i><b>${l}</b></button>`).join('')}</nav><div class="pf-hint pf-hint2"><span>${H[t]}</span></div>`}
 V.profile=()=>{if(!PTABS.some(x=>x[0]===S.ptab))S.ptab=({per:'card',look:'card',col:'home',pet:'home'})[S.ptab]||'home';if(S.ptab==='home')S.ptab='av';const t=S.ptab;if(t!=='card'&&W&&W.inline)W=null;
   if(S.ptab==='home')S.ptab='av';const nav='',dk=pfDock();
   if(t==='home')return `<div class="stack avp">${nav}${pfHome()}${dk}</div>`;
