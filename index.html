@@ -9682,7 +9682,7 @@ function avLite(){const s=$('#avst');if(!s||!$('#avbody'))return avRef();const c
   g.querySelectorAll('.avi.on,.avi.pv').forEach(e=>{e.classList.remove('on','pv');const k=e.querySelector('.avi-ck');if(k)k.remove()});
   g.querySelectorAll('.avi').forEach(e=>{const id=e.dataset.id;if(cur[c]===id&&!S.avp){e.classList.add('on');const p=e.querySelector('.avi-p');if(p)p.insertAdjacentHTML('beforeend','<i class="avi-ck">✓</i>')}else if(S.avp&&S.avp.c===c&&S.avp.id===id)e.classList.add('pv')});
   const w=$('.av-sw');if(w){const colk={top:'topc',bot:'botc',hat:'hatc',glass:'glassc',shoes:'shoesc',back:'backc',hand:'handc'}[c]||'';w.innerHTML=colk?(NOCOL.has(cur[c])?`<div class="avcol"><span>Color</span><em class="avnc">Este objeto conserva su color original</em></div>`:avColUI(colk,cur)):''}}
-function avRef(){const s=$('#avst'),b=$('#avbody');if(!s||!b)return;const sc=($('#view')||{}).scrollTop;s.innerHTML=avStage();b.innerHTML=avBody();if($('#view'))$('#view').scrollTop=sc}
+function avRef(soloCuerpo){const s=$('#avst'),b=$('#avbody');if(!s||!b)return;const sc=($('#view')||{}).scrollTop;if(!soloCuerpo)s.innerHTML=avStage();b.innerHTML=avBody();if($('#view'))$('#view').scrollTop=sc}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;return `<div class="sgrid">${setX(t)}</div>`}
 const PFX=()=>{const p=PR()||{name:UN(),handle:hnd(UN()),av:{k:ST.avc?'custom':'letter',c:0},ban:{k:'g',i:0},genres:[],fav:[]};return p};
 function pfBig(){const p=PFX(),L=lvlOf(),hit=GA.filter(a=>(ST.gach||{})[a[0]]).length,g=(p.fav||[]).map(gm).filter(Boolean),th=topHL();
@@ -9767,9 +9767,9 @@ Object.assign(A,{
  soctab:a=>{const k=a.dataset.k;if(k==='friends'){S.frX=0;go('friends');return}if(k==='diary'){go('diary');return}S.ptab=S.ptab&&S.ptab!=='home'?S.ptab:'av';S.avp=null;go('profile')},
  cedt:a=>{S.ced=a.dataset.v;cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
  cedm:a=>{const K=['id','im','ty','fav','aj','ti','ax'],i=K.indexOf(S.ced)+ +a.dataset.v;if(i>=K.length){S.ptab='home';go('profile');return}S.ced=K[Math.max(0,i)];cedRef();const b=$('.ced-b');if(b)b.classList.add('ced-ani')},
- avcat:a=>{S.avcat=a.dataset.v;S.avp=null;avRef()},
+ avcat:a=>{S.avcat=a.dataset.v;const pv=S.avp;S.avp=null;avRef(!pv)},
  avgen:a=>{avPush();ST.avc=avCur();ST.avc.g=a.dataset.v==='f'?'f':'m';S.avp=null;avSync();avRef()},
- avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;S.avp=null;avRef()},
+ avgrp:a=>{S.avg=a.dataset.v;S.avcat=null;const pv=S.avp;S.avp=null;avRef(!pv)},
  avflt:a=>{S.avf=a.dataset.v;avRef()},
  avpick:a=>{const c=a.dataset.c,id=a.dataset.id,it=avItem(c,id);if(!it)return;if(c==='hat'&&xmasWin()){toast(seaHat()==='ht27'?'🎃 En Halloween todos llevan calabaza en la cabeza. Los sombreros vuelven el 3 de noviembre':'🎅 En Navidad todos llevan gorro navideño. Los sombreros vuelven el 27 de diciembre');return}
   if(!avOk(it)){S.avp={c,id};toast(`${avNm(c,it)}: se desbloquea con ${avLbl(it)}`);avLite();return}
@@ -13006,7 +13006,12 @@ function frRender(){if(BP&&BP.sec==='friends'){bpFrPaint();return}const el=$('#v
 function frWire(){setTimeout(frProfFx,30);const t=$('#fr-txt');if(t){t.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();A.frsend()}});t.addEventListener('input',()=>{t.style.height='auto';t.style.height=Math.min(110,t.scrollHeight)+'px';if(t.value.trim())frTyping()});t.addEventListener('paste',e=>{const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));if(it){e.preventDefault();frPick(it.getAsFile())}});const m=$('#fr-msgs');if(m)m.scrollTop=m.scrollHeight}
   const q=$('#fr-q');if(q)q.addEventListener('input',()=>{S.frQ=q.value;if(S.frSel)frChatDraw(S.frSel,true)})}
 function svHomeV(){const f=FR();frCode();if(Date.now()-(f.lastSync||0)>20000)setTimeout(()=>{frPub();frSync();frUnread()},60);if(S.frSel&&!f.list.includes(S.frSel))S.frSel=null;const h=svHome(),c=S.frSel;if(c){frLoadM(c).then(()=>{if(frOn()&&$('#fr-main')&&!document.querySelector('.modal'))frRender()});f.sn[c]=Date.now();f.un[c]=0;save();frBadge(Object.values(f.un).reduce((a,b)=>a+b,0));frChatPull(c).then(ch=>{if(ch)frChatDraw(c);frRead(c)})}setTimeout(frWire,30);setTimeout(svRotStart,60);return h}
-const svGm=(n,a)=>n?(G.find(g=>g.name===n)||(a?{id:'f'+a,app:a,name:n}:null)):null;
+const FGM={};
+const svGm=(n,a)=>{if(!n)return null;const L=G.find(g=>g.name===n);if(L)return L;
+  /* juego que no está en tu biblioteca: con número de Steam usa el arte de Steam; si no tiene (PS2, otras tiendas) lo busca por nombre en SteamGridDB */
+  const k=a?'a'+a:'n'+n,x=FGM[k]||(FGM[k]=a?{id:'f'+a,app:a,name:n}:{id:'fn'+Math.abs([...n].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,7)),name:n});
+  if(!x.app&&!x._sg&&ST.useSgdb&&ST.key)sgdb(x).then(()=>{if(S.view==='friends'&&$('#fr-main')&&!document.querySelector('.modal'))frRender()}).catch(()=>{});
+  return x};
 function svEv(c,o,d){if(!o||!d)return;const E=ST.frEv=ST.frEv||[],now=Date.now();
   if(d.now&&d.now!==o.now&&frOnl(d))E.unshift({c,t:'play',g:d.now,a:d.na||0,ts:now});
   const oa=(o.ac||[]).length,na=(d.ac||[]).length;if(na>oa&&oa>0){const x=(d.ac||[]).slice(0,na-oa)[0]||{};E.unshift({c,t:'ach',g:x.n||'un logro',ts:now})}
@@ -13017,7 +13022,7 @@ function svNews(){const f=FR(),E=(ST.frEv||[]).filter(e=>f.c[e.c]).slice(0,6);
   E.forEach(e=>{const d=f.c[e.c],g=svGm(e.g,e.a),dd=day(e.ts);if(dd!==last){h+=`<div class="sv-nd">${dd}</div>`;last=dd}
     h+=`<div class="sv-ni"><div class="sv-nt" style="${g?`background-image:url('${art.grid(g)}')`:''}"><i>${e.t==='ach'?'⭐':'▶'}</i></div><div><div><b>${esc(d.name)}</b> ${e.t==='ach'?'desbloqueó':'empezó'} <b>${esc(e.g)}</b></div><small>${frAgo(e.ts)}</small></div></div>`});return h}
 function svCards(){const f=FR(),L=f.list.map(c=>[c,f.c[c]]).filter(x=>x[1]).sort((a,b)=>(frOnl(b[1])?1:0)-(frOnl(a[1])?1:0)||(b[1].now?1:0)-(a[1].now?1:0)).slice(0,2);
-  const card=([c,d])=>{const g=svGm(d.now,d.na),on=frOnl(d);return `<div class="sv-fc ${S.frSel===c?'sel':''}" data-a="frsel" data-id="${c}" title="Chatear con ${esc(d.name)}" style="${g?`background-image:url('${art.wide(g)}')`:''}"><span class="sv-st ${on?'on':''}">${on?(d.now?'● jugando':'● en línea'):frAgoL(d)}</span><div class="sv-fb">${frAv(d,(FRM[c]||{}).d||{},40)}<div><b>${esc(d.name)}</b><small>${d.now&&on?esc(d.now):frAgoL(d)}</small></div></div></div>`};
+  const card=([c,d])=>{const g=svGm(d.now,d.na),on=frOnl(d);return `<div class="sv-fc ${S.frSel===c?'sel':''}" data-a="frsel" data-id="${c}" title="Chatear con ${esc(d.name)}" style="${g?`background-image:url('${art.wide(g)||art.hero(g)}')`:''}"><span class="sv-st ${on?'on':''}">${on?(d.now?'● jugando':'● en línea'):frAgoL(d)}</span><div class="sv-fb">${frAv(d,(FRM[c]||{}).d||{},40)}<div><b>${esc(d.name)}</b><small>${d.now&&on?esc(d.now):frAgoL(d)}</small></div></div></div>`};
   let h=L.map(card).join('');while((h.match(/sv-fc|sv-add/g)||[]).length<2)h+=`<button class="sv-add" data-a="fradd2">${ic('useradd')}<b>Agregar amigo</b><small>Con su código</small></button>`;return h}
 function svChatHTML(){const f=FR(),c=S.frSel,d=c&&f.c[c];
   if(!d)return `<div class="sv-ce">${ic('friends')}<b>Tu chat</b><span>${f.list.length?'Elegí a un amigo arriba para chatear.':'Agregá a un amigo con su código para chatear.'}</span>${f.list.length?'':'<button class="hm-go" data-a="fradd2">Agregar amigo</button>'}</div>`;
