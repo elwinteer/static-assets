@@ -10767,7 +10767,12 @@ let CLICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.googl
 async function clIceLoad(){if(CLICE_T&&Date.now()-CLICE_T<600000)return;try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),4500);const r=await fetch('https://winteer.metered.live/api/v1/turn/credentials?apiKey=f1369fee142a1cba757f79bd165534b950ce',{signal:ac.signal});clearTimeout(t);const j=await r.json();if(Array.isArray(j)&&j.length){CLICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},...j]};CLICE_T=Date.now()}}catch(e){}}
 const clMe=()=>frId(frCode()),clDoc=(c,mine)=>frPair(c)+'_call_'+(mine?clMe():frId(c));
 const clMunge=s=>s.replace(/a=fmtp:(\d+) (minptime=10[^\r\n]*)/g,(m,p,r)=>/maxaveragebitrate/.test(m)?m:`a=fmtp:${p} ${r};maxaveragebitrate=128000;usedtx=0;stereo=0`);
-const clIceWait=pc=>new Promise(r=>{if(pc.iceGatheringState==='complete')return r();const t=setTimeout(r,3500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);r()}})});
+const clIceWait=pc=>new Promise(r=>{if(pc.iceGatheringState==='complete')return r();let done=0,t2=0;const sd=(pc.localDescription&&pc.localDescription.sdp)||'';let sr=/ typ srflx/.test(sd),rl=/ typ relay/.test(sd);
+  const fin=()=>{if(done)return;done=1;clearTimeout(t);clearTimeout(t2);pc.removeEventListener('icecandidate',oc);pc.removeEventListener('icegatheringstatechange',og);r()};
+  const arm=()=>{if(sr&&rl){clearTimeout(t2);t2=setTimeout(fin,150)}else if(sr&&!t2)t2=setTimeout(fin,1100)};
+  const oc=e=>{if(!e.candidate)return fin();const c=e.candidate.candidate||'';if(/ typ srflx/.test(c))sr=1;if(/ typ relay/.test(c))rl=1;arm()};
+  const og=()=>{if(pc.iceGatheringState==='complete')fin()};
+  const t=setTimeout(fin,2200);pc.addEventListener('icecandidate',oc);pc.addEventListener('icegatheringstatechange',og);arm()});
 function clAc(){try{CLAC=CLAC||new (window.AudioContext||window.webkitAudioContext)();if(CLAC.state==='suspended')CLAC.resume()}catch(e){}return CLAC}
 function clBeep(seq,vol){const a=clAc();if(!a)return;let t=a.currentTime;seq.forEach(([f,d])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.12,t+.02);g.gain.linearRampToValueAtTime(0,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02);t+=d+.03})}
 function clRing(on,back){clearInterval(CLRING);CLRING=0;if(!on)return;const f=()=>clBeep(back?[[440,.4]]:[[880,.16],[1175,.16],[880,.16],[1175,.16]],back?.06:.14);f();CLRING=setInterval(f,back?3000:2000)}
@@ -10775,7 +10780,7 @@ async function clMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCa
 function clMk(c,role){const pc=new RTCPeerConnection(CLICE);CL={c,role,pc,cid:'',st:'',muted:0,t0:0,cam:0,scr:0,rcam:0,rscr:0,rmu:0,au:document.createElement('audio'),au2:document.createElement('audio')};CL.au.autoplay=CL.au2.autoplay=true;document.body.appendChild(CL.au);document.body.appendChild(CL.au2);
   pc.onconnectionstatechange=()=>{if(!CL||CL.pc!==pc)return;const s=pc.connectionState;
     if(s==='connecting'&&!CL.t0&&!CL.ct)CL.ct=setTimeout(()=>{if(CL&&CL.pc===pc&&!CL.t0)clEnd('No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')},20000);
-    if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000);CL.sp=setInterval(clSpeak,100);CL.qt=setInterval(clStats,2000);setTimeout(clStats,600)}clUI()}
+    if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clearInterval(CL.pi);CL.pi=setInterval(clPoll,2500);clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000);CL.sp=setInterval(clSpeak,100);CL.qt=setInterval(clStats,2000);setTimeout(clStats,600)}clUI()}
     else if(s==='disconnected'){clearTimeout(CL.dt);CL.dt=setTimeout(()=>{if(CL&&CL.pc===pc&&pc.connectionState!=='connected')clEnd('Se perdió la conexión')},9000)}
     else if(s==='failed')clEnd(CL.t0?'Se perdió la conexión':'No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')};
   pc.ontrack=e=>{if(!CL||CL.pc!==pc)return;const i=pc.getTransceivers().indexOf(e.transceiver),ms=new MediaStream([e.track]);
@@ -10783,7 +10788,7 @@ function clMk(c,role){const pc=new RTCPeerConnection(CLICE);CL={c,role,pc,cid:''
     else if(i===1){CL.rcamS=ms;const v=$('#cl-rcam');if(v)v.srcObject=ms}else if(i===2){CL.rscrS=ms;const v=$('#cl-rscr');if(v)v.srcObject=ms}};
   return pc}
 function clDc(dc){dc.onmessage=e=>{if(!CL)return;let m;try{m=JSON.parse(e.data)}catch(x){return}
-  if(m.k==='cam'){CL.rcam=m.on?1:0;}else if(m.k==='scr')CL.rscr=m.on?1:0;else if(m.k==='mu')CL.rmu=m.on?1:0;clUI()};
+  if(m.k==='bye'){clEnd('Terminó la llamada');return}if(m.k==='cam'){CL.rcam=m.on?1:0;}else if(m.k==='scr')CL.rscr=m.on?1:0;else if(m.k==='mu')CL.rmu=m.on?1:0;clUI()};
   dc.onopen=()=>{if(CL)clSend({k:'cam',on:CL.cam}),clSend({k:'scr',on:CL.scr}),clSend({k:'mu',on:CL.muted})}}
 const clSend=o=>{try{if(CL&&CL.dc&&CL.dc.readyState==='open')CL.dc.send(JSON.stringify(o))}catch(e){}};
 async function clCall(c){if(CL||CLIN)return;const f=FR(),d=f.c[c]||{};if(!fbOn())return;
@@ -10806,14 +10811,14 @@ async function clAccept(){if(!CLIN)return;const {c,x}=CLIN;clearTimeout(CLIN.to)
   clUI();clPollStart()}
 function clReject(){if(!CLIN)return;const {c,x}=CLIN;clearTimeout(CLIN.to);CLIN=null;clRing(false);clWrite(c,x.cid,'no');clUI()}
 function clWrite(c,cid,st){return fbSet(clDoc(c,1),{cid,st,to:frId(c),ts:Date.now()},'winteer_chats').catch(()=>{})}
-function clPollStart(){clearInterval(CL.pi);CL.pi=setInterval(clPoll,1000)}
+function clPollStart(){clearInterval(CL.pi);CL.pi=setInterval(clPoll,500)}
 async function clPoll(){if(!CL||CL.pb)return;CL.pb=1;const me=CL;try{const x=await fbGet(clDoc(me.c,0),'winteer_chats');if(CL!==me||!x)return;
   if(x.cid===me.cid){if(x.st==='no'){clEnd('No quiso atender');return}if(x.st==='end'){clEnd(me.t0?'Terminó la llamada':'Cortó la llamada');return}
     if(me.role==='out'&&x.ans&&!me.ans){me.ans=1;try{await me.pc.setRemoteDescription({type:'answer',sdp:x.ans})}catch(e){clEnd('No pude conectar la llamada')}}}}catch(e){}finally{if(CL===me)me.pb=0}}
 function clTick(){const e=$('#cl-s'),e2=$('#cl-s2');if(e&&CL&&CL.t0){const q=Math.floor((Date.now()-CL.t0)/1000);e.textContent=String(Math.floor(q/60)).padStart(2,'0')+':'+String(q%60).padStart(2,'0')+(CL.rmu?' · silenciado':'')}if(e2&&e)e2.textContent=e.textContent}
 function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);[me.pi,me.tm,me.rt,me.dt,me.ct,me.sp,me.qt].forEach(t=>{clearInterval(t);clearTimeout(t)});try{me.ac&&me.ac.close()}catch(e){}
   if(me.t0){const dd=Math.round((Date.now()-me.t0)/1000);if(dd>=10){ST.calls=ST.calls||[];ST.calls.push({t:me.t0,d:dd});if(ST.calls.length>3000)ST.calls.splice(0,ST.calls.length-3000);try{save()}catch(e){}}}
-  [me.ms,me.cs,me.ss].forEach(s=>{try{s&&s.getTracks().forEach(t=>t.stop())}catch(e){}});try{me.dc&&me.dc.close()}catch(e){}try{me.pc.close()}catch(e){}try{me.au.remove();me.au2.remove()}catch(e){}
+  [me.ms,me.cs,me.ss].forEach(s=>{try{s&&s.getTracks().forEach(t=>t.stop())}catch(e){}});try{if(me.dc&&me.dc.readyState==='open')me.dc.send('{"k":"bye"}')}catch(e){}setTimeout(()=>{try{me.dc&&me.dc.close()}catch(e){}try{me.pc.close()}catch(e){}},300);try{me.au.remove();me.au2.remove()}catch(e){}
   if(me.cid&&me.st)clWrite(me.c,me.cid,'end');clBeep([[520,.12],[390,.2]],.1);if(msg)toast(msg);clUI()}
 async function clBr(tx,bps){try{const p=tx.sender.getParameters();if(!p.encodings||!p.encodings.length)p.encodings=[{}];p.encodings[0].maxBitrate=bps;await tx.sender.setParameters(p)}catch(e){}}
 async function clCam(on){if(!CL||!CL.tx)return;
@@ -10845,7 +10850,7 @@ function clUI(full){let p=$('#clp'),i=$('#cli');
   clTick()}
 async function clIdle(){const f=FR();if(CL||CLIN||CLIB||!fbOn()||f.inv)return;CLIB=1;try{for(const c of f.list){const d=f.c[c];if(!d||d.gone||!frOnl(d))continue;let x;try{x=await fbGet(clDoc(c,0),'winteer_chats')}catch(e){continue}
   if(x&&x.st==='ring'&&x.to===clMe()&&x.off&&Math.abs(Date.now()-x.ts)<50000&&!CLSEEN[x.cid]){CLSEEN[x.cid]=1;clIncoming(c,x);break}}}finally{CLIB=0}}
-setInterval(()=>{try{clIdle()}catch(e){}},10000);
+let CLIT=0;setInterval(()=>{const n=Date.now();if(n-CLIT<(document.hidden?9800:3800))return;CLIT=n;try{clIdle()}catch(e){}},2000);
 Object.assign(A,{frcall:()=>{if(S.frSel)clCall(S.frSel)},clacc:()=>clAccept(),clrej:()=>clReject(),clend:()=>clEnd('Terminó la llamada'),
  clmute:()=>{if(!CL||!CL.ms)return;CL.muted=CL.muted?0:1;CL.ms.getAudioTracks().forEach(t=>{t.enabled=!CL.muted});clSend({k:'mu',on:CL.muted});clUI()},
  clcam:()=>{if(CL)clCam(!CL.cam)},clscr:()=>{if(!CL)return;if(CL.scr)clScrStop();else clScrOpen()},
@@ -14482,7 +14487,7 @@ function frMsgs(c){const k=f=>f||[],ch=frCh(c);return [...k(ch.me).map(m=>({...m
 const frFind=(c,t)=>frMsgs(c).find(m=>String(m.t)===String(t));
 const frSnip=m=>!m?'':m.d?'Mensaje eliminado':m.k==='img'?'Foto':m.k==='game'?'Juego: '+m.g:m.k==='mods'?'Lista de mods':m.k==='wld'?'Mundo: '+((m.wt||{}).n||''):m.k==='inv'?'Invitación: '+m.g:m.k==='ans'?'Respuesta a invitación':String(m.x||'').slice(0,60);
 function frDropMsg(m){if(m&&m.k==='img'&&m.i&&!m.gone)fbDel(m.i,'winteer_media').catch(()=>{})}
-async function frSend(c,txt,o){o=o||{};const x=String(txt||'').trim().slice(0,500);if(!fbOn())return;const ch=frCh(c);
+async function frSend(c,txt,o){o=o||{};FRACT=Date.now();const x=String(txt||'').trim().slice(0,500);if(!fbOn())return;const ch=frCh(c);
   if(o.edit){const m=(ch.me||[]).find(z=>String(z.t)===String(o.edit));if(!m||!x)return;m.x=x;m.e=1;save();frChatDraw(c);try{await frPush(c)}catch(e){toast('No pude guardar la edición')}return}
   if(!x&&!o.k)return;
   const m={t:Date.now(),x};if(o.k)m.k=o.k;if(o.g)m.g=String(o.g).slice(0,80);if(o.i){m.i=o.i;m.w=o.w;m.h=o.h}if(o.r)m.r=o.r;if(o.q)m.q=o.q;if(o.a!==undefined)m.a=o.a;if(o.mp&&JSON.stringify(o.mp).length<60000)m.mp=o.mp;if(o.wt)m.wt=o.wt;if(o.at)m.at=+o.at;if(o.ev)m.ev=String(o.ev).slice(0,24);if(o.wh)m.wh=o.wh.slice(0,6).map(z=>String(z).slice(0,30));
@@ -14561,8 +14566,8 @@ function frRecShow(){if(!FRRQ.length)return;if(document.querySelector('.modal'))
   const {c,r}=FRRQ.shift(),f=FR(),d=f.c[c]||{name:'Un amigo'},g=G.find(x=>frN(x.name)===frN(r.g));
   modal(`<div class="fr-rec"><div class="fr-rh2">${frAv(d,(FRM[c]||{}).d,48)}<div><small>Nueva recomendación</small><b>${esc(d.name)}</b></div></div><div class="fr-rb"><div class="fr-rcv">${g?`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`:r.u?`<img src="${esc(r.u)}" alt="">`:`<b>${esc((r.g||'?')[0])}</b>`}</div><div><b>${esc(r.g)}</b><em>${g?'Ya lo tenés en tu biblioteca':'Todavía no lo tenés'}</em></div></div>${r.x?`<blockquote>${esc(r.x)}</blockquote>`:''}<textarea id="fr-rr" class="txt fr-rr" rows="2" maxlength="300" placeholder="Escribile una respuesta…" style="display:none"></textarea><div class="bs"><button class="b2" data-a="frrecx">Gracias</button><button class="hm-go" data-a="frrecgo" data-id="${c}" data-g="${esc(r.g)}">Responder</button></div></div>`,'fr-gmm')}
 
-async function frUnread(){const f=FR();if(!fbOn()||!f.list.length)return;let tot=0;
-  for(const c of f.list){try{const open=frOn()&&S.frSel===c&&S.frTab==='chat'&&document.hasFocus();const ch=await frChatPull(c);frRecCheck(c);const th=(f.chat[c]||{}).th||[];
+async function frUnread(tk){const f=FR();if(!fbOn()||!f.list.length)return;let tot=0;frUnread.ts=frUnread.ts||{};
+  for(const c of f.list){try{if(tk){const age=Date.now()-(frUnread.ts[c]||0),fast=!document.hidden&&frOnl(f.c[c]||{});if(age<(fast?6500:24000)){tot+=f.un[c]||0;continue}}frUnread.ts[c]=Date.now();const open=frOn()&&S.frSel===c&&S.frTab==='chat'&&document.hasFocus();const ch=await frChatPull(c);frRecCheck(c);const th=(f.chat[c]||{}).th||[];
     if(open){f.sn[c]=Date.now();if(ch){frChatDraw(c);frRead(c)}}
     const un=th.filter(m=>m.t>(f.sn[c]||0)&&!m.d).length;if(un>(f.un[c]||0)&&!open){frNotify(c,th[th.length-1])}f.un[c]=open?0:un;tot+=f.un[c]}catch(e){}}
   save();frBadge(tot);if(frOn()&&!document.querySelector('.modal')&&!(document.activeElement&&/^fr-/.test(document.activeElement.id||''))&&frUnread.last!==JSON.stringify(f.un)){frUnread.last=JSON.stringify(f.un);frList()}}
@@ -14764,8 +14769,8 @@ Object.assign(A,{
 });
 document.addEventListener('keydown',e=>{if(e.target.id==='fr-in'&&e.key==='Enter'){e.preventDefault();A.fradd()}});
 {const fi=()=>{const e=document.getElementById('i-friends');if(e&&!e.innerHTML)e.innerHTML=ic('friends')};fi();setInterval(fi,1200)}
-setTimeout(()=>{try{frPub();frUnread()}catch(e){}},9000);setTimeout(()=>{try{frClean()}catch(e){}},25000);setInterval(()=>{try{frClean()}catch(e){}},6*36e5);setInterval(()=>{try{frPub()}catch(e){}},2*60000);setInterval(()=>{try{frUnread()}catch(e){}},25000);
-setInterval(()=>{try{if(frOn()&&S.frSel&&S.frTab==='chat'&&document.hasFocus()){frChatPull(S.frSel).then(ch=>{if(S.frSel)frRecCheck(S.frSel);if(ch&&S.frSel){frChatDraw(S.frSel);frRead(S.frSel)}})}}catch(e){}},3500);
+setTimeout(()=>{try{frPub();frUnread()}catch(e){}},9000);setTimeout(()=>{try{frClean()}catch(e){}},25000);setInterval(()=>{try{frClean()}catch(e){}},6*36e5);setInterval(()=>{try{frPub()}catch(e){}},2*60000);setInterval(()=>{try{frUnread(1)}catch(e){}},7000);
+var FRACT=0,FRPL=0;setInterval(()=>{try{if(frOn()&&S.frSel&&S.frTab==='chat'&&document.hasFocus()){const n=Date.now();if(n-FRPL<(n-FRACT<45000?1000:3300))return;FRPL=n;frChatPull(S.frSel).then(ch=>{if(ch)FRACT=Date.now();if(S.frSel)frRecCheck(S.frSel);if(ch&&S.frSel){frChatDraw(S.frSel);frRead(S.frSel)}})}}catch(e){}},1100);
 (()=>{const p=A.play;if(p)A.play=function(){const r=p.apply(this,arguments);setTimeout(()=>frPub(true),700);return r}})();
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.hm-gh,.b2.g');if(b){b.classList.remove('bpop');void b.offsetWidth;b.classList.add('bpop');setTimeout(()=>b.classList.remove('bpop'),900)}},true);
 
