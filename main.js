@@ -152,6 +152,17 @@ function listProcsN() {
     }
   });
 }
+/* lista rapida (solo nombres de programa, ~0,1 s): sirve para ver enseguida que un .exe ya esta abierto sin esperar a la lista completa con rutas */
+function listNamesN() {
+  return new Promise((res) => {
+    if (process.platform !== 'win32') return res(null);
+    execFile('tasklist', ['/fo', 'csv', '/nh'], { windowsHide: true, maxBuffer: 8e6, timeout: 8000 }, (err, out) => {
+      if (err) return res(null);
+      const set = new Set(); for (const m of String(out || '').matchAll(/^"([^"]+)"/gm)) set.add(m[1].toLowerCase());
+      res(set);
+    });
+  });
+}
 function steamLibs(steamDir) {
   const libs = new Set(); const root = steamDir || (process.platform === 'win32' ? 'C:\\Program Files (x86)\\Steam' : '');
   if (!root) return [];
@@ -1314,11 +1325,13 @@ async function poll() {
   if (!track.size) { poller = null; return; }
   const sr = new Map();
   for (const [id, t] of track) if (t.app) sr.set(id, await steamRun(t.app));
-  const need = [...track].some(([id, t]) => !t.app || sr.get(id) === null);
+  const fastOk = new Set();
+  if ([...track.values()].some((t) => !t.app && t.exe)) { const nm = await listNamesN(); if (nm) for (const [id, t] of track) if (!t.app && t.exe && nm.has(path.win32.basename(t.exe))) fastOk.add(id); }
+  const need = [...track].some(([id, t]) => (!t.app && !fastOk.has(id)) || (t.app && sr.get(id) === null));
   const pl = need ? await listProcsN() : [], procs = pl || [], plFail = pl === null;
   for (const [id, t] of [...track]) {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
-    const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
+    const run = fastOk.has(id) ? true : (t.app && sr.get(id) !== null ? sr.get(id) : byProc());
     if (run) { t.miss = 0; t.seen = Date.now(); if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
     else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 60000 : 9000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
