@@ -1961,9 +1961,17 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 #clp .clh{display:flex;align-items:center;gap:11px;padding:12px 14px}#clp .clav{width:38px;height:38px;border-radius:50%;overflow:hidden;flex:none}#clp .clw{flex:1;min-width:0}#clp .clw b{display:block;font-size:14px}#clp .clw small{color:var(--muted);font-size:12px}
 #clp.live .clw small{color:#4ade80}#clp .cl-ib{width:32px;height:32px;border-radius:10px;border:0;background:rgba(255,255,255,.08);color:var(--text);cursor:pointer;display:grid;place-items:center}#clp .cl-ib svg{width:15px;height:15px}
 #clp .clv{display:none;position:relative;background:#000;aspect-ratio:16/9}#clp.has .clv{display:block}#clp .clv video{display:none;width:100%;height:100%;object-fit:contain;background:#000}
-#clp.rs #cl-rscr{display:block}#clp.rc:not(.rs) #cl-rcam{display:block}#clp.rs.rc #cl-rcam{display:block;position:absolute;right:8px;bottom:8px;width:34%;height:auto;aspect-ratio:16/9;border-radius:10px;border:2px solid rgba(255,255,255,.25);object-fit:cover}
+#clp.crs #cl-rscr{display:block}#clp.rc:not(.crs) #cl-rcam{display:block}#clp.crs.rc #cl-rcam{display:block;position:absolute;right:8px;bottom:8px;width:34%;height:auto;aspect-ratio:16/9;border-radius:10px;border:2px solid rgba(255,255,255,.25);object-fit:cover}
 #clp.lc #cl-lcam{display:block;position:absolute;left:8px;bottom:8px;width:26%;height:auto;aspect-ratio:16/9;border-radius:10px;border:2px solid rgba(255,255,255,.25);object-fit:cover;transform:scaleX(-1)}
 #clp.big{width:min(960px,calc(100vw - 280px));right:50%;transform:translateX(50%);bottom:24px}#clp.big .clv{aspect-ratio:16/9}
+#clp{background:rgb(var(--pnrgb));backdrop-filter:none;-webkit-backdrop-filter:none}#clp .clv video{opacity:1;filter:none;mix-blend-mode:normal}#clp .clv{cursor:zoom-in}
+#clp.full{left:0;right:0;top:34px;bottom:0;width:auto;transform:none;border-radius:0;border:0;z-index:9500;background:#050507;box-shadow:none;animation:none;display:flex;flex-direction:column}
+#clp.full .clv{flex:1;min-height:0;aspect-ratio:auto;display:block;cursor:default}
+#clp.full .clh{position:absolute;left:18px;top:14px;z-index:3;padding:8px 10px 8px 10px;border-radius:18px;background:rgba(0,0,0,.6);transition:opacity .35s}
+#clp.full .clc{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;padding:10px 16px;border-radius:99px;background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.1);transition:opacity .35s,transform .35s}
+#clp.full.idle .clh,#clp.full.idle .clc{opacity:0;pointer-events:none}#clp.full.idle .clc{transform:translate(-50%,16px)}#clp.full.idle{cursor:none}
+#clp.full.crs.rc #cl-rcam{width:min(22%,300px);right:22px;bottom:22px;z-index:2;border-radius:14px}#clp.full.lc #cl-lcam{left:22px;bottom:22px;width:min(16%,220px);border-radius:14px;z-index:2}
+#clp.full .cl-ib[data-a="clbig"]{display:none}
 #clp .clc{display:flex;justify-content:center;gap:12px;padding:12px 14px 14px}#clp .clc button{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease)}
 #clp .clc button:hover{transform:translateY(-3px);background:rgba(255,255,255,.18)}#clp .clc button svg{width:19px;height:19px}#clp .clc button.on{background:linear-gradient(135deg,var(--a2),var(--a));color:var(--on-a)}#clp .clc button.off{background:#e5484d;color:#fff}#clp .clc .end{background:#e5484d;color:#fff}
 #cli{position:fixed;right:18px;top:48px;z-index:9100;width:350px;display:flex;align-items:center;gap:13px;padding:14px 16px;border-radius:20px;background:rgba(var(--pnrgb),.97);border:1px solid rgba(var(--argb),.5);box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 0 0 rgba(var(--argb),.5);animation:h2up .35s var(--ease) both,cliP 1.6s infinite}
@@ -10780,11 +10788,11 @@ function clUI(full){let p=$('#clp'),i=$('#cli');
     i.innerHTML=`<div class="cli-a">${frAv(d,(FRM[CLIN.c]||{}).d,56)}</div><div class="cli-t"><small>Llamada de voz</small><b>${esc(d.name||'Amigo')}</b><span>te está llamando…</span></div><button class="cli-y" data-a="clacc" title="Atender">${ic('phone')}</button><button class="cli-n" data-a="clrej" title="Rechazar">${ic('phoneoff')}</button>`}else if(i)i.remove();
   if(!CL){if(p)p.remove();return}
   const d=FR().c[CL.c]||{};
-  if(!p||full){if(p)p.remove();p=document.createElement('div');p.id='clp';p.innerHTML=`<div class="clh"><div class="clav">${frAv(d,(FRM[CL.c]||{}).d,38)}</div><div class="clw"><b>${esc(d.name||'Amigo')}</b><small id="cl-s">${CL.t0?'':(CL.role==='out'?'Llamando…':'Conectando…')}</small></div><button class="cl-ib" data-a="clbig" title="Agrandar o achicar">${ic('expand')}</button></div>
+  if(!p||full){if(p)p.remove();p=document.createElement('div');p.id='clp';p.innerHTML=`<div class="clh"><div class="clav">${frAv(d,(FRM[CL.c]||{}).d,38)}</div><div class="clw"><b>${esc(d.name||'Amigo')}</b><small id="cl-s">${CL.t0?'':(CL.role==='out'?'Llamando…':'Conectando…')}</small></div><button class="cl-ib" data-a="clbig" title="Agrandar o achicar">${ic('expand')}</button><button class="cl-ib" data-a="clfull" id="clfb" title="Pantalla completa"><svg class="i" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
     <div class="clv"><video id="cl-rscr" autoplay playsinline muted></video><video id="cl-rcam" autoplay playsinline muted></video><video id="cl-lcam" autoplay playsinline muted></video></div><div class="clc" id="clc"></div>`;document.body.appendChild(p);
     const r=$('#cl-rcam'),s=$('#cl-rscr');if(CL.rcamS)r.srcObject=CL.rcamS;if(CL.rscrS)s.srcObject=CL.rscrS}
   const lc=$('#cl-lcam');if(lc&&CL.cs&&lc.srcObject!==CL.cs)lc.srcObject=CL.cs;
-  p.classList.toggle('has',!!(CL.rcam||CL.rscr||CL.cam||CL.scr));p.classList.toggle('rs',!!CL.rscr);p.classList.toggle('rc',!!CL.rcam);p.classList.toggle('lc',!!CL.cam);p.classList.toggle('big',!!CL.big);p.classList.toggle('live',!!CL.t0);
+  p.classList.toggle('has',!!(CL.rcam||CL.rscr||CL.cam||CL.scr));p.classList.toggle('crs',!!CL.rscr);p.classList.toggle('rc',!!CL.rcam);p.classList.toggle('lc',!!CL.cam);p.classList.toggle('big',!!CL.big&&!CL.full);p.classList.toggle('full',!!CL.full);{const fb=$('#clfb');if(fb){fb.title=CL.full?'Salir de pantalla completa':'Pantalla completa';fb.innerHTML=CL.full?'<svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>':'<svg class=\"i\" viewBox=\"0 0 24 24\"><path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/></svg>'}}if(!p.__fx){p.__fx=1;p.addEventListener('dblclick',e=>{if(e.target.closest('.clv'))A.clfull()});p.addEventListener('mousemove',clFullWake)}p.classList.toggle('live',!!CL.t0);
   const c=$('#clc');if(c)c.innerHTML=`<button class="${CL.muted?'off':''}" data-a="clmute" title="${CL.muted?'Activar micrófono':'Silenciar'}">${ic(CL.muted?'micoff':'mic')}</button><button class="${CL.cam?'on':''}" data-a="clcam" title="Cámara">${ic(CL.cam?'video':'videooff')}</button><button class="${CL.scr?'on':''}" data-a="clscr" title="Compartir pantalla">${ic('monitor')}</button><button class="end" data-a="clend" title="Colgar">${ic('phoneoff')}</button>`;
   clTick()}
 async function clIdle(){const f=FR();if(CL||CLIN||CLIB||!fbOn()||f.inv)return;CLIB=1;try{for(const c of f.list){const d=f.c[c];if(!d||d.gone||!frOnl(d))continue;let x;try{x=await fbGet(clDoc(c,0),'winteer_chats')}catch(e){continue}
@@ -10794,7 +10802,10 @@ Object.assign(A,{frcall:()=>{if(S.frSel)clCall(S.frSel)},clacc:()=>clAccept(),cl
  clmute:()=>{if(!CL||!CL.ms)return;CL.muted=CL.muted?0:1;CL.ms.getAudioTracks().forEach(t=>{t.enabled=!CL.muted});clSend({k:'mu',on:CL.muted});clUI()},
  clcam:()=>{if(CL)clCam(!CL.cam)},clscr:()=>{if(!CL)return;if(CL.scr)clScrStop();else clScrOpen()},
  clscrpick:a=>{const au=$('#cl-sa'),sa=au&&au.checked;$$('.modal').forEach(m=>m.remove());clScrStart(a.dataset.id,sa)},
- clbig:()=>{if(CL){CL.big=!CL.big;clUI()}}});
+ clbig:()=>{if(CL){CL.big=!CL.big;clUI()}},
+ clfull:()=>{if(!CL)return;CL.full=!CL.full;if(CL.full)CL.big=0;clUI();clFullWake()}});
+function clFullWake(){const p=$('#clp');if(!p)return;p.classList.remove('idle');clearTimeout(clFullWake.t);if(CL&&CL.full)clFullWake.t=setTimeout(()=>{const q=$('#clp');if(q&&CL&&CL.full)q.classList.add('idle')},2600)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CL&&CL.full&&!document.querySelector('.modal')){CL.full=0;clUI()}},true);
 
 /* ===== un día como hoy ===== */
 function favGames(){const p=PR()||{},ids=new Set(p.fav||[]);G.forEach(g=>{if(g.fav)ids.add(g.id)});return [...ids].map(gm).filter(Boolean)}
