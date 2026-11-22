@@ -10780,7 +10780,7 @@ async function clMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCa
 function clMk(c,role){const pc=new RTCPeerConnection(CLICE);CL={c,role,pc,cid:'',st:'',muted:0,t0:0,cam:0,scr:0,rcam:0,rscr:0,rmu:0,au:document.createElement('audio'),au2:document.createElement('audio')};CL.au.autoplay=CL.au2.autoplay=true;document.body.appendChild(CL.au);document.body.appendChild(CL.au2);
   pc.onconnectionstatechange=()=>{if(!CL||CL.pc!==pc)return;const s=pc.connectionState;
     if(s==='connecting'&&!CL.t0&&!CL.ct)CL.ct=setTimeout(()=>{if(CL&&CL.pc===pc&&!CL.t0)clEnd('No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')},20000);
-    if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clearInterval(CL.pi);CL.pi=setInterval(clPoll,2500);clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000);CL.sp=setInterval(clSpeak,100);CL.qt=setInterval(clStats,2000);setTimeout(clStats,600)}clUI()}
+    if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clearInterval(CL.pi);CL.pi=setInterval(clPoll,30000);clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000);CL.sp=setInterval(clSpeak,100);CL.qt=setInterval(clStats,2000);setTimeout(clStats,600)}clUI()}
     else if(s==='disconnected'){clearTimeout(CL.dt);CL.dt=setTimeout(()=>{if(CL&&CL.pc===pc&&pc.connectionState!=='connected')clEnd('Se perdió la conexión')},9000)}
     else if(s==='failed')clEnd(CL.t0?'Se perdió la conexión':'No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')};
   pc.ontrack=e=>{if(!CL||CL.pc!==pc)return;const i=pc.getTransceivers().indexOf(e.transceiver),ms=new MediaStream([e.track]);
