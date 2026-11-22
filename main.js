@@ -1817,7 +1817,7 @@ const wdlSafe = (n) => { n = String(n || 'archivo').replace(/[<>:"/\\|?*\x00-\x1
 function wdlUniq(dir, name) { let p = path.join(dir, name); if (!fs.existsSync(p)) return p; const e = path.extname(name), b = path.basename(name, e); for (let i = 1; i < 500; i++) { p = path.join(dir, b + ' (' + i + ')' + e); if (!fs.existsSync(p)) return p; } return p; }
 
 /* ---------- descarga en partes (varias conexiones a la vez, como un gestor de descargas) ---------- */
-const WDL_SEG = true; /* descarga en varias conexiones, con prueba de 10 s: si no llegan datos vuelve sola a la descarga normal */
+const WDL_SEG = false; /* descarga en varias conexiones: APAGADA. Con BuzzHeavier dejaba la descarga en 0 B; se reactiva solo cuando se pruebe contra el servidor real */
 const WDL_CONN = 8, WDL_BLK = 4 * 1024 * 1024, WDL_MIN = 16 * 1024 * 1024;
 function wdlProbe(ses, url, ref) {
   return new Promise((resolve) => {
