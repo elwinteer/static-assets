@@ -3,6 +3,10 @@ const { app, BrowserWindow, ipcMain, shell, protocol, net, dialog, Menu, nativeI
 const path = require('path'), fs = require('fs'), crypto = require('crypto');
 app.commandLine.appendSwitch('autoplay-policy','no-user-gesture-required');
 app.commandLine.appendSwitch('disable-features','CalculateNativeWinOcclusion');
+/* Descargas en varias conexiones con el motor propio de Chromium (el mismo que usa el navegador): hasta 6 partes a la vez, y si el servidor no lo permite baja normal */
+app.commandLine.appendSwitch('force-fieldtrials','WtPar/On');
+app.commandLine.appendSwitch('force-fieldtrial-params','WtPar.On:parallel_download_request_count/5/min_slice_size/524288');
+app.commandLine.appendSwitch('enable-features','ParallelDownloading<WtPar');
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows','true');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
