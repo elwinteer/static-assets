@@ -4946,7 +4946,12 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
 </div>
 
 <script src="sagas/data.js"></script>
-<script>window.SGOFF=window.SGOFF||{n:{},c:{},sgx:{mv:{},hm:{},yr:{},ord:{}},cv:{},lg:{}};</script>
+<script>
+var WTSLEEP=0;(function(){const raf=window.requestAnimationFrame.bind(window),caf=window.cancelAnimationFrame.bind(window),Q=new Map(),M=new Map();let n=1e9;
+window.requestAnimationFrame=f=>{if(!WTSLEEP)return raf(f);const id=++n;Q.set(id,f);return id};
+window.cancelAnimationFrame=id=>{if(Q.has(id))Q.delete(id);else if(M.has(id)){caf(M.get(id));M.delete(id)}else caf(id)};
+window.wtWake=()=>{const a=[...Q.entries()];Q.clear();a.forEach(([id,f])=>{M.set(id,raf(t=>{M.delete(id);f(t)}))})}})();
+window.SGOFF=window.SGOFF||{n:{},c:{},sgx:{mv:{},hm:{},yr:{},ord:{}},cv:{},lg:{}};</script>
 <script>
 try{window._fk=localStorage.getItem('winteer_fake');localStorage.removeItem('winteer_fake')}catch(e){}
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -13518,7 +13523,13 @@ window.addEventListener('blur',ctxClose);
 /* ---------- Electron: detección de juego abierto / cerrado ---------- */
 if(window.winteerNative&&winteerNative.cfgGet){winteerNative.cfgGet().then(c=>{BGC=c}).catch(()=>{});winteerNative.onBp(a=>{if(a==='open'){if(!BP)bpOpen()}else bpToggle()})}
 setTimeout(()=>{detInst(true);detEpic();detXbox(true)},1200);window.addEventListener('focus',()=>{detInst();detEpic();detXbox()});
-document.addEventListener('visibilitychange',()=>document.body.classList.toggle('hid',document.hidden));
+var WTHID=0,WTRUN=new Set(),WTVID=[];
+function wtSleepSet(){let v=!!(WTHID||document.hidden);try{if(!v&&WTRUN.size&&!document.hasFocus()&&!CL)v=true}catch(e){}
+  if(v===!!WTSLEEP)return;WTSLEEP=v?1:0;document.body.classList.toggle('hid',v);
+  if(v){document.querySelectorAll('video').forEach(x=>{if(!x.paused&&(x.muted||x.volume===0)){try{x.pause();WTVID.push(x)}catch(e){}}})}
+  else{WTVID.splice(0).forEach(x=>{try{if(x.isConnected)x.play().catch(()=>{})}catch(e){}});try{wtWake()}catch(e){}}}
+document.addEventListener('visibilitychange',wtSleepSet);window.addEventListener('focus',wtSleepSet);window.addEventListener('blur',()=>setTimeout(wtSleepSet,250));
+if(window.winteerNative)winteerNative.onGame(ev=>{if(!ev)return;if(ev.type==='vis'){WTHID=ev.hid?1:0;wtSleepSet()}else if(ev.type==='started'&&ev.id){WTRUN.add(ev.id);setTimeout(wtSleepSet,400)}else if(ev.type==='stopped'&&ev.id){WTRUN.delete(ev.id);wtSleepSet()}});
 
 if(window.winteerNative&&winteerNative.winCtl){const tb=document.getElementById('tbar');if(tb){tb.hidden=false;document.body.classList.add('wtb');tb.addEventListener('click',e=>{const b=e.target.closest('[data-wc]');if(b)winteerNative.winCtl(b.dataset.wc)});tb.addEventListener('dblclick',e=>{if(!e.target.closest('.tb-r'))winteerNative.winCtl('max')});winteerNative.onGame(ev=>{if(ev&&ev.type==='wst'){tb.hidden=!!ev.fs;document.body.classList.toggle('wtb',!ev.fs);const m=document.getElementById('tbmx');if(m)m.innerHTML=ev.max?'<svg viewBox="0 0 10 10"><rect x=".5" y="2.5" width="7" height="7"/><path d="M2.5 2.5v-2h7v7h-2"/></svg>':'<svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9"/></svg>'}})}}
 if(window.winteerNative)winteerNative.onGame(ev=>{

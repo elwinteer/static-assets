@@ -2235,6 +2235,8 @@ function createWindow() {
   const wst = () => send({ type: 'wst', max: win.isMaximized(), fs: win.isFullScreen() });
   ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen', 'restore'].forEach(e => win.on(e, wst));
   win.webContents.on('did-finish-load', wst);
+  const wvis = () => { try { send({ type: 'vis', hid: !win || win.isMinimized() || !win.isVisible() }); } catch (e) {} };
+  ['minimize', 'restore', 'show', 'hide'].forEach(e => win.on(e, wvis));
   try { win.setIcon(path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png')); } catch (e) {}
   win.loadFile(betaPage() || path.join(__dirname, 'index.html'));
   win.once('ready-to-show', () => { if (!(startHidden && cfg.bg && !win.__shown)) { win.maximize(); win.show(); } win.__shown = true; if (process.env.WINTEER_TEST) win.webContents.openDevTools({ mode: 'detach' }); });
