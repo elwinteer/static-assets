@@ -2112,6 +2112,19 @@ body.perf .fr-cr,body.perf .fr-cr *,body.nomo .fr-cr,body.nomo .fr-cr *{animatio
 #clsum button{flex:none;width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:var(--muted);cursor:pointer;transition:background .2s,color .2s}#clsum button:hover{background:rgba(255,255,255,.18);color:#fff}
 #clsum .cs-bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,rgba(var(--argb),.6),var(--a2));transform-origin:left;animation:csBar 7.5s linear both}@keyframes csBar{to{transform:scaleX(0)}}
 
+
+/* atajos, control remoto */
+#clp .clkr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 0}#clp .clkr span{font-size:12.5px;font-weight:600}
+#clp .clkr button{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:var(--text);padding:7px 12px;border-radius:10px;font:700 11.5px/1 inherit;cursor:pointer;transition:background .2s,border-color .2s,transform .3s cubic-bezier(.34,1.56,.5,1)}#clp .clkr button:hover{background:rgba(255,255,255,.13);transform:translateY(-1px)}#clp .clkr button.on{border-color:var(--a);background:rgba(var(--argb),.22);animation:clkp 1.1s ease-in-out infinite}@keyframes clkp{50%{box-shadow:0 0 0 4px rgba(var(--argb),.18)}}
+#clrc{position:absolute;z-index:8;left:50%;top:78px;transform:translateX(-50%);animation:rcIn .5s cubic-bezier(.2,1.1,.3,1) both}@keyframes rcIn{from{opacity:0;transform:translate(-50%,-14px) scale(.95)}}
+#clrc .rc-c{display:flex;align-items:center;gap:12px;padding:11px 12px 11px 11px;border-radius:18px;background:linear-gradient(150deg,rgba(var(--argb),.22),rgba(18,18,26,.96) 65%);border:1px solid rgba(var(--argb),.4);box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(16px);max-width:min(560px,92vw)}
+#clrc .rc-c.ask{border-color:#ffb347;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 3px rgba(255,179,71,.18)}
+#clrc u{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;text-decoration:none;background:rgba(var(--argb),.3);color:#fff}#clrc u svg{width:18px;height:18px}
+#clrc .rc-c>div{min-width:0}#clrc b{display:block;font-size:13px}#clrc small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+#clrc button{flex:none;border:0;border-radius:99px;padding:9px 15px;font:700 12px/1 inherit;cursor:pointer;color:#fff;transition:transform .3s cubic-bezier(.34,1.56,.5,1),filter .2s}#clrc button:hover{transform:translateY(-1px);filter:brightness(1.1)}#clrc button:active{transform:scale(.95)}
+#clrc .rc-y{background:var(--a);color:var(--on-a)}#clrc .rc-n{background:rgba(255,255,255,.12)}
+#clrc .rc-p{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(18,18,26,.82);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.45)}#clrc .rc-p svg{width:15px;height:15px}#clrc .rc-p:hover{border-color:var(--a)}
+
 #clp.full .clvol{display:flex;align-items:center;height:54px;border-radius:99px;background:rgba(255,255,255,.1);padding:0;transition:background .25s}#clp.full .clvol:hover{background:rgba(255,255,255,.16)}
 #clp.full .clvol button{background:transparent!important;box-shadow:none!important}#clp.full .clvol button:hover{transform:scale(1.08)}
 #clp .clap{position:absolute;z-index:6;width:310px;padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(34,34,43,.97),rgba(13,13,17,.98));backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);border:1px solid rgba(255,255,255,.13);box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);display:flex;flex-direction:column;gap:10px;cursor:default;transform-origin:0 0;animation:clxIn .34s cubic-bezier(.2,1.1,.3,1) both;overflow:hidden}
@@ -10971,8 +10984,13 @@ function clMk(c,role){const pc=new RTCPeerConnection(CLICE);CL={c,role,pc,cid:''
     else if(i===1){CL.rcamS=ms;const v=$('#cl-rcam');if(v)v.srcObject=ms}else if(i===2){CL.rscrS=ms;const v=$('#cl-rscr');if(v)v.srcObject=ms}};
   return pc}
 function clDc(dc){dc.onmessage=e=>{if(!CL)return;let m;try{m=JSON.parse(e.data)}catch(x){return}
-  if(m.k==='bye'){clEnd('Terminó la llamada');return}if(m.k==='cam'){CL.rcam=m.on?1:0;}else if(m.k==='scr')CL.rscr=m.on?1:0;else if(m.k==='mu')CL.rmu=m.on?1:0;clUI()};
-  dc.onopen=()=>{if(CL)clSend({k:'cam',on:CL.cam}),clSend({k:'scr',on:CL.scr}),clSend({k:'mu',on:CL.muted})}}
+  if(m.k==='bye'){clEnd('Terminó la llamada');return}
+  if(m.k==='ri'){if(CL.rcHost&&window.winteerNative&&winteerNative.rcIn)winteerNative.rcIn(m);return}
+  if(m.k==='rcq'){if(CL.scr&&CL.rcCap&&!CL.rcHost){CL.rcAsk=1;clearTimeout(CL.rcAt);CL.rcAt=setTimeout(()=>{if(CL&&CL.rcAsk)clRcDeny()},60000);clBeep([[660,.1],[880,.12]],.14);try{frToast(CL.c,'call','Quiere controlar tu pantalla')}catch(e){}clUI();clRcRender()}else clSend({k:'rca',ok:0});return}
+  if(m.k==='rca'){CL.rcWait=0;clearTimeout(CL.rcWt);if(m.ok){CL.rcView=1;toast('Ya podés controlar su pantalla')}else toast('No te dio el control');clRcRender();return}
+  if(m.k==='rcx'){if(m.v){if(CL.rcHost){CL.rcHost=0;try{winteerNative.rcEnd()}catch(e){}CLKS='';clKeysSync();toast('Soltó el control')}CL.rcAsk=0}else if(CL.rcView){CL.rcView=0;toast('Te quitó el control')}clRcRender();return}
+  if(m.k==='cam'){CL.rcam=m.on?1:0;}else if(m.k==='scr'){CL.rscr=m.on?1:0;CL.rrc=m.on&&m.rc?1:0;if(!m.on&&CL.rcView){CL.rcView=0}}else if(m.k==='mu')CL.rmu=m.on?1:0;clUI();clRcRender()};
+  dc.onopen=()=>{if(CL)clSend({k:'cam',on:CL.cam}),clSend({k:'scr',on:CL.scr,rc:CL.rcCap?1:0}),clSend({k:'mu',on:CL.muted})}}
 const clSend=o=>{try{if(CL&&CL.dc&&CL.dc.readyState==='open')CL.dc.send(JSON.stringify(o))}catch(e){}};
 async function clCall(c){if(CL||CLIN)return;const f=FR(),d=f.c[c]||{};if(!fbOn())return;if(d.ic&&frOnl(d)){toast((d.name||'Tu amigo')+' está en otra llamada');return}
   let ms;try{ms=await clMic()}catch(e){toast('No pude usar el micrófono. Revisá los permisos de Windows');return}
@@ -11008,7 +11026,7 @@ async function clRestart(me){if(CL!==me||!me.reco)return;const pc=me.pc,n=(me.rn
 async function clAnswerRe(me,x){const pc=me.pc;try{await pc.setRemoteDescription({type:'offer',sdp:x.roff});const an=await pc.createAnswer();await pc.setLocalDescription({type:'answer',sdp:clMunge(an.sdp)});await clIceWait(pc);if(CL!==me)return;
   await fbSet(clDoc(me.c,1),{cid:me.cid,st:'live',to:frId(me.c),rans:pc.localDescription.sdp,rn:x.rn,ts:Date.now()},'winteer_chats')}catch(e){}}
 function clTick(){const e=$('#cl-s'),e2=$('#cl-s2');if(e&&CL&&CL.t0){const q=Math.floor((Date.now()-CL.t0)/1000);e.textContent=String(Math.floor(q/60)).padStart(2,'0')+':'+String(q%60).padStart(2,'0')+(CL.rmu?' · silenciado':'')+(CL.reco?' · reconectando…':'')}if(e2&&e)e2.textContent=e.textContent}
-function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);[me.pi,me.tm,me.rt,me.dt,me.ct,me.sp,me.qt,me.ngt,me.rto,me.rrt].forEach(t=>{clearInterval(t);clearTimeout(t)});try{me.ac&&me.ac.close()}catch(e){}
+function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);try{if(me.rcHost||me.rcView||me.rcAsk)clRcClean(me)}catch(e){}try{if(me.dkOn)winteerNative.clDuck({on:0});winteerNative.clDuckEnd&&winteerNative.clDuckEnd()}catch(e){}[me.pi,me.tm,me.rt,me.dt,me.ct,me.sp,me.qt,me.ngt,me.rto,me.rrt].forEach(t=>{clearInterval(t);clearTimeout(t)});try{me.ac&&me.ac.close()}catch(e){}
   if(me.t0){const dd=Math.round((Date.now()-me.t0)/1000);if(dd>=10){ST.calls=ST.calls||[];ST.calls.push({t:me.t0,d:dd,c:me.c||'',g:me.gm||''});try{setTimeout(()=>clSumShow({c:me.c,d:dd,g:me.gm||''}),400)}catch(e){}if(ST.calls.length>3000)ST.calls.splice(0,ST.calls.length-3000);try{save()}catch(e){}}}
   [me.ms,me.cs,me.ss].forEach(s=>{try{s&&s.getTracks().forEach(t=>t.stop())}catch(e){}});try{if(me.dc&&me.dc.readyState==='open')me.dc.send('{"k":"bye"}')}catch(e){}setTimeout(()=>{try{me.dc&&me.dc.close()}catch(e){}try{me.pc.close()}catch(e){}},300);try{me.au.remove();me.au2.remove()}catch(e){}
   if(me.cid&&me.st)clWrite(me.c,me.cid,'end');try{if(me.c&&S.frSel===me.c&&$('#fr-msgs'))frChatDraw(me.c,true)}catch(e){}clTone('en');if(msg)toast(msg);if(me.t0)try{frPub(true)}catch(e){}clUI()}
@@ -11027,8 +11045,9 @@ async function clScrStart(id,audio){if(!CL||!CL.tx)return;let s;
   catch(e){toast('No pude compartir la pantalla. Si seguís con este problema, actualizá WINTEER');return}
   CL.ss=s;const v=s.getVideoTracks()[0];try{v.contentHint='detail'}catch(e){}v.onended=()=>{if(CL&&CL.ss===s)clScrStop()};
   await CL.tx.scr.sender.replaceTrack(v);clBr(CL.tx.scr,6000000);clScrQ((ST.cla&&ST.cla.sq)||'d');const a=s.getAudioTracks()[0];if(a)try{await CL.tx.sa.sender.replaceTrack(a)}catch(e){}
-  CL.scr=1;clSend({k:'scr',on:1});clUI()}
-async function clScrStop(){if(!CL)return;try{CL.ss&&CL.ss.getTracks().forEach(t=>t.stop())}catch(e){}CL.ss=null;try{await CL.tx.scr.sender.replaceTrack(null);await CL.tx.sa.sender.replaceTrack(null)}catch(e){}CL.scr=0;clSend({k:'scr',on:0});clUI()}
+  CL.rcCap=0;try{const ri=window.winteerNative&&winteerNative.rcInfo&&await winteerNative.rcInfo();CL.rcCap=ri&&ri.ok&&ri.screen&&!!ri.ok?1:0}catch(e){}
+  CL.scr=1;clSend({k:'scr',on:1,rc:CL.rcCap});clUI()}
+async function clScrStop(){if(!CL)return;try{CL.ss&&CL.ss.getTracks().forEach(t=>t.stop())}catch(e){}CL.ss=null;try{await CL.tx.scr.sender.replaceTrack(null);await CL.tx.sa.sender.replaceTrack(null)}catch(e){}CL.scr=0;CL.rcCap=0;if(CL.rcHost||CL.rcAsk){CL.rcAsk=0;CL.rcHost=0;try{winteerNative.rcEnd()}catch(e){}clSend({k:'rcx'});CLKS=''}try{window.winteerNative&&winteerNative.scrShareEnd&&winteerNative.scrShareEnd()}catch(e){}clSend({k:'scr',on:0});clUI()}
 function clSrcClose(){const m=document.querySelector('.modal:has(.cl-srcm)');if(!m||m.classList.contains('out'))return;m.classList.add('out');setTimeout(()=>m.remove(),200)}
 document.addEventListener('mousedown',e=>{if(e.target.classList&&e.target.classList.contains('modal')&&e.target.querySelector('.cl-srcm'))clSrcClose()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.modal:has(.cl-srcm)')){e.stopPropagation();clSrcClose()}},true);
@@ -11040,15 +11059,15 @@ async function clScrOpen(){if(!CL)return;if(!(window.winteerNative&&winteerNativ
 function clUI(full){let p=$('#clp'),i=$('#cli');
   if(CLIN){const f=FR(),d=f.c[CLIN.c]||{};if(!i){i=document.createElement('div');i.id='cli';document.body.appendChild(i)}
     i.innerHTML=`<div class="cli-a">${frAv(d,(FRM[CLIN.c]||{}).d,56)}</div><div class="cli-t"><small>Llamada de voz</small><b>${esc(d.name||'Amigo')}</b><span>te está llamando…</span></div><button class="cli-y" data-a="clacc" title="Atender">${ic('clacc')}</button><button class="cli-n" data-a="clrej" title="Rechazar">${ic('clend')}</button>`}else if(i)i.remove();
-  if(!CL){if(p)p.remove();return}
+  if(!CL){if(p)p.remove();clKeysSync();clRcRender();return}
   const d=FR().c[CL.c]||{};
   if(!p||full){if(p)p.remove();p=document.createElement('div');p.id='clp';p.innerHTML=`<div class="clh"><div class="clav">${frAv(d,(FRM[CL.c]||{}).d,38)}</div><div class="clw"><b>${esc(d.name||'Amigo')}</b><small id="cl-s">${CL.t0?'':(CL.role==='out'?'Llamando…':'Conectando…')}</small></div><div class="clq" id="clq" data-l="0" title="Midiendo la conexión…"><i></i><i></i><i></i><b></b></div><button class="cl-ib" data-a="clbig" title="Agrandar o achicar">${ic('expand')}</button><button class="cl-ib" data-a="clfull" id="clfb" title="Pantalla completa (F)">${ic('clfull')}</button></div>
-    <div class="clv"><video id="cl-rscr" autoplay playsinline muted></video><video id="cl-rcam" autoplay playsinline muted></video><video id="cl-lcam" autoplay playsinline muted></video></div><div class="clsh"><i></i>Estás compartiendo tu pantalla<button data-a="clscr">Dejar de compartir</button></div><div class="clfv"><div class="clft">${clTile('l',PR()||{},'Vos')}${clTile('r',{name:d.name,av:d.av,pic:(FRM[CL.c]||{}).pic?(FRM[CL.c]||{}).d:undefined,avx:d.avx},d.name||'Amigo')}</div><small id="cl-s2"></small></div><div class="clc" id="clc"></div>`;document.body.appendChild(p);
+    <div class="clv"><video id="cl-rscr" autoplay playsinline muted tabindex="0"></video><video id="cl-rcam" autoplay playsinline muted></video><video id="cl-lcam" autoplay playsinline muted></video></div><div class="clsh"><i></i>Estás compartiendo tu pantalla<button data-a="clscr">Dejar de compartir</button></div><div class="clfv"><div class="clft">${clTile('l',PR()||{},'Vos')}${clTile('r',{name:d.name,av:d.av,pic:(FRM[CL.c]||{}).pic?(FRM[CL.c]||{}).d:undefined,avx:d.avx},d.name||'Amigo')}</div><small id="cl-s2"></small></div><div class="clc" id="clc"></div>`;document.body.appendChild(p);
     const r=$('#cl-rcam'),s=$('#cl-rscr');if(CL.rcamS)r.srcObject=CL.rcamS;if(CL.rscrS)s.srcObject=CL.rscrS}
   const lc=$('#cl-lcam');if(lc&&CL.cs&&lc.srcObject!==CL.cs)lc.srcObject=CL.cs;
   p.classList.toggle('has',!!(CL.rcam||CL.rscr||CL.cam||CL.scr));p.classList.toggle('crs',!!CL.rscr);p.classList.toggle('rc',!!CL.rcam);p.classList.toggle('lc',!!CL.cam);p.classList.toggle('big',!!CL.big&&!CL.full);p.classList.toggle('full',!!CL.full);p.classList.toggle('swp',!!CL.swap);p.classList.toggle('sh',!!CL.scr);{const fb=$('#clfb');if(fb){fb.title=CL.full?'Salir de pantalla completa':'Pantalla completa';fb.innerHTML=ic(CL.full?'clmin':'clfull')}}if(!p.__fx){p.__fx=1;p.addEventListener('dblclick',e=>{if(e.target.closest('.clv')&&!clPip(e.target))A.clfull()});p.addEventListener('click',e=>{if(clPip(e.target)){CL.swap=!CL.swap;clUI()}});p.addEventListener('mousemove',clFullWake)}p.classList.toggle('live',!!CL.t0);
   const c=$('#clc');if(c)c.innerHTML=`<div class="clvol"><button data-a="clvol" id="clvb" title="Volumen de la llamada">${clVolIc(Math.min(1,CL.vol==null?1:CL.vol))}</button><input type="range" id="clvr" min="0" max="2" step="0.02" value="${CL.vol==null?1:CL.vol}"></div><button class="${CL.muted?'off':''}" data-a="clmute" title="${CL.muted?'Activar micrófono (M)':'Silenciar (M)'}">${ic(CL.muted?'clmicoff':'clmic')}</button><button class="${CL.cam?'on':''}" data-a="clcam" title="Cámara (V)">${ic(CL.cam?'clcam':'clcamoff')}</button><button class="${CL.scr?'on':''}" data-a="clscr" title="${CL.scr?'Dejar de compartir (S)':'Compartir pantalla (S)'}">${ic(CL.scr?'clscroff':'clscr')}</button><button class="end" data-a="clend" title="Colgar">${ic('clend')}</button>`;
-  clRig(p);clCtxRender();clTick()}
+  clRig(p);clCtxRender();clTick();clKeysSync();clRcRender()}
 async function clIdle(){const f=FR();if(CL||CLIN||CLIB||!fbOn()||f.inv)return;CLIB=1;try{for(const c of f.list){const d=f.c[c];if(!d||d.gone||!frOnl(d))continue;let x;try{x=await fbGet(clDoc(c,0),'winteer_chats')}catch(e){continue}
   if(x&&x.st==='ring'&&x.to===clMe()&&x.off&&Math.abs(Date.now()-x.ts)<50000&&!CLSEEN[x.cid]){CLSEEN[x.cid]=1;clIncoming(c,x);break}}}finally{CLIB=0}}
 let CLIT=0;setInterval(()=>{const n=Date.now();if(n-CLIT<(document.hasFocus()?3800:9800))return;CLIT=n;try{clIdle()}catch(e){}},2000);
@@ -11062,6 +11081,8 @@ Object.assign(A,{frcall:()=>{if(S.frSel)clCall(S.frSel)},frcl:()=>{if(!S.frSel)r
  clsq:b=>{ST.cla=ST.cla||{};ST.cla.sq=b.dataset.k;try{save()}catch(e){}clScrQ(b.dataset.k);document.querySelectorAll('.cl-sq [data-a="clsq"]').forEach(x=>x.classList.toggle('on',x===b));const sgm=b.closest('.cl-sq .seg2');if(sgm)sgm.style.setProperty('--i',b.dataset.k==='m'?1:0);if(CL)clUI()},
  clsa:()=>{const t=CL&&CL.ss&&CL.ss.getAudioTracks()[0];if(!t)return;CL.sam=!CL.sam;t.enabled=!CL.sam;clUI()},
  cleq:b=>{clEqSet(b.dataset.k);clUI()},
+ cldk:()=>{ST.cla=ST.cla||{};ST.cla.dk=ST.cla.dk?0:1;try{save()}catch(e){}if(!ST.cla.dk&&CL&&CL.dkOn){CL.dkOn=0;try{winteerNative.clDuck({on:0})}catch(e){}}clUI()},
+ clkcap:b=>{if(!CL)return;CL.kcap=CL.kcap===b.dataset.k?null:b.dataset.k;clCtxRender()},
  clsumx:()=>{const e=$('#clsum');if(e){e.classList.add('out');setTimeout(()=>e.remove(),420)}},
  clnz:b=>{clNzSet(+b.dataset.k);clUI()},
  clsnd:b=>{ST.cla=ST.cla||{};ST.cla.snd=b.dataset.k;try{save()}catch(e){}clTone('cn');clUI()},
@@ -11073,6 +11094,7 @@ Object.assign(A,{frcall:()=>{if(S.frSel)clCall(S.frSel)},frcl:()=>{if(!S.frSel)r
 function clPip(t){const v=t&&t.closest&&t.closest('#cl-rcam,#cl-rscr');return !!(v&&CL&&CL.full&&CL.rscr&&CL.rcam&&(CL.swap?v.id==='cl-rscr':v.id==='cl-rcam'))}
 function clMeter(ms,key){try{if(!CL)return;const AC=window.AudioContext||window.webkitAudioContext;if(!CL.ac)CL.ac=new AC();if(CL.ac.state==='suspended')CL.ac.resume().catch(()=>{});const an=CL.ac.createAnalyser();an.fftSize=512;CL.ac.createMediaStreamSource(ms).connect(an);(CL.mt=CL.mt||[]).push({an,buf:new Uint8Array(an.fftSize),key,until:0})}catch(e){}}
 function clSpeak(){if(!CL||!CL.mt)return;const now=Date.now(),on={r:0,l:0};for(const m of CL.mt){m.an.getByteTimeDomainData(m.buf);let q=0;for(let i=0;i<m.buf.length;i++){const v=(m.buf[i]-128)/128;q+=v*v}const rms=Math.sqrt(q/m.buf.length);if(rms>.03)m.until=now+320;if(m.until>now&&!(m.key==='l'&&CL.muted))on[m.key]=1}
+  try{const N=window.winteerNative;if(ST.cla&&ST.cla.dk&&N&&N.clDuck){if(on.r)CL.dkL=now;if(on.r&&!CL.dkOn&&now-(CL.dkT||0)>500){CL.dkOn=1;CL.dkT=now;N.clDuck({on:1,v:.35})}else if(!on.r&&CL.dkOn&&now-(CL.dkL||0)>900){CL.dkOn=0;CL.dkT=now;N.clDuck({on:0})}}}catch(e){}
   const p=$('#clp');if(p){p.classList.toggle('spkr',!!on.r);p.classList.toggle('spkl',!!on.l)}if(CL.rg){if(CL.rg.r)CL.rg.r.talk=on.r;if(CL.rg.l)CL.rg.l.talk=on.l}}
 async function clStats(){if(!CL||!CL.pc||!CL.t0)return;const me=CL;try{const gq=S.playing&&gm(S.playing.id);if(gq&&gq.name)me.gm=gq.name}catch(e){}try{const R=await me.pc.getStats();let rtt=null,lost=0,rcv=0,jit=0,vs=null;R.forEach(r=>{if(r.type==='candidate-pair'&&(r.nominated||r.selected)&&r.state==='succeeded'&&r.currentRoundTripTime!=null)rtt=r.currentRoundTripTime*1000;if(r.type==='inbound-rtp'&&r.kind==='audio'){lost=r.packetsLost||0;rcv=r.packetsReceived||0;jit=(r.jitter||0)*1000}if(r.type==='inbound-rtp'&&r.kind==='video'&&(r.frameWidth||0)*(r.frameHeight||0)>=((vs&&vs.w*vs.h)||0)&&r.frameWidth){const pb=me.vb||{b:0,t:0};vs={w:r.frameWidth,h:r.frameHeight,fps:Math.round(r.framesPerSecond||0),kb:pb.t&&r.timestamp>pb.t?Math.round((r.bytesReceived-pb.b)*8/(r.timestamp-pb.t)):(me.vst&&me.vst.kb)||0};me.vb={b:r.bytesReceived,t:r.timestamp}}});if(vs)me.vst=vs;
   const pl=me.ql||{l:0,r:0};me.ql={l:lost,r:rcv};const dl=Math.max(0,lost-pl.l),dr=Math.max(0,rcv-pl.r),loss=dl+dr?dl/(dl+dr)*100:0;
@@ -11124,8 +11146,8 @@ function clCtxRender(){const p=$('#clp');if(!p)return;let m=$('#clx');const X=CL
     sel=(t,kind,list,cur)=>grp(t,'',`<select class="clsel" data-dv="${kind}"><option value="">Predeterminado del sistema</option>${list.map(x=>`<option value="${esc(x.deviceId)}" ${x.deviceId===cur?'selected':''}>${dvn(x)}</option>`).join('')}</select>`),
     snd=((ST.cla&&ST.cla.snd)||'c'),sndi=Math.max(0,['c','s','d','m'].indexOf(snd));
   let h='';
-  if(X.k==='r')h=hd(frAv(d,(FRM[CL.c]||{}).d,34),esc(d.name||'Amigo'),'Voz y audio')+rng('clvr2','Volumen de su voz',CL.vol==null?1:CL.vol)+grp('Ecualizador','',sg([['n','Normal','cleq'],['c','Voz clara','cleq'],['g','Graves','cleq']],e==='c'?1:e==='g'?2:0))+sel('Parlantes','spk',CLDEV.out,(ST.cla&&ST.cla.spk)||'');
-  else if(X.k==='l')h=hd(avHTML(PR()||{name:'Vos'},34),'Vos','Tu micrófono')+sw('Micrófono','Tu amigo te escucha.',!CL.muted,'clmute')+sel('Micrófono','mic',CLDEV.in,(ST.cla&&ST.cla.mic)||'')+grp('Reducción de ruido','',sg([[0,'Normal','clnz'],[1,'Fuerte','clnz']],z))+grp('Sonidos de llamada','',sg([['c','Clásico','clsnd'],['s','Suave','clsnd'],['d','Digital','clsnd'],['m','Mudo','clsnd']],sndi));
+  if(X.k==='r')h=hd(frAv(d,(FRM[CL.c]||{}).d,34),esc(d.name||'Amigo'),'Voz y audio')+rng('clvr2','Volumen de su voz',CL.vol==null?1:CL.vol)+grp('Ecualizador','',sg([['n','Normal','cleq'],['c','Voz clara','cleq'],['g','Graves','cleq']],e==='c'?1:e==='g'?2:0))+sel('Parlantes','spk',CLDEV.out,(ST.cla&&ST.cla.spk)||'')+((window.winteerNative&&winteerNative.clDuck)?sw('Bajar el juego cuando habla','Baja el volumen solo del juego mientras habla',!!(ST.cla&&ST.cla.dk),'cldk'):'');
+  else if(X.k==='l')h=hd(avHTML(PR()||{name:'Vos'},34),'Vos','Tu micrófono')+sw('Micrófono','Tu amigo te escucha.',!CL.muted,'clmute')+sel('Micrófono','mic',CLDEV.in,(ST.cla&&ST.cla.mic)||'')+grp('Reducción de ruido','',sg([[0,'Normal','clnz'],[1,'Fuerte','clnz']],z))+grp('Sonidos de llamada','',sg([['c','Clásico','clsnd'],['s','Suave','clsnd'],['d','Digital','clsnd'],['m','Mudo','clsnd']],sndi))+grp('Atajos globales','',['mu','end'].map(k=>`<div class="clkr"><span>${k==='mu'?'Silenciar':'Colgar'}</span><button data-a="clkcap" data-k="${k}" class="${CL.kcap===k?'on':''}">${CL.kcap===k?'Presioná las teclas…':esc(clKeyTxt(clKey(k)))}</button></div>`).join(''));
   else if(X.k==='rs'){const v=$('#cl-rscr'),q=CL.vst,w=(v&&v.videoWidth)||(q&&q.w)||0,hh=(v&&v.videoHeight)||(q&&q.h)||0;h=hd(`<span class="clxi">${ic('clscr')}</span>`,esc(d.name||'Amigo'),'Pantalla compartida')+rng('clsv','Volumen de la transmisión',CL.svol==null?1:CL.svol)+`<div class="cli2">${w?`<span>${w}×${hh}</span>`:''}${q&&q.fps?`<span>${q.fps} fps</span>`:''}${q&&q.kb?`<span>${q.kb>=1000?(q.kb/1000).toFixed(1)+' Mb/s':q.kb+' kb/s'}</span>`:''}${CL.q&&CL.q.rtt!=null?`<span>${Math.round(CL.q.rtt)} ms</span>`:''}</div><button class="clxb" data-a="clfull">${CL.full?'Salir de pantalla completa':'Pantalla completa'}</button>`}
   else if(X.k==='ms'){const sh=CL.ss&&CL.ss.getAudioTracks().length;h=hd(`<span class="clxi">${ic('clscr')}</span>`,'Tu pantalla','En transmisión')+(sh?sw('Audio del sistema','Transmitiendo',!CL.sam,'clsa'):'<div class="clg"><small style="margin:0">Audio del sistema desactivado</small></div>')+grp('Calidad','',sg([['d','Nítida','clsq'],['m','Fluida','clsq']],(ST.cla&&ST.cla.sq)==='m'?1:0))+'<button class="clxb dng" data-a="clscr">Dejar de compartir</button>'}
   const first=!m;if(first){m=document.createElement('div');m.id='clx';m.className='clap fresh';m.dataset.k=X.k;p.appendChild(m);setTimeout(()=>{const q=$('#clx');if(q)q.classList.remove('fresh')},800)}
@@ -11136,9 +11158,58 @@ function clCtxRender(){const p=$('#clp');if(!p)return;let m=$('#clx');const X=CL
 function clVolIc(v){return '<svg class="i" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9.5h3l4.5-3.8a.6.6 0 0 1 1 .5v11.6a.6.6 0 0 1-1 .5L7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1z"/>'+(v<=0?'<path d="m16.5 9.5 5 5M21.5 9.5l-5 5"/>':v<.5?'<path d="M15.8 9.6a3.6 3.6 0 0 1 0 4.8"/>':'<path d="M15.8 9a4.6 4.6 0 0 1 0 6M18.6 6.2a8.6 8.6 0 0 1 0 11.6"/>')+'</svg>'}
 function clVolSet(v){if(!CL)return;CL.vol=v;clVoiceApply();const b=$('#clvb');if(b)b.innerHTML=clVolIc(Math.min(1,v))}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='clvr')clVolSet(+e.target.value);if(e.target&&e.target.id==='clsv'&&CL){CL.svol=+e.target.value;clScrApply()}if(e.target&&e.target.type==='range'&&e.target.closest('#clx')){const o=e.target.closest('label').querySelector('.clpc');if(o)o.textContent=Math.round(e.target.value*100)+' %';e.target.closest('label').classList.toggle('boost',+e.target.value>1)}if(e.target&&e.target.type==='range'&&e.target.closest('#clx'))e.target.style.setProperty('--p',Math.round(e.target.value*50)+'%');if(e.target&&e.target.id==='clvr2'){clVolSet(+e.target.value);const r=$('#clvr');if(r)r.value=e.target.value}});
-document.addEventListener('contextmenu',e=>{if(!CL||!CL.full)return;const t=e.target;let k=t.closest('#clx')?'keep':t.closest('.clt.r,#cl-rcam')?'r':t.closest('.clt.l,#cl-lcam')?'l':t.closest('#cl-rscr')?'rs':t.closest('.clsh')?'ms':'';if(k==='keep'){e.preventDefault();return}if(!k){if(CL.ctx){CL.ctx=null;clCtxRender()}return}e.preventDefault();const old=$('#clx');if(old)old.remove();CL.ctx={k,x:e.clientX,y:e.clientY};clCtxRender()});
+document.addEventListener('contextmenu',e=>{if(!CL||!CL.full||CL.rcView)return;const t=e.target;let k=t.closest('#clx')?'keep':t.closest('.clt.r,#cl-rcam')?'r':t.closest('.clt.l,#cl-lcam')?'l':t.closest('#cl-rscr')?'rs':t.closest('.clsh')?'ms':'';if(k==='keep'){e.preventDefault();return}if(!k){if(CL.ctx){CL.ctx=null;clCtxRender()}return}e.preventDefault();const old=$('#clx');if(old)old.remove();CL.ctx={k,x:e.clientX,y:e.clientY};clCtxRender()});
 document.addEventListener('click',e=>{if(CL&&CL.ctx&&!e.target.closest('#clx')){CL.ctx=null;clCtxRender()}});
 document.addEventListener('keydown',e=>{if(!CL||!CL.full||e.ctrlKey||e.metaKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;const k=(e.key||'').toLowerCase(),m={m:'clmute',v:'clcam',s:'clscr',f:'clfull'}[k];if(m){e.preventDefault();A[m]();clFullWake()}});
+
+/* ---- atajos globales de la llamada ---- */
+var CLKS='',CLKD={mu:'Control+Shift+M',end:'Control+Shift+H'},CLKILL='Control+Alt+Shift+R';
+const clKey=k=>(ST.cla&&ST.cla[k==='mu'?'kmu':'kend'])||CLKD[k];
+const clKeyTxt=a=>String(a||'').replace('CommandOrControl','Ctrl').replace('Control','Ctrl').replace('Super','Win');
+function clKeysSync(){const N=window.winteerNative;if(!N||!N.clKeys)return;const sig=CL?[clKey('mu'),clKey('end'),CL.rcHost?CLKILL:''].join('|'):'';if(sig===CLKS)return;CLKS=sig;
+  Promise.resolve(N.clKeys(CL?{on:1,mute:clKey('mu'),end:clKey('end'),kill:CL.rcHost?CLKILL:''}:{on:0})).then(r=>{if(r&&(r.mute===false||r.end===false))toast('Alguno de los atajos de la llamada ya lo usa otro programa. Cambialo con clic derecho sobre tu cuadro')}).catch(()=>{})}
+function clHotkey(k){if(k==='kill'){clRcRevoke(true);return}if(!CL)return;if(k==='mute'){A.clmute();clBeep(CL.muted?[[330,.09]]:[[740,.09]],.12)}else if(k==='end')clEnd('Terminó la llamada')}
+function clAccel(e){const m=[];if(e.ctrlKey)m.push('Control');if(e.altKey)m.push('Alt');if(e.shiftKey)m.push('Shift');if(e.metaKey)m.push('Super');const c=e.code||'';let k='';
+  if(/^Key[A-Z]$/.test(c))k=c.slice(3);else if(/^Digit\d$/.test(c))k=c.slice(5);else if(/^F\d{1,2}$/.test(c))k=c;else if(/^Arrow/.test(c))k=c.slice(5);else if(c==='Space')k='Space';else if(c==='Minus')k='-';else if(c==='Equal')k='=';else if(c==='Comma')k=',';else if(c==='Period')k='.';else return '';
+  if(!m.length&&!/^F\d/.test(k))return '';return m.concat(k).join('+')}
+document.addEventListener('keydown',e=>{if(!CL||!CL.kcap)return;e.preventDefault();e.stopPropagation();if(e.key==='Escape'){CL.kcap=null;clCtxRender();return}if(/^(Control|Shift|Alt|Meta)$/.test(e.key))return;const a=clAccel(e);if(!a){toast('Usá una combinación con Ctrl, Alt o Shift');return}
+  const w=CL.kcap;CL.kcap=null;ST.cla=ST.cla||{};ST.cla[w==='mu'?'kmu':'kend']=a;try{save()}catch(x){}CLKS='';clKeysSync();clCtxRender()},true);
+
+/* ---- control remoto de la pantalla compartida ---- */
+const CLVK={Enter:13,NumpadEnter:13,Escape:27,Space:32,Backspace:8,Tab:9,CapsLock:20,ShiftLeft:160,ShiftRight:161,ControlLeft:162,ControlRight:163,AltLeft:164,AltRight:165,ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40,Insert:45,Delete:46,Home:36,End:35,PageUp:33,PageDown:34,Minus:189,Equal:187,BracketLeft:219,BracketRight:221,Semicolon:186,Quote:222,Comma:188,Period:190,Slash:191,Backslash:220,Backquote:192,IntlBackslash:226,NumpadAdd:107,NumpadSubtract:109,NumpadMultiply:106,NumpadDivide:111,NumpadDecimal:110};
+const CLVKE=new Set(['ControlRight','AltRight','ArrowLeft','ArrowUp','ArrowRight','ArrowDown','Insert','Delete','Home','End','PageUp','PageDown','NumpadEnter','NumpadDivide']);
+function clVk(c){if(/^Key[A-Z]$/.test(c))return c.charCodeAt(3);if(/^Digit\d$/.test(c))return c.charCodeAt(5);let m=/^F(\d{1,2})$/.exec(c);if(m&&+m[1]<=24)return 111+ +m[1];m=/^Numpad(\d)$/.exec(c);if(m)return 96+ +m[1];return CLVK[c]||0}
+function clRcPt(e){const v=$('#cl-rscr');if(!v||!v.videoWidth)return null;const r=v.getBoundingClientRect(),k=Math.min(r.width/v.videoWidth,r.height/v.videoHeight),w=v.videoWidth*k,h=v.videoHeight*k,x=(e.clientX-(r.left+(r.width-w)/2))/w,y=(e.clientY-(r.top+(r.height-h)/2))/h;if(x<0||y<0||x>1||y>1)return null;return {x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4}}
+function clRcSend(m){clSend(Object.assign({k:'ri'},m))}
+function clRcAsk(){if(!CL||!CL.rrc||CL.rcView||CL.rcWait)return;CL.rcWait=1;clSend({k:'rcq'});clRcRender();clearTimeout(CL.rcWt);CL.rcWt=setTimeout(()=>{if(CL&&CL.rcWait){CL.rcWait=0;toast('No respondió al pedido de control');clRcRender()}},65000)}
+async function clRcAllow(){if(!CL||!CL.rcAsk)return;const N=window.winteerNative;let ok=false;try{ok=N&&N.rcBegin&&await N.rcBegin()}catch(e){}CL.rcAsk=0;clearTimeout(CL.rcAt);
+  if(!ok){clSend({k:'rca',ok:0});toast('No se puede dar control: hay que compartir una pantalla completa');clRcRender();return}
+  CL.rcHost=1;clSend({k:'rca',ok:1});clBeep([[520,.08],[780,.1]],.12);CLKS='';clKeysSync();clRcRender()}
+function clRcDeny(){if(!CL)return;CL.rcAsk=0;clearTimeout(CL.rcAt);clSend({k:'rca',ok:0});clRcRender()}
+function clRcRevoke(byKey){if(!CL)return;if(CL.rcHost){CL.rcHost=0;try{winteerNative.rcEnd()}catch(e){}clSend({k:'rcx'});CLKS='';clKeysSync();if(byKey)toast('Control remoto desactivado');clBeep([[440,.08],[330,.12]],.12)}
+  if(CL.rcView){CL.rcView=0;clSend({k:'rcx',v:1});clRcSend({t:'x'})}clRcRender()}
+function clRcClean(me){try{if(me.rcHost)winteerNative.rcEnd()}catch(e){}}
+function clRcRender(){let e=$('#clrc');const p=$('#clp');if(!CL||!p){if(e)e.remove();return}
+  const d=FR().c[CL.c]||{},nm=esc(d.name||'Tu amigo');let h='';
+  if(CL.rcAsk)h=`<div class="rc-c ask"><u>${ic('clscr')}</u><div><b>${nm} quiere controlar tu pantalla</b><small>Va a poder mover el mouse y usar el teclado</small></div><button class="rc-y" data-a="clrcok">Permitir</button><button class="rc-n" data-a="clrcno">Rechazar</button></div>`;
+  else if(CL.rcHost)h=`<div class="rc-c on"><u>${ic('clscr')}</u><div><b>${nm} está controlando tu pantalla</b><small>${esc(clKeyTxt(CLKILL))} para quitarlo</small></div><button class="rc-n" data-a="clrcx">Quitar control</button></div>`;
+  else if(CL.rcView)h=`<div class="rc-c on"><u>${ic('clscr')}</u><div><b>Controlando la pantalla de ${nm}</b><small>Hacé clic en la pantalla para usar el teclado · Mayús+Esc suelta el teclado</small></div><button class="rc-n" data-a="clrcx">Soltar</button></div>`;
+  else if(CL.rcWait)h=`<div class="rc-c"><u>${ic('clscr')}</u><div><b>Esperando respuesta…</b><small>${nm} tiene que permitirlo</small></div><button class="rc-n" data-a="clrcx">Cancelar</button></div>`;
+  else if(CL.rrc&&CL.rscr)h=`<button class="rc-p" data-a="clrcq">${ic('clscr')}Pedir control</button>`;
+  if(!h){if(e)e.remove();return}
+  if(!e){e=document.createElement('div');e.id='clrc';p.appendChild(e)}else if(e.parentNode!==p)p.appendChild(e);
+  if(e.dataset.h!==h){e.dataset.h=h;e.innerHTML=h}}
+Object.assign(A,{clrcq:()=>clRcAsk(),clrcok:()=>clRcAllow(),clrcno:()=>clRcDeny(),clrcx:()=>{if(!CL)return;if(CL.rcWait){CL.rcWait=0;clSend({k:'rcx',v:1});clRcRender()}else clRcRevoke()}});
+(function(){let last=0,pend=null,tm=0;const flush=()=>{tm=0;if(pend){clRcSend({t:'m',x:pend.x,y:pend.y});pend=null;last=Date.now()}};
+  document.addEventListener('mousemove',e=>{if(!CL||!CL.rcView||e.target.id!=='cl-rscr')return;const q=clRcPt(e);if(!q)return;pend=q;if(!tm)tm=setTimeout(flush,Math.max(0,16-(Date.now()-last)))},true);
+  const bt=(e,d)=>{if(!CL||!CL.rcView||e.target.id!=='cl-rscr')return;const q=clRcPt(e);if(!q)return;e.preventDefault();e.stopPropagation();if(d){try{e.target.focus()}catch(x){}}clRcSend({t:'m',x:q.x,y:q.y});clRcSend({t:'b',b:e.button,d:d})};
+  document.addEventListener('mousedown',e=>bt(e,1),true);document.addEventListener('mouseup',e=>bt(e,0),true);
+  document.addEventListener('wheel',e=>{if(!CL||!CL.rcView||e.target.id!=='cl-rscr')return;e.preventDefault();clRcSend({t:'w',d:-Math.sign(e.deltaY)*Math.min(360,Math.max(40,Math.abs(e.deltaY)*1.2))})},{capture:true,passive:false});
+  document.addEventListener('contextmenu',e=>{if(CL&&CL.rcView&&e.target.id==='cl-rscr'){e.preventDefault();e.stopPropagation()}},true);
+  const kk=(e,d)=>{if(!CL||!CL.rcView)return;const v=$('#cl-rscr');if(!v||document.activeElement!==v)return;if(d&&e.shiftKey&&e.key==='Escape'){e.preventDefault();e.stopPropagation();v.blur();clRcSend({t:'x'});return}
+    const vk=clVk(e.code);if(!vk)return;e.preventDefault();e.stopPropagation();if(d&&e.repeat)return;clRcSend({t:'k',vk,d:d?1:0,e:CLVKE.has(e.code)?1:0})};
+  document.addEventListener('keydown',e=>kk(e,1),true);document.addEventListener('keyup',e=>kk(e,0),true);
+  document.addEventListener('blur',e=>{if(CL&&CL.rcView&&e.target&&e.target.id==='cl-rscr')clRcSend({t:'x'})},true)})();
 function clFullWake(){const p=$('#clp');if(!p)return;p.classList.remove('idle');clearTimeout(clFullWake.t);if(CL&&CL.full)clFullWake.t=setTimeout(()=>{const q=$('#clp');if(q&&CL&&CL.full)q.classList.add('idle')},2600)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CL&&CL.full&&!document.querySelector('.modal')){if(CL.ctx){CL.ctx=null;clCtxRender();return}A.clfull()}},true);
 
@@ -13783,6 +13854,7 @@ if(window.winteerNative&&winteerNative.winCtl){const tb=document.getElementById(
 if(window.winteerNative)winteerNative.onGame(ev=>{
   if(ev.type==='upd'){updUI(ev);return}
   if(ev&&ev.id&&vIsId(ev.id)){vEv(ev);return}
+  if(ev.type==='clkey'){try{clHotkey(ev.k)}catch(e){}return}
   if(ev.type==='friend-open'){if(ev.c&&FR().c[ev.c]){S.frSel=ev.c;S.frTab='chat'}go('friends');return}
   if(ev.type==='clipreq'){recClip(ev.id);return}
   if(ev.type==='ovreq'){try{const g=gm(ev.id);if(!g)return;const u=ggU(g),cs=getComputedStyle(document.body),cv=k=>cs.getPropertyValue(k).trim();OVS.on=1;OVS.c='';winteerNative.ovData({id:g.id,name:g.name,t:S.playing&&S.playing.id===g.id?S.playing.t:Date.now(),th:{a:cv('--a'),a2:cv('--a2'),rgb:cv('--argb'),on:cv('--on-a')},items:ggOwn(g)?GGL.map(d=>{let r=[0,1];try{r=d[6](g)}catch(e){}return{n:d[1],d:d[2],r:d[4],x:GGX[d[4]],on:!!u[d[0]],p:r[0]/r[1]*100}}):[]});setTimeout(ovPush,900)}catch(e){}return}

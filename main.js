@@ -793,6 +793,185 @@ function shotToast(thumbPng, text, kind, sub2) {
   } catch (e) {}
 }
 let scrPickId = null, scrPickAudio = false;
+// ---------- Ayudante de Windows (volumen por programa y control remoto) ----------
+const WH_PS = `$ErrorActionPreference = 'SilentlyContinue'
+$cs = @'
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
+
+[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class MMDeviceEnumeratorCom { }
+[ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDeviceEnumerator { void EnumAudioEndpoints(int f, int s, out IntPtr d); void GetDefaultAudioEndpoint(int f, int r, out IMMDevice d); }
+[ComImport, Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDevice { void Activate(ref Guid iid, int ctx, IntPtr p, [MarshalAs(UnmanagedType.IUnknown)] out object o); }
+[ComImport, Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioSessionManager2 { void GetAudioSessionControl(IntPtr a, int b, out IntPtr c); void GetSimpleAudioVolume(IntPtr a, int b, out IntPtr c); void GetSessionEnumerator(out IAudioSessionEnumerator e); }
+[ComImport, Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioSessionEnumerator { void GetCount(out int n); void GetSession(int i, out IAudioSessionControl2 s); }
+[ComImport, Guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioSessionControl2 {
+  void GetState(out int s); void GetDisplayName(out IntPtr n); void SetDisplayName(IntPtr n, ref Guid c); void GetIconPath(out IntPtr p); void SetIconPath(IntPtr p, ref Guid c);
+  void GetGroupingParam(out Guid g); void SetGroupingParam(ref Guid g, ref Guid c); void RegisterAudioSessionNotification(IntPtr n); void UnregisterAudioSessionNotification(IntPtr n);
+  void GetSessionIdentifier(out IntPtr i); void GetSessionInstanceIdentifier(out IntPtr i); void GetProcessId(out uint pid); void IsSystemSoundsSession(); void SetDuckingPreference(bool b);
+}
+[ComImport, Guid("87CE5498-68D6-44E5-9215-6DA47EF883D8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface ISimpleAudioVolume { void SetMasterVolume(float v, ref Guid c); void GetMasterVolume(out float v); void SetMute(bool m, ref Guid c); void GetMute(out bool m); }
+
+public static class WH {
+  [StructLayout(LayoutKind.Sequential)] struct MOUSEINPUT { public int dx, dy; public uint mouseData, dwFlags, time; public IntPtr dwExtraInfo; }
+  [StructLayout(LayoutKind.Sequential)] struct KEYBDINPUT { public ushort wVk, wScan; public uint dwFlags, time; public IntPtr dwExtraInfo; }
+  [StructLayout(LayoutKind.Explicit)] struct INPUTU { [FieldOffset(0)] public MOUSEINPUT mi; [FieldOffset(0)] public KEYBDINPUT ki; }
+  [StructLayout(LayoutKind.Sequential)] struct INPUT { public uint type; public INPUTU u; }
+  [DllImport("user32.dll")] static extern uint SendInput(uint n, INPUT[] p, int size);
+  [DllImport("user32.dll")] static extern bool SetCursorPos(int x, int y);
+  [DllImport("user32.dll")] static extern uint MapVirtualKey(uint c, uint t);
+  [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
+  [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(uint a, bool b, uint pid);
+  [DllImport("kernel32.dll")] static extern bool QueryFullProcessImageName(IntPtr h, int f, StringBuilder s, ref int n);
+  [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+
+  static Dictionary<uint, float> orig = new Dictionary<uint, float>();
+  static HashSet<int> down = new HashSet<int>();
+  static HashSet<int> btn = new HashSet<int>();
+
+  public static void Init() { try { SetProcessDPIAware(); } catch (Exception) { } }
+
+  static string PathOf(uint pid) {
+    IntPtr h = OpenProcess(0x1000, false, pid);
+    if (h == IntPtr.Zero) return null;
+    try { StringBuilder sb = new StringBuilder(1024); int n = 1024; if (QueryFullProcessImageName(h, 0, sb, ref n)) return sb.ToString().ToLowerInvariant(); } finally { CloseHandle(h); }
+    return null;
+  }
+
+  public static void Duck(float f, string[] pre) {
+    IMMDeviceEnumerator en = (IMMDeviceEnumerator)(new MMDeviceEnumeratorCom());
+    IMMDevice dev; en.GetDefaultAudioEndpoint(0, 1, out dev);
+    Guid iid = typeof(IAudioSessionManager2).GUID; object o; dev.Activate(ref iid, 23, IntPtr.Zero, out o);
+    IAudioSessionManager2 mgr = (IAudioSessionManager2)o; IAudioSessionEnumerator se; mgr.GetSessionEnumerator(out se);
+    int n; se.GetCount(out n);
+    for (int i = 0; i < n; i++) {
+      try {
+        IAudioSessionControl2 c; se.GetSession(i, out c);
+        uint pid; c.GetProcessId(out pid); if (pid == 0) continue;
+        string p = PathOf(pid); if (p == null) continue;
+        bool ok = false;
+        if (pre == null) { ok = orig.ContainsKey(pid); }
+        else { foreach (string x in pre) { if (x.Length > 0 && p.StartsWith(x)) { ok = true; break; } } }
+        if (!ok) continue;
+        ISimpleAudioVolume sv = (ISimpleAudioVolume)c; float cur; sv.GetMasterVolume(out cur);
+        Guid g = Guid.Empty;
+        if (f >= 0.999f) { if (orig.ContainsKey(pid)) { sv.SetMasterVolume(orig[pid], ref g); orig.Remove(pid); } }
+        else { if (!orig.ContainsKey(pid)) orig[pid] = cur; sv.SetMasterVolume(orig[pid] * f, ref g); }
+      } catch (Exception) { }
+    }
+  }
+
+  public static void Restore() {
+    try { Duck(1f, null); } catch (Exception) { }
+    orig.Clear();
+  }
+
+  static void Send(INPUT i) { INPUT[] a = new INPUT[1]; a[0] = i; SendInput(1, a, Marshal.SizeOf(typeof(INPUT))); }
+  public static void Move(int x, int y) { SetCursorPos(x, y); }
+  public static void Btn(int b, bool d) {
+    uint f = b == 0 ? (d ? 2u : 4u) : (b == 2 ? (d ? 8u : 16u) : (d ? 32u : 64u));
+    INPUT i = new INPUT(); i.type = 0; i.u.mi.dwFlags = f; Send(i);
+    if (d) btn.Add(b); else btn.Remove(b);
+  }
+  public static void Wheel(int dl) { INPUT i = new INPUT(); i.type = 0; i.u.mi.mouseData = (uint)dl; i.u.mi.dwFlags = 0x800; Send(i); }
+  public static void Key(int vk, bool d, bool ext) {
+    uint sc = MapVirtualKey((uint)vk, 0);
+    INPUT i = new INPUT(); i.type = 1; i.u.ki.wVk = 0; i.u.ki.wScan = (ushort)sc;
+    i.u.ki.dwFlags = 8u | (d ? 0u : 2u) | (ext ? 1u : 0u); Send(i);
+    if (d) down.Add(vk | (ext ? 0x10000 : 0)); else down.Remove(vk | (ext ? 0x10000 : 0));
+  }
+  public static void ReleaseAll() {
+    foreach (int k in new List<int>(down)) { Key(k & 0xFFFF, false, (k & 0x10000) != 0); }
+    foreach (int b in new List<int>(btn)) { Btn(b, false); }
+  }
+
+  public static void Cmd(string l) {
+    string[] p = l.Split(new char[] { ' ' }, 3);
+    switch (p[0]) {
+      case "d": Duck(float.Parse(p[1], System.Globalization.CultureInfo.InvariantCulture), p.Length > 2 ? p[2].Split('|') : new string[0]); break;
+      case "u": Restore(); break;
+      case "m": { string[] q = (p[1] + " " + (p.Length > 2 ? p[2] : "")).Split(' '); Move(int.Parse(q[0]), int.Parse(q[1])); break; }
+      case "b": { string[] q = (p[1] + " " + (p.Length > 2 ? p[2] : "")).Split(' '); Btn(int.Parse(q[0]), q[1] == "1"); break; }
+      case "w": Wheel(int.Parse(p[1])); break;
+      case "k": { string[] q = (p[1] + " " + (p.Length > 2 ? p[2] : "")).Split(' '); Key(int.Parse(q[0]), q[1] == "1", q.Length > 2 && q[2] == "1"); break; }
+      case "x": ReleaseAll(); break;
+    }
+  }
+}
+'@
+try { Add-Type -TypeDefinition $cs -ErrorAction Stop } catch { try { ($_ | Out-String) | Out-File (Join-Path $env:TEMP 'winteer_wh.log') } catch { } ; exit }
+[WH]::Init()
+while (($l = [Console]::In.ReadLine()) -ne $null) { try { [WH]::Cmd($l) } catch { } }
+[WH]::Restore()
+`;
+let whp = null;
+function whSend(l) {
+  if (process.platform !== 'win32') return false;
+  try {
+    if (!whp) {
+      const f = path.join(os.tmpdir(), 'winteer_wh.ps1');
+      fs.writeFileSync(f, WH_PS, 'utf8');
+      whp = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', f], { windowsHide: true, stdio: ['pipe', 'ignore', 'ignore'] });
+      whp.on('exit', () => { whp = null; }); whp.on('error', () => { whp = null; });
+      whp.stdin.on('error', () => {});
+    }
+    if (whp && whp.stdin.writable) { whp.stdin.write(l + '\n'); return true; }
+  } catch (e) { whp = null; }
+  return false;
+}
+function whStop() { try { if (whp) { whp.stdin.write('x\n'); whp.stdin.write('u\n'); const p = whp; whp = null; setTimeout(() => { try { p.stdin.end(); } catch (e) {} }, 400); setTimeout(() => { try { p.kill(); } catch (e) {} }, 2500); } } catch (e) { whp = null; } }
+function duckPrefixes() {
+  const a = [];
+  for (const t of track.values()) {
+    if (!t.started) continue;
+    if (t.exe) a.push(String(t.exe).toLowerCase());
+    if (t.edir) a.push(String(t.edir).toLowerCase());
+    for (const d of (t.dirs || [])) a.push(String(d).toLowerCase());
+  }
+  return a.map(x => x.replace(/\//g, '\\')).filter(x => x.length > 3 && !/\|/.test(x));
+}
+// teclas globales de la llamada
+let clkReg = { mute: '', end: '', kill: '' };
+function clkSet(o) {
+  const want = { mute: '', end: '', kill: '' };
+  if (o && o.on) { want.mute = String(o.mute || ''); want.end = String(o.end || ''); want.kill = String(o.kill || ''); }
+  const res = {};
+  for (const k of ['mute', 'end', 'kill']) {
+    if (clkReg[k] && clkReg[k] !== want[k]) { try { globalShortcut.unregister(clkReg[k]); } catch (e) {} clkReg[k] = ''; }
+    if (want[k] && !clkReg[k]) {
+      let ok = false;
+      try { ok = globalShortcut.register(want[k], () => send({ type: 'clkey', k })); } catch (e) {}
+      if (ok) clkReg[k] = want[k];
+      res[k] = ok;
+    } else res[k] = !want[k] || !!clkReg[k];
+  }
+  return res;
+}
+// control remoto (mouse y teclado) de la pantalla compartida
+let scrShare = null, rcOn = false;
+function rcPoint(nx, ny) {
+  let d = null;
+  try { const all = screen.getAllDisplays(); if (scrShare && scrShare.disp) d = all.find(x => String(x.id) === String(scrShare.disp)); if (!d) d = screen.getPrimaryDisplay(); } catch (e) { return null; }
+  const b = d.bounds, x = Math.round(b.x + Math.min(1, Math.max(0, nx)) * (b.width - 1)), y = Math.round(b.y + Math.min(1, Math.max(0, ny)) * (b.height - 1));
+  try { return screen.dipToScreenPoint({ x, y }); } catch (e) { return { x, y }; }
+}
+function rcIn(m) {
+  if (!rcOn || !m || process.platform !== 'win32') return;
+  if (m.t === 'm') { const p = rcPoint(+m.x, +m.y); if (p) whSend('m ' + p.x + ' ' + p.y); }
+  else if (m.t === 'x') whSend('x');
+  else if (m.t === 'b') { const b = m.b === 2 ? 2 : m.b === 1 ? 1 : 0; whSend('b ' + b + ' ' + (m.d ? 1 : 0)); }
+  else if (m.t === 'w') { const d = Math.max(-1200, Math.min(1200, Math.round(+m.d || 0))); if (d) whSend('w ' + d); }
+  else if (m.t === 'k') { const vk = (+m.vk) | 0; if (vk > 0 && vk < 255 && vk !== 0x5B && vk !== 0x5C && vk !== 0x5D) whSend('k ' + vk + ' ' + (m.d ? 1 : 0) + ' ' + (m.e ? 1 : 0)); }
+}
+
 async function takeShot() {
   if (shotBusy) return; shotBusy = true;
   try {
@@ -2248,6 +2427,7 @@ function createWindow() {
         const s = srcs.find(x => x.id === scrPickId) || srcs.find(x => /^screen/.test(x.id)) || srcs[0];
         const au = scrPickAudio; scrPickId = null; scrPickAudio = false;
         if (!s) { cb({}); return; }
+        scrShare = /^screen/.test(s.id) ? { disp: s.display_id || '' } : null;
         cb(au && process.platform === 'win32' ? { video: s, audio: 'loopback' } : { video: s });
       }).catch(() => cb({}));
     });
@@ -3612,7 +3792,22 @@ app.whenReady().then(() => {
     const srcs = await desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 320, height: 180 }, fetchWindowIcons: false });
     return srcs.filter(s => !s.thumbnail.isEmpty() && s.name !== 'WINTEER').map(s => ({ id: s.id, name: s.name, th: s.thumbnail.toDataURL() }));
   });
-  ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });;
+  ipcMain.handle('scrPick', (_e, id, audio) => { scrPickId = String(id || ''); scrPickAudio = !!audio; return true; });
+  ipcMain.handle('clKeys', (_e, o) => clkSet(o));
+  ipcMain.handle('clDuck', (_e, o) => {
+    if (process.platform !== 'win32') return false;
+    if (!o || !o.on) { whSend('u'); return true; }
+    const v = Math.max(0.05, Math.min(1, +o.v || 0.35)), p = duckPrefixes();
+    if (!p.length) return false;
+    return whSend('d ' + v.toFixed(2) + ' ' + p.join('|'));
+  });
+  ipcMain.handle('clDuckEnd', () => { if (!rcOn) whStop(); else whSend('u'); return true; });
+  ipcMain.handle('rcInfo', () => ({ ok: process.platform === 'win32', screen: !!scrShare }));
+  ipcMain.handle('rcBegin', () => { if (process.platform !== 'win32' || !scrShare) return false; rcOn = true; whSend('x'); return true; });
+  ipcMain.handle('rcEnd', () => { rcOn = false; whSend('x'); return true; });
+  ipcMain.on('rcIn', (_e, m) => { try { rcIn(m); } catch (e) {} });
+  ipcMain.handle('scrShareEnd', () => { scrShare = null; rcOn = false; whSend('x'); return true; });
+
   ipcMain.handle('winCtl', (_e, a) => { if (!win) return; if (a === 'min') win.minimize(); else if (a === 'max') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); } else if (a === 'close') win.close(); });
   ipcMain.handle('quit', () => { quitting = true; app.quit(); });
   ipcMain.handle('cfgGet', () => { const c = Object.assign({ win: process.platform === 'win32' }, cfg); delete c.mioKey; delete c.mioTok; delete c.cfKey; delete c.nxKey; delete c.raKey; return c; });
@@ -3624,5 +3819,5 @@ app.whenReady().then(() => {
   nxmArgv(process.argv);
 });
 app.on('second-instance', (_e, argv) => { showWin(); nxmArgv(argv); });
-app.on('before-quit', () => { quitting = true; try { dlEng && dlEng.shutdown(); } catch (e) {} stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
+app.on('before-quit', () => { quitting = true; try { whStop(); } catch (e) {} try { dlEng && dlEng.shutdown(); } catch (e) {} stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
 app.on('window-all-closed', () => { if (!cfg.bg || quitting) app.quit(); });
