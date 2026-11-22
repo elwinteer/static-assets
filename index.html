@@ -1980,6 +1980,8 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 #clp.full.lc #cl-lcam{left:26px;bottom:26px;width:min(16%,220px);border-radius:16px;z-index:3;border:1px solid rgba(255,255,255,.22);box-shadow:0 16px 44px rgba(0,0,0,.55);animation:clfPip .7s .4s cubic-bezier(.34,1.4,.5,1) both;transition:bottom .5s var(--ease)}
 #clp.full:not(.idle).crs.rc #cl-rcam,#clp.full:not(.idle).lc #cl-lcam{bottom:120px}
 #clp .clvol,#clp .clsh{display:none}
+.modal:has(.cl-srcm){z-index:9600;position:fixed}
+.cl-sq{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;margin:14px 0 4px}.cl-sq>span{font-size:13px;font-weight:600}.cl-sq small{font-size:11.5px;color:var(--muted)}.cl-sq .seg{align-self:center}
 #clp.full .clvol{display:flex;align-items:center;height:54px;border-radius:99px;background:rgba(255,255,255,.1);padding:0;transition:background .25s}#clp.full .clvol:hover{background:rgba(255,255,255,.16)}
 #clp.full .clvol button{background:transparent!important;box-shadow:none!important}#clp.full .clvol button:hover{transform:scale(1.08)}
 #clp .clap{position:absolute;z-index:6;width:310px;padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(34,34,43,.97),rgba(13,13,17,.98));backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);border:1px solid rgba(255,255,255,.13);box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);display:flex;flex-direction:column;gap:10px;cursor:default;transform-origin:0 0;animation:clxIn .34s cubic-bezier(.2,1.1,.3,1) both;overflow:hidden}
@@ -10862,16 +10864,19 @@ async function clCam(on){if(!CL||!CL.tx)return;
     CL.cs=s;await CL.tx.cam.sender.replaceTrack(s.getVideoTracks()[0]);clBr(CL.tx.cam,2500000);CL.cam=1}
   else{try{CL.cs&&CL.cs.getTracks().forEach(t=>t.stop())}catch(e){}CL.cs=null;try{await CL.tx.cam.sender.replaceTrack(null)}catch(e){}CL.cam=0}
   clSend({k:'cam',on:CL.cam});clUI()}
+async function clScrQ(q){if(!CL||!CL.ss||!CL.tx||!CL.tx.scr)return;const v=CL.ss.getVideoTracks()[0];if(!v)return;const m=q==='m';
+  try{v.contentHint=m?'motion':'detail'}catch(e){}try{await v.applyConstraints({frameRate:m?60:30})}catch(e){}
+  try{const sn=CL.tx.scr.sender,pr=sn.getParameters();if(!pr.encodings||!pr.encodings.length)pr.encodings=[{}];pr.encodings[0].maxBitrate=m?9000000:6000000;pr.encodings[0].maxFramerate=m?60:30;pr.degradationPreference=m?'maintain-framerate':'maintain-resolution';await sn.setParameters(pr)}catch(e){}}
 async function clScrStart(id,audio){if(!CL||!CL.tx)return;let s;
   try{if(id&&window.winteerNative&&winteerNative.scrPick)await winteerNative.scrPick(id,!!audio);s=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30,width:{max:1920},height:{max:1080}},audio:!!audio})}
   catch(e){toast('No pude compartir la pantalla. Si seguís con este problema, actualizá WINTEER');return}
   CL.ss=s;const v=s.getVideoTracks()[0];try{v.contentHint='detail'}catch(e){}v.onended=()=>{if(CL&&CL.ss===s)clScrStop()};
-  await CL.tx.scr.sender.replaceTrack(v);clBr(CL.tx.scr,6000000);const a=s.getAudioTracks()[0];if(a)try{await CL.tx.sa.sender.replaceTrack(a)}catch(e){}
+  await CL.tx.scr.sender.replaceTrack(v);clBr(CL.tx.scr,6000000);clScrQ((ST.cla&&ST.cla.sq)||'d');const a=s.getAudioTracks()[0];if(a)try{await CL.tx.sa.sender.replaceTrack(a)}catch(e){}
   CL.scr=1;clSend({k:'scr',on:1});clUI()}
 async function clScrStop(){if(!CL)return;try{CL.ss&&CL.ss.getTracks().forEach(t=>t.stop())}catch(e){}CL.ss=null;try{await CL.tx.scr.sender.replaceTrack(null);await CL.tx.sa.sender.replaceTrack(null)}catch(e){}CL.scr=0;clSend({k:'scr',on:0});clUI()}
 async function clScrOpen(){if(!CL)return;if(!(window.winteerNative&&winteerNative.scrSources)){clScrStart(null,false);return}
   let L=[];try{L=await winteerNative.scrSources()}catch(e){}if(!L.length){clScrStart(null,false);return}
-  modal(`<h3>¿Qué querés compartir?</h3><div class="cl-src">${L.map(s=>`<button data-a="clscrpick" data-id="${esc(s.id)}"><img src="${s.th}" alt=""><span>${esc(s.name)}</span></button>`).join('')}</div><label class="cl-au"><input type="checkbox" id="cl-sa"> Compartir también el sonido del equipo <small>(usá auriculares, si no tu amigo se escucha a sí mismo)</small></label><div class="bs" style="margin-top:14px"><button class="b2 g" data-a="close">Cancelar</button></div>`,'cl-srcm')}
+  modal(`<h3>¿Qué querés compartir?</h3><div class="cl-src">${L.map(s=>`<button data-a="clscrpick" data-id="${esc(s.id)}"><img src="${s.th}" alt=""><span>${esc(s.name)}</span></button>`).join('')}</div><div class="cl-sq"><span>Calidad de la imagen</span><div class="seg"><button data-a="clsq" data-k="d" class="${(ST.cla&&ST.cla.sq)==='m'?'':'on'}">Nítida</button><button data-a="clsq" data-k="m" class="${(ST.cla&&ST.cla.sq)==='m'?'on':''}">Fluida</button></div><small>Nítida para texto y detalle (30 fps). Fluida para juegos (60 fps), usa más internet.</small></div><label class="cl-au"><input type="checkbox" id="cl-sa"> Compartir también el sonido del equipo <small>(usá auriculares, si no tu amigo se escucha a sí mismo)</small></label><div class="bs" style="margin-top:14px"><button class="b2 g" data-a="close">Cancelar</button></div>`,'cl-srcm');try{const mm=document.querySelector('.modal:has(.cl-srcm)');if(mm)document.body.appendChild(mm)}catch(e){}}
 function clUI(full){let p=$('#clp'),i=$('#cli');
   if(CLIN){const f=FR(),d=f.c[CLIN.c]||{};if(!i){i=document.createElement('div');i.id='cli';document.body.appendChild(i)}
     i.innerHTML=`<div class="cli-a">${frAv(d,(FRM[CLIN.c]||{}).d,56)}</div><div class="cli-t"><small>Llamada de voz</small><b>${esc(d.name||'Amigo')}</b><span>te está llamando…</span></div><button class="cli-y" data-a="clacc" title="Atender">${ic('clacc')}</button><button class="cli-n" data-a="clrej" title="Rechazar">${ic('clend')}</button>`}else if(i)i.remove();
@@ -10892,6 +10897,7 @@ Object.assign(A,{frcall:()=>{if(S.frSel)clCall(S.frSel)},clacc:()=>clAccept(),cl
  clcam:()=>{if(CL)clCam(!CL.cam)},clscr:()=>{if(!CL)return;if(CL.scr)clScrStop();else clScrOpen()},
  clscrpick:a=>{const au=$('#cl-sa'),sa=au&&au.checked;$$('.modal').forEach(m=>m.remove());clScrStart(a.dataset.id,sa)},
  clbig:()=>{if(CL){CL.big=!CL.big;clUI()}},
+ clsq:b=>{ST.cla=ST.cla||{};ST.cla.sq=b.dataset.k;try{save()}catch(e){}clScrQ(b.dataset.k);document.querySelectorAll('.cl-sq [data-a="clsq"]').forEach(x=>x.classList.toggle('on',x===b));if(CL)clUI()},
  clsa:()=>{const t=CL&&CL.ss&&CL.ss.getAudioTracks()[0];if(!t)return;CL.sam=!CL.sam;t.enabled=!CL.sam;clUI()},
  cleq:b=>{clEqSet(b.dataset.k);clUI()},
  clnz:b=>{clNzSet(+b.dataset.k);clUI()},
@@ -10953,7 +10959,7 @@ function clCtxRender(){const p=$('#clp');if(!p)return;let m=$('#clx');const X=CL
   if(X.k==='r')h=hd(frAv(d,(FRM[CL.c]||{}).d,34),esc(d.name||'Amigo'),'Voz y audio')+rng('clvr2','Volumen de su voz',CL.vol==null?1:CL.vol)+grp('Ecualizador','Cambia cómo suena su voz.',sg([['n','Normal','cleq'],['c','Voz clara','cleq'],['g','Graves','cleq']],e==='c'?1:e==='g'?2:0));
   else if(X.k==='l')h=hd(avHTML(PR()||{name:'Vos'},34),'Vos','Tu micrófono')+sw('Micrófono','Tu amigo te escucha.',!CL.muted,'clmute')+grp('Reducción de ruido','Fuerte filtra ventiladores, teclado y zumbidos.',sg([[0,'Normal','clnz'],[1,'Fuerte','clnz']],z));
   else if(X.k==='rs'){const v=$('#cl-rscr'),q=CL.vst,w=(v&&v.videoWidth)||(q&&q.w)||0,hh=(v&&v.videoHeight)||(q&&q.h)||0;h=hd(`<span class="clxi">${ic('clscr')}</span>`,'Pantalla de '+esc(d.name||'Amigo'),'Lo que está compartiendo')+rng('clsv','Volumen de su sonido',CL.svol==null?1:CL.svol)+`<div class="cli2">${w?`<span>${w}×${hh}</span>`:''}${q&&q.fps?`<span>${q.fps} fps</span>`:''}${q&&q.kb?`<span>${q.kb>=1000?(q.kb/1000).toFixed(1)+' Mb/s':q.kb+' kb/s'}</span>`:''}${CL.q&&CL.q.rtt!=null?`<span>${Math.round(CL.q.rtt)} ms</span>`:''}</div><button class="clxb" data-a="clfull">${CL.full?'Salir de pantalla completa':'Pantalla completa'}</button>`}
-  else if(X.k==='ms'){const sh=CL.ss&&CL.ss.getAudioTracks().length;h=hd(`<span class="clxi">${ic('clscr')}</span>`,'Tu pantalla','Lo que compartís')+(sh?sw('Compartir sonido','Se envía el audio de tu equipo.',!CL.sam,'clsa'):'<div class="clg"><small style="margin:0">Sin sonido del equipo. Se elige al empezar a compartir.</small></div>')+'<button class="clxb dng" data-a="clscr">Dejar de compartir</button>'}
+  else if(X.k==='ms'){const sh=CL.ss&&CL.ss.getAudioTracks().length;h=hd(`<span class="clxi">${ic('clscr')}</span>`,'Tu pantalla','Lo que compartís')+(sh?sw('Compartir sonido','Se envía el audio de tu equipo.',!CL.sam,'clsa'):'<div class="clg"><small style="margin:0">Sin sonido del equipo. Se elige al empezar a compartir.</small></div>')+grp('Calidad','Nítida: texto y detalle (30 fps). Fluida: juegos y movimiento (60 fps), usa más internet.',sg([['d','Nítida','clsq'],['m','Fluida','clsq']],(ST.cla&&ST.cla.sq)==='m'?1:0))+'<button class="clxb dng" data-a="clscr">Dejar de compartir</button>'}
   const first=!m;if(first){m=document.createElement('div');m.id='clx';m.className='clap fresh';m.dataset.k=X.k;p.appendChild(m);setTimeout(()=>{const q=$('#clx');if(q)q.classList.remove('fresh')},800)}
   const old=[...m.querySelectorAll('.seg2')].map(q=>q.style.getPropertyValue('--i'));
   m.innerHTML=h;
