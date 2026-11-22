@@ -2064,14 +2064,14 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 
 
 /* llamadas dentro del chat */
-.fr-cr{align-self:center;display:flex;align-items:center;gap:11px;margin:8px 0;padding:7px 18px 7px 8px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);animation:frclIn .45s cubic-bezier(.2,.9,.3,1) both;transition:background .25s,transform .3s cubic-bezier(.34,1.56,.5,1)}.fr-cr:hover{background:rgba(var(--argb),.12);transform:scale(1.02)}
+.fr-cr{align-self:center;display:flex;align-items:center;gap:11px;margin:8px 0;padding:7px 18px 7px 8px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:background .25s,transform .3s cubic-bezier(.34,1.56,.5,1)}.fr-cr:hover{background:rgba(var(--argb),.12);transform:scale(1.02)}
 .fr-cr u{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;text-decoration:none;background:linear-gradient(145deg,rgba(var(--argb),.45),rgba(var(--argb),.2));color:#fff;box-shadow:0 4px 14px rgba(var(--argb),.25)}.fr-cr u svg{width:14px;height:14px}
 .fr-cr b{display:block;font-size:12.5px;font-weight:700}.fr-cr small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
 .frcl-r{position:relative;overflow:hidden;flex-wrap:wrap}.frcl-b{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.05)}.frcl-b b{display:block;height:100%;width:var(--w);border-radius:0 3px 3px 0;background:linear-gradient(90deg,rgba(var(--argb),.5),var(--a2));transform-origin:left;animation:frclBar .7s cubic-bezier(.2,.9,.3,1) both}@keyframes frclBar{from{transform:scaleX(0)}}
 
 
 /* tarjeta de llamada en el chat v2 */
-.fr-cr{flex:none;position:relative;overflow:hidden;width:min(300px,78%);justify-content:flex-start;gap:12px;margin:10px 0;padding:10px 12px;border-radius:18px;background:linear-gradient(150deg,rgba(var(--argb),.16),rgba(255,255,255,.04) 60%);border:1px solid rgba(var(--argb),.28);box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08);animation:frclPop .55s cubic-bezier(.2,1.1,.3,1) both}
+.fr-cr{flex:none;position:relative;overflow:hidden;width:min(300px,78%);justify-content:flex-start;gap:12px;margin:10px 0;padding:10px 12px;border-radius:18px;background:linear-gradient(150deg,rgba(var(--argb),.16),rgba(255,255,255,.04) 60%);border:1px solid rgba(var(--argb),.28);box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08)}
 @keyframes frclPop{from{opacity:0;transform:translateY(10px) scale(.94)}}
 .fr-cr:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--a2),transparent);opacity:.65}
 .fr-cr:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-18deg);transition:left .7s cubic-bezier(.2,.8,.3,1);pointer-events:none}.fr-cr:hover:after{left:130%}
@@ -2079,6 +2079,27 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .fr-cr u{width:38px;height:38px;border-radius:13px;box-shadow:0 6px 18px rgba(var(--argb),.35),inset 0 1px 0 rgba(255,255,255,.25)}.fr-cr u svg{width:17px;height:17px}
 .fr-cr div{flex:1;min-width:0}.fr-cr b{font-size:13px;letter-spacing:-.005em}.fr-cr small{font-size:11.5px;margin-top:2px}
 .fr-cr em{flex:none;font-style:normal;font-size:12px;font-weight:800;padding:5px 11px;border-radius:99px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.1);color:#fff;white-space:nowrap}
+
+
+/* animaciones de la tarjeta de llamada */
+.fr-cr.an{animation:crIn .75s cubic-bezier(.2,1.15,.3,1) calc(var(--k)*.09s) both}
+@keyframes crIn{0%{opacity:0;transform:translateY(18px) scale(.9);filter:blur(5px)}55%{filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
+.fr-cr.an:after{animation:crSheen 1.1s cubic-bezier(.3,.7,.3,1) calc(var(--k)*.09s + .45s) both}
+@keyframes crSheen{from{left:-60%}to{left:130%}}
+.fr-cr u{position:relative;transition:transform .4s cubic-bezier(.34,1.56,.5,1)}
+.fr-cr.an u{animation:crIco .7s cubic-bezier(.34,1.6,.5,1) calc(var(--k)*.09s + .25s) both}
+@keyframes crIco{0%{transform:scale(.3) rotate(-40deg)}100%{transform:none}}
+.fr-cr.an u:after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid var(--a2);animation:crRing 1.1s ease-out calc(var(--k)*.09s + .55s) both}
+@keyframes crRing{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
+.fr-cr.an u svg{animation:crWig .8s ease calc(var(--k)*.09s + .6s) both}
+@keyframes crWig{0%,100%{transform:rotate(0)}20%{transform:rotate(-16deg)}40%{transform:rotate(14deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(6deg)}}
+.fr-cr.an div>*{animation:crTx .5s cubic-bezier(.2,.9,.3,1) calc(var(--k)*.09s + .3s) both}.fr-cr.an div>small{animation-delay:calc(var(--k)*.09s + .38s)}
+@keyframes crTx{from{opacity:0;transform:translateX(-8px)}}
+.fr-cr.an em{animation:crChip .6s cubic-bezier(.34,1.7,.5,1) calc(var(--k)*.09s + .5s) both}
+@keyframes crChip{from{opacity:0;transform:scale(.4)}}
+.fr-cr:hover u{transform:scale(1.06) rotate(-4deg)}.fr-cr:hover u svg{animation:crWig .7s ease}
+body.perf .fr-cr,body.perf .fr-cr *,body.nomo .fr-cr,body.nomo .fr-cr *{animation:none!important}
+@media(prefers-reduced-motion:reduce){.fr-cr,.fr-cr *{animation:none!important}}
 
 #clp.full .clvol{display:flex;align-items:center;height:54px;border-radius:99px;background:rgba(255,255,255,.1);padding:0;transition:background .25s}#clp.full .clvol:hover{background:rgba(255,255,255,.16)}
 #clp.full .clvol button{background:transparent!important;box-shadow:none!important}#clp.full .clvol button:hover{transform:scale(1.08)}
@@ -14724,14 +14745,14 @@ function frMsgHTML(c,m,ms){const f=FR(),ch=frCh(c),me=!!m.me,nm=(f.c[c]||{}).nam
   const rx=Object.keys(cnt).length?`<div class="fr-rxs">${Object.entries(cnt).map(([e,n])=>`<button class="${mr===e?'on':''}" data-a="frrx" data-t="${m.t}" data-e="${e}">${e}${n>1?'<i>'+n+'</i>':''}</button>`).join('')}</div>`:'';
   const tools=m.d?'':`<div class="fr-ma"><button data-a="frrxo" title="Reaccionar">${ic('smile')}</button><button data-a="frrep" data-t="${m.t}" title="Responder">${ic('reply')}</button>${me&&!m.k&&m.x?`<button data-a="fredit" data-t="${m.t}" title="Editar">${ic('edit')}</button>`:''}<button data-a="frpin" data-t="${m.t}" title="${pin?'Quitar de fijados':'Fijar'}">${ic('pin')}</button>${me?`<button data-a="frdelm" data-t="${m.t}" title="Eliminar">${ic('trash')}</button>`:''}</div><div class="fr-pk">${FRX.map(e=>`<button data-a="frrx" data-t="${m.t}" data-e="${e}">${e}</button>`).join('')}</div>`;
   return `<div class="fr-m ${me?'me':''}"><div class="fr-w ${pin?'pn':''}"><div class="fr-bb ${m.k==='img'&&!m.x?'noimg':''}">${b}<small>${m.e&&!m.d?'editado · ':''}${frTm(m.t)}${me&&!m.d?`<em class="tk ${seen?'sn':''}">${seen?'✓✓':'✓'}</em>`:''}</small></div>${rx}${tools}</div></div>`}
-function frChatHTML(c){const all=frMsgs(c),ch=frCh(c),q=frN(S.frQ||''),pf=S.frPinF;let ms=all;
+var FRCLSEEN=new Set();function frChatHTML(c){let i0=0;const all=frMsgs(c),ch=frCh(c),q=frN(S.frQ||''),pf=S.frPinF;let ms=all;
   if(pf)ms=ms.filter(m=>(ch.pins||[]).includes(m.t));if(q)ms=ms.filter(m=>!m.d&&frN((m.x||'')+(m.g||'')).includes(q));
   let last='';const td=new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short'});
   const typ=!q&&!pf&&Date.now()-(ch.thty||0)<6000?'<div class="fr-m"><div class="fr-w"><div class="fr-bb fr-dots"><i></i><i></i><i></i></div></div></div>':'';
   if(!q&&!pf){const cl=(ST.calls||[]).filter(x=>x.c===c).map(x=>({t:x.t,d:x.d,cl:1}));if(cl.length)ms=[...ms,...cl].sort((a,b)=>a.t-b.t)}
   const hm=t=>{const z=new Date(t);return String(z.getHours()).padStart(2,'0')+':'+String(z.getMinutes()).padStart(2,'0')};
   return ms.length||typ?ms.map(m=>{const d=new Date(m.t).toLocaleDateString('es-AR',{day:'numeric',month:'short'}),sep=d!==last?`<div class="fr-dy">${d===td?'Hoy':d}</div>`:'';last=d;
-    if(m.cl)return sep+`<div class="fr-cr"><u>${ic('phone')}</u><div><b>Llamada de voz</b><small>${hm(m.t)} a ${hm(m.t+m.d*1000)}</small></div><em>${frCallsFmt(m.d)}</em></div>`;
+    if(m.cl){const an=!FRCLSEEN.has(m.t);if(an)setTimeout(()=>FRCLSEEN.add(m.t),1800);return sep+`<div class="fr-cr ${an?'an':''}" style="--k:${Math.min(i0++,6)}"><u>${ic('phone')}</u><div><b>Llamada de voz</b><small>${hm(m.t)} a ${hm(m.t+m.d*1000)}</small></div><em>${frCallsFmt(m.d)}</em></div>`}
     return sep+frMsgHTML(c,m,all)}).join('')+typ:`<div class="fr-emc">${q||pf?'Sin resultados':'Todavía no hay mensajes.<br>Decile hola 👋'}</div>`}
 function frTypUI(c){const el=document.querySelector('.fr-pi small'),d=FR().c[c];if(!el||!d||S.frSel!==c)return;const ty=Date.now()-(frCh(c).thty||0)<6000;
   if(ty){el.innerHTML='<i class="fr-ty">escribiendo…</i>';clearTimeout(frTypUI.t);frTypUI.t=setTimeout(()=>{if(S.frSel===c){frTypUI(c);if(S.frTab==='chat')frChatDraw(c)}},6200)}else el.innerHTML=frSub(d)}
