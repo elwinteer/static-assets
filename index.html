@@ -2069,6 +2069,17 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .fr-cr b{display:block;font-size:12.5px;font-weight:700}.fr-cr small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
 .frcl-r{position:relative;overflow:hidden;flex-wrap:wrap}.frcl-b{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.05)}.frcl-b b{display:block;height:100%;width:var(--w);border-radius:0 3px 3px 0;background:linear-gradient(90deg,rgba(var(--argb),.5),var(--a2));transform-origin:left;animation:frclBar .7s cubic-bezier(.2,.9,.3,1) both}@keyframes frclBar{from{transform:scaleX(0)}}
 
+
+/* tarjeta de llamada en el chat v2 */
+.fr-cr{flex:none;position:relative;overflow:hidden;width:min(300px,78%);justify-content:flex-start;gap:12px;margin:10px 0;padding:10px 12px;border-radius:18px;background:linear-gradient(150deg,rgba(var(--argb),.16),rgba(255,255,255,.04) 60%);border:1px solid rgba(var(--argb),.28);box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08);animation:frclPop .55s cubic-bezier(.2,1.1,.3,1) both}
+@keyframes frclPop{from{opacity:0;transform:translateY(10px) scale(.94)}}
+.fr-cr:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--a2),transparent);opacity:.65}
+.fr-cr:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-18deg);transition:left .7s cubic-bezier(.2,.8,.3,1);pointer-events:none}.fr-cr:hover:after{left:130%}
+.fr-cr:hover{background:linear-gradient(150deg,rgba(var(--argb),.22),rgba(255,255,255,.05) 60%);transform:translateY(-1px)}
+.fr-cr u{width:38px;height:38px;border-radius:13px;box-shadow:0 6px 18px rgba(var(--argb),.35),inset 0 1px 0 rgba(255,255,255,.25)}.fr-cr u svg{width:17px;height:17px}
+.fr-cr div{flex:1;min-width:0}.fr-cr b{font-size:13px;letter-spacing:-.005em}.fr-cr small{font-size:11.5px;margin-top:2px}
+.fr-cr em{flex:none;font-style:normal;font-size:12px;font-weight:800;padding:5px 11px;border-radius:99px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.1);color:#fff;white-space:nowrap}
+
 #clp.full .clvol{display:flex;align-items:center;height:54px;border-radius:99px;background:rgba(255,255,255,.1);padding:0;transition:background .25s}#clp.full .clvol:hover{background:rgba(255,255,255,.16)}
 #clp.full .clvol button{background:transparent!important;box-shadow:none!important}#clp.full .clvol button:hover{transform:scale(1.08)}
 #clp .clap{position:absolute;z-index:6;width:310px;padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(34,34,43,.97),rgba(13,13,17,.98));backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);border:1px solid rgba(255,255,255,.13);box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);display:flex;flex-direction:column;gap:10px;cursor:default;transform-origin:0 0;animation:clxIn .34s cubic-bezier(.2,1.1,.3,1) both;overflow:hidden}
@@ -14720,7 +14731,7 @@ function frChatHTML(c){const all=frMsgs(c),ch=frCh(c),q=frN(S.frQ||''),pf=S.frPi
   if(!q&&!pf){const cl=(ST.calls||[]).filter(x=>x.c===c).map(x=>({t:x.t,d:x.d,cl:1}));if(cl.length)ms=[...ms,...cl].sort((a,b)=>a.t-b.t)}
   const hm=t=>{const z=new Date(t);return String(z.getHours()).padStart(2,'0')+':'+String(z.getMinutes()).padStart(2,'0')};
   return ms.length||typ?ms.map(m=>{const d=new Date(m.t).toLocaleDateString('es-AR',{day:'numeric',month:'short'}),sep=d!==last?`<div class="fr-dy">${d===td?'Hoy':d}</div>`:'';last=d;
-    if(m.cl)return sep+`<div class="fr-cr"><u>${ic('phone')}</u><div><b>Llamada · ${frCallsFmt(m.d)}</b><small>${hm(m.t)} a ${hm(m.t+m.d*1000)}</small></div></div>`;
+    if(m.cl)return sep+`<div class="fr-cr"><u>${ic('phone')}</u><div><b>Llamada de voz</b><small>${hm(m.t)} a ${hm(m.t+m.d*1000)}</small></div><em>${frCallsFmt(m.d)}</em></div>`;
     return sep+frMsgHTML(c,m,all)}).join('')+typ:`<div class="fr-emc">${q||pf?'Sin resultados':'Todavía no hay mensajes.<br>Decile hola 👋'}</div>`}
 function frTypUI(c){const el=document.querySelector('.fr-pi small'),d=FR().c[c];if(!el||!d||S.frSel!==c)return;const ty=Date.now()-(frCh(c).thty||0)<6000;
   if(ty){el.innerHTML='<i class="fr-ty">escribiendo…</i>';clearTimeout(frTypUI.t);frTypUI.t=setTimeout(()=>{if(S.frSel===c){frTypUI(c);if(S.frTab==='chat')frChatDraw(c)}},6200)}else el.innerHTML=frSub(d)}
