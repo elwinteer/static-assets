@@ -10877,7 +10877,7 @@ async function clStats(){if(!CL||!CL.pc||!CL.t0)return;const me=CL;try{const R=a
   const e=$('#clq');if(e){e.dataset.l=lv;e.title=(lv===3?'Conexión buena':lv===2?'Conexión regular':'Conexión inestable')+(rtt!=null?' · ping '+Math.round(rtt)+' ms':'')+' · pérdida '+loss.toFixed(loss<10?1:0)+' %';const b=e.querySelector('b');if(b)b.textContent=rtt!=null?Math.round(rtt)+' ms':''}
   me.qbad=lv===1?(me.qbad||0)+1:0;if(me.qbad===3&&Date.now()-(me.qw||0)>90000){me.qw=Date.now();toast('La conexión de la llamada está inestable')}}catch(e){}}
 function clTile(k,p,nm){const a=p.av||{};
-  if(a.k==='custom'&&(p.avx||ST.avc)){const x=Object.assign({},avNorm(p.avx||ST.avc),{mouth:'mn'});return `<div class="clt ${k}" data-k="${k}"><div class="cltv">${avSVG(x,{vb:'24 0 152 152',floor:false,rig:true})}</div><b>${esc(nm)}</b></div>`}
+  if(a.k==='custom'&&(p.avx||ST.avc)){const x=Object.assign({},avNorm(p.avx||ST.avc),{mouth:'mn'});return `<div class="clt ${k}" data-k="${k}"><div class="cltv">${avSVG(x,{vb:'-4 6 208 198',floor:false,rig:true})}</div><b>${esc(nm)}</b></div>`}
   return `<div class="clt ${k}"><div class="cltv cltp">${avHTML(p,110)}</div><b>${esc(nm)}</b></div>`}
 function clRig(p){if(!CL||!p)return;const show=p.classList.contains('full')&&!p.classList.contains('has');
   if(show&&!CL.rg){CL.rg={};p.querySelectorAll('.clt[data-k] svg').forEach(sv=>{const r=wrNew(sv);r.rest=1;CL.rg[sv.closest('.clt').dataset.k]=r})}
