@@ -6333,7 +6333,7 @@ function h2Strip(hero){const ex=g=>hero&&g.id===hero.id;let P=mqList().filter(g=
   P=P.slice(0,24);const prog=g=>{const m=parseFloat((g.hl||{}).m)||0;return g.status==='Terminado'?100:m?Math.min(98,g.hours/m*100):0};
   const loop=P.length>=7,item=g=>`<div class="h2-cv" data-a="open" data-id="${g.id}"><div class="im"><img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt=""><i class="shn"></i>${prog(g)?`<div class="pg"><i style="--w:${prog(g)}%"></i></div>`:''}</div><b>${esc(g.name)}</b></div>`;
   const html=P.map(item).join('');
-  return `<section class="h2-c h2-st rise" style="--i:4"><h3>Tu biblioteca <a data-a="go" data-v="games">Ver todos ${ic('arrow')}</a></h3><div class="h2-cs ${loop?'car':''}"><div class="h2-trk" style="--n:${P.length}">${html}${loop?html:''}</div></div></section>`}
+  return `<section class="h2-c h2-st rise" style="--i:4"><h3>Tu biblioteca <a data-a="go" data-v="games">Ver todos ${ic('arrow')}</a></h3><div class="h2-cs ${loop?'car':''}"><div class="h2-trk" style="--n:${P.length};animation-duration:${Math.max(60,P.length*8)}s">${html}${loop?html:''}</div></div></section>`}
 function recMini(){if(!S.rec||!gm(S.rec.id))recPick();const r=S.rec,g=r&&gm(r.id);
   if(!g)return `<section class="h2-c h2-rec hm-rec rise" style="--i:2"><h3>Para vos</h3><p class="sub0" style="margin:0">Sumá juegos para recibir recomendaciones.</p></section>`;
   const fe=[...recFeats(g).keys()].filter(x=>!x.startsWith('dev:')&&!/^(Un jugador|Multijugador|Cooperativo)$/.test(x)).slice(0,3);
