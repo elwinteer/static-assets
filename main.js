@@ -1290,7 +1290,16 @@ function blStep(t) {
   t.blRun = 1;
   applyBl(t).then((ok) => { t.blRun = 0; if (ok) t.blS = i + 1; else if (el > 90000) t.blS = 3; });
 }
-let poller = null;
+let poller = null, pollT = null, pollBusy = false;
+/* revisa seguido justo al abrir (buscar el juego) y justo al cerrar (confirmar que se fue); el resto del tiempo, cada 4 s */
+function pollSched(first) {
+  clearTimeout(pollT); pollT = null;
+  if (!track.size) { poller = null; return; }
+  poller = true;
+  let fast = false; const n = Date.now();
+  for (const t of track.values()) if ((!t.started && n - t.since < 45000) || t.miss > 0) fast = true;
+  pollT = setTimeout(async () => { if (!pollBusy) { pollBusy = true; try { await poll(); } catch (e) {} pollBusy = false; } pollSched(); }, first || (fast ? 1500 : 4000));
+}
 const norm = (p) => p.toLowerCase().replace(/\//g, path.sep === '\\' ? '\\' : '/');
 function steamRun(app) {
   return new Promise((res) => {
@@ -1302,7 +1311,7 @@ function steamRun(app) {
   });
 }
 async function poll() {
-  if (!track.size) { clearInterval(poller); poller = null; return; }
+  if (!track.size) { poller = null; return; }
   const sr = new Map();
   for (const [id, t] of track) if (t.app) sr.set(id, await steamRun(t.app));
   const need = [...track].some(([id, t]) => !t.app || sr.get(id) === null);
@@ -1310,8 +1319,8 @@ async function poll() {
   for (const [id, t] of [...track]) {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = t.app && sr.get(id) !== null ? sr.get(id) : byProc();
-    if (run) { t.miss = 0; if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
-    else if (t.started) { if (plFail && !t.app) continue; if (++t.miss >= ((Date.now() - t.started < 4 * 60 * 1000 || flIs(t.name)) ? 45 : 6)) { send({ type: 'stopped', id, t: Date.now() - t.miss * 4000 }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
+    if (run) { t.miss = 0; t.seen = Date.now(); if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
+    else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 60000 : 9000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
@@ -1374,8 +1383,7 @@ function watch(o) {
   let edir = '';
   if (exe) { try { const d = path.win32.dirname(exe); if (d.length > 3 && !/[\\/](program files( \(x86\))?|windows|system32|syswow64)$/i.test(d)) edir = d.replace(/[\\/]+$/, '') + sep; } catch (e) {} }
   track.set(o.id, { name: String(o.name || '') + ' ' + (o.exe ? path.basename(String(o.exe)) : ''), app: (!o.exe && o.app) ? o.app : 0, exe, edir, dirs, since: Date.now(), started: 0, miss: 0, bl: !!o.borderless, vault: !!o.vault });
-  if (!poller) poller = setInterval(poll, 4000);
-  setTimeout(poll, 1500);
+  pollSched(900);
   syncShot();
   return true;
 }
