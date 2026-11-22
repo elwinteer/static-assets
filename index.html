@@ -15798,7 +15798,7 @@ V.dl=()=>{setTimeout(dlInit,0);const c=DLS.cfg||{};
   <h2>Ajustes</h2><div class="dlbox">
    <div class="dlrow"><label>Carpeta de descargas<input type="text" id="dc-dl" value="${esc(c.dlDir||'')}" readonly></label><button class="dlb s" data-a="dlpick" data-t="dl">Cambiar</button></div>
    <div class="dlrow"><label>Carpeta de instalación por defecto<input type="text" id="dc-in" value="${esc(c.installDir||'')}" readonly></label><button class="dlb s" data-a="dlpick" data-t="in">Cambiar</button></div>
-   <div class="dlrow"><label>Límite de velocidad (MB/s, 0 = sin límite)<input type="number" id="dc-sp" min="0" step="0.5" value="${c.speedLimit?+(c.speedLimit/1048576).toFixed(2):0}"></label><label>Descargas simultáneas (1–10)<input type="number" id="dc-ma" min="1" max="10" value="${c.maxActive||3}"></label></div>
+   <div class="dlrow"><label>Descargas simultáneas (1–10)<input type="number" id="dc-ma" min="1" max="10" value="${c.maxActive||3}"></label></div>
    <label style="display:flex;gap:8px;align-items:center;grid-template-columns:none"><input type="checkbox" id="dc-ka" ${c.keepArchives?'checked':''}> Conservar los archivos descargados después de instalar</label>
    <div class="dlrow"><button class="dlb s" data-a="dlsave">Guardar ajustes</button></div></div></div>`};
 async function dlInit(){
@@ -15808,7 +15808,7 @@ async function dlInit(){
   if(c&&c.ok)DLS.cfg=c.r;
   await dlDisk();dlBadge();try{await srLoad()}catch(e){}
   try{const b=await winteerNative.btInfo();if(b&&b.ok&&DLS.bt!==!!b.r.available){DLS.bt=!!b.r.available;if(S.view==='dl'&&!document.activeElement.matches('input,textarea'))go('dl')}}catch(e){}
-  const c2=DLS.cfg;if(c2&&S.view==='dl'){const set=(k,v)=>{const e=$('#'+k);if(e&&!e.value)e.value=v};set('dc-dl',c2.dlDir||'');set('dc-in',c2.installDir||'');const sp=$('#dc-sp');if(sp&&sp===document.activeElement===false)sp.value=c2.speedLimit?+(c2.speedLimit/1048576).toFixed(2):0;const ma=$('#dc-ma');if(ma)ma.value=c2.maxActive||3;const ka=$('#dc-ka');if(ka)ka.checked=!!c2.keepArchives;const di=$('#dl-d');if(di)di.placeholder=c2.installDir||''}
+  const c2=DLS.cfg;if(c2&&S.view==='dl'){const set=(k,v)=>{const e=$('#'+k);if(e&&!e.value)e.value=v};set('dc-dl',c2.dlDir||'');set('dc-in',c2.installDir||'');const ma=$('#dc-ma');if(ma)ma.value=c2.maxActive||3;const ka=$('#dc-ka');if(ka)ka.checked=!!c2.keepArchives;const di=$('#dl-d');if(di)di.placeholder=c2.installDir||''}
   dlPaint();
 }
 async function dlDisk(){try{const r=await winteerNative.dlDisk((DLS.cfg||{}).dlDir);if(r&&r.ok)DLS.disk=r.r}catch(e){}const e=$('#dl-disk');if(e)e.innerHTML=dlDiskTxt()}
@@ -15870,7 +15870,7 @@ Object.assign(A,{
     if(r&&!r.ok)dlErr(r)},
   dlpick:async a=>{const t=a.dataset.t,r=await winteerNative.dlPickDir(t==='dl'?'Carpeta de descargas':t==='in'?'Carpeta de instalación por defecto':'Dónde instalar');if(!r)return;
     if(t==='d')$('#dl-d').value=r;else if(t==='dl')$('#dc-dl').value=r;else $('#dc-in').value=r},
-  dlsave:async()=>{const r=await winteerNative.dlSetCfg({dlDir:$('#dc-dl').value,installDir:$('#dc-in').value,speedLimit:Math.round((+$('#dc-sp').value||0)*1048576),maxActive:+$('#dc-ma').value||1,keepArchives:$('#dc-ka').checked});
+  dlsave:async()=>{const r=await winteerNative.dlSetCfg({dlDir:$('#dc-dl').value,installDir:$('#dc-in').value,speedLimit:0,maxActive:+$('#dc-ma').value||1,keepArchives:$('#dc-ka').checked});
     if(r.ok){DLS.cfg=r.r;toast('Ajustes guardados');dlDisk()}else dlErr(r)},
 });
 
@@ -15904,27 +15904,26 @@ function dcpList(){const L=[...DLS.items.values()].filter(i=>i.status!=='complet
   return `<div class="dcit"><div style="min-width:0"><b>${esc(i.name||'Descarga')}</b><small>${t}</small></div><div class="ac">${ac}</div><div class="pb"><i style="width:${er?0:pct}%"></i></div></div>`}).join('')+'</div>'}
 function dcpPaint(){const m=$('#dcp');if(!m){clearInterval(dcpPaint.t);return}const l=$('#dcl');if(l){const h=dcpList(),k=h.replace(/style="width:\d+%"/g,'');if(dcpPaint.k!==k){l.innerHTML=h;dcpPaint.k=k}else l.querySelectorAll('.dcit').forEach((e,n)=>{const w=/width:(\d+)%/.exec(h.split('class="dcit"')[n+1]||'');const f=e.querySelector('.pb i');if(f&&w)f.style.width=w[1]+'%'})}}
 function dcpChips(g,vals,cur,fmt){const l=vals.includes(cur)?vals:vals.concat([cur]).sort((a,b)=>a-b);return `<div class="dcc" data-g="${g}">`+l.map(v=>`<button data-a="dcchip" data-g="${g}" data-v="${v}" class="${v===cur?'on':''}">${fmt(v)}</button>`).join('')+'</div>'}
-async function dcpSave(p){const c=Object.assign({},DLS.cfg||{},p);const r=await winteerNative.dlSetCfg({dlDir:c.dlDir,installDir:c.installDir,speedLimit:c.speedLimit||0,maxActive:c.maxActive||3,keepArchives:!!c.keepArchives});if(r&&r.ok){DLS.cfg=r.r;clearTimeout(dcpSave.t);dcpSave.t=setTimeout(()=>toast('Guardado'),150)}else toast('No pude guardar ese cambio')}
-const DCP_SP=[0,5,10,20,50],DCP_MA=[1,2,3,4,5];
+async function dcpSave(p){const c=Object.assign({},DLS.cfg||{},p);const r=await winteerNative.dlSetCfg({dlDir:c.dlDir,installDir:c.installDir,speedLimit:0,maxActive:c.maxActive||3,keepArchives:!!c.keepArchives});if(r&&r.ok){DLS.cfg=r.r;clearTimeout(dcpSave.t);dcpSave.t=setTimeout(()=>toast('Guardado'),150)}else toast('No pude guardar ese cambio')}
+const DCP_MA=[1,2,3,4,5];
 Object.assign(A,{
  wbdlp:async()=>{if($('#dcp'))return;if(!(window.winteerNative&&winteerNative.dlGetCfg)){toast('Las descargas funcionan en la app de escritorio');return}
   try{const [l,c]=await Promise.all([winteerNative.dlList(),winteerNative.dlGetCfg()]);if(l&&l.ok)DLS.items=new Map(l.r.map(i=>[i.id,i]));if(c&&c.ok)DLS.cfg=c.r}catch(e){}
-  const c=DLS.cfg||{},sp=c.speedLimit?Math.round(c.speedLimit/1048576):0,m=document.createElement('div');m.className='wdm dcpm';m.id='dcp';
+  const c=DLS.cfg||{},m=document.createElement('div');m.className='wdm dcpm';m.id='dcp';
   const sec=(d,h,b,p)=>`<section class="dcs" style="--d:${d}"><h4>${h}</h4>${b}${p?`<p>${p}</p>`:''}</section>`;
   m.innerHTML=`<div class="dcp"><div class="dcph"><div class="dcpi"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></div><div><small>Navegador</small><b>Descargas</b></div><button class="dcpx" data-a="dcpx" aria-label="Cerrar">×</button></div>`
    +sec(0,'Ahora mismo','<div id="dcl">'+dcpList()+'</div>')
    +sec(1,'Guardar en',`<div class="dcf"><span id="dcf-dl" title="${esc(c.dlDir||'')}">${esc(c.dlDir||'Descargas de Windows')}</span><button class="dcb" data-a="dcpick" data-t="dl">Cambiar</button></div>`,'Acá caen tus descargas y torrents.')
    +sec(2,'Instalar juegos en',`<div class="dcf"><span id="dcf-in" title="${esc(c.installDir||'')}">${esc(c.installDir||'Sin elegir')}</span><button class="dcb" data-a="dcpick" data-t="in">Cambiar</button></div>`)
-   +sec(3,'Velocidad máxima',dcpChips('sp',DCP_SP,sp,v=>v?v+' MB/s':'Sin límite'),'Bajala si necesitás internet para otra cosa.')
-   +sec(4,'Descargas a la vez',dcpChips('ma',DCP_MA,c.maxActive||3,v=>v),'Las demás esperan su turno.')
-   +sec(5,'Al terminar',`<div class="dcsw ${c.keepArchives?'on':''}" data-a="dcsw"><span>Guardar los archivos descargados</span><i></i></div>`,'Apagado: se borran solos después de instalar y ahorrás espacio.')
+   +sec(3,'Descargas a la vez',dcpChips('ma',DCP_MA,c.maxActive||3,v=>v),'Las demás esperan su turno.')
+   +sec(4,'Al terminar',`<div class="dcsw ${c.keepArchives?'on':''}" data-a="dcsw"><span>Guardar los archivos descargados</span><i></i></div>`,'Apagado: se borran solos después de instalar y ahorrás espacio.')
    +'</div>';
   m.addEventListener('mousedown',e=>{if(e.target===m)A.dcpx()});$('#app').appendChild(m);
   clearInterval(dcpPaint.t);dcpPaint.k='';dcpPaint.t=setInterval(dcpPaint,1000)},
  dcpx:()=>{const m=$('#dcp');if(m){m.classList.add('out');clearInterval(dcpPaint.t);setTimeout(()=>m.remove(),280)}},
  dcpick:async a=>{const t=a.dataset.t,r=await winteerNative.dlPickDir(t==='dl'?'Carpeta de descargas':'Carpeta para instalar juegos');if(!r)return;const e=$('#dcf-'+t);if(e){e.textContent=r;e.title=r}
   if(t==='dl'){const w=webCfg();w.dir=r;save();try{winteerNative.webDl('tmp',{dir:r})}catch(x){}await dcpSave({dlDir:r})}else await dcpSave({installDir:r})},
- dcchip:async a=>{const g=a.dataset.g,v=+a.dataset.v;a.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a));await dcpSave(g==='sp'?{speedLimit:v*1048576}:{maxActive:v})},
+ dcchip:async a=>{const g=a.dataset.g,v=+a.dataset.v;a.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a));await dcpSave({maxActive:v})},
  dcsw:async a=>{a.classList.toggle('on');await dcpSave({keepArchives:a.classList.contains('on')})},
 });
 
