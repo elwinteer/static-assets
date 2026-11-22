@@ -1440,6 +1440,116 @@ function buzzConsole() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 }
 
+// Pantalla propia de MegaDB: "espejo" de la página real. Maneja los 3 pasos (preparar -> cuenta regresiva -> descargar)
+function megaConsole() {
+  if (window.__wtConsole || window.top !== window) return; window.__wtConsole = 1;
+  const T = (n) => (n && n.textContent || '').replace(/\s+/g, ' ').trim();
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const acc = (window.__wtAcc && window.__wtAcc.argb) || '255,255,255';
+  const vis = (e) => { try { const r = e.getBoundingClientRect(), s = getComputedStyle(e); return r.width > 0 && r.height > 0 && s.display !== 'none'; } catch (x) { return false; } };
+  const btnsOf = (f) => [...f.querySelectorAll('button,input[type=submit],input[type=button],a')].filter(vis);
+  const formOp = (re) => [...document.querySelectorAll('form')].find((f) => { const o = f.querySelector('input[name=op]'); return o && re.test(o.value); });
+  const countNum = () => {
+    const els = [...document.querySelectorAll('[id*=count],[class*=count],[id*=second],[class*=second],[id*=timer],[class*=timer],[id*=wait],[class*=wait]')];
+    for (const e of els) { if (!vis(e)) continue; const t = T(e); if (t.length < 40) { const m = /^\D{0,24}(\d{1,3})\D{0,16}$/.exec(t); if (m && +m[1] > 0) return +m[1]; } }
+    return 0;
+  };
+  const captcha = () => !!document.querySelector('iframe[src*=recaptcha],iframe[src*=hcaptcha],.g-recaptcha,.h-captcha,iframe[src*=turnstile],.cf-turnstile') && [...document.querySelectorAll('iframe[src*=recaptcha],iframe[src*=hcaptcha],.g-recaptcha,.h-captcha,.cf-turnstile')].some(vis);
+  const stage = () => {
+    const n = countNum(); if (n > 0) return { s: 'wait', n };
+    const f2 = formOp(/^download2|^download$/i);
+    if (f2) { const b = btnsOf(f2)[0]; if (b) return { s: 'ready', b, f: f2 }; }
+    const direct = [...document.querySelectorAll('a,button')].find((a) => vis(a) && /^\s*(direct download|download file|click here to download|create download link)/i.test(T(a)));
+    if (direct) return { s: 'ready', b: direct };
+    const f1 = formOp(/^download1/i);
+    if (f1) { const b = btnsOf(f1)[0]; if (b) return { s: 'prepare', b, f: f1 }; }
+    const any = [...document.querySelectorAll('a,button,input[type=submit]')].find((e) => vis(e) && /^\s*(free download|download|descargar|slow download)\b/i.test(T(e) || e.value || '') && (T(e) || e.value || '').length < 40);
+    if (any) return { s: 'prepare', b: any };
+    return { s: 'none' };
+  };
+  const fileName = () => {
+    const body = document.body ? document.body.innerText : '';
+    const inp = document.querySelector('input[name=fname]'); if (inp && inp.value) return inp.value;
+    const m = /([^\s\/\\]+\.(?:rar|zip|7z|iso|exe|msi|bin|part\d*|r\d\d|torrent|pkg|dmg|mp4|mkv|001))\b/i.exec(body);
+    if (m) return m[1];
+    const h = T(document.querySelector('h1,h2,h3')); return h && h.length < 120 ? h : 'Archivo';
+  };
+  const sizeOf = () => { const m = /(\d+(?:[.,]\d+)?\s*(?:[KMGT]i?B|bytes))\b/i.exec(document.body ? document.body.innerText : ''); return m ? m[1] : ''; };
+  const mount = () => {
+    const hostEl = document.createElement('div'); hostEl.id = 'wt-console'; hostEl.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:block';
+    const sh = hostEl.attachShadow({ mode: 'open' }), name = fileName(), size = sizeOf();
+    const base = name.replace(/\.(part\d+\.)?[a-z0-9]+$/i, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim() || name;
+    const ext = (/\.([a-z0-9]+)$/i.exec(name) || [, 'archivo'])[1].toUpperCase();
+    const R = 2 * Math.PI * 46;
+    sh.innerHTML = `<style>
+      :host{all:initial}*{box-sizing:border-box;font-family:inherit}
+      @keyframes up{from{opacity:0;transform:translateY(24px) scale(.97);filter:blur(8px)}}@keyframes sp{to{transform:rotate(360deg)}}@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}@keyframes sh{from{left:-45%}to{left:125%}}@keyframes pop{from{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}}
+      .base{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 0%,rgba(${acc},.14),transparent 60%),#0a0a12;overflow:auto;color:#ececf3;font:15px/1.5 "Segoe UI",system-ui,sans-serif;display:grid;place-items:center;padding:24px}
+      .bk{position:fixed;left:22px;top:20px;z-index:3;height:42px;padding:0 18px 0 14px;display:flex;align-items:center;gap:8px;border-radius:99px;border:1px solid rgba(255,255,255,.12);background:rgba(20,20,30,.7);color:#f1f1f7;font:600 13.5px "Segoe UI",system-ui,sans-serif;cursor:pointer;transition:background .25s,transform .3s}.bk:hover{background:rgba(255,255,255,.12);transform:translateX(-3px)}.bk svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .card{position:relative;width:min(560px,100%);padding:36px 34px 24px;border-radius:28px;background:linear-gradient(165deg,rgba(26,26,38,.92),rgba(14,14,22,.9));border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08);animation:up .8s cubic-bezier(.22,1,.36,1) backwards;overflow:hidden}
+      .card:before{content:"";position:absolute;left:12%;right:12%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(${acc},.8),transparent)}
+      .tt{text-align:center}.tt small{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}.tt h1{margin:8px 0 4px;font-size:22px;line-height:1.2;font-weight:800;color:#fff;word-break:break-word}.tt p{margin:0;font-size:12px;color:rgba(255,255,255,.42);word-break:break-all}
+      .mt{display:flex;justify-content:center;gap:10px;margin:16px 0 22px;font-size:13px;color:rgba(255,255,255,.62)}.mt span{padding:6px 13px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+      .stage{min-height:132px;display:grid;place-items:center}
+      .go{position:relative;width:100%;height:60px;border:0;border-radius:18px;cursor:pointer;font:800 17px "Segoe UI",system-ui,sans-serif;color:#0b0b13;background:linear-gradient(180deg,#fff,rgba(${acc},.85));box-shadow:0 14px 40px rgba(${acc},.35),inset 0 1px 0 #fff;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .3s cubic-bezier(.34,1.56,.4,1),box-shadow .3s;animation:pop .5s backwards}
+      .go:before{content:"";position:absolute;top:0;bottom:0;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);animation:sh 3.2s ease-in-out infinite}.go:hover{transform:translateY(-3px) scale(1.012)}.go:active{transform:scale(.98)}
+      .go.off{pointer-events:none;filter:saturate(.7) brightness(.9)}.go i{width:20px;height:20px;border-radius:50%;border:3px solid rgba(11,11,19,.25);border-top-color:#0b0b13;animation:sp .8s linear infinite}
+      .go svg{width:24px;height:24px;fill:none;stroke:#0b0b13;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.go span{position:relative}
+      .cd{position:relative;width:132px;height:132px;animation:pop .5s backwards}.cd svg{width:132px;height:132px;transform:rotate(-90deg)}.cd circle{fill:none;stroke-width:6}.cd .a{stroke:rgba(255,255,255,.1)}.cd .b{stroke:rgb(${acc});stroke-linecap:round;transition:stroke-dashoffset 1s linear;filter:drop-shadow(0 0 8px rgba(${acc},.7))}
+      .cd b{position:absolute;inset:0;display:grid;place-items:center;font-size:44px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}.cd small{position:absolute;left:0;right:0;bottom:24px;text-align:center;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+      .msg{text-align:center;font-size:14px;color:rgba(255,255,255,.7);padding:6px 4px}
+      .tut{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);display:grid;gap:9px}.tut h4{margin:0 0 2px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+      .st{display:flex;gap:12px;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid transparent;color:rgba(255,255,255,.45);font-size:13.5px;transition:all .4s}
+      .st em{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;background:rgba(255,255,255,.08)}
+      .st.on{background:rgba(${acc},.12);border-color:rgba(${acc},.45);color:#fff}.st.on em{background:#fff;color:#0b0b13}.st.dn{color:rgba(255,255,255,.7)}.st.dn em{background:rgba(${acc},.5);color:#fff}
+      .sec{display:flex;gap:8px;margin-top:14px}.sec button{flex:1;height:38px;border-radius:12px;border:1px solid transparent;background:rgba(255,255,255,.04);color:#e8e8f1;font:600 13px "Segoe UI",system-ui,sans-serif;cursor:pointer;transition:background .25s}.sec button:hover{background:rgba(255,255,255,.09)}
+      .ft{margin-top:12px;text-align:center;font-size:11.5px;color:rgba(255,255,255,.35)}
+      @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    </style>
+    <div class="base"><button class="bk" id="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Volver a la tienda</button>
+    <div class="card"><div class="tt"><small>Descarga · MegaDB</small><h1>${esc(base)}</h1><p>${esc(name)} · ${esc(ext)}</p></div>
+      <div class="mt">${size ? '<span>' + esc(size) + '</span>' : ''}</div>
+      <div class="stage" id="stg"></div>
+      <div class="tut"><h4>Cómo funciona</h4>
+        <div class="st" id="s1"><em>1</em><div>Tocá <b>Preparar descarga</b>.</div></div>
+        <div class="st" id="s2"><em>2</em><div>Esperá la <b>cuenta regresiva</b> (unos 10 segundos).</div></div>
+        <div class="st" id="s3"><em>3</em><div>Tocá <b>Descargar</b> y elegí dónde guardar el archivo.</div></div></div>
+      <div class="sec"><button id="or">Ver página original</button></div>
+      <div class="ft">Si algo no avanza, usá "Ver página original" y seguí a mano.</div>
+    </div></div>`;
+    document.documentElement.classList.add('wt-console-on'); document.body.appendChild(hostEl);
+    const $ = (q) => sh.querySelector(q), stg = $('#stg');
+    const DL = '<svg viewBox="0 0 24 24"><path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/></svg>';
+    let cur = '', max = 10, busy = 0, st = { s: 'none' };
+    const mark = (n) => { ['s1', 's2', 's3'].forEach((id, i) => { const e = $('#' + id); e.classList.toggle('on', i + 1 === n); e.classList.toggle('dn', i + 1 < n); }); };
+    const press = (x) => { try { if (x.b) x.b.click(); } catch (e) {} setTimeout(() => { try { if (x.f && x.f.isConnected && vis(x.b)) { x.f.requestSubmit ? x.f.requestSubmit() : x.f.submit(); } } catch (e) {} }, 900); };
+    const draw = () => {
+      st = stage(); const key = st.s + (st.s === 'wait' ? '' : '');
+      if (st.s === 'wait') {
+        if (st.n > max) max = st.n;
+        if (cur !== 'wait') { stg.innerHTML = '<div class="cd"><svg viewBox="0 0 100 100"><circle class="a" cx="50" cy="50" r="46"/><circle class="b" cx="50" cy="50" r="46" stroke-dasharray="' + R + '" stroke-dashoffset="0"/></svg><b id="cn"></b><small>segundos</small></div>'; cur = 'wait'; mark(2); }
+        $('#cn').textContent = st.n; $('.cd .b').setAttribute('stroke-dashoffset', String(R * (1 - st.n / max)));
+        return;
+      }
+      if (st.s === 'ready') {
+        if (cur !== 'ready') { stg.innerHTML = '<button class="go" id="go">' + DL + '<span>Descargar' + (size ? ' · ' + esc(size) : '') + '</span></button>'; cur = 'ready'; busy = 0; mark(3); $('#go').onclick = () => { if (busy) return; busy = 1; const g = $('#go'); g.classList.add('off'); g.innerHTML = '<i></i><span>Iniciando descarga…</span>'; press(stage().s === 'ready' ? stage() : st); setTimeout(() => { busy = 0; cur = ''; }, 9000); }; }
+        return;
+      }
+      if (st.s === 'prepare') {
+        if (cur !== 'prepare') { stg.innerHTML = '<button class="go" id="go">' + DL + '<span>Preparar descarga</span></button>'; cur = 'prepare'; busy = 0; mark(1); $('#go').onclick = () => { if (busy) return; busy = 1; const g = $('#go'); g.classList.add('off'); g.innerHTML = '<i></i><span>Preparando…</span>'; press(stage().s === 'prepare' ? stage() : st); setTimeout(() => { busy = 0; cur = ''; }, 6000); }; }
+        return;
+      }
+      if (cur !== 'none') { stg.innerHTML = '<div class="msg">' + (captcha() ? 'MegaDB pide una verificación. Tocá <b>Ver página original</b>, resolvela y volvé a probar.' : 'Cargando la página de MegaDB…') + '</div>'; cur = 'none'; mark(0); }
+    };
+    $('#bk').onclick = () => { try { console.log('__WT_SW__ prev'); } catch (e) {} };
+    $('#or').onclick = () => { clearInterval(hostEl.__t); document.documentElement.classList.remove('wt-console-on'); hostEl.remove(); };
+    draw(); hostEl.__t = setInterval(draw, 400);
+  };
+  let tries = 0;
+  const run = () => { const hasBtn = document.querySelector('form,button,a'); if (document.body && hasBtn) { mount(); return; } if (++tries < 80) setTimeout(run, 250); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+}
+
 const skinFor = (url) => { try { const h = new URL(url).hostname; return SKINS.find((s) => s.test.test(h)) || null; } catch (e) { return null; } };
 // Botón flotante para cambiar entre SteamRIP y FitGirl sin cerrar pestañas (lo recibe el navegador del launcher por console.log)
 const SW_JS = (cur) => '(' + function (cur) {
@@ -1451,4 +1561,4 @@ const SW_JS = (cur) => '(' + function (cur) {
   document.documentElement.appendChild(h);
 }.toString() + ')(' + JSON.stringify(cur) + ')';
 
-module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()', buzz: '(' + buzzConsole.toString() + ')()', megadb: '(' + buzzConsole.toString() + ')()', gofile: '(' + buzzConsole.toString() + ')()' } };
+module.exports = { SKINS, MONO_JS, SW_JS, skinFor, CONSOLE_JS: { steamrip: '(' + steamripConsole.toString() + ')()', fitgirl: '(' + fitgirlConsole.toString() + ')()', buzz: '(' + buzzConsole.toString() + ')()', megadb: '(' + megaConsole.toString() + ')()', gofile: '(' + buzzConsole.toString() + ')()' } };
