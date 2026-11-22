@@ -1712,7 +1712,7 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .s3top em{width:16px;font-style:normal;font-weight:700;color:var(--muted)}.s3top img{width:50px;height:50px;border-radius:12px;object-fit:cover;flex:none}.s3top>div>div{flex:1;min-width:0}
 .s3r{display:flex;justify-content:space-between;gap:8px;font-size:14px}.s3r b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.s3r span{color:var(--muted);font-size:13px;white-space:nowrap}
 .s3p{height:7px;border-radius:7px;background:rgba(255,255,255,.09);margin-top:7px}.s3p i{display:block;height:100%;width:var(--w);border-radius:7px;background:linear-gradient(90deg,var(--a),var(--a3))}
-.s3s{display:grid;grid-template-rows:1fr 1fr;gap:18px;min-height:0}.s3q{font-size:18px;font-weight:700;margin-top:7px}.s3q span{color:var(--a2)}
+.s3s{display:grid;grid-template-rows:1fr 1fr;gap:18px;min-height:0}.s3q{font-size:18px;font-weight:700;margin-top:7px}.s3sw{margin-left:auto;display:inline-flex;gap:3px;padding:3px;border-radius:99px;background:rgba(255,255,255,.07)}.s3sw button{border:0;background:transparent;color:var(--muted);font:600 10.5px inherit;letter-spacing:.04em;text-transform:none;padding:4px 10px;border-radius:99px;cursor:pointer;transition:background .25s,color .25s}.s3sw button.on{background:rgba(var(--argb),.9);color:var(--on-a)}.s3cl{font-size:12px;color:var(--muted);margin-top:8px}.s3q span{color:var(--a2)}
 .s3g{display:flex;height:15px;border-radius:9px;overflow:hidden;gap:3px;margin:auto 0 12px}.s3g i{display:block}.s3l{list-style:none;margin:0 0 auto;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:9px 16px}.s3l li{display:flex;align-items:center;gap:8px;font-size:13.5px}.s3l li i{width:10px;height:10px;border-radius:50%}.s3l li b{margin-left:auto;color:var(--muted);font-weight:600}
 
 /* ===== Estadísticas: pulido ===== */
@@ -1995,6 +1995,12 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 #clp.full.swp:not(.idle).crs.rc #cl-rscr{bottom:120px}
 #clp.full.swp.crs.rc.lc #cl-lcam{left:26px}
 @keyframes clfRec{70%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+#clp .clq{display:flex;align-items:flex-end;gap:2.5px;height:16px;margin-right:2px;opacity:.9}#clp .clq i{width:4px;border-radius:2px;background:rgba(255,255,255,.22);transition:background .4s}#clp .clq i:nth-child(1){height:6px}#clp .clq i:nth-child(2){height:11px}#clp .clq i:nth-child(3){height:16px}
+#clp .clq[data-l="3"] i{background:#4ade80}#clp .clq[data-l="2"] i:nth-child(-n+2){background:#facc15}#clp .clq[data-l="1"] i:nth-child(1){background:#f87171;animation:clqb 1s infinite}#clp .clq b{display:none;font:600 11.5px/1 inherit;color:var(--muted);margin-left:6px;align-self:center;font-variant-numeric:tabular-nums}
+#clp.full .clq b{display:block}#clp .clq[data-l="1"] b{color:#f87171}@keyframes clqb{50%{opacity:.35}}
+#clp .clav,#clp .clfa{transition:box-shadow .25s}#clp.spkr .clav{box-shadow:0 0 0 2px #4ade80,0 0 14px rgba(74,222,128,.65)}#clp.spkr .clfa>*:first-child{box-shadow:0 0 0 4px #4ade80,0 0 40px rgba(74,222,128,.55)}
+#clp.spkr #cl-rcam,#clp.spkr #cl-rscr{outline:2px solid rgba(74,222,128,.75);outline-offset:-2px}
+#clp.spkl #cl-lcam{outline:2px solid rgba(var(--argb),.85);outline-offset:-2px}#clp.spkl .clc button[data-a="clmute"]:not(.off){box-shadow:0 0 0 3px rgba(74,222,128,.55)}
 #clp .clfv{display:none}#clp.full:not(.has) .clv{background:transparent}
 #clp.full:not(.has) .clfv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:1;animation:clfFade .8s .2s both}
 #clp .clfv .clfa{position:relative;width:132px;height:132px;border-radius:50%;margin-bottom:10px}#clp .clfv .clfa>div:first-child,#clp .clfv .clfa>*:first-child{border-radius:50%;overflow:hidden}
@@ -5483,14 +5489,14 @@ V.stats=()=>{
   const wmx=Math.max(...wdAll),bw=wmx>0?wdAll.indexOf(wmx):-1,mm=Math.max(...d.month),bm=mm>0?d.month.indexOf(mm):-1;
   const bars=(arr,lab,mx,hi)=>`<div class="s3b">${arr.map((h,i)=>`<div class="${i===hi?'hi':''}" data-v="${h.toFixed(1).replace('.',',')} h" style="--hn:${mx>0?Math.max(4,h/mx*100):4}"><i style="--h:${mx>0?Math.max(4,h/mx*100):4}%"></i><span>${lab[i]}</span></div>`).join('')}</div>`;
   const dias=Math.round(th/24),pill=ys.length>1?`<div class="ypills">${ys.map(v=>`<button class="pill ${v===y?'on':''}" data-a="sy" data-v="${v}">${v}</button>`).join('')}</div>`:'';
-  const chip=(a,b)=>`<div class="s3k"><b>${a}</b><small>${b}</small></div>`;
+  const chip=(a,b)=>`<div class="s3k"><b>${a}</b><small>${b}</small></div>`;const CD=clData(y),cm=CD&&S.s3w==='c';const fhc=h=>h>=1?h.toFixed(1).replace('.',',')+' h':Math.max(1,Math.round(h*60))+' min';
   return `<div class="st3">
    <section class="s3c s3a rise" style="--i:0"><div class="s3h"><div><h3>Tu tiempo de juego</h3><div class="s3big">${Math.round(th).toLocaleString('es-AR')} h</div><p>${dias>=1?`Equivale a <b>${dias} ${dias===1?'día':'días'}</b> seguidos jugando`:'Recién empezás, ¡a jugar!'}</p></div>${pill}</div>
      ${d.tot>0?bars(d.month,['E','F','M','A','M','J','J','A','S','O','N','D'],mm,bm):`<div class="s3e">Las barras por mes se llenan con las partidas que jugás desde WINTEER.</div>`}
      <div class="s3ks">${chip(doneN(),'terminados')}${chip(streakAll()+' d','racha actual')}${chip(played.length,'juegos jugados')}${chip(gaN(),'hitos')}</div></section>
    ${tg?`<section class="s3t rise" style="--i:1" data-a="open" data-id="${tg.id}"><img class="bg" src="${art.hero(tg)}" data-fb="${art.wide(tg)}" alt=""><i class="sh"></i><div class="in"><small>TU JUEGO MÁS JUGADO</small><b>${esc(tg.name)}</b><p>${fh(tg.hours)} en total</p></div></section>`:`<section class="s3c rise" style="--i:1"><h3>Tu juego más jugado</h3><div class="s3e">Todavía no jugaste nada. Cuando juegues, aparece acá.</div></section>`}
    <section class="s3c rise" style="--i:2"><h3>Lo más jugado</h3><div class="s3top">${top.map((g,i)=>`<div data-a="open" data-id="${g.id}"><em>${i+1}</em><span class="s3ic">${thumb(g)}</span><div><div class="s3r"><b>${esc(g.name)}</b><span>${fh(g.hours)}</span></div><div class="s3p"><i style="--w:${g.hours/top[0].hours*100}%"></i></div></div></div>`).join('')||'<div class="s3e">Sin juegos todavía.</div>'}</div></section>
-   <div class="s3s"><section class="s3c rise" style="--i:3"><h3>Cuándo jugás</h3>${bw>=0||hasH?`<div class="s3q">${bw>=0?'Los <span>'+WD[bw]+'</span> ':'Jugás '}${hasH?'<span>'+part+'</span>':''}</div>${bars(wdAll,['L','M','X','J','V','S','D'],wmx,bw)}`:`<div class="s3e">Con tus próximas partidas vas a ver acá tus hábitos.</div>`}</section>
+   <div class="s3s"><section class="s3c rise" style="--i:3"><h3>${cm?'Tus llamadas':'Cuándo jugás'}${CD?`<span class="s3sw"><button data-a="s3w" data-v="g" class="${cm?'':'on'}">Jugando</button><button data-a="s3w" data-v="c" class="${cm?'on':''}">Llamadas</button></span>`:''}</h3>${cm?`<div class="s3q">Llamás más a las <span>${CD.hb}:00</span></div>${bars(CD.hr,CD.hr.map((_,i)=>i%3===0?String(i):''),Math.max(0.01,...CD.hr),CD.hb)}<div class="s3cl">${fhc(CD.tot)} en llamada · ${CD.n} ${CD.n===1?'llamada':'llamadas'} · la más larga ${fhc(CD.mx)}</div>`:''}${cm?'':(bw>=0||hasH?`<div class="s3q">${bw>=0?'Los <span>'+WD[bw]+'</span> ':'Jugás '}${hasH?'<span>'+part+'</span>':''}</div>${bars(wdAll,['L','M','X','J','V','S','D'],wmx,bw)}`:`<div class="s3e">Con tus próximas partidas vas a ver acá tus hábitos.</div>`)}</section>
    <section class="s3c rise" style="--i:4"><h3>Tus géneros</h3>${gl.length?`<div class="s3g">${gl.map(([n,h],i)=>`<i style="width:${h/gt*100}%;background:${GC[i]}"></i>`).join('')}</div><ul class="s3l">${gl.map(([n,h],i)=>`<li><i style="background:${GC[i]}"></i>${esc(n)}<b>${Math.round(h/gt*100)}%</b></li>`).join('')}</ul>`:'<div class="s3e">Sin datos de género todavía.</div>'}</section></div></div>`};
 
 /* ---------- WRAPPED ---------- */
@@ -6023,6 +6029,7 @@ const A={
     rollGame();const cv=$('.rcv');if(cv)cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;cv.style.setProperty('--rx',(-y*14)+'deg');cv.style.setProperty('--ry',(x*16)+'deg')});if(cv)cv.addEventListener('mouseleave',()=>{cv.style.setProperty('--rx','0deg');cv.style.setProperty('--ry','0deg')})},
   rand2:()=>rollGame(),
   sy:a=>{S.sy=+a.dataset.v;go('stats')},
+  s3w:a=>{S.s3w=a.dataset.v;go('stats')},
   goal:a=>{ST.goal=Math.max(1,(ST.goal||12)+parseInt(a.dataset.v));save();go('stats')},
   stab:a=>{const k=a.dataset.v;if(S.view==='settings'&&!S.inPf&&!({per:1,me:1,rew:1,pet:1})[k]&&$('.sx3:not(.solo) #sbody')){if(setT()===k&&!(S.sq||'').trim())return;if(setSwap(k))return}S.stab=k;S.sq='';go('settings')},
   sv:a=>{const k=a.dataset.k;ST[k]=a.dataset.v;$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));save()},
@@ -10768,11 +10775,11 @@ async function clMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCa
 function clMk(c,role){const pc=new RTCPeerConnection(CLICE);CL={c,role,pc,cid:'',st:'',muted:0,t0:0,cam:0,scr:0,rcam:0,rscr:0,rmu:0,au:document.createElement('audio'),au2:document.createElement('audio')};CL.au.autoplay=CL.au2.autoplay=true;document.body.appendChild(CL.au);document.body.appendChild(CL.au2);
   pc.onconnectionstatechange=()=>{if(!CL||CL.pc!==pc)return;const s=pc.connectionState;
     if(s==='connecting'&&!CL.t0&&!CL.ct)CL.ct=setTimeout(()=>{if(CL&&CL.pc===pc&&!CL.t0)clEnd('No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')},20000);
-    if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000)}clUI()}
+    if(s==='connected'){clearTimeout(CL.dt);if(!CL.t0){CL.t0=Date.now();clRing(false);clBeep([[660,.1],[990,.16]],.1);CL.tm=setInterval(clTick,1000);CL.sp=setInterval(clSpeak,100);CL.qt=setInterval(clStats,2000);setTimeout(clStats,600)}clUI()}
     else if(s==='disconnected'){clearTimeout(CL.dt);CL.dt=setTimeout(()=>{if(CL&&CL.pc===pc&&pc.connectionState!=='connected')clEnd('Se perdió la conexión')},9000)}
     else if(s==='failed')clEnd(CL.t0?'Se perdió la conexión':'No pude conectar la llamada ('+(CL.relay?'con':'sin')+' relay). Puede ser la red de alguno de los dos')};
   pc.ontrack=e=>{if(!CL||CL.pc!==pc)return;const i=pc.getTransceivers().indexOf(e.transceiver),ms=new MediaStream([e.track]);
-    if(i===0){CL.au.srcObject=ms;CL.au.play&&CL.au.play().catch(()=>{})}else if(i===3){CL.au2.srcObject=ms;CL.au2.play&&CL.au2.play().catch(()=>{})}
+    if(i===0){CL.au.srcObject=ms;CL.au.play&&CL.au.play().catch(()=>{});clMeter(ms,'r')}else if(i===3){CL.au2.srcObject=ms;CL.au2.play&&CL.au2.play().catch(()=>{})}
     else if(i===1){CL.rcamS=ms;const v=$('#cl-rcam');if(v)v.srcObject=ms}else if(i===2){CL.rscrS=ms;const v=$('#cl-rscr');if(v)v.srcObject=ms}};
   return pc}
 function clDc(dc){dc.onmessage=e=>{if(!CL)return;let m;try{m=JSON.parse(e.data)}catch(x){return}
@@ -10781,7 +10788,7 @@ function clDc(dc){dc.onmessage=e=>{if(!CL)return;let m;try{m=JSON.parse(e.data)}
 const clSend=o=>{try{if(CL&&CL.dc&&CL.dc.readyState==='open')CL.dc.send(JSON.stringify(o))}catch(e){}};
 async function clCall(c){if(CL||CLIN)return;const f=FR(),d=f.c[c]||{};if(!fbOn())return;
   let ms;try{ms=await clMic()}catch(e){toast('No pude usar el micrófono. Revisá los permisos de Windows');return}
-  await clIceLoad();const pc=clMk(c,'out');CL.ms=ms;CL.cid=String(Date.now());CL.st='ring';pc.addTrack(ms.getAudioTracks()[0],ms);
+  await clIceLoad();const pc=clMk(c,'out');CL.ms=ms;clMeter(ms,'l');CL.cid=String(Date.now());CL.st='ring';pc.addTrack(ms.getAudioTracks()[0],ms);
   CL.tx={a:pc.getTransceivers()[0],cam:pc.addTransceiver('video',{direction:'sendrecv'}),scr:pc.addTransceiver('video',{direction:'sendrecv'}),sa:pc.addTransceiver('audio',{direction:'sendrecv'})};
   CL.dc=pc.createDataChannel('ctl');clDc(CL.dc);clUI();clRing(true,true);
   try{const off=await pc.createOffer();await pc.setLocalDescription({type:'offer',sdp:clMunge(off.sdp)});await clIceWait(pc);if(!CL||CL.pc!==pc)return;CL.relay=/typ relay/.test(pc.localDescription.sdp);
@@ -10791,7 +10798,7 @@ function clIncoming(c,x){CLIN={c,x};const f=FR(),d=f.c[c]||{};clRing(true);clUI(
   clearTimeout(CLIN.to);CLIN.to=setTimeout(()=>{if(CLIN&&CLIN.x===x){clRing(false);CLIN=null;clUI()}},45000)}
 async function clAccept(){if(!CLIN)return;const {c,x}=CLIN;clearTimeout(CLIN.to);CLIN=null;clRing(false);
   let ms;try{ms=await clMic()}catch(e){toast('No pude usar el micrófono. Revisá los permisos de Windows');clUI();clWrite(c,x.cid,'no');return}
-  await clIceLoad();const pc=clMk(c,'in');CL.ms=ms;CL.cid=x.cid;CL.st='live';
+  await clIceLoad();const pc=clMk(c,'in');CL.ms=ms;clMeter(ms,'l');CL.cid=x.cid;CL.st='live';
   try{await pc.setRemoteDescription({type:'offer',sdp:x.off});const T=pc.getTransceivers();CL.tx={a:T[0],cam:T[1],scr:T[2],sa:T[3]};T.forEach(t=>{t.direction='sendrecv'});await T[0].sender.replaceTrack(ms.getAudioTracks()[0]);
     pc.ondatachannel=e=>{CL.dc=e.channel;clDc(e.channel)};
     const an=await pc.createAnswer();await pc.setLocalDescription({type:'answer',sdp:clMunge(an.sdp)});await clIceWait(pc);if(!CL||CL.pc!==pc)return;CL.relay=/typ relay/.test(pc.localDescription.sdp);
@@ -10804,7 +10811,8 @@ async function clPoll(){if(!CL||CL.pb)return;CL.pb=1;const me=CL;try{const x=awa
   if(x.cid===me.cid){if(x.st==='no'){clEnd('No quiso atender');return}if(x.st==='end'){clEnd(me.t0?'Terminó la llamada':'Cortó la llamada');return}
     if(me.role==='out'&&x.ans&&!me.ans){me.ans=1;try{await me.pc.setRemoteDescription({type:'answer',sdp:x.ans})}catch(e){clEnd('No pude conectar la llamada')}}}}catch(e){}finally{if(CL===me)me.pb=0}}
 function clTick(){const e=$('#cl-s'),e2=$('#cl-s2');if(e&&CL&&CL.t0){const q=Math.floor((Date.now()-CL.t0)/1000);e.textContent=String(Math.floor(q/60)).padStart(2,'0')+':'+String(q%60).padStart(2,'0')+(CL.rmu?' · silenciado':'')}if(e2&&e)e2.textContent=e.textContent}
-function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);[me.pi,me.tm,me.rt,me.dt,me.ct].forEach(t=>{clearInterval(t);clearTimeout(t)});
+function clEnd(msg){const me=CL;if(!me)return;CL=null;clRing(false);[me.pi,me.tm,me.rt,me.dt,me.ct,me.sp,me.qt].forEach(t=>{clearInterval(t);clearTimeout(t)});try{me.ac&&me.ac.close()}catch(e){}
+  if(me.t0){const dd=Math.round((Date.now()-me.t0)/1000);if(dd>=10){ST.calls=ST.calls||[];ST.calls.push({t:me.t0,d:dd});if(ST.calls.length>3000)ST.calls.splice(0,ST.calls.length-3000);try{save()}catch(e){}}}
   [me.ms,me.cs,me.ss].forEach(s=>{try{s&&s.getTracks().forEach(t=>t.stop())}catch(e){}});try{me.dc&&me.dc.close()}catch(e){}try{me.pc.close()}catch(e){}try{me.au.remove();me.au2.remove()}catch(e){}
   if(me.cid&&me.st)clWrite(me.c,me.cid,'end');clBeep([[520,.12],[390,.2]],.1);if(msg)toast(msg);clUI()}
 async function clBr(tx,bps){try{const p=tx.sender.getParameters();if(!p.encodings||!p.encodings.length)p.encodings=[{}];p.encodings[0].maxBitrate=bps;await tx.sender.setParameters(p)}catch(e){}}
@@ -10828,7 +10836,7 @@ function clUI(full){let p=$('#clp'),i=$('#cli');
     i.innerHTML=`<div class="cli-a">${frAv(d,(FRM[CLIN.c]||{}).d,56)}</div><div class="cli-t"><small>Llamada de voz</small><b>${esc(d.name||'Amigo')}</b><span>te está llamando…</span></div><button class="cli-y" data-a="clacc" title="Atender">${ic('clacc')}</button><button class="cli-n" data-a="clrej" title="Rechazar">${ic('clend')}</button>`}else if(i)i.remove();
   if(!CL){if(p)p.remove();return}
   const d=FR().c[CL.c]||{};
-  if(!p||full){if(p)p.remove();p=document.createElement('div');p.id='clp';p.innerHTML=`<div class="clh"><div class="clav">${frAv(d,(FRM[CL.c]||{}).d,38)}</div><div class="clw"><b>${esc(d.name||'Amigo')}</b><small id="cl-s">${CL.t0?'':(CL.role==='out'?'Llamando…':'Conectando…')}</small></div><button class="cl-ib" data-a="clbig" title="Agrandar o achicar">${ic('expand')}</button><button class="cl-ib" data-a="clfull" id="clfb" title="Pantalla completa (F)">${ic('clfull')}</button></div>
+  if(!p||full){if(p)p.remove();p=document.createElement('div');p.id='clp';p.innerHTML=`<div class="clh"><div class="clav">${frAv(d,(FRM[CL.c]||{}).d,38)}</div><div class="clw"><b>${esc(d.name||'Amigo')}</b><small id="cl-s">${CL.t0?'':(CL.role==='out'?'Llamando…':'Conectando…')}</small></div><div class="clq" id="clq" data-l="0" title="Midiendo la conexión…"><i></i><i></i><i></i><b></b></div><button class="cl-ib" data-a="clbig" title="Agrandar o achicar">${ic('expand')}</button><button class="cl-ib" data-a="clfull" id="clfb" title="Pantalla completa (F)">${ic('clfull')}</button></div>
     <div class="clv"><video id="cl-rscr" autoplay playsinline muted></video><video id="cl-rcam" autoplay playsinline muted></video><video id="cl-lcam" autoplay playsinline muted></video></div><div class="clsh"><i></i>Estás compartiendo tu pantalla<button data-a="clscr">Dejar de compartir</button></div><div class="clfv"><div class="clfa">${frAv(d,(FRM[CL.c]||{}).d,132)}</div><b>${esc(d.name||'Amigo')}</b><small id="cl-s2"></small></div><div class="clc" id="clc"></div>`;document.body.appendChild(p);
     const r=$('#cl-rcam'),s=$('#cl-rscr');if(CL.rcamS)r.srcObject=CL.rcamS;if(CL.rscrS)s.srcObject=CL.rscrS}
   const lc=$('#cl-lcam');if(lc&&CL.cs&&lc.srcObject!==CL.cs)lc.srcObject=CL.cs;
@@ -10849,6 +10857,14 @@ Object.assign(A,{frcall:()=>{if(S.frSel)clCall(S.frSel)},clacc:()=>clAccept(),cl
    q.style.animation='none';q.style.transition='none';q.getAnimations().forEach(a=>{if(a.__clf)a.cancel()});const an=q.animate([Object.assign(W(r0),{borderRadius:inn?'22px':'0px'}),Object.assign(W(r1),{borderRadius:inn?'0px':'22px'})],{duration:inn?620:520,easing:'cubic-bezier(.22,1,.3,1)'});an.__clf=1;
    q.style.willChange='left,top,width,height';an.onfinish=an.oncancel=()=>{q.style.willChange=''}}catch(e){}}});
 function clPip(t){const v=t&&t.closest&&t.closest('#cl-rcam,#cl-rscr');return !!(v&&CL&&CL.full&&CL.rscr&&CL.rcam&&(CL.swap?v.id==='cl-rscr':v.id==='cl-rcam'))}
+function clMeter(ms,key){try{if(!CL)return;const AC=window.AudioContext||window.webkitAudioContext;if(!CL.ac)CL.ac=new AC();if(CL.ac.state==='suspended')CL.ac.resume().catch(()=>{});const an=CL.ac.createAnalyser();an.fftSize=512;CL.ac.createMediaStreamSource(ms).connect(an);(CL.mt=CL.mt||[]).push({an,buf:new Uint8Array(an.fftSize),key,until:0})}catch(e){}}
+function clSpeak(){if(!CL||!CL.mt)return;const now=Date.now(),on={r:0,l:0};for(const m of CL.mt){m.an.getByteTimeDomainData(m.buf);let q=0;for(let i=0;i<m.buf.length;i++){const v=(m.buf[i]-128)/128;q+=v*v}const rms=Math.sqrt(q/m.buf.length);if(rms>.03)m.until=now+320;if(m.until>now&&!(m.key==='l'&&CL.muted))on[m.key]=1}
+  const p=$('#clp');if(p){p.classList.toggle('spkr',!!on.r);p.classList.toggle('spkl',!!on.l)}}
+async function clStats(){if(!CL||!CL.pc||!CL.t0)return;const me=CL;try{const R=await me.pc.getStats();let rtt=null,lost=0,rcv=0,jit=0;R.forEach(r=>{if(r.type==='candidate-pair'&&(r.nominated||r.selected)&&r.state==='succeeded'&&r.currentRoundTripTime!=null)rtt=r.currentRoundTripTime*1000;if(r.type==='inbound-rtp'&&r.kind==='audio'){lost=r.packetsLost||0;rcv=r.packetsReceived||0;jit=(r.jitter||0)*1000}});
+  const pl=me.ql||{l:0,r:0};me.ql={l:lost,r:rcv};const dl=Math.max(0,lost-pl.l),dr=Math.max(0,rcv-pl.r),loss=dl+dr?dl/(dl+dr)*100:0;
+  const lv=rtt==null?2:(rtt<130&&loss<2&&jit<40)?3:(rtt<280&&loss<7)?2:1;if(CL!==me)return;me.q={lv,rtt,loss,jit};
+  const e=$('#clq');if(e){e.dataset.l=lv;e.title=(lv===3?'Conexión buena':lv===2?'Conexión regular':'Conexión inestable')+(rtt!=null?' · ping '+Math.round(rtt)+' ms':'')+' · pérdida '+loss.toFixed(loss<10?1:0)+' %';const b=e.querySelector('b');if(b)b.textContent=rtt!=null?Math.round(rtt)+' ms':''}
+  me.qbad=lv===1?(me.qbad||0)+1:0;if(me.qbad===3&&Date.now()-(me.qw||0)>90000){me.qw=Date.now();toast('La conexión de la llamada está inestable')}}catch(e){}}
 function clVolIc(v){return '<svg class="i" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9.5h3l4.5-3.8a.6.6 0 0 1 1 .5v11.6a.6.6 0 0 1-1 .5L7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1z"/>'+(v<=0?'<path d="m16.5 9.5 5 5M21.5 9.5l-5 5"/>':v<.5?'<path d="M15.8 9.6a3.6 3.6 0 0 1 0 4.8"/>':'<path d="M15.8 9a4.6 4.6 0 0 1 0 6M18.6 6.2a8.6 8.6 0 0 1 0 11.6"/>')+'</svg>'}
 function clVolSet(v){if(!CL)return;CL.vol=v;try{CL.au.volume=v;CL.au2.volume=v}catch(e){}const b=$('#clvb');if(b)b.innerHTML=clVolIc(v)}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='clvr')clVolSet(+e.target.value)});
@@ -14821,6 +14837,9 @@ function siClose(pl){
 setInterval(()=>{try{const p=S.playing;if(!p||!p.si)return;const mn=(Date.now()-p.t)/6e4;
   if(p.si>10&&!p.n5&&mn>=p.si-5&&mn<p.si){p.n5=1;siPing('Te quedan 5 minutos de tu sesión de '+x8min(p.si))}
   if(!p.n0&&mn>=p.si){p.n0=1;siPing('Se cumplió tu tiempo ('+x8min(p.si)+'). Seguí tranquilo, vos decidís')}}catch(e){}},15000);
+function clData(y){const L=(ST.calls||[]).filter(c=>new Date(c.t).getFullYear()===y);if(!L.length)return null;const hr=Array(24).fill(0);let tot=0,mx=0;
+  for(const c of L){tot+=c.d/3600;mx=Math.max(mx,c.d/3600);let t=c.t;const end=c.t+c.d*1000;while(t<end){const st=Math.min(end,t+6e5);hr[new Date(t).getHours()]+=(st-t)/36e5;t=st}}
+  return {n:L.length,tot,mx,hr,hb:hr.indexOf(Math.max(...hr))}}
 function stInt(){
   const l=(ST.ses||[]).filter(x=>x.i>0);
   if(!l.length)return '<div class="empty">Todavía no hay sesiones con tiempo elegido. Activá "Sesión con intención" en Ajustes (Biblioteca) y elegí cuánto vas a jugar antes de arrancar.</div>';
