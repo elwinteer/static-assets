@@ -2139,6 +2139,15 @@ body.perf .fr-cr,body.perf .fr-cr *,body.nomo .fr-cr,body.nomo .fr-cr *{animatio
 #clp .clap.clbar{padding:12px;gap:7px;overflow-y:auto;scrollbar-width:thin;animation:clxUp .34s cubic-bezier(.2,1.1,.3,1) both}@keyframes clxUp{from{opacity:0;transform:translateY(12px) scale(.92)}}
 
 #clp .clap.clbar .clg{padding:9px 11px;gap:7px}#clp .clap.clbar .clxh{padding:0 2px 2px}#clp .clap.clbar .clsc{margin-top:-2px}
+
+/* panel como prolongación de la barra */
+#clp .clap.clbar{border-radius:26px;padding:10px;gap:6px;background:rgba(16,16,21,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07)}
+#clp .clap.clbar .clg{background:rgba(255,255,255,.07);border:0;border-radius:20px;padding:10px 14px}
+#clp .clap.clbar .seg2{border-radius:99px;background:rgba(255,255,255,.08)}#clp .clap.clbar .seg2 i{border-radius:99px}#clp .clap.clbar .seg2 button{border-radius:99px}
+#clp .clap.clbar select,#clp .clap.clbar .clsel{border-radius:99px}
+#clp .clap.clbar .clxh{padding:2px 6px 4px}
+#clxa{position:absolute;z-index:7;width:14px;height:14px;margin-left:-7px;transform:rotate(45deg);background:rgba(16,16,21,.96);border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);border-radius:0 0 4px 0;pointer-events:none;animation:clxUp .34s cubic-bezier(.2,1.1,.3,1) both}#clxa.out{opacity:0;transition:opacity .18s}
+#clp .clc .clsp:has(.clch.on){box-shadow:0 0 0 2px rgba(255,255,255,.3)}
 #clp.full .clvol{display:flex;align-items:center;height:54px;border-radius:99px;background:rgba(255,255,255,.1);padding:0;transition:background .25s}#clp.full .clvol:hover{background:rgba(255,255,255,.16)}
 #clp.full .clvol button{background:transparent!important;box-shadow:none!important}#clp.full .clvol button:hover{transform:scale(1.08)}
 #clp .clap{position:absolute;z-index:6;width:310px;padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(34,34,43,.97),rgba(13,13,17,.98));backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);border:1px solid rgba(255,255,255,.13);box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);display:flex;flex-direction:column;gap:10px;cursor:default;transform-origin:0 0;animation:clxIn .34s cubic-bezier(.2,1.1,.3,1) both;overflow:hidden}
@@ -11151,8 +11160,8 @@ function clNzSet(on){if(!CL||!CL.ms)return;ST.cla=ST.cla||{};ST.cla.nz=on?1:0;tr
     const me=CL;setTimeout(()=>{if(CL===me&&CL.nz&&ac.state!=='running'){clNzSet(0);ST.cla.nz=0;clUI()}},1800)}catch(e){}}
 function clCtxRender(){const p=$('#clp');if(!p)return;let m=$('#clx');const X=CL&&CL.ctx;
   p.style.overflow=(X&&X.bar&&!CL.full)?'visible':'';
-  if(!X||(!CL.full&&!X.bar)){if(m&&!m.classList.contains('out')){m.classList.add('out');setTimeout(()=>m.remove(),180)}return}
-  if(m&&(m.classList.contains('out')||m.dataset.k!==X.k)){m.remove();m=null}
+  if(!X||(!CL.full&&!X.bar)){const ca=$('#clxa');if(ca){ca.classList.add('out');setTimeout(()=>ca.remove(),180)}if(m&&!m.classList.contains('out')){m.classList.add('out');setTimeout(()=>m.remove(),180)}return}
+  if(m&&(m.classList.contains('out')||m.dataset.k!==X.k)){m.remove();m=null;const ca=$('#clxa');if(ca)ca.remove()}
   const e=(ST.cla&&ST.cla.eq)||'n',z=(ST.cla&&ST.cla.nz)?1:0,d=FR().c[CL.c]||{};
   const sg=(items,idx)=>`<div class="seg2" style="--i:${idx};--n:${items.length}"><i></i>${items.map(([k,l,a],j)=>`<button class="${j===idx?'on':''}" data-a="${a}" data-k="${k}">${l}</button>`).join('')}</div>`,
     grp=(t,hint,b)=>`<div class="clg"><div class="clgt">${t}</div>${b}${hint?`<small>${hint}</small>`:''}</div>`,
@@ -11173,7 +11182,7 @@ function clCtxRender(){const p=$('#clp');if(!p)return;let m=$('#clx');const X=CL
   m.innerHTML=h;
   if(!first){[...m.querySelectorAll('.seg2')].forEach((q,i)=>{const t=q.style.getPropertyValue('--i');if(old[i]!==undefined&&old[i]!==''&&old[i]!==t){q.style.setProperty('--i',old[i]);void q.offsetWidth;q.style.setProperty('--i',t)}})}
   if(first){const r=p.getBoundingClientRect(),W=310,H=m.offsetHeight||240;
-    if(X.bar){const av=Math.max(180,X.y-16),Hh=Math.min(m.scrollHeight||H,av),vl=Math.max(8,Math.min(X.x-W/2,innerWidth-W-8)),L=vl-r.left,T=Math.max(8-r.top,(X.y-r.top)-Hh-14);m.style.maxHeight=av+'px';m.style.left=L+'px';m.style.top='auto';m.style.bottom=Math.max(8,r.bottom-X.y+8)+'px';m.style.transformOrigin=Math.round(X.x-r.left-L)+'px 100%';m.classList.add('clbar')}
+    if(X.bar){const av=Math.max(180,X.y-16),Hh=Math.min(m.scrollHeight||H,av),vl=Math.max(8,Math.min(X.x-W/2,innerWidth-W-8)),L=vl-r.left,T=Math.max(8-r.top,(X.y-r.top)-Hh-14);m.style.maxHeight=av+'px';m.style.left=L+'px';m.style.top='auto';m.style.bottom=Math.max(8,r.bottom-X.y+8)+'px';m.style.transformOrigin=Math.round(X.x-r.left-L)+'px 100%';m.classList.add('clbar');const ca=document.createElement('i');ca.id='clxa';ca.style.left=Math.round(Math.max(22,Math.min(X.x-r.left,r.width-22)))+'px';ca.style.bottom=Math.max(8,r.bottom-X.y+8)-6+'px';p.appendChild(ca)}
     else{const L=Math.max(8,Math.min(X.x-r.left,r.width-W-8)),T=Math.max(8,Math.min(X.y-r.top,r.height-H-8));m.style.left=L+'px';m.style.top=T+'px';m.style.transformOrigin=Math.round(X.x-r.left-L)+'px '+Math.round(X.y-r.top-T)+'px'}}}
 function clVolIc(v){return '<svg class="i" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9.5h3l4.5-3.8a.6.6 0 0 1 1 .5v11.6a.6.6 0 0 1-1 .5L7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1z"/>'+(v<=0?'<path d="m16.5 9.5 5 5M21.5 9.5l-5 5"/>':v<.5?'<path d="M15.8 9.6a3.6 3.6 0 0 1 0 4.8"/>':'<path d="M15.8 9a4.6 4.6 0 0 1 0 6M18.6 6.2a8.6 8.6 0 0 1 0 11.6"/>')+'</svg>'}
 function clVolSet(v){if(!CL)return;CL.vol=v;clVoiceApply();const b=$('#clvb');if(b)b.innerHTML=clVolIc(Math.min(1,v))}
