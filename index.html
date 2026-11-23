@@ -7845,6 +7845,119 @@ const TX=[['allin','Todo en uno','Tené al menos 1 hito de cada categoría','cro
  ['noabn','Sin rendirse','Completá 25 juegos sin abandonar ninguno','shield','l',()=>HC.done>=25&&HC.dropped===0?1:0]];
 TX.forEach(([k,n,d,i,r,fn])=>H('xt_'+k,n,d,i,r,k.startsWith('sec')||k==='allin'||k.startsWith('leg')||k==='cat'?'Logros':'Biblioteca',fn,1,k.startsWith('sec')));
 })();
+/* ---------- 500 hitos a largo plazo ---------- */
+{
+const f=n=>n.toLocaleString('es-AR');
+const CLS=()=>{const L=ST.calls||[];return {n:L.length,h:L.reduce((q,c)=>q+(c.d||0),0)/3600,mx:Math.max(0,...L.map(c=>c.d||0))/3600,fr:new Set(L.map(c=>c.c).filter(Boolean)).size}};
+const hxCalc=()=>{const ses=(ST.ses||[]).filter(x=>x&&x.s&&x.h>0),gc={},gd={};
+ G.forEach(g=>{const gs=genresOf(g);if(g.hours>0)gs.forEach(t=>gc[t]=(gc[t]||0)+1);if(g.status==='Terminado')gs.forEach(t=>gd[t]=(gd[t]||0)+1)});
+ let hn=0,hm=0,ha=0,he=0,hw=0,mx=0,s3=0;
+ for(const x of ses){mx=Math.max(mx,x.h);if(x.h>=3)s3++;let t=x.s;const end=x.s+x.h*36e5;while(t<end){const st=Math.min(end,t+9e5),d=new Date(t),hr=d.getHours(),v=(st-t)/36e5;if(hr<6)hn+=v;else if(hr<12)hm+=v;else if(hr<19)ha+=v;else he+=v;if(d.getDay()===0||d.getDay()===6)hw+=v;t=st}}
+ const L=ST.log||{},mo={},wd=Array(7).fill(0),mset=new Set();let dmax=0,d4=0;
+ for(const k in L){const h=L[k];if(!(h>0))continue;const q=k.split('-'),mk=q[0]+'-'+q[1];mo[mk]=(mo[mk]||0)+h;mset.add(mk);dmax=Math.max(dmax,h);if(h>=4)d4++;wd[new Date(+q[0],+q[1]-1,+q[2]).getDay()]++}
+ Object.assign(HC,{gc,gd,hn:Math.floor(hn),hm:Math.floor(hm),ha:Math.floor(ha),he:Math.floor(he),hw:Math.floor(hw),nses:ses.length,maxS:Math.floor(mx*10)/10,s3,mh:Math.floor(Math.max(0,...Object.values(mo))),dmax:Math.floor(dmax*10)/10,d4,wdc:wd,mon:mset.size,
+  ...(()=>{const gh=Object.values(HC.gh||{}),dy={},mg={};let tot=0;for(const x of ses){tot+=x.h;const d=new Date(x.s),k=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(),m=d.getFullYear()+'-'+d.getMonth();(dy[k]=dy[k]||[]).push(x.g);(mg[m]=mg[m]||new Set()).add(x.g)}
+   return {gv50:gh.filter(v=>v>=50).length,gv250:gh.filter(v=>v>=250).length,gv1000:gh.filter(v=>v>=1000).length,gvd:Object.keys(gd).length,comp:HC.played>=20?Math.min(100,Math.round(HC.done/HC.played*100)):0,lp:HC.lib>=50?Math.min(100,Math.round(HC.played/HC.lib*100)):0,hwd:Math.floor(Math.max(0,tot-hw)),nsd:Math.max(0,...Object.values(dy).map(a=>a.length)),gday:Math.max(0,...Object.values(dy).map(a=>new Set(a).size)),gmon:Math.max(0,...Object.values(mg).map(q=>q.size))}})(),
+  frn:(FR().list||[]).length,g25:G.filter(g=>g.hours>=25).length,g200:G.filter(g=>g.hours>=200).length})};
+const _hc=hcCalc;hcCalc=function(){_hc.apply(this,arguments);try{hxCalc()}catch(e){}};
+const nrm=d=>String(d).toLowerCase().replace(/(\d)\.(?=\d)/g,'$1'),have=new Set();GA.forEach(a=>{have.add(nrm(a[2]));have.add('n:'+String(a[1]).toLowerCase())});let ADD=0;
+const Hn=(id,n,d,i,r,c,k,t,s)=>{const a=nrm(d),b='n:'+String(n).toLowerCase();if(have.has(a)||have.has(b))return;have.add(a);have.add(b);ADD++;H(id,n,d,i,r,c,k,t,s)};
+const S_=(cat,key,icon,fmt,items,sec)=>items.forEach(([t,n,r])=>Hn('x2_'+(typeof key==='string'?key:n)+'_'+t,n,fmt(t),icon,r,cat,key,t,sec));
+/* extensiones de series existentes */
+S_('Finales','done','crown',t=>'Completá '+f(t)+' juegos',[[100,'Centenario de finales','e'],[400,'Cuatrocientos finales','l'],[500,'Medio millar de finales','l'],[750,'Setecientos cincuenta finales','l'],[1000,'Mil finales','l']]);
+S_('Biblioteca','lib','shield',t=>'Tené '+f(t)+' juegos en tu biblioteca',[[100,'Cien en la repisa','c'],[300,'Estantería doble','r'],[500,'Medio millar de juegos','r'],[1000,'Mil y un juegos','e'],[2500,'Museo de juegos','l'],[3000,'Archivo del mundo','l'],[4000,'Catedral de juegos','l'],[5000,'Cinco mil volúmenes','l']]);
+S_('Horas','h','clock',t=>'Juntá '+f(t)+' horas jugadas',[[100,'Cien horas','c'],[250,'Cuarto de millar','c'],[500,'Quinientas horas','r'],[1000,'Mil horas','r'],[2000,'Dos mil horas','e'],[5000,'Cinco mil horas','l'],[15000,'Quince mil horas','l'],[20000,'Veinte mil horas','l'],[30000,'Hielo eterno','l'],[40000,'Más allá del tiempo','l']]);
+S_('Constancia','streak','cal',t=>'Jugá '+t+' días seguidos',[[2,'Dos al hilo','c'],[3,'Triplete de días','c'],[7,'Semana perfecta','c'],[14,'Quincena','r'],[30,'Un mes sin faltar','r'],[60,'Dos meses sin parar','e'],[150,'Cinco meses de racha','l'],[240,'Ocho meses de racha','l'],[500,'Quinientos seguidos','l'],[730,'Dos años de racha','l'],[1000,'Mil días seguidos','l']]);
+S_('Constancia','days','cal',t=>'Jugá en '+f(t)+' días distintos',[[25,'Veinticinco días','c'],[100,'Cien días jugando','c'],[300,'Trescientos días','r'],[400,'Cuatrocientos días','r'],[600,'Seiscientos días','e'],[750,'Setecientos cincuenta días','e'],[1250,'Mil doscientos cincuenta','l'],[1500,'Mil quinientos días','l'],[2000,'Dos mil días','l'],[3000,'Tres mil días','l']]);
+S_('Constancia','age','flake',t=>'Usá WINTEER durante '+f(t)+' días',[[14,'Dos semanas','c'],[60,'Dos meses juntos','c'],[180,'Medio año','r'],[270,'Nueve meses','r'],[500,'Quinientos días de casa','e'],[1000,'Mil días de WINTEER','l'],[1095,'Tres años juntos','l'],[1460,'Cuatro años juntos','l'],[1825,'Cinco años juntos','l'],[2555,'Siete años juntos','l'],[3650,'Diez años de WINTEER','l']]);
+S_('Exploración','played','compass',t=>'Jugá '+t+' juegos distintos',[[10,'Diez distintos','c'],[50,'Medio centenar de mundos','c'],[100,'Cien mundos','r'],[200,'Doscientos mundos','e'],[500,'Quinientos mundos','l'],[600,'Seiscientos mundos','l'],[750,'Setecientos cincuenta mundos','l'],[1000,'Mil mundos','l']]);
+S_('Diario','rv','diary',t=>'Hacé '+t+' entradas',[[10,'Diez recuerdos','c'],[50,'Medio centenar de entradas','r'],[100,'Cien entradas','r'],[400,'Cuatrocientas entradas','l'],[500,'Quinientas entradas','l'],[750,'Setecientas cincuenta entradas','l'],[1000,'Mil entradas','l']]);
+S_('Diario','txt','edit',t=>'Escribí '+t+' reseñas',[[25,'Veinticinco reseñas','r'],[50,'Medio centenar de reseñas','e'],[150,'Ciento cincuenta reseñas','l'],[200,'Doscientas reseñas','l'],[300,'Trescientas reseñas','l'],[500,'Quinientas reseñas','l']]);
+S_('Diario','words','edit',t=>'Escribí '+f(t)+' palabras en tus reseñas',[[100,'Un párrafo','c'],[1000,'Una página','c'],[10000,'Un capítulo','r'],[100000,'Tesis doctoral','l'],[250000,'Saga literaria','l'],[500000,'Enciclopedia propia','l']]);
+S_('Perfil','lvl','bolt',t=>'Llegá al nivel '+t,[[5,'Quinto escalón','c'],[10,'Nivel 10','c'],[20,'Nivel 20','r'],[30,'Nivel 30','e'],[60,'Nivel 60','l'],[75,'Nivel 75','l'],[90,'Nivel 90','l'],[99,'Casi en la cima','l']]);
+S_('Logros','ach','trophy',t=>'Sumá '+f(t)+' logros de Steam',[[100,'Cien logros','c'],[500,'Quinientos logros','r'],[1000,'Mil logros','e'],[1500,'Mil quinientos logros','e'],[4000,'Cuatro mil logros','l'],[5000,'Cinco mil logros','l'],[7500,'Siete mil quinientos logros','l'],[10000,'Diez mil logros','l']]);
+S_('Logros','hitos','crown',t=>'Desbloqueá '+t+' hitos',[[10,'Diez hitos','c'],[25,'Veinticinco hitos','c'],[50,'Medio centenar de hitos','r'],[250,'Doscientos cincuenta hitos','l'],[300,'Trescientos hitos','l'],[400,'Cuatrocientos hitos','l'],[500,'Quinientos hitos','l'],[600,'Seiscientos hitos','l'],[750,'Setecientos cincuenta hitos','l'],[900,'Novecientos hitos','l'],[1000,'Mil hitos','l']]);
+S_('Logros','pts','crown',t=>'Juntá '+f(t)+' puntos de hitos',[[100,'Cien puntos','c'],[500,'Quinientos puntos','c'],[10000,'Diez mil puntos','l'],[15000,'Quince mil puntos','l'],[20000,'Veinte mil puntos','l'],[30000,'Treinta mil puntos','l'],[40000,'Cuarenta mil puntos','l']]);
+const SE=(k,ic_,fmt,a)=>S_('Secretos',()=>(HC.cnt[k]||0),ic_,fmt,a,1);
+SE('play','play',t=>'Lanzá '+f(t)+' juegos desde WINTEER',[[2500,'Dos mil quinientos lanzamientos','l'],[5000,'Cinco mil lanzamientos','l'],[10000,'Diez mil lanzamientos','l']]);
+SE('roll','flake',t=>'Usá ¿Qué juego hoy? '+t+' veces',[[200,'Fe ciega en el azar','l'],[500,'Dados cargados','l'],[1000,'Mil tiradas','l']]);
+SE('bp','play',t=>'Abrí el Modo consola '+t+' veces',[[250,'Sofá de por vida','l'],[500,'Mando fusionado','l'],[1000,'Mil noches de sofá','l']]);
+SE('shot','img',t=>'Sacá '+t+' capturas de pantalla',[[500,'Museo de capturas','l'],[1000,'Mil recuerdos','l']]);
+SE('theme','flake',t=>'Cambiá de tema '+t+' veces',[[50,'Camaleón','e'],[100,'Decorador compulsivo','l'],[250,'Sin gusto fijo','l']]);
+SE('bk','shield',t=>'Exportá '+t+' copias de seguridad',[[30,'Cinturón y tirantes','l'],[50,'Archivo infinito','l']]);
+SE('set','bolt',t=>'Entrá '+t+' veces a Ajustes',[[300,'Jefe de máquinas','l'],[500,'No puede dejar de tocar','l'],[1000,'Mil ajustes finos','l']]);
+SE('hview','crown',t=>'Mirá tu galería de hitos '+t+' veces',[[250,'Espejito espejito','l'],[500,'Galería permanente','l'],[1000,'Mil miradas','l']]);
+S_('Perfil',()=>CLS().n,'phone',t=>'Hacé '+t+' llamadas',[[10,'Diez llamadas','c'],[250,'Operadora oficial','l'],[500,'Quinientas llamadas','l'],[1000,'Mil llamadas','l']]);
+S_('Perfil',()=>Math.floor(CLS().h),'clock',t=>'Sumá '+t+' h en llamada',[[500,'Mil y una charlas','l'],[1000,'Mil horas de voz','l']]);
+S_('Perfil',()=>Math.floor(CLS().mx*10)/10,'flame',t=>'Tené una llamada de '+t+' h',[[9,'Nueve horas hablando','l'],[12,'Medio día al teléfono','l']]);
+S_('Perfil',()=>CLS().fr,'star',t=>'Llamá a '+t+' amigos distintos',[[15,'Agenda llena','l'],[25,'Central de amigos','l']]);
+/* géneros: horas, juegos y finales */
+const GR=[['RPG','rol'],['Acción','acción'],['Aventura','aventura'],['Indie','indie'],['Estrategia','estrategia'],['Simulación','simulación'],['Deportes','deportes'],['Carreras','carreras'],['Casual','casual']];
+const GN=n=>({hc:()=>(HC.gh||{})[n]||0,cc:()=>(HC.gc||{})[n]||0,dd:()=>(HC.gd||{})[n]||0});
+GR.forEach(([g,w])=>{const q=GN(g),icn={RPG:'shield','Acción':'bolt',Aventura:'compass',Indie:'star',Estrategia:'crown',Simulación:'clock',Deportes:'trophy',Carreras:'bolt',Casual:'play'}[g]||'star';
+ [[10,'Primer contacto con','c'],[100,'Cien horas de','r'],[500,'Devoto de','e'],[1000,'Mil horas de','l'],[2000,'Eterno en','l']].forEach(([t,n,r])=>Hn('xg3h_'+g+t,n+' '+w,'Juntá '+f(t)+' horas en juegos de '+g,icn,r,'Exploración',q.hc,t));
+ [[3,'Probando','c'],[10,'Fan de','c'],[25,'Coleccionista de','r'],[50,'Biblioteca de','e'],[100,'Archivo de','l']].forEach(([t,n,r])=>Hn('xg3c_'+g+t,n+' '+w,'Jugá '+t+' juegos de '+g,icn,r,'Exploración',q.cc,t));
+ [[1,'Primer final de','c'],[3,'Finalista de','r'],[8,'Cierre de','e'],[15,'Completista de','l'],[30,'Leyenda del final de','l']].forEach(([t,n,r])=>Hn('xg3d_'+g+t,n+' '+w,'Completá '+t+' juegos de '+g,icn,r,'Finales',q.dd,t))});
+/* horarios */
+const HH=(k,ic_,pre,names,txt)=>S_('Constancia',k,ic_,t=>'Jugá '+f(t)+' horas '+txt,[10,50,150,400,1000].map((t,i)=>[t,names[i],['c','c','r','e','l'][i]]));
+HH('hn','clock','',['Búho nocturno','Insomne de oficio','Guardián de la madrugada','Vampiro gamer','Señor de la noche eterna'],'entre las 0 y las 6');
+HH('hm','clock','',['Madrugador','Café y joystick','Turno mañana','Sol de la mañana','Amanecer sin fin'],'entre las 6 y las 12');
+HH('ha','clock','',['Siesta activa','Tarde de juegos','Sobremesa jugadora','Turno completo','Tardes interminables'],'entre las 12 y las 19');
+HH('he','clock','',['Prime time','Noches de hielo','Cena y partida','Todas las noches','Rey del horario estelar'],'entre las 19 y las 24');
+HH('hw','cal','',['Finde largo','Sábados de consola','Domingos eternos','Maratón de fines de semana','Rey del finde'],'en fines de semana');
+/* sesiones y récords */
+S_('Constancia','nses','play',t=>'Registrá '+f(t)+' sesiones de juego',[[10,'Diez sesiones','c'],[50,'Cincuenta sesiones','c'],[100,'Cien sesiones','r'],[250,'Doscientas cincuenta sesiones','r'],[500,'Quinientas sesiones','e'],[1000,'Mil sesiones','l'],[1500,'Memoria llena','l']]);
+S_('Horas','maxS','flame',t=>'Jugá '+t+' horas seguidas en una sesión',[[2,'Sesión larga','c'],[4,'Tarde entera','c'],[6,'Media jornada','r'],[8,'Jornada completa','r'],[10,'Diez de corrido','e'],[12,'Medio día pegado','e'],[16,'Sin soltar el mando','l'],[24,'Un día entero','l']]);
+S_('Horas','s3','flame',t=>'Tené '+t+' sesiones de 3 horas o más',[[3,'Tres maratones','c'],[10,'Diez maratones','c'],[25,'Veinticinco maratones','r'],[50,'Cincuenta maratones','e'],[100,'Cien maratones','l'],[250,'Maratonista serial','l']]);
+S_('Horas','mh','clock',t=>'Jugá '+t+' horas en un solo mes',[[20,'Mes tranquilo','c'],[50,'Mes movido','c'],[100,'Mes intenso','r'],[150,'Mes de locos','e'],[250,'Mes imposible','l'],[400,'Mes sin dormir','l']]);
+S_('Horas','dmax','clock',t=>'Jugá '+t+' horas en un solo día',[[2,'Día de juego','c'],[4,'Día largo','c'],[6,'Día de playa digital','r'],[8,'Jornada laboral gamer','r'],[10,'Día sin sol','e'],[12,'Medio día entero','e'],[16,'Día récord','l']]);
+S_('Constancia','d4','cal',t=>'Tené '+t+' días con 4 horas o más',[[3,'Tres días a full','c'],[10,'Diez días a full','c'],[25,'Veinticinco a full','r'],[50,'Cincuenta a full','e'],[100,'Cien a full','l'],[250,'Doscientos cincuenta a full','l']]);
+S_('Constancia','mon','cal',t=>'Jugá en '+t+' meses distintos',[[3,'Un trimestre','c'],[6,'Un semestre','c'],[12,'Un año de meses','r'],[24,'Dos años de meses','e'],[36,'Tres años de meses','l'],[60,'Cinco años de meses','l']]);
+const DW=['Domingos','Lunes','Martes','Miércoles','Jueves','Viernes','Sábados'];
+DW.forEach((n,i)=>[[10,'de calentamiento','c'],[50,'de costumbre','r'],[150,'de leyenda','e']].forEach(([t,s,r])=>Hn('xwd_'+i+'_'+t,n+' '+s,'Jugá '+t+' '+n.toLowerCase(),'cal',r,'Constancia',()=>(HC.wdc||[])[i]||0,t)));
+/* amigos, colecciones y récords de biblioteca */
+S_('Perfil','frn','star',t=>'Tené '+t+(t===1?' amigo':' amigos')+' en WINTEER',[[1,'Primer amigo','c'],[2,'Dúo dinámico','c'],[3,'Trío de hielo','c'],[5,'Mesa de cinco','r'],[8,'Equipo completo','r'],[12,'Docena de amigos','e'],[20,'Pandilla enorme','l']]);
+S_('Horas','g25','clock',t=>'Tené '+t+' juegos con más de 25 horas',[[1,'Primer enganche','c'],[3,'Tres enganches','c'],[5,'Cinco enganches','r'],[10,'Diez enganches','r'],[20,'Veinte enganches','e'],[40,'Cuarenta enganches','l'],[75,'Setenta y cinco enganches','l']]);
+S_('Horas','g200','crown',t=>'Tené '+t+' juegos con más de 200 horas',[[1,'Doscientas en uno','e'],[2,'Dos pesos pesados','e'],[3,'Tres pesos pesados','l'],[5,'Cinco pesos pesados','l'],[8,'Ocho pesos pesados','l']]);
+S_('Horas','h50c','clock',t=>'Tené '+t+' juegos con más de 50 horas',[[20,'Veinte fieles','e'],[40,'Cuarenta fieles','l'],[75,'Setenta y cinco fieles','l'],[100,'Cien fieles','l']]);
+S_('Horas','h10c','clock',t=>'Tené '+t+' juegos con más de 10 horas',[[60,'Sesenta sesiones largas','e'],[100,'Cien sesiones largas','l'],[150,'Ciento cincuenta largas','l'],[250,'Doscientas cincuenta largas','l']]);
+S_('Horas','big','flame',t=>'Tené '+t+' juegos con más de 100 horas',[[5,'Cinco centenarios','e'],[8,'Ocho centenarios','l'],[12,'Docena de centenarios','l'],[20,'Veinte centenarios','l']]);
+S_('Biblioteca','dropped','lock',t=>'Tené '+t+' juegos abandonados con horas',[[3,'Se me fue la mano','c'],[10,'Cementerio chico','c'],[25,'Cementerio mediano','r'],[50,'Cementerio grande','e'],[100,'Necrópolis de juegos','l']]);
+S_('Biblioteca','backlog','lock',t=>'Tené '+f(t)+' juegos sin empezar',[[5,'Cinco pendientes','c'],[10,'Diez pendientes','c'],[25,'Veinticinco pendientes','c'],[300,'Pila de trescientos','r'],[500,'Pila de quinientos','e'],[800,'Montaña sin escalar','l']]);
+S_('Biblioteca','inst','check',t=>'Tené '+t+' juegos instalados',[[100,'Disco repleto','e'],[150,'Disco al límite','l'],[250,'Servidor personal','l'],[400,'Centro de datos','l']]);
+S_('Biblioteca','wl','plus',t=>'Sumá '+t+' juegos a Quiero jugar',[[25,'Lista creciente','c'],[50,'Lista larga','r'],[100,'Lista infinita','e'],[200,'Lista imposible','l'],[500,'Deseos sin fin','l']]);
+S_('Biblioteca','lists','diary',t=>'Creá '+t+' listas',[[20,'Veinte listas','e'],[30,'Treinta listas','l'],[50,'Cincuenta listas','l']]);
+S_('Biblioteca','exe','bolt',t=>'Agregá '+t+' juegos por .exe',[[5,'Cinco por la ventana','r'],[10,'Diez por la ventana','e'],[25,'Veinticinco por la ventana','l'],[50,'Cincuenta por la ventana','l']]);
+S_('Finales','aurora','bolt',t=>'Tené '+t+' juegos en rango Aurora o más',[[10,'Diez auroras','e'],[20,'Veinte auroras','l'],[35,'Treinta y cinco auroras','l'],[60,'Sesenta auroras','l']]);
+S_('Diario','five','star',t=>'Dale 5 estrellas a '+t+' juegos',[[10,'Diez joyas','e'],[25,'Veinticinco joyas','e'],[50,'Cincuenta joyas','l'],[100,'Cien joyas','l'],[200,'Doscientas joyas','l']]);
+S_('Diario','liked','star',t=>'Marcá '+t+' entradas con ♥',[[10,'Corazón en llamas','c'],[25,'Corazón enorme','r'],[50,'Medio centenar de ♥','e'],[100,'Cien ♥','l'],[250,'Corazón de hielo','l']]);
+S_('Diario','replay','play',t=>'Anotá '+t+' partidas como rejugadas',[[50,'Rejugador serial','e'],[100,'Cien rejugadas','l'],[200,'Doscientas rejugadas','l']]);
+S_('Diario','shots','img',t=>'Adjuntá '+t+' capturas a tus entradas',[[50,'Álbum mediano','r'],[100,'Cien capturas','e'],[250,'Doscientas cincuenta capturas','l'],[500,'Quinientas capturas','l']]);
+S_('Diario','rated','star',t=>'Calificá '+t+' juegos',[[100,'Cien calificados','e'],[200,'Doscientos calificados','l'],[350,'Trescientos cincuenta calificados','l'],[500,'Quinientos calificados','l']]);
+S_('Diario','low','star',t=>'Dale 1.5 estrellas o menos a '+t+' juegos',[[10,'Crítico severo','e'],[25,'Crítico implacable','l'],[50,'Crítico sin piedad','l']]);
+S_('Exploración','indie','compass',t=>'Jugá '+t+' juegos indie',[[100,'Cien indies','l'],[150,'Ciento cincuenta indies','l'],[250,'Doscientos cincuenta indies','l']]);
+S_('Finales','long','trophy',t=>'Completá '+t+' juegos de 40 horas o más',[[10,'Diez épicos','r'],[20,'Veinte épicos','e'],[35,'Treinta y cinco épicos','l'],[50,'Cincuenta épicos','l']]);
+S_('Finales','short','trophy',t=>'Completá '+t+' juegos cortos (hasta 5 horas)',[[25,'Veinticinco cortos','r'],[50,'Cincuenta cortos','e'],[100,'Cien cortos','l']]);
+S_('Finales','monthMax','flame',t=>'Completá '+t+' juegos en un mismo mes',[[9,'Mes de récord','l'],[10,'Diez en un mes','l'],[12,'Doce en un mes','l']]);
+S_('Perfil','edit','edit',t=>'Editá tu perfil '+t+' veces',[[25,'Retoque constante','r'],[50,'Perfil en obra','e'],[100,'Perfil perfecto','l']]);
+S_('Exploración','gv50','compass',t=>'Tené '+t+' géneros con 50 horas o más',[[2,'Doble vida','c'],[3,'Tres frentes','c'],[4,'Cuatro puntos cardinales','r'],[5,'Mano abierta','r'],[6,'Media docena de gustos','e'],[7,'Siete mares','e'],[8,'Ocho caminos','l'],[9,'Sin género favorito','l']]);
+S_('Exploración','gv250','compass',t=>'Tené '+t+' géneros con 250 horas o más',[[2,'Dos pasiones','r'],[3,'Tres pasiones','e'],[4,'Cuatro pasiones','l'],[5,'Cinco pasiones','l'],[6,'Seis pasiones','l']]);
+S_('Exploración','gv1000','compass',t=>'Tené '+t+(t===1?' género con 1.000 horas o más':' géneros con 1.000 horas o más'),[[1,'Especialista','e'],[2,'Doble especialista','l'],[3,'Triple especialista','l']]);
+S_('Finales','gvd','crown',t=>'Completá juegos de '+t+' géneros distintos',[[2,'Final doble','c'],[3,'Final triple','c'],[4,'Cuatro estilos de final','r'],[5,'Cinco estilos de final','r'],[6,'Seis estilos de final','e'],[7,'Siete estilos de final','e'],[8,'Ocho estilos de final','l'],[9,'Todos los estilos de final','l']]);
+S_('Finales','comp','trophy',t=>'Completá el '+t+'% de los juegos que jugaste (mínimo 20 jugados)',[[10,'Uno de cada diez','c'],[25,'Uno de cada cuatro','c'],[40,'Cuatro de cada diez','r'],[50,'La mitad','r'],[60,'Más de la mitad','e'],[75,'Tres de cada cuatro','e'],[90,'Casi todo terminado','l'],[100,'Todo terminado','l']]);
+S_('Exploración','lp','compass',t=>'Jugá el '+t+'% de tu biblioteca (mínimo 50 juegos)',[[10,'Probé un poco','c'],[25,'Un cuarto jugado','c'],[50,'Mitad jugada','r'],[75,'Casi toda jugada','e'],[90,'Biblioteca gastada','l'],[100,'Sin juegos vírgenes','l']]);
+S_('Constancia','hwd','clock',t=>'Jugá '+f(t)+' horas en días de semana',[[50,'Entre semana','c'],[200,'Laburo y juego','r'],[500,'Oficina gamer','e'],[1000,'Turno doble','l'],[2500,'Lunes a viernes eternos','l']]);
+S_('Constancia','nsd','play',t=>'Tené '+t+' sesiones de juego en un mismo día',[[2,'Doble turno','c'],[3,'Tres turnos','r'],[5,'Cinco turnos','e'],[8,'Entra y sale sin parar','l']]);
+S_('Exploración','gday','compass',t=>'Jugá '+t+' juegos distintos en un mismo día',[[2,'Zapping','c'],[3,'Tres canales','r'],[4,'Cuatro canales','e'],[5,'Picoteo total','e'],[6,'Menú degustación','l']]);
+S_('Exploración','gmon','compass',t=>'Jugá '+t+' juegos distintos en un mismo mes',[[5,'Mes variado','c'],[10,'Mes de picoteo','r'],[15,'Mes sin rumbo','e'],[25,'Mes de feria','l']]);
+/* metahitos: completar categorías y rarezas */
+const NOM=a=>!String(a[0]).startsWith('xm_');
+const catPct=c=>{const L=GA.filter(a=>a[6]===c&&NOM(a));return L.length?L.filter(a=>(ST.gach||{})[a[0]]).length/L.length:0};
+HCATS.forEach(c=>[[.5,'Mitad de '+c,'e','la mitad'],[1,c+' completa','l','todos']].forEach(([p,n,r,w])=>Hn('xm_cat_'+c+p,n,'Desbloqueá '+w+' los hitos de '+c,'crown',r,'Logros',()=>catPct(c)>=p?1:0,1)));
+const rarPct=r=>{const L=GA.filter(a=>a[4]===r&&NOM(a));return L.length?L.filter(a=>(ST.gach||{})[a[0]]).length/L.length:0};
+[['c','Comunes','comunes'],['r','Raros','raros'],['e','Épicos','épicos'],['l','Legendarios','legendarios']].forEach(([r,n,w])=>{Hn('xm_rar_'+r+'5','Medio '+n.toLowerCase(),'Desbloqueá la mitad de los hitos '+w,'trophy',r==='c'?'r':'e','Logros',()=>rarPct(r)>=.5?1:0,1);Hn('xm_rar_'+r+'10','Todos los '+n.toLowerCase(),'Desbloqueá todos los hitos '+w,'crown','l','Logros',()=>rarPct(r)>=1?1:0,1)});
+window.HADD=()=>ADD;
+}
 /* ===== hitos difíciles (v2) ===== */
 (function(){
 const f=n=>n.toLocaleString('es-AR');
@@ -7899,10 +8012,10 @@ Z('Secretos',()=>(HC.cnt.set||0),'bolt',t=>'Entrá '+t+' veces a Ajustes',[[300,
 Z('Secretos',()=>(HC.cnt.hview||0),'crown',t=>'Mirá tu galería de hitos '+t+' veces',[[250,'Museo personal','l'],[500,'Residente de la galería','l']],1);
 })();
 function hitoPts(){return GA.filter(a=>(ST.gach||{})[a[0]]).reduce((s,a)=>s+HPTS[a[4]],0)}
-function hitoCheck(){hcCalc();const first=!ST.gach,silent=first||ST.hv!==3;ST.gach=ST.gach||{};let n=0;
+function hitoCheck(){hcCalc();const first=!ST.gach,silent=first||ST.hv!==4;ST.gach=ST.gach||{};let n=0;
   for(let pass=0;pass<3;pass++){HC.hitos=GA.filter(a=>ST.gach[a[0]]).length;HC.pts=hitoPts();
     for(const a of GA){if(!ST.gach[a[0]]&&a[5]()){ST.gach[a[0]]=Date.now();n++;if(!silent)hitoQ.push(a)}}}
-  if(ST.hv!==3)ST.hv=3;if(hitoQ.length)hitoRun()}
+  if(ST.hv!==4)ST.hv=4;if(hitoQ.length)hitoRun()}
 const hitoQ=[];let hitoBusy=false;
 function hitoRun(){if(hitoBusy||!hitoQ.length)return;const sp=$('#splash');if((sp&&sp.isConnected&&getComputedStyle(sp).display!=='none'&&getComputedStyle(sp).opacity!=='0')||document.hidden){setTimeout(hitoRun,900);return}
   hitoBusy=true;const a=hitoQ.shift();hitoShow(a,()=>{hitoBusy=false;setTimeout(hitoRun,350)})}
