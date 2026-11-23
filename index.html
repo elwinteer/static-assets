@@ -3432,6 +3432,9 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 @keyframes vin{0%{opacity:0}12%{opacity:1}80%{opacity:1}100%{opacity:0}}
 @keyframes vdr{to{stroke-dashoffset:0}}@keyframes vsp{to{transform:rotate(360deg)}}@keyframes vfi{to{opacity:1}}
 @keyframes vdoor{to{transform:scaleX(0)}}
+.vh{--star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.2l-1.5-1.3C5.4 15.300 2 12.300 2 8.600 2 5.700 4.300 3.500 7 3.500c1.600 0 3.100.8 4.100 2h1.800c1-1.200 2.500-2 4.100-2 2.700 0 5 2.200 5 5.100 0 3.700-3.400 6.700-8.500 11.300z'/%3E%3C/svg%3E")}
+.vh .rts b,.vh .rin .rst{background:linear-gradient(90deg,#ff5d8f calc(var(--f)*100%),rgba(255,255,255,.2) calc(var(--f)*100%))!important}
+.vh .vsc button.on{background:linear-gradient(135deg,#ff5d8f,#ffb36b);color:#2a0a18}
 .vfx .gl.panel{height:auto!important;max-height:none!important;overflow:visible!important}.vbar{display:flex!important;gap:6px!important}.vbt{flex:1;height:44px!important;border-radius:14px!important}.vbt:last-child{grid-column:auto!important}.vbt.on{background:rgba(170,130,255,.25);border-color:rgba(190,160,255,.6)}.vflt{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.vflt button{flex:none}
 .vmeta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
 .vmeta .vc{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:99px;font:600 12px system-ui;background:rgba(160,120,255,.14);border:1px solid rgba(190,160,255,.32);color:#e6dcff}
@@ -7147,6 +7150,7 @@ const rvT=v=>v>0?String(v).replace('.0',''):'—',ymd=t=>{const d=new Date(t);re
 const MNL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const ASP=[['story','Historia'],['play','Jugabilidad'],['vis','Apartado visual'],['aud','Sonido y música'],['pace','Ritmo']];
 const RTAGS=['Obra maestra','Joya oculta','Sobrevalorado','Decepción','Relajante','Difícil','Corto y bueno','Muy largo','Con amigos','Para la noche','Nostalgia','Rejugable','Mejor con mando','Me hizo llorar','Adictivo','Atmósfera'];
+const ASPV=[['story','Historia'],['art','Arte'],['anim','Animaciones'],['char','Personajes'],['scene','Escenas'],['hot','Nivel de picante']],RTAGSV=['Joya oculta','Muy picante','Buena historia','Solo por las escenas','Arte hermoso','Animaciones top','Personajes carismáticos','Mucho grind','Con bugs','Dev abandonó','Final satisfactorio','Corto y bueno','Adictivo','Vainilla','Decepción','Rejugable'];
 const RPLAT=['PC','Steam Deck','Consola','Portátil'];
 const rinH=(k,v,big)=>`<span class="rin ${big?'big':''}" id="rin-${k||'main'}">${[1,2,3,4,5].map(i=>`<span class="rst" style="--f:${Math.max(0,Math.min(1,v-(i-1)))}"><u data-a="rvr" data-k="${k}" data-v="${i-.5}"></u><u data-a="rvr" data-k="${k}" data-v="${i}"></u>★</span>`).join('')}<em>${rvT(v)}</em></span>`;
 const imgBox=u=>{const d=document.createElement('div');d.className='shlb';d.innerHTML=`<div class="shlbb" data-a="shclose"></div><img src="${u}" alt=""><div class="shbar"><i></i><button data-a="shclose">✕</button></div>`;document.body.appendChild(d)};
@@ -7162,7 +7166,7 @@ function rvEdit(gid,id){const e=id?rvGetX(id):null;
   RE=e?{...JSON.parse(JSON.stringify(e)),shots:(e.files||[]).map(k=>({key:k,url:ART[k]}))}:{id:null,gid:gid||'',ts:Date.now(),rate:0,head:'',text:'',spoil:false,tags:[],replay:false,liked:false,done:false,plat:'',asp:{},shots:[]};
   if(!e&&RE.gid){const g=gmX(RE.gid);if(g&&rvOfX(g.id).length)RE.replay=false}
   RE.pick=!RE.gid;RE.q='';RE.cap=false;
-  modal('','rve');const m=lastModal();m.classList.add('rvm');rvDraw()}
+  modal('','rve');const m=lastModal();m.classList.add('rvm');if(VW())m.classList.add('vh');rvDraw()}
 function rvDraw(){const mb=$('.rvm .mb');if(!mb||!RE)return;const g=gmX(RE.gid);
   if(RE.pick||!g){mb.innerHTML=`<div class="rv-pk"><h2>¿Qué juego vas a anotar?</h2><p class="ob-sub">Elegí uno de ${VW()?'tu Bóveda':'tu biblioteca'}.</p><input class="txt" id="rv-q" placeholder="Buscar juego…" value="${esc(RE.q)}" style="width:100%;box-sizing:border-box"><div id="rv-l" class="ob-gl" style="max-height:52vh"></div><div class="rv-ft"><button class="hm-go hm-gh" data-a="rvx">Cancelar</button></div></div>`;rvPkList();return}
   const gen=genresOf(g).slice(0,3);
@@ -7172,12 +7176,12 @@ function rvDraw(){const mb=$('.rvm .mb');if(!mb||!RE)return;const g=gmX(RE.gid);
     <div class="rv-tg">${[['liked','Me gustó'],['replay','Rejugado'],['done','Lo terminé']].map(([k,l])=>`<button class="cp ${RE[k]?'on':''}" data-a="rvtog" data-k="${k}">${k==='liked'?'♥ ':''}${l}</button>`).join('')}</div>
     <label class="ob-l">Fecha</label><input type="date" class="txt" id="rv-d" value="${ymd(RE.ts)}" style="width:100%;box-sizing:border-box">
     <label class="ob-l">Jugado en</label><div class="chips">${RPLAT.map(p=>`<button class="cp ${RE.plat===p?'on':''}" data-a="rvplat" data-v="${p}">${p}</button>`).join('')}</div>
-    <label class="ob-l">Aspectos <small>(opcional)</small></label><div class="rv-as">${ASP.map(([k,l])=>`<div><span>${l}</span>${rinH(k,RE.asp[k]||0)}</div>`).join('')}</div>
+    <label class="ob-l">Aspectos <small>(opcional)</small></label><div class="rv-as">${(VW()?ASPV:ASP).map(([k,l])=>`<div><span>${l}</span>${rinH(k,RE.asp[k]||0)}</div>`).join('')}</div>
   </div><div class="rv-r">
     <input class="txt" id="rv-h" maxlength="70" placeholder="Titular (opcional): una frase que lo resuma" value="${esc(RE.head)}" style="width:100%;box-sizing:border-box;font-weight:600">
     <textarea class="txt" id="rv-tx" rows="8" placeholder="¿Qué te pareció? Escribí lo que quieras recordar: qué te gustó, qué no, cómo la pasaste." style="width:100%;box-sizing:border-box;resize:vertical;margin-top:10px;font-family:inherit">${esc(RE.text)}</textarea>
     <div class="rv-sp"><button class="cp ${RE.spoil?'on':''}" data-a="rvtog" data-k="spoil">Contiene spoilers</button><small id="rv-c">${RE.text.length} caracteres</small></div>
-    <label class="ob-l">Etiquetas</label><div class="chips">${[...new Set([...RTAGS,...RE.tags])].map(t=>`<button class="cp ${RE.tags.includes(t)?'on':''}" data-a="rvtag" data-v="${esc(t)}">${esc(t)}</button>`).join('')}<input class="txt" id="rv-tg" placeholder="+ otra etiqueta" maxlength="24" style="width:150px"></div>
+    <label class="ob-l">Etiquetas</label><div class="chips">${[...new Set([...(VW()?RTAGSV:RTAGS),...RE.tags])].map(t=>`<button class="cp ${RE.tags.includes(t)?'on':''}" data-a="rvtag" data-v="${esc(t)}">${esc(t)}</button>`).join('')}<input class="txt" id="rv-tg" placeholder="+ otra etiqueta" maxlength="24" style="width:150px"></div>
     <label class="ob-l">Capturas <small>(hasta 8)</small></label><div class="rv-sh" id="rv-sh">${rvShotsH()}</div>
     <div class="ob-btns"><button class="hm-go hm-gh" data-a="rvup">${ic('img')} Subir imagen</button>${WN?`<button class="hm-go hm-gh ${RE.cap?'on':''}" data-a="rvcap">${ic('games')} Mis capturas</button>`:''}</div><div id="rv-cap"></div>
   </div></div>
@@ -7205,17 +7209,17 @@ function rvRefresh(){if(VW()){vList();if(S.vst==='dy')vDetail(false);else if(S.v
 
 /* ---- ver entrada ---- */
 function rvView(id){const r=rvGetX(id),g=r&&gmX(r.gid);if(!g)return;$$('.rvdm').forEach(m=>m.remove());
-  const oth=rvOfX(g.id).filter(x=>x.id!==id),as=ASP.filter(([k])=>r.asp&&r.asp[k]>0);
+  const oth=rvOfX(g.id).filter(x=>x.id!==id),as=(VW()?ASPV:ASP).filter(([k])=>r.asp&&r.asp[k]>0);
   modal(`<div class="rv-hd"><img class="bgi" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""><div class="rv-t"><div class="rv-po" ${VW()?'':`data-a="rvopen" data-id="${g.id}"`}>${gPoster(g)}</div><div class="rv-ti"><small>${new Date(r.ts).toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</small><h2>${esc(g.name)}</h2><div class="rv-st">${starsHTML(r.rate)}<b>${rvT(r.rate)}</b>${r.liked?'<span class="rv-hrt">♥</span>':''}</div><div class="pf-chips">${r.replay?'<span class="pf-ch t">Rejugado</span>':''}${r.done?'<span class="pf-ch t">Terminado</span>':''}${r.plat?`<span class="pf-ch">${esc(r.plat)}</span>`:''}${(r.tags||[]).map(t=>`<span class="pf-ch">${esc(t)}</span>`).join('')}</div></div><button class="rv-xb" data-a="close">✕</button></div></div>
   <div class="rv-vb">${r.head?`<h3 class="rv-hl">${esc(r.head)}</h3>`:''}${r.text?(r.spoil?`<div class="rv-spw"><div class="rv-sx" id="rv-sx">${esc(r.text)}</div><button class="hm-go hm-gh" data-a="rvsp">Mostrar spoilers</button></div>`:`<p class="rv-tx">${esc(r.text)}</p>`):(r.head?'':'<p class="sub0">Solo calificación, sin texto.</p>')}
    ${as.length?`<div class="rv-asv">${as.map(([k,l])=>`<div><span>${l}</span>${starsHTML(r.asp[k])}</div>`).join('')}</div>`:''}
    ${(r.files||[]).length?`<div class="rv-gal">${r.files.map(k=>ART[k]?`<img src="${ART[k]}" data-a="rvimg" data-u="${k}" alt="">`:'').join('')}</div>`:''}
    ${oth.length?`<div class="lbl" style="margin-top:18px">Otras entradas de este juego</div>${oth.map(x=>`<div class="mn" data-a="rvview" data-id="${x.id}"><div><b>${starsHTML(x.rate)} ${rvT(x.rate)}</b><small>${new Date(x.ts).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'})}${x.replay?' · Rejugado':''}</small></div></div>`).join('')}`:''}
-  </div><div class="rv-ft">${VW()?'':`<button class="hm-go hm-gh" data-a="rvshare" data-id="${r.id}">${ic('img')} Compartir imagen</button>`}<span style="flex:1"></span><button class="hm-go hm-gh" data-a="rvdel" data-id="${r.id}">Eliminar</button><button class="hm-go" data-a="rvedit" data-id="${r.id}">${ic('edit')} Editar</button></div>`,'rve rvd');
-  lastModal().classList.add('rvdm')}
+  </div><div class="rv-ft"><button class="hm-go hm-gh" data-a="rvshare" data-id="${r.id}">${ic('img')} Compartir imagen</button><span style="flex:1"></span><button class="hm-go hm-gh" data-a="rvdel" data-id="${r.id}">Eliminar</button><button class="hm-go" data-a="rvedit" data-id="${r.id}">${ic('edit')} Editar</button></div>`,'rve rvd');
+  lastModal().classList.add('rvdm');if(VW())lastModal().classList.add('vh')}
 
 /* ---- tarjeta para compartir ---- */
-async function rvShare(id){const r=rvGet(id),g=r&&gm(r.gid);if(!g)return;toast('Armando la imagen…');
+async function rvShare(id){const r=rvGetX(id),g=r&&gmX(r.gid);if(!g)return;toast('Armando la imagen…');
   const p=PR()||{name:UN(),handle:hnd(UN()),av:{k:'letter',c:0}};
   const build=async safe=>{const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
     const ld=u=>new Promise(res=>{if(!u)return res(null);const i=new Image();if(!/^(blob|data):/.test(u))i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=()=>res(null);i.src=u});
@@ -11792,16 +11796,16 @@ function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq
   const arr=[...L.g].filter(g=>g.name.toLowerCase().includes(q)&&(!S.vf||(S.vf==='u'?vUpd(g):S.vf==='f'?!!g.fav:1))).sort((a,b)=>a.name.localeCompare(b.name));
   const fl=$('#vflt');if(fl)fl.innerHTML=[['','Todos'],['f','Favoritos'],...(L.g.some(vUpd)?[['u','Novedades']]:[])].map(([k,l])=>`<button class="${(S.vf||'')===k?'on':''}" data-a="vflt" data-id="${k}">${l}</button>`).join('');
   e.innerHTML=arr.length?arr.map(g=>{const run=S.vplay&&S.vplay.id===g.id,t=run?'Jugando':stOf(g);
-    return `<div class="it ${g.id===S.vsel?'sel':''} ${g.status==='Terminado'?'done':''}" data-a="vsel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em>':''}${esc(g.name)}</b></div>${vUpd(g)?'<span class="vb" title="Nueva versión">Nueva</span>':''}${g.vp?`<span class="vs2">${'★'.repeat(g.vp)}</span>`:''}${t==='Jugando'?'<i class="sdt g"></i>':t==='Pausado'?'<i class="sdt b"></i>':''}</div>`}).join(''):`<p style="color:var(--muted);padding:14px;font-size:13px">${L.g.length?'Sin resultados':'Todavía no hay nada. Con el botón de la flecha movés un juego desde tu biblioteca.'}</p>`;
+    return `<div class="it ${g.id===S.vsel?'sel':''} ${g.status==='Terminado'?'done':''}" data-a="vsel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em>':''}${esc(g.name)}</b></div>${vUpd(g)?'<span class="vb" title="Nueva versión">Nueva</span>':''}${g.vp?`<span class="vs2" style="color:#ff7aa2">${'♥'.repeat(g.vp)}</span>`:''}${t==='Jugando'?'<i class="sdt g"></i>':t==='Pausado'?'<i class="sdt b"></i>':''}</div>`}).join(''):`<p style="color:var(--muted);padding:14px;font-size:13px">${L.g.length?'Sin resultados':'Todavía no hay nada. Con el botón de la flecha movés un juego desde tu biblioteca.'}</p>`;
   const c=$('#vcnt');if(c)c.textContent=arr.length+(arr.length===1?' juego':' juegos')}
 function vRender(){if(S.view!=='vault'||!S.vu)return;if(S.vweb){const w=$('#vwv'),u=$('#vwu');if(w&&u&&!w._w){w._w=1;const f=()=>{try{u.textContent=w.getURL().replace(/^https?:\/\//,'')}catch(e){}};['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>w.addEventListener(e,f));['did-navigate','did-navigate-in-page','did-start-loading','focus'].forEach(e=>w.addEventListener(e,()=>{S.vlast=Date.now()}))}return}const L=vL();if(!L)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
   vList();vDetail(true);const i=$('#vlq');if(i&&!i._v){i._v=1;i.addEventListener('input',e=>{S.vq=e.target.value;vList()})}}
 function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
   $$('.vbar .vbt').forEach(b=>b.classList.toggle('on',(b.dataset.a==='vdiary'&&S.vst==='dy')||(b.dataset.a==='vstats'&&S.vst==='st')));
-  if(S.vst){d.className='detail';d.innerHTML=S.vst==='dy'?vDiaryHTML():vStatsHTML();return}
+  if(S.vst){d.className='detail vh';d.innerHTML=S.vst==='dy'?vDiaryHTML():vStatsHTML();return}
   if(!g){d.className='detail';d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
   sgdb(g);setTimeout(amb,50);const run=S.vplay&&S.vplay.id===g.id,L=vL(),ns=L.ses.filter(s=>s.g===g.id).length;
-  d.className='detail vfx'+(g.status==='Terminado'?' done':'');
+  d.className='detail vfx vh'+(g.status==='Terminado'?' done':'');
   d.innerHTML=`<div class="dbg"><img class="blur" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
   <div class="media"><img style="${kbd()}" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""></div>
   <div class="dc ${swap?'swap':''}"><div class="dtop"><button class="chip btn2" data-a="vedit" data-id="${g.id}">${ic('edit')} Editar</button><button class="chip btn2" data-a="vout" data-id="${g.id}">Sacar de la Bóveda</button></div>
@@ -11809,7 +11813,7 @@ function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
   <div class="tool"><button class="play ${run?'run':''}" data-a="vplay" data-id="${g.id}">${ic(run?'stop':'play')}<span>${run?'Detener':(!canPlay(g)?'Instalar en Steam':'Jugar')}</span></button>
    <div class="info">${ic('clock')}<div><small>Tiempo jugado</small><b>${fh(g.hours)}</b></div></div>
    <div class="info">${ic('cal')}<div><small>Última vez</small><b>${g.last||'—'}</b></div></div>
-   <button class="info infb" data-a="vdone" data-id="${g.id}" title="${g.status==='Terminado'?'Quitar completado':'Marcar como completado'}">${ic('check')}<div><small>Estado</small><b>${run?'Jugando':stOf(g)}</b></div></button>${g.vp?`<div class="info">${ic('star')}<div><small>Mi nota</small><b style="color:#ffd66b;letter-spacing:2px">${'★'.repeat(g.vp)}</b></div></div>`:''}
+   <button class="info infb" data-a="vdone" data-id="${g.id}" title="${g.status==='Terminado'?'Quitar completado':'Marcar como completado'}">${ic('check')}<div><small>Estado</small><b>${run?'Jugando':stOf(g)}</b></div></button>${g.vp?`<div class="info">${ic('star')}<div><small>Mi nota</small><b style="color:#ff7aa2;letter-spacing:2px">${'♥'.repeat(g.vp)}</b></div></div>`:''}
    <div class="info">${ic('hash')}<div><small>Sesiones</small><b>${ns}</b></div></div></div>
   <div class="vmeta">${vUpd(g)?`<span class="vc up">Nueva versión: ${esc(g.vlat)}</span>`:''}</div>
   <div class="gl panel"><div class="tabs"></div><div id="vtabc"></div></div></div>`;vTab()}
@@ -11867,7 +11871,7 @@ function vTab(){const g=vG(S.vsel),el=$('#vtabc');if(!g||!el)return;
   else if(S.vtab==='ach'){h=vggHTML(g)}
   else if(S.vtab==='shots'){h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> ${XO&&XO.st&&XO.st.inst&&XO.st.on?'para empezar y cortar un clip (dura lo que quieras)':'para un clip de 10 segundos'}, mientras jugás desde acá.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="vshg"><div class="hint2">Cargando…</div></div>`;shFill(g.id)}
   else{const L=vL(),ss=L.ses.filter(s=>s.g===g.id).slice(-8).reverse();
-    h=`<div class="two"><div><div class="lbl">Mi nota</div><div class="vsc">${[1,2,3,4,5].map(n=>`<button class="${g.vp>=n?'on':''}" data-a="vsc" data-id="${g.id}" data-v="${n}">★</button>`).join('')}</div>
+    h=`<div class="two"><div><div class="lbl">Mi nota</div><div class="vsc">${[1,2,3,4,5].map(n=>`<button class="${g.vp>=n?'on':''}" data-a="vsc" data-id="${g.id}" data-v="${n}">♥</button>`).join('')}</div>
     ${g.vth?`<div class="lbl" style="margin-top:16px">Versión</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input class="txt" id="vver" value="${esc(g.ver||'')}" style="width:120px"><small style="opacity:.7">${g.vlat?'Última: '+esc(g.vlat):''}</small>${vUpd(g)?`<button class="b2 sm" data-a="vvok" data-id="${g.id}">Ya actualicé</button>`:`<button class="b2 g sm" data-a="vvchk" data-id="${g.id}">Buscar</button>`}</div>`:''}
     <div class="nt" style="margin-top:16px"><div class="lbl">Notas</div><textarea id="vnotes" rows="5" placeholder="Algo que quieras recordar…">${esc(g.notes||'')}</textarea></div></div>
     <div><div class="lbl">Últimas sesiones</div>${ss.length?ss.map(s=>`<div class="info" style="margin-bottom:8px"><div><small>${new Date(s.s).toLocaleString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</small><b>${fh(s.h)}</b></div></div>`).join(''):'<p class="hint2">Todavía no hay sesiones.</p>'}</div></div>`}
