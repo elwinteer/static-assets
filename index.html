@@ -8012,7 +8012,7 @@ HH('hw','cal','',['Finde largo','Sábados de consola','Domingos eternos','Marat�
 S_('Constancia','nses','play',t=>'Registrá '+f(t)+' sesiones de juego',[[10,'Diez sesiones','c'],[50,'Cincuenta sesiones','c'],[100,'Cien sesiones','r'],[250,'Doscientas cincuenta sesiones','r'],[500,'Quinientas sesiones','e'],[1000,'Mil sesiones','l'],[1500,'Memoria llena','l']]);
 S_('Horas','maxS','flame',t=>'Jugá '+t+' horas seguidas en una sesión',[[2,'Sesión larga','c'],[4,'Tarde entera','c'],[6,'Media jornada','r'],[8,'Jornada completa','r'],[10,'Diez de corrido','e']]);
 S_('Horas','s3','flame',t=>'Tené '+t+' sesiones de 3 horas o más',[[3,'Tres maratones','c'],[10,'Diez maratones','c'],[25,'Veinticinco maratones','r'],[50,'Cincuenta maratones','e'],[100,'Cien maratones','l'],[250,'Maratonista serial','l']]);
-S_('Horas','mh','clock',t=>'Jugá '+t+' horas en un solo mes',[[20,'Mes tranquilo','c'],[50,'Mes movido','c'],[100,'Mes intenso','r'],[150,'Mes de locos','e']]);
+S_('Horas','mh','clock',t=>'Jugá '+t+' horas en un solo mes',[[20,'Mes tranquilo','c'],[35,'Mes movido','c'],[50,'Mes intenso','r'],[75,'Mes de fuego','e']]);
 S_('Horas','dmax','clock',t=>'Jugá '+t+' horas en un solo día',[[2,'Día de juego','c'],[4,'Día largo','c'],[6,'Día de playa digital','r'],[8,'Jornada laboral gamer','r'],[10,'Día sin sol','e'],[12,'Medio día entero','e']]);
 S_('Constancia','d4','cal',t=>'Tené '+t+' días con 4 horas o más',[[3,'Tres días a full','c'],[10,'Diez días a full','c'],[25,'Veinticinco a full','r'],[50,'Cincuenta a full','e'],[100,'Cien a full','l'],[250,'Doscientos cincuenta a full','l']]);
 S_('Constancia','mon','cal',t=>'Jugá en '+t+' meses distintos',[[3,'Un trimestre','c'],[6,'Un semestre','c'],[12,'Un año de meses','r'],[24,'Dos años de meses','e'],[36,'Tres años de meses','l'],[60,'Cinco años de meses','l']]);
@@ -8116,7 +8116,7 @@ Z('Secretos',()=>(HC.cnt.hview||0),'crown',t=>'Mirá tu galería de hitos '+t+' 
 })();
 /* ---------- MÍTICOS: 500 puntos, los más difíciles ---------- */
 [['xmi_ses12','Doce horas sin soltar','Jugá 12 horas seguidas en una sola sesión','flame','maxS',12],
-  ['xmi_mes250','Mes sin sol','Jugá 250 horas en un solo mes','clock','mh',250],
+  ['xmi_mes250','Mes sin sol','Jugá 100 horas en un solo mes','clock','mh',100],
  ['xmi_yr1000','Mil horas en un año','Jugá 1.000 horas en un mismo año','crown','yh',1000]].forEach(([id,n,d,i,k,t])=>H(id,n,d,i,'m','Míticos',k,t));
 ['Un año sin parar','Dos años de racha','Un final por día y medio','Triple especialista','Diez mil horas','Mil días de WINTEER','Leyenda del hielo'].forEach(n=>{const a=GA.find(x=>x[1]===n&&x[4]==='l');if(a){a[4]='m';a[6]='Míticos'}else console.warn('mítico no encontrado',n)});
 HCATS.push('Míticos');
@@ -8132,10 +8132,10 @@ const tp=GA.reduce((t,a)=>t+(a[6]==='Míticos'?0:HPTS[a[4]]||0),0),th=GA.length;
 for(let i=GA.length-1;i>=0;i--){const d=String(GA[i][2]),m=d.match(/^Juntá ([\d.]+) puntos de hitos$/),h=d.match(/^Desbloqueá (\d+) hitos$/);if(GA[i][6]!=='Míticos'&&((m&&nn(m[1])>tp*.35)||(h&&+h[1]>th*.35)))GA.splice(i,1)}
 })();
 function hitoPts(){return GA.filter(a=>(ST.gach||{})[a[0]]).reduce((s,a)=>s+HPTS[a[4]],0)}
-function hitoCheck(){hcCalc();const first=!ST.gach,silent=first||ST.hv!==4;ST.gach=ST.gach||{};let n=0;
+function hitoCheck(){hcCalc();const first=!ST.gach,silent=first||ST.hv!==5;ST.gach=ST.gach||{};let n=0;
   for(let pass=0;pass<3;pass++){HC.hitos=GA.filter(a=>ST.gach[a[0]]).length;HC.pts=hitoPts();
     for(const a of GA){if(!ST.gach[a[0]]&&a[5]()){ST.gach[a[0]]=Date.now();n++;if(!silent)hitoQ.push(a)}}}
-  if(ST.hv!==4)ST.hv=4;if(hitoQ.length)hitoRun()}
+  if(ST.hv!==5)ST.hv=5;if(hitoQ.length)hitoRun()}
 const hitoQ=[];let hitoBusy=false;
 function hitoRun(){if(hitoBusy||!hitoQ.length)return;const sp=$('#splash');if((sp&&sp.isConnected&&getComputedStyle(sp).display!=='none'&&getComputedStyle(sp).opacity!=='0')||document.hidden){setTimeout(hitoRun,900);return}
   hitoBusy=true;const a=hitoQ.shift();hitoShow(a,()=>{hitoBusy=false;setTimeout(hitoRun,350)})}
