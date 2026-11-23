@@ -2226,6 +2226,25 @@ body.perf .fr-cr,body.perf .fr-cr *,body.nomo .fr-cr,body.nomo .fr-cr *{animatio
 
 #clp .clap.clbar .clg{padding:9px 11px;gap:7px}#clp .clap.clbar .clxh{padding:0 2px 2px}#clp .clap.clbar .clsc{margin-top:-2px}
 
+/* animaciones de los paneles de llamada */
+#clp .clap.clbar{transform-origin:50% 100%;animation:clbIn .46s cubic-bezier(.2,1.25,.3,1) both!important}
+@keyframes clbIn{0%{opacity:0;transform:translateY(18px) scale(.9)}55%{opacity:1}100%{opacity:1;transform:none}}
+#clp .clap.clbar.out{animation:clbOut .17s cubic-bezier(.5,0,1,.6) both!important}@keyframes clbOut{to{opacity:0;transform:translateY(12px) scale(.94)}}
+#clp .clap.clbar.fresh>*{animation:clbRow .5s cubic-bezier(.2,.95,.3,1) both}
+#clp .clap.clbar.fresh>*:nth-child(1){animation-delay:.06s}#clp .clap.clbar.fresh>*:nth-child(2){animation-delay:.11s}#clp .clap.clbar.fresh>*:nth-child(3){animation-delay:.16s}#clp .clap.clbar.fresh>*:nth-child(4){animation-delay:.21s}#clp .clap.clbar.fresh>*:nth-child(5){animation-delay:.26s}#clp .clap.clbar.fresh>*:nth-child(6){animation-delay:.31s}
+@keyframes clbRow{from{opacity:0;transform:translateY(14px) scale(.97)}}
+#clp .clap.clbar.fresh .clcd>*:not(h6){animation:clbRow .5s cubic-bezier(.2,.95,.3,1) both}#clp .clap.clbar.fresh .clcd>*:nth-child(2){animation-delay:.2s}#clp .clap.clbar.fresh .clcd>*:nth-child(3){animation-delay:.27s}
+#clp .clap.clbar.fresh input[type=range]::-webkit-slider-thumb{animation:clbThumb .6s .35s cubic-bezier(.3,1.8,.5,1) both}@keyframes clbThumb{from{transform:scale(0)}}
+#clp .clap.clbar.fresh .clri{animation:clbIco .6s .22s cubic-bezier(.3,1.8,.5,1) both}@keyframes clbIco{from{opacity:0;transform:scale(.4) rotate(-25deg)}}
+#clxa{animation:clbCar .5s .12s cubic-bezier(.3,1.8,.5,1) both!important}@keyframes clbCar{from{opacity:0;transform:rotate(45deg) scale(0)}to{opacity:1;transform:rotate(45deg)}}
+#clp .clc .clsp:has(.clch.on){animation:clbRing .55s cubic-bezier(.2,.9,.3,1)}@keyframes clbRing{0%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}100%{box-shadow:0 0 0 2px rgba(255,255,255,.3),0 0 0 12px rgba(255,255,255,0)}}
+#clp .clap .sw{transition:background .3s,box-shadow .4s}#clp .clap .sw i{transition:transform .45s cubic-bezier(.3,1.7,.5,1),width .2s}#clp .clap .sw:active i{width:25px}#clp .clap .sw.on:active i{transform:translateX(13px)}
+#clp .clap .sw.on{box-shadow:0 0 16px rgba(var(--argb),.45)}
+#clp .clap input[type=range]{transition:background .25s}#clp .clap input[type=range]:active::-webkit-slider-thumb{transform:scale(1.25);box-shadow:0 0 0 6px rgba(var(--argb),.25),0 2px 10px rgba(0,0,0,.55)}
+#clp .clap .clpc{transition:color .25s,background .25s,transform .25s cubic-bezier(.3,1.7,.5,1)}#clp .clap label:active .clpc{transform:scale(1.1)}
+#clp .clap.clbar .clcd{transition:background .25s,border-color .25s}#clp .clap.clbar .clcd:hover{background:rgba(255,255,255,.085)}
+#clp .clap.clbar .clkr button{transition:background .2s,border-color .2s,transform .25s cubic-bezier(.3,1.7,.5,1)}#clp .clap.clbar .clkr button:hover{transform:translateY(-1px);background:rgba(255,255,255,.12)}#clp .clap.clbar .clkr button.on{animation:clbPulse 1.2s ease-in-out infinite}@keyframes clbPulse{50%{box-shadow:0 0 0 4px rgba(var(--argb),.25)}}
+@media(prefers-reduced-motion:reduce){#clp .clap,#clp .clap *,#clxa{animation:none!important}}
 /* switch de los paneles: sin el punto oscuro */
 #clp .clap .sw::after{display:none!important}#clp .clap .sw i{background:#fff!important;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 #clp .clap .clmsw .clsw{display:flex;align-items:center;gap:12px}#clp .clap .clmsw .clri{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(var(--argb),.34),rgba(var(--argb),.12));border:1px solid rgba(var(--argb),.26);color:var(--a2,var(--a))}#clp .clap .clmsw .clri svg{width:17px;height:17px}
