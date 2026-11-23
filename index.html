@@ -8128,7 +8128,7 @@ const ok=a=>{if(a[6]==='Míticos')return true;const d=String(a[2]);for(const[r,c
 for(let i=GA.length-1;i>=0;i--)if(!ok(GA[i]))GA.splice(i,1);
 const seen=new Set(GA.filter(a=>a[6]==='Míticos').map(a=>a[2]));
 for(let i=0;i<GA.length;i++){if(GA[i][6]==='Míticos')continue;const d=GA[i][2];if(seen.has(d)){GA.splice(i,1);i--}else seen.add(d)}
-const tp=GA.reduce((t,a)=>t+(a[6]==='Míticos'?0:HPTS[a[4]]||0),0),th=GA.length;GA.forEach(a=>{if(a[0].startsWith('z_wkd_500'))a[1]='Quinientos findes';if(a[0].startsWith('z_low_15'))a[1]='Crítico estricto'});
+const tp=GA.reduce((t,a)=>t+(a[6]==='Míticos'?0:HPTS[a[4]]||0),0),th=GA.length;GA.forEach(a=>{if(a[0].startsWith('z_wkd_500'))a[1]='Quinientos findes';if(a[0].startsWith('z_low_15'))a[1]='Crítico estricto';if(a[0].startsWith('z_age_1500'))a[1]='Cuatro años y medio'});
 for(let i=GA.length-1;i>=0;i--){const d=String(GA[i][2]),m=d.match(/^Juntá ([\d.]+) puntos de hitos$/),h=d.match(/^Desbloqueá (\d+) hitos$/);if(GA[i][6]!=='Míticos'&&((m&&nn(m[1])>tp*.35)||(h&&+h[1]>th*.35)))GA.splice(i,1)}
 })();
 function hitoPts(){return GA.filter(a=>(ST.gach||{})[a[0]]).reduce((s,a)=>s+HPTS[a[4]],0)}
