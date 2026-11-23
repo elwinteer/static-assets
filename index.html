@@ -3432,7 +3432,7 @@ body.light #vtabc .chip,body.light #vtabc .tag{background:rgba(0,0,0,.09);box-sh
 @keyframes vin{0%{opacity:0}12%{opacity:1}80%{opacity:1}100%{opacity:0}}
 @keyframes vdr{to{stroke-dashoffset:0}}@keyframes vsp{to{transform:rotate(360deg)}}@keyframes vfi{to{opacity:1}}
 @keyframes vdoor{to{transform:scaleX(0)}}
-.vfx .gl.panel{height:auto!important;max-height:none!important;overflow:visible!important}.vbar .vbt:last-child{grid-column:1/-1}.vflt{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.vflt button{flex:none}
+.vfx .gl.panel{height:auto!important;max-height:none!important;overflow:visible!important}.vbar{display:flex!important;gap:6px!important}.vbt{flex:1;height:44px!important;border-radius:14px!important}.vbt:last-child{grid-column:auto!important}.vbt.on{background:rgba(170,130,255,.25);border-color:rgba(190,160,255,.6)}.vflt{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.vflt button{flex:none}
 .vmeta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
 .vmeta .vc{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:99px;font:600 12px system-ui;background:rgba(160,120,255,.14);border:1px solid rgba(190,160,255,.32);color:#e6dcff}
 .vmeta .vc.up{background:rgba(243,211,138,.16);border-color:rgba(243,211,138,.5);color:#f3d38a;animation:vpl 2s ease-in-out infinite}
@@ -7153,15 +7153,18 @@ const imgBox=u=>{const d=document.createElement('div');d.className='shlb';d.inne
 const gPoster=g=>`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`;
 const lastModal=()=>$('#app').lastElementChild;
 
+/* contexto Bóveda: dentro de la Bóveda el diario usa SU almacén (ST.vlt.rv), nunca ST.rv */
+const VW=()=>S.view==='vault'&&!!S.vu&&!!vL(),RVX=()=>VW()?vL().rv:RV(),gmX=id=>VW()?vG(id):gm(id),GX=()=>VW()?vL().g:G;
+const rvOfX=id=>RVX().filter(r=>r.gid===id).sort((a,b)=>b.ts-a.ts),rvGetX=id=>RVX().find(r=>r.id===id),rvLastX=id=>rvOfX(id)[0];
 /* ---- editor de entrada ---- */
 let RE=null;
-function rvEdit(gid,id){const e=id?rvGet(id):null;
+function rvEdit(gid,id){const e=id?rvGetX(id):null;
   RE=e?{...JSON.parse(JSON.stringify(e)),shots:(e.files||[]).map(k=>({key:k,url:ART[k]}))}:{id:null,gid:gid||'',ts:Date.now(),rate:0,head:'',text:'',spoil:false,tags:[],replay:false,liked:false,done:false,plat:'',asp:{},shots:[]};
-  if(!e&&RE.gid){const g=gm(RE.gid);if(g&&rvOf(g.id).length)RE.replay=false}
+  if(!e&&RE.gid){const g=gmX(RE.gid);if(g&&rvOfX(g.id).length)RE.replay=false}
   RE.pick=!RE.gid;RE.q='';RE.cap=false;
   modal('','rve');const m=lastModal();m.classList.add('rvm');rvDraw()}
-function rvDraw(){const mb=$('.rvm .mb');if(!mb||!RE)return;const g=gm(RE.gid);
-  if(RE.pick||!g){mb.innerHTML=`<div class="rv-pk"><h2>¿Qué juego vas a anotar?</h2><p class="ob-sub">Elegí uno de tu biblioteca.</p><input class="txt" id="rv-q" placeholder="Buscar juego…" value="${esc(RE.q)}" style="width:100%;box-sizing:border-box"><div id="rv-l" class="ob-gl" style="max-height:52vh"></div><div class="rv-ft"><button class="hm-go hm-gh" data-a="rvx">Cancelar</button></div></div>`;rvPkList();return}
+function rvDraw(){const mb=$('.rvm .mb');if(!mb||!RE)return;const g=gmX(RE.gid);
+  if(RE.pick||!g){mb.innerHTML=`<div class="rv-pk"><h2>¿Qué juego vas a anotar?</h2><p class="ob-sub">Elegí uno de ${VW()?'tu Bóveda':'tu biblioteca'}.</p><input class="txt" id="rv-q" placeholder="Buscar juego…" value="${esc(RE.q)}" style="width:100%;box-sizing:border-box"><div id="rv-l" class="ob-gl" style="max-height:52vh"></div><div class="rv-ft"><button class="hm-go hm-gh" data-a="rvx">Cancelar</button></div></div>`;rvPkList();return}
   const gen=genresOf(g).slice(0,3);
   mb.innerHTML=`<div class="rv-hd"><img class="bgi" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""><div class="rv-t"><div class="rv-po">${gPoster(g)}</div><div class="rv-ti"><small>${RE.id?'Editar entrada':'Nueva entrada'}</small><h2>${esc(g.name)}</h2><div class="pf-chips">${gen.map(x=>`<span class="pf-ch">${x}</span>`).join('')}<span class="pf-ch">${fh(g.hours)} jugadas</span></div></div><button class="rv-xb" data-a="rvx">✕</button></div></div>
   <div class="rv-body"><div class="rv-l">
@@ -7181,34 +7184,34 @@ function rvDraw(){const mb=$('.rvm .mb');if(!mb||!RE)return;const g=gm(RE.gid);
   <div class="rv-ft">${RE.id?`<button class="hm-go hm-gh rd" data-a="rvdel" data-id="${RE.id}">Eliminar</button>`:''}<span style="flex:1"></span><button class="hm-go hm-gh" data-a="rvx">Cancelar</button><button class="hm-go" data-a="rvsave">Guardar entrada</button></div>`}
 const rvShotsH=()=>RE.shots.length?RE.shots.map((s,i)=>`<div class="rv-s"><img src="${s.url||s.thumb||s.file}" alt=""><button data-a="rvshdel" data-i="${i}">✕</button></div>`).join(''):'<small class="ob-hint" style="margin:0">Todavía no agregaste capturas.</small>';
 function rvPkList(){const e=$('#rv-l');if(!e)return;const q=(RE.q||'').toLowerCase().trim();
-  const l=G.filter(g=>!q||g.name.toLowerCase().includes(q)).sort((a,b)=>b.hours-a.hours).slice(0,40);
+  const l=GX().filter(g=>!q||g.name.toLowerCase().includes(q)).sort((a,b)=>b.hours-a.hours).slice(0,40);
   e.innerHTML=l.map(g=>`<button class="ob-gr" data-a="rvpick" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<div class="empty">No hay coincidencias.</div>'}
 function rvClose(){$$('.rvm').forEach(m=>m.remove());RE=null}
 async function rvSave(){if(!RE.gid){toast('Elegí un juego');return}
   RE.head=($('#rv-h')||{value:RE.head}).value;RE.text=($('#rv-tx')||{value:RE.text}).value;
   if(!(RE.rate>0)&&!RE.text.trim()&&!RE.head.trim()){toast('Poné una calificación o escribí algo');return}
   const btn=$('[data-a=rvsave]');if(btn){btn.textContent='Guardando…';btn.disabled=true}
-  const id=RE.id||('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)),old=RE.id?rvGet(RE.id):null,keep=new Set(RE.shots.filter(s=>s.key).map(s=>s.key));
+  const id=RE.id||('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)),old=RE.id?rvGetX(RE.id):null,keep=new Set(RE.shots.filter(s=>s.key).map(s=>s.key));
   ((old&&old.files)||[]).forEach(k=>{if(!keep.has(k)){artDel(k);if(ART[k]){URL.revokeObjectURL(ART[k]);delete ART[k]}}});
   const files=[];let i=0;
   for(const s of RE.shots){if(s.key){files.push(s.key);continue}
-    try{let b=s.blob;if(!b)b=await (await fetch(s.file)).blob();b=await shrink(b,'hero');const key=`rv:${id}:${Date.now()}_${i++}`;await artPut(key,b);ART[key]=URL.createObjectURL(b);files.push(key)}catch(e){}}
+    try{let b=s.blob;if(!b)b=await (await fetch(s.file)).blob();b=await shrink(b,'hero');const key=`${VW()?'vrv':'rv'}:${id}:${Date.now()}_${i++}`;await artPut(key,b);ART[key]=URL.createObjectURL(b);files.push(key)}catch(e){}}
   const ent={id,gid:RE.gid,ts:RE.ts,rate:RE.rate,head:RE.head.trim(),text:RE.text.trim(),spoil:!!RE.spoil&&!!RE.text.trim(),tags:RE.tags,replay:RE.replay,liked:RE.liked,done:RE.done,plat:RE.plat,asp:RE.asp,files,upd:Date.now()};
-  const L=RV(),ix=L.findIndex(r=>r.id===id);if(ix>=0)L[ix]=ent;else L.push(ent);
-  const g=gm(ent.gid);if(g){const lt=rvLast(g.id);if(lt&&lt.rate>0)g.rate=lt.rate;if(ent.done&&g.status!=='Terminado'){g.status='Terminado';g.doneAt=ent.ts}}
-  save();const was=!!old;rvClose();toast(was?'Entrada actualizada':'Entrada guardada en tu diario');rvRefresh()}
-function rvDelete(id){const r=rvGet(id);if(!r)return;(r.files||[]).forEach(k=>{artDel(k);if(ART[k]){URL.revokeObjectURL(ART[k]);delete ART[k]}});ST.rv=RV().filter(x=>x.id!==id);const g=gm(r.gid);if(g){const lt=rvLast(g.id);g.rate=lt&&lt.rate>0?lt.rate:g.rate}save();$$('.rvm,.rvdm').forEach(m=>m.remove());RE=null;toast('Entrada eliminada');rvRefresh()}
-function rvRefresh(){if(S.view==='diary')dyRender();else if(S.view==='games'){renderTab()}else if(S.view==='home')go('home')}
+  const L=RVX(),ix=L.findIndex(r=>r.id===id);if(ix>=0)L[ix]=ent;else L.push(ent);
+  const g=gmX(ent.gid);if(g){const lt=rvLastX(g.id);if(lt&&lt.rate>0)g.rate=lt.rate;if(ent.done&&g.status!=='Terminado'){g.status='Terminado';g.doneAt=ent.ts}}
+  save();const was=!!old;rvClose();toast(was?'Entrada actualizada':VW()?'Entrada guardada en la Bóveda':'Entrada guardada en tu diario');rvRefresh()}
+function rvDelete(id){const r=rvGetX(id);if(!r)return;(r.files||[]).forEach(k=>{artDel(k);if(ART[k]){URL.revokeObjectURL(ART[k]);delete ART[k]}});if(VW())vL().rv=vL().rv.filter(x=>x.id!==id);else ST.rv=RV().filter(x=>x.id!==id);const g=gmX(r.gid);if(g){const lt=rvLastX(g.id);g.rate=lt&&lt.rate>0?lt.rate:g.rate}save();$$('.rvm,.rvdm').forEach(m=>m.remove());RE=null;toast('Entrada eliminada');rvRefresh()}
+function rvRefresh(){if(VW()){vList();if(S.vst==='dy')vDetail(false);else if(S.vsel&&S.vtab==='rv')vTab();return}if(S.view==='diary')dyRender();else if(S.view==='games'){renderTab()}else if(S.view==='home')go('home')}
 
 /* ---- ver entrada ---- */
-function rvView(id){const r=rvGet(id),g=r&&gm(r.gid);if(!g)return;$$('.rvdm').forEach(m=>m.remove());
-  const oth=rvOf(g.id).filter(x=>x.id!==id),as=ASP.filter(([k])=>r.asp&&r.asp[k]>0);
-  modal(`<div class="rv-hd"><img class="bgi" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""><div class="rv-t"><div class="rv-po" data-a="rvopen" data-id="${g.id}">${gPoster(g)}</div><div class="rv-ti"><small>${new Date(r.ts).toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</small><h2>${esc(g.name)}</h2><div class="rv-st">${starsHTML(r.rate)}<b>${rvT(r.rate)}</b>${r.liked?'<span class="rv-hrt">♥</span>':''}</div><div class="pf-chips">${r.replay?'<span class="pf-ch t">Rejugado</span>':''}${r.done?'<span class="pf-ch t">Terminado</span>':''}${r.plat?`<span class="pf-ch">${esc(r.plat)}</span>`:''}${(r.tags||[]).map(t=>`<span class="pf-ch">${esc(t)}</span>`).join('')}</div></div><button class="rv-xb" data-a="close">✕</button></div></div>
+function rvView(id){const r=rvGetX(id),g=r&&gmX(r.gid);if(!g)return;$$('.rvdm').forEach(m=>m.remove());
+  const oth=rvOfX(g.id).filter(x=>x.id!==id),as=ASP.filter(([k])=>r.asp&&r.asp[k]>0);
+  modal(`<div class="rv-hd"><img class="bgi" src="${art.hero(g)}" data-fb="${art.wide(g)}" alt=""><div class="rv-t"><div class="rv-po" ${VW()?'':`data-a="rvopen" data-id="${g.id}"`}>${gPoster(g)}</div><div class="rv-ti"><small>${new Date(r.ts).toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</small><h2>${esc(g.name)}</h2><div class="rv-st">${starsHTML(r.rate)}<b>${rvT(r.rate)}</b>${r.liked?'<span class="rv-hrt">♥</span>':''}</div><div class="pf-chips">${r.replay?'<span class="pf-ch t">Rejugado</span>':''}${r.done?'<span class="pf-ch t">Terminado</span>':''}${r.plat?`<span class="pf-ch">${esc(r.plat)}</span>`:''}${(r.tags||[]).map(t=>`<span class="pf-ch">${esc(t)}</span>`).join('')}</div></div><button class="rv-xb" data-a="close">✕</button></div></div>
   <div class="rv-vb">${r.head?`<h3 class="rv-hl">${esc(r.head)}</h3>`:''}${r.text?(r.spoil?`<div class="rv-spw"><div class="rv-sx" id="rv-sx">${esc(r.text)}</div><button class="hm-go hm-gh" data-a="rvsp">Mostrar spoilers</button></div>`:`<p class="rv-tx">${esc(r.text)}</p>`):(r.head?'':'<p class="sub0">Solo calificación, sin texto.</p>')}
    ${as.length?`<div class="rv-asv">${as.map(([k,l])=>`<div><span>${l}</span>${starsHTML(r.asp[k])}</div>`).join('')}</div>`:''}
    ${(r.files||[]).length?`<div class="rv-gal">${r.files.map(k=>ART[k]?`<img src="${ART[k]}" data-a="rvimg" data-u="${k}" alt="">`:'').join('')}</div>`:''}
    ${oth.length?`<div class="lbl" style="margin-top:18px">Otras entradas de este juego</div>${oth.map(x=>`<div class="mn" data-a="rvview" data-id="${x.id}"><div><b>${starsHTML(x.rate)} ${rvT(x.rate)}</b><small>${new Date(x.ts).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'})}${x.replay?' · Rejugado':''}</small></div></div>`).join('')}`:''}
-  </div><div class="rv-ft"><button class="hm-go hm-gh" data-a="rvshare" data-id="${r.id}">${ic('img')} Compartir imagen</button><span style="flex:1"></span><button class="hm-go hm-gh" data-a="rvdel" data-id="${r.id}">Eliminar</button><button class="hm-go" data-a="rvedit" data-id="${r.id}">${ic('edit')} Editar</button></div>`,'rve rvd');
+  </div><div class="rv-ft">${VW()?'':`<button class="hm-go hm-gh" data-a="rvshare" data-id="${r.id}">${ic('img')} Compartir imagen</button>`}<span style="flex:1"></span><button class="hm-go hm-gh" data-a="rvdel" data-id="${r.id}">Eliminar</button><button class="hm-go" data-a="rvedit" data-id="${r.id}">${ic('edit')} Editar</button></div>`,'rve rvd');
   lastModal().classList.add('rvdm')}
 
 /* ---- tarjeta para compartir ---- */
@@ -7762,7 +7765,7 @@ V.diary=()=>`<div class="stack dy"><header class="dy-h rise"><div><small>Tu regi
 function dyRender(){const c=$('#dyc');if(!c)return;c.innerHTML=dyTab();$$('#dytabs .wt').forEach(b=>b.classList.toggle('on',b.dataset.v===S.dt));if(S.dt==='log')dyLogFill()}
 function dyTab(){return ({log:dyLog,rev:dyRev,rat:dyRat,lst:dyLst,wl:dyWl,st:dySt}[S.dt]||dyLog)()}
 const dyEmpty=(t,b)=>`<section class="card"><div class="empty" style="padding:40px 20px">${t}${b||''}</div></section>`;
-function dyRow(r){const g=gm(r.gid);if(!g)return '';const d=new Date(r.ts);
+function dyRow(r){const g=gmX(r.gid);if(!g)return '';const d=new Date(r.ts);
   return `<div class="dy-r" data-a="rvview" data-id="${r.id}"><div class="dy-d"><b>${d.getDate()}</b><small>${MN[d.getMonth()]}</small></div><div class="dy-p">${gPoster(g)}</div>
   <div class="dy-i"><b>${esc(g.name)}</b><div class="dy-m">${starsHTML(r.rate)}${r.rate>0?`<em>${rvT(r.rate)}</em>`:''}${r.liked?'<span class="rv-hrt">♥</span>':''}${r.replay?'<span class="pf-ch t">Rejugado</span>':''}${r.done?'<span class="pf-ch t">Terminado</span>':''}${(r.files||[]).length?`<span class="pf-ch">${ic('img')} ${r.files.length}</span>`:''}${r.text?`<span class="pf-ch">${ic('edit')} Reseña</span>`:''}</div>${r.head?`<span class="dy-hd">“${esc(r.head)}”</span>`:''}</div>
   <div class="dy-t">${(r.tags||[]).slice(0,3).map(t=>`<span class="pf-ch">${esc(t)}</span>`).join('')}</div></div>`}
@@ -7827,13 +7830,13 @@ function dySt(){const L=RV().filter(r=>gm(r.gid));if(!L.length)return dyEmpty('C
    <section class="card"><h3>Tus aspectos</h3>${Object.keys(av).length?ASP.filter(([k])=>av[k]).map(([k,l])=>`<div class="sbar"><div class="t"><span style="color:var(--text)">${l}</span><span>${av[k].toFixed(1)}</span></div><div class="tr"><i style="--w:${av[k]/5*100}%;--i:0"></i></div></div>`).join(''):'<p class="sub0">Calificá los aspectos al escribir una entrada.</p>'}</section></div>
    <div class="dy-g2"><section class="card"><h3>Tus mejores</h3>${mini(best)||'<p class="sub0">—</p>'}</section><section class="card"><h3>Tus peores</h3>${mini(worst)||'<p class="sub0">—</p>'}</section></div></div>`}
 /* pestaña en la biblioteca */
-function rvTabHTML(g){const l=rvOf(g.id),inWl=WL().includes(g.id);
-  return `<div class="shh"><div><b>${l.length?l.length+(l.length===1?' entrada':' entradas'):'Sin entradas'}</b><small>Tu diario de este juego.</small></div><div style="display:flex;gap:8px"><button class="b2 g sm" data-a="wltog" data-id="${g.id}">${inWl?'En tu lista ✓':'Quiero jugarlo'}</button><button class="b2 sm" data-a="rvnew" data-id="${g.id}">+ Nueva entrada</button></div></div>
+function rvTabHTML(g){const l=rvOfX(g.id),inWl=WL().includes(g.id);
+  return `<div class="shh"><div><b>${l.length?l.length+(l.length===1?' entrada':' entradas'):'Sin entradas'}</b><small>Tu diario de este juego.</small></div><div style="display:flex;gap:8px">${VW()?'':`<button class="b2 g sm" data-a="wltog" data-id="${g.id}">${inWl?'En tu lista ✓':'Quiero jugarlo'}</button>`}<button class="b2 sm" data-a="rvnew" data-id="${g.id}">+ Nueva entrada</button></div></div>
   ${l.length?`<div class="dy-list">${l.map(dyRow).join('')}</div>`:'<div class="shempty">'+ic('edit')+'<b>Todavía no anotaste este juego</b><span>Calificalo, escribí qué te pareció y sumá tus capturas.</span></div>'}`}
 Object.assign(A,{
  rvnew:a=>rvEdit(a&&a.dataset&&a.dataset.id||''),rvedit:a=>{$$('.rvdm').forEach(m=>m.remove());rvEdit('',a.dataset.id)},rvx:()=>rvClose(),
- rvview:a=>rvView(a.dataset.id),rvgame:a=>{const e=rvLast(a.dataset.id);if(e)rvView(e.id);else rvEdit(a.dataset.id)},
- rvpick:a=>{RE.gid=a.dataset.id;RE.pick=false;const g=gm(RE.gid);RE.replay=!!(g&&rvOf(g.id).length);if(g&&g.status==='Terminado')RE.done=false;rvDraw()},
+ rvview:a=>rvView(a.dataset.id),rvgame:a=>{const e=rvLastX(a.dataset.id);if(e)rvView(e.id);else rvEdit(a.dataset.id)},
+ rvpick:a=>{RE.gid=a.dataset.id;RE.pick=false;const g=gmX(RE.gid);RE.replay=!!(g&&rvOfX(g.id).length);if(g&&g.status==='Terminado')RE.done=false;rvDraw()},
  rvr:a=>{const k=a.dataset.k,v=+a.dataset.v,cur=k?(RE.asp[k]||0):RE.rate,nv=cur===v?0:v;if(k)RE.asp[k]=nv;else RE.rate=nv;const e=$('#rin-'+(k||'main'));if(e)e.outerHTML=rinH(k,nv,!k)},
  rvtog:a=>{const k=a.dataset.k;RE[k]=!RE[k];a.classList.toggle('on',RE[k])},
  rvplat:a=>{RE.plat=RE.plat===a.dataset.v?'':a.dataset.v;$$('[data-a=rvplat]').forEach(b=>b.classList.toggle('on',b.dataset.v===RE.plat))},
@@ -11767,7 +11770,7 @@ const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-$
 const VMK='3c4a6db0e2c839b13df3920df2f2f9e10e2b7fc268a931d870a884234186cead';
 async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function vMaster(code){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(code),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode('wtv-m1'),iterations:100000},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===VMK}
-function vLock(go_){S.vu=0;S.vweb=0;if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
+function vLock(go_){S.vu=0;S.vweb=0;S.vst=0;try{if(RE&&RE.v)RE=null}catch(e){}$$('.rvm,.rvdm,.shlb').forEach(m=>m.remove());if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
 /* pantalla de PIN: no dice qué es ni para qué; igual exista o no una bóveda */
 function vOpen(){if(S.vu){go('vault');return}
   if(!(window.crypto&&crypto.subtle&&crypto.subtle.deriveBits))return;
@@ -11783,7 +11786,7 @@ function vOk(){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.
 V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></div>';
   if(S.vweb)return `<div class="vwx"><div class="vwb"><button class="b2 sm" data-a="vwx" title="Volver a la Bóveda" style="height:40px;padding:0 18px">Bóveda</button><button class="ib" data-a="vwb" title="Atrás">${ic('chl')}</button><button class="ib" data-a="vwf" title="Adelante">${ic('chr')}</button><button class="ib" data-a="vwr" title="Recargar">${ic('wrl')}</button><button class="b2 sm" data-a="vlink" title="Vincular este hilo a un juego para avisarte de versiones" style="height:40px;padding:0 16px">Vincular juego</button><div class="vwu" id="vwu">f95zone.to</div></div><webview id="vwv" partition="persist:wt-vault" src="https://f95zone.to/"></webview></div>`;
   return `<div class="lib"><section class="libl"><div class="lh"><h2>Bóveda</h2><button class="vbl" data-a="vlock" title="Cerrar la Bóveda">${ic('lock')}<span>Bloquear</span></button></div>
-  <div class="vbar"><button class="vbt" data-a="vmove">${ic('arrow')}<span>Traer de biblioteca</span></button><button class="vbt" data-a="vaddx">${ic('plus')}<span>Agregar juego</span></button><button class="vbt" data-a="vweb">${ic('globe')}<span>F95zone</span></button><button class="vbt" data-a="vstats">${ic('chart')}<span>Estadísticas</span></button><button class="vbt" data-a="vopts">${ic('settings')}<span>Opciones</span></button></div>
+  <div class="vbar"><button class="vbt" data-a="vmove" title="Traer de la biblioteca">${ic('arrow')}</button><button class="vbt" data-a="vaddx" title="Agregar juego">${ic('plus')}</button><button class="vbt" data-a="vweb" title="F95zone">${ic('globe')}</button><button class="vbt ${S.vst==='dy'?'on':''}" data-a="vdiary" title="Diario">${ic('diary')}</button><button class="vbt ${S.vst==='st'?'on':''}" data-a="vstats" title="Estadísticas">${ic('chart')}</button><button class="vbt" data-a="vopts" title="Opciones">${ic('settings')}</button></div>
   <div class="ls">${ic('search')}<input id="vlq" placeholder="Buscar…" value="${esc(S.vq||'')}"></div><div class="vflt" id="vflt"></div><div class="cnt" id="vcnt"></div><div class="list" id="vlist"></div></section><section class="detail" id="vdetail"></section></div>`};
 function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq||'').toLowerCase();
   const arr=[...L.g].filter(g=>g.name.toLowerCase().includes(q)&&(!S.vf||(S.vf==='u'?vUpd(g):S.vf==='f'?!!g.fav:1))).sort((a,b)=>a.name.localeCompare(b.name));
@@ -11794,7 +11797,8 @@ function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq
 function vRender(){if(S.view!=='vault'||!S.vu)return;if(S.vweb){const w=$('#vwv'),u=$('#vwu');if(w&&u&&!w._w){w._w=1;const f=()=>{try{u.textContent=w.getURL().replace(/^https?:\/\//,'')}catch(e){}};['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>w.addEventListener(e,f));['did-navigate','did-navigate-in-page','did-start-loading','focus'].forEach(e=>w.addEventListener(e,()=>{S.vlast=Date.now()}))}return}const L=vL();if(!L)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
   vList();vDetail(true);const i=$('#vlq');if(i&&!i._v){i._v=1;i.addEventListener('input',e=>{S.vq=e.target.value;vList()})}}
 function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
-  if(S.vst){d.className='detail';d.innerHTML=vStatsHTML();return}
+  $$('.vbar .vbt').forEach(b=>b.classList.toggle('on',(b.dataset.a==='vdiary'&&S.vst==='dy')||(b.dataset.a==='vstats'&&S.vst==='st')));
+  if(S.vst){d.className='detail';d.innerHTML=S.vst==='dy'?vDiaryHTML():vStatsHTML();return}
   if(!g){d.className='detail';d.innerHTML='<div class="empty" style="margin:auto">Elegí un juego de la lista.</div>';return}
   sgdb(g);setTimeout(amb,50);const run=S.vplay&&S.vplay.id===g.id,L=vL(),ns=L.ses.filter(s=>s.g===g.id).length;
   d.className='detail vfx'+(g.status==='Terminado'?' done':'');
@@ -11817,6 +11821,12 @@ async function vCheck(g,force){if(!window.winteerNative||!winteerNative.vver||!g
   try{const r=await winteerNative.vver(g.vth);if(r&&r.t){const v=vVerOf(r.t);if(v){g.vlat=v;if(!g.ver)g.ver=v}}}catch(e){}save()}
 async function vCheckAll(){const L=vL();if(!L)return;let ch=0;for(const g of [...L.g]){if(!g.vth)continue;const b=g.vlat;await vCheck(g);if(g.vlat!==b)ch++}if(ch&&S.view==='vault'&&S.vu&&!S.vweb){vList();toast(ch+' actualización'+(ch>1?'es':'')+' nueva'+(ch>1?'s':'')+' en la Bóveda')}}
 function vIntro(){const d=document.createElement('div');d.className='vintro';d.innerHTML='<div class="dl"></div><div class="dr"></div><svg viewBox="0 0 200 200"><circle class="r1" cx="100" cy="100" r="70"/><circle class="r2" cx="100" cy="100" r="86"/><path class="kh" d="M100 78a14 14 0 0 1 6 26v22h-12v-22a14 14 0 0 1 6-26z"/></svg><b>BÓVEDA</b>';document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function vDiaryHTML(){const L=vL(),l=[...L.rv].filter(r=>vG(r.gid)).sort((a,b)=>b.ts-a.ts);let mk='',h='';
+  for(const r of l){const d=new Date(r.ts),k=MNL[d.getMonth()]+' '+d.getFullYear();if(k!==mk){mk=k;h+=`<div class="vl" style="margin:18px 0 8px">${k}</div>`}h+=dyRow(r)}
+  const av=l.filter(r=>r.rate>0),m=av.length?av.reduce((a,r)=>a+r.rate,0)/av.length:0;
+  return `<div class="vst"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="chip btn2" data-a="vback">← Volver</button><span style="flex:1"></span><button class="b2 sm" data-a="rvnew">+ Nueva entrada</button></div>
+  <h3 style="margin-top:14px">Diario de la Bóveda</h3><small style="opacity:.6">${l.length?l.length+(l.length===1?' entrada':' entradas')+(m?' · promedio '+rvT(+m.toFixed(1))+' ★':''):'Sin entradas'} · Solo se ven acá adentro.</small>
+  <div class="dy-list" style="margin-top:10px">${h||'<div class="shempty">'+ic('edit')+'<b>Todavía no anotaste nada</b><span>Calificá un juego y escribí qué te pareció.</span></div>'}</div></div>`}
 function vStatsHTML(){const L=vL(),ses=L.ses||[],g=L.g,tot=g.reduce((a,x)=>a+(x.hours||0),0),done=g.filter(x=>vsOf(x)==='t').length,sc=g.filter(x=>x.vp>0),avg=sc.length?sc.reduce((a,x)=>a+x.vp,0)/sc.length:0,
   dk=t=>{const d=new Date(t);return d.getFullYear()*400+d.getMonth()*32+d.getDate()},days={};ses.forEach(x=>{days[dk(x.s)]=(days[dk(x.s)]||0)+x.h});
   const last=[];for(let i=13;i>=0;i--){const d=new Date(Date.now()-i*864e5);last.push(days[dk(d)]||0)}const mx=Math.max(.01,...last);
@@ -11824,7 +11834,7 @@ function vStatsHTML(){const L=vL(),ses=L.ses||[],g=L.g,tot=g.reduce((a,x)=>a+(x.
   const wd=[0,0,0,0,0,0,0];ses.forEach(x=>wd[(new Date(x.s).getDay()+6)%7]+=x.h);const wm=Math.max(.01,...wd),WN2=['L','M','X','J','V','S','D'];
   const top=[...g].sort((a,b)=>(b.hours||0)-(a.hours||0)).slice(0,6),tm=Math.max(.01,top[0]?top[0].hours||0:0);
   const long=ses.reduce((a,x)=>Math.max(a,x.h),0),avs=ses.length?ses.reduce((a,x)=>a+x.h,0)/ses.length:0;
-  return `<div class="vst"><button class="chip btn2" data-a="vstats">← Volver</button><h3 style="margin-top:14px">Estadísticas de la Bóveda</h3><small style="opacity:.6">Solo cuentan acá adentro. No suman a tu perfil ni a tus hitos.</small>
+  return `<div class="vst"><button class="chip btn2" data-a="vback">← Volver</button><h3 style="margin-top:14px">Estadísticas de la Bóveda</h3><small style="opacity:.6">Solo cuentan acá adentro. No suman a tu perfil ni a tus hitos.</small>
   <div class="vk"><div><b>${fh(tot)}</b><small>Tiempo total</small></div><div><b>${g.length}</b><small>Juegos</small></div><div><b>${done}</b><small>Completados</small></div><div><b>${ses.length}</b><small>Sesiones</small></div><div><b>${avg?avg.toFixed(1):'—'}</b><small>Puntaje medio</small></div><div><b>${streak}d</b><small>Racha</small></div></div>
   <div class="vl">Últimos 14 días</div><div class="vbars">${last.map((v,i)=>`<i title="${fh(v)}" style="height:${Math.max(3,v/mx*100)}%;animation-delay:${i*.03}s"></i>`).join('')}</div>
   <div class="vl">Por día de la semana</div><div class="vbars">${wd.map((v,i)=>`<i title="${WN2[i]}: ${fh(v)}" style="height:${Math.max(3,v/wm*100)}%;animation-delay:${i*.05}s"></i>`).join('')}</div><div style="display:flex;gap:5px;font-size:11px;opacity:.6;margin-top:-14px;margin-bottom:10px">${WN2.map(x=>`<span style="flex:1;text-align:center">${x}</span>`).join('')}</div>
@@ -11848,11 +11858,12 @@ function vInfoHTML(g){const M=vInf(),L=vL(),has=Object.prototype.hasOwnProperty.
 function vTab(){const g=vG(S.vsel),el=$('#vtabc');if(!g||!el)return;
   const tb=(k,l)=>`<button class="tab ${S.vtab===k?'on':''}" data-a="vtab" data-id="${k}">${l}</button>`;
   const hasA=ggOwn(g),hasS=WN&&(!isSteamG(g)||BGC.stCap);if(!S.vtab||(S.vtab==='ach'&&!hasA)||(S.vtab==='shots'&&!hasS))S.vtab='inf';
-  $('#vdetail .tabs').innerHTML=tb('inf','Información')+tb('res','Resumen')+(hasA?tb('ach','Logros'):'')+(hasS?tb('shots','Capturas'):'');
+  $('#vdetail .tabs').innerHTML=tb('inf','Información')+tb('res','Resumen')+tb('rv','Diario')+(hasA?tb('ach','Logros'):'')+(hasS?tb('shots','Capturas'):'');
   $$('#vdetail .tabs .tab').forEach(b=>b.classList.toggle('on',b.dataset.id===S.vtab));
   let h='';
   if(S.vtab==='inf'){h=vInfoHTML(g);const id=g.id;if(igOn()&&!vOkInfo(g)&&!VPEND[id]&&!VFAIL.has(id))vLoadInfo(g).then(()=>{if(S.vtab==='inf'&&S.vsel===id&&$('#vtabc'))vTab()});
     if(WN&&!g.hlt&&!(g.hl&&parseFloat(g.hl.m)>0)&&!VHP[id])vHltb(g).then(()=>{if(S.vtab==='inf'&&S.vsel===id&&$('#vtabc'))vTab()})}
+  else if(S.vtab==='rv'){h=rvTabHTML(g)}
   else if(S.vtab==='ach'){h=vggHTML(g)}
   else if(S.vtab==='shots'){h=`<div class="shh"><div><b id="shn">Capturas</b><small>Apretá <kbd>${esc((BGC&&BGC.shotKey)||'F12')}</kbd> para una captura o <kbd>${esc((BGC&&BGC.clipKey)||'F9')}</kbd> ${XO&&XO.st&&XO.st.inst&&XO.st.on?'para empezar y cortar un clip (dura lo que quieras)':'para un clip de 10 segundos'}, mientras jugás desde acá.</small></div><button class="b2 g sm" data-a="shfolder" data-id="${g.id}">Abrir carpeta</button></div><div class="shg" id="vshg"><div class="hint2">Cargando…</div></div>`;shFill(g.id)}
   else{const L=vL(),ss=L.ses.filter(s=>s.g===g.id).slice(-8).reverse();
@@ -11928,11 +11939,13 @@ Object.assign(A,{
   else{vLock();if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
  vst:a=>{const g=vG(a.dataset.id);if(!g)return;const k=a.dataset.v,cur=vsOf(g);if(cur===k){g.vs='';if(g.status==='Terminado')g.status=''}else{g.vs=k;g.status=k==='t'?'Terminado':(g.status==='Terminado'?'':g.status)}save();try{ggCheck(g)}catch(e){}vList();vDetail(false)},
  vdel:a=>{const g=vG(a.dataset.id);if(!g)return;modal(`<h3>¿Eliminar ${esc(g.name)}?</h3><p>Se borra de la Bóveda junto con sus horas, notas y sesiones. No vuelve a tu biblioteca ni se desinstala.</p><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vdel2" data-id="${g.id}" style="background:#ff6b86">Eliminar</button></div>`,'vm');const m=$('.modal');if(m)m.classList.add('vm')},
- vdel2:a=>{const L=vL(),id=a.dataset.id;if(!L)return;L.g=L.g.filter(v=>v.id!==id);L.ses=L.ses.filter(x=>x.g!==id);L.rv=L.rv.filter(r=>r.gid!==id);delete L.x[id];save();$$('.modal.vm').forEach(m=>m.remove());S.vsel=null;vRender()},
+ vdel2:a=>{const L=vL(),id=a.dataset.id;if(!L)return;L.g=L.g.filter(v=>v.id!==id);L.ses=L.ses.filter(x=>x.g!==id);L.rv.filter(r=>r.gid===id).forEach(r=>(r.files||[]).forEach(k=>{artDel(k);if(ART[k]){URL.revokeObjectURL(ART[k]);delete ART[k]}}));L.rv=L.rv.filter(r=>r.gid!==id);delete L.x[id];save();$$('.modal.vm').forEach(m=>m.remove());S.vsel=null;vRender()},
  vfav:a=>{const g=vG(a.dataset.id);if(!g)return;g.fav=!g.fav;if(!g.fav)delete g.fav;save();vList();vDetail(false)},
  vsc:a=>{const g=vG(a.dataset.id);if(!g)return;const n=+a.dataset.v;g.vp=g.vp===n?0:n;if(!g.vp)delete g.vp;save();vList();vDetail(false)},
  vflt:a=>{S.vf=a.dataset.id;vList()},
- vstats:()=>{S.vst=S.vst?0:1;vDetail(true)},
+ vstats:()=>{S.vst=S.vst==='st'?0:'st';vDetail(true)},
+ vback:()=>{S.vst=0;vDetail(true)},
+ vdiary:()=>{S.vst=S.vst==='dy'?0:'dy';vDetail(true)},
  vvok:a=>{const g=vG(a.dataset.id);if(!g)return;g.ver=g.vlat;save();vList();vDetail(false)},
  vvchk:async a=>{const g=vG(a.dataset.id);if(!g)return;toast('Buscando versión…');await vCheck(g,true);toast(g.vlat?'Última versión: '+g.vlat:'No pude leer la versión');vList();if(S.vsel===g.id)vDetail(false)},
  vlink:()=>{let u='';try{u=$('#vwv').getURL()}catch(e){}const m=String(u).match(/^https:\/\/f95zone\.to\/threads\/[^\/?#]+/i);if(!m){toast('Abrí primero el hilo del juego en F95zone');return}const L=vL();
@@ -14451,7 +14464,7 @@ function clnOpen(){const l=clnList();if(!l.length){toast('No tenés juegos insta
   ${l.map(g=>`<div class="cl" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #ffffff14"><div style="flex:1"><b>${esc(g.name)}</b><br><small style="color:var(--muted)">hace ${Math.floor((Date.now()-lastTs(g))/864e5)} días${g.size?' · '+esc(g.size):''}</small></div><button class="b2 sm" data-a="clnun" data-id="${g.id}">${isSteamG(g)?'Desinstalar':'Abrir carpeta'}</button><button class="b2 g sm" data-a="clnign" data-id="${g.id}">Conservar</button></div>`).join('')}</div><div class="bs"><button class="b2 g" data-a="ccclose">Cerrar</button></div>`,'dupm')}
 function clnBoot(){try{ST.cln=ST.cln||{};if(Date.now()-(ST.cln.t||0)<7*864e5)return;const l=clnList();if(!l.length)return;ST.cln.t=Date.now();save();const tot=l.reduce((s,g)=>s+gbOf(g),0);toast(`Tenés ${l.length} juegos instalados sin jugar hace más de un mes${tot?` (unos ${tot.toFixed(0)} GB)`:''}. Revisalos en Ajustes, Biblioteca`)}catch(e){}}
 const mntRows=()=>{const d=dupGroups().length,c=clnList().length;return [`<div class="row"><div>Juegos duplicados<small>${d?d+' juegos están repetidos entre tiendas. Elegí con cuál quedarte y el otro sale de la biblioteca.':'No hay juegos repetidos.'}</small></div><button class="b2" data-a="dupopen" ${d?'':'disabled'}>Revisar</button></div>`,`<div class="row"><div>Limpieza de juegos<small>${c?c+' instalados sin jugar hace más de un mes. Te sugiero desinstalarlos para liberar espacio.':'No hay juegos instalados sin jugar hace más de un mes.'}</small></div><button class="b2" data-a="clnopen" ${c?'':'disabled'}>Ver</button></div>`,...x8Rows()]};
-async function backupJSONA(){const imgs={};for(const k of Object.keys(ART)){if(!(k.startsWith('rv:')||k.startsWith('c:')||k.startsWith('p:')))continue;try{const d=await b64(await (await fetch(ART[k])).blob());if(d)imgs[k]=d}catch(e){}}
+async function backupJSONA(){const imgs={};const vk=new Set();try{(vL()?vL().rv:[]).forEach(r=>(r.files||[]).forEach(k=>vk.add(k)))}catch(e){}for(const k of Object.keys(ART)){if(!(k.startsWith('rv:')||k.startsWith('c:')||k.startsWith('p:'))||vk.has(k))continue;try{const d=await b64(await (await fetch(ART[k])).blob());if(d)imgs[k]=d}catch(e){}}
   return JSON.stringify({v:3,t:Date.now(),winteer2:localStorage.getItem('winteer2'),info:localStorage.getItem('winteer_info'),good:localStorage.getItem('winteer_good'),imgs})}
 async function doBackup(){if(!WN||!ST.bk||!ST.bk.dir)return false;let er='';try{const r=await winteerNative.writeBackup({dir:ST.bk.dir,json:await backupJSONA(),keep:8});if(r&&r.ok){ST.bk.last=Date.now();ST.bk.err='';save();return true}er=String((r&&r.err)||'')}catch(e){er=String((e&&e.message)||e)}
   ST.bk.err=/ENOSPC/.test(er)?'El disco de las copias está lleno':/EPERM|EACCES/.test(er)?'No hay permiso para escribir en la carpeta de copias':/ENOENT|ENOTDIR/.test(er)?'La carpeta de copias no existe (¿se desconectó el disco?)':'No se pudo guardar la copia'+(er?' ('+er.slice(0,60)+')':'');save();try{const e=$('#x8bkh');if(e)e.outerHTML=bkRowHTML()}catch(e2){}return false}
