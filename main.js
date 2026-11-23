@@ -3743,6 +3743,7 @@ app.whenReady().then(() => {
   app.on('will-quit', () => { try { obsStopAll(true); } catch (e) {} });
   ipcMain.handle('vpanicArm', (_e, on) => { try { if (on) panicStart(); else { panicStop(); panicBack(); } } catch (e) {} return { on: !!panicProc }; });
   ipcMain.handle('vpanicNow', () => { panicDo(); return true; });
+  ipcMain.handle('vver', async (_e, url) => { try { if (!/^https:\/\/f95zone\.to\/threads\//i.test(String(url))) return { t: '' }; const r = await session.fromPartition('persist:wt-vault').fetch(String(url), { headers: { 'Accept-Language': 'en' } }); const tx = await r.text(); const mt = tx.match(/<title>([^<]*)<\/title>/i); return { t: mt ? mt[1] : '' }; } catch (e) { return { t: '' }; } });
   ipcMain.handle('ffReady', () => ({ ok: !!ffExe() }));
   ipcMain.handle('ffEnsure', async () => ({ ok: !!(await ffInstall(ffSend)) }));
   ipcMain.handle('shotRead', (_e, id, n) => { try { const f = shFile(id, n); if (!f || !/\.(jpg|png)$/.test(f)) return ''; const b = fs.readFileSync(f); if (b.length > 40 * 1024 * 1024) return ''; return 'data:image/' + (/\.png$/.test(f) ? 'png' : 'jpeg') + ';base64,' + b.toString('base64'); } catch (e) { return ''; } });
