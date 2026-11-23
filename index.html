@@ -2226,6 +2226,19 @@ body.perf .fr-cr,body.perf .fr-cr *,body.nomo .fr-cr,body.nomo .fr-cr *{animatio
 
 #clp .clap.clbar .clg{padding:9px 11px;gap:7px}#clp .clap.clbar .clxh{padding:0 2px 2px}#clp .clap.clbar .clsc{margin-top:-2px}
 
+/* paneles de llamada v3 */
+#clp .clap.clbar .clcd{padding:0;gap:0;overflow:hidden}
+#clp .clap.clbar .clcd>h6{margin:0;padding:12px 14px 4px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#clp .clap.clbar .clcd>*:not(h6){padding:11px 14px}#clp .clap.clbar .clcd>h6+*{padding-top:6px}#clp .clap.clbar .clcd>*:not(h6)+*{border-top:1px solid rgba(255,255,255,.06)}
+#clp .clap.clbar .clrw{display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:10px;row-gap:9px;cursor:default}
+#clp .clap.clbar .clri{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:rgba(var(--argb),.18);color:var(--a2,var(--a))}#clp .clap.clbar .clri svg{width:15px;height:15px}
+#clp .clap.clbar .clrt{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#clp .clap.clbar .clrw .clsl{grid-column:1/-1}#clp .clap.clbar .clrw .clpc{white-space:nowrap}
+#clp .clap.clbar .clfd{display:flex;flex-direction:column;gap:8px}#clp .clap.clbar .clfn{font-size:11.5px;font-weight:600;color:var(--muted)}
+#clp .clap.clbar .clfd .seg2{background:rgba(0,0,0,.3)}
+#clp .clap.clbar .clgw{padding:12px 14px}
+#clp .clap.clbar .clkr{display:flex;align-items:center;justify-content:space-between;gap:10px}#clp .clap.clbar .clkr span{font-size:12.5px;font-weight:600}
+
 /* panel como prolongación de la barra */
 #clp .clap.clbar{border-radius:26px;padding:10px;gap:6px;background:rgba(16,16,21,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07)}
 #clp .clap.clbar .clg{background:rgba(255,255,255,.07);border:0;border-radius:20px;padding:10px 14px}
@@ -11265,14 +11278,18 @@ function clCtxRender(){const p=$('#clp');if(!p)return;let m=$('#clx');const X=CL
     grp=(t,hint,b)=>`<div class="clg"><div class="clgt">${t}</div>${b}${hint?`<small>${hint}</small>`:''}</div>`,
     sw=(t,hint,on,a)=>`<div class="clg clgw"><div class="clsw"><span>${t}${hint?`<small>${hint}</small>`:''}</span><button class="sw ${on?'on':''}" data-a="${a}" role="switch" aria-checked="${on?'true':'false'}"><i></i></button></div></div>`,
     rng=(id,t,v)=>`<div class="clg"><label class="${v>1?'boost':''}"><span class="clgt">${t}<b class="clpc">${Math.round(v*100)} %</b></span><div class="clsl"><input type="range" id="${id}" min="0" max="2" step="0.02" value="${v}" style="--p:${Math.round(v*50)}%"></div><div class="clsc"><span>0</span><span>100</span><span>200</span></div></label></div>`,
-    hd=(av,t,sub)=>`<div class="clxh">${av}<div><b>${t}</b><small>${sub}</small></div></div>`;
+    hd=(av,t,sub)=>`<div class="clxh">${av}<div><b>${t}</b><small>${sub}</small></div></div>`,
+    rw=(id,ico,t,v)=>`<label class="clrw ${v>1?'boost':''}"><span class="clri">${ico[0]==='<'?ico:ic(ico)}</span><span class="clrt">${t}</span><b class="clpc">${Math.round(v*100)} %</b><div class="clsl"><input type="range" id="${id}" min="0" max="2" step="0.02" value="${v}" style="--p:${Math.round(v*50)}%"></div></label>`,
+    fl=(t,b)=>`<div class="clfd"><span class="clfn">${t}</span>${b}</div>`,
+    cd=(t,rows)=>`<section class="clg clcd">${t?`<h6>${t}</h6>`:''}${rows.filter(Boolean).join('')}</section>`;
   if(Date.now()-CLDEV.t>5000&&!CLDEV.l){CLDEV.l=1;clDevLoad().then(()=>{CLDEV.l=0;try{clCtxRender()}catch(e){}})}
   const dvn=x=>esc((x.label||'Dispositivo').replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i,'')),
     sel=(t,kind,list,cur)=>grp(t,'',`<select class="clsel" data-dv="${kind}"><option value="">Predeterminado del sistema</option>${list.map(x=>`<option value="${esc(x.deviceId)}" ${x.deviceId===cur?'selected':''}>${dvn(x)}</option>`).join('')}</select>`),
+    sl=(kind,list,cur)=>`<select class="clsel" data-dv="${kind}"><option value="">Predeterminado del sistema</option>${list.map(x=>`<option value="${esc(x.deviceId)}" ${x.deviceId===cur?'selected':''}>${dvn(x)}</option>`).join('')}</select>`,
     snd=((ST.cla&&ST.cla.snd)||'c'),sndi=Math.max(0,['c','s','d','m'].indexOf(snd));
   let h='';
-  if(X.k==='r')h=hd(frAv(d,(FRM[CL.c]||{}).d,34),esc(d.name||'Amigo'),'Sonido')+rng('clvr2','Volumen de su voz',CL.vol==null?1:CL.vol)+(CL.rscr?rng('clsv','Volumen de la pantalla compartida',CL.svol==null?1:CL.svol):'')+sel('Parlantes','spk',CLDEV.out,(ST.cla&&ST.cla.spk)||'')+grp('Ecualizador','',sg([['n','Normal','cleq'],['c','Voz clara','cleq'],['g','Graves','cleq']],e==='c'?1:e==='g'?2:0))+((window.winteerNative&&winteerNative.clDuck)?sw('Bajar el juego cuando habla','Baja el volumen solo del juego mientras habla',!!(ST.cla&&ST.cla.dk),'cldk'):'')+grp('Sonidos de llamada','',sg([['c','Clásico','clsnd'],['s','Suave','clsnd'],['d','Digital','clsnd'],['m','Mudo','clsnd']],sndi));
-  else if(X.k==='l')h=hd(avHTML(PR()||{name:'Vos'},34),'Vos','Micrófono')+sw('Micrófono','Tu amigo te escucha.',!CL.muted,'clmute')+sel('Dispositivo de entrada','mic',CLDEV.in,(ST.cla&&ST.cla.mic)||'')+grp('Reducción de ruido','',sg([[0,'Normal','clnz'],[1,'Fuerte','clnz']],z))+grp('Atajos globales','',['mu','end'].map(k=>`<div class="clkr"><span>${k==='mu'?'Silenciar':'Colgar'}</span><button data-a="clkcap" data-k="${k}" class="${CL.kcap===k?'on':''}">${CL.kcap===k?'Presioná las teclas…':esc(clKeyTxt(clKey(k)))}</button></div>`).join(''));
+  if(X.k==='r')h=hd(frAv(d,(FRM[CL.c]||{}).d,34),esc(d.name||'Amigo'),'Sonido')+cd('Volumen',[rw('clvr2',clVolIc(1),'Voz de '+esc(d.name||'tu amigo'),CL.vol==null?1:CL.vol),CL.rscr?rw('clsv','clscr','Pantalla compartida',CL.svol==null?1:CL.svol):''])+cd('Salida',[fl('Parlantes',sl('spk',CLDEV.out,(ST.cla&&ST.cla.spk)||'')),fl('Ecualizador',sg([['n','Normal','cleq'],['c','Voz clara','cleq'],['g','Graves','cleq']],e==='c'?1:e==='g'?2:0))])+((window.winteerNative&&winteerNative.clDuck)?sw('Bajar el juego cuando habla','Baja el volumen solo del juego mientras habla',!!(ST.cla&&ST.cla.dk),'cldk'):'')+cd('',[fl('Sonidos de llamada',sg([['c','Clásico','clsnd'],['s','Suave','clsnd'],['d','Digital','clsnd'],['m','Mudo','clsnd']],sndi))]);
+  else if(X.k==='l')h=hd(avHTML(PR()||{name:'Vos'},34),'Vos','Micrófono')+sw('Micrófono',CL.muted?'Silenciado, nadie te escucha':'Tu amigo te escucha',!CL.muted,'clmute')+cd('Entrada',[fl('Dispositivo',sl('mic',CLDEV.in,(ST.cla&&ST.cla.mic)||'')),fl('Reducción de ruido',sg([[0,'Normal','clnz'],[1,'Fuerte','clnz']],z))])+cd('Atajos globales',['mu','end'].map(k=>`<div class="clkr"><span>${k==='mu'?'Silenciar':'Colgar'}</span><button data-a="clkcap" data-k="${k}" class="${CL.kcap===k?'on':''}">${CL.kcap===k?'Presioná las teclas…':esc(clKeyTxt(clKey(k)))}</button></div>`));
   else if(X.k==='rs'){const v=$('#cl-rscr'),q=CL.vst,w=(v&&v.videoWidth)||(q&&q.w)||0,hh=(v&&v.videoHeight)||(q&&q.h)||0;h=hd(`<span class="clxi">${ic('clscr')}</span>`,esc(d.name||'Amigo'),'Pantalla compartida')+rng('clsv','Volumen de la transmisión',CL.svol==null?1:CL.svol)+`<div class="cli2">${w?`<span>${w}×${hh}</span>`:''}${q&&q.fps?`<span>${q.fps} fps</span>`:''}${q&&q.kb?`<span>${q.kb>=1000?(q.kb/1000).toFixed(1)+' Mb/s':q.kb+' kb/s'}</span>`:''}${CL.q&&CL.q.rtt!=null?`<span>${Math.round(CL.q.rtt)} ms</span>`:''}</div><button class="clxb" data-a="clfull">${CL.full?'Salir de pantalla completa':'Pantalla completa'}</button>`}
   else if(X.k==='ms'){const sh=CL.ss&&CL.ss.getAudioTracks().length;h=hd(`<span class="clxi">${ic('clscr')}</span>`,'Tu pantalla','En transmisión')+(sh?sw('Audio del sistema','Transmitiendo',!CL.sam,'clsa'):'<div class="clg"><small style="margin:0">Audio del sistema desactivado</small></div>')+grp('Calidad','',sg([['d','Nítida','clsq'],['m','Fluida','clsq']],(ST.cla&&ST.cla.sq)==='m'?1:0))+'<button class="clxb dng" data-a="clscr">Dejar de compartir</button>'}
   const first=!m;if(first){m=document.createElement('div');m.id='clx';m.className='clap fresh';m.dataset.k=X.k;p.appendChild(m);setTimeout(()=>{const q=$('#clx');if(q)q.classList.remove('fresh')},800)}
