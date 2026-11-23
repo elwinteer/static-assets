@@ -2081,6 +2081,28 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .fpc-l h5{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 8px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}.fpc-l h5:first-child{margin-top:4px}.fpc-l h5 em{font-style:normal;letter-spacing:0;text-transform:none;font-size:12px;padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.07);color:var(--text)}
 .fpc .fp2-gb em{white-space:nowrap}.fpc .fp2-sec{margin-top:22px}
 .fpc-e{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:70px 20px;color:var(--muted)}.fpc-e svg{width:34px;height:34px;opacity:.5}.fpc-e b{color:var(--text);font-size:16px}.fpc-e span{max-width:360px;font-size:13px;line-height:1.5}
+
+/* animaciones de la pestaña Llamadas */
+.fpc-hero{overflow:hidden;animation:fpcHero .8s cubic-bezier(.2,.9,.25,1) both!important}@keyframes fpcHero{from{opacity:0;transform:translateY(22px) scale(.96);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.fpc-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);transform:translateX(-120%);animation:fpcSheen 1.4s .9s cubic-bezier(.4,.1,.2,1) both;pointer-events:none}@keyframes fpcSheen{to{transform:translateX(120%)}}
+.fpc-st .fp2-sc b span{display:inline-block;font:inherit!important;letter-spacing:inherit;color:inherit!important;font-variant-numeric:tabular-nums}
+.fpc-hb em{position:relative;overflow:hidden}.fpc-hb em::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:fpcSheen 1.6s 1.5s ease-in-out infinite}
+.fpc-st .fp2-sc u{animation:fpcPop .7s calc(var(--i)*80ms + .55s) cubic-bezier(.34,1.7,.5,1) both}@keyframes fpcPop{from{opacity:0;transform:scale(.3) rotate(-30deg)}to{opacity:.5;transform:none}}
+.fpc-st .fp2-sc{transition:transform .35s cubic-bezier(.34,1.56,.5,1),border-color .25s,box-shadow .3s}.fpc-st .fp2-sc:hover{transform:translateY(-4px);border-color:rgba(var(--argb),.45);box-shadow:0 14px 34px rgba(var(--argb),.18)}
+.fpc-bars>div{animation:fpcBc .5s calc(var(--i)*70ms + .2s) ease both}@keyframes fpcBc{from{opacity:0}}
+.fpc-bars i b{animation-timing-function:cubic-bezier(.3,1.5,.5,1);animation-duration:.9s;transition:filter .25s,transform .3s cubic-bezier(.34,1.56,.5,1)}
+.fpc-bars>div:hover i b{filter:brightness(1.25) saturate(1.2);transform:scaleX(1.12)}.fpc-bars>div:hover span{color:var(--text)}
+.fpc-bars em{animation:fpcEm .5s calc(var(--i)*70ms + .95s) ease both}@keyframes fpcEm{from{opacity:0;transform:translateY(6px)}}
+.fpc-bars>div:last-child i b{animation:fpcB .9s calc(var(--i)*70ms + .3s) cubic-bezier(.3,1.5,.5,1) both,fpcGl 2.8s 1.5s ease-in-out infinite}@keyframes fpcGl{50%{box-shadow:0 0 18px rgba(var(--argb),.55)}}
+.fpc-dt>div{animation:fpcSl .5s cubic-bezier(.2,.9,.3,1) both}.fpc-dt>div:nth-child(1){animation-delay:.45s}.fpc-dt>div:nth-child(2){animation-delay:.55s}.fpc-dt>div:nth-child(3){animation-delay:.65s}@keyframes fpcSl{from{opacity:0;transform:translateX(18px)}}
+.fpc-l h5{animation:fpcSl .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:.7s}.fpc-l h5 em{animation:fpcPop2 .6s .85s cubic-bezier(.34,1.7,.5,1) both}@keyframes fpcPop2{from{opacity:0;transform:scale(.6)}}
+.fpc-l .frcl-r{animation:fpcRow .6s calc(.75s + var(--i)*55ms) cubic-bezier(.2,.9,.25,1) both}@keyframes fpcRow{from{opacity:0;transform:translateX(-26px) scale(.97);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.fpc-l .frcl-b b{animation-delay:calc(1.1s + var(--i)*55ms);animation-duration:.9s}
+.fpc-l .frcl-r u{transition:transform .4s cubic-bezier(.34,1.8,.5,1),background .25s}.fpc-l .frcl-r:hover u{transform:rotate(-14deg) scale(1.12);background:rgba(var(--argb),.38)}
+.fpc-l .frcl-r:hover{transform:translateX(5px);background:rgba(var(--argb),.1);border-color:rgba(var(--argb),.25)}.fpc-l .frcl-r:hover .frcl-b b{filter:brightness(1.35)}
+.fpc-l .frcl-r em{transition:background .25s,transform .3s cubic-bezier(.34,1.6,.5,1)}.fpc-l .frcl-r:hover em{background:rgba(var(--argb),.28);transform:scale(1.08)}
+.fpc-e svg{animation:fpcFl 3.2s ease-in-out infinite}@keyframes fpcFl{50%{transform:translateY(-6px) rotate(-6deg)}}
+@media(prefers-reduced-motion:reduce){.fpc *,.fpc *::after{animation:none!important}}
 @media(max-width:900px){.fp2-st.fpc-st{grid-template-columns:1fr 1fr}.fpc-hero{grid-column:1/-1}}
 
 
@@ -15021,8 +15043,8 @@ function frCallsTab(c,d){const me=c==='me',F=FR().c,all=ST.calls||[],L=(me?all.s
   const wd=[0,0,0,0,0,0,0];L.forEach(x=>wd[new Date(x.t).getDay()]+=x.d);const fav=wd.indexOf(Math.max(...wd));
   const who={};if(me)L.forEach(x=>who[x.c]=(who[x.c]||0)+x.d);const wl=Object.entries(who).sort((a,b)=>b[1]-a[1]).slice(0,5),wm=wl.length?wl[0][1]:1;
   const ago=t=>{const m=Math.floor((now-t)/6e4);if(m<60)return 'hace '+Math.max(1,m)+' min';const h=Math.floor(m/60);if(h<24)return 'hace '+h+' h';const dd=Math.floor(h/24);return dd===1?'ayer':'hace '+dd+' días'};
-  const hero=`<div class="fpc-hero fp2-sc" style="--i:0"><u>${ic('phone')}</u><small>Tiempo total en llamada</small><b>${frCallsFmt(tot)}</b><span>${hrs.toLocaleString('es-AR')} horas ${me?'con tus amigos':'con '+esc(nm)} · ${L.length} ${L.length===1?'llamada':'llamadas'}</span><i class="fpc-hb"><em style="--w:${Math.min(100,Math.round(100*wk/Math.max(1,tot)))}%"></em></i><small class="fpc-hs">${wk?'Esta semana sumaste '+frCallsFmt(wk):'Sin llamadas en los últimos 7 días'}</small></div>`;
-  const cards=[['Llamadas',L.length,'phone',L.length===1?'en total':'en total'],['La más larga',frCallsFmt(mx),'bolt',top?WS[new Date(top.t).getDay()]+' '+new Date(top.t).getDate()+' '+MS[new Date(top.t).getMonth()]:''],['Promedio',frCallsFmt(avg),'clock','por llamada']];
+  const hero=`<div class="fpc-hero fp2-sc" style="--i:0"><u>${ic('phone')}</u><small>Tiempo total en llamada</small><b>${(()=>{const m=Math.round(tot/60),h=Math.floor(m/60),r=m%60;return (h?`<span data-n="${h}" data-s=" h">${h} h</span>`:'')+((r||!h)?`${h?' ':''}<span data-n="${Math.max(1,r)}" data-s=" min">${Math.max(1,r)} min</span>`:'')})()}</b><span>${hrs.toLocaleString('es-AR')} horas ${me?'con tus amigos':'con '+esc(nm)} · ${L.length} ${L.length===1?'llamada':'llamadas'}</span><i class="fpc-hb"><em style="--w:${Math.min(100,Math.round(100*wk/Math.max(1,tot)))}%"></em></i><small class="fpc-hs">${wk?'Esta semana sumaste '+frCallsFmt(wk):'Sin llamadas en los últimos 7 días'}</small></div>`;
+  const cards=[['Llamadas',`<span data-n="${L.length}">${L.length}</span>`,'phone',L.length===1?'en total':'en total'],['La más larga',frCallsFmt(mx),'bolt',top?WS[new Date(top.t).getDay()]+' '+new Date(top.t).getDate()+' '+MS[new Date(top.t).getMonth()]:''],['Promedio',frCallsFmt(avg),'clock','por llamada']];
   const sc=cards.map(([l,v,i,sub],k)=>`<div class="fp2-sc" style="--i:${k+1}"><u>${ic(i)}</u><b>${v}</b><span>${l}</span><small>${sub}</small></div>`).join('');
   const bars=`<div class="fp2-cd"><h4>Últimos 6 meses</h4><div class="fpc-bars">${mon.map((z,i)=>`<div style="--h:${z.v?Math.max(8,Math.round(100*z.v/mm)):3}%;--i:${i}" title="${z.n} ${z.n===1?'llamada':'llamadas'}"><em>${z.v?frCallsFmt(z.v):''}</em><i><b></b></i><span>${z.l}</span></div>`).join('')}</div></div>`;
   const side=me?`<div class="fp2-cd"><h4>Con quién más hablás</h4><div class="fp2-gb hr">${wl.map(([k,v],i)=>`<div style="--w:${Math.max(6,Math.round(100*v/wm))}%;--i:${i}"><span>${esc((F[k]||{}).name||'Amigo')}</span><i><b></b></i><em>${frCallsFmt(v)}</em></div>`).join('')}</div></div>`
