@@ -3157,6 +3157,12 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sg2-fg{flex:none;height:32px;padding:0 14px}
 .sg2-ar{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .15s}.sg2-ar:hover:not(:disabled){background:rgba(255,255,255,.14)}.sg2-ar:active:not(:disabled){transform:scale(.92)}.sg2-ar:disabled{opacity:.3;cursor:default}
 .sg2-ar svg{width:15px;height:15px;stroke:var(--text);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sg2 .sgv-ring b{display:grid!important;place-items:center;font-size:14px;gap:0}.sg2 .sgv-ring b span,.sg2 .sgv-ring b em{grid-area:1/1}.sg2 .sgv-ring b em{display:none}
+.sg2 .sgv-ring{width:58px;height:58px;margin-top:0;align-self:auto}.sg2 .sgv-ring:before{inset:6px}.sg2 .sgv-ring b span:after{content:"%";font-size:9px;opacity:.65;margin-left:1px}
+.sg2-rr{display:flex;align-items:center;gap:11px;margin-top:6px}.sg2-rr>span{display:flex;flex-direction:column;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;line-height:1.3}.sg2-rr>span b{font-size:13px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:600}
+.sg2.sge .sg2-ab,.sg2.sge .sg2-chs,.sg2.sge .sg2-nx{display:none}
+.sg2 .sgt .sgmv{top:8px!important;bottom:auto!important;left:8px!important;right:auto!important;transform:scale(.88);transform-origin:top left}
+.sg2-hb .sg2-hs{max-height:max(90px,min(290px,calc(100vh - 600px)))!important}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -8048,8 +8054,8 @@ function sgHtml(){
   const facts=I&&I[4]&&I[4].length?`<section class="sg2-c sg2-f" style="--i:2"><div class="sg2-hd"><span>Curiosidades</span></div><div class="sg2-fa">${I[4].slice(0,3).map(f=>`<div><span>${esc(f)}</span></div>`).join('')}</div></section>`:'';
   return `<div class="stack sgdt sg2 ${S.sgfx?'sg2in':''} ${S.sge?'sge':''}" style="--c:${cur.col}">
   <aside class="sg2-s ${done?'gold':''}">
-   <div class="sg2-top"><div class="sgpsm sg2-po">${sgPoster(cur)}</div><div class="sg2-t"><small>${done?'Saga completa':'Saga'}${I?' · '+esc(I[1]):''}${y0?' · desde '+y0:''}</small><h1>${esc(cur.name)}</h1>${ring}</div></div>
-   ${I?`<div class="sg2-ab"><div class="sg2-hd"><span>Sobre la saga</span></div><p class="sg2-bio">${esc(I[3])}</p></div>`:''}
+   <div class="sg2-top"><div class="sgpsm sg2-po">${sgPoster(cur)}</div><div class="sg2-t"><small>${done?'Saga completa':I?esc(I[1])+(y0?' · '+y0:''):'Saga'}</small><h1>${esc(cur.name)}</h1><div class="sg2-rr">${ring}<span>${done?'Completada':'Completado'}<b>${cur.dn} de ${cur.tot} juegos</b></span></div></div></div>
+   ${I?'':'<div style="flex:1"></div>'}${I?`<div class="sg2-ab"><div class="sg2-hd"><span>Sobre la saga</span></div><p class="sg2-bio">${esc(I[3])}</p></div>`:''}
    ${nxn&&!done?`<div class="sg2-nx">Siguiente: <b>${esc(nxn)}</b></div>`:done?'<div class="sg2-nx">Terminaste todos los juegos de la saga</div>':''}
    ${cur.next?`<button class="hm-go sgv-play sg2-play" data-a="sgplay">${ic('play')} Jugar el próximo</button>`:''}
    <div class="sg2-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados')}${chip('<span data-cu="'+cur.ow+'">'+cur.ow+'</span>','biblioteca')}${chip(fh(cur.hs),'jugadas')}</div>
