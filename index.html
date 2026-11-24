@@ -1788,6 +1788,24 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .s3top.t10>div:nth-child(-n+3) em{color:var(--a2)}
 .s3tc h3{flex:none}.s3tc .s3sw{margin-left:auto}.s3tc h3::after{display:none}
 .s3tc .s3sw button{transition:background .3s,color .3s,transform .25s}.s3tc .s3sw button:active{transform:scale(.94)}
+
+/* top: transiciones */
+@keyframes s3Out{to{opacity:0;transform:translateY(8px) scale(.98);filter:blur(3px)}}
+@keyframes s3Hd{from{opacity:0;transform:translateY(-6px)}}
+.s3top.s3out,.s3e.s3out{animation:s3Out .19s ease-in forwards}
+.s3top.t5>div{padding:3px 8px;animation:s3row .6s calc(.06s + var(--r)*70ms) both cubic-bezier(.2,.9,.25,1)}
+.s3top.t5 .s3ic{width:44px;height:44px;border-radius:12px}.s3top.t5 .s3r{font-size:15px}.s3top.t5 .s3p{height:6px;margin-top:6px}
+.s3top.t5>div:first-child .s3r b{color:var(--a2)}
+.s3tc .s3sw{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;padding:3px}
+.s3tc .s3sw::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:99px;background:rgba(var(--argb),.92);box-shadow:0 4px 14px -3px rgba(var(--argb),.6);transition:transform .38s cubic-bezier(.34,1.3,.5,1)}
+.s3tc .s3sw[data-m="t"]::before{transform:translateX(100%)}
+.s3tc .s3sw button{position:relative;z-index:1;padding:5px 14px}.s3tc .s3sw button.on{background:transparent}
+.s3tc .s3sw button:not(.on):hover{color:var(--text)}
+.s3tc h3{animation:s3Hd .5s .1s both cubic-bezier(.2,.9,.25,1)}
+.s3top>div .s3p i{animation-delay:calc(.25s + var(--r,0)*70ms)}
+.s3top>div:hover .s3r b{color:var(--a2);transition:color .25s}
+.s3top>div:hover .s3r span{color:var(--text)}
+.s3top>div:active{transform:translateX(2px) scale(.99)}
 .wg2-w{display:flex;flex-direction:column;height:100%;min-height:640px;gap:6px}.wg2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr);grid-auto-rows:minmax(230px,1fr);gap:18px;flex:1;min-height:0;margin-top:14px}
 .wp2{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:flex-end;min-height:0;background:#0b0a12;transition:transform .3s var(--ease),box-shadow .3s}.wp2:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.45)}
 .wp2.big{grid-row:span 2;outline:2px solid rgba(var(--argb),.9);box-shadow:0 0 40px rgba(var(--argb),.28)}
@@ -6339,9 +6357,9 @@ function s3TopHtml(mode){
   if(!any){const t0=new Date(now.getFullYear(),now.getMonth(),1).getTime();(ST.ses||[]).forEach(x=>{if(x.s>=t0)h[x.g]=(h[x.g]||0)+x.h})}
   list=G.map(g=>({g,h:h[g.id]||0})).filter(x=>x.h>0)}
  else list=G.filter(g=>g.hours>0).map(g=>({g,h:g.hours}));
- list=list.sort((a,b)=>b.h-a.h).slice(0,10);const mx=list.length?list[0].h:1;
+ list=list.sort((a,b)=>b.h-a.h).slice(0,mode==='m'?5:10);const mx=list.length?list[0].h:1;
  const hh=v=>v>=1?fh(v):Math.max(1,Math.round(v*60))+' min';
- return `<h3>Lo más jugado${mode==='m'?` · ${MES}`:''}<span class="s3sw"><button data-a="s3tp" data-v="m" class="${mode==='m'?'on':''}">Este mes</button><button data-a="s3tp" data-v="t" class="${mode==='t'?'on':''}">Total</button></span></h3>${list.length?`<div class="s3top t10">${list.map((x,i)=>`<div data-a="open" data-id="${x.g.id}" style="--r:${i}"><em>${i+1}</em><span class="s3ic">${thumb(x.g)}</span><div><div class="s3r"><b>${esc(x.g.name)}</b><span>${hh(x.h)}</span></div><div class="s3p"><i style="--w:${x.h/mx*100}%"></i></div></div></div>`).join('')}</div>`:`<div class="s3e">${mode==='m'?'Todavía no jugaste nada este mes. A medida que juegues, acá se arma tu top 10 (se reinicia cada mes).':'Sin juegos todavía.'}</div>`}`}
+ return `<h3>Lo más jugado${mode==='m'?` · ${MES}`:''}<span class="s3sw" data-m="${mode}"><button data-a="s3tp" data-v="m" class="${mode==='m'?'on':''}">Este mes</button><button data-a="s3tp" data-v="t" class="${mode==='t'?'on':''}">Total</button></span></h3>${list.length?`<div class="s3top ${mode==='t'?'t10':'t5'}">${list.map((x,i)=>`<div data-a="open" data-id="${x.g.id}" style="--r:${i}"><em>${i+1}</em><span class="s3ic">${thumb(x.g)}</span><div><div class="s3r"><b>${esc(x.g.name)}</b><span>${hh(x.h)}</span></div><div class="s3p"><i style="--w:${x.h/mx*100}%"></i></div></div></div>`).join('')}</div>`:`<div class="s3e">${mode==='m'?'Todavía no jugaste nada este mes. A medida que juegues, acá se arma tu top 10 (se reinicia cada mes).':'Sin juegos todavía.'}</div>`}`}
 V.statsOld=V.stats;
 V.stats=()=>{
   const cy=new Date().getFullYear(),ys=wrapYears().filter(x=>x>=2026),y=ys.includes(S.sy)?S.sy:cy,d=statYear(y);
@@ -6903,7 +6921,7 @@ const A={
     rollGame();const cv=$('.rcv');if(cv)cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;cv.style.setProperty('--rx',(-y*14)+'deg');cv.style.setProperty('--ry',(x*16)+'deg')});if(cv)cv.addEventListener('mouseleave',()=>{cv.style.setProperty('--rx','0deg');cv.style.setProperty('--ry','0deg')})},
   rand2:()=>rollGame(),
   sy:a=>{S.sy=+a.dataset.v;go('stats')},
-  s3tp:a=>{S.s3tm=a.dataset.v;const c=document.querySelector('.s3tc');if(c)c.innerHTML=s3TopHtml(S.s3tm)},
+  s3tp:a=>{const v=a.dataset.v;if(v===(S.s3tm||'m')||S.s3bz)return;S.s3tm=v;const c=document.querySelector('.s3tc');if(!c)return;const sw=c.querySelector('.s3sw');if(sw){sw.dataset.m=v;sw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a))}const t=c.querySelector('.s3top,.s3e');if(!t||sgLite()){c.innerHTML=s3TopHtml(v);return}S.s3bz=1;t.classList.add('s3out');setTimeout(()=>{S.s3bz=0;c.innerHTML=s3TopHtml(v)},190)},
   s3w:a=>{S.s3w=a.dataset.v;go('stats')},
   goal:a=>{ST.goal=Math.max(1,(ST.goal||12)+parseInt(a.dataset.v));save();go('stats')},
   stab:a=>{const k=a.dataset.v;if(S.view==='settings'&&!S.inPf&&!({per:1,me:1,rew:1,pet:1})[k]&&$('.sx3:not(.solo) #sbody')){if(setT()===k&&!(S.sq||'').trim())return;if(setSwap(k))return}S.stab=k;S.sq='';go('settings')},
