@@ -1518,7 +1518,7 @@ function blStep(t) {
   t.blRun = 1;
   applyBl(t).then((ok) => { t.blRun = 0; if (ok) t.blS = i + 1; else if (el > 90000) t.blS = 3; });
 }
-let poller = null, pollT = null, pollBusy = false;
+let poller = null, pollT = null, pollBusy = false, pollBusyT = 0;
 /* revisa seguido justo al abrir (buscar el juego) y justo al cerrar (confirmar que se fue); el resto del tiempo, cada 4 s */
 function pollSched(first) {
   clearTimeout(pollT); pollT = null;
@@ -1526,7 +1526,7 @@ function pollSched(first) {
   poller = true;
   let fast = false; const n = Date.now();
   for (const t of track.values()) if ((!t.started && n - t.since < 45000) || t.miss > 0) fast = true;
-  pollT = setTimeout(async () => { if (!pollBusy) { pollBusy = true; try { await poll(); } catch (e) {} pollBusy = false; } pollSched(); }, first || (fast ? 1500 : 4000));
+  pollT = setTimeout(async () => { if (!pollBusy || Date.now() - pollBusyT > 40000) { pollBusy = true; pollBusyT = Date.now(); try { await poll(); } catch (e) {} pollBusy = false; } pollSched(); }, first || (fast ? 1500 : 4000));
 }
 const norm = (p) => p.toLowerCase().replace(/\//g, path.sep === '\\' ? '\\' : '/');
 function steamRun(app) {
@@ -1542,13 +1542,13 @@ async function poll() {
   if (!track.size) { poller = null; return; }
   const sr = new Map();
   for (const [id, t] of track) if (t.app) sr.set(id, await steamRun(t.app));
-  const fastOk = new Set();
-  if ([...track.values()].some((t) => !t.app && t.exe)) { const nm = await listNamesN(); if (nm) for (const [id, t] of track) if (!t.app && t.exe && nm.has(path.win32.basename(t.exe))) fastOk.add(id); }
-  const need = [...track].some(([id, t]) => (!t.app && !fastOk.has(id)) || (t.app && sr.get(id) === null));
+  const fastOk = new Set(), fastNo = new Set();
+  if ([...track.values()].some((t) => !t.app && t.exe)) { const nm = await listNamesN(); if (nm) for (const [id, t] of track) if (!t.app && t.exe) { if (nm.has(path.win32.basename(t.exe))) fastOk.add(id); else if (t.started) fastNo.add(id); } }
+  const need = [...track].some(([id, t]) => (!t.app && !fastOk.has(id) && !fastNo.has(id)) || (t.app && sr.get(id) === null));
   const pl = need ? await listProcsN() : [], procs = pl || [], plFail = pl === null;
   for (const [id, t] of [...track]) {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
-    const run = fastOk.has(id) ? true : (t.app && sr.get(id) !== null ? sr.get(id) : byProc());
+    const run = fastOk.has(id) ? true : fastNo.has(id) ? false : (t.app && sr.get(id) !== null ? sr.get(id) : byProc());
     if (run) { t.miss = 0; t.seen = Date.now(); if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
     else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 60000 : 9000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
