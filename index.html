@@ -3059,6 +3059,19 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 @keyframes sgvUpL{from{opacity:0;transform:translateX(-26px) translateY(10px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes sgvStr{0%{scale:1 1}35%{scale:1.16 .9}100%{scale:1 1}}
 @keyframes sgvEm{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+/* ---- pasada 3: parallax, inclinación, contadores ---- */
+.sgv-h{--mx:0;--my:0}
+.sgv-h .bg{translate:calc(var(--mx)*-14px) calc(var(--my)*-8px);transition:translate .5s cubic-bezier(.22,.8,.3,1)}
+.sgv-h:after{translate:calc(var(--mx)*-30px) calc(var(--my)*-20px);transition:translate .6s cubic-bezier(.22,.8,.3,1)}
+.sgv-po{translate:calc(var(--mx)*7px) calc(var(--my)*5px)}.sgv-t{translate:calc(var(--mx)*3px) calc(var(--my)*2px);transition:translate .5s cubic-bezier(.22,.8,.3,1)}
+.sgdt .sgt{transform-style:preserve-3d}.sgdt .sgt:not(.off):hover{transform:perspective(800px) translateY(-6px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.03);transition:transform .12s linear,border-color .2s,box-shadow .25s}
+.sgdt .sgt:not(:hover){transition:transform .5s cubic-bezier(.22,.8,.3,1),border-color .2s,box-shadow .25s}
+.sgv-p.on .sgv-tl:before{transform-origin:top;animation:sgvLine 1s .1s cubic-bezier(.22,.8,.3,1) backwards}
+.sgdt .sgq>div.on:after{animation:sgvEm .6s .5s cubic-bezier(.34,1.8,.5,1) backwards}
+.sge .sgv-p>section.card,.sge .sgv-eb{animation:sgvUp .5s cubic-bezier(.22,.8,.3,1) backwards}
+.sgv-back{transition:background .2s,transform .2s}.sgv-back:active{transform:scale(.95)}
+.sgdt .sgrs:active,.sgdt .sgt:not(.off):active{filter:brightness(1.12)}
+@keyframes sgvLine{from{transform:scaleY(0)}}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -7927,14 +7940,14 @@ function sgHtml(){
   const tabs=[['g','Juegos',cur.tot],...(cur.rec?[['o','Orden recomendado',cur.rec.steps.length]]:[]),['s','Sobre la saga',''],['h','Hitos',hs.filter(h=>h.on).length+'/'+hs.length]];
   let tb=S.sgtab||'g';if(!tabs.some(t=>t[0]===tb))tb='g';
   const ti=Math.max(0,tabs.findIndex(t=>t[0]===tb)),pct=cur.tot?Math.round(100*cur.dn/cur.tot):0,R=30,CI=2*Math.PI*R,I=sgInfo(cur.name),nxn=cur.next?cur.next.n:'';
-  const ring=`<div class="sgv-ring ${done?'gold':''}" title="${pct}% terminado"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" class="bg"/><circle cx="38" cy="38" r="${R}" class="fg" style="stroke-dasharray:${CI.toFixed(1)};stroke-dashoffset:${(CI*(1-pct/100)).toFixed(1)}"/></svg><b>${pct}<em>%</em></b></div>`;
+  const ring=`<div class="sgv-ring ${done?'gold':''}" title="${pct}% terminado"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" class="bg"/><circle cx="38" cy="38" r="${R}" class="fg" style="stroke-dasharray:${CI.toFixed(1)};stroke-dashoffset:${(CI*(1-pct/100)).toFixed(1)}"/></svg><b><span data-cu="${pct}">${pct}</span><em>%</em></b></div>`;
   const chip=(v,l)=>`<div class="sgv-ch"><b>${v}</b><small>${l}</small></div>`;
   return `<div class="stack sgdt ${S.sgfx?'sgvin':''} ${S.sge?'sge':''}" style="--c:${cur.col}">
   <section class="sgv-h ${done?'gold':''}">${hero?`<div class="bg" style="background-image:url('${art.hero(hero.g)}')"></div>`:''}<div class="sgv-sh"></div>
    <button class="sgv-back" data-a="sgback"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Sagas</button>
    <div class="sgv-m"><div class="sgpsm sgv-po">${sgPoster(cur)}</div>
     <div class="sgv-t"><small>${done?'Saga completa':'Saga'}${I?' · '+esc(I[1])+' · desde '+I[2]:''}</small><h1>${esc(cur.name)}</h1>${nxn&&!done?`<div class="sgv-nx">Siguiente: <b>${esc(nxn)}</b></div>`:done?'<div class="sgv-nx">Terminaste todos los juegos de la saga</div>':''}
-     <div class="sgv-chs">${chip(cur.dn+'<em>/'+cur.tot+'</em>','terminados')}${chip(cur.ow,'en tu biblioteca')}${chip(fh(cur.hs),'jugadas')}${chip(cur.avg?cur.avg.toFixed(1):'—','nota promedio')}${left?chip('~'+left+' h','para completarla'):''}</div></div>
+     <div class="sgv-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados')}${chip('<span data-cu="'+cur.ow+'">'+cur.ow+'</span>','en tu biblioteca')}${chip(fh(cur.hs),'jugadas')}${chip(cur.avg?cur.avg.toFixed(1):'—','nota promedio')}${left?chip('~'+left+' h','para completarla'):''}</div></div>
     ${ring}</div>
    <div class="sgv-ac">${cur.next?`<button class="hm-go sgv-play" data-a="sgplay">${ic('play')} Jugar el próximo</button>`:''}<button class="hm-go hm-gh" data-a="sgadd" data-c="${cur.cid}">Agregar juegos</button><button class="hm-go hm-gh" data-a="sgedit">${S.sge?'Listo':'Editar'}</button>${S.sge?`<button class="hm-go sgdelb" data-a="sgdel2" data-c="${cur.cid}">Eliminar saga</button>`:''}</div>
   </section>
@@ -7957,8 +7970,12 @@ function sgHtml(){
    <div class="sgtop-bar" title="${pj}% de los juegos de tus sagas ya los jugaste"><i style="width:${pj}%"></i><span>${pj}%</span></div></div>
   <div class="sgtop-r"><div class="sgsr">${ic('search')}<input id="sgq" placeholder="Buscar saga…" value="${esc(S.sgq||'')}"></div><div class="sgseg">${F.map(([k,t])=>`<button class="${f===k?'on':''}" data-a="sgf" data-k="${k}">${t}<em>${cn[k]}</em></button>`).join('')}</div><button class="hm-go hm-gh" data-a="sgsync">Actualizar</button></div></header>
   ${list.length?`<div class="sg-grid" style="--cols:${cols}">${list.slice(pg*lim,pg*lim+lim).map((x,ix)=>{const d=x.dn>=x.tot,pc=Math.round(100*x.dn/x.tot);return `<div class="sgp rise ${d?'gold':''}" style="--c:${x.col};--i:${ix};--d:${(ix%cols)+Math.floor(ix/cols)}" data-a="sgopen" data-c="${x.cid}">${sgPoster(x)}${d?'<span class="sgsh"></span><i class="sgst" style="left:14%;top:30%"></i><i class="sgst" style="right:12%;top:46%;animation-delay:.9s;width:10px;height:10px"></i><i class="sgst" style="left:30%;top:64%;animation-delay:1.7s;width:9px;height:9px"></i><span class="sgrb">COMPLETA</span>':''}<div class="sgpt"><small>${x.dn} de ${x.tot} terminados${x.hs?' · '+fh(x.hs):''}</small><div class="sgb"><i style="width:${pc}%"></i></div></div></div>`}).join('')}</div>${list.length>lim?`<div class="sgpgs">${pgs}</div>`:''}`:`<section class="card rise"><div class="empty">${S.sgbusy?'Reconociendo tu biblioteca…':'No hay sagas en esta vista todavía.'}</div></section>`}</div>`}
+function sgFx(){if(document.body.classList.contains('nomo'))return;document.querySelectorAll('.sgv-h [data-cu]').forEach(e=>{const n=+e.dataset.cu;if(!n)return;const t0=performance.now()+350,d=1100;e.textContent='0';const f=t=>{const k=Math.max(0,Math.min(1,(t-t0)/d));e.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1&&e.isConnected)requestAnimationFrame(f)};requestAnimationFrame(f)})}
+(function(){let raf=0,lx=0,ly=0,lt=null;const lite=()=>document.body.classList.contains('perf')||document.body.classList.contains('ultra')||document.body.classList.contains('nomo');
+document.addEventListener('pointermove',e=>{lx=e.clientX;ly=e.clientY;lt=e.target;if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(lite()||!lt||!lt.closest)return;const hd=lt.closest('.sgv-h');if(hd){const r=hd.getBoundingClientRect();hd.style.setProperty('--mx',((lx-r.left)/r.width-.5).toFixed(3));hd.style.setProperty('--my',((ly-r.top)/r.height-.5).toFixed(3))}const t=lt.closest('.sgdt .sgt:not(.off)');if(t&&!document.body.classList.contains('sge')){const r=t.getBoundingClientRect();t.style.setProperty('--ry',(((lx-r.left)/r.width-.5)*9).toFixed(2)+'deg');t.style.setProperty('--rx',(-((ly-r.top)/r.height-.5)*9).toFixed(2)+'deg')}})},{passive:true});
+document.addEventListener('pointerout',e=>{const t=e.target.closest&&e.target.closest('.sgdt .sgt');if(t&&!t.contains(e.relatedTarget)){t.style.removeProperty('--rx');t.style.removeProperty('--ry')}const hd=e.target.closest&&e.target.closest('.sgv-h');if(hd&&!hd.contains(e.relatedTarget)){hd.style.setProperty('--mx',0);hd.style.setProperty('--my',0)}})})();
 V.sagas=()=>{sagaLocal();return sgHtml().replace('class="stack sgfit"','class="stack sgfit sgin"')};
-function sgDraw(){if(BP&&BP.sec==='sagas'){bpSgPaint();return}if(S.view!=='sagas')return;const v=$('#view'),y=v.scrollTop,bp=(document.querySelector('.sgv-body')||{}).scrollTop||0;v.innerHTML=sgHtml();v.scrollTop=y;S.sgfx=0;const nb=document.querySelector('.sgv-body');if(nb&&bp)nb.scrollTop=bp}
+function sgDraw(){if(BP&&BP.sec==='sagas'){bpSgPaint();return}if(S.view!=='sagas')return;const v=$('#view'),y=v.scrollTop,bp=(document.querySelector('.sgv-body')||{}).scrollTop||0;v.innerHTML=sgHtml();v.scrollTop=y;if(S.sgfx)sgFx();S.sgfx=0;const nb=document.querySelector('.sgv-body');if(nb&&bp)nb.scrollTop=bp}
 async function sagaSync(force){sagaLocal();sgDraw();return}
 async function sagaSyncOld(force){
  if(!igOn()||!winteerNative.igdbSagas||sagaSync.b)return;
