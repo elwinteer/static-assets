@@ -3371,6 +3371,53 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sg2in:after{content:"";position:fixed;left:0;top:0;width:60vw;height:60vh;pointer-events:none;background:radial-gradient(closest-side,color-mix(in srgb,var(--c) 26%,transparent),transparent);animation:sg2Gl 1.2s ease-out both;z-index:-1}
 .perf .sg2in,.ultra .sg2in,.nomo .sg2in{animation:none}.perf .sg2in:after,.ultra .sg2in:after,.nomo .sg2in:after{display:none}
 .sg2-ab+.sg2-chs{margin-top:auto}
+
+/* ===== ventana de saga: pasada de detalles ===== */
+@keyframes sg2Tt{from{clip-path:inset(0 100% 0 0);opacity:0;transform:translateX(-10px)}}
+@keyframes sg2Sw{from{transform:translateX(-120%) skewX(-18deg);opacity:1}85%{opacity:1}to{transform:translateX(420%) skewX(-18deg);opacity:0}}
+@keyframes sg2Br{0%,100%{box-shadow:0 8px 26px -10px var(--c)}50%{box-shadow:0 10px 34px -4px var(--c)}}
+@keyframes sg2Tp{from{opacity:0;transform:translateY(26px) scale(.88);filter:blur(5px)}55%{transform:translateY(-4px) scale(1.02);filter:none}}
+@keyframes sg2Hd{from{transform:scaleX(0)}}
+@keyframes sg2Or{0%,100%{transform:translate(0,0)}50%{transform:translate(-6%,5%)}}
+.sg2in .sg2-s>*{animation-timing-function:cubic-bezier(.16,1,.3,1);animation-duration:.9s}
+.sg2in .sg2-m>.sg2-c{animation-timing-function:cubic-bezier(.16,1,.3,1);animation-duration:.95s}
+.sg2in{animation-duration:.95s;animation-timing-function:cubic-bezier(.16,1,.3,1)}
+.sg2in .sg2-gs .sgt{animation:sg2Tp .8s calc(.32s + var(--w,0)*70ms) cubic-bezier(.16,1,.3,1) backwards}
+.sg2in .sg2-t h1{animation:sg2Tt .9s .3s cubic-bezier(.16,1,.3,1) backwards}
+.sg2in .sg2-t small{animation:sg2Up .8s .22s cubic-bezier(.16,1,.3,1) backwards}
+.sg2in .sg2-rr{animation:sg2Up .8s .42s cubic-bezier(.16,1,.3,1) backwards}
+/* destello que cruza la barra lateral una vez */
+.sg2 .sg2-s{position:relative}
+.sg2in .sg2-s:after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:34%;pointer-events:none;z-index:3;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:translateX(-120%) skewX(-18deg);animation:sg2Sw 1.3s .45s cubic-bezier(.4,0,.2,1) both}
+/* luz ambiental del panel principal */
+.sg2 .sg2-m{position:relative;isolation:isolate}
+.sg2 .sg2-m:before{content:"";position:absolute;right:0;top:0;width:62%;height:55%;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,color-mix(in srgb,var(--c) 18%,transparent),transparent);animation:sg2Or 16s ease-in-out infinite}
+/* títulos de sección */
+.sg2-hd{position:relative;padding-bottom:7px}.sg2-hd:after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 70%,#fff),rgba(255,255,255,.1) 40%,transparent);transform-origin:left;animation:sg2Hd 1s .5s cubic-bezier(.16,1,.3,1) backwards}
+/* póster */
+.sg2 .sg2-po{box-shadow:0 14px 34px rgba(0,0,0,.55),0 0 46px -10px var(--c)}
+.sg2 .sg2-po:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s cubic-bezier(.16,1,.3,1)}.sg2 .sg2-po:hover:after{transform:translateX(120%)}
+/* botón principal */
+.sg2 .sg2-play{animation:sg2Br 3.2s 1.8s ease-in-out infinite;transition:transform .25s cubic-bezier(.34,1.4,.5,1),filter .25s}
+.sg2in .sg2-s>.sg2-play{animation:sg2Up .9s calc(.14s + var(--q,0)*75ms) cubic-bezier(.16,1,.3,1) backwards,sg2Br 3.2s 1.8s ease-in-out infinite}
+.sg2 .sg2-play:hover{transform:translateY(-2px) scale(1.015);filter:brightness(1.06)}.sg2 .sg2-play:active{transform:scale(.98)}
+/* juegos */
+.sg2-gs .sgt{transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .35s,border-color .35s}
+.sg2-gs .sgt:not(.off):hover{box-shadow:0 18px 36px -14px var(--c),0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent)}
+.sg2-gs .sgt .sgcv:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.2) 50%,transparent 62%);transform:translateX(-130%);transition:transform .9s cubic-bezier(.16,1,.3,1)}.sg2-gs .sgt:not(.off):hover .sgcv:after{transform:translateX(130%)}
+.sg2-gs .sgt .sgtt{transition:transform .35s cubic-bezier(.16,1,.3,1)}.sg2-gs .sgt:not(.off):hover .sgtt{transform:translateY(-3px)}
+.sg2-gs .sgt.done{box-shadow:0 0 0 1.5px rgba(251,191,36,.55),0 10px 26px -12px rgba(251,191,36,.5)}
+.sg2-gs{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--c) 55%,transparent) transparent}
+/* curiosidades */
+.sg2-fa>div span:before{content:"";display:inline-block;width:6px;height:6px;margin-right:8px;border-radius:50%;background:var(--c);filter:brightness(1.6);box-shadow:0 0 8px var(--c);vertical-align:middle}
+.sg2-fa>div{border:1px solid rgba(255,255,255,.05);transition:transform .3s cubic-bezier(.16,1,.3,1),background .3s,border-color .3s}.sg2-fa>div:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent)}
+/* botones de abajo */
+.sg2-ac .hm-go{transition:transform .25s cubic-bezier(.34,1.4,.5,1),background .25s}.sg2-ac .hm-go:hover{transform:translateY(-2px)}.sg2-ac .hm-go:active{transform:scale(.96)}
+/* chips y hitos */
+.sg2-hh{transition:background .25s}.sg2-hh:hover{background:rgba(255,255,255,.06)}
+.sg2-hh svg{transition:transform .4s cubic-bezier(.34,1.4,.5,1)}.sg2-hg.open .sg2-hh svg{transform:rotate(180deg)}
+.perf .sg2in:after,.ultra .sg2in:after,.nomo .sg2in:after,.perf .sg2 .sg2-m:before,.ultra .sg2 .sg2-m:before,.nomo .sg2 .sg2-m:before{display:none}
+.perf .sg2 *,.ultra .sg2 *{animation-iteration-count:1!important}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -8329,8 +8376,9 @@ function sgFx(){if(document.body.classList.contains('nomo'))return;document.quer
 document.addEventListener('pointermove',e=>{lx=e.clientX;ly=e.clientY;lt=e.target;if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(lite()||!lt||!lt.closest)return;const hd=lt.closest('.sgv-h');if(hd){const r=hd.getBoundingClientRect();hd.style.setProperty('--mx',((lx-r.left)/r.width-.5).toFixed(3));hd.style.setProperty('--my',((ly-r.top)/r.height-.5).toFixed(3))}const t=lt.closest('.sgdt .sgt:not(.off)');if(t&&!document.body.classList.contains('sge')){const r=t.getBoundingClientRect();t.style.setProperty('--ry',(((lx-r.left)/r.width-.5)*9).toFixed(2)+'deg');t.style.setProperty('--rx',(-((ly-r.top)/r.height-.5)*9).toFixed(2)+'deg')}})},{passive:true});
 document.addEventListener('pointerout',e=>{const t=e.target.closest&&e.target.closest('.sgdt .sgt');if(t&&!t.contains(e.relatedTarget)){t.style.removeProperty('--rx');t.style.removeProperty('--ry')}const hd=e.target.closest&&e.target.closest('.sgv-h');if(hd&&!hd.contains(e.relatedTarget)){hd.style.setProperty('--mx',0);hd.style.setProperty('--my',0)}})})();
 V.sagas=()=>{sagaLocal();return sgHtml().replace('class="stack sgfit"','class="stack sgfit sgin"')};
+function sgWave(){const gs=document.querySelector('.sg2-gs .sgg');if(!gs)return;const cols=Math.max(1,getComputedStyle(gs).gridTemplateColumns.split(' ').length);gs.querySelectorAll('.sgt').forEach((t,i)=>t.style.setProperty('--w',(i%cols)+Math.floor(i/cols)))}
 function sgFit(){const s=document.querySelector('.sg2-s'),h=s&&s.querySelector('.sg2-hg');if(!s||!h||S.sge||S.sghu)return;const bio=s.querySelector('.sg2-bio'),ex=bio?Math.max(0,bio.scrollHeight-bio.clientHeight):0,hb=h.querySelector('.sg2-hb>div'),was=h.classList.contains('open'),k=[...s.children].filter(e=>e.offsetParent!==null),used=k.reduce((t,e)=>t+e.offsetHeight,0)+ex+11*(k.length-1)+32,free=s.clientHeight-used,need=hb?hb.scrollHeight+10:0;if(!was&&need&&free>=need+6){h.classList.add('open');S.sgho=true}else if(was&&free<-4){h.classList.remove('open');S.sgho=false}}
-function sgDraw(){if(BP&&BP.sec==='sagas'){bpSgPaint();return}if(S.view!=='sagas')return;if(S.sgo&&S.sgT0&&Date.now()-S.sgT0<1300){clearTimeout(S.sgTm);S.sgTm=setTimeout(sgDraw,1320-(Date.now()-S.sgT0));return}if(S.sgo&&S.sgfx)S.sgT0=Date.now();const v=$('#view'),y=v.scrollTop,bp=(document.querySelector('.sgv-body')||{}).scrollTop||0;v.innerHTML=sgHtml();v.scrollTop=y;if(S.sgfx)sgFx();S.sgfx=0;const nb=document.querySelector('.sgv-body');if(nb&&bp)nb.scrollTop=bp;requestAnimationFrame(sgFit)}
+function sgDraw(){if(BP&&BP.sec==='sagas'){bpSgPaint();return}if(S.view!=='sagas')return;if(S.sgo&&S.sgT0&&Date.now()-S.sgT0<1300){clearTimeout(S.sgTm);S.sgTm=setTimeout(sgDraw,1320-(Date.now()-S.sgT0));return}if(S.sgo&&S.sgfx)S.sgT0=Date.now();const v=$('#view'),y=v.scrollTop,bp=(document.querySelector('.sgv-body')||{}).scrollTop||0;v.innerHTML=sgHtml();sgWave();v.scrollTop=y;if(S.sgfx)sgFx();S.sgfx=0;const nb=document.querySelector('.sgv-body');if(nb&&bp)nb.scrollTop=bp;requestAnimationFrame(sgFit)}
 async function sagaSync(force){sagaLocal();sgDraw();return}
 async function sagaSyncOld(force){
  if(!igOn()||!winteerNative.igdbSagas||sagaSync.b)return;
