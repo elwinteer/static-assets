@@ -1774,15 +1774,20 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .s3sh{color:var(--a2);font-weight:700}
 .s3t .in b{animation:s3up .9s .65s both cubic-bezier(.2,.9,.25,1)}.s3t .in p{animation:s3up .9s .75s both cubic-bezier(.2,.9,.25,1)}
 .s3top em{border-radius:8px;transition:transform .3s cubic-bezier(.34,1.56,.4,1)}.s3top>div:hover em{transform:scale(1.2)}
-.s3top em.m1{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#3b2a05;box-shadow:0 0 12px rgba(251,191,36,.5);animation:s3Fl 3s 1.2s ease-in-out infinite}.s3top em.m2{background:linear-gradient(135deg,#f1f5f9,#94a3b8);color:#1e293b}.s3top em.m3{background:linear-gradient(135deg,#fdba74,#b45309);color:#fff}
-.s3top em.m1,.s3top em.m2,.s3top em.m3{width:22px;height:22px;display:grid;place-items:center;font-size:12px;font-weight:800}
-.s3top>div:first-child .s3p i{background:linear-gradient(90deg,var(--a),#fbbf24)}
 .s3g i{position:relative}.s3l li{cursor:default}.s3l li:hover i{transform:scale(1.35);transition:transform .3s cubic-bezier(.34,1.56,.4,1)}
 .s3ks .s3k:hover{box-shadow:0 10px 24px -10px rgba(var(--argb),.5)}
 .s3c h3::after{content:"";flex:1;height:1px;margin-left:6px;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent);transform-origin:left;animation:s3Ln .9s .5s both cubic-bezier(.2,.9,.25,1)}
 .s3big{animation:s3Gr .8s .2s both cubic-bezier(.2,.9,.25,1)}.s3h p{animation:s3Gr .7s .35s both cubic-bezier(.2,.9,.25,1)}
 .s3q{animation:s3Gr .6s .45s both cubic-bezier(.2,.9,.25,1)}
 .perf .st3 *,.ultra .st3 *,.nomo .st3 *{animation-duration:.01s!important;animation-iteration-count:1!important;animation-delay:0s!important}
+
+/* top 10 */
+.s3top.t10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;column-gap:26px;justify-content:stretch}
+.s3top.t10>div{gap:10px;padding:4px 8px;animation:s3row .55s calc(.08s + var(--r)*55ms) both cubic-bezier(.2,.9,.25,1)}
+.s3top.t10 .s3ic{width:38px;height:38px;border-radius:11px}.s3top.t10 em{width:22px;font-size:12px}.s3top.t10 .s3r{font-size:13px}.s3top.t10 .s3r span{font-size:12px}.s3top.t10 .s3p{margin-top:5px}
+.s3top.t10>div:nth-child(-n+3) em{color:var(--a2)}
+.s3tc h3{flex:none}.s3tc .s3sw{margin-left:auto}.s3tc h3::after{display:none}
+.s3tc .s3sw button{transition:background .3s,color .3s,transform .25s}.s3tc .s3sw button:active{transform:scale(.94)}
 .wg2-w{display:flex;flex-direction:column;height:100%;min-height:640px;gap:6px}.wg2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr);grid-auto-rows:minmax(230px,1fr);gap:18px;flex:1;min-height:0;margin-top:14px}
 .wp2{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:flex-end;min-height:0;background:#0b0a12;transition:transform .3s var(--ease),box-shadow .3s}.wp2:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.45)}
 .wp2.big{grid-row:span 2;outline:2px solid rgba(var(--argb),.9);box-shadow:0 0 40px rgba(var(--argb),.28)}
@@ -6327,6 +6332,16 @@ V.stats=()=>{
       <section class="card rise" style="--i:9"><h3>Datos curiosos</h3><div class="insg">${ins.map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div></section></div></div></div>`};
 
 
+function s3TopHtml(mode){
+ const now=new Date(),pad=n=>String(n).padStart(2,'0'),pre=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-',MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][now.getMonth()];
+ let list;
+ if(mode==='m'){const h={};const GL=ST.gl||{};let any=false;for(const k in GL){if(k.startsWith(pre))for(const id in GL[k]){h[id]=(h[id]||0)+GL[k][id];any=true}}
+  if(!any){const t0=new Date(now.getFullYear(),now.getMonth(),1).getTime();(ST.ses||[]).forEach(x=>{if(x.s>=t0)h[x.g]=(h[x.g]||0)+x.h})}
+  list=G.map(g=>({g,h:h[g.id]||0})).filter(x=>x.h>0)}
+ else list=G.filter(g=>g.hours>0).map(g=>({g,h:g.hours}));
+ list=list.sort((a,b)=>b.h-a.h).slice(0,10);const mx=list.length?list[0].h:1;
+ const hh=v=>v>=1?fh(v):Math.max(1,Math.round(v*60))+' min';
+ return `<h3>Lo más jugado${mode==='m'?` · ${MES}`:''}<span class="s3sw"><button data-a="s3tp" data-v="m" class="${mode==='m'?'on':''}">Este mes</button><button data-a="s3tp" data-v="t" class="${mode==='t'?'on':''}">Total</button></span></h3>${list.length?`<div class="s3top t10">${list.map((x,i)=>`<div data-a="open" data-id="${x.g.id}" style="--r:${i}"><em>${i+1}</em><span class="s3ic">${thumb(x.g)}</span><div><div class="s3r"><b>${esc(x.g.name)}</b><span>${hh(x.h)}</span></div><div class="s3p"><i style="--w:${x.h/mx*100}%"></i></div></div></div>`).join('')}</div>`:`<div class="s3e">${mode==='m'?'Todavía no jugaste nada este mes. A medida que juegues, acá se arma tu top 10 (se reinicia cada mes).':'Sin juegos todavía.'}</div>`}`}
 V.statsOld=V.stats;
 V.stats=()=>{
   const cy=new Date().getFullYear(),ys=wrapYears().filter(x=>x>=2026),y=ys.includes(S.sy)?S.sy:cy,d=statYear(y);
@@ -6345,7 +6360,7 @@ V.stats=()=>{
      ${d.tot>0?`<div class="s3bh"><span>Horas por mes · ${y}</span><span class="s3pk">Mejor mes <b>${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][bm]}</b> · ${mm.toFixed(1).replace('.',',')} h</span></div>`:''}${d.tot>0?bars(d.month,['E','F','M','A','M','J','J','A','S','O','N','D'],mm,bm):`<div class="s3e">Las barras por mes se llenan con las partidas que jugás desde WINTEER.</div>`}
      <div class="s3ks">${chip(doneN(),'terminados','check')}${chip(streakAll(),'racha actual','cal',' d')}${chip(played.length,'juegos jugados','clock')}${chip(gaN(),'hitos','trophy')}</div></section>
    ${tg?`<section class="s3t rise" style="--i:1" data-a="open" data-id="${tg.id}"><img class="bg" src="${art.hero(tg)}" data-fb="${art.wide(tg)}" alt=""><i class="sh"></i><span class="s3no">N.º 1</span><div class="in"><small>TU JUEGO MÁS JUGADO</small><b>${esc(tg.name)}</b><p>${fh(tg.hours)} en total · <span class="s3sh">${Math.round(tg.hours/(th||1)*100)}% de tu tiempo</span></p></div></section>`:`<section class="s3c rise" style="--i:1"><h3>Tu juego más jugado</h3><div class="s3e">Todavía no jugaste nada. Cuando juegues, aparece acá.</div></section>`}
-   <section class="s3c rise" style="--i:2"><h3>Lo más jugado</h3><div class="s3top">${top.map((g,i)=>`<div data-a="open" data-id="${g.id}"><em class="m${i+1}">${i+1}</em><span class="s3ic">${thumb(g)}</span><div><div class="s3r"><b>${esc(g.name)}</b><span>${fh(g.hours)}</span></div><div class="s3p"><i style="--w:${g.hours/top[0].hours*100}%"></i></div></div></div>`).join('')||'<div class="s3e">Sin juegos todavía.</div>'}</div></section>
+   <section class="s3c s3tc rise" style="--i:2">${s3TopHtml(S.s3tm||'m')}</section>
    <div class="s3s"><section class="s3c rise" style="--i:3"><h3>${cm?'Tus llamadas':'Cuándo jugás'}${CD?`<span class="s3sw"><button data-a="s3w" data-v="g" class="${cm?'':'on'}">Jugando</button><button data-a="s3w" data-v="c" class="${cm?'on':''}">Llamadas</button></span>`:''}</h3>${cm?`<div class="s3q">Llamás más a las <span>${CD.hb}:00</span></div>${bars(CD.hr,CD.hr.map((_,i)=>i%3===0?String(i):''),Math.max(0.01,...CD.hr),CD.hb)}<div class="s3cl">${fhc(CD.tot)} en llamada · ${CD.n} ${CD.n===1?'llamada':'llamadas'} · la más larga ${fhc(CD.mx)}${CD.top&&FR().c[CD.top]?' · más con '+esc(FR().c[CD.top].name):''}</div>${(()=>{const T=clTog(y);if(T.all<=0)return '';const pc=Math.round(T.tog/T.all*100);return `<div class="s3ac">Jugás acompañado el <b>${pc}%</b> de tu tiempo${T.tog>0?' · '+fhc(T.tog)+' en llamada':''}<div class="acb">${T.mo.map(m=>`<i style="--p:${m.a>0?Math.round(m.t/m.a*100):0}%"></i>`).join('')}</div></div>`})()}`:''}${cm?'':(bw>=0||hasH?`<div class="s3q">${bw>=0?'Los <span>'+WD[bw]+'</span> ':'Jugás '}${hasH?'<span>'+part+'</span>':''}</div>${bars(wdAll,['L','M','X','J','V','S','D'],wmx,bw)}`:`<div class="s3e">Con tus próximas partidas vas a ver acá tus hábitos.</div>`)}</section>
    <section class="s3c rise" style="--i:4"><h3>Tus géneros</h3>${gl.length?`<div class="s3g">${gl.map(([n,h],i)=>`<i style="width:${h/gt*100}%;background:${GC[i]}"></i>`).join('')}</div><ul class="s3l">${gl.map(([n,h],i)=>`<li><i style="background:${GC[i]}"></i>${esc(n)}<b data-count="${Math.round(h/gt*100)}" data-suf="%">0%</b></li>`).join('')}</ul>`:'<div class="s3e">Sin datos de género todavía.</div>'}</section></div></div>`};
 
@@ -6888,6 +6903,7 @@ const A={
     rollGame();const cv=$('.rcv');if(cv)cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;cv.style.setProperty('--rx',(-y*14)+'deg');cv.style.setProperty('--ry',(x*16)+'deg')});if(cv)cv.addEventListener('mouseleave',()=>{cv.style.setProperty('--rx','0deg');cv.style.setProperty('--ry','0deg')})},
   rand2:()=>rollGame(),
   sy:a=>{S.sy=+a.dataset.v;go('stats')},
+  s3tp:a=>{S.s3tm=a.dataset.v;const c=document.querySelector('.s3tc');if(c)c.innerHTML=s3TopHtml(S.s3tm)},
   s3w:a=>{S.s3w=a.dataset.v;go('stats')},
   goal:a=>{ST.goal=Math.max(1,(ST.goal||12)+parseInt(a.dataset.v));save();go('stats')},
   stab:a=>{const k=a.dataset.v;if(S.view==='settings'&&!S.inPf&&!({per:1,me:1,rew:1,pet:1})[k]&&$('.sx3:not(.solo) #sbody')){if(setT()===k&&!(S.sq||'').trim())return;if(setSwap(k))return}S.stab=k;S.sq='';go('settings')},
