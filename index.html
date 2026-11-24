@@ -3327,6 +3327,27 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sgfc-pn.sgfcIn{animation:sgvUp .4s cubic-bezier(.22,.8,.3,1)}
 .sgfc-pn>.sgfc-hs{margin:0}.sgfc-pn>.sgfc-hs>span{display:none}
 .sgfc-p{max-height:230px}
+
+/* historial v2 */
+@keyframes sgfBr{from{transform:scaleY(0)}}
+.sgfc-hv{display:flex;flex-direction:column;gap:14px;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,rgba(255,255,255,.03)),rgba(255,255,255,.03));border:1px solid color-mix(in srgb,var(--c) 28%,rgba(255,255,255,.06))}
+.sgfc-h1{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}
+.sgfc-hb{display:flex;flex-direction:column;gap:4px;align-items:flex-start}.sgfc-hb small{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sgfc-hb b{font-size:38px;line-height:1;font-weight:800;letter-spacing:-.02em;background:linear-gradient(180deg,#fff,color-mix(in srgb,var(--c) 40%,#fff));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.sgfc-pill{margin-top:4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,var(--c) 28%,transparent);color:#fff}
+.sgfc-sp{display:flex;align-items:flex-end;gap:7px;height:62px;flex:none}
+.sgfc-sp>div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;width:24px}
+.sgfc-sp i{display:block;width:100%;height:var(--h);border-radius:6px 6px 3px 3px;background:color-mix(in srgb,var(--c) 45%,rgba(255,255,255,.12));transform-origin:bottom;animation:sgfBr .7s calc(.15s + var(--k)*60ms) cubic-bezier(.34,1.3,.5,1) backwards;transition:filter .25s}
+.sgfc-sp>div:last-child i{background:linear-gradient(180deg,#fff,var(--c))}.sgfc-sp>div:hover i{filter:brightness(1.35)}
+.sgfc-sp span{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.sgfc-tl{display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.sgfc-tl>div:not(.sgfc-ln){display:flex;flex-direction:column;gap:2px}.sgfc-tl small{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}.sgfc-tl b{font-size:13.5px;font-weight:700}
+.sgfc-ln{flex:1;position:relative;height:2px;background:linear-gradient(90deg,var(--c),rgba(255,255,255,.18));border-radius:2px;transform-origin:left;animation:sgfLn .8s .3s cubic-bezier(.22,.8,.3,1) backwards;margin:0 4px}
+.sgfc-ln:before,.sgfc-ln:after{content:"";position:absolute;top:50%;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}.sgfc-ln:before{left:-4px}.sgfc-ln:after{right:-4px;background:#fff}
+.sgfc-ln span{position:absolute;left:50%;top:-18px;transform:translateX(-50%);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.sgfc-h3{display:flex;gap:18px;flex-wrap:wrap}.sgfc-h3 span{font-size:12px;color:var(--muted);display:flex;gap:7px;align-items:baseline}.sgfc-h3 b{color:var(--text);font-weight:700;text-transform:capitalize}
+.sgfc-he{font-size:13px;color:var(--muted);padding:6px 0}
+.sgfc-pn.on .sgfc-hv>*{animation:sgvUp .5s both cubic-bezier(.22,.8,.3,1)}.sgfc-pn.on .sgfc-hv>*:nth-child(2){animation-delay:.1s}.sgfc-pn.on .sgfc-hv>*:nth-child(3){animation-delay:.18s}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -6740,7 +6761,7 @@ const A={
   go:a=>go(a.dataset.v),
   open:a=>go('games',{sel:a.dataset.id,q:''}),
   sgnone:()=>{},
-  sgft:a=>{const f=a.closest('.sgfc');if(!f)return;const v=a.dataset.v,tb=f.querySelector('.sgfc-tb');if(tb){tb.dataset.t=v;tb.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a))}f.querySelectorAll('.sgfc-pn').forEach(p=>{const on=p.dataset.p===v;p.classList.toggle('on',on);if(on&&!sgLite()){p.classList.remove('sgfcIn');void p.offsetWidth;p.classList.add('sgfcIn')}})},
+  sgft:a=>{const f=a.closest('.sgfc');if(!f)return;const v=a.dataset.v,tb=f.querySelector('.sgfc-tb');if(tb){tb.dataset.t=v;tb.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===a))}f.querySelectorAll('.sgfc-pn').forEach(p=>{const on=p.dataset.p===v;p.classList.toggle('on',on);if(on&&!sgLite()){p.classList.remove('sgfcIn');void p.offsetWidth;p.classList.add('sgfcIn');if(v==='h')counters(p)}})},
   sgmv:a=>{const cid=S.sgo,sg=sgBuild().find(x=>x.cid===cid);if(!sg)return;const ks=sg.mem.map(x=>x.k),i=ks.indexOf(a.dataset.k),j=i+(+a.dataset.d);if(i<0||j<0||j>=ks.length)return;[ks[i],ks[j]]=[ks[j],ks[i]];sgX().ord[cid]=ks;save();sgDraw()},
   sgor:a=>{delete sgX().ord[a.dataset.c];save();sgDraw();toast('Orden por año restablecido')},
   sgyr:a=>{const k=a.dataset.k,cur=sgBuild().find(x=>x.cid===S.sgo),x=cur&&cur.mem.find(m=>m.k===k);if(!x)return;modal('','rve sgyrm');lastModal().classList.add('sgyrm');$('.sgyrm .mb').innerHTML=`<div class="rv-pk"><h2>Año de lanzamiento</h2><div class="sg-s">${esc(x.n)}</div><input class="txt" id="sg-yr" inputmode="numeric" maxlength="4" placeholder="Ej: 2012" value="${x.ts?new Date(x.ts).getFullYear():''}" style="width:100%;box-sizing:border-box;margin-top:10px"><div class="rv-ft"><button class="hm-go hm-gh" data-a="sgyq" data-k="${k}">Quitar año propio</button><span style="flex:1"></span><button class="hm-go hm-gh" data-a="sgmx2">Cancelar</button><button class="hm-go" data-a="sgys" data-k="${k}">Guardar</button></div></div>`;setTimeout(()=>{const i=$('#sg-yr');if(i)i.focus()},50)},
@@ -8213,14 +8234,18 @@ async function sgFiInfo(nm,yr){nm=nm.replace(/[™®©]/g,'').trim();const k=nrm
    out.dev=f('developer');out.pub=f('publisher');out.gen=f('genre');out.en=await sum('en',te)}}catch(e){}
  try{const ts=await find('es',nm+' videojuego');if(ts)out.es=await sum('es',ts)}catch(e){}
  out.tx=out.es||out.en||'';SGFI[k]=out;return out}
-function sgHist(g){const id=g.id,GL=ST.gl||{},ses=(ST.ses||[]).filter(x=>x.g===id),days=[];for(const k in GL)if(GL[k]&&GL[k][id]>0)days.push(k);days.sort();
- const MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],fd=k=>{const[Y,M,D]=k.split('-').map(Number);return D+' de '+MES[M-1]+' de '+Y},ft=t=>{const d=new Date(t);return d.getDate()+' de '+MES[d.getMonth()]+' de '+d.getFullYear()};
- let first='',mon='';
- if(days.length){first=fd(days[0]);const m={};days.forEach(k=>{const q=k.slice(0,7);m[q]=(m[q]||0)+GL[k][id]});const b=Object.entries(m).sort((a,c)=>c[1]-a[1])[0];if(b){const[Y,M]=b[0].split('-').map(Number);mon=MES[M-1]+' '+Y}}
- else if(ses.length){first=ft(Math.min(...ses.map(x=>x.s)));const m={};ses.forEach(x=>{const d=new Date(x.s),q=d.getFullYear()+'-'+d.getMonth();m[q]=(m[q]||0)+x.h});const b=Object.entries(m).sort((a,c)=>c[1]-a[1])[0];if(b){const[Y,M]=b[0].split('-').map(Number);mon=MES[M]+' '+Y}}
- const c=(l,v)=>v?`<div class="sgfc-m"><small>${l}</small><b>${esc(String(v))}</b></div>`:'',hrs=g.hours>0?fh(g.hours):'',stt=stOf(g);
- const cells=c('Tus horas',hrs)+c('Estado',stt&&stt!=='Sin estado'?stt:'')+c('Última vez',g.last)+c('Primera partida',first)+c('Mes que más jugaste',mon);
- return cells?`<div class="sgfc-hs"><span>Tu historial</span><div class="sgfc-mg">${cells}</div></div>`:''}
+function sgHist(g){const id=g.id,GL=ST.gl||{},ses=(ST.ses||[]).filter(x=>x.g===id),mo={};let days=[];for(const k in GL)if(GL[k]&&GL[k][id]>0){days.push(k);const q=k.slice(0,7);mo[q]=(mo[q]||0)+GL[k][id]}days.sort();
+ if(!days.length&&ses.length)ses.forEach(x=>{const d=new Date(x.s),q=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');mo[q]=(mo[q]||0)+x.h});
+ const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+ const dk=k=>{const[Y,M,D]=k.split('-').map(Number);return new Date(Y,M-1,D)},fdt=d=>d.getDate()+' '+MS[d.getMonth()]+' '+d.getFullYear();
+ let f=null,l=null;if(days.length){f=dk(days[0]);l=dk(days[days.length-1])}else if(ses.length){f=new Date(Math.min(...ses.map(x=>x.s)));l=new Date(Math.max(...ses.map(x=>x.s)))}
+ const now=new Date(),ms=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1),q=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');ms.push([MS[d.getMonth()],mo[q]||0])}
+ const mx=Math.max(...ms.map(x=>x[1]),0),bm=Object.entries(mo).sort((a,c)=>c[1]-a[1])[0],stt=stOf(g),hrs=g.hours||0,dd=f&&l?Math.round((l-f)/864e5):0;
+ if(!hrs&&!f)return'<div class="sgfc-hv"><div class="sgfc-he">Todavía no registraste partidas de este juego en WINTEER.</div></div>';
+ const bars=mx>0?`<div class="sgfc-sp">${ms.map(([n,h],i)=>`<div style="--k:${i}" title="${h.toFixed(1)} h"><i style="--h:${mx>0?Math.max(5,h/mx*100):5}%"></i><span>${n}</span></div>`).join('')}</div>`:'';
+ const tl=f?`<div class="sgfc-tl"><div><small>Primera partida</small><b>${fdt(f)}</b></div><div class="sgfc-ln"><span>${dd>0?dd+(dd===1?' día':' días'):'mismo día'}</span></div><div><small>Última vez</small><b>${fdt(l)}</b></div></div>`:(g.last?`<div class="sgfc-tl"><div><small>Última vez</small><b>${esc(g.last)}</b></div></div>`:'');
+ const ft=[bm?['Mes más jugado',(()=>{const[Y,M]=bm[0].split('-').map(Number);return MES[M-1]+' '+Y})()]:null,ses.length?['Sesiones',String(ses.length)]:null].filter(Boolean);
+ return `<div class="sgfc-hv"><div class="sgfc-h1"><div class="sgfc-hb"><small>Tiempo jugado</small><b data-count="${hrs.toFixed(1)}" data-dec="1" data-suf=" h">${hrs.toFixed(1)} h</b><span class="sgfc-pill">${esc(stt&&stt!=='Sin estado'?stt:'Sin empezar')}</span></div>${bars}</div>${tl}${ft.length?`<div class="sgfc-h3">${ft.map(([a,c])=>`<span>${a}<b>${esc(c)}</b></span>`).join('')}</div>`:''}</div>`}
 function sgFicha(sg,x){const nm=x.n,yr=x.ts?new Date(x.ts).getFullYear():'',nk=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''),own=x.g||G.find(g=>nk(g.name)&&nk(g.name)===nk(nm))||null;
  const hist=own?sgHist(own):'',cell=(k,l,v)=>`<div class="sgfc-m" data-k="${k}"><small>${l}</small><b>${v?esc(v):'<i class="sgfc-sk"></i>'}</b></div>`;
  modal(`<div class="sgfc" style="--c:${sg.col}"><div class="sgfc-bg"><div class="sgcv">${sgCv(x)}</div></div><button class="sgfc-x" data-a="close" title="Cerrar">×</button>
