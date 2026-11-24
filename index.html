@@ -15371,7 +15371,22 @@ function frCode(){const f=FR();if(!f.code){const a='ABCDEFGHJKLMNPQRSTUVWXYZ2345
 const fsEnc=v=>v===null||v===undefined?{nullValue:null}:typeof v==='string'?{stringValue:v}:typeof v==='boolean'?{booleanValue:v}:typeof v==='number'?(Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v}):Array.isArray(v)?{arrayValue:{values:v.map(fsEnc)}}:{mapValue:{fields:Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fsEnc(x)]))}};
 const fsDec=v=>!v?null:'stringValue' in v?v.stringValue:'integerValue' in v?+v.integerValue:'doubleValue' in v?v.doubleValue:'booleanValue' in v?v.booleanValue:'arrayValue' in v?(v.arrayValue.values||[]).map(fsDec):'mapValue' in v?Object.fromEntries(Object.entries(v.mapValue.fields||{}).map(([k,x])=>[k,fsDec(x)])):null;
 const fsUrl=(col,id)=>`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(fbPid())}/databases/(default)/documents/${col}/${id}?key=${encodeURIComponent(fbKey())}`;
+/* ---- avisos instantáneos (SDK oficial de Firebase, descargado una vez por el launcher). Si algo falla, sigue el sondeo REST de siempre ---- */
+const FBW={},FBRT={live:0,busy:0,tries:0};
+async function fbRtInit(){if(FBRT.live||FBRT.busy||window.FBMOCK||ST.fbrt===false||!window.winteerNative||!winteerNative.fbsdk||FBRT.tries>=3||!fbOn())return;FBRT.busy=1;FBRT.tries++;
+  try{const x=await winteerNative.fbsdk();if(!x||!x.a||!x.s)throw new Error('sdk');
+    const ua=URL.createObjectURL(new Blob([x.a],{type:'text/javascript'}));let code=x.s;(x.specs||[]).forEach(sp=>{code=code.split(sp).join(ua)});
+    const us=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));const App=await import(ua),FS=await import(us);
+    const app=App.initializeApp({apiKey:fbKey(),projectId:fbPid()},'wint-rt'),db=FS.initializeFirestore(app,{experimentalAutoDetectLongPolling:true});
+    FBRT.FS=FS;FBRT.db=db;FBRT.live=1;fbWatchSync()}catch(e){FBRT.live=0}FBRT.busy=0}
+function fbWatch(col,id,tag){const k=col+'/'+id;if(FBW[k]||!FBRT.live)return;const w=FBW[k]={ok:0,d:null,tag};
+  try{w.un=FBRT.FS.onSnapshot(FBRT.FS.doc(FBRT.db,col,id),sn=>{w.ok=!sn.metadata.fromCache;w.d=sn.exists()?sn.data():null;if(w.ok)fbSnapHit(w)},()=>{w.ok=0})}catch(e){delete FBW[k]}}
+function fbWatchSync(){if(!FBRT.live)return;try{const f=FR(),want=new Set();for(const c of (f.list||[])){const a='winteer_chats/'+frTh(c),b='winteer_chats/'+clDoc(c,0);want.add(a);want.add(b);fbWatch('winteer_chats',frTh(c),{c,k:'t'});fbWatch('winteer_chats',clDoc(c,0),{c,k:'c'})}
+  for(const k of Object.keys(FBW)){if(!want.has(k)){try{FBW[k].un&&FBW[k].un()}catch(e){}delete FBW[k]}}}catch(e){}}
+function fbSnapHit(w){clearTimeout(w.tm);w.tm=setTimeout(()=>{try{if(w.tag.k==='t'){frUnread.ts=frUnread.ts||{};frUnread.ts[w.tag.c]=0;frUnread(1)}else{if(CL)clPoll();else clIdle()}}catch(e){}},30)}
+setTimeout(()=>{try{fbRtInit()}catch(e){}},7000);setInterval(()=>{try{if(FBRT.live)fbWatchSync();else if(!FBRT.busy&&FBRT.tries<3)fbRtInit()}catch(e){}},20000);
 async function fbGet(id,col='winteer_profiles'){
+  {const w=FBRT.live&&FBW[col+'/'+id];if(w&&w.ok)return w.d?JSON.parse(JSON.stringify(w.d)):null}
   if(window.FBMOCK){const d=window.FBMOCK.docs[col+'/'+id];return d?JSON.parse(JSON.stringify(d)):null}
   const r=await winteerNative.http({url:fsUrl(col,id)});if(r.status===404)return null;if(r.status!==200)throw new Error('fb '+r.status);
   const j=JSON.parse(r.text);return Object.fromEntries(Object.entries(j.fields||{}).map(([k,x])=>[k,fsDec(x)]))}

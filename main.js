@@ -3185,6 +3185,18 @@ app.whenReady().then(() => {
       return { mime: r.headers.get('content-type') || 'image/png', b64: buf.toString('base64') };
     } catch (e) { return null; }
   });
+  ipcMain.handle('fbsdk', async () => {
+    try {
+      const V = '11.0.0', d = path.join(app.getPath('userData'), 'fbsdk', V); fs.mkdirSync(d, { recursive: true });
+      const get = async (n) => { const f = path.join(d, n); try { const t = fs.readFileSync(f, 'utf8'); if (t.length > 1000) return t; } catch (e) {}
+        const r = await net.fetch('https://www.gstatic.com/firebasejs/' + V + '/' + n, { headers: { 'User-Agent': 'WINTEER/' + app.getVersion() } }); if (!r.ok) return '';
+        const t = await r.text(); if (t.length < 1000 || t.length > 3e6) return ''; fs.writeFileSync(f, t); return t; };
+      const a = await get('firebase-app.js'), s = await get('firebase-firestore.js'); if (!a || !s) return null;
+      const sp = (t) => [...t.matchAll(/(?:from|import)\s*["']([^"']+)["']/g)].map(m => m[1]).filter(x => /^(\.|https?:)/.test(x));
+      const sa = sp(a), ss = sp(s); if (sa.length || ss.some(x => !/firebase-app\.js$/.test(x))) return null;
+      return { a, s, specs: ss };
+    } catch (e) { return null; }
+  });
   ipcMain.handle('http', async (_e, o) => {
     try {
       const u = new URL(o.url);

@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('winteerNative', {
   rcIn: (m) => ipcRenderer.send('rcIn', m),
   scrShareEnd: () => ipcRenderer.invoke('scrShareEnd'),
   http: (o) => ipcRenderer.invoke('http', o),
+  fbsdk: () => ipcRenderer.invoke('fbsdk'),
   exportFile: (o) => ipcRenderer.invoke('exportFile', o),
   httpImg: (u) => ipcRenderer.invoke('httpImg', u),
   playniteHltb: () => ipcRenderer.invoke('playniteHltb'),
