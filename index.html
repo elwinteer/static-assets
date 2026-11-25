@@ -1834,6 +1834,18 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .h2-pill.rcp:hover{transform:translateY(-2px) scale(1.03)}.h2-pill.rcp:active{transform:scale(.96)}
 @media (prefers-reduced-motion:reduce){.h2-pill.rcp,.h2-pill.rcp *{animation:none!important}}
 
+
+/* pulido extra estadísticas */
+.s3b .cu span{color:var(--a2);font-weight:700}
+.s3top>div:nth-child(1) em{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(160deg,var(--a3),var(--a));color:var(--on-a);box-shadow:0 0 14px rgba(var(--argb),.55);font-size:12px;font-weight:800}
+.s3top.t10>div:nth-child(1) em{width:20px;height:20px}
+.s3top>div:nth-child(1) .s3ic{box-shadow:0 6px 18px rgba(0,0,0,.4),0 0 0 1px rgba(var(--argb),.55),0 0 18px rgba(var(--argb),.25)}
+.s3t .in b{transition:transform .4s cubic-bezier(.2,.9,.25,1)}.s3t:hover .in b{transform:translateX(6px)}
+.s3t:hover{transform:translateY(-3px);box-shadow:0 26px 56px rgba(0,0,0,.5),0 0 34px rgba(var(--argb),.14)}
+.s3k:hover{transform:translateY(-3px);background:rgba(255,255,255,.09)}
+.s3k .s3ki{transition:transform .4s cubic-bezier(.34,1.56,.4,1)}.s3k:hover .s3ki{transform:scale(1.18) rotate(-8deg)}
+.s3rec .s3rr:first-child .s3ri{background:rgba(var(--argb),.22);color:var(--a2)}
+.s3sw button.on{box-shadow:0 4px 14px rgba(0,0,0,.3)}
 /* top 10 */
 .s3top.t10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;column-gap:26px;justify-content:stretch}
 .s3top.t10>div{gap:10px;padding:4px 8px;animation:s3row .55s calc(.08s + var(--r)*55ms) both cubic-bezier(.2,.9,.25,1)}
@@ -6382,7 +6394,7 @@ const today=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),3200)}
 function counters(root){$$('[data-count]',root).forEach(el=>{const to=+el.dataset.count,dec=+(el.dataset.dec||0),suf=el.dataset.suf||'',t0=performance.now();
-  (function f(t){const k=Math.max(0,Math.min(1,(t-t0)/1100)),e=1-Math.pow(1-k,3);el.textContent=(el.dataset.loc?Math.round(to*e).toLocaleString('es-AR'):(to*e).toFixed(dec))+suf;if(k<1)requestAnimationFrame(f)})(t0)})}
+  (function f(t){const k=Math.max(0,Math.min(1,(t-t0)/1100)),e=1-Math.pow(1-k,3);el.textContent=(el.dataset.loc?Math.round(to*e).toLocaleString('es-AR'):(to*e).toFixed(dec).replace(el.dataset.com?'.':'\u0000',','))+suf;if(k<1)requestAnimationFrame(f)})(t0)})}
 /* arte: SteamGridDB si está configurado, si no, CDN de Steam */
 const sgk=g=>g.app||('x'+g.id),SGM=g=>{if(vIsId(g.id)){const x=vL().x;return x.sg=x.sg||{}}return ST.sgdb},sg=g=>(SGM(g)[sgk(g)]||{});
 const nf=async(u,o)=>{if(window.winteerNative){const r=await winteerNative.http({url:u,method:o&&o.method,headers:o&&o.headers,body:o&&o.body});return {ok:r.status>=200&&r.status<300,status:r.status,json:async()=>JSON.parse(r.text||'null')}}return fetch(u,o)};
@@ -6717,9 +6729,10 @@ function s3RecCalc(){
   R.forEach(r=>{const o=RC[r[0]],lo=r[6];if(!o){RC[r[0]]={v:r[2],t:0};ch=1}else if(lo?r[2]<o.v:r[2]>o.v){RC[r[0]]={v:r[2],p:o.v,t:now};ch=1}});if(ch)try{save()}catch(e){}
   return {R,RC,now,fh}}
 function s3RecNew(){try{const {R,RC,now}=s3RecCalc(),sn=ST.recSeen=ST.recSeen||{},nm={ses:'Sesión más larga',dia:'Día con más horas',mes:'Mes con más horas',rac:'Racha más larga',rap:'Terminado más corto',ter:'Más terminados en un año'};return R.filter(r=>{const o=RC[r[0]]||{};return o.t&&o.p!=null&&now-o.t<3*864e5&&o.t>(sn[r[0]]||0)}).map(r=>[r[0],nm[r[0]]||r[4]])}catch(e){return[]}}
+const cnt=t=>{const m=/^([\d.,]+)(.*)$/.exec(t);if(!m)return t;const n=parseFloat(m[1].replace(',','.')),d=(m[1].split(',')[1]||'').length;return `<span data-count="${n}" data-dec="${d}" data-com="1" data-suf="${m[2]}">0${m[2]}</span>`};
 function s3RecHtml(){
   const {R,RC,now,fh}=s3RecCalc();
-  const row=(r,k)=>{const o=RC[r[0]]||{},nw=o.t&&now-o.t<3*864e5&&o.p!=null;return `<div class="s3rr" style="--k:${k}"><span class="s3ri">${ic(r[1])}</span><div><b>${r[3]}</b><small>${r[4]} · ${esc(String(r[5]))}</small></div>${nw?'<i class="s3rn">NUEVO</i>':''}</div>`};
+  const row=(r,k)=>{const o=RC[r[0]]||{},nw=o.t&&now-o.t<3*864e5&&o.p!=null;return `<div class="s3rr" style="--k:${k}"><span class="s3ri">${ic(r[1])}</span><div><b>${cnt(r[3])}</b><small>${r[4]} · ${esc(String(r[5]))}</small></div>${nw?'<i class="s3rn">NUEVO</i>':''}</div>`};
   return `<section class="s3c s3rec rise" style="--i:1"><h3>Tus récords</h3>${R.length?`<div class="s3rl">${R.map((r,k)=>row(r,k)).join('')}</div>`:'<div class="s3e">Cuando juegues, acá aparecen tus récords.</div>'}</section>`}
 function s3TopHtml(mode){
  const now=new Date(),pad=n=>String(n).padStart(2,'0'),pre=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-',MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][now.getMonth()];
@@ -6741,12 +6754,12 @@ V.stats=()=>{
   const hrB=hrD.indexOf(Math.max(...hrD)),hasH=hrD.some(v=>v>0),part=hrB<6?'de madrugada':hrB<12?'a la mañana':hrB<19?'a la tarde':'a la noche';
   const WD=['lunes','martes','miércoles','jueves','viernes','sábados','domingos'],wdAll=Array(7).fill(0);{const L=ST.log||{};for(const k in L){const [Y,M,D]=k.split('-').map(Number);if(L[k]>0)wdAll[(new Date(Y,M-1,D).getDay()+6)%7]+=L[k]}}
   const wmx=Math.max(...wdAll),bw=wmx>0?wdAll.indexOf(wmx):-1,mm=Math.max(...d.month),bm=mm>0?d.month.indexOf(mm):-1;
-  const bars=(arr,lab,mx,hi)=>`<div class="s3b">${arr.map((h,i)=>`<div class="${i===hi?'hi':''}" data-v="${h.toFixed(1).replace('.',',')} h" style="--hn:${mx>0?Math.max(4,h/mx*100):4}"><i style="--h:${mx>0?Math.max(4,h/mx*100):4}%"></i><span>${lab[i]}</span></div>`).join('')}</div>`;
+  const bars=(arr,lab,mx,hi,cu)=>`<div class="s3b">${arr.map((h,i)=>`<div class="${i===hi?'hi':''}${i===cu?' cu':''}" data-v="${h.toFixed(1).replace('.',',')} h" style="--hn:${mx>0?Math.max(4,h/mx*100):4}"><i style="--h:${mx>0?Math.max(4,h/mx*100):4}%"></i><span>${lab[i]}</span></div>`).join('')}</div>`;
   const dias=Math.round(th/24),pill=ys.length>1?`<div class="ypills">${ys.map(v=>`<button class="pill ${v===y?'on':''}" data-a="sy" data-v="${v}">${v}</button>`).join('')}</div>`:'';
   const chip=(a,b,i,u)=>`<div class="s3k"><span class="s3ki">${ic(i)}</span><b data-count="${a}"${u?` data-suf="${u}"`:''}>0${u||''}</b><small>${b}</small></div>`;const CD=clData(y),cm=CD&&S.s3w==='c',gmo=S.s3w==='n'?'n':cm?'c':'g';const fhc=h=>h>=1?h.toFixed(1).replace('.',',')+' h':Math.max(1,Math.round(h*60))+' min';
   return `<div class="st3">
    <section class="s3c s3a rise" style="--i:0"><div class="s3h"><div><h3>Tu tiempo de juego</h3><div class="s3big" data-count="${Math.round(th)}" data-loc="1" data-suf=" h">0 h</div><p>${dias>=1?`Equivale a <b>${dias} ${dias===1?'día':'días'}</b> seguidos jugando`:'Recién empezás, ¡a jugar!'}</p></div>${pill}</div>
-     ${d.tot>0?`<div class="s3bh"><span>Horas por mes · ${y}</span><span class="s3pk">Mejor mes <b>${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][bm]}</b> · ${mm.toFixed(1).replace('.',',')} h</span></div>`:''}${d.tot>0?bars(d.month,['E','F','M','A','M','J','J','A','S','O','N','D'],mm,bm):`<div class="s3e">Las barras por mes se llenan con las partidas que jugás desde WINTEER.</div>`}
+     ${d.tot>0?`<div class="s3bh"><span>Horas por mes · ${y}</span><span class="s3pk">Mejor mes <b>${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][bm]}</b> · ${mm.toFixed(1).replace('.',',')} h</span></div>`:''}${d.tot>0?bars(d.month,['E','F','M','A','M','J','J','A','S','O','N','D'],mm,bm,y===cy?new Date().getMonth():-1):`<div class="s3e">Las barras por mes se llenan con las partidas que jugás desde WINTEER.</div>`}
      <div class="s3ks">${chip(doneN(),'terminados','check')}${chip(streakAll(),'racha actual','cal',' d')}${chip(played.length,'juegos jugados','clock')}${chip(gaN(),'hitos','trophy')}</div></section>
    ${s3RecHtml()}
    <section class="s3c s3tc rise" style="--i:2">${s3TopHtml(S.s3tm||'m')}</section>
