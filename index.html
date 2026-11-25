@@ -3521,6 +3521,24 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sg2-ch .sg2-ci{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:7px}.sg2-ch .sg2-ci svg{width:11px;height:11px}
 .sg2-ch b{font-size:15.5px!important;margin-bottom:2px}
 .sg2-ch:nth-child(3) .sg2-ci{display:none}
+
+/* ===== unificación de la zona inferior ===== */
+@keyframes sg2Rp{0%{box-shadow:0 6px 14px -4px rgba(0,0,0,.5),0 0 0 0 rgba(20,12,4,.45)}70%,100%{box-shadow:0 6px 14px -4px rgba(0,0,0,.5),0 0 0 11px rgba(20,12,4,0)}}
+.sg2-pl{border-radius:16px!important}
+.pl-i{animation:sg2Rp 2.6s 2s ease-out infinite}
+.sg2-pl:hover .pl-i{animation:none}
+.sg2-chs{gap:0!important;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.sg2-chs .sg2-ch{background:transparent!important;border:0!important;border-radius:0!important;padding:11px 12px 12px!important;transition:background .3s;transform:none!important}
+.sg2-chs .sg2-ch+.sg2-ch{box-shadow:inset 1px 0 0 rgba(255,255,255,.07)}
+.sg2-chs .sg2-ch:hover{background:rgba(255,255,255,.06)!important}
+.sg2-chs .sg2-ch b{font-size:17px!important}
+.sg2-chs .sg2-ch small{margin-top:1px}
+.sg2-cb{height:3px;left:12px;right:auto;bottom:6px;width:calc((100% - 24px)*var(--p)/100);border-radius:3px;background:linear-gradient(90deg,var(--c),#fff)}
+.sg2-chs .sg2-ch:first-child:after{content:"";position:absolute;left:12px;right:12px;bottom:6px;height:3px;border-radius:3px;background:rgba(255,255,255,.08);z-index:0}.sg2-chs .sg2-ch .sg2-ci{position:absolute!important;top:9px;right:9px}.sg2-chs .sg2-ch .sg2-cb{position:absolute}
+.sg2-chs .sg2-ch{padding-bottom:17px!important}
+.sg2-hg{border-radius:16px!important}
+.sg2-ac{border-radius:16px!important}.sg2-ac:before{border-radius:12px}.sg2-ac .sg2-b{border-radius:12px!important}
+.sg2-ab{border-radius:16px!important}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
