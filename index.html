@@ -18719,6 +18719,18 @@ body.nomo .st3 .s3pk,body.nomo .st3 .s3t .bg,body.ultra .st3 .s3pk,body.ultra .s
 @keyframes s3Tb{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 #view:has(.st3) .gl.panel>.tabs{animation:s3Tb .5s both cubic-bezier(.2,.9,.25,1)}
 body.nomo .st3 .s3top>div,body.ultra .st3 .s3top>div,body.nomo .st3 .s3b span,body.ultra .st3 .s3b span,body.nomo #view:has(.st3) .tabs,body.ultra #view:has(.st3) .tabs{animation:none!important}
+
+@keyframes s3D{0%{opacity:0;transform:perspective(1200px) translateY(54px) rotateX(11deg) scale(.91);filter:blur(8px)}55%{opacity:1;filter:blur(0)}78%{transform:perspective(1200px) translateY(-6px) rotateX(-1.2deg) scale(1.008)}100%{opacity:1;transform:none;filter:none}}
+@keyframes s3H{from{opacity:0;letter-spacing:.42em;transform:translateX(-10px)}to{opacity:1;transform:none}}
+@keyframes s3Ln{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.st3>.s3a,.st3>.s3tc,.st3>.s3rec,.st3 .s3s>.s3c,.st3 .s3s>.s3t{transform-origin:50% 100%}
+.st3>.s3a{animation:s3D 1.1s .05s both cubic-bezier(.2,.9,.25,1),s3Fh 1.5s .75s ease-out backwards,s3amb 16s ease-in-out 1.4s infinite alternate}
+.st3>.s3rec{animation:s3D 1.1s .18s both cubic-bezier(.2,.9,.25,1),s3Fh 1.5s .85s ease-out backwards,s3amb 16s ease-in-out 1.4s infinite alternate}
+.st3>.s3tc{animation:s3D 1.1s .3s both cubic-bezier(.2,.9,.25,1),s3Fh 1.5s .95s ease-out backwards,s3amb 16s ease-in-out 1.4s infinite alternate}
+.st3 .s3s>.s3t{animation:s3D 1.1s .24s both cubic-bezier(.2,.9,.25,1)}
+.st3 .s3s>.s3c{animation:s3D 1.1s .38s both cubic-bezier(.2,.9,.25,1),s3Fh 1.5s 1.05s ease-out backwards,s3amb 16s ease-in-out 1.4s infinite alternate}
+.st3 .s3c h3{animation:s3H .8s .45s both cubic-bezier(.2,.9,.25,1)}.st3>.s3rec h3{animation-delay:.6s}.st3>.s3tc h3{animation-delay:.7s}.st3 .s3s>.s3c h3{animation-delay:.85s}
+body.nomo .st3 .s3c h3,body.ultra .st3 .s3c h3{animation:none!important}
 </style>
 </body>
 </html>
