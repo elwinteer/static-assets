@@ -1526,7 +1526,7 @@ function pollSched(first) {
   poller = true;
   let fast = false; const n = Date.now();
   for (const t of track.values()) if ((!t.started && n - t.since < 45000) || t.miss > 0) fast = true;
-  pollT = setTimeout(async () => { if (!pollBusy || Date.now() - pollBusyT > 40000) { pollBusy = true; pollBusyT = Date.now(); try { await poll(); } catch (e) {} pollBusy = false; } pollSched(); }, first || (fast ? 1500 : 4000));
+  pollT = setTimeout(async () => { if (!pollBusy || Date.now() - pollBusyT > 40000) { pollBusy = true; pollBusyT = Date.now(); try { await poll(); } catch (e) {} pollBusy = false; } pollSched(); }, first || (fast ? 1200 : 2500));
 }
 const norm = (p) => p.toLowerCase().replace(/\//g, path.sep === '\\' ? '\\' : '/');
 function steamRun(app) {
@@ -1563,7 +1563,7 @@ async function poll() {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = fastOk.has(id) ? true : fastNo.has(id) ? false : (t.app && sr.get(id) !== null ? sr.get(id) : byProc());
     if (run) { t.miss = 0; t.seen = Date.now(); if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
-    else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 60000 : 5000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
+    else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 15000 : 5000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
