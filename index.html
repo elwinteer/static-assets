@@ -1781,6 +1781,18 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .s3q{animation:s3Gr .6s .45s both cubic-bezier(.2,.9,.25,1)}
 .perf .st3 *,.ultra .st3 *,.nomo .st3 *{animation-duration:.01s!important;animation-iteration-count:1!important;animation-delay:0s!important}
 
+/* Estadísticas rediseñada: 2 columnas simétricas */
+.st3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-template-rows:minmax(0,1.08fr) minmax(0,1fr)!important}
+.st3 .s3s{grid-template-rows:auto minmax(0,1fr)}
+.st3 .s3s>.s3t{min-height:0;height:96px}.st3 .s3s>.s3t .s3no{display:none}.st3 .s3s>.s3t .in{padding:0 22px 14px;width:100%}.st3 .s3s>.s3t .in small{font-size:10.5px}.st3 .s3s>.s3t .in b{font-size:24px}.st3 .s3s>.s3t .in p{margin:2px 0 0}
+.s3rec{padding-bottom:12px}.s3rl{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;margin-top:6px}
+.s3rr{display:flex;align-items:center;gap:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}.s3rr:last-child{border:0}
+.s3ri{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.07);flex:none}.s3ri svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8}
+.s3rr div{flex:1;min-width:0}.s3rr b{display:block;font-size:19px;font-weight:800;line-height:1.1}.s3rr small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.s3rn{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.12em;padding:4px 9px;border-radius:99px;background:rgba(var(--argb),.95);color:var(--on-a);flex:none}
+.s3m h3{display:flex;align-items:center}
+.s3gx{display:flex;flex-direction:column;justify-content:space-around;flex:1;min-height:0;margin-top:10px}.s3gx>div{display:flex;align-items:center;gap:12px;font-size:14px}.s3gx>div>span{width:92px;font-weight:600}.s3gb{flex:1;height:10px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden}.s3gb i{display:block;height:100%;border-radius:9px}.s3gx b{width:42px;text-align:right;color:var(--muted);font-weight:600}
+
 /* top 10 */
 .s3top.t10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;column-gap:26px;justify-content:stretch}
 .s3top.t10>div{gap:10px;padding:4px 8px;animation:s3row .55s calc(.08s + var(--r)*55ms) both cubic-bezier(.2,.9,.25,1)}
@@ -6646,6 +6658,24 @@ V.stats=()=>{
       <section class="card rise" style="--i:9"><h3>Datos curiosos</h3><div class="insg">${ins.map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div></section></div></div></div>`};
 
 
+function s3RecHtml(){
+  const fh=h=>h>=1?(Math.round(h*10)/10).toString().replace('.',',')+' h':Math.max(1,Math.round(h*60))+' min',fd=t=>new Date(t).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'});
+  const R=[],L=ST.log||{},ses=(ST.ses||[]).filter(x=>x.h>0);
+  if(ses.length){const b=ses.reduce((a,x)=>x.h>a.h?x:a),g=gm(b.g);R.push(['ses','clock',b.h,fh(b.h),'Sesión más larga',(g?g.name+' · ':'')+fd(b.s)])}
+  const dk=Object.keys(L).filter(k=>L[k]>0);
+  if(dk.length){const k=dk.reduce((a,x)=>L[x]>L[a]?x:a),[Y,M,D]=k.split('-').map(Number);R.push(['dia','cal',L[k],fh(L[k]),'Día con más horas',fd(new Date(Y,M-1,D))]);
+    const mo={};dk.forEach(x=>{const q=x.slice(0,x.lastIndexOf('-'));mo[q]=(mo[q]||0)+L[x]});const mk=Object.keys(mo).reduce((a,x)=>mo[x]>mo[a]?x:a),[y2,m2]=mk.split('-').map(Number);
+    R.push(['mes','flame',mo[mk],fh(mo[mk]),'Mes con más horas',new Date(y2,m2-1,1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})]);
+    const rn=runs(dk.map(dayN));if(rn>1)R.push(['rac','bolt',rn,rn+' días','Racha más larga','días seguidos jugando'])}
+  const dn=G.filter(g=>g.status==='Terminado'&&g.hours>0);
+  if(dn.length){const g=dn.reduce((a,x)=>x.hours<a.hours?x:a);R.push(['rap','check',g.hours,fh(g.hours),'Terminado más corto',g.name,1])}
+  const yy={};G.filter(g=>g.status==='Terminado').forEach(g=>{const t=doneDate(g);if(t){const y=new Date(t).getFullYear();yy[y]=(yy[y]||0)+1}});
+  const yk=Object.keys(yy).reduce((a,x)=>yy[x]>(yy[a]||0)?x:a,'');
+  if(yk&&yy[yk]>1)R.push(['ter','trophy',yy[yk],yy[yk]+' juegos','Más terminados en un año',yk]);
+  const RC=ST.rec=ST.rec||{};let ch=0;const now=Date.now();
+  R.forEach(r=>{const o=RC[r[0]],lo=r[6];if(!o){RC[r[0]]={v:r[2],t:0};ch=1}else if(lo?r[2]<o.v:r[2]>o.v){RC[r[0]]={v:r[2],p:o.v,t:now};ch=1}});if(ch)try{save()}catch(e){}
+  const row=r=>{const o=RC[r[0]]||{},nw=o.t&&now-o.t<3*864e5&&o.p!=null;return `<div class="s3rr"><span class="s3ri">${ic(r[1])}</span><div><b>${r[3]}</b><small>${r[4]} · ${esc(String(r[5]))}</small></div>${nw?'<i class="s3rn">NUEVO</i>':''}</div>`};
+  return `<section class="s3c s3rec rise" style="--i:1"><h3>Tus récords</h3>${R.length?`<div class="s3rl">${R.map(row).join('')}</div>`:'<div class="s3e">Cuando juegues, acá aparecen tus récords.</div>'}</section>`}
 function s3TopHtml(mode){
  const now=new Date(),pad=n=>String(n).padStart(2,'0'),pre=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-',MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][now.getMonth()];
  let list;
@@ -6668,15 +6698,15 @@ V.stats=()=>{
   const wmx=Math.max(...wdAll),bw=wmx>0?wdAll.indexOf(wmx):-1,mm=Math.max(...d.month),bm=mm>0?d.month.indexOf(mm):-1;
   const bars=(arr,lab,mx,hi)=>`<div class="s3b">${arr.map((h,i)=>`<div class="${i===hi?'hi':''}" data-v="${h.toFixed(1).replace('.',',')} h" style="--hn:${mx>0?Math.max(4,h/mx*100):4}"><i style="--h:${mx>0?Math.max(4,h/mx*100):4}%"></i><span>${lab[i]}</span></div>`).join('')}</div>`;
   const dias=Math.round(th/24),pill=ys.length>1?`<div class="ypills">${ys.map(v=>`<button class="pill ${v===y?'on':''}" data-a="sy" data-v="${v}">${v}</button>`).join('')}</div>`:'';
-  const chip=(a,b,i,u)=>`<div class="s3k"><span class="s3ki">${ic(i)}</span><b data-count="${a}"${u?` data-suf="${u}"`:''}>0${u||''}</b><small>${b}</small></div>`;const CD=clData(y),cm=CD&&S.s3w==='c';const fhc=h=>h>=1?h.toFixed(1).replace('.',',')+' h':Math.max(1,Math.round(h*60))+' min';
+  const chip=(a,b,i,u)=>`<div class="s3k"><span class="s3ki">${ic(i)}</span><b data-count="${a}"${u?` data-suf="${u}"`:''}>0${u||''}</b><small>${b}</small></div>`;const CD=clData(y),cm=CD&&S.s3w==='c',gmo=S.s3w==='n'?'n':cm?'c':'g';const fhc=h=>h>=1?h.toFixed(1).replace('.',',')+' h':Math.max(1,Math.round(h*60))+' min';
   return `<div class="st3">
    <section class="s3c s3a rise" style="--i:0"><div class="s3h"><div><h3>Tu tiempo de juego</h3><div class="s3big" data-count="${Math.round(th)}" data-loc="1" data-suf=" h">0 h</div><p>${dias>=1?`Equivale a <b>${dias} ${dias===1?'día':'días'}</b> seguidos jugando`:'Recién empezás, ¡a jugar!'}</p></div>${pill}</div>
      ${d.tot>0?`<div class="s3bh"><span>Horas por mes · ${y}</span><span class="s3pk">Mejor mes <b>${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][bm]}</b> · ${mm.toFixed(1).replace('.',',')} h</span></div>`:''}${d.tot>0?bars(d.month,['E','F','M','A','M','J','J','A','S','O','N','D'],mm,bm):`<div class="s3e">Las barras por mes se llenan con las partidas que jugás desde WINTEER.</div>`}
      <div class="s3ks">${chip(doneN(),'terminados','check')}${chip(streakAll(),'racha actual','cal',' d')}${chip(played.length,'juegos jugados','clock')}${chip(gaN(),'hitos','trophy')}</div></section>
-   ${tg?`<section class="s3t rise" style="--i:1" data-a="open" data-id="${tg.id}"><img class="bg" src="${art.hero(tg)}" data-fb="${art.wide(tg)}" alt=""><i class="sh"></i><span class="s3no">N.º 1</span><div class="in"><small>TU JUEGO MÁS JUGADO</small><b>${esc(tg.name)}</b><p>${fh(tg.hours)} en total · <span class="s3sh">${Math.round(tg.hours/(th||1)*100)}% de tu tiempo</span></p></div></section>`:`<section class="s3c rise" style="--i:1"><h3>Tu juego más jugado</h3><div class="s3e">Todavía no jugaste nada. Cuando juegues, aparece acá.</div></section>`}
+   ${s3RecHtml()}
    <section class="s3c s3tc rise" style="--i:2">${s3TopHtml(S.s3tm||'m')}</section>
-   <div class="s3s"><section class="s3c rise" style="--i:3"><h3>${cm?'Tus llamadas':'Cuándo jugás'}${CD?`<span class="s3sw"><button data-a="s3w" data-v="g" class="${cm?'':'on'}">Jugando</button><button data-a="s3w" data-v="c" class="${cm?'on':''}">Llamadas</button></span>`:''}</h3>${cm?`<div class="s3q">Llamás más a las <span>${CD.hb}:00</span></div>${bars(CD.hr,CD.hr.map((_,i)=>i%3===0?String(i):''),Math.max(0.01,...CD.hr),CD.hb)}<div class="s3cl">${fhc(CD.tot)} en llamada · ${CD.n} ${CD.n===1?'llamada':'llamadas'} · la más larga ${fhc(CD.mx)}${CD.top&&FR().c[CD.top]?' · más con '+esc(FR().c[CD.top].name):''}</div>${(()=>{const T=clTog(y);if(T.all<=0)return '';const pc=Math.round(T.tog/T.all*100);return `<div class="s3ac">Jugás acompañado el <b>${pc}%</b> de tu tiempo${T.tog>0?' · '+fhc(T.tog)+' en llamada':''}<div class="acb">${T.mo.map(m=>`<i style="--p:${m.a>0?Math.round(m.t/m.a*100):0}%"></i>`).join('')}</div></div>`})()}`:''}${cm?'':(bw>=0||hasH?`<div class="s3q">${bw>=0?'Los <span>'+WD[bw]+'</span> ':'Jugás '}${hasH?'<span>'+part+'</span>':''}</div>${bars(wdAll,['L','M','X','J','V','S','D'],wmx,bw)}`:`<div class="s3e">Con tus próximas partidas vas a ver acá tus hábitos.</div>`)}</section>
-   <section class="s3c rise" style="--i:4"><h3>Tus géneros</h3>${gl.length?`<div class="s3g">${gl.map(([n,h],i)=>`<i style="width:${h/gt*100}%;background:${GC[i]}"></i>`).join('')}</div><ul class="s3l">${gl.map(([n,h],i)=>`<li><i style="background:${GC[i]}"></i>${esc(n)}<b data-count="${Math.round(h/gt*100)}" data-suf="%">0%</b></li>`).join('')}</ul>`:'<div class="s3e">Sin datos de género todavía.</div>'}</section></div></div>`};
+   <div class="s3s">${tg?`<section class="s3t rise" style="--i:1" data-a="open" data-id="${tg.id}"><img class="bg" src="${art.hero(tg)}" data-fb="${art.wide(tg)}" alt=""><i class="sh"></i><span class="s3no">N.º 1</span><div class="in"><small>TU JUEGO MÁS JUGADO</small><b>${esc(tg.name)}</b><p>${fh(tg.hours)} en total · <span class="s3sh">${Math.round(tg.hours/(th||1)*100)}% de tu tiempo</span></p></div></section>`:`<section class="s3c rise" style="--i:1"><h3>Tu juego más jugado</h3><div class="s3e">Todavía no jugaste nada. Cuando juegues, aparece acá.</div></section>`}
+   <section class="s3c rise s3m" style="--i:3"><h3>${gmo==='n'?'Tus géneros':gmo==='c'?'Tus llamadas':'Cuándo jugás'}<span class="s3sw"><button data-a="s3w" data-v="g" class="${gmo==='g'?'on':''}">Horarios</button>${CD?`<button data-a="s3w" data-v="c" class="${gmo==='c'?'on':''}">Llamadas</button>`:''}<button data-a="s3w" data-v="n" class="${gmo==='n'?'on':''}">Géneros</button></span></h3>${gmo==='c'?`<div class="s3q">Llamás más a las <span>${CD.hb}:00</span></div>${bars(CD.hr,CD.hr.map((_,i)=>i%3===0?String(i):''),Math.max(0.01,...CD.hr),CD.hb)}<div class="s3cl">${fhc(CD.tot)} en llamada · ${CD.n} ${CD.n===1?'llamada':'llamadas'} · la más larga ${fhc(CD.mx)}${CD.top&&FR().c[CD.top]?' · más con '+esc(FR().c[CD.top].name):''}</div>${(()=>{const T=clTog(y);if(T.all<=0)return '';const pc=Math.round(T.tog/T.all*100);return `<div class="s3ac">Jugás acompañado el <b>${pc}%</b> de tu tiempo${T.tog>0?' · '+fhc(T.tog)+' en llamada':''}<div class="acb">${T.mo.map(m=>`<i style="--p:${m.a>0?Math.round(m.t/m.a*100):0}%"></i>`).join('')}</div></div>`})()}`:''}${gmo!=='g'?'':(bw>=0||hasH?`<div class="s3q">${bw>=0?'Los <span>'+WD[bw]+'</span> ':'Jugás '}${hasH?'<span>'+part+'</span>':''}</div>${bars(wdAll,['L','M','X','J','V','S','D'],wmx,bw)}`:`<div class="s3e">Con tus próximas partidas vas a ver acá tus hábitos.</div>`)}${gmo==='n'?(gl.length?`<div class="s3gx">${gl.map(([n,h],i)=>`<div><span>${esc(n)}</span><div class="s3gb"><i style="width:${Math.max(4,h/gt*100)}%;background:${GC[i]}"></i></div><b>${Math.round(h/gt*100)}%</b></div>`).join('')}</div>`:'<div class="s3e">Sin datos de género todavía.</div>'):''}</section></div></div>`};
 
 /* ---------- WRAPPED ---------- */
 const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
