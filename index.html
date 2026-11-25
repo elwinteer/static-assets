@@ -1877,6 +1877,28 @@ body.sb-ico .lkpv-s{width:46px}body.sb-ico .lkpv-n em,body.sb-ico .lkpv-br em{di
 .lkpv-t{position:relative}.lkpv-p{margin-top:auto;align-self:flex-start;height:26px;padding:0 16px;border-radius:99px;border:0;background:var(--a);color:var(--on-a);font-weight:700;font-size:11.5px}
 body.cs-solid .lkpv-c{background:var(--card)!important;box-shadow:none}body.cs-line .lkpv-c{background:transparent!important;border-color:rgba(var(--argb),.38)!important;box-shadow:none}body.sh-flat .lkpv-c{box-shadow:none}
 .sg:has(.lkpv),.sg:has(.lkpv)>.sgl{display:contents}
+
+/* entrada de Estadísticas v2: perspectiva, rebote suave, destello de borde y barrido de luz */
+@keyframes s3L2{0%{opacity:0;transform:perspective(1100px) translateX(-60px) rotateY(14deg) scale(.94);filter:blur(10px) brightness(1.6)}55%{opacity:1;filter:blur(0) brightness(1.15)}75%{transform:perspective(1100px) translateX(4px) rotateY(-1.2deg) scale(1.006)}100%{opacity:1;transform:none;filter:none}}
+@keyframes s3R2{0%{opacity:0;transform:perspective(1100px) translateX(60px) rotateY(-14deg) scale(.94);filter:blur(10px) brightness(1.6)}55%{opacity:1;filter:blur(0) brightness(1.15)}75%{transform:perspective(1100px) translateX(-4px) rotateY(1.2deg) scale(1.006)}100%{opacity:1;transform:none;filter:none}}
+@keyframes s3Fh{0%{box-shadow:0 0 0 1px rgba(var(--argb),.75),0 0 46px rgba(var(--argb),.32),0 18px 40px rgba(0,0,0,.28)}100%{box-shadow:0 0 0 1px rgba(var(--argb),0),0 0 0 rgba(var(--argb),0),0 18px 40px rgba(0,0,0,.28)}}
+@keyframes s3Sw{0%{transform:translateX(-120%) skewX(-18deg);opacity:0}15%{opacity:1}100%{transform:translateX(220%) skewX(-18deg);opacity:0}}
+.st3{position:relative}
+.st3::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:28%;pointer-events:none;z-index:5;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),rgba(var(--argb),.12),transparent);animation:s3Sw 1.5s .25s ease-in-out both}
+.st3>.s3a,.st3>.s3tc{animation:s3L2 1.05s calc(var(--i,0)*.12s + .05s) both cubic-bezier(.2,.9,.25,1),s3Fh 1.4s calc(var(--i,0)*.12s + .7s) ease-out backwards,s3amb 16s ease-in-out 1.4s infinite alternate}
+.st3>.s3rec,.st3 .s3s>.s3c{animation:s3R2 1.05s calc(var(--i,0)*.12s + .1s) both cubic-bezier(.2,.9,.25,1),s3Fh 1.4s calc(var(--i,0)*.12s + .75s) ease-out backwards,s3amb 16s ease-in-out 1.4s infinite alternate}
+.st3 .s3s>.s3t{animation:s3R2 1.05s .22s both cubic-bezier(.2,.9,.25,1)}
+.s3ks .s3k{animation:s3Pop .6s both cubic-bezier(.34,1.56,.4,1)}
+.s3ks .s3k:nth-child(1){animation-delay:.75s}.s3ks .s3k:nth-child(2){animation-delay:.83s}.s3ks .s3k:nth-child(3){animation-delay:.91s}.s3ks .s3k:nth-child(4){animation-delay:.99s}
+@media (prefers-reduced-motion:reduce){.st3::after{display:none}}
+
+/* Apariencia: tarjetas compactas en dos columnas */
+.sgl:has(>.lkc){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sx3 .sgl .row.lkc{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;gap:12px 14px;align-items:start;padding:16px 18px}
+.sx3 .row.lkc>.seg,.sx3 .row.lkc>.cols{grid-column:1/-1!important;margin:0!important}
+.sx3 .row.lkc>.seg{display:flex;flex-wrap:wrap;width:100%}.sx3 .row.lkc>.seg button{flex:1 1 auto;white-space:nowrap}
+.sx3 .row.lkc .rwi+div{align-self:center}
+@media(max-width:1200px){.sgl:has(>.lkc){grid-template-columns:1fr}}
 /* top 10 */
 .s3top.t10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;column-gap:26px;justify-content:stretch}
 .s3top.t10>div{gap:10px;padding:4px 8px;animation:s3row .55s calc(.08s + var(--r)*55ms) both cubic-bezier(.2,.9,.25,1)}
@@ -6999,6 +7021,7 @@ function setPane(t){
     ...(N&&BGC.win?[sR('Capturas, clips y overlay en juegos de Steam','Habilita las capturas, los clips y el overlay de WINTEER también en los juegos de Steam, sin necesidad de migrarlos. No se recomienda su uso en juegos con sistema antitrampas.','<div style="display:flex;gap:8px;align-items:center"><button class="b2 g sm" data-a="stcaphelp">Cómo evitar choques</button><button class="sw '+(BGC.stCap?'on':'')+'" data-a="stcap"></button></div>')]:[]),
     ];
 const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="${act||'lkst'}" data-k="${k}" data-v="${v}" class="${String(cur)===String(v)?'on':''}">${l}</button>`).join('')}</div>`;
+  const sRc=(a,b,c)=>sR(a,b,c).replace('class="row','class="row lkc');
   if(t==='look')return [lookPv(),lookPane()[0],
     sH('Colores'),
     sR('Tema','Alterna entre el modo oscuro y el modo claro.',`<div class="seg"><button data-a="theme" data-v="dark" class="${ST.dark!==false&&!ST.light?'on':''}">Oscuro</button><button data-a="theme" data-v="light" class="${ST.light?'on':''}">Claro</button></div>`),
@@ -7009,17 +7032,17 @@ const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<butto
     sR('Resplandor ambiental','Regula la intensidad del brillo de color que rodea la interfaz.',`<div class="seg">${[[0,'Apagado'],[0.6,'Suave'],[1,'Normal'],[1.6,'Fuerte']].map(([v,l])=>`<button data-a="auo" data-v="${v}" class="${(ST.auo==null?1:ST.auo)===v?'on':''}">${l}</button>`).join('')}</div>`),
     sR('Color adaptado al juego','En la Biblioteca, adopta el color dominante del arte del juego seleccionado.',`<button class="sw ${ST.gth?'on':''}" data-a="lkt" data-k="gth"></button>`),
     sH('Forma y estilo'),
-    sR('Radio de las esquinas','Controla el redondeo de los bordes de paneles y tarjetas.',`<div class="seg" data-k="round">${[[30,'Suave'],[18,'Medio'],[6,'Recto']].map(([v,l])=>`<button data-a="seg" data-k="round" data-v="${v}" class="${P_('round',30)===v?'on':''}">${l}</button>`).join('')}</div>`),
-    sR('Tipografía','Cambia la fuente utilizada en toda la interfaz.',sg('font',[['','Normal'],['round','Redonda'],['serif','Clásica'],['ind','Industrial'],['mono','Máquina']],ST.font||'')),
-    sR('Estilo de las tarjetas','Cristal: translúcido. Sólido: opaco. Contorno: solo borde de color.',sg('cst',[['','Cristal'],['solid','Sólido'],['line','Contorno']],ST.cst||'')),
-    sR('Sombras y relieve','Ajusta el relieve visual, desde un estilo plano hasta uno más marcado.',sg('shd',[['flat','Plano'],['','Normal'],['hi','Dramático']],ST.shd||'')),
+    sRc('Radio de las esquinas','Controla el redondeo de los bordes de paneles y tarjetas.',`<div class="seg" data-k="round">${[[30,'Suave'],[18,'Medio'],[6,'Recto']].map(([v,l])=>`<button data-a="seg" data-k="round" data-v="${v}" class="${P_('round',30)===v?'on':''}">${l}</button>`).join('')}</div>`),
+    sRc('Tipografía','Cambia la fuente utilizada en toda la interfaz.',sg('font',[['','Normal'],['round','Redonda'],['serif','Clásica'],['ind','Industrial'],['mono','Máquina']],ST.font||'')),
+    sRc('Estilo de las tarjetas','Cristal: translúcido. Sólido: opaco. Contorno: solo borde de color.',sg('cst',[['','Cristal'],['solid','Sólido'],['line','Contorno']],ST.cst||'')),
+    sRc('Sombras y relieve','Ajusta el relieve visual, desde un estilo plano hasta uno más marcado.',sg('shd',[['flat','Plano'],['','Normal'],['hi','Dramático']],ST.shd||'')),
     sH('Movimiento'),
-    lookPane()[1],
-    sR('Efecto de fondo','Partículas animadas que se muestran detrás de la interfaz.',sg('fxk',[['','Nieve'],['rain','Lluvia'],['stars','Estrellas'],['ember','Brasas'],['off','Ninguno']],ST.fxk||'')),
-    sR('Velocidad de las animaciones','Modifica la velocidad de todas las animaciones y transiciones.',sg('asp',[['0.7','Lenta'],['1','Normal'],['1.4','Rápida'],['2','Muy rápida']],ST.asp||'1')),
+    lookPane()[1].replace('class="row f"','class="row f lkc"'),
+    sRc('Efecto de fondo','Partículas animadas que se muestran detrás de la interfaz.',sg('fxk',[['','Nieve'],['rain','Lluvia'],['stars','Estrellas'],['ember','Brasas'],['off','Ninguno']],ST.fxk||'')),
+    sRc('Velocidad de las animaciones','Modifica la velocidad de todas las animaciones y transiciones.',sg('asp',[['0.7','Lenta'],['1','Normal'],['1.4','Rápida'],['2','Muy rápida']],ST.asp||'1')),
     sH('Pantalla'),
-    sR('Barra lateral','Alterna entre la barra completa y una versión compacta con solo íconos.',sg('sbm',[['','Completa'],['ico','Solo íconos']],ST.sbm||'')),
-    sR('Secciones de Inicio','Selecciona qué secciones se muestran en la pantalla de Inicio.',`<div class="seg">${[['res','Resumen'],['sem','Racha semanal'],['obj','Objetivos'],['nov','Novedades'],['bib','Tu biblioteca']].map(([k,l])=>`<button data-a="hhs" data-k="${k}" class="${(ST.hh||{})[k]?'':'on'}">${l}</button>`).join('')}</div>`),
+    sRc('Barra lateral','Alterna entre la barra completa y una versión compacta con solo íconos.',sg('sbm',[['','Completa'],['ico','Solo íconos']],ST.sbm||'')),
+    sRc('Secciones de Inicio','Selecciona qué secciones se muestran en la pantalla de Inicio.',`<div class="seg">${[['res','Resumen'],['sem','Racha semanal'],['obj','Objetivos'],['nov','Novedades'],['bib','Tu biblioteca']].map(([k,l])=>`<button data-a="hhs" data-k="${k}" class="${(ST.hh||{})[k]?'':'on'}">${l}</button>`).join('')}</div>`),
     sH('Sonido'),
     sR('Sonidos de la interfaz','Reproduce un sonido breve al interactuar con botones y menús.',sg('snd',[['','Apagado'],['soft','Suave'],['retro','Retro'],['fut','Futurista']],ST.snd||'')),
     sR('Restablecer apariencia','Restaura los valores de fábrica de la apariencia. No modifica la biblioteca ni los datos guardados.','<button class="b2 g" data-a="rsap">Restablecer</button>')
@@ -7073,7 +7096,7 @@ const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<butto
     sR('Restablecer biblioteca','Restaura la biblioteca original de Steam y elimina los estados y las notas guardados en los juegos.','<button class="b2 g" data-a="reset">Restablecer</button>')];
   return []}
 const SINFO={gen:'Arranque, pantalla y capturas',look:'Tema, color, tipografía y efectos',avi:'Sonido de hitos y mensajes',lib:'Cuentas, datos y limpieza',mando:'Consola, música, fondo y trailers',ext:'Emulación, logros retro e IA',data:'Copias, espacio y restablecer'};
-const SRI=[[/segundo plano/i,'bolt'],[/windows/i,'play'],[/con el mando/i,'games'],[/abrir winteer/i,'home'],[/tama[ñn]o/i,'scan'],[/intenci/i,'clock'],[/visita/i,'lock'],[/captura/i,'img'],[/volumen|sonido|m[uú]sica/i,'bell'],[/teclado/i,'edit'],[/centro de mandos/i,'games'],[/tr[aá]iler|trailer/i,'play'],[/fondo|brillo/i,'img'],[/protector/i,'star'],[/steam|epic|xbox/i,'games'],[/descargar/i,'dl'],[/carpeta|estaci/i,'compass'],[/duplicado/i,'filter'],[/limpi|restablecer/i,'trash'],[/recalcular|retro/i,'trophy'],[/espacio|copias/i,'shield'],[/asistente/i,'star'],[/tema|estilo|color|rendimiento/i,'flake']];
+const SRI=[[/horario/i,'clock'],[/tipograf/i,'edit'],[/esquinas/i,'scan'],[/tarjetas/i,'games'],[/sombras|relieve|resplandor/i,'star'],[/efecto de fondo/i,'flake'],[/animaciones|carrusel/i,'bolt'],[/barra lateral/i,'compass'],[/secciones/i,'home'],[/segundo plano/i,'bolt'],[/windows/i,'play'],[/con el mando/i,'games'],[/abrir winteer/i,'home'],[/tama[ñn]o/i,'scan'],[/intenci/i,'clock'],[/visita/i,'lock'],[/captura/i,'img'],[/volumen|sonido|m[uú]sica/i,'bell'],[/teclado/i,'edit'],[/centro de mandos/i,'games'],[/tr[aá]iler|trailer/i,'play'],[/fondo|brillo/i,'img'],[/protector/i,'star'],[/steam|epic|xbox/i,'games'],[/descargar/i,'dl'],[/carpeta|estaci/i,'compass'],[/duplicado/i,'filter'],[/limpi|restablecer/i,'trash'],[/recalcular|retro/i,'trophy'],[/espacio|copias/i,'shield'],[/asistente/i,'star'],[/tema|estilo|color|rendimiento/i,'flake']];
 const rowIc=h=>{const m=h.match(/^<div class="row[^"]*"><div>([\s\S]*?)<small/),s=m?m[1].replace(/<[^>]+>/g,''):'',f=SRI.find(([r])=>r.test(s));return f?f[1]:'gear'};
 const sDeco=r=>typeof r==='string'&&r.startsWith('<div class="row')?r.replace(/^(<div class="row)([^"]*)(">)/,(m0,a1,a2,a3)=>a1+a2+(/data-a="reset"/.test(r)?' dng':'')+a3+'<i class="rwi">'+ic(rowIc(r))+'</i>'):r;
 const sGroup=a=>{let out='',cur=null,buf=[];const fl=()=>{if(buf.length)out+=`<section class="sg">${cur?`<h4><span>${cur}</span></h4>`:''}<div class="sgl">${buf.map(sDeco).join('')}</div></section>`;buf=[]};a.forEach(r=>{const m=typeof r==='string'&&r.match(/^<h4 class="shd">([\s\S]*)<\/h4>$/);if(m){fl();cur=m[1]}else if(r)buf.push(r)});fl();return out};
