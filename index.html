@@ -6201,6 +6201,7 @@ body.light .wbd,body.light .wds{background:rgba(255,255,255,.92)}body.light .wbu
           <a data-v="prog"><span id="i-prog"></span>Progreso</a>
           <a data-v="sagas"><span id="i-sagas"></span>Sagas</a>
           <a data-v="social"><span id="i-social"></span>Social</a>
+          <a data-v="vault" id="nvv" style="display:none"><span id="i-vlt"></span>Bóveda</a>
           <a data-v="cat" style="display:none"><span id="i-cat"></span>Catálogo Steam</a>
           <a data-v="dl" style="display:none"><span id="i-dl"></span>Descargas<b id="dl-bd" class="dlbd" hidden></b></a>
         </nav>
@@ -13139,7 +13140,7 @@ const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-$
 const VMK='3c4a6db0e2c839b13df3920df2f2f9e10e2b7fc268a931d870a884234186cead';
 async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function vMaster(code){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(code),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode('wtv-m1'),iterations:100000},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===VMK}
-function vLock(go_,keep){if(!keep)S.vok=0;S.vu=0;S.vweb=0;S.vst=0;try{if(RE&&RE.v)RE=null}catch(e){}$$('.rvm,.rvdm,.shlb').forEach(m=>m.remove());if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
+function vLock(go_,keep){if(!keep)S.vok=0;S.vu=0;S.vsec=0;try{vNav()}catch(e){}S.vweb=0;S.vst=0;try{if(RE&&RE.v)RE=null}catch(e){}$$('.rvm,.rvdm,.shlb').forEach(m=>m.remove());if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
 /* pantalla de PIN: no dice qué es ni para qué; igual exista o no una bóveda */
 function vOpen(){if(S.vu){go('vault');return}
   if(S.vok){vOk(1);return}
@@ -13151,11 +13152,12 @@ async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.trim(),L
   if(S.vwait&&Date.now()<S.vwait){toast('PIN incorrecto');return}
   if(pin.length>=4&&pin.length<=16&&await vMaster(pin)){S.vtry=0;S.vok=1;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
   S.vtry=(S.vtry||0)+1;i.value='';{const p=$('.vpin');if(p){p.classList.remove('bad');void p.offsetWidth;p.classList.add('bad');i.focus()}}if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0}toast('PIN incorrecto')}
-function vOk(re){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';S.vst=0;S.vf='';go('vault');setTimeout(()=>{try{vCheckAll()}catch(e){}},re?800:2500)}
+function vOk(re){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';S.vst=0;S.vf='';S.vsec=0;vNav();go('vault');setTimeout(()=>{try{vCheckAll()}catch(e){}},re?800:2500)}
 /* vista: mismo diseño que la biblioteca, con ids propios para no mezclarse con ella */
 V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></div>';
+  if(!S.vsec&&!S.vweb)return vHubHTML();
   if(S.vweb)return `<div class="vwx"><div class="vwb"><button class="b2 sm" data-a="vwx" title="Volver a la Bóveda" style="height:40px;padding:0 18px">Bóveda</button><button class="ib" data-a="vwb" title="Atrás">${ic('chl')}</button><button class="ib" data-a="vwf" title="Adelante">${ic('chr')}</button><button class="ib" data-a="vwr" title="Recargar">${ic('wrl')}</button><button class="b2 sm" data-a="vlink" title="Vincular este hilo a un juego para avisarte de versiones" style="height:40px;padding:0 16px">Vincular juego</button><div class="vwu" id="vwu">f95zone.to</div></div><webview id="vwv" partition="persist:wt-vault" src="https://f95zone.to/"></webview></div>`;
-  return `<div class="lib"><section class="libl"><div class="lh"><h2>Bóveda</h2><button class="vbl" data-a="vlock" title="Cerrar la Bóveda">${ic('lock')}<span>Bloquear</span></button></div>
+  return `<div class="lib"><section class="libl"><div class="lh"><h2 class="vhb" data-a="vhub" title="Volver al panel de la Bóveda">${ic('chl')}Bóveda</h2><button class="vbl" data-a="vlock" title="Cerrar la Bóveda">${ic('lock')}<span>Bloquear</span></button></div>
   <div class="vbar"><button class="vbt" data-a="vmove" title="Traer de la biblioteca">${ic('arrow')}</button><button class="vbt" data-a="vaddx" title="Agregar juego">${ic('plus')}</button><button class="vbt" data-a="vweb" title="F95zone">${ic('globe')}</button><button class="vbt ${S.vst==='dy'?'on':''}" data-a="vdiary" title="Diario">${ic('diary')}</button><button class="vbt ${S.vst==='co'?'on':''}" data-a="vco" title="Listas y sagas">${ic('sagas')}</button><button class="vbt ${S.vst==='st'?'on':''}" data-a="vstats" title="Estadísticas">${ic('chart')}</button><button class="vbt" data-a="vopts" title="Opciones">${ic('settings')}</button></div>
   <div class="ls">${ic('search')}<input id="vlq" placeholder="Buscar…" value="${esc(S.vq||'')}"></div><div class="vflt" id="vflt"></div><div class="cnt" id="vcnt"></div><div class="list" id="vlist"></div></section><section class="detail" id="vdetail"></section></div>`};
 const vTs=g=>{let t=0;try{for(const x of (vL().ses||[]))if(x.g===g.id&&x.s>t)t=x.s}catch(e){}if(t)return t;const m=String(g.last||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?+new Date(+m[3],m[2]-1,+m[1]):0};
@@ -13166,7 +13168,7 @@ function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq
   e.innerHTML=arr.length?arr.map(g=>{const run=S.vplay&&S.vplay.id===g.id,t=run?'Jugando':stOf(g);
     return `<div class="it ${g.id===S.vsel?'sel':''} ${g.status==='Terminado'?'done':''}" data-a="vsel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em>':''}${esc(g.name)}</b></div>${vUpd(g)?'<span class="vb" title="Nueva versión">Nueva</span>':''}${g.vp?`<span class="vs2" style="color:#ff7aa2">${'♥'.repeat(g.vp)}</span>`:''}${t==='Jugando'?'<i class="sdt g"></i>':t==='Pausado'?'<i class="sdt b"></i>':''}</div>`}).join(''):`<p style="color:var(--muted);padding:14px;font-size:13px">${L.g.length?'Sin resultados':'Todavía no hay nada. Con el botón de la flecha movés un juego desde tu biblioteca.'}</p>`;
   const c=$('#vcnt');if(c)c.textContent=arr.length+(arr.length===1?' juego':' juegos')}
-function vRender(){if(S.view!=='vault'||!S.vu)return;if(S.vweb){const w=$('#vwv'),u=$('#vwu');if(w&&u&&!w._w){w._w=1;const f=()=>{try{u.textContent=w.getURL().replace(/^https?:\/\//,'')}catch(e){}};['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>w.addEventListener(e,f));['did-navigate','did-navigate-in-page','did-start-loading','focus'].forEach(e=>w.addEventListener(e,()=>{S.vlast=Date.now()}))}return}const L=vL();if(!L)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
+function vRender(){if(S.view!=='vault'||!S.vu)return;if(S.vweb){const w=$('#vwv'),u=$('#vwu');if(w&&u&&!w._w){w._w=1;const f=()=>{try{u.textContent=w.getURL().replace(/^https?:\/\//,'')}catch(e){}};['did-navigate','did-navigate-in-page','dom-ready'].forEach(e=>w.addEventListener(e,f));['did-navigate','did-navigate-in-page','did-start-loading','focus'].forEach(e=>w.addEventListener(e,()=>{S.vlast=Date.now()}))}return}const L=vL();if(!L)return;if(!S.vsec)return;if(!S.vsel||!vG(S.vsel))S.vsel=L.g[0]&&L.g[0].id;
   vList();vDetail(true);const i=$('#vlq');if(i&&!i._v){i._v=1;i.addEventListener('input',e=>{S.vq=e.target.value;vList()})}}
 function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
   $$('.vbar .vbt').forEach(b=>b.classList.toggle('on',(b.dataset.a==='vdiary'&&S.vst==='dy')||(b.dataset.a==='vstats'&&S.vst==='st')||(b.dataset.a==='vco'&&S.vst==='co')));
@@ -13259,6 +13261,12 @@ function vWrGo(i){clearTimeout(S.vwt);const d=vWrData(),st=$('#vwst');if(!d||!st
   st.innerHTML=`<div class="vws ${x.end?'end':''}" data-a="vwnx">${x.g?`<img class="vwbg" src="${art.hero(x.g)}" data-fb="${art.wide(x.g)}" alt="">`:''}<small>${esc(x.k)}</small><b class="${x.txt?'tx':''}"${x.txt?'':` data-count="${x.big}"${x.dec?` data-dec="${x.dec}"`:''}${x.suf?` data-suf="${x.suf}"`:''}`}>${x.txt?esc(String(x.big)):'0'+(x.suf||'')}</b><p>${x.t.startsWith('♥')?`<span style="color:#ff7aa2;letter-spacing:3px">${x.t}</span>`:esc(x.t)}</p></div>`;
   counters(st);const dd=$('#vwd');if(dd)dd.innerHTML=d.map((_,j)=>`<i class="${j===i?'on':j<i?'dn':''}" data-a="vwdot" data-i="${j}"></i>`).join('');
   S.vwt=setTimeout(()=>{if(S.view==='vault'&&S.vst==='wr'&&i<d.length-1)vWrGo(i+1)},4600)}
+/* ---- Bóveda como pestaña del launcher: panel con tarjetas ---- */
+function vNav(){const a=$('#nvv');if(a)a.style.display=S.vu?'':'none';try{moveInd()}catch(e){}}
+function vHubHTML(){const L=vL(),X=vCo(),cr=vCrGroups().filter(x=>x[0]).length,h=L.g.reduce((a,x)=>a+(x.hours||0),0),yr=new Date().getFullYear(),ns=(L.ses||[]).filter(x=>new Date(x.s).getFullYear()===yr).length;
+  const T=[['lib','games','Biblioteca',`${L.g.length} ${L.g.length===1?'juego':'juegos'}`],['cr','sagas','Creadores',`${cr} ${cr===1?'creador':'creadores'}`],['ls','crown','Listas',`${X.ls.length} ${X.ls.length===1?'lista':'listas'}`],['dy','diary','Diario',`${(L.rv||[]).length} ${(L.rv||[]).length===1?'reseña':'reseñas'}`],['st','stats','Estadísticas',fh(h)+' jugadas'],['wr','wrapped','Wrapped',ns?`${ns} ${ns===1?'sesión':'sesiones'} este año`:'Sin partidas este año'],['web','compass','F95zone','Buscar y vincular juegos']];
+  return `<div class="stack vhub"><header class="vhh rise"><div class="vhl"><div class="vhi">${ic('lock')}</div><div><small>Privado</small><h1>Bóveda</h1></div></div><button class="vbl" data-a="vlock" title="Cerrar la Bóveda">${ic('lock')}<span>Bloquear</span></button></header>
+  <div class="vht">${T.map(([k,i,t,d],n)=>`<button class="vhc" style="--n:${n}" data-a="vsec" data-v="${k}"><span class="vhg">${ic(i)}</span><b>${t}</b><small>${d}</small><span class="vhb2">${ic(i)}</span></button>`).join('')}</div></div>`}
 function vCtx(e,id){const g=vG(id);if(!g)return;const run=S.vplay&&S.vplay.id===id,cur=vsOf(g),c=document.createElement('div');c.id='ctx';
   c.innerHTML=`<div class="t">${esc(g.name)}</div><button data-c="edit">${ic('edit')}Editar</button><button data-c="play">${ic(run?'stop':'play')}${run?'Detener':'Jugar'}</button><button data-c="fav">${ic('star')}${g.fav?'Quitar de favoritos':'Favorito'}</button><hr><button data-c="out">${ic('arrow')}Sacar de la Bóveda</button><button data-c="del" style="color:#ff8aa0">${ic('trash')}Eliminar de la Bóveda</button>`;
   document.body.appendChild(c);c.style.left=Math.max(8,Math.min(e.clientX,innerWidth-c.offsetWidth-8))+'px';c.style.top=Math.max(8,Math.min(e.clientY,innerHeight-c.offsetHeight-8))+'px';
@@ -13376,6 +13384,8 @@ Object.assign(A,{
  vcropen:a=>{S.vcs=vDec(a.dataset.id);vCoRef()},
  vcrren:()=>{const k=S.vcs;if(!k)return;vCrName(k,n=>{vL().g.forEach(g=>{if((g.vdv||'')===k){g.vdv=n;g.vdvm=1}});S.vcs=n;save();vCoRef()})},
  vcrset:a=>{const g=vG(a.dataset.id);if(!g)return;vCrName(g.vdv||'',n=>{g.vdv=n;g.vdvm=1;save();const gr=vCrGroups();if(S.vcs!==0&&!gr.find(x=>x[0]===S.vcs))S.vcs=0;vCoRef()})},
+vsec:a=>{const k=a.dataset.v;S.vsec=1;S.vweb=0;S.vst=0;S.vcs=0;if(k==='cr'){S.vst='co';S.vco='sa'}else if(k==='ls'){S.vst='co';S.vco='ls'}else if(k==='dy'||k==='st'||k==='wr'){S.vst=k}else if(k==='web'){S.vweb=1}go('vault')},
+ vhub:()=>{S.vsec=0;S.vst=0;S.vweb=0;S.vcs=0;go('vault')},
  vflt:a=>{S.vf=a.dataset.id;vList()},vsort:()=>{const o=['n','h','r','p'];S.vso=o[(o.indexOf(S.vso||'n')+1)%4];vList()},
  vstats:()=>{S.vst=S.vst==='st'?0:'st';vDetail(true)},
  vback:()=>{S.vst=0;vDetail(true)},
@@ -18541,7 +18551,7 @@ const wdMsg=m=>{
 };window.wdMsg=wdMsg;if(WN&&winteerNative.onWebDl)winteerNative.onWebDl(wdMsg);
 {const e=$('#i-web');if(e)e.outerHTML=ic('web')}
 P.prog=P.trophy;{const e=$('#i-prog');if(e)e.outerHTML=ic('prog')}
-P.social=P.friends;if(!P.sagas)P.sagas='<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 5 9-5" opacity=".55"/>';['sagas','social'].forEach(k=>{const e=$('#i-'+k);if(e)e.outerHTML=ic(k)});
+P.social=P.friends;if(!P.sagas)P.sagas='<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 5 9-5" opacity=".55"/>';['sagas','social'].forEach(k=>{const e=$('#i-'+k);if(e)e.outerHTML=ic(k)});{const e=$('#i-vlt');if(e)e.outerHTML=ic('lock')}
 
 
 
@@ -18824,6 +18834,16 @@ body.nomo .vws>*,body.ultra .vws>*,body.nomo .vcc,body.ultra .vcc,body.nomo .vcr
 .vst.vwr{display:flex;flex-direction:column;align-items:stretch}.vwr>.chip{align-self:flex-start}.vwst{width:100%}.vws{width:100%;box-sizing:border-box}
 
 .vbar .vbt{min-width:0!important;flex:1 1 0!important;padding:0!important}.vbar .vbt svg{max-width:20px}
+
+.vhub{padding-bottom:20px}.vhh{display:flex;align-items:center;justify-content:space-between;gap:14px}.vhl{display:flex;align-items:center;gap:14px}.vhi{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:rgba(var(--argb),.16);box-shadow:inset 0 0 0 1px rgba(var(--argb),.3)}.vhi svg{width:26px;height:26px}.vhh small{font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.6}.vhh h1{margin:2px 0 0;font-size:34px}
+.vht{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:22px}
+.vhc{position:relative;overflow:hidden;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:170px;padding:22px;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));color:inherit;font:inherit;cursor:pointer;animation:vhIn .7s calc(.1s + var(--n)*70ms) both cubic-bezier(.17,.9,.28,1);transition:transform .35s cubic-bezier(.2,.9,.25,1),border-color .3s,box-shadow .35s}
+.vhc:hover{transform:translateY(-4px);border-color:rgba(var(--argb),.55);box-shadow:0 22px 44px -18px rgba(var(--argb),.55)}.vhc:active{transform:translateY(-1px) scale(.99)}
+.vhg{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:rgba(var(--argb),.16);box-shadow:inset 0 0 0 1px rgba(var(--argb),.28);transition:transform .4s cubic-bezier(.34,1.56,.4,1),background .3s}.vhc:hover .vhg{transform:scale(1.12) rotate(-6deg);background:rgba(var(--argb),.32)}.vhg svg{width:22px;height:22px}
+.vhc b{font-size:20px;margin-top:auto}.vhc small{opacity:.65;font-size:13px}.vhb2{position:absolute;right:-14px;bottom:-18px;opacity:.06;pointer-events:none;transition:opacity .4s,transform .5s cubic-bezier(.2,.9,.25,1)}.vhb2 svg{width:120px;height:120px}.vhc:hover .vhb2{opacity:.12;transform:translate(-6px,-6px) rotate(-6deg)}
+@keyframes vhIn{from{opacity:0;transform:translateY(26px) scale(.94)}}
+.vhb{cursor:pointer;display:inline-flex;align-items:center;gap:6px}.vhb svg{width:16px;height:16px}.vhb:hover{opacity:.8}
+body.nomo .vhc,body.ultra .vhc{animation:none!important}
 </style>
 </body>
 </html>
