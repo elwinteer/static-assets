@@ -1904,7 +1904,7 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 .sv-bt>:nth-child(1){animation:svin2 .8s .3s both cubic-bezier(.2,.9,.25,1)}.sv-bt>:nth-child(2){animation:svR .9s .38s both cubic-bezier(.2,.9,.25,1)}
 .sv-ni{animation:svPop .6s both cubic-bezier(.2,.9,.25,1)}.sv-ni:nth-of-type(1){animation-delay:.5s}.sv-ni:nth-of-type(2){animation-delay:.58s}.sv-ni:nth-of-type(3){animation-delay:.66s}.sv-ni:nth-of-type(4){animation-delay:.74s}.sv-ni:nth-of-type(5){animation-delay:.82s}.sv-ni:nth-of-type(6){animation-delay:.9s}
 .sv-fc{transition:transform .45s cubic-bezier(.34,1.4,.4,1),box-shadow .35s,border-color .35s,filter .35s}.sv-fc:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 26px 54px rgba(0,0,0,.5),0 0 34px rgba(var(--argb),.12)}.sv-fc:active{transform:scale(.985)}
-.sv-chat .fr-msgs>*{animation:svPop .45s both cubic-bezier(.2,.9,.25,1)}.fr-msgs>*{animation:svPop .45s both cubic-bezier(.2,.9,.25,1)}
+.sv-chat .fr-msgs>*{animation:svPop .45s both cubic-bezier(.2,.9,.25,1)}.fr-tx .fr-lk{color:inherit;text-decoration:underline;text-underline-offset:2px;word-break:break-all;cursor:pointer}.fr-tx .fr-lk:hover{opacity:.8}.fr-msgs>*{animation:svPop .45s both cubic-bezier(.2,.9,.25,1)}
 .sv-chh{animation:svin2 .7s .45s both cubic-bezier(.2,.9,.25,1)}
 .fr-bw .fr-send{transition:border-color .3s,box-shadow .35s,background .3s}.fr-bw .fr-send:focus-within{border-color:rgba(var(--argb),.55)!important;box-shadow:0 0 0 4px rgba(var(--argb),.12);background:rgba(255,255,255,.07)}
 .fr-bw .fr-send .hm-go{transition:transform .35s cubic-bezier(.34,1.56,.4,1),box-shadow .3s}.fr-bw .fr-send .hm-go:hover{transform:scale(1.1) rotate(-8deg)}.fr-bw .fr-send .hm-go:active{transform:scale(.92)}
@@ -16556,12 +16556,13 @@ function frInvHTML(c,m,me,ms){const g=G.find(x=>frN(x.name)===frN(m.g)),ans=ms.f
   const st=ans?(ans.a?'<span class="ok">✔ Aceptada</span>':'<span>🕒 Más tarde</span>'):me?'<span>Esperando respuesta…</span>':`<div class="fr-iv"><button data-a="frans" data-t="${m.t}" data-v="1">¡Dale!</button><button class="g" data-a="frans" data-t="${m.t}" data-v="0">Después</button></div>`;
   return `<div class="fr-gc inv"><div class="fr-gi">${frCover(g,m.g)}</div><div><small>${me?'Invitaste a jugar':'Te invita a jugar'}</small><b>${esc(m.g)}</b></div></div><div class="fr-is">${st}</div>`}
 const FRX=['👍','❤️','😂','😮','😢','🔥'];
+function frLink(t){return esc(t).replace(/\n/g,'<br>').replace(/\b((?:https?:\/\/|www\.)[^\s<]+[^\s<.,;:!?)\]'"])/gi,u=>`<a class="fr-lk" href="${/^www\./i.test(u)?'https://'+u:u}" target="_blank" rel="noopener noreferrer">${u}</a>`)}
 function frMsgHTML(c,m,ms){const f=FR(),ch=frCh(c),me=!!m.me,nm=(f.c[c]||{}).name||'',pin=(ch.pins||[]).includes(m.t);let b='';
   if(m.d)b='<i class="fr-del">Mensaje eliminado</i>';
   else{if(m.r){const q=ms.find(z=>String(z.t)===String(m.r));b+=`<div class="fr-q">${q?`<b>${q.me?'Vos':esc(nm)}</b>${esc(frSnip(q))}`:'Mensaje anterior'}</div>`}
     if(m.k==='img')b+=frImgHTML(m);else if(m.k==='game')b+=frGameHTML(c,m,me);else if(m.k==='inv')b+=frInvHTML(c,m,me,ms);else if(m.k==='mods')b+=x4ModsHTML(c,m,me);else if(m.k==='wld')b+=x4WldHTML(c,m,me);
     else if(m.k==='ans')b+=`<div class="fr-ans">${m.a?'✔ Aceptó jugar':'🕒 Más tarde para jugar'} <b>${esc(m.g||'')}</b></div>`;
-    if(m.x)b+=`<span class="fr-tx">${esc(m.x).replace(/\n/g,'<br>')}</span>`}
+    if(m.x)b+=`<span class="fr-tx">${frLink(m.x)}</span>`}
   const seen=me&&(ch.thrd||0)>=m.t,mr=(ch.rx||{})[m.t],tr=(ch.thx||{})[m.t],cnt={};[mr,tr].forEach(e=>{if(e)cnt[e]=(cnt[e]||0)+1});
   const rx=Object.keys(cnt).length?`<div class="fr-rxs">${Object.entries(cnt).map(([e,n])=>`<button class="${mr===e?'on':''}" data-a="frrx" data-t="${m.t}" data-e="${e}">${e}${n>1?'<i>'+n+'</i>':''}</button>`).join('')}</div>`:'';
   const tools=m.d?'':`<div class="fr-ma"><button data-a="frrxo" title="Reaccionar">${ic('smile')}</button><button data-a="frrep" data-t="${m.t}" title="Responder">${ic('reply')}</button>${me&&!m.k&&m.x?`<button data-a="fredit" data-t="${m.t}" title="Editar">${ic('edit')}</button>`:''}<button data-a="frpin" data-t="${m.t}" title="${pin?'Quitar de fijados':'Fijar'}">${ic('pin')}</button>${me?`<button data-a="frdelm" data-t="${m.t}" title="Eliminar">${ic('trash')}</button>`:''}</div><div class="fr-pk">${FRX.map(e=>`<button data-a="frrx" data-t="${m.t}" data-e="${e}">${e}</button>`).join('')}</div>`;
