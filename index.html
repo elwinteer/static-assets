@@ -11173,8 +11173,17 @@ const AVK={skin:'skin',hc:'hc',hair:'hair',eyes:'eyes',brow:'brow',mouth:'mouth'
 const AVDEF={skin:'sk1',hc:'hc1',hair:'h0',eyes:'e0',brow:'b0',mouth:'mn',beard:'d0',hat:'ht0',glass:'g0',top:'tn',topc:8,bot:'bn',botc:9,shoes:'s0',back:'k0',hand:'i0',bg:'w0',hatc:null,glassc:null,shoesc:null,backc:null,handc:null};
 const avItem=(cat,id)=>(AVD[cat].it.find(x=>x[0]===id));
 const avPetLv=()=>{try{const p=petCur();return p?pLvl(p):0}catch(e){return 0}};
-const avOk=it=>{const r=it[3];return typeof r==='number'?lvlOf().l>=r:avPetLv()>=+r.slice(1)};
-const avLbl=it=>{const r=it[3];return typeof r==='number'?'Nivel '+r:'Mascota nv '+String(r).slice(1)};
+/* ropa que se gana jugando: la prenda se consigue por lo que jugás, no por nivel */
+const gH=n=>G.reduce((t,g)=>t+(genresOf(g).includes(n)?(g.hours||0):0),0);
+const AVQ={
+ h100:['100 h jugadas',()=>[totalH(),100]],h500:['500 h jugadas',()=>[totalH(),500]],h1000:['1000 h jugadas',()=>[totalH(),1000]],
+ st7:['Racha de 7 días',()=>[streakAll(),7]],dn10:['10 juegos terminados',()=>[doneN(),10]],
+ rpg50:['50 h de RPG',()=>[gH('RPG'),50]],dep50:['50 h de Deportes',()=>[gH('Deportes'),50]],car30:['30 h de Carreras',()=>[gH('Carreras'),30]],
+ ha100:['100 hitos',()=>[gaN(),100]],sg1:['Completar una saga',()=>[Object.keys(ST.sgWon||{}).length,1]]};
+let AVQC={t:0,v:{}};
+const avqP=k=>{const n=Date.now();if(n-AVQC.t>1500){AVQC={t:n,v:{}}}if(!AVQC.v[k]){try{AVQC.v[k]=AVQ[k][1]()}catch(e){AVQC.v[k]=[0,1]}}return AVQC.v[k]};
+const avOk=it=>{const r=it[3];if(typeof r==='number')return lvlOf().l>=r;if(r[0]==='q'){const p=avqP(r.slice(2));return p[0]>=p[1]}return avPetLv()>=+r.slice(1)};
+const avLbl=it=>{const r=it[3];if(typeof r==='number')return 'Nivel '+r;if(r[0]==='q'){const k=r.slice(2),p=avqP(k);return AVQ[k][0]+' · '+Math.floor(Math.min(p[0],p[1]))+'/'+p[1]}return 'Mascota nv '+String(r).slice(1)};
 const avNorm=a=>{const o={};a=a||{};for(const k of AVO){const c=AVK[k];if(c)o[k]=(avItem(c,a[k])?a[k]:AVDEF[k]);else{const v=a[k];o[k]=(Number.isInteger(v)&&v>=0&&v<AVCL.length)||(typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))?v:AVDEF[k]}}o.g=a.g==='f'?'f':'m';if(!hairOk(o.hair,o.g))o.hair=AVDEF.hair;return o};
 const hx2=h=>{h=h.replace('#','');if(h.length===3)h=[...h].map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16,n>>8&255,n&255]};
 const rgb2hsl=([r,g,b])=>{r/=255;g/=255;b/=255;const M=Math.max(r,g,b),m=Math.min(r,g,b),l=(M+m)/2,d=M-m;let h=0,s=0;if(d){s=d/(1-Math.abs(2*l-1));h=M===r?((g-b)/d+(g<b?6:0)):M===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s,l]};
@@ -11865,6 +11874,22 @@ window.HZ=[];
 HAT.forEach((s,i)=>{const lv=20+Math.round(i*80/(N-1)),rar=lv<35?2:lv<65?3:4,id='hz'+(i+1);ht.push([id,s[0],rar,lv,k=>{const f='hzf'+AVU;return BEV(f)+`<g filter="url(#${f})">`+s[1]()+(XT[s[0]]?XT[s[0]]():'')+'</g>'}]);NOCOL.add(id);const f=/^Capucha/.test(s[0])?1:ACC.includes(s[0])?1.1:WIDE.includes(s[0])?1.16:1.2;window.HZ.push([id,[f,f+.02],/^Capucha/.test(s[0])||!ACC.includes(s[0])])});
 window.HZ.push(['ht6',[1.12,1.12]]);
 })();
+/* prendas que se ganan jugando */
+(function(){const CK='stroke="#14110f" stroke-width="2.6"',COL=inkP('M86 149Q100 162 114 149',3.2);
+ AVD.top.it.push(
+  ['q_t1','Camiseta de las 100 h',1,'q:h100',c=>TSH(c,0)+Ci(100,188,16,'#ffcf4a',CK)+STAR(100,188,10,'#fff')+COL],
+  ['q_t2','Buzo del maratonista',2,'q:h500',c=>TSH(c,1)+SK('M24 214Q44 220 64 216','#f5f5f5',4)+SK('M176 214Q156 220 136 216','#f5f5f5',4)+SK('M23 226Q44 232 64 228','#ffcf4a',4)+SK('M177 226Q156 232 136 228','#ffcf4a',4)+SK('M72 192H128','#f5f5f5',5)+SK('M72 204H128','#ffcf4a',5)+COL],
+  ['q_t3','Campera de veterano',3,'q:h1000',c=>TSH(c,1)+inkP('M100 160V246',2.6)+SK('M24 218Q44 224 64 220','#ffcf4a',5)+SK('M176 218Q156 224 136 220','#ffcf4a',5)+ol('M70 238H130V248H70Z','#ffcf4a',3)+Ci(80,184,12,'#f7f7fb',CK)+STAR(80,184,8,'#e4443f')+COL],
+  ['q_t4','Camiseta de fuego',2,'q:st7',c=>TSH(c,0)+ol('M100 166Q112 178 109 191Q115 187 115 181Q124 196 113 209Q105 217 96 211Q86 205 90 192Q94 196 96 194Q92 181 100 166Z','#ff8a2a',2.8)+ol('M100 190Q106 198 102 206Q96 204 96 198Q98 195 100 190Z','#ffd34d',2)+COL],
+  ['q_t5','Remera de completista',2,'q:dn10',c=>TSH(c,0)+Ci(100,188,16,'#4ade80',CK)+SK('M91 188L98 195L110 181','#fff',3.6)+COL],
+  ['q_t6','Chaleco de aventurero',2,'q:rpg50',c=>TSH(c,0)+ol('M76 152L96 150L94 232H78Z','#7a5232',3.2)+ol('M124 152L104 150L106 232H122Z','#7a5232',3.2)+SK('M100 160V230','#d9b98a',2.2)+[170,184,198,212].map(y=>SK('M95 '+y+'L105 '+(y+8),'#d9b98a',2.2)+SK('M105 '+y+'L95 '+(y+8),'#d9b98a',2.2)).join('')+COL],
+  ['q_t7','Camiseta de campeón',2,'q:dep50',c=>TSH(c,0)+[86,100,114].map(x=>SK('M'+x+' 156V242','#3b64b4',5,'opacity=".9"')).join('')+STAR(100,176,8,'#ffcf4a')+COL],
+  ['q_t8','Traje de leyenda',4,'q:ha100',c=>TSH('#1b1b28',1,'#101018')+ol('M88 148L100 192L112 148L106 143L100 154L94 143Z','#f7f7fb',3.2)+SK('M70 158L100 224','#ffcf4a',2.8)+SK('M130 158L100 224','#ffcf4a',2.8)+ol('M96 160H104L106 200L100 208L94 200Z','#ffcf4a',3)+STAR(78,178,7,'#ffcf4a')+STAR(122,178,7,'#ffcf4a')]);
+ AVD.bot.it.push(['q_b1','Shorts de campeón',2,'q:dep50',c=>LG(c,280,54)+WB(c)+SK('M63 250L58 278','#f5f5f5',3.4)+SK('M137 250L142 278','#f5f5f5',3.4)]);
+ AVD.shoes.it.push(['q_s1','Zapatillas de piloto',2,'q:car30',k=>SNK(SB,'#e4443f')+SNK(SS,'#f4f4f6')+SNI('M52 301Q70 294 92 302',2.4)+SNI('M60 292L66 298',2.2)+SNI('M72 289L78 295',2.2)]);
+ AVD.back.it.push(['q_k1','Capa de maestro',4,'q:sg1',k=>'<g class="bk-sw">'+PT('M66 142Q26 152 14 220Q6 270 10 308Q100 326 190 308Q194 270 186 220Q174 152 134 142Z','M100 140H200V330H100Z',{s:'#5b2a86',sd:'#44206a'},60)+SK('M10 308Q100 326 190 308','#ffcf4a',4)+SK('M14 220Q6 270 10 308','#ffcf4a',3)+SK('M186 220Q194 270 190 308','#ffcf4a',3)+STAR(36,262,8,'#ffcf4a')+STAR(164,262,8,'#ffcf4a')+'</g>']);
+ NOCOL.add('q_t8')})();
+
 function RC(str,col){if(col==null||!str)return str;col=cvx(col);const re=/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g,cnt={};
  (str.match(re)||[]).forEach(x=>{const k=x.toLowerCase();cnt[k]=(cnt[k]||0)+1});
  let best=null,bn=0;for(const k in cnt){const q=rgb2hsl(hx2(k));if(q[2]<.12||q[2]>.985)continue;if(cnt[k]>bn){bn=cnt[k];best=q}}
@@ -12285,7 +12310,7 @@ function pfHome(){const p=(()=>{try{return petCur()}catch(e){return null}})(),L=
   return `<section class="card pfh rise" style="--i:1"><div class="pfh-st avs-st" id="avst">${avStage({pet:'none'})}${pet}</div><div class="pfh-r">${pfBig()}</div></section>`}
 function pfCol(){const tot=avAll(),have=tot.filter(([k,it])=>avOk(it)).length,
   rar=AVR.map((r,i)=>{const a=tot.filter(([k,it])=>it[2]===i),n=a.filter(([k,it])=>avOk(it)).length;return `<div class="col-r" style="--rc:${r[1]}"><b>${r[0]}</b><span>${n} / ${a.length}</span><i style="--w:${a.length?Math.round(n/a.length*100):0}%"></i></div>`}).join('');
-  const nx=tot.filter(([k,it])=>!avOk(it)&&typeof it[3]==='number').sort((a,b)=>a[1][3]-b[1][3]).slice(0,12),cur=avCur();
+  const nx=[...tot.filter(([k,it])=>!avOk(it)&&typeof it[3]==='string'&&it[3][0]==='q'),...tot.filter(([k,it])=>!avOk(it)&&typeof it[3]==='number').sort((a,b)=>a[1][3]-b[1][3])].slice(0,12),cur=avCur();
   return `<div class="col-h"><div class="col-t"><b>${have}</b> de ${tot.length} cosméticos desbloqueados</div></div><div class="col-rs">${rar}</div>
   <h4 class="shd">Próximos desbloqueos</h4><div class="av-grid">${nx.length?nx.map(([k,it])=>avCard(k,it,cur)).join(''):'<p class="mut">Ya desbloqueaste todo lo que se puede por nivel.</p>'}</div>`}
 function profTabBody(t){if(t==='av')return `<div id="avbody">${avBody()}</div>`;if(t==='col')return pfCol();if(t==='look')return `<div class="sgrid">${setX('look')}</div><h4 class="shd">Personalizar</h4><div class="sgrid">${setX('per')}</div>`;return ''}
@@ -13159,7 +13184,7 @@ const PBG=[['casa','Sala acogedora',1,0,''],['patio','Patio soleado',2,0,''],['c
 /* ropa (remeras, pantalones, zapatillas, sombreros): lo que pasa de nivel 29 se reparte parejo entre 30 y 130 */
 (()=>{const K=['top','bot','shoes','hat'],all=K.flatMap(k=>AVD[k].it.map(i=>i[3]).filter(v=>typeof v==='number'&&v>=30)),lo=Math.min(...all),hi=Math.max(...all);K.forEach(k=>AVD[k].it.forEach(it=>{if(typeof it[3]==='number'&&it[3]>=30)it[3]=Math.round(30+(it[3]-lo)*100/(hi-lo))}))})();
 const AVNM={skin:'Piel',hc:'Color de pelo',hair:'Peinado',eyes:'Ojos',brow:'Cejas',mouth:'Boca',beard:'Barba',hat:'Sombrero',glass:'Anteojos',top:'Prenda',bot:'Pantalón',shoes:'Calzado',back:'Espalda',hand:'Objeto',bg:'Fondo'};
-const avNm=(c,it)=>(AVNM[c]||c)+' '+String(AVD[c].it.indexOf(it)+1).padStart(2,'0');
+const avNm=(c,it)=>/^q_/.test(it[0])?it[1]:(AVNM[c]||c)+' '+String(AVD[c].it.indexOf(it)+1).padStart(2,'0');
 const bgOk=(p,k)=>{const b=PBG.find(x=>x[0]===k);if(!b)return false;if(b[2])return pLvl(p)>=b[2];if(b[3]===1)return (p.wk||0)>=15;if(b[3]===2)return LOGH()-(p.h0||0)>=20;if(b[3]===3)return (p.bdok||0)>0;return true};
 const bgReq=b=>b[2]?'Nivel '+b[2]:b[4];
 const PFRAME=(i)=>`<svg class="pt-bgs" viewBox="0 0 800 420" preserveAspectRatio="xMidYMax slice">${i}</svg>`;
