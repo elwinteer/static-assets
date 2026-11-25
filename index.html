@@ -3539,6 +3539,35 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sg2-hg{border-radius:16px!important}
 .sg2-ac{border-radius:16px!important}.sg2-ac:before{border-radius:12px}.sg2-ac .sg2-b{border-radius:12px!important}
 .sg2-ab{border-radius:16px!important}
+
+/* ===== hitos: ícono y desplegable ===== */
+.sg2-hi svg{width:15px!important;height:15px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round;stroke-linejoin:round}
+.sg2-hb .sg2-hs{gap:4px!important}
+.sg2-hs>div{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center!important;gap:0 10px!important;padding:6px 10px 6px 8px!important;border-radius:13px!important;background:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.05)!important;transition:background .25s,border-color .25s,transform .25s cubic-bezier(.16,1,.3,1)}
+.sg2-hs>div:hover{background:rgba(255,255,255,.07)!important;transform:translateX(2px)}
+.sg2-hr{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--p)*1%),rgba(255,255,255,.1) 0);position:relative;flex:none}
+.sg2-hr:before{content:"";position:absolute;inset:3.5px;border-radius:50%;background:#15111c}
+.sg2-hr svg{position:relative;width:13px;height:13px;fill:none;stroke:#fbbf24;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.sg2-hs>div.on .sg2-hr{background:conic-gradient(#fbbf24 100%,#fbbf24 0);box-shadow:0 0 12px rgba(251,191,36,.45)}.sg2-hs>div.on .sg2-hr:before{background:#2a1f08}
+.sg2-hm{min-width:0;display:flex;flex-direction:column;gap:1px}
+.sg2-hm b{font-size:12.5px!important;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sg2-hm small{font-size:10.5px!important;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sg2-hs>div em{font-style:normal;font-size:11.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.sg2-hs>div.on em{color:#fcd34d}.sg2-hs>div.on{background:rgba(251,191,36,.08)!important;border-color:rgba(251,191,36,.35)!important}.sg2-hs>div.on .sg2-hm b{color:#fcd34d}
+.sg2-hs>div .sgb{display:none}
+/* premio */
+.sg2-hb .sg2-rw{margin-top:8px;padding:10px 12px!important;border-radius:14px!important;border:1px solid color-mix(in srgb,#fbbf24 35%,transparent)!important;background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(251,191,36,.03))!important;gap:11px!important;position:relative;overflow:hidden}
+.sg2-rw:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.12) 50%,transparent 65%);transform:translateX(-130%);transition:transform .9s cubic-bezier(.16,1,.3,1);pointer-events:none}.sg2-rw:hover:before{transform:translateX(130%)}
+.sg2-rb{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(251,191,36,.16);color:#fbbf24;transition:transform .4s cubic-bezier(.34,1.5,.5,1)}.sg2-rb svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sg2-rw:hover .sg2-rb{transform:rotate(-8deg) scale(1.1)}
+.sg2-rw:not(.on) .sg2-rb{background:rgba(255,255,255,.07);color:var(--muted)}
+.sg2-rk{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#fbbf24;margin-bottom:1px}.sg2-rw:not(.on) .sg2-rk{color:var(--muted)}
+.sg2-rw b{font-size:13px!important}
+.sg2-rw.on{box-shadow:0 0 26px -8px rgba(251,191,36,.55)}
+
+.sg2-hb .sg2-hs{max-height:max(112px,calc(100vh - 720px))!important}
+.sg2-s:has(.sg2-hg.open) .sg2-bio{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 22px),transparent)}
+.sg2-s:has(.sg2-hg.open) .sg2-ab{min-height:110px}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -8467,9 +8496,9 @@ function sgHtml(){
    ${!cur.next&&nxn&&!done?`<div class="sg2-nx">Siguiente: <b>${esc(nxn)}</b></div>`:done?'<div class="sg2-nx">Terminaste todos los juegos de la saga</div>':''}
    ${cur.next?`<button class="hm-go sgv-play sg2-play sg2-pl" data-a="sgplay"><span class="pl-i">${ic('play')}</span><span class="pl-t"><small>Jugar el próximo</small><b>${esc(cur.next.n||cur.next.name||nxn)}</b></span><svg class="pl-g" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>`:''}
    <div class="sg2-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados','check',pct)}${chip('<span data-cu="'+cur.ow+'">'+cur.ow+'</span>','biblioteca','games')}${chip(fh(cur.hs),'jugadas','clock')}</div>
-   <div class="sg2-hg ${S.sgho?'open':''}"><button class="sg2-hh" data-a="sghtog"><span class="sg2-hi">${ic('trophy')}</span><span>Hitos de la saga</span><em>${hs.filter(h=>h.on).length}/${hs.length}</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg><i class="sg2-hp" style="--p:${hs.length?Math.round(100*hs.filter(h=>h.on).length/hs.length):0}%"></i></button>
-    <div class="sg2-hb"><div><div class="sg2-hs">${hs.map((h,i)=>`<div class="${h.on?'on':''}" style="--i:${i}" title="${esc(h.d)} · ${h.v}/${h.t}"><b>${esc(h.n)}</b><small>${h.v}/${h.t}</small><div class="sgb"><i style="width:${Math.round(100*h.v/h.t)}%"></i></div></div>`).join('')}</div>
-    <div class="sgrw sg2-rw ${done?'on':''}"><div style="flex:1;min-width:0"><b>Título «${esc(sgTitle(cur))}»</b><div class="sg-s">${done?'Ya lo ganaste.':`Se gana al completar la saga (${cur.dn}/${cur.tot}).`}</div></div>${done?`<button class="hm-go ${mine?'hm-gh':''}" data-a="sgtit" data-c="${cur.cid}">${mine?'Quitar':'Usar'}</button>`:''}</div></div></div></div>
+   <div class="sg2-hg ${S.sgho?'open':''}"><button class="sg2-hh" data-a="sghtog"><span class="sg2-hi"><svg viewBox="0 0 24 24"><path d="M8 4h8v5.2a4 4 0 0 1-8 0V4z"/><path d="M8 5.5H5.8a1.3 1.3 0 0 0-1.3 1.4c.1 1.6 1.4 2.7 3.5 2.9M16 5.5h2.2a1.3 1.3 0 0 1 1.3 1.4c-.1 1.6-1.4 2.7-3.5 2.9"/><path d="M12 13.2V17M9 20h6M10.2 17h3.6l.4 3H9.8z"/></svg></span><span>Hitos de la saga</span><em>${hs.filter(h=>h.on).length}/${hs.length}</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg><i class="sg2-hp" style="--p:${hs.length?Math.round(100*hs.filter(h=>h.on).length/hs.length):0}%"></i></button>
+    <div class="sg2-hb"><div><div class="sg2-hs">${hs.map((h,i)=>`<div class="${h.on?'on':''}" style="--i:${i}" title="${esc(h.d)} · ${h.v}/${h.t}"><span class="sg2-hr" style="--p:${Math.round(100*h.v/h.t)}">${h.on?'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':''}</span><div class="sg2-hm"><b>${esc(h.n)}</b><small>${esc(h.d||'')}</small></div><em>${h.v}/${h.t}</em></div>`).join('')}</div>
+    <div class="sgrw sg2-rw ${done?'on':''}"><span class="sg2-rb"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M9.2 13.6 7.5 21l4.5-2.4 4.5 2.4-1.7-7.4"/><path d="M12 6.6l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/></svg></span><div style="flex:1;min-width:0"><small class="sg2-rk">Premio final</small><b>Título «${esc(sgTitle(cur))}»</b><div class="sg-s">${done?'Ya lo ganaste.':`Se gana al completar la saga (${cur.dn}/${cur.tot}).`}</div></div>${done?`<button class="hm-go ${mine?'hm-gh':''}" data-a="sgtit" data-c="${cur.cid}">${mine?'Quitar':'Usar'}</button>`:''}</div></div></div></div>
    <div class="sg2-ac"><button class="sg2-b p" data-a="sgadd" data-c="${cur.cid}">${ic('plus')}<span>Agregar</span></button><button class="sg2-b ${S.sge?'on':''}" data-a="sgedit">${ic(S.sge?'check':'edit')}<span>${S.sge?'Listo':'Editar'}</span></button><button class="sg2-b g" data-a="sgback">${ic('chl')}<span>Volver</span></button></div>
    ${S.sge?`<button class="hm-go sgdelb" data-a="sgdel2" data-c="${cur.cid}">Eliminar saga</button>`:''}
   </aside>
