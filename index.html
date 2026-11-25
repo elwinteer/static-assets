@@ -3488,6 +3488,39 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sg2-ac .sg2-b.on{background:linear-gradient(135deg,#fde68a,#f59e0b)!important;color:#2b1d00;box-shadow:0 8px 18px -8px rgba(251,191,36,.7)!important}
 .sg2in .sg2-ac{animation:sg2Up .8s .7s cubic-bezier(.16,1,.3,1) backwards!important}.sg2in .sg2-b{animation:none}
 @media (hover:none){.sg2-ac:before{display:none}}
+
+/* ===== zona inferior de la barra lateral ===== */
+@keyframes sg2Bar{from{transform:scaleX(0)}}
+.sg2-pl{display:flex!important;align-items:center;gap:12px;height:auto!important;min-height:56px;padding:8px 14px 8px 9px!important;border-radius:18px!important;text-align:left;position:relative;overflow:hidden}
+.sg2-pl:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-130%);transition:transform .8s cubic-bezier(.16,1,.3,1);pointer-events:none}.sg2-pl:hover:before{transform:translateX(130%)}
+.pl-i{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(20,12,4,.88);color:#fff;box-shadow:0 6px 14px -4px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.34,1.5,.5,1)}.pl-i svg{width:15px;height:15px;margin-left:2px;fill:currentColor}
+.sg2-pl:hover .pl-i{transform:scale(1.1)}
+.pl-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.pl-t small{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;opacity:.7}.pl-t b{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-g{flex:none;width:18px;height:18px;stroke:currentColor;stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.75;transition:transform .35s cubic-bezier(.34,1.4,.5,1),opacity .25s}.sg2-pl:hover .pl-g{transform:translateX(4px);opacity:1}
+/* chips */
+.sg2-ch{position:relative;overflow:hidden;display:grid!important;grid-template-columns:1fr auto;grid-template-areas:"b i" "s s";align-items:center;row-gap:2px;padding:9px 11px 10px!important;border-radius:14px!important}
+.sg2-ch b{grid-area:b}.sg2-ch small{grid-area:s;font-size:9.5px!important;letter-spacing:.09em!important;text-transform:uppercase;color:var(--muted)}
+.sg2-ci{grid-area:i;width:22px;height:22px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 22%,transparent);color:#fff;transition:transform .35s cubic-bezier(.34,1.5,.5,1)}.sg2-ci svg{width:12px;height:12px}
+.sg2-ch:hover .sg2-ci{transform:scale(1.18) rotate(-8deg)}
+.sg2-cb{position:absolute;left:0;bottom:0;height:3px;width:var(--p);background:linear-gradient(90deg,var(--c),#fff);border-radius:0 3px 0 0;transform-origin:left;animation:sg2Bar 1.2s .9s cubic-bezier(.16,1,.3,1) backwards;box-shadow:0 0 10px var(--c)}
+/* hitos */
+.sg2-hh{position:relative;padding:9px 13px 11px 10px!important}
+.sg2-hi{flex:none;width:26px;height:26px;border-radius:9px;display:grid!important;place-items:center;background:color-mix(in srgb,var(--c) 24%,transparent);color:#fbbf24!important;letter-spacing:0!important}.sg2-hi svg{width:14px;height:14px;stroke:none!important;fill:currentColor!important;transform:none!important}
+.sg2-hh>span:nth-child(2){flex:1;text-align:left}
+.sg2-hh em{font-style:normal;font-size:11px;font-weight:800;padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--text);letter-spacing:.04em}
+.sg2-hh>svg{width:22px!important;height:22px!important;padding:4px;border-radius:50%;background:rgba(255,255,255,.07)}.sg2-hh:hover>svg{background:rgba(255,255,255,.14)}
+.sg2-hp{position:absolute;left:12px;right:12px;bottom:4px;height:3px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}.sg2-hp:before{content:"";position:absolute;inset:0;width:var(--p);background:linear-gradient(90deg,#fbbf24,#fde68a);border-radius:3px;transform-origin:left;animation:sg2Bar 1.2s 1s cubic-bezier(.16,1,.3,1) backwards}
+.sg2-hg.open .sg2-hp{opacity:0}.sg2-hp{transition:opacity .3s}
+
+.sg2-ch b{white-space:nowrap;font-size:16px!important}.sg2-ch small{white-space:nowrap}
+.sg2-hh .sg2-hi{flex:none!important;width:26px!important;min-width:26px;padding:0!important}
+.sg2-hh>span:nth-child(2){flex:1 1 auto!important;white-space:nowrap;letter-spacing:.1em!important;font-size:10.5px!important}
+
+.sg2-ab+.sg2-play{margin-top:auto}
+.sg2-ch{display:block!important;padding:10px 11px 10px!important}
+.sg2-ch .sg2-ci{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:7px}.sg2-ch .sg2-ci svg{width:11px;height:11px}
+.sg2-ch b{font-size:15.5px!important;margin-bottom:2px}
+.sg2-ch:nth-child(3) .sg2-ci{display:none}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -8405,7 +8438,7 @@ function sgHtml(){
  const busy=S.sgbusy?`<div class="sg-s" style="margin-top:4px">${esc(S.sgbusy)}</div>`:'';
  if(cur){const hs=sgHits(cur),left=sgLeft(cur),done=cur.dn>=cur.tot,mine=ST.sgT==cur.cid,I=sgInfo(cur.name),nxn=cur.next?cur.next.n:'',pct=cur.tot?Math.round(100*cur.dn/cur.tot):0,R=30,CI=2*Math.PI*R,yrs=cur.mem.filter(x=>x.ts).map(x=>new Date(x.ts).getFullYear()),y0=yrs.length?Math.min(...yrs):0;
   const ring=`<div class="sgv-ring sg2-rg ${done?'gold':''}" title="${pct}% terminado"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" class="bg"/><circle cx="38" cy="38" r="${R}" class="fg" style="stroke-dasharray:${CI.toFixed(1)};stroke-dashoffset:${(CI*(1-pct/100)).toFixed(1)}"/><g transform="rotate(90 38 38)"><text x="38" y="38" text-anchor="middle" dominant-baseline="central" class="sg2-rt"><tspan data-cu="${pct}">${pct}</tspan><tspan class="sg2-rp" dx="1">%</tspan></text></g></svg></div>`;
-  const chip=(v,l)=>`<div class="sg2-ch"><b>${v}</b><small>${l}</small></div>`;
+  const chip=(v,l,i,p)=>`<div class="sg2-ch"><span class="sg2-ci">${ic(i)}</span><b>${v}</b><small>${l}</small>${p!==undefined?`<i class="sg2-cb" style="--p:${p}%"></i>`:''}</div>`;
   const nst=cur.rec?cur.rec.steps.length:0,fi0=cur.rec?Math.max(0,cur.rec.steps.findIndex(t=>t.x===cur.recNext)):0,fi=S.sgoc===cur.cid&&S.sgoi>=0&&S.sgoi<nst?S.sgoi:fi0;
   const ord=cur.rec?`<section class="sg2-c sg2-o" style="--i:0"><div class="sg2-hd"><span>Orden recomendado</span><span class="sg2-oc" title="Pasos completados">${cur.rec.steps.filter(t=>t.x.st===2).length} de ${cur.rec.steps.length}</span><em title="${esc(cur.rec.note)}">${esc(cur.rec.note)}</em></div><div class="sg2-dots">${cur.rec.steps.map((t,i)=>{const x=t.x;return `<button class="sg2-dt ${x.g?'':'off'} ${cur.recNext===x?'nx':''} ${x.st===2?'dn':''} ${i===fi?'on':''} ${i<=fi?'pa':''}" data-a="sgos" data-i="${i}" style="--k:${i}" data-n="${esc(x.n)}"><u><b>${i+1}</b></u></button>`}).join('')}</div><div class="sg2-fo" id="sg2fo">${sgOFo(cur,fi)}</div></section>`:'';
   const facts=I&&I[4]&&I[4].length?`<section class="sg2-c sg2-f" style="--i:2"><div class="sg2-hd"><span>Curiosidades</span></div><div class="sg2-fa">${I[4].slice(0,3).map(f=>`<div><span>${esc(f)}</span></div>`).join('')}</div></section>`:'';
@@ -8413,10 +8446,10 @@ function sgHtml(){
   <aside class="sg2-s ${done?'gold':''}">
    <div class="sg2-top"><div class="sgpsm sg2-po">${sgPoster(cur)}</div><div class="sg2-t"><small>${done?'Saga completa':I?esc(I[1])+(y0?' · '+y0:''):'Saga'}</small><h1>${esc(cur.name)}</h1><div class="sg2-rr">${ring}<span>${done?'Completada':'Completado'}<b>${cur.dn} de ${cur.tot} juegos</b></span></div></div></div>
    ${I?'':'<div style="flex:1"></div>'}${I?`<div class="sg2-ab"><div class="sg2-hd"><span>Sobre la saga</span></div><p class="sg2-bio">${esc(I[3])}</p></div>`:''}
-   ${nxn&&!done?`<div class="sg2-nx">Siguiente: <b>${esc(nxn)}</b></div>`:done?'<div class="sg2-nx">Terminaste todos los juegos de la saga</div>':''}
-   ${cur.next?`<button class="hm-go sgv-play sg2-play" data-a="sgplay">${ic('play')} Jugar el próximo</button>`:''}
-   <div class="sg2-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados')}${chip('<span data-cu="'+cur.ow+'">'+cur.ow+'</span>','biblioteca')}${chip(fh(cur.hs),'jugadas')}</div>
-   <div class="sg2-hg ${S.sgho?'open':''}"><button class="sg2-hh" data-a="sghtog"><span>Hitos de la saga</span><em>${hs.filter(h=>h.on).length}/${hs.length}</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+   ${!cur.next&&nxn&&!done?`<div class="sg2-nx">Siguiente: <b>${esc(nxn)}</b></div>`:done?'<div class="sg2-nx">Terminaste todos los juegos de la saga</div>':''}
+   ${cur.next?`<button class="hm-go sgv-play sg2-play sg2-pl" data-a="sgplay"><span class="pl-i">${ic('play')}</span><span class="pl-t"><small>Jugar el próximo</small><b>${esc(cur.next.n||cur.next.name||nxn)}</b></span><svg class="pl-g" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>`:''}
+   <div class="sg2-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados','check',pct)}${chip('<span data-cu="'+cur.ow+'">'+cur.ow+'</span>','biblioteca','games')}${chip(fh(cur.hs),'jugadas','clock')}</div>
+   <div class="sg2-hg ${S.sgho?'open':''}"><button class="sg2-hh" data-a="sghtog"><span class="sg2-hi">${ic('trophy')}</span><span>Hitos de la saga</span><em>${hs.filter(h=>h.on).length}/${hs.length}</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg><i class="sg2-hp" style="--p:${hs.length?Math.round(100*hs.filter(h=>h.on).length/hs.length):0}%"></i></button>
     <div class="sg2-hb"><div><div class="sg2-hs">${hs.map((h,i)=>`<div class="${h.on?'on':''}" style="--i:${i}" title="${esc(h.d)} · ${h.v}/${h.t}"><b>${esc(h.n)}</b><small>${h.v}/${h.t}</small><div class="sgb"><i style="width:${Math.round(100*h.v/h.t)}%"></i></div></div>`).join('')}</div>
     <div class="sgrw sg2-rw ${done?'on':''}"><div style="flex:1;min-width:0"><b>Título «${esc(sgTitle(cur))}»</b><div class="sg-s">${done?'Ya lo ganaste.':`Se gana al completar la saga (${cur.dn}/${cur.tot}).`}</div></div>${done?`<button class="hm-go ${mine?'hm-gh':''}" data-a="sgtit" data-c="${cur.cid}">${mine?'Quitar':'Usar'}</button>`:''}</div></div></div></div>
    <div class="sg2-ac"><button class="sg2-b p" data-a="sgadd" data-c="${cur.cid}">${ic('plus')}<span>Agregar</span></button><button class="sg2-b ${S.sge?'on':''}" data-a="sgedit">${ic(S.sge?'check':'edit')}<span>${S.sge?'Listo':'Editar'}</span></button><button class="sg2-b g" data-a="sgback">${ic('chl')}<span>Volver</span></button></div>
