@@ -2309,10 +2309,10 @@ function webInit() {
   try { ses.setPermissionRequestHandler((_wc, _p, cb) => cb(false)); } catch (e) {}
   // Cloudflare mira las pistas de cliente (sec-ch-ua): se saca la marca «Electron» para que el navegador integrado se vea como Chrome común.
   try { ses.webRequest.onBeforeSendHeaders((d, cb) => { try { const h = d.requestHeaders; for (const k of Object.keys(h)) if (/^sec-ch-ua$/i.test(k)) h[k] = String(h[k]).replace(/(^|,\s*)"(Electron|winteer)";v="[^"]*"/ig, '').replace(/^\s*,\s*/, ''); cb({ requestHeaders: h }); } catch (e) { cb({}); } }); } catch (e) {}
-  ses.on('will-download', (_e, item) => {
+  const dlHandler = (VT) => (_e, item) => {
     try {
       const fn = String(item.getFilename() || ''), mt = String(item.getMimeType() || '');
-      if (/\.torrent$/i.test(fn) || /x-bittorrent/i.test(mt)) {
+      if (!VT && (/\.torrent$/i.test(fn) || /x-bittorrent/i.test(mt))) {
         const td = path.join(app.getPath('userData'), 'torrents'); fs.mkdirSync(td, { recursive: true });
         const tp = path.join(td, Date.now() + '-' + wdlSafe(fn || 'archivo.torrent').replace(/\.torrent$/i, '') + '.torrent'); item.setSavePath(tp);
         item.once('done', (_ev, st) => { if (st === 'completed') webTorrent(pathToFileURL(tp).href, fn); });
@@ -2322,11 +2322,11 @@ function webInit() {
     let base = tmpDir; if (wdlHint) { try { fs.mkdirSync(wdlHint, { recursive: true }); fs.accessSync(wdlHint, fs.constants.W_OK); base = wdlHint; } catch (e) {} }
     const id = ++wdlN, tmp = path.join(base, id + '-' + Date.now() + '.part');
     item.setSavePath(tmp);
-    const d = { id, item, tmp, name: wdlSafe(item.getFilename()), state: 'ask', last: 0, lastT: Date.now(), speed: 0, final: '' };
+    const d = { id, item, tmp, vt: !!VT, name: wdlSafe(item.getFilename()), state: 'ask', last: 0, lastT: Date.now(), speed: 0, final: '' };
     WDL.set(id, d);
     item.pause();
     let host = ''; try { host = new URL(item.getURL()).hostname.replace(/^www\./, ''); } catch (e) {}
-    wsend({ id, st: 'ask', name: d.name, size: item.getTotalBytes(), host });
+    wsend({ id, st: 'ask', name: d.name, size: item.getTotalBytes(), host, vt: VT ? 1 : 0 });
     item.on('updated', (_ev, st) => {
       if (d.state !== 'run' || d.seg) return;
       const now = Date.now(); if (now - d.lastT < 250) return;
@@ -2350,12 +2350,14 @@ function webInit() {
       let ex = { exes: [], pick: '' };
       if (unz && d.lib) { try { ex = wdlExes(outPath); } catch (e) {} }
       WDL.delete(id);
-      wsend({ id, st: 'done', path: outPath, size, unz, unzErr, exes: ex.exes, pick: ex.pick, lib: !!d.lib });
-      try { if (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused()) shotToast(null, d.name, 'dl', unz ? (ex.pick ? 'Descomprimido y agregado a tu Biblioteca' : ex.exes.length ? 'Descomprimido · falta elegir el .exe' : 'Descomprimido y listo') : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
+      wsend({ id, st: 'done', path: outPath, size, unz, unzErr, exes: ex.exes, pick: ex.pick, lib: !!d.lib, vt: VT ? 1 : 0 });
+      try { if (!VT && (!win || win.isDestroyed() || !win.isVisible() || !win.isFocused())) shotToast(null, d.name, 'dl', unz ? (ex.pick ? 'Descomprimido y agregado a tu Biblioteca' : ex.exes.length ? 'Descomprimido · falta elegir el .exe' : 'Descomprimido y listo') : unzErr ? 'Descargado, pero no se pudo descomprimir' : 'Descarga completa'); } catch (e) {}
     };
     d.fin = fin;
     item.once('done', (_ev, st) => { if (d.seg) return; fin(st); });
-  });
+  };
+  ses.on('will-download', dlHandler(false));
+  try { session.fromPartition('persist:wt-vault').on('will-download', dlHandler(true)); } catch (e) {}
   ipcMain.handle('webDl', async (_e, m, a) => {
     a = a || {};
     try {
@@ -2396,9 +2398,9 @@ function webInit() {
         try {
           const chain = d.item.getURLChain(), url = chain[chain.length - 1] || d.item.getURL(); let ref = ''; try { ref = new URL(chain[0] || url).origin + '/'; } catch (e) {}
           if (WDL_SEG && /^https?:/i.test(url) && (sz <= 0 || sz >= WDL_MIN)) {
-            const pr = await wdlProbe(session.fromPartition(WEB_PART), url, ref);
+            const pr = await wdlProbe(session.fromPartition(d.vt ? 'persist:wt-vault' : WEB_PART), url, ref);
             if (pr && pr.total >= WDL_MIN && (sz <= 0 || Math.abs(pr.total - sz) < 4096) && d.state === 'run') {
-              seg = wdlSegRun(d, session.fromPartition(WEB_PART), url, pr.total, ref, wsend);
+              seg = wdlSegRun(d, session.fromPartition(d.vt ? 'persist:wt-vault' : WEB_PART), url, pr.total, ref, wsend);
               if (seg) {
                 /* prueba: la descarga normal queda en pausa de reserva; si en 10 s no llegan datos por varias conexiones, se aborta y sigue la normal */
                 d.seg = true; const dbgLog = (t) => { try { fs.appendFileSync(path.join(app.getPath('userData'), 'dl-debug.log'), new Date().toISOString() + ' ' + t + '\n'); } catch (e) {} };
