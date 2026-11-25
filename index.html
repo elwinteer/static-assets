@@ -13041,18 +13041,19 @@ const vDK=t=>{const d=new Date(t);return `${d.getFullYear()}-${d.getMonth()+1}-$
 const VMK='3c4a6db0e2c839b13df3920df2f2f9e10e2b7fc268a931d870a884234186cead';
 async function vH(pin,salt){const b=new TextEncoder().encode(salt+':'+pin),d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function vMaster(code){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(code),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode('wtv-m1'),iterations:100000},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===VMK}
-function vLock(go_){S.vu=0;S.vweb=0;S.vst=0;try{if(RE&&RE.v)RE=null}catch(e){}$$('.rvm,.rvdm,.shlb').forEach(m=>m.remove());if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
+function vLock(go_,keep){if(!keep)S.vok=0;S.vu=0;S.vweb=0;S.vst=0;try{if(RE&&RE.v)RE=null}catch(e){}$$('.rvm,.rvdm,.shlb').forEach(m=>m.remove());if(S.view==='vault'&&go_!==false)go('home');$$('.modal.vm').forEach(m=>m.remove())}
 /* pantalla de PIN: no dice qué es ni para qué; igual exista o no una bóveda */
 function vOpen(){if(S.vu){go('vault');return}
+  if(S.vok){vOk(1);return}
   if(!(window.crypto&&crypto.subtle&&crypto.subtle.deriveBits))return;
   if($('.modal.vm'))return;
   modal(`<div class="vpin"><div class="vpi">${ic('lock')}</div><input class="vpt" id="v-pin" type="password" maxlength="16" autocomplete="off" placeholder="••••"><div class="vpb"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vin">Entrar</button></div></div>`,'vm');
   const m=$('.modal');if(m)m.classList.add('vm');setTimeout(()=>{const i=$('#v-pin');if(i){i.focus();i.addEventListener('keydown',e=>{if(e.key==='Enter')A.vin()})}},50)}
 async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.trim(),L=ST.vlt;
   if(S.vwait&&Date.now()<S.vwait){toast('PIN incorrecto');return}
-  if(pin.length>=4&&pin.length<=16&&await vMaster(pin)){S.vtry=0;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
+  if(pin.length>=4&&pin.length<=16&&await vMaster(pin)){S.vtry=0;S.vok=1;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
   S.vtry=(S.vtry||0)+1;i.value='';{const p=$('.vpin');if(p){p.classList.remove('bad');void p.offsetWidth;p.classList.add('bad');i.focus()}}if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0}toast('PIN incorrecto')}
-function vOk(){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';S.vst=0;S.vf='';go('vault');vIntro();setTimeout(()=>{try{vCheckAll()}catch(e){}},2500)}
+function vOk(re){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';S.vst=0;S.vf='';go('vault');if(!re)vIntro();setTimeout(()=>{try{vCheckAll()}catch(e){}},re?800:2500)}
 /* vista: mismo diseño que la biblioteca, con ids propios para no mezclarse con ella */
 V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></div>';
   if(S.vweb)return `<div class="vwx"><div class="vwb"><button class="b2 sm" data-a="vwx" title="Volver a la Bóveda" style="height:40px;padding:0 18px">Bóveda</button><button class="ib" data-a="vwb" title="Atrás">${ic('chl')}</button><button class="ib" data-a="vwf" title="Adelante">${ic('chr')}</button><button class="ib" data-a="vwr" title="Recargar">${ic('wrl')}</button><button class="b2 sm" data-a="vlink" title="Vincular este hilo a un juego para avisarte de versiones" style="height:40px;padding:0 16px">Vincular juego</button><div class="vwu" id="vwu">f95zone.to</div></div><webview id="vwv" partition="persist:wt-vault" src="https://f95zone.to/"></webview></div>`;
@@ -13207,8 +13208,8 @@ Object.assign(A,{
   if(S.vplay){toast('Ya hay un juego en curso: detenelo primero');return}
   if(!canPlay(g)){toast('No está instalado');if(g.app)location.href='steam://install/'+g.app;return}
   S.vplay={id:g.id,t:Date.now()};try{ggStart(g.id)}catch(e){}try{winteerNative.vpanicArm(true)}catch(e){}
-  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:'',exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl,vault:true}).then(r=>{const tk=!!(r&&r.tracking);vLock();if(tk&&winteerNative.toBg)setTimeout(()=>winteerNative.toBg(),1200)}).catch(()=>{vLock()})}
-  else{vLock();if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
+  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:'',exe:g.exe||'',app:g.app||0,steamDir:ST.steamDir||'',uri:g.uri||'',shellApp:g.shellApp||'',borderless:!!g.bl,vault:true}).then(r=>{const tk=!!(r&&r.tracking);vLock(undefined,1);if(tk&&winteerNative.toBg)setTimeout(()=>winteerNative.toBg(),1200)}).catch(()=>{vLock(undefined,1)})}
+  else{vLock(undefined,1);if(g.exe)toast('Solo funciona en la app de escritorio');else location.href=g.launch||('steam://rungameid/'+g.app)}},
  vst:a=>{const g=vG(a.dataset.id);if(!g)return;const k=a.dataset.v,cur=vsOf(g);if(cur===k){g.vs='';if(g.status==='Terminado')g.status=''}else{g.vs=k;g.status=k==='t'?'Terminado':(g.status==='Terminado'?'':g.status)}save();try{ggCheck(g)}catch(e){}vList();vDetail(false)},
  vdel:a=>{const g=vG(a.dataset.id);if(!g)return;modal(`<h3>¿Eliminar ${esc(g.name)}?</h3><p>Se borra de la Bóveda junto con sus horas, notas y sesiones. No vuelve a tu biblioteca ni se desinstala.</p><div class="bs"><button class="b2 g" data-a="vclose">Cancelar</button><button class="b2" data-a="vdel2" data-id="${g.id}" style="background:#ff6b86">Eliminar</button></div>`,'vm');const m=$('.modal');if(m)m.classList.add('vm')},
  vdel2:a=>{const L=vL(),id=a.dataset.id;if(!L)return;L.g=L.g.filter(v=>v.id!==id);L.ses=L.ses.filter(x=>x.g!==id);L.rv.filter(r=>r.gid===id).forEach(r=>rvKeys(r).forEach(k=>{artDel(k);if(ART[k]){URL.revokeObjectURL(ART[k]);delete ART[k]}}));L.rv=L.rv.filter(r=>r.gid!==id);delete L.x[id];save();$$('.modal.vm').forEach(m=>m.remove());S.vsel=null;vRender()},
