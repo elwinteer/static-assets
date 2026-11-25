@@ -3568,6 +3568,40 @@ body.light .rin .rst,body.light .rts b{background:linear-gradient(90deg,#f59e0b 
 .sg2-hb .sg2-hs{max-height:max(112px,calc(100vh - 720px))!important}
 .sg2-s:has(.sg2-hg.open) .sg2-bio{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 22px),transparent)}
 .sg2-s:has(.sg2-hg.open) .sg2-ab{min-height:110px}
+
+/* ===== saga completada ===== */
+#sgwin{position:fixed;inset:0;z-index:9800;display:grid;place-items:center;overflow:hidden;cursor:pointer;background:radial-gradient(ellipse at 50% 42%,color-mix(in srgb,var(--c) 38%,#05040a) 0%,#05040a 72%);animation:sgwBg .7s ease both}
+#sgwin.out{animation:sgwOut .6s ease forwards}
+@keyframes sgwBg{from{opacity:0}to{opacity:1}}@keyframes sgwOut{to{opacity:0;transform:scale(1.04)}}
+#sgwin .sgw-r{position:absolute;left:50%;top:41%;width:140vmax;height:140vmax;margin:-70vmax;background:repeating-conic-gradient(from 0deg,rgba(255,214,130,.16) 0 4deg,transparent 4deg 14deg);-webkit-mask:radial-gradient(circle,#000 0 8%,transparent 48%);mask:radial-gradient(circle,#000 0 8%,transparent 48%);animation:sgwSpin 38s linear infinite,sgwFade 1.4s .5s ease both}
+@keyframes sgwSpin{to{transform:rotate(360deg)}}@keyframes sgwFade{from{opacity:0}to{opacity:1}}
+#sgwin .sgw-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#sgwin .sgw-in{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px;max-width:640px}
+#sgwin .sgw-k{font-size:12px;font-weight:800;letter-spacing:.42em;text-transform:uppercase;color:#ffd98a;margin-bottom:22px;animation:sgwUp .7s .25s cubic-bezier(.2,.8,.2,1) both}
+#sgwin .sgw-k::before,#sgwin .sgw-k::after{content:"";display:inline-block;width:38px;height:1px;background:linear-gradient(90deg,transparent,#ffd98a);vertical-align:middle;margin:0 14px}
+#sgwin .sgw-k::after{transform:scaleX(-1)}
+#sgwin .sgw-pw{position:relative;width:196px;aspect-ratio:2/3;perspective:900px;margin-bottom:26px}
+#sgwin .sgw-p{position:absolute;inset:0;border-radius:18px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,214,130,.55),0 26px 70px rgba(0,0,0,.65),0 0 90px color-mix(in srgb,var(--c) 70%,#ffd98a);animation:sgwPoster 1.25s .35s cubic-bezier(.16,.9,.2,1) both}
+@keyframes sgwPoster{0%{opacity:0;transform:translateY(60px) rotateY(-100deg) scale(.55)}60%{opacity:1;transform:translateY(-6px) rotateY(8deg) scale(1.05)}100%{opacity:1;transform:none}}
+#sgwin .sgw-p::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-130%);animation:sgwShine 1.3s 1.5s ease both}
+@keyframes sgwShine{to{transform:translateX(130%)}}
+#sgwin .sgw-seal{position:absolute;right:-22px;bottom:-20px;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#fff3c4,#f3b83e 55%,#b9770e);color:#3a2403;box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 0 3px rgba(255,236,170,.5);animation:sgwSeal .7s 1.55s cubic-bezier(.3,1.6,.4,1) both}
+#sgwin .sgw-seal svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@keyframes sgwSeal{from{opacity:0;transform:scale(0) rotate(-120deg)}to{opacity:1;transform:none}}
+#sgwin .sgw-n{font-size:34px;font-weight:800;line-height:1.1;letter-spacing:-.01em;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.6);animation:sgwUp .8s 1.2s cubic-bezier(.2,.8,.2,1) both}
+#sgwin .sgw-t{margin-top:10px;font-size:15px;color:rgba(255,255,255,.78);animation:sgwUp .8s 1.4s cubic-bezier(.2,.8,.2,1) both}
+#sgwin .sgw-t b{color:#ffd98a;font-weight:700}
+#sgwin .sgw-g{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:520px;animation:sgwUp .8s 1.6s cubic-bezier(.2,.8,.2,1) both}
+#sgwin .sgw-g span{font-size:12px;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);color:rgba(255,255,255,.85)}
+#sgwin .sgw-pt{margin-top:22px;display:flex;align-items:baseline;gap:8px;animation:sgwUp .8s 1.8s cubic-bezier(.2,.8,.2,1) both}
+#sgwin .sgw-pt em{font-style:normal;font-size:44px;font-weight:800;color:#ffd98a;text-shadow:0 0 34px rgba(255,200,90,.6);font-variant-numeric:tabular-nums}
+#sgwin .sgw-pt small{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+#sgwin .sgw-pt.pop em{animation:sgwPop .6s cubic-bezier(.3,1.6,.4,1)}
+@keyframes sgwPop{50%{transform:scale(1.22)}}
+#sgwin .sgw-tap{margin-top:26px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);animation:sgwUp .8s 3.4s ease both,sgwBlink 2.4s 4.2s ease-in-out infinite}
+@keyframes sgwBlink{50%{opacity:.25}}
+@keyframes sgwUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+body.nomo #sgwin *,body.perf #sgwin *{animation-duration:.01s!important;animation-delay:0s!important;animation-iteration-count:1!important}
 .libl{position:relative}.libl .ls{height:36px;margin-bottom:8px}.libl .lh{margin-bottom:8px}
 
 .libl .ls{flex:none;height:40px!important;margin-bottom:10px;padding:0 6px 0 13px;border-radius:16px;background:rgba(255,255,255,.055);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:box-shadow .25s,background .25s}
@@ -8215,7 +8249,7 @@ function sgBuild(){
   out.push({cid,cust,name:cn,mem,core:sgCore(cn,mem),rec,recNext:rn||null,tot:Math.max(1,cnt.length),pl,dn,ow,hs,avg:rs.length?rs.reduce((t,x)=>t+x.g.rate,0)/rs.length:0,col:(X.col&&X.col[cid])||(SGOFF.col&&SGOFF.col[cid])||sgCol(cid.replace(/\D/g,'')||cid.length),
    next:mem.find(x=>x.g&&x.st===1&&stOf(x.g)==='Jugando')||rn||mem.find(x=>x.g&&x.st===1)||mem.find(x=>x.g&&x.st===0)||null})}
  if(evCh)save();
- try{ST.sgWon=ST.sgWon||{};const nw=out.filter(x=>x.core&&x.core.ok&&!ST.sgWon[x.cid]);if(nw.length){nw.forEach(x=>ST.sgWon[x.cid]=Date.now());save();setTimeout(()=>{try{toast(nw.length>1?nw.length+' sagas completadas: +'+(nw.length*SGPTS)+' puntos':'Saga completada: «'+nw[0].name+'». +'+SGPTS+' puntos')}catch(e){}},600)}}catch(e){}
+ try{ST.sgWon=ST.sgWon||{};const nw=out.filter(x=>x.core&&x.core.ok&&!ST.sgWon[x.cid]);if(nw.length){nw.forEach(x=>ST.sgWon[x.cid]=Date.now());save();setTimeout(()=>{try{if(nw.length===1&&!sgLite())sgWinShow(nw[0]);else toast(nw.length>1?nw.length+' sagas completadas: +'+(nw.length*SGPTS)+' puntos':'Saga completada: «'+nw[0].name+'». +'+SGPTS+' puntos')}catch(e){}},600)}}catch(e){}
  out.sort((a,b)=>(b.pl?1:0)-(a.pl?1:0)||b.hs-a.hs||b.ow-a.ow||a.name.localeCompare(b.name));
  return out}
 function sgPos(n,W,H){const cols=Math.min(n,8),rows=Math.ceil(n/cols),pts=[];
@@ -8225,6 +8259,21 @@ function sgPos(n,W,H){const cols=Math.min(n,8),rows=Math.ceil(n/cols),pts=[];
 const SGST=['Sin empezar','Jugando','Completado','No lo tenés','Próximamente'];
 const sgUrl=x=>x.cv?`https://images.igdb.com/igdb/image/upload/t_cover_big_2x/${x.cv}.jpg`:'';
 const sgCv=x=>x.g?`<div class="th"><img src="${art.grid(x.g)}" data-fb="${art.wide(x.g)}" alt=""></div>`:(sgUrl(x)?`<div class="th"><img src="${sgUrl(x)}" alt="" onerror="this.style.display='none'"></div>`:'<div class="th"></div>');
+
+/* ===== saga completada: pantalla especial ===== */
+function sgWinShow(sg){
+ if($('#hito')||$('#sgwin')){setTimeout(()=>sgWinShow(sg),2500);return}
+ const col=sg.col||'#8b5cf6',el=document.createElement('div');el.id='sgwin';el.style.setProperty('--c',col);
+ const key=(sg.core&&sg.core.names||[]).slice(0,6);
+ el.innerHTML=`<div class="sgw-r"></div><canvas class="sgw-cv"></canvas><div class="sgw-in"><div class="sgw-k">Saga completada</div><div class="sgw-pw"><div class="sgw-p">${sgPoster(sg)}</div><div class="sgw-seal"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div></div><div class="sgw-n">${esc(sg.name)}</div><div class="sgw-t">Título «<b>${esc(sgTitle(sg))}</b>» desbloqueado</div>${key.length?`<div class="sgw-g">${key.map(n=>`<span>${esc(n)}</span>`).join('')}</div>`:''}<div class="sgw-pt"><em>+0</em><small>puntos</small></div><div class="sgw-tap">Tocá para continuar</div></div>`;
+ document.body.appendChild(el);document.body.classList.add('hm-on');
+ try{hitoSnd('l')}catch(e){}
+ setTimeout(()=>{if(el.isConnected){try{hitoBurst(col,'m',1)}catch(e){}}},1500);
+ setTimeout(()=>{if(el.isConnected)try{hitoSnd('l')}catch(e){}},1700);
+ const pn=el.querySelector('.sgw-pt em'),t0=performance.now()+1900;let fin=0;
+ const tick=n=>{const k=Math.max(0,Math.min(1,(n-t0)/1500));pn.textContent='+'+Math.round(SGPTS*(1-Math.pow(1-k,4)));if(k>=1&&!fin){fin=1;el.querySelector('.sgw-pt').classList.add('pop');try{hitoBurst('#ffd98a','l')}catch(e){}}if(k<1&&el.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick);
+ let gone=0;const close=()=>{if(gone)return;gone=1;el.classList.add('out');setTimeout(()=>{el.remove();document.body.classList.remove('hm-on')},600)};
+ el.onclick=close;setTimeout(close,9000)}
 const sgHitsBase=sg=>[['Fan','Jugá 3 juegos de la saga',sg.pl,Math.min(3,sg.tot)],['Maratón','Sumá 50 h dentro de la saga',Math.min(50,Math.round(sg.hs)),50],['Coleccionista','Tené todos los juegos',sg.ow,sg.tot],['Completista','Terminá todos los juegos',sg.dn,sg.tot]].map(h=>({n:h[0],d:h[1],v:h[2],t:h[3],on:h[2]>=h[3]}));
 const SGHIT=[[/^counter-strike$/,['Ronda uno','Jugá Counter-Strike 1.6 o Condition Zero','p','^counter-strike(:| condition zero)?$'],['Dust2 de memoria','Sumá 100 h en Counter-Strike 2 o GO','h','counter-strike (2|: global offensive)',100],['Veterano de la Source','Jugá la versión Source','p','source']],
 [/^fifa$/,['Campeón del mundo','Jugá un FIFA de Mundial','p','world cup|2010|2014|2018|2022'],['Cuarenta años de pelota','Jugá 10 juegos de FIFA','np',10],['Debut en la 97','Jugá FIFA Soccer 97','p','soccer 97']],
@@ -8537,7 +8586,7 @@ function sgCore(name,mem){
  let tot=0,dn=0;const pend=[];
  req.forEach(r=>{const d=Math.min(r.k,r.c.filter(x=>x.st===2).length);tot+=r.k;dn+=d;
   if(d<r.k){if(r.k>1)pend.push((r.k-d)+' más');else{const b=[...r.c].sort((a,b)=>(b.g?1:0)-(a.g?1:0)||b.h-a.h||(a.ts||9e15)-(b.ts||9e15))[0];if(b)pend.push(b.n.replace(/[™®©]/g,"").trim())}}});
- return{tot,dn,ok:tot>0&&dn>=tot,pend}}
+ return{tot,dn,ok:tot>0&&dn>=tot,pend,names:req.filter(r=>r.k===1).map(r=>[...r.c].sort((a,b)=>b.st-a.st||(b.g?1:0)-(a.g?1:0))[0].n.replace(/[™®©]/g,'').trim()).slice(0,6)}}
 
 const sgHits=sg=>[...sgHitsBase(sg),...sgCustomHits(sg)];
 const sgTitle=sg=>'Maestro de '+sg.name;
