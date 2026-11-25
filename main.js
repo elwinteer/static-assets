@@ -3770,6 +3770,17 @@ app.whenReady().then(() => {
   app.on('will-quit', () => { try { obsStopAll(true); } catch (e) {} });
   ipcMain.handle('vpanicArm', (_e, on) => { try { if (on) panicStart(); else { panicStop(); panicBack(); } } catch (e) {} return { on: !!panicProc }; });
   ipcMain.handle('vpanicNow', () => { panicDo(); return true; });
+  ipcMain.handle('vthr', async (_e, url) => {
+    try {
+      if (!/^https:\/\/f95zone\.to\/threads\//i.test(String(url))) return { d: '' };
+      const r = await session.fromPartition('persist:wt-vault').fetch(String(url), { headers: { 'Accept-Language': 'en' } }); const tx = await r.text();
+      const bb = tx.match(/<div class="bbWrapper">([\s\S]*?)<\/article>/); let h = bb ? bb[1] : '';
+      h = h.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div)>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      const ov = h.match(/Overview:\s*([\s\S]*?)(?=\n\s*(?:Spoiler|Thread Updated|Release Date|Developer|Version|Censored|OS|Language|Genre|Installation|Changelog|Download|Recent changes)\b|$)/i);
+      const gn = h.match(/Genre:\s*([^\n]+)/i);
+      return { d: ov ? ov[1].replace(/\n{2,}/g, '\n\n').trim().slice(0, 1400) : '', gen: gn ? gn[1].split(/,|\//).map((x) => x.trim()).filter((x) => x && x.length < 30).slice(0, 8) : [] };
+    } catch (e) { return { d: '' }; }
+  });
   ipcMain.handle('vver', async (_e, url) => { try { if (!/^https:\/\/f95zone\.to\/threads\//i.test(String(url))) return { t: '' }; const r = await session.fromPartition('persist:wt-vault').fetch(String(url), { headers: { 'Accept-Language': 'en' } }); const tx = await r.text(); const mt = tx.match(/<title>([^<]*)<\/title>/i); return { t: mt ? mt[1] : '' }; } catch (e) { return { t: '' }; } });
   ipcMain.handle('ffReady', () => ({ ok: !!ffExe() }));
   ipcMain.handle('ffEnsure', async () => ({ ok: !!(await ffInstall(ffSend)) }));
