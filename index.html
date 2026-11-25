@@ -18713,6 +18713,12 @@ body.dark #x9c{background:var(--gl),rgba(12,9,24,.86)}#x9c.out{animation:x9cout 
 .st3 .s3pk{animation:s3Pk .6s 1.1s both cubic-bezier(.2,.9,.25,1)}@keyframes s3Pk{from{opacity:0;transform:translateX(8px) scale(.94)}to{opacity:1;transform:none}}
 .st3 .s3t .bg{animation:s3Zi 1.1s .15s both cubic-bezier(.2,.8,.2,1),s3kb 18s 1.3s ease-in-out infinite alternate}@keyframes s3Zi{from{transform:scale(1.18);opacity:.2}to{transform:scale(1);opacity:1}}
 body.nomo .st3 .s3pk,body.nomo .st3 .s3t .bg,body.ultra .st3 .s3pk,body.ultra .st3 .s3t .bg{animation:none!important}
+
+.st3 .s3top>div{animation:s3Gr .55s both cubic-bezier(.2,.9,.25,1)}.st3 .s3top>div:nth-child(1){animation-delay:.5s}.st3 .s3top>div:nth-child(2){animation-delay:.58s}.st3 .s3top>div:nth-child(3){animation-delay:.66s}.st3 .s3top>div:nth-child(4){animation-delay:.74s}.st3 .s3top>div:nth-child(5){animation-delay:.82s}.st3 .s3top>div:nth-child(n+6){animation-delay:.9s}
+.st3 .s3b>div:nth-child(odd) span{animation:s3Gr .5s 1s both}.st3 .s3b>div:nth-child(even) span{animation:s3Gr .5s 1.06s both}
+@keyframes s3Tb{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+#view:has(.st3) .gl.panel>.tabs{animation:s3Tb .5s both cubic-bezier(.2,.9,.25,1)}
+body.nomo .st3 .s3top>div,body.ultra .st3 .s3top>div,body.nomo .st3 .s3b span,body.ultra .st3 .s3b span,body.nomo #view:has(.st3) .tabs,body.ultra #view:has(.st3) .tabs{animation:none!important}
 </style>
 </body>
 </html>
