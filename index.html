@@ -13151,7 +13151,7 @@ async function vIn(){const i=$('#v-pin');if(!i)return;const pin=i.value.trim(),L
   if(S.vwait&&Date.now()<S.vwait){toast('PIN incorrecto');return}
   if(pin.length>=4&&pin.length<=16&&await vMaster(pin)){S.vtry=0;S.vok=1;if(!vL())ST.vlt={g:[],ses:[],rv:[],x:{}};save();vOk();return}
   S.vtry=(S.vtry||0)+1;i.value='';{const p=$('.vpin');if(p){p.classList.remove('bad');void p.offsetWidth;p.classList.add('bad');i.focus()}}if(S.vtry>=5){S.vwait=Date.now()+30000;S.vtry=0}toast('PIN incorrecto')}
-function vOk(re){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';S.vst=0;S.vf='';go('vault');if(!re)vIntro();setTimeout(()=>{try{vCheckAll()}catch(e){}},re?800:2500)}
+function vOk(re){const L=ST.vlt;if(L){L.ses=L.ses||[];L.rv=L.rv||[];L.x=L.x||{};L.g=L.g||[]}$$('.modal.vm').forEach(m=>m.remove());S.vweb=0;S.vu=Date.now();S.vlast=Date.now();S.vq='';S.vst=0;S.vf='';go('vault');setTimeout(()=>{try{vCheckAll()}catch(e){}},re?800:2500)}
 /* vista: mismo diseño que la biblioteca, con ids propios para no mezclarse con ella */
 V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></div>';
   if(S.vweb)return `<div class="vwx"><div class="vwb"><button class="b2 sm" data-a="vwx" title="Volver a la Bóveda" style="height:40px;padding:0 18px">Bóveda</button><button class="ib" data-a="vwb" title="Atrás">${ic('chl')}</button><button class="ib" data-a="vwf" title="Adelante">${ic('chr')}</button><button class="ib" data-a="vwr" title="Recargar">${ic('wrl')}</button><button class="b2 sm" data-a="vlink" title="Vincular este hilo a un juego para avisarte de versiones" style="height:40px;padding:0 16px">Vincular juego</button><div class="vwu" id="vwu">f95zone.to</div></div><webview id="vwv" partition="persist:wt-vault" src="https://f95zone.to/"></webview></div>`;
@@ -13341,7 +13341,7 @@ Object.assign(A,{
 function vPickFill(){const e=$('#vm-l');if(!e)return;const q=(($('#vm-q')||{}).value||'').toLowerCase().trim();
   e.innerHTML=[...G].filter(g=>!q||g.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,60).map(g=>`<button class="vl-pr" data-a="vmv" data-id="${g.id}">${thumb(g)}<b>${esc(g.name)}</b><small>${fh(g.hours)}</small></button>`).join('')||'<p class="mut">No hay coincidencias.</p>'}
 /* acceso oculto: 12 toques seguidos al copo del logo (cada uno dentro de 1,2 s). Ya no se cierra por inactividad ni al perder el foco: solo con Bloquear, Shift+Esc, el botón de pánico o al salir de la pantalla */
-(()=>{let c=0,t,bt;document.addEventListener('click',e=>{S.vlast=Date.now();if(!e.target.closest('.mark'))return;c++;clearTimeout(t);t=setTimeout(()=>c=0,1200);if(c>=12){c=0;vOpen()}},true);
+(()=>{let c=0,t,bt;document.addEventListener('click',e=>{S.vlast=Date.now();if(!e.target.closest('.mark'))return;c++;clearTimeout(t);t=setTimeout(()=>c=0,1200);if(c>=(S.vok?3:12)){c=0;vOpen()}},true);
  document.addEventListener('keydown',e=>{S.vlast=Date.now();if(S.vu&&e.key==='Escape'&&e.shiftKey)vLock()});
  document.addEventListener('mousemove',()=>{S.vlast=Date.now()},{passive:true});
  })();
