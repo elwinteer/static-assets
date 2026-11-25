@@ -6391,7 +6391,8 @@ const toHsl=(r,g,b)=>{r/=255;g/=255;b/=255;const M=Math.max(r,g,b),m=Math.min(r,
 const hslRgb=(h,s,l)=>{h/=360;s/=100;l/=100;const f=n=>{const k=(n+h*12)%12,a=s*Math.min(l,1-l);return l-a*Math.max(-1,Math.min(k-3,9-k,1))};return[f(0),f(8),f(4)].map(x=>Math.round(x*255))};
 const hex2=c=>'#'+c.map(x=>x.toString(16).padStart(2,'0')).join('');
 const BGM=[['tint','Tintado con el color'],['violet','Violeta original'],['black','Negro puro'],['graph','Grafito']];
-function applyLook(){const r=document.documentElement.style,h=ST.accent||DEFA,n=parseInt(h.slice(1),16),R=n>>16,Gc=(n>>8)&255,B=n&255,[H,S,L]=toHsl(R,Gc,B),def=h.toLowerCase()===DEFA;
+let GTH='';
+function applyLook(){const r=document.documentElement.style,h=(ST.gth&&GTH)?GTH:(ST.accent||DEFA),n=parseInt(h.slice(1),16),R=n>>16,Gc=(n>>8)&255,B=n&255,[H,S,L]=toHsl(R,Gc,B),def=h.toLowerCase()===DEFA;
   r.setProperty('--a',h);r.setProperty('--argb',`${R},${Gc},${B}`);const l=c=>Math.min(255,Math.round(c+(255-c)*.6));r.setProperty('--a2',`rgb(${l(R)},${l(Gc)},${l(B)})`);
   const d=hslRgb(H,Math.min(S,80),Math.max(22,Math.min(36,L-20)));r.setProperty('--a3',def?'#a9a9b3':`rgb(${d})`);r.setProperty('--a3rgb',def?'169,169,179':d.join(','));
   const lum=(0.299*R+0.587*Gc+0.114*B)/255;r.setProperty('--on-a',lum>.62?'#0c0c0e':'#fff');r.setProperty('--lg3',def?'#8f8f9b':h);r.setProperty('--ao',def?'.10':'.55');r.setProperty('--ao2',def?'.07':'.35');
@@ -6989,6 +6990,9 @@ const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<butto
     sR('Velocidad de las animaciones','Más lentas y elegantes, o más rápidas y directas.',sg('asp',[['0.7','Lenta'],['1','Normal'],['1.4','Rápida'],['2','Muy rápida']],ST.asp||'1')),
     sR('Sombras y brillos','Desde un estilo plano hasta uno muy dramático.',sg('shd',[['flat','Plano'],['','Normal'],['hi','Dramático']],ST.shd||'')),
     sR('Claro de día, oscuro de noche','Cambia el tema solo según la hora: claro de 8 a 19, oscuro el resto.',`<button class="sw ${ST.autoth?'on':''}" data-a="lkt" data-k="autoth"></button>`),
+    sR('Secciones de Inicio','Tocá para ocultar o mostrar cada sección de la pantalla de Inicio.',`<div class="seg">${[['res','Resumen'],['sem','Racha semanal'],['obj','Objetivos'],['nov','Novedades'],['bib','Tu biblioteca']].map(([k,l])=>`<button data-a="hhs" data-k="${k}" class="${(ST.hh||{})[k]?'':'on'}">${l}</button>`).join('')}</div>`),
+    sR('Sonidos del launcher','Un sonido suave al tocar botones y menús. Elegí el estilo.',sg('snd',[['','Apagado'],['soft','Suave'],['retro','Retro'],['fut','Futurista']],ST.snd||'')),
+    sR('Color según el juego','En la Biblioteca, el color del launcher toma el del arte del juego que estás mirando.',`<button class="sw ${ST.gth?'on':''}" data-a="lkt" data-k="gth"></button>`),
     sR('Restablecer apariencia','Restaura el tema, el color y los efectos visuales a sus valores originales. No afecta a los datos de la biblioteca.','<button class="b2 g" data-a="rsap">Restablecer</button>')];
   if(t==='avi')return [
     sH('Hitos'),
@@ -7396,8 +7400,9 @@ const A={
   fclr:()=>{S.fs='';S.fc='';S.so='az';S.fq='';fRef()},
   fmore:()=>{S.fmore=!S.fmore;fRef()},
   fopen:()=>{const p=$('#fpan'),b=$('#fbtn');if(!p)return;p.hidden=!p.hidden;b.classList.toggle('open',!p.hidden);if(!p.hidden){p.innerHTML=fPanel();const n=$('#fn');if(n)n.textContent=$('#list').querySelectorAll('.it').length}},
-  lkst:a=>{const k=a.dataset.k,v=a.dataset.v;if(v)ST[k]=k==='asp'?parseFloat(v):v;else delete ST[k];$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));applyPrefs();if(k==='fxk')initSnow();if(k==='sbm')setTimeout(moveInd,120);save()},
-  lkt:a=>{const k=a.dataset.k;ST[k]=!ST[k];a.classList.toggle('on',!!ST[k]);if(k==='autoth')autoTheme();save()},
+  lkst:a=>{const k=a.dataset.k,v=a.dataset.v;if(v)ST[k]=k==='asp'?parseFloat(v):v;else delete ST[k];$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));applyPrefs();if(k==='fxk')initSnow();if(k==='snd'){uiSnd('ck')}if(k==='sbm')setTimeout(moveInd,120);save()},
+  lkt:a=>{const k=a.dataset.k;ST[k]=!ST[k];a.classList.toggle('on',!!ST[k]);if(k==='autoth')autoTheme();if(k==='gth'&&!ST[k]){GTH='';applyLook()}save()},
+  hhs:a=>{const k=a.dataset.k,h=ST.hh=ST.hh||{};h[k]=h[k]?0:1;a.classList.toggle('on',!h[k]);save()},
   seg:a=>{const k=a.dataset.k;ST[k]=parseFloat(a.dataset.v);$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));applyPrefs();save()},
   icoall:async()=>{if(!WN||!ST.key){toast('Primero pegá tu API key de SteamGridDB en Conexiones');return}
     ST.useSgdb=true;Object.values(ST.sgdb).forEach(e=>{delete e.icon});GOOD={};try{localStorage.removeItem('winteer_good')}catch(e){}
@@ -7736,8 +7741,8 @@ function h2Tick(){const g=goalsList()[0],p=petCur(),it=[`${G.length} juegos en t
 function h2Resumen(){return `<section class="h2-c h2-rs rise" style="--i:2" ><h3><b class="hdt"><i class="hdi">${ic('hd_chart')}</i>Tu resumen</b><button class="n1all" data-a="h2to" data-v="stats">Estadísticas ${ic('arrow')}</button></h3><div class="rs3"><div><i class="ri">${ic('hd_clock')}</i><b>${Math.round(totalH()).toLocaleString('es-AR')}</b><small>horas</small></div><div><i class="ri">${ic('hd_check')}</i><b>${doneN()}</b><small>completados</small></div><div><i class="ri">${ic('hd_trophy')}</i><b>${gaN()}</b><small>hitos</small></div></div></section>`}
 function h2WrapCard(w){const nm=w.q?QN[w.q]+' '+w.y:'Año '+w.y;return `<section class="h2-c h2-wc rise" style="--i:2"><h3><b class="hdt"><i class="hdi">${ic('star')}</i>Tu Wrapped</b><a data-a="wdismiss" data-id="${w.key}" title="Más tarde">✕</a></h3><div class="wcb"><span class="wtag">NUEVO</span><b>Tu ${esc(nm)} ya está listo</b><p>Mirá cómo jugaste, en una presentación animada.</p><div class="wbt"><button class="hm-go" data-a="wplay" data-id="${w.key}">${ic('play')} Verlo</button><button class="hm-go hm-gh" data-a="wropen" data-id="${w.key}">Ver detalle</button></div></div></section>`}
 function h2NewsBig(){return `<section class="h2-c h2-nwb rise" style="--i:1"><h3>Novedades <a data-a="h2nclose">✕ Cerrar</a></h3><div class="h2-nl big">${newsRows(10)}</div><a class="nbl" data-a="go" data-v="news">Abrir todas las novedades ${ic('arrow')}</a></section>`}
-function h2Right(){if(S.h2nw)return h2NewsBig();const w=(typeof wrapNew==='function'?wrapNew():[])[0];return `${w?h2WrapCard(w):h2Resumen()}${h2Week()}${h2Goals(2)}${newsMini()}`}
-function h2Para(adv){const hero=h2Pick(adv);return `<div class="h2-g h2n"><div class="h2-col h2-mid">${h2Hero(hero)}${h2Strip(hero)}</div><div class="h2-col h2-rt" id="h2rt">${h2Right()}</div></div>`}
+function h2Right(){if(S.h2nw)return h2NewsBig();const w=(typeof wrapNew==='function'?wrapNew():[])[0];const hh=ST.hh||{};return `${w?h2WrapCard(w):(hh.res?'':h2Resumen())}${hh.sem?'':h2Week()}${hh.obj?'':h2Goals(2)}${hh.nov?'':newsMini()}`}
+function h2Para(adv){const hero=h2Pick(adv);return `<div class="h2-g h2n"><div class="h2-col h2-mid">${h2Hero(hero)}${(ST.hh||{}).bib?'':h2Strip(hero)}</div><div class="h2-col h2-rt" id="h2rt">${h2Right()}</div></div>`}
 function h2Body(t,adv){
   if(t==='juegos')return `<div class="h2-sc">${perfilBody()}</div>`;
   if(t==='desc')return `<div class="h2-sc"><div class="h2-dg">${recCard()}<section class="h2-c h2-nw big"><h3>Noticias de tus juegos <a data-a="go" data-v="news">Ver todas ${ic('arrow')}</a></h3>${newsRows(8)}</section></div></div>`;
@@ -10020,7 +10025,7 @@ Object.assign(A,{
  hprobe:a=>{const r=a.dataset.v,x=GA.find(g=>g[4]===r&&g[0]!=='first')||GA[0];hitoShow([x[0],'Aviso de prueba',x[2],x[3],r],()=>{})},
  wtog:a=>{ST.wtoast_on=ST.wtoast_on===false;a.classList.toggle('on',ST.wtoast_on!==false);save()},
  rsap:()=>modal(`<h3>¿Restablecer apariencia?</h3><p>Tema, color, redondeo, tamaño y efectos vuelven a los valores originales.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="dorsap">Restablecer</button></div>`),
- dorsap:a=>{['dark','light','round','scale','amb','nomo','kb','perf','fxm','mqs','font','cst','fxk','sbm','asp','shd','autoth'].forEach(k=>delete ST[k]);ST.accent=DEFA;ST.snow=true;ST.dens=90;a.closest('.modal').remove();try{setAccent(ST.accent)}catch(e){}applyTheme();applyPrefs();initSnow();save();toast('Apariencia restablecida');go('settings')},
+ dorsap:a=>{['dark','light','round','scale','amb','nomo','kb','perf','fxm','mqs','font','cst','fxk','sbm','asp','shd','autoth','hh','snd','gth'].forEach(k=>delete ST[k]);ST.accent=DEFA;ST.snow=true;ST.dens=90;a.closest('.modal').remove();try{setAccent(ST.accent)}catch(e){}applyTheme();applyPrefs();initSnow();save();toast('Apariencia restablecida');go('settings')},
  rshit:()=>modal(`<h3>¿Reiniciar hitos?</h3><p>Se borran los hitos ganados y se recalculan en silencio con tus datos actuales. No se pierde nada de tu biblioteca.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="dorshit">Reiniciar</button></div>`),
  dorshit:a=>{delete ST.gach;ST.hv=0;a.closest('.modal').remove();save();toast('Hitos reiniciados');go('settings')},
  hpop:a=>{ST.hpop=ST.hpop===false;a.classList.toggle('on',ST.hpop!==false);save()},
@@ -18457,6 +18462,25 @@ let to=0;new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes
 
 /* arranque: sin cuenta (nunca usó el launcher) => solo se ve la pantalla de contraseña */
 (()=>{if(!ST.prof&&!ST.obSkip&&!ST.acc){const go=()=>pwGate(()=>{});document.body?go():document.addEventListener('DOMContentLoaded',go)}})();
+
+/* tema por juego: toma el color dominante del arte del juego que estás mirando */
+const GTC={};
+function gTint(){try{if(!ST.gth||S.view!=='games'){if(GTH){GTH='';applyLook()}return}
+  const g=gm(S.sel);if(!g){return}const id=g.id,set=h=>{if(S.sel!==id||!h)return;GTH=h;applyLook()};
+  if(GTC[id]!==undefined){set(GTC[id]);return}
+  const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=24;const x=c.getContext('2d');x.drawImage(im,0,0,24,24);const d=x.getImageData(0,0,24,24).data;let R=0,G=0,B=0,W=0;
+    for(let i=0;i<d.length;i+=4){const r=d[i],gg=d[i+1],b=d[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b),l=(mx+mn)/510,sa=mx?(mx-mn)/mx:0;if(sa>.28&&l>.2&&l<.8){const w=sa*sa;R+=r*w;G+=gg*w;B+=b*w;W+=w}}
+    if(!W){GTC[id]=null;return}const h='#'+[R,G,B].map(v=>Math.round(v/W).toString(16).padStart(2,'0')).join('');GTC[id]=h;set(h)}catch(e){GTC[id]=null}};
+  im.onerror=()=>{GTC[id]=null};im.src=art.hero(g)}catch(e){}}
+(()=>{const r0=renderDetail;renderDetail=function(){const r=r0.apply(this,arguments);gTint();return r}})();
+const _go0=go;go=function(v,o){const r=_go0.apply(this,arguments);if(GTH&&S.view!=='games')gTint();return r};
+
+/* sonidos del launcher (sintetizados, sin archivos) */
+let SAC=null;
+function uiSnd(kind){try{const p=ST.snd;if(!p)return;SAC=SAC||new (window.AudioContext||window.webkitAudioContext)();const c=SAC;if(c.state==='suspended')c.resume();const t=c.currentTime,v=(ST.sndv==null?.5:ST.sndv),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+  const P={soft:['sine',[520,380],.07,.09],retro:['square',[880,1320],.035,.07],fut:['triangle',[300,1100],.05,.14]}[p];if(!P)return;
+  const k=kind==='nav'?1.25:1;o.type=P[0];o.frequency.setValueAtTime(P[1][0]*k,t);o.frequency.exponentialRampToValueAtTime(P[1][1]*k,t+P[3]);g.gain.setValueAtTime(P[2]*v*2,t);g.gain.exponentialRampToValueAtTime(.0001,t+P[3]+.03);o.start(t);o.stop(t+P[3]+.05)}catch(e){}}
+document.addEventListener('click',e=>{if(!ST.snd)return;const t=e.target.closest&&e.target.closest('.nav a,button,.seg button,[data-a]');if(t)uiSnd(t.closest('.nav')?'nav':'ck')},true);
 </script>
 <style id="x8css">
 .x8dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
