@@ -8212,7 +8212,7 @@ function sgBuild(){
   const pl=cnt.filter(x=>x.st===1||x.st===2).length,dn=cnt.filter(x=>x.st===2).length,hs=mem.reduce((t,x)=>t+x.h,0),ow=cnt.filter(x=>x.g).length;
   const rs=mem.filter(x=>x.g&&x.g.rate>0);
   const rec=sgRec(cn,mem),rn=rec&&rec.steps.map(t=>t.x).find(x=>x.g&&x.st<2&&stOf(x.g)==='Jugando')||(rec&&rec.steps.map(t=>t.x).find(x=>x.g&&x.st===1))||(rec&&rec.steps.map(t=>t.x).find(x=>x.g&&x.st===0));
-  out.push({cid,cust,name:cn,mem,rec,recNext:rn||null,tot:Math.max(1,cnt.length),pl,dn,ow,hs,avg:rs.length?rs.reduce((t,x)=>t+x.g.rate,0)/rs.length:0,col:(X.col&&X.col[cid])||(SGOFF.col&&SGOFF.col[cid])||sgCol(cid.replace(/\D/g,'')||cid.length),
+  out.push({cid,cust,name:cn,mem,core:sgCore(cn,mem),rec,recNext:rn||null,tot:Math.max(1,cnt.length),pl,dn,ow,hs,avg:rs.length?rs.reduce((t,x)=>t+x.g.rate,0)/rs.length:0,col:(X.col&&X.col[cid])||(SGOFF.col&&SGOFF.col[cid])||sgCol(cid.replace(/\D/g,'')||cid.length),
    next:mem.find(x=>x.g&&x.st===1&&stOf(x.g)==='Jugando')||rn||mem.find(x=>x.g&&x.st===1)||mem.find(x=>x.g&&x.st===0)||null})}
  if(evCh)save();
  out.sort((a,b)=>(b.pl?1:0)-(a.pl?1:0)||b.hs-a.hs||b.ow-a.ow||a.name.localeCompare(b.name));
@@ -8393,6 +8393,151 @@ function sgCustomHits(sg){const nm=sg.name.toLowerCase(),e=SGHIT.find(r=>r[0].te
   else if(k==='h'){T=b;v=Math.min(b,Math.round(Math.max(0,...mm(a).map(x=>x.h))))}
   else if(k==='nf'){T=a;v=Math.min(a,sg.dn)}else if(k==='np'){T=a;v=Math.min(a,sg.pl)}else if(k==='hs'){T=a;v=Math.min(a,Math.round(sg.hs))}
   return{n:t,d,v,t:T,on:v>=T,cu:1}})}
+/* ===== premio final: juegos clave por saga =====
+   Cada saga lista los juegos que de verdad se juegan; el resto es opcional.
+   Un grupo es /regex/ (hay que terminar uno que coincida) o [/regex/,k] (hay que terminar k distintos).
+   Si un grupo no coincide con ningún juego de la saga, se ignora. */
+const SGCORE=[
+[/^fallout$/,[/fallout 3/,/new vegas/,/fallout 4/]],
+[/^the elder scrolls$/,[/morrowind/,/oblivion/,/skyrim/]],
+[/^need for speed$/,[/underground 2/,/most wanted/,/hot pursuit/,/heat/]],
+[/^assassin.s creed$/,[/creed ii$/,/black flag/,/origins/,/odyssey/,/valhalla/]],
+[/^mortal kombat$/,[/mortal kombat x$/,/mortal kombat 11/,/mortal kombat 1$/]],
+[/^mass effect$/,[/^mass effect( \(2007\))?$|legendary|trilogy/,/mass effect 2|legendary|trilogy/,/mass effect 3|legendary|trilogy/]],
+[/^warhammer$/,[/vermintide 2|darktide|dawn of war|total war/]],
+[/^age of empires$/,[/age of empires ii/,/age of empires iii/,/age of empires iv/,/mythology/]],
+[/^battlefield$/,[/bad company 2/,/battlefield 3/,/battlefield 4/,/battlefield 1$/]],
+[/^half-life$/,[/^half-life( 1 anthology)?$|anthology/,/half-life 2$|orange box/]],
+[/^call of juarez$/,[/^call of juarez$/,/bound in blood/,/gunslinger/]],
+[/^lego star wars$/,[/the video game|complete saga|original trilogy/,/skywalker saga/]],
+[/^counter-strike$/,[/counter-strike 2|global offensive/]],
+[/^the sims$/,[/^the sims( [234])?$|legacy collection/]],
+[/^the witcher$/,[/^the witcher( enhanced.*)?$/,/witcher 2/,/witcher 3/]],
+[/^gears of war$/,[/^gears of war$|ultimate edition/,/gears of war 4/,/gears 5/]],
+[/^batman: arkham$/,[/arkham asylum/,/arkham city/,/arkham knight/]],
+[/^resident evil$/,[/resident evil 2/,/resident evil 3/,/resident evil 4/,/resident evil 7/,/village/]],
+[/^civilization$/,[/civilization v$/,/civilization vi$/]],
+[/^fifa$/,[[/fifa (1[4-9]|2\d)|fifa soccer 1[1-3]|fifa world/,2]]],
+[/^f\.e\.a\.r\.$/,[/^f\.e\.a\.r\.$|complete pack/,/f\.e\.a\.r\. 2/]],
+[/^far cry$/,[/far cry 3$/,/far cry 4/,/far cry 5/,/far cry 6/]],
+[/^hitman$/,[/^hitman( \(2016\))?$|world of assassination/,/hitman 2$|world of assassination/,/hitman 3$|world of assassination/,/blood money/]],
+[/^call of duty$/,[/^call of duty 4/,/modern warfare 2$/,/black ops$/,/black ops (ii|2)$/]],
+[/^call of duty: black ops$/,[/black ops$/,/black ops (ii|2)$/,/black ops (iii|3)$/]],
+[/^call of duty: modern warfare$/,[/^call of duty 4/,/modern warfare 2$/,/modern warfare 3$/]],
+[/^doom$/,[/^doom( \+ doom ii)?$|doom ii|ultimate doom/,/eternal/]],
+[/^saints row$/,[/saints row 2|ultimate franchise/,/the third|ultimate franchise/,/saints row iv|ultimate franchise/]],
+[/^worms$/,[[/armageddon|w\.m\.d|reloaded|revolution|worms 4|world party/,2]]],
+[/^borderlands$/,[/^borderlands( game of the year.*| enhanced)?$/,/borderlands 2/,/borderlands 3/]],
+[/^tekken$/,[/tekken [5-8]|tekken tag|^tekken$/]],
+[/^james bond$/,[[/./,1]]],
+[/^dead island$/,[/^dead island( definitive collection)?$|definitive collection/,/dead island 2/]],
+[/^amnesia$/,[/dark descent|collection/,/rebirth/,/the bunker/]],
+[/^postal$/,[/postal 2|postal 4|^postal$|classic and uncut/]],
+[/^trials$/,[/trials evolution|trials hd/,/trials fusion/,/trials rising/]],
+[/^payday$/,[/payday 2/,/payday 3/]],
+[/^alan wake$/,[/^alan wake( remastered)?$/,/alan wake (2|ii)/]],
+[/^lego batman$/,[/the videogame|trilogy/,/batman 2|trilogy/,/batman 3|trilogy/]],
+[/^persona$/,[/^persona 3( reload| portable)?$/,/^persona 4( golden)?$/,/^persona 5( royal)?$/]],
+[/^mafia$/,[/^mafia( :|: )?( definitive edition)?$/,/mafia ii/,/mafia iii/]],
+[/^the walking dead/,[/^the walking dead$|definitive series/,/season two|definitive series/,/final season|definitive series/]],
+[/^plants vs\. zombies$/,[/^plants vs\. zombies( game of the year.*)?$|battle for neighborville/]],
+[/^flatout$/,[/flatout 2|ultimate carnage/,/^flatout$/]],
+[/^midnight club$/,[/midnight club/]],
+[/^grand theft auto$/,[/grand theft auto iii$|trilogy/,/vice city|trilogy/,/san andreas|trilogy/,/grand theft auto iv/,/grand theft auto v$/]],
+[/^the last of us$/,[/part i(?!i)|^the last of us$|remastered/,/part ii/]],
+[/^minecraft$/,[/java|bedrock|^minecraft$|windows/]],
+[/^five nights at freddy.s$/,[/freddy.s$/,/freddy.s 2$/,/freddy.s 3$/,/freddy.s 4$/,/sister location/]],
+[/^outlast$/,[/^outlast$/,/outlast (ii|2)/]],
+[/^dishonored$/,[/^dishonored( definitive.*)?$|complete collection/,/dishonored 2|complete collection/]],
+[/^titanfall$/,[/^titanfall$/,/titanfall 2/]],
+[/^sonic the hedgehog$/,[/^sonic the hedgehog( \(1991\))?$|sonic the hedgehog 2|3 & knuckles|sonic cd|sonic origins/,/sonic mania/,/sonic generations/,/sonic frontiers/]],
+[/^lego marvel super heroes$/,[/super heroes$|collection/,/super heroes 2|collection/]],
+[/^the crew$/,[/the crew 2|motorfest/]],
+[/^life is strange$/,[/^life is strange( remastered.*)?$/,/before the storm/,/life is strange 2/,/true colors/]],
+[/^dying light$/,[/^dying light( enhanced.*)?$/,/dying light 2/]],
+[/^forza horizon$/,[/forza horizon 4/,/forza horizon 5/,/forza horizon 6/]],
+[/^spintires$/,[/mudrunner|^spintires/,/snowrunner/]],
+[/^super meat boy$/,[/^super meat boy$/,/forever/]],
+[/^south park$/,[/stick of truth/,/fractured but whole/]],
+[/^wwe 2k$/,[[/wwe 2k/,2]]],
+[/^papa louie$/,[[/papa/,3]]],
+[/^celeste$/,[/^celeste$/]],
+[/^terminator$/,[/resistance|salvation|no fate|terminator/]],
+[/^thehunter$/,[/call of the wild|classic|primal/]],
+[/^ark$/,[/survival (evolved|ascended)|^ark/]],
+[/^overcooked$/,[/^overcooked!?( all you can eat)?$|all you can eat/,/overcooked! 2|all you can eat/]],
+[/^hello neighbor$/,[/^hello neighbor$/,/hello neighbor 2/]],
+[/^bendy$/,[/ink machine/,/dark revival/]],
+[/^assetto corsa$/,[/assetto corsa/]],
+[/^hellblade$/,[/sacrifice/,/hellblade ii|senua.s saga/]],
+[/^we were here$/,[/^we were here$/,/we were here too/,/we were here together/,/we were here forever/]],
+[/^construction simulator$/,[/construction simulator/]],
+[/^dirt$/,[/^dirt rally$/,/dirt rally 2/,/^dirt 4$|dirt 4/]],
+[/^henry stickmin$/,[/collection/]],
+[/^two point$/,[[/two point/,2]]],
+[/^a plague tale$/,[/innocence/,/requiem/]],
+[/^marvel.s spider-man$/,[/the city that never sleeps|^marvel.s spider-man( remastered)?$/,/spider-man 2/]],
+[/^undertale$/,[/^undertale$/]],
+[/^fireboy & watergirl$/,[[/fireboy/,2]]],
+[/^fears to fathom$/,[[/fears to fathom/,3]]],
+[/^control$/,[/^control( ultimate edition)?$/]],
+[/^poppy playtime$/,[/^poppy playtime$/]],
+[/^the callisto protocol$/,[/^the callisto protocol/]],
+[/^wolfenstein: the new order$/,[/new order/,/new colossus/]],
+[/^kingdom come: deliverance$/,[/^kingdom come: deliverance$/,/deliverance ii/]],
+[/^ea sports fc$/,[[/fc/,1]]],
+[/^wreckfest$/,[/^wreckfest$/]],
+[/^house flipper$/,[/^house flipper$/,/house flipper 2/]],
+[/^robocop: rogue city$/,[/^robocop: rogue city$|collection/]],
+[/^mortal shell$/,[/^mortal shell$/]],
+[/^the binding of isaac$/,[/binding of isaac/]],
+[/^minecraft dungeons$/,[/^minecraft dungeons$/]],
+[/^hell let loose$/,[/hell let loose/]],
+[/^metal gear$/,[/^metal gear solid( \(1998\))?$|master collection/,/sons of liberty|master collection/,/snake eater|master collection/,/phantom pain/]],
+[/^final fantasy$/,[[/final fantasy (vi|vii|viii|ix|x|xii|xiii|xv|xvi)\b|final fantasy x\//,4]]],
+[/^monster hunter$/,[[/world|rise|wilds/,2]]],
+[/^devil may cry$/,[/devil may cry 3|hd collection/,/devil may cry 4/,/devil may cry 5/]],
+[/^street fighter$/,[/street fighter 6/,/street fighter (iv|v)$|super street fighter iv/]],
+[/^silent hill$/,[/silent hill 2/,/silent hill 3/,/silent hill f/]],
+[/^dead space$/,[/^dead space( \(20(08|23)\))?$/,/dead space 2/,/dead space 3/]],
+[/^diablo$/,[/diablo ii/,/diablo iii/,/diablo iv/]],
+[/^prince of persia$/,[/sands of time/,/warrior within/,/two thrones/,/lost crown/]],
+[/^splinter cell$/,[/splinter cell$/,/chaos theory/,/blacklist/]],
+[/^crysis$/,[/^crysis( remastered)?$/,/crysis 2/,/crysis 3/]],
+[/^dragon age$/,[/origins/,/inquisition/,/veilguard/]],
+[/^yakuza$/,[/yakuza 0/,/kiwami$/,/kiwami 2/,/yakuza 6/,/yakuza: like a dragon$/,/infinite wealth/]],
+[/^halo$/,[[/^halo(?! wars)/,3]]],
+[/^s\.t\.a\.l\.k\.e\.r\.$/,[/shadow of chernobyl/,/call of pripyat/,/stalker 2|heart of chornobyl|s\.t\.a\.l\.k\.e\.r\. 2/]],
+[/^just cause$/,[/just cause 2/,/just cause 3/,/just cause 4/]],
+[/^deus ex$/,[/^deus ex( game of the year.*)?$/,/human revolution/,/mankind divided/]],
+[/^the legend of zelda$/,[[/zelda/,4]]],
+[/^super mario$/,[[/mario/,4]]],
+[/^crash bandicoot$/,[/n\. sane/,/it.s about time/]],
+[/^uncharted$/,[/uncharted|legacy of thieves/]],
+[/^dragon ball$/,[/kakarot/,/fighterz|sparking|xenoverse 2/]],
+[/^star wars$/,[/old republic$/,/fallen order/,/survivor/]],
+[/^pok[eé]mon$/,[[/pok[eé]mon (red|blue|yellow|gold|silver|crystal|ruby|sapphire|emerald|fire|leaf|diamond|pearl|platinum|heart|soul|black|white|x\b|y\b|omega|alpha|sun|moon|ultra|sword|shield|brilliant|shining|legends|scarlet|violet)/,3]]],
+[/^metroid$/,[[/metroid/,3]]],
+[/^starcraft$/,[/^starcraft( : remastered|: remastered)?$|remastered|brood war/,/wings of liberty/,/heart of the swarm/,/legacy of the void/]],
+[/^mario kart$/,[[/mario kart/,2]]],
+[/^super smash bros\.$/,[[/smash/,2]]],
+[/^kingdom hearts$/,[/1\.5/,/2\.8/,/kingdom hearts iii/]],
+[/^mega man$/,[[/mega man/,3]]],
+[/^castlevania$/,[[/castlevania/,2]]],
+[/^gran turismo$/,[[/gran turismo/,2]]]
+];
+const SGJUNK=/collection|bundle|\bpass\b|dlc|expansion|anthology|complete pack|season|trilogy|legacy|pre-alpha|beta|demo|\bvr\b|mobile|online|classic|\[redacted\]|play4free|hd remaster|definitive series/;
+const sgNm=n=>String(n||'').toLowerCase().replace(/[™®©]/g,'').replace(/\s+/g,' ').trim();
+function sgCore(name,mem){
+ const cnt=mem.filter(x=>!x.fut),nm=name.toLowerCase().trim(),e=SGCORE.find(r=>r[0].test(nm));let req=[];
+ if(e)e[1].forEach(q=>{const re=Array.isArray(q)?q[0]:q,k=Array.isArray(q)?q[1]:1,c=cnt.filter(x=>re.test(sgNm(x.n)));if(c.length)req.push({c,k:Math.min(k,c.length)})});
+ else cnt.filter(x=>!SGJUNK.test(sgNm(x.n))).forEach(x=>req.push({c:[x],k:1}));
+ if(!req.length)req=[{c:cnt,k:1}];
+ let tot=0,dn=0;const pend=[];
+ req.forEach(r=>{const d=Math.min(r.k,r.c.filter(x=>x.st===2).length);tot+=r.k;dn+=d;
+  if(d<r.k){if(r.k>1)pend.push((r.k-d)+' más');else{const b=[...r.c].sort((a,b)=>(b.g?1:0)-(a.g?1:0)||b.h-a.h||(a.ts||9e15)-(b.ts||9e15))[0];if(b)pend.push(b.n.replace(/[™®©]/g,"").trim())}}});
+ return{tot,dn,ok:tot>0&&dn>=tot,pend}}
+
 const sgHits=sg=>[...sgHitsBase(sg),...sgCustomHits(sg)];
 const sgTitle=sg=>'Maestro de '+sg.name;
 
@@ -8487,7 +8632,7 @@ function sgOFo(cur,i){const t=cur.rec.steps[i],x=t.x,nx=cur.recNext===x,mi=cur.m
 function sgHtml(){
  const all=sgBuild(),hid=ST.sghid||[],f=S.sgf||'all',cur=S.sgo&&all.find(x=>x.cid==S.sgo);
  const busy=S.sgbusy?`<div class="sg-s" style="margin-top:4px">${esc(S.sgbusy)}</div>`:'';
- if(cur){const hs=sgHits(cur),left=sgLeft(cur),done=cur.dn>=cur.tot,mine=ST.sgT==cur.cid,I=sgInfo(cur.name),nxn=cur.next?cur.next.n:'',pct=cur.tot?Math.round(100*cur.dn/cur.tot):0,R=30,CI=2*Math.PI*R,yrs=cur.mem.filter(x=>x.ts).map(x=>new Date(x.ts).getFullYear()),y0=yrs.length?Math.min(...yrs):0;
+ if(cur){const hs=sgHits(cur),left=sgLeft(cur),done=cur.dn>=cur.tot,rok=cur.core.ok,mine=ST.sgT==cur.cid,I=sgInfo(cur.name),nxn=cur.next?cur.next.n:'',pct=cur.tot?Math.round(100*cur.dn/cur.tot):0,R=30,CI=2*Math.PI*R,yrs=cur.mem.filter(x=>x.ts).map(x=>new Date(x.ts).getFullYear()),y0=yrs.length?Math.min(...yrs):0;
   const ring=`<div class="sgv-ring sg2-rg ${done?'gold':''}" title="${pct}% terminado"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" class="bg"/><circle cx="38" cy="38" r="${R}" class="fg" style="stroke-dasharray:${CI.toFixed(1)};stroke-dashoffset:${(CI*(1-pct/100)).toFixed(1)}"/><g transform="rotate(90 38 38)"><text x="38" y="38" text-anchor="middle" dominant-baseline="central" class="sg2-rt"><tspan data-cu="${pct}">${pct}</tspan><tspan class="sg2-rp" dx="1">%</tspan></text></g></svg></div>`;
   const chip=(v,l,i,p)=>`<div class="sg2-ch"><span class="sg2-ci">${ic(i)}</span><b>${v}</b><small>${l}</small>${p!==undefined?`<i class="sg2-cb" style="--p:${p}%"></i>`:''}</div>`;
   const nst=cur.rec?cur.rec.steps.length:0,fi0=cur.rec?Math.max(0,cur.rec.steps.findIndex(t=>t.x===cur.recNext)):0,fi=S.sgoc===cur.cid&&S.sgoi>=0&&S.sgoi<nst?S.sgoi:fi0;
@@ -8502,7 +8647,7 @@ function sgHtml(){
    <div class="sg2-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados','check',pct)}${chip('<span data-cu="'+cur.ow+'">'+cur.ow+'</span>','biblioteca','games')}${chip(fh(cur.hs),'jugadas','clock')}</div>
    <div class="sg2-hg ${S.sgho?'open':''}"><button class="sg2-hh" data-a="sghtog"><span class="sg2-hi"><svg viewBox="0 0 24 24"><path d="M8 4h8v5.2a4 4 0 0 1-8 0V4z"/><path d="M8 5.5H5.8a1.3 1.3 0 0 0-1.3 1.4c.1 1.6 1.4 2.7 3.5 2.9M16 5.5h2.2a1.3 1.3 0 0 1 1.3 1.4c-.1 1.6-1.4 2.7-3.5 2.9"/><path d="M12 13.2V17M9 20h6M10.2 17h3.6l.4 3H9.8z"/></svg></span><span>Hitos de la saga</span><em>${hs.filter(h=>h.on).length}/${hs.length}</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg><i class="sg2-hp" style="--p:${hs.length?Math.round(100*hs.filter(h=>h.on).length/hs.length):0}%"></i></button>
     <div class="sg2-hb"><div><div class="sg2-hs">${hs.map((h,i)=>`<div class="${h.on?'on':''}" style="--i:${i}" title="${esc(h.d)} · ${h.v}/${h.t}"><span class="sg2-hr" style="--p:${Math.round(100*h.v/h.t)}">${h.on?'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':''}</span><div class="sg2-hm"><b>${esc(h.n)}</b><small>${esc(h.d||'')}</small></div><em>${h.v}/${h.t}</em></div>`).join('')}</div>
-    <div class="sgrw sg2-rw ${done?'on':''}"><span class="sg2-rb"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M9.2 13.6 7.5 21l4.5-2.4 4.5 2.4-1.7-7.4"/><path d="M12 6.6l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/></svg></span><div style="flex:1;min-width:0"><small class="sg2-rk">Premio final</small><b>Título «${esc(sgTitle(cur))}»</b><div class="sg-s">${done?'Ya lo ganaste.':`Se gana al completar la saga (${cur.dn}/${cur.tot}).`}</div></div>${done?`<button class="hm-go ${mine?'hm-gh':''}" data-a="sgtit" data-c="${cur.cid}">${mine?'Quitar':'Usar'}</button>`:''}</div></div></div></div>
+    <div class="sgrw sg2-rw ${rok?'on':''}"><span class="sg2-rb"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M9.2 13.6 7.5 21l4.5-2.4 4.5 2.4-1.7-7.4"/><path d="M12 6.6l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/></svg></span><div style="flex:1;min-width:0"><small class="sg2-rk">Premio final</small><b>Título «${esc(sgTitle(cur))}»</b><div class="sg-s" title="${esc(rok?'':'Los demás juegos de la saga son opcionales.')}">${rok?'Ya lo ganaste.':`Se gana con los juegos clave (${cur.core.dn}/${cur.core.tot}).${cur.core.pend.length&&cur.core.pend.length<=2&&cur.core.pend.join(', ').length<=34?' Falta: '+esc(cur.core.pend.join(', '))+'.':''}`}</div></div>${rok?`<button class="hm-go ${mine?'hm-gh':''}" data-a="sgtit" data-c="${cur.cid}">${mine?'Quitar':'Usar'}</button>`:''}</div></div></div></div>
    <div class="sg2-ac"><button class="sg2-b p" data-a="sgadd" data-c="${cur.cid}">${ic('plus')}<span>Agregar</span></button><button class="sg2-b ${S.sge?'on':''}" data-a="sgedit">${ic(S.sge?'check':'edit')}<span>${S.sge?'Listo':'Editar'}</span></button><button class="sg2-b g" data-a="sgback">${ic('chl')}<span>Volver</span></button></div>
    ${S.sge?`<button class="hm-go sgdelb" data-a="sgdel2" data-c="${cur.cid}">Eliminar saga</button>`:''}
   </aside>
@@ -9714,7 +9859,7 @@ const rwLv=()=>lvlOf().l;
 const rwSel=k=>{const v=(ST.rw||{})[k],it=REW[k][2].find(x=>x[0]===v);return it&&it[2]<=rwLv()?it[0]:REW[k][2][0][0]};
 const rwAll=()=>{const o=[];for(const k in REW)REW[k][2].forEach(x=>{if(x[2]>1)o.push([k,x[0],x[1],x[2]])});return o.sort((a,b)=>a[3]-b[3])};
 function rwApply(){const b=document.body;[...b.classList].filter(c=>/^r[fn]-/.test(c)).forEach(c=>b.classList.remove(c));b.classList.add('rf-'+rwSel('frame'),'rn-'+rwSel('name'))}
-const rwTitle=()=>{if(ST.sgT){try{const sg=sgBuild().find(x=>x.cid==ST.sgT);if(sg&&sg.dn>=sg.tot)return sgTitle(sg)}catch(e){}}const id=rwSel('title');return id==='t0'?'':REW.title[2].find(x=>x[0]===id)[1]};
+const rwTitle=()=>{if(ST.sgT){try{const sg=sgBuild().find(x=>x.cid==ST.sgT);if(sg&&sg.core.ok)return sgTitle(sg)}catch(e){}}const id=rwSel('title');return id==='t0'?'':REW.title[2].find(x=>x[0]===id)[1]};
 function rwNext(){const n=rwAll().find(x=>x[3]>rwLv());return n?` · próxima recompensa: ${n[2]} (nivel ${n[3]})`:''}
 function rwCheck(){const L=rwLv();if(!ST.rwn){ST.rwn=rwAll().filter(x=>x[3]<=L).map(x=>x[1]);return}
   const nw=rwAll().filter(x=>x[3]<=L&&!ST.rwn.includes(x[1]));if(!nw.length)return;ST.rwn.push(...nw.map(x=>x[1]));
