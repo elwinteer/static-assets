@@ -1851,6 +1851,15 @@ body.rf-f9 .pf-av .pav{animation:rfg 3.2s ease-in-out infinite}
 body.cs-solid .card,body.cs-solid .s3c,body.cs-solid .h2-c,body.cs-solid .h2-wc,body.cs-solid .fpan{background:var(--card)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 body.cs-line .card,body.cs-line .s3c,body.cs-line .h2-c,body.cs-line .h2-wc,body.cs-line .fpan{background:transparent!important;border:1px solid rgba(var(--argb),.38)!important;box-shadow:none!important;backdrop-filter:none!important}
 body.cs-line .s3c::before{display:none}
+
+/* barra lateral solo íconos */
+body.sb-ico .app{grid-template-columns:84px 1fr 0px}body.sb-ico .app.has-right{grid-template-columns:84px 1fr 290px}
+body.sb-ico .side{padding:22px 10px}body.sb-ico .wmw,body.sb-ico #scl{display:none}body.sb-ico .brand{justify-content:center}
+body.sb-ico .nav a{font-size:0;gap:0;justify-content:center;padding:0}body.sb-ico .nav a:hover{transform:none}body.sb-ico .nav a svg{font-size:22px}body.sb-ico .nav a b{display:none}
+/* sombras */
+body.sh-flat .card,body.sh-flat .s3c,body.sh-flat .h2-c,body.sh-flat .s3t,body.sh-flat .side,body.sh-flat .app{box-shadow:none!important}
+body.sh-hi .s3c,body.sh-hi .h2-c,body.sh-hi .card{box-shadow:0 28px 64px rgba(0,0,0,.65),0 0 44px rgba(var(--argb),.16),inset 0 1px 0 rgba(255,255,255,.1)!important}
+body.sh-hi #amb{opacity:1}
 /* top 10 */
 .s3top.t10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;column-gap:26px;justify-content:stretch}
 .s3top.t10>div{gap:10px;padding:4px 8px;animation:s3row .55s calc(.08s + var(--r)*55ms) both cubic-bezier(.2,.9,.25,1)}
@@ -6351,6 +6360,7 @@ const UN=()=>ST.name||'Jugador',P_=(k,d)=>ST[k]===undefined?d:ST[k];
 function applyPrefs(){const b=document.body.classList;b.toggle('nokb',!P_('kb',true));const _m=ST.fxm||'lite';ST.perf=_m!=='full';b.toggle('perf',ST.perf);b.toggle('ultra',_m==='min');b.toggle('noamb',!P_('amb',true));b.toggle('nomo',!!P_('nomo',false));
   document.documentElement.style.setProperty('--r',P_('round',30)+'px');document.body.style.zoom=P_('scale',1);
   const FN={round:'"Trebuchet MS","Segoe UI",sans-serif',serif:'Georgia,"Times New Roman",serif',ind:'Bahnschrift,"Segoe UI",sans-serif',mono:'"Cascadia Code",Consolas,monospace'};if(FN[ST.font])document.documentElement.style.setProperty('--font',FN[ST.font]);else document.documentElement.style.removeProperty('--font');
+  b.toggle('sb-ico',ST.sbm==='ico');b.toggle('sh-flat',ST.shd==='flat');b.toggle('sh-hi',ST.shd==='hi');WASP=+ST.asp||1;
   b.toggle('cs-solid',ST.cst==='solid');b.toggle('cs-line',ST.cst==='line')}
 /* fechas reales de logros desbloqueados (cache local de Steam): appid -> {YYYY-MM-DD: cantidad} */
 const ACHT={"35140":{"2026-09-16":5,"2026-09-19":1},"1091500":{"2025-12-12":1,"2025-12-16":2,"2025-12-30":3,"2026-01-02":3,"2026-01-20":2,"2026-02-09":1,"2026-02-05":1,"2026-02-04":5,"2026-01-18":2,"2026-01-21":6,"2026-01-09":4,"2026-01-08":5,"2026-01-11":1,"2026-02-03":3,"2026-01-22":5,"2026-01-25":1,"2026-01-26":4,"2026-02-06":2,"2026-02-07":1,"2026-01-19":4,"2026-02-08":1},"207610":{"2025-02-25":3,"2025-04-05":5,"2025-04-06":10,"2025-04-07":1,"2025-04-08":5,"2025-04-10":16,"2025-08-09":8},"731490":{"2026-10-11":7},"3946950":{"2026-08-31":15},"282070":{"2026-03-08":3,"2026-03-19":4,"2026-03-11":2,"2026-03-07":1},"255710":{"2025-10-20":6,"2026-03-25":3,"2026-03-24":1,"2026-03-26":2,"2026-03-18":1},"952060":{"2026-02-15":9,"2026-02-16":9},"1749630":{"2023-05-16":2},"2637940":{"2026-01-24":21,"2026-01-29":12,"2026-01-30":15,"2026-02-02":14},"1174180":{"2026-03-28":1,"2026-02-09":1,"2026-04-18":1,"2026-04-22":1,"2026-04-23":1,"2026-04-24":2,"2026-04-27":1,"2026-04-29":10,"2026-05-01":2,"2026-04-28":1,"2026-04-20":1,"2026-04-19":2,"2026-04-25":2,"2026-10-02":1},"12360":{"2026-10-02":4,"2026-10-01":2,"2026-09-25":3,"2026-10-03":1,"2026-09-27":1},"1332720":{"2026-10-06":3},"431960":{"2025-08-08":13,"2023-06-26":1,"2024-03-23":1,"2025-03-02":1,"2025-04-13":1},"379720":{"2026-08-24":1,"2026-09-28":1},"883710":{"2025-12-29":4,"2026-01-05":8,"2026-01-06":4,"2026-01-23":2},"311210":{"2026-07-11":1},"413150":{"2026-04-01":2,"2026-04-09":1,"2026-04-10":2,"2026-04-11":1,"2026-03-31":1},"239140":{"2025-07-05":6},"3240220":{"2026-09-01":6},"1888930":{"2025-09-06":6,"2025-08-28":3,"2025-08-29":1,"2025-08-30":2,"2025-09-04":2},"3405340":{"2026-03-14":16,"2026-03-19":4,"2026-03-15":24},"2218460":{"2026-07-10":2},"271590":{"2026-07-12":2},"1238840":{"2026-09-15":6,"2026-09-12":1,"2026-09-02":2},"1089980":{"2026-10-11":9},"1551360":{"2026-08-30":3,"2026-09-08":1,"2026-08-31":9,"2026-09-02":7,"2026-09-10":1},"322170":{"2023-05-02":72,"2023-06-29":3,"2023-07-20":4,"2024-01-01":4,"2024-01-08":2,"2023-12-20":3,"2026-02-21":32,"2026-01-08":5},"21690":{"2026-02-17":7,"2026-10-05":2,"2026-02-21":4,"2026-10-14":2,"2026-02-26":7,"2026-10-15":3,"2026-03-27":2,"2026-10-16":3,"2026-10-04":1,"2026-10-17":1},"690790":{"2025-12-26":1,"2025-11-06":1,"2026-01-04":1,"2026-02-11":2,"2025-11-13":2},"2138720":{"2025-12-20":1,"2025-09-28":13,"2025-12-23":3,"2026-02-12":2,"2025-12-22":3,"2026-01-03":3,"2026-07-12":2,"2026-01-31":2,"2026-09-13":5,"2026-01-25":1,"2025-12-21":1,"2025-12-24":1},"3354750":{"2025-09-16":3,"2025-09-18":2,"2025-09-26":3,"2025-10-06":1,"2025-10-13":3,"2025-11-18":1,"2025-09-24":2,"2025-09-25":1,"2025-09-30":1,"2025-09-17":1,"2025-09-28":1},"377160":{"2026-10-01":1},"1659040":{"2026-10-05":1},"221040":{"2026-07-10":1},"730":{"2023-06-06":1,"2025-02-16":1}};
@@ -6974,6 +6984,11 @@ const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<butto
     sR('Redondeo','Qué tan suaves son las esquinas.',`<div class="seg" data-k="round">${[[30,'Suave'],[18,'Medio'],[6,'Recto']].map(([v,l])=>`<button data-a="seg" data-k="round" data-v="${v}" class="${P_('round',30)===v?'on':''}">${l}</button>`).join('')}</div>`),
     sR('Tipo de letra','La fuente de todo el launcher.',sg('font',[['','Normal'],['round','Redonda'],['serif','Clásica'],['ind','Industrial'],['mono','Máquina']],ST.font||'')),
     sR('Estilo de las tarjetas','Cristal (translúcido), Sólido (opaco) o Contorno (solo borde de color).',sg('cst',[['','Cristal'],['solid','Sólido'],['line','Contorno']],ST.cst||'')),
+    sR('Efecto de fondo','Las partículas que se mueven detrás de la interfaz.',sg('fxk',[['','Nieve'],['rain','Lluvia'],['stars','Estrellas'],['ember','Brasas'],['off','Ninguno']],ST.fxk||'')),
+    sR('Barra lateral','Completa, o solo íconos para dejar más lugar al contenido.',sg('sbm',[['','Completa'],['ico','Solo íconos']],ST.sbm||'')),
+    sR('Velocidad de las animaciones','Más lentas y elegantes, o más rápidas y directas.',sg('asp',[['0.7','Lenta'],['1','Normal'],['1.4','Rápida'],['2','Muy rápida']],ST.asp||'1')),
+    sR('Sombras y brillos','Desde un estilo plano hasta uno muy dramático.',sg('shd',[['flat','Plano'],['','Normal'],['hi','Dramático']],ST.shd||'')),
+    sR('Claro de día, oscuro de noche','Cambia el tema solo según la hora: claro de 8 a 19, oscuro el resto.',`<button class="sw ${ST.autoth?'on':''}" data-a="lkt" data-k="autoth"></button>`),
     sR('Restablecer apariencia','Restaura el tema, el color y los efectos visuales a sus valores originales. No afecta a los datos de la biblioteca.','<button class="b2 g" data-a="rsap">Restablecer</button>')];
   if(t==='avi')return [
     sH('Hitos'),
@@ -7381,7 +7396,8 @@ const A={
   fclr:()=>{S.fs='';S.fc='';S.so='az';S.fq='';fRef()},
   fmore:()=>{S.fmore=!S.fmore;fRef()},
   fopen:()=>{const p=$('#fpan'),b=$('#fbtn');if(!p)return;p.hidden=!p.hidden;b.classList.toggle('open',!p.hidden);if(!p.hidden){p.innerHTML=fPanel();const n=$('#fn');if(n)n.textContent=$('#list').querySelectorAll('.it').length}},
-  lkst:a=>{const k=a.dataset.k,v=a.dataset.v;if(v)ST[k]=v;else delete ST[k];$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));applyPrefs();save()},
+  lkst:a=>{const k=a.dataset.k,v=a.dataset.v;if(v)ST[k]=k==='asp'?parseFloat(v):v;else delete ST[k];$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));applyPrefs();if(k==='fxk')initSnow();if(k==='sbm')setTimeout(moveInd,120);save()},
+  lkt:a=>{const k=a.dataset.k;ST[k]=!ST[k];a.classList.toggle('on',!!ST[k]);if(k==='autoth')autoTheme();save()},
   seg:a=>{const k=a.dataset.k;ST[k]=parseFloat(a.dataset.v);$$('.seg[data-k="'+k+'"] button').forEach(b=>b.classList.toggle('on',b===a));applyPrefs();save()},
   icoall:async()=>{if(!WN||!ST.key){toast('Primero pegá tu API key de SteamGridDB en Conexiones');return}
     ST.useSgdb=true;Object.values(ST.sgdb).forEach(e=>{delete e.icon});GOOD={};try{localStorage.removeItem('winteer_good')}catch(e){}
@@ -7444,6 +7460,10 @@ const TYP=[['Completista','Termino todo lo que empiezo','trophy'],['Explorador',
 const PR=()=>ST.prof||null;
 const hnd=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9_]/g,'').slice(0,16);
 const starsT=n=>starsHTML(n);
+let WASP=1;
+document.addEventListener('animationstart',e=>{if(WASP!==1)try{e.target.getAnimations().forEach(a=>{a.playbackRate=WASP})}catch(x){}},true);document.addEventListener('transitionrun',e=>{if(WASP!==1)try{e.target.getAnimations().forEach(a=>{a.playbackRate=WASP})}catch(x){}},true);
+function autoTheme(){if(!ST.autoth)return;const h=new Date().getHours(),l=h>=8&&h<19;if(!!ST.light!==l){ST.light=l;ST.dark=!l;applyTheme();try{save()}catch(e){}}}
+setInterval(autoTheme,6e5);
 function applyTheme(){const b=document.body.classList;if(ST.dark===false&&!ST.light)ST.dark=true;b.toggle('light',!!ST.light);b.toggle('dark',ST.dark!==false&&!ST.light)}
 function avHTML(p,sz){p=p||PR()||{};const a=p.av||{k:'letter',c:0},c=AVC[a.c||0]||AVC[0],nm=p.name||UN()||'T';
   const st=`width:${sz}px;height:${sz}px;--c1:${c[0]};--c2:${c[1]};font-size:${Math.round(sz*.44)}px`;
@@ -10000,7 +10020,7 @@ Object.assign(A,{
  hprobe:a=>{const r=a.dataset.v,x=GA.find(g=>g[4]===r&&g[0]!=='first')||GA[0];hitoShow([x[0],'Aviso de prueba',x[2],x[3],r],()=>{})},
  wtog:a=>{ST.wtoast_on=ST.wtoast_on===false;a.classList.toggle('on',ST.wtoast_on!==false);save()},
  rsap:()=>modal(`<h3>¿Restablecer apariencia?</h3><p>Tema, color, redondeo, tamaño y efectos vuelven a los valores originales.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="dorsap">Restablecer</button></div>`),
- dorsap:a=>{['dark','light','round','scale','amb','nomo','kb','perf','fxm','mqs','font','cst'].forEach(k=>delete ST[k]);ST.accent=DEFA;ST.snow=true;ST.dens=90;a.closest('.modal').remove();try{setAccent(ST.accent)}catch(e){}applyTheme();applyPrefs();initSnow();save();toast('Apariencia restablecida');go('settings')},
+ dorsap:a=>{['dark','light','round','scale','amb','nomo','kb','perf','fxm','mqs','font','cst','fxk','sbm','asp','shd','autoth'].forEach(k=>delete ST[k]);ST.accent=DEFA;ST.snow=true;ST.dens=90;a.closest('.modal').remove();try{setAccent(ST.accent)}catch(e){}applyTheme();applyPrefs();initSnow();save();toast('Apariencia restablecida');go('settings')},
  rshit:()=>modal(`<h3>¿Reiniciar hitos?</h3><p>Se borran los hitos ganados y se recalculan en silencio con tus datos actuales. No se pierde nada de tu biblioteca.</p><div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="dorshit">Reiniciar</button></div>`),
  dorshit:a=>{delete ST.gach;ST.hv=0;a.closest('.modal').remove();save();toast('Hitos reiniciados');go('settings')},
  hpop:a=>{ST.hpop=ST.hpop===false;a.classList.toggle('on',ST.hpop!==false);save()},
@@ -15485,9 +15505,15 @@ window.addEventListener('resize',()=>{moveInd();initSnow()});
 /* ---------- nieve ---------- */
 const cv=$('#snow'),cx=cv.getContext('2d');let fl=[],raf=0;
 function initSnow(){cancelAnimationFrame(raf);const r=$('#app').getBoundingClientRect();cv.width=r.width;cv.height=r.height;cx.clearRect(0,0,cv.width,cv.height);
-  if(!ST.snow||document.body.classList.contains('ultra'))return;
+  if(!ST.snow||ST.fxk==='off'||document.body.classList.contains('ultra'))return;
   fl=Array.from({length:Math.round(ST.dens*(SEA_K==='xmas'?1.7:1))},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*2.2+.6,v:Math.random()*.8+.3,p:Math.random()*6.3,o:Math.random()*.5+.35}));
   (function loop(t){if(document.body.classList.contains('wmopen')){raf=requestAnimationFrame(loop);return}cx.clearRect(0,0,cv.width,cv.height);
+    const FK=ST.fxk;if(FK==='rain'||FK==='stars'||FK==='ember'){cx.shadowBlur=0;
+      for(const f of fl){
+        if(FK==='rain'){f.y+=f.v*14+6;f.x-=1.6;if(f.y>cv.height+20){f.y=-20;f.x=Math.random()*(cv.width+60)}cx.strokeStyle=`rgba(170,205,255,${f.o*.55})`;cx.lineWidth=1;cx.beginPath();cx.moveTo(f.x,f.y);cx.lineTo(f.x-2.2,f.y-14-f.r*3);cx.stroke()}
+        else if(FK==='stars'){const a=.15+.85*Math.abs(Math.sin(t/900*f.v+f.p));cx.fillStyle=`rgba(235,240,255,${a*f.o*1.6})`;cx.beginPath();cx.arc(f.x,f.y,f.r*.7,0,6.3);cx.fill()}
+        else{f.y-=f.v*1.1+.2;f.x+=Math.sin(t/900+f.p)*.5;if(f.y<-6){f.y=cv.height+6;f.x=Math.random()*cv.width}const a=Math.min(1,f.y/cv.height*1.6)*f.o;cx.fillStyle=`rgba(255,${130+Math.round(f.o*90)},60,${a})`;cx.shadowColor='rgba(255,140,50,.9)';cx.shadowBlur=f.r*4;cx.beginPath();cx.arc(f.x,f.y,f.r*.8,0,6.3);cx.fill();cx.shadowBlur=0}
+      }raf=requestAnimationFrame(loop);return}
     for(const f of fl){f.y+=f.v;f.x+=Math.sin(t/1400+f.p)*.35;if(f.y>cv.height+4){f.y=-4;f.x=Math.random()*cv.width}
       const sk=rwSel('snow');cx.beginPath();cx.fillStyle=`rgba(225,235,255,${f.o})`;cx.shadowColor='rgba(165,216,255,.8)';cx.shadowBlur=f.r*3;
       const sg=sk==='w0'?SEAD(f):null;if(sk==='w0'&&!sg){cx.arc(f.x,f.y,f.r,0,6.3);cx.fill()}else if(sk==='w3'){cx.fillRect(Math.round(f.x),Math.round(f.y),f.r*2.4,f.r*2.4)}else{cx.font=((f.r*5+6)*(SEA_K&&SEFE.includes(SEA_K)?1.5:1))+'px sans-serif';cx.globalAlpha=f.o;cx.fillText(sg||SNOWG[sk]||'●',f.x,f.y);cx.globalAlpha=1}}
