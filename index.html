@@ -1860,6 +1860,23 @@ body.sb-ico .nav a{font-size:0;gap:0;justify-content:center;padding:0}body.sb-ic
 body.sh-flat .card,body.sh-flat .s3c,body.sh-flat .h2-c,body.sh-flat .s3t,body.sh-flat .side,body.sh-flat .app{box-shadow:none!important}
 body.sh-hi .s3c,body.sh-hi .h2-c,body.sh-hi .card{box-shadow:0 28px 64px rgba(0,0,0,.65),0 0 44px rgba(var(--argb),.16),inset 0 1px 0 rgba(255,255,255,.1)!important}
 body.sh-hi #amb{opacity:1}
+
+/* vista previa de Apariencia */
+.lkpv{position:sticky;top:0;z-index:6;margin:0 0 18px;padding:12px 16px 14px;border-radius:calc(var(--r,30px)*.73);background:rgb(var(--pnrgb));border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.lkpv-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}.lkpv-h b{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.lkpv-h small{font-size:12px;color:var(--muted)}
+.lkpv-b{display:flex;gap:12px;height:126px}
+.lkpv-s{width:138px;flex:none;border-radius:calc(var(--r,30px)*.6);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:10px 8px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.lkpv-br{display:flex;align-items:center;gap:7px;margin:0 4px 6px}.lkpv-br span{width:16px;height:16px;border-radius:5px;background:linear-gradient(160deg,var(--a2),var(--a))}.lkpv-br em{font-style:normal;font-weight:800;font-size:11px;letter-spacing:.2em}
+.lkpv-n{display:flex;align-items:center;gap:8px;height:26px;padding:0 8px;border-radius:9px;color:var(--muted);font-size:12px}.lkpv-n svg{width:14px;height:14px;flex:none}.lkpv-n em{font-style:normal}.lkpv-n.on{background:rgba(255,255,255,.1);color:var(--text)}.lkpv-n.on svg{color:var(--a2)}
+body.sb-ico .lkpv-s{width:46px}body.sb-ico .lkpv-n em,body.sb-ico .lkpv-br em{display:none}body.sb-ico .lkpv-n{justify-content:center;padding:0}
+.lkpv-m{flex:1;min-width:0;display:grid;grid-template-columns:1.25fr 1fr;gap:10px}
+.lkpv-c{border-radius:calc(var(--r,30px)*.6);background:rgba(var(--pnrgb),.9);border:1px solid rgba(255,255,255,.09);padding:11px 13px;display:flex;flex-direction:column;min-width:0;min-height:0;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.lkpv-c small{font-size:9.5px;letter-spacing:.16em;font-weight:700;color:var(--muted)}.lkpv-w>b{font-size:26px;font-weight:800;margin:3px 0 6px;background:linear-gradient(180deg,#fff,var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lkpv-g{flex:1;display:flex;align-items:flex-end;gap:5px;min-height:0}.lkpv-g i{flex:1;height:var(--h);border-radius:4px;background:linear-gradient(180deg,rgba(var(--argb),.55),rgba(var(--argb),.22))}.lkpv-g i.hi{background:linear-gradient(180deg,var(--a3),var(--a));box-shadow:0 0 12px rgba(var(--argb),.5)}
+.lkpv-r{margin-top:8px;font-size:11.5px}.lkpv-r span{display:block;margin-bottom:4px;font-weight:600}.lkpv-r i{display:block;height:5px;border-radius:5px;width:var(--w);background:linear-gradient(90deg,var(--a),var(--a2))}
+.lkpv-t{position:relative}.lkpv-p{margin-top:auto;align-self:flex-start;height:26px;padding:0 16px;border-radius:99px;border:0;background:var(--a);color:var(--on-a);font-weight:700;font-size:11.5px}
+body.cs-solid .lkpv-c{background:var(--card)!important;box-shadow:none}body.cs-line .lkpv-c{background:transparent!important;border-color:rgba(var(--argb),.38)!important;box-shadow:none}body.sh-flat .lkpv-c{box-shadow:none}
+.sg:has(.lkpv),.sg:has(.lkpv)>.sgl{display:contents}
 /* top 10 */
 .s3top.t10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;column-gap:26px;justify-content:stretch}
 .s3top.t10>div{gap:10px;padding:4px 8px;animation:s3row .55s calc(.08s + var(--r)*55ms) both cubic-bezier(.2,.9,.25,1)}
@@ -6916,15 +6933,21 @@ const segv=(k,o,cur)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button 
 const badge=(ok,t1,t0)=>`<span class="bdg ${ok?'ok':''}">${ok?t1:t0}</span>`;
 const setT=()=>{const t=({fx:'look',per:'avi',pet:'avi',hit:'avi',frn:'avi',rew:'avi',me:'avi',con:'lib'})[S.stab]||S.stab||'gen';return STABS.some(x=>x[0]===t)?t:'gen'};
 
+function lookPv(){const nv=[['home','Inicio'],['games','Biblioteca'],['prog','Progreso'],['social','Social']];
+  const bars=[34,52,28,70,46,88,60,40].map((h,i)=>`<i style="--h:${h}%"${i===5?' class="hi"':''}></i>`).join('');
+  return `<section class="lkpv"><div class="lkpv-h"><b>Vista previa</b><small>Los cambios se aplican en tiempo real.</small></div>
+   <div class="lkpv-b"><div class="lkpv-s"><div class="lkpv-br"><span></span><em>WINTEER</em></div>${nv.map(([i,l],k)=>`<div class="lkpv-n ${k===0?'on':''}">${ic(i)}<em>${l}</em></div>`).join('')}</div>
+    <div class="lkpv-m"><div class="lkpv-c lkpv-w"><small>TU TIEMPO DE JUEGO</small><b>128 h</b><div class="lkpv-g">${bars}</div></div>
+     <div class="lkpv-c lkpv-t"><small>LO MÁS JUGADO</small><div class="lkpv-r"><span>Hades</span><i style="--w:86%"></i></div><div class="lkpv-r"><span>Hollow Knight</span><i style="--w:58%"></i></div><button class="lkpv-p" tabindex="-1">Jugar</button></div></div></div></section>`}
 function lookPane(){const cur=(ST.fxm==='min')?'min':'lite',sea=(ST.sea==='off')?'off':SEAS[ST.sea]?'x':'auto',bg=ST.bgm||'tint';
   const ck='<svg class="lk-ck" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10"/><path d="M5.5 10.4l3 3 6-6.4"/></svg>';
   const opt=(on,attrs,inner)=>`<button class="lk-o ${on?'on':''}" ${attrs}>${inner}${ck}</button>`;
   return [`<div class="lkw">
    <div class="lk-c"><h5>Estilo</h5><div class="lk-pr">${TPRE.map(([n,c,m])=>`<button class="lk-o lk-p ${ST.accent===c&&(ST.bgm||'tint')===m?'on':''}" data-a="preset" data-id="${c}" data-m="${m}"><i style="background:${c}"></i><b>${n}</b>${ck}</button>`).join('')}</div></div>
    <div class="lk-r2">
-    <div class="lk-c"><h5>Rendimiento</h5><div class="lk-g2">${opt(cur==='lite','data-a="lkfx" data-v="lite"','<b>Predeterminado</b><small>Incluye todos los detalles, la nieve y las animaciones</small>')}${opt(cur==='min','data-a="lkfx" data-v="min"','<b>Rendimiento</b><small>Reduce la nieve, las animaciones y los efectos para mejorar el rendimiento</small>')}</div></div>
+    <div class="lk-c"><h5>Rendimiento</h5><div class="lk-g2">${opt(cur==='lite','data-a="lkfx" data-v="lite"','<b>Predeterminado</b><small>Incluye todos los efectos visuales, las partículas y las animaciones.</small>')}${opt(cur==='min','data-a="lkfx" data-v="min"','<b>Rendimiento</b><small>Reduce los efectos y las animaciones para optimizar el uso de recursos.</small>')}</div></div>
    </div>
-  </div>`,`<div class="row f"><div>Velocidad del carrusel<small>Las filas que se desplazan solas en Inicio ("Seguir jugando" y "Tu biblioteca"). Si se ven a los saltos, probá Muy lenta o Quieta.</small></div><div class="seg" data-k="mqs">${[['0','Quieta',0],['3','Muy lenta',3],['1.6','Lenta',1.6],['1','Normal',1],['0.6','Rápida',0.6]].map(([v,l,n])=>`<button data-a="seg" data-k="mqs" data-v="${v}" class="${P_('mqs',1)===n?'on':''}">${l}</button>`).join('')}</div></div>`]}
+  </div>`,`<div class="row f"><div>Velocidad del carrusel<small>Define la velocidad de las filas con desplazamiento automático del Inicio. Si el movimiento se percibe entrecortado, se recomienda una velocidad menor.</small></div><div class="seg" data-k="mqs">${[['0','Quieta',0],['3','Muy lenta',3],['1.6','Lenta',1.6],['1','Normal',1],['0.6','Rápida',0.6]].map(([v,l,n])=>`<button data-a="seg" data-k="mqs" data-v="${v}" class="${P_('mqs',1)===n?'on':''}">${l}</button>`).join('')}</div></div>`]}
 function setX(t){const N=!!window.winteerNative;
   const PANE={
   look:['Apariencia','Cómo se ve tu launcher',[`<div class="row"><div>Tema<small>Oscuro o claro.</small></div><div class="seg"><button data-a="theme" data-v="dark" class="${ST.dark!==false&&!ST.light?'on':''}">Oscuro</button><button data-a="theme" data-v="light" class="${ST.light?'on':''}">Claro</button></div></div>`,`<div class="row"><div>Color personalizado<small>Elegí el color de acento que quieras.</small></div><div class="cols"><input type="color" class="cc" id="ccol" value="${ST.accent||'#8b5cf6'}" title="Color personalizado"></div></div>`,`<div class="row pre"><div>Estilos prediseñados<small>Cambian color, fondo y detalles juntos.</small></div><div class="pres">${TPRE.map(([n,c,m])=>`<button class="prb ${ST.accent===c&&(ST.bgm||'tint')===m?'on':''}" data-a="preset" data-id="${c}" data-m="${m}"><i style="background:${c}"></i>${n}</button>`).join('')}</div></div>`,`<div class="row"><div>Fondo del launcher<small>Tono de paneles y tarjetas.</small></div><div class="seg">${BGM.map(([k,l])=>`<button data-a="bgm" data-v="${k}" class="${(ST.bgm||'tint')===k?'on':''}">${l}</button>`).join('')}</div></div>`,`<div class="row"><div>Color secundario<small>Detalles claros y brillos. Automático sigue al acento.</small></div><div class="cols"><button class="seg1 ${ST.ice?'':'on'}" data-a="iceauto">Auto</button><input type="color" class="cc" id="icecol" value="${ST.ice||(ST.accent===DEFA?'#d6d6dc':'#a5d8ff')}" title="Color secundario"></div></div>`,`<div class="row"><div>Resplandor de fondo<small>Intensidad del brillo de color.</small></div><div class="seg">${[[0,'Apagado'],[0.6,'Suave'],[1,'Normal'],[1.6,'Fuerte']].map(([v,l])=>`<button data-a="auo" data-v="${v}" class="${(ST.auo==null?1:ST.auo)===v?'on':''}">${l}</button>`).join('')}</div></div>`,`<div class="row"><div>Redondeo<small>Qué tan suaves son las esquinas.</small></div><div class="seg" data-k="round"><button data-a="seg" data-k="round" data-v="30" class="${P_('round',30)===30?'on':''}">Suave</button><button data-a="seg" data-k="round" data-v="18" class="${P_('round',30)===18?'on':''}">Medio</button><button data-a="seg" data-k="round" data-v="6" class="${P_('round',30)===6?'on':''}">Recto</button></div></div>`,`<div class="row"><div>Tamaño de la interfaz<small>Agranda o achica todo.</small></div><div class="seg" data-k="scale"><button data-a="seg" data-k="scale" data-v="0.9" class="${P_('scale',1)===0.9?'on':''}">Compacto</button><button data-a="seg" data-k="scale" data-v="1" class="${P_('scale',1)===1?'on':''}">Normal</button><button data-a="seg" data-k="scale" data-v="1.1" class="${P_('scale',1)===1.1?'on':''}">Grande</button></div></div>`,`<div class="row"><div>Tipo de letra<small>La fuente de todo el launcher.</small></div><div class="seg" data-k="font">${[['','Normal'],['round','Redonda'],['serif','Clásica'],['ind','Industrial'],['mono','Máquina']].map(([v,l])=>`<button data-a="lkst" data-k="font" data-v="${v}" class="${(ST.font||'')===v?'on':''}">${l}</button>`).join('')}</div></div>`,`<div class="row"><div>Estilo de las tarjetas<small>Cristal (translúcido), Sólido (opaco) o Contorno (solo borde de color).</small></div><div class="seg" data-k="cst">${[['','Cristal'],['solid','Sólido'],['line','Contorno']].map(([v,l])=>`<button data-a="lkst" data-k="cst" data-v="${v}" class="${(ST.cst||'')===v?'on':''}">${l}</button>`).join('')}</div></div>`]],
@@ -6976,30 +6999,30 @@ function setPane(t){
     ...(N&&BGC.win?[sR('Capturas, clips y overlay en juegos de Steam','Habilita las capturas, los clips y el overlay de WINTEER también en los juegos de Steam, sin necesidad de migrarlos. No se recomienda su uso en juegos con sistema antitrampas.','<div style="display:flex;gap:8px;align-items:center"><button class="b2 g sm" data-a="stcaphelp">Cómo evitar choques</button><button class="sw '+(BGC.stCap?'on':'')+'" data-a="stcap"></button></div>')]:[]),
     ];
 const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<button data-a="${act||'lkst'}" data-k="${k}" data-v="${v}" class="${String(cur)===String(v)?'on':''}">${l}</button>`).join('')}</div>`;
-  if(t==='look')return [lookPane()[0],
+  if(t==='look')return [lookPv(),lookPane()[0],
     sH('Colores'),
-    sR('Tema','Oscuro o claro.',`<div class="seg"><button data-a="theme" data-v="dark" class="${ST.dark!==false&&!ST.light?'on':''}">Oscuro</button><button data-a="theme" data-v="light" class="${ST.light?'on':''}">Claro</button></div>`),
-    sR('Claro de día, oscuro de noche','Cambia el tema solo según la hora: claro de 8 a 19, oscuro el resto.',`<button class="sw ${ST.autoth?'on':''}" data-a="lkt" data-k="autoth"></button>`),
-    sR('Color personalizado','Elegí el color de acento que quieras.',`<div class="cols"><input type="color" class="cc" id="ccol" value="${ST.accent||'#8b5cf6'}" title="Color personalizado"></div>`),
-    sR('Color secundario','Detalles claros y brillos. Automático sigue al acento.',`<div class="cols"><button class="seg1 ${ST.ice?'':'on'}" data-a="iceauto">Auto</button><input type="color" class="cc" id="icecol" value="${ST.ice||(ST.accent===DEFA?'#d6d6dc':'#a5d8ff')}" title="Color secundario"></div>`),
-    sR('Fondo del launcher','Tono de paneles y tarjetas.',`<div class="seg">${BGM.map(([k,l])=>`<button data-a="bgm" data-v="${k}" class="${(ST.bgm||'tint')===k?'on':''}">${l}</button>`).join('')}</div>`),
-    sR('Resplandor de fondo','Intensidad del brillo de color.',`<div class="seg">${[[0,'Apagado'],[0.6,'Suave'],[1,'Normal'],[1.6,'Fuerte']].map(([v,l])=>`<button data-a="auo" data-v="${v}" class="${(ST.auo==null?1:ST.auo)===v?'on':''}">${l}</button>`).join('')}</div>`),
-    sR('Color según el juego','En la Biblioteca, el color del launcher toma el del arte del juego que estás mirando.',`<button class="sw ${ST.gth?'on':''}" data-a="lkt" data-k="gth"></button>`),
+    sR('Tema','Alterna entre el modo oscuro y el modo claro.',`<div class="seg"><button data-a="theme" data-v="dark" class="${ST.dark!==false&&!ST.light?'on':''}">Oscuro</button><button data-a="theme" data-v="light" class="${ST.light?'on':''}">Claro</button></div>`),
+    sR('Tema automático por horario','Aplica el tema claro entre las 8:00 y las 19:00, y el oscuro durante el resto del día.',`<button class="sw ${ST.autoth?'on':''}" data-a="lkt" data-k="autoth"></button>`),
+    sR('Color de acento','Define el color principal de botones, resaltados e indicadores.',`<div class="cols"><input type="color" class="cc" id="ccol" value="${ST.accent||'#8b5cf6'}" title="Color personalizado"></div>`),
+    sR('Color secundario','Define el color de los detalles claros y los brillos. En modo automático se deriva del color de acento.',`<div class="cols"><button class="seg1 ${ST.ice?'':'on'}" data-a="iceauto">Auto</button><input type="color" class="cc" id="icecol" value="${ST.ice||(ST.accent===DEFA?'#d6d6dc':'#a5d8ff')}" title="Color secundario"></div>`),
+    sR('Tono del fondo','Determina el tono de los paneles y las tarjetas.',`<div class="seg">${BGM.map(([k,l])=>`<button data-a="bgm" data-v="${k}" class="${(ST.bgm||'tint')===k?'on':''}">${l}</button>`).join('')}</div>`),
+    sR('Resplandor ambiental','Regula la intensidad del brillo de color que rodea la interfaz.',`<div class="seg">${[[0,'Apagado'],[0.6,'Suave'],[1,'Normal'],[1.6,'Fuerte']].map(([v,l])=>`<button data-a="auo" data-v="${v}" class="${(ST.auo==null?1:ST.auo)===v?'on':''}">${l}</button>`).join('')}</div>`),
+    sR('Color adaptado al juego','En la Biblioteca, adopta el color dominante del arte del juego seleccionado.',`<button class="sw ${ST.gth?'on':''}" data-a="lkt" data-k="gth"></button>`),
     sH('Forma y estilo'),
-    sR('Redondeo','Qué tan suaves son las esquinas.',`<div class="seg" data-k="round">${[[30,'Suave'],[18,'Medio'],[6,'Recto']].map(([v,l])=>`<button data-a="seg" data-k="round" data-v="${v}" class="${P_('round',30)===v?'on':''}">${l}</button>`).join('')}</div>`),
-    sR('Tipo de letra','La fuente de todo el launcher.',sg('font',[['','Normal'],['round','Redonda'],['serif','Clásica'],['ind','Industrial'],['mono','Máquina']],ST.font||'')),
-    sR('Estilo de las tarjetas','Cristal (translúcido), Sólido (opaco) o Contorno (solo borde de color).',sg('cst',[['','Cristal'],['solid','Sólido'],['line','Contorno']],ST.cst||'')),
-    sR('Sombras y brillos','Desde un estilo plano hasta uno muy dramático.',sg('shd',[['flat','Plano'],['','Normal'],['hi','Dramático']],ST.shd||'')),
+    sR('Radio de las esquinas','Controla el redondeo de los bordes de paneles y tarjetas.',`<div class="seg" data-k="round">${[[30,'Suave'],[18,'Medio'],[6,'Recto']].map(([v,l])=>`<button data-a="seg" data-k="round" data-v="${v}" class="${P_('round',30)===v?'on':''}">${l}</button>`).join('')}</div>`),
+    sR('Tipografía','Cambia la fuente utilizada en toda la interfaz.',sg('font',[['','Normal'],['round','Redonda'],['serif','Clásica'],['ind','Industrial'],['mono','Máquina']],ST.font||'')),
+    sR('Estilo de las tarjetas','Cristal: translúcido. Sólido: opaco. Contorno: solo borde de color.',sg('cst',[['','Cristal'],['solid','Sólido'],['line','Contorno']],ST.cst||'')),
+    sR('Sombras y relieve','Ajusta el relieve visual, desde un estilo plano hasta uno más marcado.',sg('shd',[['flat','Plano'],['','Normal'],['hi','Dramático']],ST.shd||'')),
     sH('Movimiento'),
     lookPane()[1],
-    sR('Efecto de fondo','Las partículas que se mueven detrás de la interfaz.',sg('fxk',[['','Nieve'],['rain','Lluvia'],['stars','Estrellas'],['ember','Brasas'],['off','Ninguno']],ST.fxk||'')),
-    sR('Velocidad de las animaciones','Más lentas y elegantes, o más rápidas y directas.',sg('asp',[['0.7','Lenta'],['1','Normal'],['1.4','Rápida'],['2','Muy rápida']],ST.asp||'1')),
+    sR('Efecto de fondo','Partículas animadas que se muestran detrás de la interfaz.',sg('fxk',[['','Nieve'],['rain','Lluvia'],['stars','Estrellas'],['ember','Brasas'],['off','Ninguno']],ST.fxk||'')),
+    sR('Velocidad de las animaciones','Modifica la velocidad de todas las animaciones y transiciones.',sg('asp',[['0.7','Lenta'],['1','Normal'],['1.4','Rápida'],['2','Muy rápida']],ST.asp||'1')),
     sH('Pantalla'),
-    sR('Barra lateral','Completa, o solo íconos para dejar más lugar al contenido.',sg('sbm',[['','Completa'],['ico','Solo íconos']],ST.sbm||'')),
-    sR('Secciones de Inicio','Tocá para ocultar o mostrar cada sección de la pantalla de Inicio.',`<div class="seg">${[['res','Resumen'],['sem','Racha semanal'],['obj','Objetivos'],['nov','Novedades'],['bib','Tu biblioteca']].map(([k,l])=>`<button data-a="hhs" data-k="${k}" class="${(ST.hh||{})[k]?'':'on'}">${l}</button>`).join('')}</div>`),
+    sR('Barra lateral','Alterna entre la barra completa y una versión compacta con solo íconos.',sg('sbm',[['','Completa'],['ico','Solo íconos']],ST.sbm||'')),
+    sR('Secciones de Inicio','Selecciona qué secciones se muestran en la pantalla de Inicio.',`<div class="seg">${[['res','Resumen'],['sem','Racha semanal'],['obj','Objetivos'],['nov','Novedades'],['bib','Tu biblioteca']].map(([k,l])=>`<button data-a="hhs" data-k="${k}" class="${(ST.hh||{})[k]?'':'on'}">${l}</button>`).join('')}</div>`),
     sH('Sonido'),
-    sR('Sonidos del launcher','Un sonido suave al tocar botones y menús. Elegí el estilo.',sg('snd',[['','Apagado'],['soft','Suave'],['retro','Retro'],['fut','Futurista']],ST.snd||'')),
-    sR('Restablecer apariencia','Restaura el tema, el color y los efectos visuales a sus valores originales. No afecta a los datos de la biblioteca.','<button class="b2 g" data-a="rsap">Restablecer</button>')
+    sR('Sonidos de la interfaz','Reproduce un sonido breve al interactuar con botones y menús.',sg('snd',[['','Apagado'],['soft','Suave'],['retro','Retro'],['fut','Futurista']],ST.snd||'')),
+    sR('Restablecer apariencia','Restaura los valores de fábrica de la apariencia. No modifica la biblioteca ni los datos guardados.','<button class="b2 g" data-a="rsap">Restablecer</button>')
   ];
   if(t==='avi')return [
     sH('Hitos'),
@@ -7049,7 +7072,7 @@ const sg=(k,o,cur,act)=>`<div class="seg" data-k="${k}">${o.map(([v,l])=>`<butto
     sH('Zona delicada'),
     sR('Restablecer biblioteca','Restaura la biblioteca original de Steam y elimina los estados y las notas guardados en los juegos.','<button class="b2 g" data-a="reset">Restablecer</button>')];
   return []}
-const SINFO={gen:'Arranque, pantalla y capturas',look:'Tema, color y efectos',avi:'Sonido de hitos y mensajes',lib:'Cuentas, datos y limpieza',mando:'Consola, música, fondo y trailers',ext:'Emulación, logros retro e IA',data:'Copias, espacio y restablecer'};
+const SINFO={gen:'Arranque, pantalla y capturas',look:'Tema, color, tipografía y efectos',avi:'Sonido de hitos y mensajes',lib:'Cuentas, datos y limpieza',mando:'Consola, música, fondo y trailers',ext:'Emulación, logros retro e IA',data:'Copias, espacio y restablecer'};
 const SRI=[[/segundo plano/i,'bolt'],[/windows/i,'play'],[/con el mando/i,'games'],[/abrir winteer/i,'home'],[/tama[ñn]o/i,'scan'],[/intenci/i,'clock'],[/visita/i,'lock'],[/captura/i,'img'],[/volumen|sonido|m[uú]sica/i,'bell'],[/teclado/i,'edit'],[/centro de mandos/i,'games'],[/tr[aá]iler|trailer/i,'play'],[/fondo|brillo/i,'img'],[/protector/i,'star'],[/steam|epic|xbox/i,'games'],[/descargar/i,'dl'],[/carpeta|estaci/i,'compass'],[/duplicado/i,'filter'],[/limpi|restablecer/i,'trash'],[/recalcular|retro/i,'trophy'],[/espacio|copias/i,'shield'],[/asistente/i,'star'],[/tema|estilo|color|rendimiento/i,'flake']];
 const rowIc=h=>{const m=h.match(/^<div class="row[^"]*"><div>([\s\S]*?)<small/),s=m?m[1].replace(/<[^>]+>/g,''):'',f=SRI.find(([r])=>r.test(s));return f?f[1]:'gear'};
 const sDeco=r=>typeof r==='string'&&r.startsWith('<div class="row')?r.replace(/^(<div class="row)([^"]*)(">)/,(m0,a1,a2,a3)=>a1+a2+(/data-a="reset"/.test(r)?' dng':'')+a3+'<i class="rwi">'+ic(rowIc(r))+'</i>'):r;
@@ -18480,7 +18503,7 @@ function gTint(){try{if(!ST.gth||S.view!=='games'){if(GTH){GTH='';applyLook()}re
     if(!W){GTC[id]=null;return}const h='#'+[R,G,B].map(v=>Math.round(v/W).toString(16).padStart(2,'0')).join('');GTC[id]=h;set(h)}catch(e){GTC[id]=null}};
   im.onerror=()=>{GTC[id]=null};im.src=art.hero(g)}catch(e){}}
 (()=>{const r0=renderDetail;renderDetail=function(){const r=r0.apply(this,arguments);gTint();return r}})();
-const _go0=go;go=function(v,o){const r=_go0.apply(this,arguments);if(GTH&&S.view!=='games')gTint();return r};
+const _go0=go;go=function(v,o){const vw=document.getElementById('view'),st=(v==='settings'&&S.view==='settings'&&S.stab==='look'&&vw)?vw.scrollTop:-1;const r=_go0.apply(this,arguments);if(st>0){const w=document.getElementById('view');if(w){w.scrollTop=st;requestAnimationFrame(()=>{w.scrollTop=st});setTimeout(()=>{w.scrollTop=st},120)}}if(GTH&&S.view!=='games')gTint();return r};
 
 /* sonidos del launcher (sintetizados, sin archivos) */
 let SAC=null;
