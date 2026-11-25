@@ -1543,6 +1543,19 @@ async function poll() {
   const sr = new Map();
   for (const [id, t] of track) if (t.app) sr.set(id, await steamRun(t.app));
   const fastOk = new Set(), fastNo = new Set();
+  /* Steam tarda en apagar su marca "Running" (a veces ~30 s despues de cerrar el juego): ademas miro si siguen abiertos los programas de la carpeta del juego */
+  const stN = [...track.values()].some((t) => t.app && t.started && t.dirs.length);
+  if (stN && process.platform === 'win32') {
+    for (const [id, t] of track) {
+      if (!(t.app && t.started && t.dirs.length) || t.pnBusy || Date.now() < (t.pnNext || 0)) continue;
+      t.pnBusy = true; t.pnNext = Date.now() + ((t.pnN || 0) < 2 ? 12000 : 60000);
+      listProcsN().then((pl) => { if (pl) { t.pn = t.pn || new Set(); for (const p of pl) if (t.dirs.some((d) => String(p).startsWith(d))) t.pn.add(path.win32.basename(String(p)).toLowerCase()); t.pnN = (t.pnN || 0) + 1; } t.pnBusy = false; }).catch(() => { t.pnBusy = false; });
+    }
+    if ([...track.values()].some((t) => t.app && t.pn && t.pn.size && (t.pnN || 0) >= 3 && sr.get([...track].find(([, x]) => x === t)[0]) === true)) {
+      const nmS = await listNamesN();
+      if (nmS) for (const [id, t] of track) if (t.app && t.pn && t.pn.size && (t.pnN || 0) >= 3 && sr.get(id) === true && ![...t.pn].some((n) => nmS.has(n))) sr.set(id, false);
+    }
+  }
   if ([...track.values()].some((t) => !t.app && t.exe)) { const nm = await listNamesN(); if (nm) for (const [id, t] of track) if (!t.app && t.exe) { if (nm.has(path.win32.basename(t.exe))) fastOk.add(id); else if (t.started) fastNo.add(id); } }
   const need = [...track].some(([id, t]) => (!t.app && !fastOk.has(id) && !fastNo.has(id)) || (t.app && sr.get(id) === null));
   const pl = need ? await listProcsN() : [], procs = pl || [], plFail = pl === null;
@@ -1550,7 +1563,7 @@ async function poll() {
     const byProc = () => procs.some(p => t.exe ? (p === t.exe || (t.edir && p.startsWith(t.edir))) : t.dirs.some(d => p.startsWith(d)));
     const run = fastOk.has(id) ? true : fastNo.has(id) ? false : (t.app && sr.get(id) !== null ? sr.get(id) : byProc());
     if (run) { t.miss = 0; t.seen = Date.now(); if (!t.started) { t.started = Date.now(); send({ type: 'started', id, t: t.started }); } blStep(t); }
-    else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 60000 : 9000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
+    else if (t.started) { if (plFail && !t.app) continue; t.miss++; const gone = Date.now() - (t.seen || t.started), lim = flIs(t.name) ? 180000 : (Date.now() - t.started < 4 * 60 * 1000 ? 60000 : 5000); if (gone >= lim && t.miss >= 2) { send({ type: 'stopped', id, t: t.seen || (Date.now() - t.miss * 1500) }); if (flIs(t.name)) { try { flFiles().forEach(flHist); } catch (e) {} } track.delete(id); syncShot(); backFromGame(); } }
     else if (Date.now() - t.since > 5 * 60 * 1000) { send({ type: 'never', id }); track.delete(id); syncShot(); backFromGame(); }
   }
 }
