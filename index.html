@@ -13158,9 +13158,11 @@ V.vault=()=>{if(!S.vu||!vL())return '<div class="empty" style="margin:auto"></di
   return `<div class="lib"><section class="libl"><div class="lh"><h2>Bóveda</h2><button class="vbl" data-a="vlock" title="Cerrar la Bóveda">${ic('lock')}<span>Bloquear</span></button></div>
   <div class="vbar"><button class="vbt" data-a="vmove" title="Traer de la biblioteca">${ic('arrow')}</button><button class="vbt" data-a="vaddx" title="Agregar juego">${ic('plus')}</button><button class="vbt" data-a="vweb" title="F95zone">${ic('globe')}</button><button class="vbt ${S.vst==='dy'?'on':''}" data-a="vdiary" title="Diario">${ic('diary')}</button><button class="vbt ${S.vst==='st'?'on':''}" data-a="vstats" title="Estadísticas">${ic('chart')}</button><button class="vbt" data-a="vopts" title="Opciones">${ic('settings')}</button></div>
   <div class="ls">${ic('search')}<input id="vlq" placeholder="Buscar…" value="${esc(S.vq||'')}"></div><div class="vflt" id="vflt"></div><div class="cnt" id="vcnt"></div><div class="list" id="vlist"></div></section><section class="detail" id="vdetail"></section></div>`};
+const vTs=g=>{let t=0;try{for(const x of (vL().ses||[]))if(x.g===g.id&&x.s>t)t=x.s}catch(e){}if(t)return t;const m=String(g.last||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?+new Date(+m[3],m[2]-1,+m[1]):0};
 function vList(){const L=vL(),e=$('#vlist');if(!L||!e)return;THN=0;const q=(S.vq||'').toLowerCase();
-  const arr=[...L.g].filter(g=>g.name.toLowerCase().includes(q)&&(!S.vf||(S.vf==='u'?vUpd(g):S.vf==='f'?!!g.fav:1))).sort((a,b)=>a.name.localeCompare(b.name));
-  const fl=$('#vflt');if(fl)fl.innerHTML=[['','Todos'],['f','Favoritos'],...(L.g.some(vUpd)?[['u','Novedades']]:[])].map(([k,l])=>`<button class="${(S.vf||'')===k?'on':''}" data-a="vflt" data-id="${k}">${l}</button>`).join('');
+  const VSO=[['n','A–Z'],['h','Más horas'],['r','Recientes'],['p','Mejor nota']],so=S.vso||'n',vfm=g=>!S.vf||(S.vf==='u'?vUpd(g):S.vf==='f'?!!g.fav:vsOf(g)===S.vf);
+  const arr=[...L.g].filter(g=>g.name.toLowerCase().includes(q)&&vfm(g)).sort((a,b)=>so==='h'?(b.hours||0)-(a.hours||0)||a.name.localeCompare(b.name):so==='r'?(vTs(b)-vTs(a))||a.name.localeCompare(b.name):so==='p'?(b.vp||0)-(a.vp||0)||a.name.localeCompare(b.name):a.name.localeCompare(b.name));
+  const fl=$('#vflt');if(fl)fl.innerHTML=[['','Todos'],['f','Favoritos'],...VST.filter(([k])=>L.g.some(g=>vsOf(g)===k)).map(([k,l])=>[k,l]),...(L.g.some(vUpd)?[['u','Novedades']]:[])].map(([k,l])=>`<button class="${(S.vf||'')===k?'on':''}" data-a="vflt" data-id="${k}">${l}</button>`).join('')+`<button class="vso" data-a="vsort" title="Cambiar orden">${(VSO.find(x=>x[0]===so)||VSO[0])[1]}</button>`;
   e.innerHTML=arr.length?arr.map(g=>{const run=S.vplay&&S.vplay.id===g.id,t=run?'Jugando':stOf(g);
     return `<div class="it ${g.id===S.vsel?'sel':''} ${g.status==='Terminado'?'done':''}" data-a="vsel" data-id="${g.id}">${thumb(g)}<div style="min-width:0;flex:1"><b>${g.fav?'<em class="fv">★</em>':''}${esc(g.name)}</b></div>${vUpd(g)?'<span class="vb" title="Nueva versión">Nueva</span>':''}${g.vp?`<span class="vs2" style="color:#ff7aa2">${'♥'.repeat(g.vp)}</span>`:''}${t==='Jugando'?'<i class="sdt g"></i>':t==='Pausado'?'<i class="sdt b"></i>':''}</div>`}).join(''):`<p style="color:var(--muted);padding:14px;font-size:13px">${L.g.length?'Sin resultados':'Todavía no hay nada. Con el botón de la flecha movés un juego desde tu biblioteca.'}</p>`;
   const c=$('#vcnt');if(c)c.textContent=arr.length+(arr.length===1?' juego':' juegos')}
@@ -13313,7 +13315,7 @@ Object.assign(A,{
  vdel2:a=>{const L=vL(),id=a.dataset.id;if(!L)return;L.g=L.g.filter(v=>v.id!==id);L.ses=L.ses.filter(x=>x.g!==id);L.rv.filter(r=>r.gid===id).forEach(r=>rvKeys(r).forEach(k=>{artDel(k);if(ART[k]){URL.revokeObjectURL(ART[k]);delete ART[k]}}));L.rv=L.rv.filter(r=>r.gid!==id);delete L.x[id];save();$$('.modal.vm').forEach(m=>m.remove());S.vsel=null;vRender()},
  vfav:a=>{const g=vG(a.dataset.id);if(!g)return;g.fav=!g.fav;if(!g.fav)delete g.fav;save();vList();vDetail(false)},
  vsc:a=>{const g=vG(a.dataset.id);if(!g)return;const n=+a.dataset.v;g.vp=g.vp===n?0:n;if(!g.vp)delete g.vp;save();vList();vDetail(false)},
- vflt:a=>{S.vf=a.dataset.id;vList()},
+ vflt:a=>{S.vf=a.dataset.id;vList()},vsort:()=>{const o=['n','h','r','p'];S.vso=o[(o.indexOf(S.vso||'n')+1)%4];vList()},
  vstats:()=>{S.vst=S.vst==='st'?0:'st';vDetail(true)},
  vback:()=>{S.vst=0;vDetail(true)},
  vdiary:()=>{S.vst=S.vst==='dy'?0:'dy';vDetail(true)},
