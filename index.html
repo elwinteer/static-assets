@@ -13189,8 +13189,9 @@ function vDetail(swap){const d=$('#vdetail');if(!d)return;const g=vG(S.vsel);
 const VST=[['p','Pendiente'],['j','Jugando'],['t','Completado'],['a','Abandonado']],vsOf=g=>g.status==='Terminado'?'t':(g.vs||'');
 function vVerOf(t){const b=[...String(t||'').matchAll(/\[([^\]]+)\]/g)].map(m=>m[1].trim());return b.find(x=>/\d|final|complet/i.test(x))||''}
 const vUpd=g=>!!(g.vth&&g.ver&&g.vlat&&g.vlat!==g.ver);
+const vDevOf=t=>{const b=[...String(t||'').matchAll(/\[([^\]]+)\]/g)].map(m=>m[1].trim()),v=vVerOf(t),c=b.filter(x=>x&&x!==v&&!/^(complet|final|abandon|on hold|incomplet|ongoing|v?\d[\d.]*|ch(ap(ter)?)?\.?\s*\d|ep(isode)?\.?\s*\d|season|s\d)/i.test(x));return c.length?c[c.length-1]:''};
 async function vCheck(g,force){if(!window.winteerNative||!winteerNative.vver||!g.vth)return;if(!force&&g.vck&&Date.now()-g.vck<216e5)return;g.vck=Date.now();
-  try{const r=await winteerNative.vver(g.vth);if(r&&r.t){const v=vVerOf(r.t);if(v){g.vlat=v;if(!g.ver)g.ver=v}}}catch(e){}save()}
+  try{const r=await winteerNative.vver(g.vth);if(r&&r.t){const v=vVerOf(r.t);if(v){g.vlat=v;if(!g.ver)g.ver=v}if(!g.vdvm){const d=vDevOf(r.t);if(d)g.vdv=d}}}catch(e){}save()}
 async function vCheckAll(){const L=vL();if(!L)return;let ch=0;for(const g of [...L.g]){if(!g.vth)continue;const b=g.vlat;await vCheck(g);if(g.vlat!==b)ch++}if(ch&&S.view==='vault'&&S.vu&&!S.vweb){vList();toast(ch+' actualización'+(ch>1?'es':'')+' nueva'+(ch>1?'s':'')+' en la Bóveda')}}
 function vIntro(){const d=document.createElement('div');d.className='vintro';d.innerHTML='<div class="dl"></div><div class="dr"></div><svg viewBox="0 0 200 200"><circle class="r1" cx="100" cy="100" r="70"/><circle class="r2" cx="100" cy="100" r="86"/><path class="kh" d="M100 78a14 14 0 0 1 6 26v22h-12v-22a14 14 0 0 1 6-26z"/></svg><b>BÓVEDA</b>';document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
 function vDiaryHTML(){const L=vL(),l=[...L.rv].filter(r=>vG(r.gid)).sort((a,b)=>b.ts-a.ts);let mk='',h='';
@@ -13216,8 +13217,21 @@ function vStatsHTML(){const L=vL(),ses=L.ses||[],g=L.g,tot=g.reduce((a,x)=>a+(x.
 const vCo=()=>{const x=vL().x;x.ls=x.ls||[];x.sa=x.sa||[];return x};
 const vCoK=()=>S.vco==='sa'?'sa':'ls';
 const vCoG=c=>c.ids.map(vG).filter(Boolean);
-function vCoHTML(){const X=vCo(),k=vCoK(),arr=X[k],sel=S.vcs&&arr.find(c=>c.id===S.vcs),sa=k==='sa';
-  const tabs=`<div class="vcot"><button class="${!sa?'on':''}" data-a="vcotab" data-v="ls">Listas</button><button class="${sa?'on':''}" data-a="vcotab" data-v="sa">Sagas</button></div>`;
+const vEnc=encodeURIComponent,vDec=decodeURIComponent;
+function vCrGroups(){const m={};vL().g.forEach(g=>{const k=g.vdv||'';(m[k]=m[k]||[]).push(g)});return Object.entries(m).sort((a,b)=>(a[0]===''?1:0)-(b[0]===''?1:0)||b[1].length-a[1].length||a[0].localeCompare(b[0]))}
+async function vCrFill(){if(S.vcrb)return;const L=vL(),q=L.g.filter(g=>g.vth&&!g.vdv&&!g.vdvm&&!g.vdvt);if(!q.length||!window.winteerNative)return;S.vcrb=1;try{for(const g of q){g.vdvt=1;await vCheck(g,true);if(!(S.view==='vault'&&S.vst==='co'))break;vCoRef()}}catch(e){}S.vcrb=0;save();vCoRef()}
+function vCrHTML(){const G=vCrGroups(),sel=S.vcs!=null&&S.vcs!==0&&G.find(x=>x[0]===S.vcs);
+  const tabs=`<div class="vcot"><button data-a="vcotab" data-v="ls">Listas</button><button class="on" data-a="vcotab" data-v="sa">Creadores</button></div>`;
+  const back=`<button class="chip btn2" data-a="vback">← Volver</button>`;
+  if(!sel){setTimeout(vCrFill,50);return `<div class="vst vco">${back}<h3 style="margin-top:14px">Sagas por creador</h3><small style="opacity:.6">Tus juegos agrupados por quien los hizo${S.vcrb?' · buscando creadores…':''}</small>${tabs}<div class="vcg">${G.map(([k,gs])=>{const dn=gs.filter(x=>vsOf(x)==='t').length,h=gs.reduce((a,x)=>a+(x.hours||0),0);return `<div class="vcc" data-a="vcropen" data-id="${vEnc(k)}"><div class="vcs">${gs.slice(0,4).map(x=>thumb(x)).join('')}</div><b>${k?esc(k):'Sin creador'}</b><small>${gs.length} ${gs.length===1?'juego':'juegos'}${h?' · '+fh(h):''}${k&&gs.length?` · ${dn}/${gs.length} completados`:''}</small>${k&&gs.length?`<i class="vcp"><u style="width:${Math.round(100*dn/gs.length)}%"></u></i>`:''}</div>`}).join('')||'<p class="hint2" style="grid-column:1/-1">Todavía no hay juegos en la Bóveda.</p>'}</div></div>`}
+  const [k,gs0]=sel,gs=[...gs0].sort((a,b)=>a.name.localeCompare(b.name)),dn=gs.filter(x=>vsOf(x)==='t').length;
+  return `<div class="vst vco">${back}<h3 style="margin-top:14px">${k?esc(k):'Sin creador'}</h3><small style="opacity:.6">${k?'Se completa solo con el título de F95zone de cada juego. Podés corregirlo a mano.':'Juegos a los que todavía no se les encontró creador.'}</small>
+  <div class="vcb"><button class="chip btn2" data-a="vcclose">← Creadores</button>${k?`<button class="chip btn2" data-a="vcrren">${ic('edit')} Renombrar creador</button>`:''}</div>
+  ${k?`<div class="vcpr"><div><b>${dn}/${gs.length}</b><small>completados</small></div><i class="vcp"><u style="width:${Math.round(100*dn/gs.length)}%"></u></i><span class="vcdn" style="color:inherit;opacity:.75">${fh(gs.reduce((a,x)=>a+(x.hours||0),0))}</span></div>`:''}
+  <div class="vcl">${gs.map((x,i)=>`<div class="vcr ${vsOf(x)==='t'?'done':''}" style="animation-delay:${Math.min(i,12)*40}ms"><div class="vcth" data-a="vcgo" data-id="${x.id}">${thumb(x)}</div><div class="vcn2" data-a="vcgo" data-id="${x.id}"><b>${esc(x.name)}</b><small>${vsOf(x)==='t'?'Completado':stOf(x)}${x.hours?' · '+fh(x.hours):''}${x.vp?' · '+'♥'.repeat(x.vp):''}</small></div><button title="Cambiar creador" data-a="vcrset" data-id="${x.id}" style="width:auto;padding:0 10px;font-size:12px">${k?'Creador':'Asignar'}</button></div>`).join('')}</div></div>`}
+function vCrName(v,cb){const cs=vCrGroups().map(x=>x[0]).filter(Boolean);modal(`<h2 style="margin:0 0 12px">${v?'Creador':'Asignar creador'}</h2><input id="vcni" class="vcin" list="vcdl" maxlength="60" placeholder="Nombre del creador" value="${esc(v||'')}"><datalist id="vcdl">${cs.map(c=>`<option value="${esc(c)}">`).join('')}</datalist><div class="rv-ft" style="margin-top:16px"><span style="flex:1"></span><button class="hm-go hm-gh" data-a="close">Cancelar</button><button class="hm-go" data-a="vcnok">Guardar</button></div>`,'vmod');vCoName.cb=cb;const i=$('#vcni');if(i){i.focus();i.addEventListener('keydown',e=>{if(e.key==='Enter')A.vcnok()})}}
+function vCoHTML(){if(S.vco==='sa')return vCrHTML();const X=vCo(),k=vCoK(),arr=X[k],sel=S.vcs&&arr.find(c=>c.id===S.vcs),sa=k==='sa';
+  const tabs=`<div class="vcot"><button class="${!sa?'on':''}" data-a="vcotab" data-v="ls">Listas</button><button data-a="vcotab" data-v="sa">Creadores</button></div>`;
   const head=`<button class="chip btn2" data-a="vback">← Volver</button><h3 style="margin-top:14px">${sel?esc(sel.name):'Listas y sagas'}</h3><small style="opacity:.6">${sel?(sa?'Una saga ordena los juegos de una misma serie y te dice cuál sigue.':'El orden de la lista es tu ranking: el de arriba es el número 1.'):'Solo existen acá adentro.'}</small>`;
   if(!sel)return `<div class="vst vco">${head}${tabs}<div class="vcg">${arr.map(c=>{const g=vCoG(c),dn=g.filter(x=>vsOf(x)==='t').length;return `<div class="vcc" data-a="vcopen" data-id="${c.id}"><div class="vcs">${g.slice(0,4).map(x=>thumb(x)).join('')||'<span>Vacía</span>'}</div><b>${esc(c.name)}</b><small>${g.length} ${g.length===1?'juego':'juegos'}${sa&&g.length?` · ${dn}/${g.length} completados`:''}</small>${sa&&g.length?`<i class="vcp"><u style="width:${Math.round(100*dn/g.length)}%"></u></i>`:''}</div>`}).join('')}<button class="vcc vcn" data-a="vcnew"><b>+</b><small>${sa?'Nueva saga':'Nueva lista'}</small></button></div></div>`;
   const g=vCoG(sel),nx=sa?g.find(x=>vsOf(x)!=='t'):null,dn=g.filter(x=>vsOf(x)==='t').length;
@@ -13359,6 +13373,9 @@ Object.assign(A,{
  vcrm:a=>{const c=vCoCur();if(!c)return;c.ids=c.ids.filter(i=>i!==a.dataset.id);save();vCoRef()},vcup:a=>vCoMove(a.dataset.id,-1),vcdn:a=>vCoMove(a.dataset.id,1),
  vcgo:a=>{S.vsel=a.dataset.id;S.vst=0;S.vtab='res';vList();vDetail(false)},
  vwr:()=>{S.vst='wr';vDetail(true)},vwnx:()=>vWrGo((S.vwi||0)+1),vwdot:a=>vWrGo(+a.dataset.i),
+ vcropen:a=>{S.vcs=vDec(a.dataset.id);vCoRef()},
+ vcrren:()=>{const k=S.vcs;if(!k)return;vCrName(k,n=>{vL().g.forEach(g=>{if((g.vdv||'')===k){g.vdv=n;g.vdvm=1}});S.vcs=n;save();vCoRef()})},
+ vcrset:a=>{const g=vG(a.dataset.id);if(!g)return;vCrName(g.vdv||'',n=>{g.vdv=n;g.vdvm=1;save();const gr=vCrGroups();if(S.vcs!==0&&!gr.find(x=>x[0]===S.vcs))S.vcs=0;vCoRef()})},
  vflt:a=>{S.vf=a.dataset.id;vList()},vsort:()=>{const o=['n','h','r','p'];S.vso=o[(o.indexOf(S.vso||'n')+1)%4];vList()},
  vstats:()=>{S.vst=S.vst==='st'?0:'st';vDetail(true)},
  vback:()=>{S.vst=0;vDetail(true)},
