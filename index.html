@@ -13271,6 +13271,11 @@ const vNorm=t=>String(t||'').toLowerCase().replace(/\[[^\]]*\]|\([^)]*\)/g,' ').
 const VDIDX=(()=>{const m=[];for(const [d,ts] of Object.entries(VDEVS))ts.forEach(t=>m.push([vNorm(t),d]));return m})();
 const vKnownDev=n=>{const x=vNorm(n);if(!x)return'';const h=VDIDX.find(([t])=>x===t||x.startsWith(t+' ')||x.endsWith(' '+t));return h?h[1]:''};
 const vDevK=g=>g.vdv||vKnownDev(g.name)||'';
+const VHT={
+'Dr. PinkCake':[['sage','Cogete a Sage','Being a DIK'],['jill','Conquistá a Jill','Being a DIK'],['jade','Cogete a Jade','Being a DIK'],['riona','Cogete a Riona','Being a DIK'],['camilla','Cogete a Camilla','Being a DIK'],['cathy','Cogete a Cathy','Being a DIK'],['quinn','Cogete a Quinn','Being a DIK'],['megan','Quedate con Megan','Acting Lessons']],
+'Caribdis':[['nancy','Cogete a Nancy','Eternum'],['nova','Cogete a Nova','Eternum'],['annie','Cogete a Annie','Eternum'],['dahlia','Cogete a Dahlia','Eternum'],['luna','Cogete a Luna','Eternum'],['alex','Cogete a Alex','Eternum'],['calypso','Cogete a Calypso','Eternum']],
+'Kompas Productions':[['diane','Cogete a Diane','Summertime Saga'],['debbie','Cogete a Debbie','Summertime Saga'],['roxxy','Cogete a Roxxy','Summertime Saga'],['eve','Cogete a Eve','Summertime Saga'],['annie','Cogete a Annie','Summertime Saga'],['judith','Cogete a Judith','Summertime Saga'],['mia','Cogete a Mia','Summertime Saga'],['jenny','Cogete a Jenny','Summertime Saga'],['aqua','Cogete a Aqua','Summertime Saga'],['daisy','Cogete a Daisy','Summertime Saga']]};
+const vHtOn=(k,id)=>!!((ST.vlt.ht||{})[k+'|'+id]);
 const VSYN={
 'Caribdis':"Eternum: misterio y harén en un mundo propio, con mucho humor y personajes muy trabajados. Once in a Lifetime: comedia romántica con mitología y un protagonista bastante torpe.",
 'Dr. PinkCake':"Being a DIK: la vida en la universidad Burgmeister & Royce, con humor, romance, drama y decisiones que cambian la historia. Acting Lessons: un hombre con el corazón roto cuenta cómo conoció a Megan, una aspirante a actriz.",
@@ -13319,7 +13324,7 @@ function vCrInner(){const all=vCrObjs(),cur=S.vcs!=null&&S.vcs!==0&&all.find(x=>
   return `<div class="stack sgdt sg2 sg2in vpgd" style="--c:${cur.col}"><aside class="sg2-s ${done?'gold':''}"><div class="sg2-top"><div class="sgpsm sg2-po">${sgPoster(cur)}</div><div class="sg2-t"><small>${done?'Creador completo':I?esc(I[0]):'Creador'}</small><h1>${esc(cur.name)}</h1><div class="sg2-rr">${ring}<span>Completado<b>${cur.dn} de ${cur.tot} juegos</b></span></div></div></div>${I?`<div class="sg2-ab"><div class="sg2-hd"><span>Sobre el creador</span></div><p class="sg2-bio">${esc(I[1])}</p>${VSYN[cur.k]?`<p class="sg2-bio vsyn">${esc(VSYN[cur.k])}</p>`:''}</div>`:'<div style="flex:1"></div>'}
    <div class="sg2-chs">${chip('<span data-cu="'+cur.dn+'">'+cur.dn+'</span><em>/'+cur.tot+'</em>','terminados','check',pct)}${chip('<span data-cu="'+cur.tot+'">'+cur.tot+'</span>','en Bóveda','games')}${chip(fh(cur.hs),'jugadas','clock')}</div>
    <div class="sg2-ac">${cur.k?`<button class="sg2-b" data-a="vcrren">${ic('edit')}<span>Editar</span></button>`:''}<button class="sg2-b g" data-a="vcclose">${ic('chl')}<span>Volver</span></button></div></aside>
-  <main class="sg2-m"><section class="sg2-c sg2-g" style="--i:1"><div class="sg2-hd"><span>Juegos</span><em>${cur.dn} de ${cur.tot} terminados · clic derecho para cambiar el creador</em></div><div class="sg2-gs"><div class="sgg vsgg">${gs.map((x,i)=>`<div class="sgt ${vsOf(x)==='t'?'done':''}" style="--i:${i}" data-a="vcgo" data-id="${x.id}">${vsOf(x)==='t'?'<span class="sgtg" style="background:#fbbf24;color:#3b2a00">Completado</span>':''}<div class="sgcv" style="position:absolute;inset:0">${sgCv({g:x})}</div><div class="sgtt">${esc(x.name)}<small>${x.hours?fh(x.hours):stOf(x)}</small></div></div>`).join('')}</div></div></section>${I&&I[2]&&I[2].length?`<section class="sg2-c sg2-f" style="--i:2"><div class="sg2-hd"><span>Curiosidades</span></div><div class="sg2-fa">${I[2].slice(0,6).map(f=>`<div><span>${esc(f)}</span></div>`).join('')}</div></section>`:''}</main></div>`}
+  <main class="sg2-m"><section class="sg2-c sg2-g" style="--i:1"><div class="sg2-hd"><span>Juegos</span><em>${cur.dn} de ${cur.tot} terminados · clic derecho para cambiar el creador</em></div><div class="sg2-gs"><div class="sgg vsgg">${gs.map((x,i)=>`<div class="sgt ${vsOf(x)==='t'?'done':''}" style="--i:${i}" data-a="vcgo" data-id="${x.id}">${vsOf(x)==='t'?'<span class="sgtg" style="background:#fbbf24;color:#3b2a00">Completado</span>':''}<div class="sgcv" style="position:absolute;inset:0">${sgCv({g:x})}</div><div class="sgtt">${esc(x.name)}<small>${x.hours?fh(x.hours):stOf(x)}</small></div></div>`).join('')}</div></div></section>${VHT[cur.k]?`<section class="sg2-c sg2-f" style="--i:2"><div class="sg2-hd"><span>Hitos</span><em>${VHT[cur.k].filter(h=>vHtOn(cur.k,h[0])).length} de ${VHT[cur.k].length}</em></div><div class="sg2-fa vht">${VHT[cur.k].map(h=>`<div class="${vHtOn(cur.k,h[0])?'on':''}" data-a="vht" data-id="${h[0]}"><span>${ic('check')} ${esc(h[1])}<small>${esc(h[2])}</small></span></div>`).join('')}</div></section>`:''}${I&&I[2]&&I[2].length?`<section class="sg2-c sg2-f" style="--i:3"><div class="sg2-hd"><span>Curiosidades</span></div><div class="sg2-fa">${I[2].slice(0,6).map(f=>`<div><span>${esc(f)}</span></div>`).join('')}</div></section>`:''}</main></div>`}
  const f=S.vcf||'all',qq=(S.vcq||'').trim().toLowerCase(),cols=vCols(),lim=cols*2;
  let list=all.filter(x=>!qq||x.name.toLowerCase().includes(qq));
  const cn={all:all.length,run:all.filter(x=>x.pl&&x.dn<x.tot).length,done:all.filter(x=>x.tot&&x.dn>=x.tot).length,new:all.filter(x=>!x.pl).length};
@@ -13484,6 +13489,7 @@ Object.assign(A,{
  vcgo:a=>{S.vsec='lib';S.vweb=0;S.vst=0;S.vsel=a.dataset.id;S.vtab='res';go('vault')},
  vwrap:()=>{S.vst='wr';vDetail(true)},vwnx:()=>vWrGo((S.vwi||0)+1),vwdot:a=>vWrGo(+a.dataset.i),
  vcf:a=>{S.vcf=a.dataset.k;S.vcp=0;vPgRef(0)},vcpg:a=>{S.vcp=+a.dataset.p;vPgRef(0);$('#view').scrollTop=0},
+ vht:a=>{const o=ST.vlt;o.ht=o.ht||{};const k=S.vcs+'|'+a.dataset.id;if(o.ht[k])delete o.ht[k];else o.ht[k]=1;save();vPgRef(0)},
  vcropen:a=>{S.vcs=vDec(a.dataset.id);vPgRef(1);$('#view').scrollTop=0},
  vcrren:()=>{const k=S.vcs;if(!k)return;vCrName(k,n=>{vL().g.forEach(g=>{if(vDevK(g)===k){g.vdv=n;g.vdvm=1}});S.vcs=n;save();vCoRef()})},
  vcrset:a=>{const g=vG(a.dataset.id);if(!g)return;vCrName(vDevK(g),n=>{g.vdv=n;g.vdvm=1;save();const gr=vCrGroups();if(S.vcs!==0&&!gr.find(x=>x[0]===S.vcs))S.vcs=0;vCoRef()})},
@@ -18964,6 +18970,7 @@ body.nomo .vhc,body.ultra .vhc{animation:none!important}
 .vwst{flex:1;min-height:420px;display:grid;cursor:pointer}
 .vpgd .sg2-fa{grid-template-columns:repeat(2,1fr)!important}.vpgd .sg2-fa>div{height:auto!important;min-height:0}.vpgd .sg2-fa span{display:block!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;overflow:visible!important;white-space:normal!important;text-overflow:clip!important}
 .vpgd .vsyn{margin-top:10px;opacity:.78}.vpgd .sg2-ab{overflow:auto;max-height:none}
+.vht>div{cursor:pointer;opacity:.6}.vht>div.on{opacity:1;border-color:#fbbf24}.vht small{display:block;opacity:.6;font-size:11px}.vht svg{width:14px;height:14px;vertical-align:-2px;opacity:.35}.vht .on svg{opacity:1;color:#fbbf24}
 </style>
 </body>
 </html>
