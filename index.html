@@ -1879,8 +1879,8 @@ body.cs-solid .lkpv-c{background:var(--card)!important;box-shadow:none}body.cs-l
 .sg:has(.lkpv),.sg:has(.lkpv)>.sgl{display:contents}
 
 /* entrada de Estadísticas v2: perspectiva, rebote suave, destello de borde y barrido de luz */
-@keyframes s3L2{0%{opacity:0;transform:perspective(1100px) translateX(-60px) rotateY(14deg) scale(.94);filter:blur(10px) brightness(1.6)}55%{opacity:1;filter:blur(0) brightness(1.15)}75%{transform:perspective(1100px) translateX(4px) rotateY(-1.2deg) scale(1.006)}100%{opacity:1;transform:none;filter:none}}
-@keyframes s3R2{0%{opacity:0;transform:perspective(1100px) translateX(60px) rotateY(-14deg) scale(.94);filter:blur(10px) brightness(1.6)}55%{opacity:1;filter:blur(0) brightness(1.15)}75%{transform:perspective(1100px) translateX(-4px) rotateY(1.2deg) scale(1.006)}100%{opacity:1;transform:none;filter:none}}
+@keyframes s3L2{0%{opacity:0;transform:perspective(1100px) translateX(-60px) rotateY(14deg) scale(.94);filter:blur(6px)}55%{opacity:1;filter:blur(0)}75%{transform:perspective(1100px) translateX(4px) rotateY(-1.2deg) scale(1.006)}100%{opacity:1;transform:none;filter:none}}
+@keyframes s3R2{0%{opacity:0;transform:perspective(1100px) translateX(60px) rotateY(-14deg) scale(.94);filter:blur(6px)}55%{opacity:1;filter:blur(0)}75%{transform:perspective(1100px) translateX(-4px) rotateY(1.2deg) scale(1.006)}100%{opacity:1;transform:none;filter:none}}
 @keyframes s3Fh{0%{box-shadow:0 0 0 1px rgba(var(--argb),.75),0 0 46px rgba(var(--argb),.32),0 18px 40px rgba(0,0,0,.28)}100%{box-shadow:0 0 0 1px rgba(var(--argb),0),0 0 0 rgba(var(--argb),0),0 18px 40px rgba(0,0,0,.28)}}
 @keyframes s3Sw{0%{transform:translateX(-120%) skewX(-18deg);opacity:0}15%{opacity:1}100%{transform:translateX(220%) skewX(-18deg);opacity:0}}
 .st3{position:relative}
@@ -1891,6 +1891,8 @@ body.cs-solid .lkpv-c{background:var(--card)!important;box-shadow:none}body.cs-l
 .s3ks .s3k{animation:s3Pop .6s both cubic-bezier(.34,1.56,.4,1)}
 .s3ks .s3k:nth-child(1){animation-delay:.75s}.s3ks .s3k:nth-child(2){animation-delay:.83s}.s3ks .s3k:nth-child(3){animation-delay:.91s}.s3ks .s3k:nth-child(4){animation-delay:.99s}
 @media (prefers-reduced-motion:reduce){.st3::after{display:none}}
+body.nomo .st3>.s3c,body.nomo .st3 .s3s>*,body.ultra .st3>.s3c,body.ultra .st3 .s3s>*{animation:none!important}body.nomo .st3::after,body.ultra .st3::after{display:none}
+body.hid .st3 *{animation-play-state:paused!important}
 
 /* Apariencia: tarjetas compactas en dos columnas */
 .sgl:has(>.lkc){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -6450,7 +6452,7 @@ const fh=h=>h>0?(h<1?Math.round(h*60)+' min':h.toFixed(1)+' h'):'—';
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),3200)}
-function counters(root){$$('[data-count]',root).forEach(el=>{const to=+el.dataset.count,dec=+(el.dataset.dec||0),suf=el.dataset.suf||'',t0=performance.now();
+function counters(root){$$('[data-count]',root).forEach(el=>{const to=+el.dataset.count,dec=+(el.dataset.dec||0),suf=el.dataset.suf||'';let dl=+(el.dataset.dl||0);if(!dl&&el.closest('.st3')){const k=el.closest('.s3k'),r=el.closest('.s3rr');if(el.classList.contains('s3big'))dl=450;else if(k)dl=800+[...k.parentNode.children].indexOf(k)*80;else if(r)dl=600+[...r.parentNode.children].indexOf(r)*75}const t0=performance.now()+dl;
   (function f(t){const k=Math.max(0,Math.min(1,(t-t0)/1100)),e=1-Math.pow(1-k,3);el.textContent=(el.dataset.loc?Math.round(to*e).toLocaleString('es-AR'):(to*e).toFixed(dec).replace(el.dataset.com?'.':'\u0000',','))+suf;if(k<1)requestAnimationFrame(f)})(t0)})}
 /* arte: SteamGridDB si está configurado, si no, CDN de Steam */
 const sgk=g=>g.app||('x'+g.id),SGM=g=>{if(vIsId(g.id)){const x=vL().x;return x.sg=x.sg||{}}return ST.sgdb},sg=g=>(SGM(g)[sgk(g)]||{});
@@ -18707,6 +18709,10 @@ body.dark #x9c{background:var(--gl),rgba(12,9,24,.86)}#x9c.out{animation:x9cout 
 .tgbar{position:absolute;left:50%;bottom:28px;transform:translate(-50%,140%);display:flex;align-items:center;gap:22px;padding:12px 14px 12px 24px;border-radius:99px;background:rgba(18,18,20,.92);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:3;transition:transform .55s var(--spring);max-width:calc(100vw - 32px)}.tgbar.show{transform:translate(-50%,0)}
 .tgbar #tgbt{font-size:14px;color:var(--muted);white-space:nowrap}.tgbar #tgbt b{color:#fff}.tgbb{display:flex;gap:8px}.tgdel.cf{background:#e11d48;color:#fff;border-color:transparent;animation:tgpulse 1s ease-in-out infinite}@keyframes tgpulse{50%{box-shadow:0 0 0 6px rgba(225,29,72,.25)}}
 @media(max-width:700px){.tgw{padding:46px 16px 0}.tggr{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}}
+
+.st3 .s3pk{animation:s3Pk .6s 1.1s both cubic-bezier(.2,.9,.25,1)}@keyframes s3Pk{from{opacity:0;transform:translateX(8px) scale(.94)}to{opacity:1;transform:none}}
+.st3 .s3t .bg{animation:s3Zi 1.1s .15s both cubic-bezier(.2,.8,.2,1),s3kb 18s 1.3s ease-in-out infinite alternate}@keyframes s3Zi{from{transform:scale(1.18);opacity:.2}to{transform:scale(1);opacity:1}}
+body.nomo .st3 .s3pk,body.nomo .st3 .s3t .bg,body.ultra .st3 .s3pk,body.ultra .st3 .s3t .bg{animation:none!important}
 </style>
 </body>
 </html>
