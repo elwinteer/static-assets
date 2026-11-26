@@ -41,6 +41,7 @@
       "icon.png",
       "sagas/**/*",
       "boveda/**/*",
+      "winter/**/*",
       "package.json"
     ],
     "win": {
