@@ -3789,6 +3789,20 @@ app.whenReady().then(() => {
       return ((j && j.results) || []).slice(0, 6).map((x) => String(x.image || x.thumbnail || '')).filter((u) => /^https:\/\//.test(u));
     } catch (e) { return []; }
   });
+  ipcMain.handle('vget', async (_e, url) => {
+    try {
+      const ses = session.fromPartition('persist:wt-vault'), H = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36' };
+      let u = String(url || '').trim(); if (!/^https?:\/\//i.test(u)) return { ok: false };
+      for (let k = 0; k < 2; k++) {
+        const r = await ses.fetch(u, { headers: Object.assign({ Referer: u }, H) }); const ty = (r.headers.get('content-type') || '').split(';')[0].toLowerCase();
+        if (/^(image|video)\//.test(ty)) { const ab = await r.arrayBuffer(); if (ab.byteLength > 80 * 1048576 || ab.byteLength < 300) return { ok: false }; return { ok: true, type: ty, buf: Buffer.from(ab) }; }
+        if (!/html/.test(ty)) return { ok: false };
+        const tx = await r.text(), mm = tx.match(/<meta[^>]+property=["']og:(?:video|image)["'][^>]+content=["']([^"']+)["']/i) || tx.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:(?:video|image)["']/i);
+        if (!mm) return { ok: false }; u = new URL(mm[1].replace(/&amp;/g, '&'), u).toString();
+      }
+      return { ok: false };
+    } catch (e) { return { ok: false }; }
+  });
   ipcMain.handle('vthr', async (_e, url) => {
     try {
       if (!/^https:\/\/f95zone\.to\/threads\//i.test(String(url))) return { d: '' };
