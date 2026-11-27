@@ -3786,7 +3786,7 @@ app.whenReady().then(() => {
       const vq = (t1.match(/vqd=["']?([\d-]+)/) || [])[1]; if (!vq) return [];
       const r2 = await ses.fetch('https://duckduckgo.com/i.js?l=us-en&o=json&q=' + encodeURIComponent(q) + '&vqd=' + vq + '&f=,,,,,&p=-1', { headers: Object.assign({ Referer: 'https://duckduckgo.com/' }, H) });
       const j = JSON.parse(await r2.text());
-      return ((j && j.results) || []).slice(0, 6).map((x) => String(x.image || x.thumbnail || '')).filter((u) => /^https:\/\//.test(u));
+      return ((j && j.results) || []).slice(0, 36).map((x) => String(x.image || x.thumbnail || '')).filter((u) => /^https:\/\//.test(u));
     } catch (e) { return []; }
   });
   ipcMain.handle('vget', async (_e, url) => {
