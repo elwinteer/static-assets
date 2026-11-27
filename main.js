@@ -3779,15 +3779,31 @@ app.whenReady().then(() => {
     } catch (e) { return []; }
   });
   ipcMain.handle('vimg', async (_e, q) => {
-    try {
-      q = String(q || '').trim().slice(0, 120); if (!q) return [];
-      const ses = session.fromPartition('persist:wt-vault'), H = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36', 'Accept-Language': 'en' };
-      const r1 = await ses.fetch('https://duckduckgo.com/?q=' + encodeURIComponent(q) + '&iax=images&ia=images&kp=-2', { headers: H }); const t1 = await r1.text();
+    q = String(q || '').trim().slice(0, 120); if (!q) return [];
+    const ses = session.fromPartition('persist:wt-vault'), H = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36', 'Accept-Language': 'en' };
+    const ddg = async (qq) => { try {
+      const r1 = await ses.fetch('https://duckduckgo.com/?q=' + encodeURIComponent(qq) + '&iax=images&ia=images&kp=-2', { headers: H }); const t1 = await r1.text();
       const vq = (t1.match(/vqd=["']?([\d-]+)/) || [])[1]; if (!vq) return [];
-      const r2 = await ses.fetch('https://duckduckgo.com/i.js?l=us-en&o=json&q=' + encodeURIComponent(q) + '&vqd=' + vq + '&f=,,,,,&p=-1', { headers: Object.assign({ Referer: 'https://duckduckgo.com/' }, H) });
+      const r2 = await ses.fetch('https://duckduckgo.com/i.js?l=us-en&o=json&q=' + encodeURIComponent(qq) + '&vqd=' + vq + '&f=,,,,,&p=-1', { headers: Object.assign({ Referer: 'https://duckduckgo.com/' }, H) });
       const j = JSON.parse(await r2.text());
       return ((j && j.results) || []).slice(0, 36).map((x) => String(x.image || x.thumbnail || '')).filter((u) => /^https:\/\//.test(u));
-    } catch (e) { return []; }
+    } catch (e) { return []; } };
+    const bing = async (qq) => { try {
+      const r = await ses.fetch('https://www.bing.com/images/search?q=' + encodeURIComponent(qq) + '&form=HDRSC2&first=1&adlt=off&safeSearch=off&mkt=en-US', { headers: Object.assign({ Cookie: 'SRCHHPGUSR=ADLT=OFF&SRCHLANG=en; _EDGE_S=mkt=en-us&ui=en-us' }, H) }); const t = await r.text();
+      const out = [], re = /murl&quot;:&quot;(https?:[^&]+?)&quot;/g; let m;
+      while ((m = re.exec(t)) && out.length < 36) { const u = m[1].replace(/\\u0026/g, '&'); if (/^https:\/\//.test(u) && out.indexOf(u) < 0) out.push(u); }
+      return out;
+    } catch (e) { return []; } };
+    const yan = async (qq) => { try {
+      const r = await ses.fetch('https://yandex.com/images/search?text=' + encodeURIComponent(qq) + '&family=no&isize=large', { headers: H }); const t = (await r.text()).replace(/&quot;/g, '"');
+      const out = [], re = /"img_href":"(https?:[^"]+)"/g; let m;
+      while ((m = re.exec(t)) && out.length < 36) { const u = m[1].replace(/\\u002F/g, '/').replace(/\\\//g, '/'); if (/^https:\/\//.test(u) && out.indexOf(u) < 0) out.push(u); }
+      return out;
+    } catch (e) { return []; } };
+    /* si la búsqueda larga no da nada, se prueba con menos palabras */
+    const w = q.split(/\s+/), tries = [q]; if (w.length > 4) tries.push(w.slice(0, 4).join(' ')); if (w.length > 2) tries.push(w.slice(0, 2).join(' '));
+    for (const t of tries) { let l = await ddg(t); if (l.length) return l; l = await bing(t); if (l.length) return l; l = await yan(t); if (l.length) return l; }
+    return [];
   });
   ipcMain.handle('vget', async (_e, url) => {
     try {
