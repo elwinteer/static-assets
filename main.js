@@ -3305,6 +3305,29 @@ app.whenReady().then(() => {
     }
     return { sagas: out };
   } catch (e) { return { error: String(e.message || e) }; } });
+  /* sagas propias (sin id de coleccion de IGDB): busca la coleccion/franquicia por nombre y trae sus juegos */
+  ipcMain.handle('igdbSagaNames', async (_e, o) => { try {
+    const out = {}, nk = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (const it of (o.items || []).slice(0, 10)) {
+      const nm = String(it.n || '').replace(/["\\]/g, ''); if (!nm) continue;
+      const ids = { collections: [], franchises: [] };
+      for (const ep of ['collections', 'franchises']) {
+        const r = await igq(o.id, o.secret, ep, `fields name; search "${nm}"; limit 6;`);
+        (r || []).forEach((x) => { const a2 = nk(x.name), b2 = nk(nm); if (a2 === b2 || a2.startsWith(b2) || b2.startsWith(a2)) ids[ep].push(x.id); });
+      }
+      const w = []; if (ids.collections.length) w.push(`collections = (${ids.collections.join(',')})`); if (ids.franchises.length) w.push(`franchises = (${ids.franchises.join(',')})`);
+      if (!w.length) continue;
+      const rows = await igq(o.id, o.secret, 'games', `fields name,first_release_date,cover.image_id,platforms; where (${w.join(' | ')}) & parent_game = null & version_parent = null; sort first_release_date asc; limit 100;`);
+      out[it.k] = (rows || []).map((g) => ({ id: g.id, n: g.name, ts: g.first_release_date ? g.first_release_date * 1000 : 0, cv: (g.cover && g.cover.image_id) || '', pc: !(g.platforms && g.platforms.length) || g.platforms.some((p) => [6, 14, 3].includes(p)) }));
+    }
+    return { sagas: out };
+  } catch (e) { return { error: String(e.message || e) }; } });
+  /* exporta las portadas/logos de sagas que el usuario puso a mano, a Documentos\WINTEER\sagas-export */
+  ipcMain.handle('sgExport', async (_e, o) => { try {
+    const d = path.join(app.getPath('documents'), 'WINTEER', 'sagas-export'); fs.mkdirSync(d, { recursive: true });
+    let n = 0; for (const f of (o.files || []).slice(0, 600)) { const k = String(f.k || ''); if (!/^(cv|lg)_[\w.-]+$/.test(k)) continue; const ext = /webp/.test(f.t) ? 'webp' : /png/.test(f.t) ? 'png' : 'jpg'; fs.writeFileSync(path.join(d, k + '.' + ext), Buffer.from(String(f.d || ''), 'base64')); n++; }
+    return { ok: true, n, dir: d };
+  } catch (e) { return { error: String(e.message || e) }; } });
   ipcMain.handle('igdbVid', async (_e, o) => { try { return await igdbVid(o); } catch (e) { return { error: String(e.message || e) }; } });
   ipcMain.handle('igdb', async (_e, o) => { try { return await igdb(o); } catch (e) { return { error: String(e.message || e) }; } });
   ipcMain.handle('hltb', async (_e, o) => { try { return await hltb(o); } catch (e) { return { error: String(e.message || e) }; } });

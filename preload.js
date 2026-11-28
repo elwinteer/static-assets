@@ -49,6 +49,8 @@ contextBridge.exposeInMainWorld('winteerNative', {
   trlClear: () => ipcRenderer.invoke('trlClear'),
   igdbSagas: (o) => ipcRenderer.invoke('igdbSagas', o),
   igdbSagaGames: (o) => ipcRenderer.invoke('igdbSagaGames', o),
+  igdbSagaNames: (o) => ipcRenderer.invoke('igdbSagaNames', o),
+  sgExport: (o) => ipcRenderer.invoke('sgExport', o),
   igdbMonth: (o) => ipcRenderer.invoke('igdbMonth', o),
   hltb: (o) => ipcRenderer.invoke('hltb', o),
   pickExe: () => ipcRenderer.invoke('pickExe'),

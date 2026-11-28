@@ -8470,8 +8470,11 @@ const sgCvSrc=cid=>ART['p:sg:'+cid]||(SGOFF.cv[cid]?'sagas/cv_'+cid+'.'+SGOFF.cv
 const sgLgSrc=cid=>ART['p:sgl:'+cid]||(SGOFF.lg[cid]?'sagas/lg_'+cid+'.'+SGOFF.lg[cid]:'');
 const sgNorm=t=>String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[™®©]/g,'').replace(/\(.*?\)/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\b(remastered|remaster|definitive edition|goty|game of the year edition|game of the year|enhanced edition|complete edition|special edition|deluxe edition|legacy collection|hd|the)\b/g,' ').replace(/\s+/g,' ').trim();
 let SGIDX=null;
-function sgIdx(){if(SGIDX)return SGIDX;SGIDX={};for(const cid in SGOFF.c){((SGOFF.c[cid]||{}).g||[]).forEach(x=>{const k=sgNorm(x.n);if(k&&!SGIDX[k])SGIDX[k]={gi:x.id,cid,cn:SGOFF.n[cid],ts:x.ts}})}return SGIDX}
-function sagaLocal(){const ix=sgIdx();let ch=0;G.forEach(g=>{if(SGC.m[g.id])return;const h=ix[sgNorm(g.name)];SGC.m[g.id]=h?{...h}:{x:1};ch=1});if(ch)sgSave()}
+/* lista de juegos de una saga: la de fabrica + lo que se bajó de IGDB (juegos nuevos, próximos, portadas) */
+function sgC(cid){const a=SGOFF.c[cid],b=SGC.c[cid];if(!b||!b.g||!b.g.length)return a;if(!a)return b;const by={};const g=a.g.map(x=>{const y={...x};by[sgNorm(y.n)]=y;return y});b.g.forEach(x=>{const k=sgNorm(x.n),y=by[k];if(y){if(!y.cv&&x.cv)y.cv=x.cv;if(!y.ts&&x.ts)y.ts=x.ts}else if(k){const z={...x};by[k]=z;g.push(z)}});return {...a,g}}
+function sgIdx(){if(SGIDX)return SGIDX;SGIDX={};for(const cid in SGOFF.n){((sgC(cid)||{}).g||[]).forEach(x=>{const k=sgNorm(x.n);if(k&&!SGIDX[k])SGIDX[k]={gi:x.id,cid,cn:SGOFF.n[cid],ts:x.ts}})}return SGIDX}
+function sgFind(name){const ix=sgIdx(),k=sgNorm(name);if(ix[k])return ix[k];let best=null,bl=0;if(k.length>=8)for(const q in ix)if(q.length>=8&&q.length>bl&&(k.startsWith(q+' ')||q.startsWith(k+' '))){best=ix[q];bl=q.length}return best}
+function sagaLocal(){let ch=0;G.forEach(g=>{const o=SGC.m[g.id];if(o&&!o.x)return;const h=sgFind(g.name);if(h){SGC.m[g.id]={...h};ch=1}else if(!o){SGC.m[g.id]={x:1};ch=1}});if(ch)sgSave()}
 const sgGi=g=>(SGC.m[g.id]||{}).gi;
 function sgName(cid){const u=sgX().cu.find(c=>c.id===String(cid));if(u)return u.n;for(const k in SGC.m){const m=SGC.m[k];if(m&&String(m.cid)===String(cid)&&m.cn)return m.cn}return 'Saga'}
 function sgBuild(){
@@ -8480,13 +8483,13 @@ function sgBuild(){
  for(const k in SGOFF.n)if(!by[k])by[k]=[];
  const out=[];let evCh=0;
  for(const cid in by){
-  const own=by[cid],c=SGOFF.c[cid]||SGC.c[cid],cust=false,cn=SGOFF.n[cid]||sgName(cid);
-  const hp=own.length>0&&((c&&c.g)||[]).filter(x=>x.pc!==false||own.some(g=>sgGi(g)===x.id)).length>=2;
+  const own=by[cid],c=sgC(cid),cust=false,cn=SGOFF.n[cid]||sgName(cid);
+  const hp=own.length>0&&((c&&c.g)||[]).filter(x=>x.pc!==false||x.ts>now-400*864e5||own.some(g=>sgGi(g)===x.id)).length>=2;
   const mem=[],used=new Set();
   ((c&&c.g)||[]).forEach(x=>{
    const og=own.filter(g=>sgGi(g)===x.id).sort((a,b)=>(b.hours||0)-(a.hours||0))[0]||null;
    if(og)used.add(og.id);
-   if(!og&&((!x.ts&&!X.yr['i'+x.id])||(x.pc===false&&hp)||(X.hm[cid]||[]).includes(x.id)))return;
+   if(!og&&((!x.ts&&!X.yr['i'+x.id])||(x.pc===false&&hp&&!(x.ts>now-400*864e5))||(X.hm[cid]||[]).includes(x.id)))return;
    const ek=cid+':'+x.id;let ev=X.ev[ek];
    if(og){const dn=stOf(og)==='Completado'?1:0,h=og.hours||0;if(!ev||ev.d!==dn||(ev.h||0)<h){X.ev[ek]={d:dn||(ev&&ev.d)||0,h:Math.max(h,(ev&&ev.h)||0)};evCh=1}ev=X.ev[ek]}
    mem.push({id:x.id,n:x.n,ts:x.ts,cv:x.cv,g:og,ev:!og&&ev?ev:null,fut:!og&&x.ts>now})});
@@ -9033,6 +9036,22 @@ function sgWave(){const gs=document.querySelector('.sg2-gs .sgg');if(!gs)return;
 function sgFit(){const s=document.querySelector('.sg2-s'),h=s&&s.querySelector('.sg2-hg');if(!s||!h||S.sge||S.sghu)return;const bio=s.querySelector('.sg2-bio'),ex=bio?Math.max(0,bio.scrollHeight-bio.clientHeight):0,hb=h.querySelector('.sg2-hb>div'),was=h.classList.contains('open'),k=[...s.children].filter(e=>e.offsetParent!==null),used=k.reduce((t,e)=>t+e.offsetHeight,0)+ex+11*(k.length-1)+32,free=s.clientHeight-used,need=hb?hb.scrollHeight+10:0;if(!was&&need&&free>=need+6){h.classList.add('open');S.sgho=true}else if(was&&free<-4){h.classList.remove('open');S.sgho=false}}
 function sgDraw(){if(BP&&BP.sec==='sagas'){bpSgPaint();return}if(S.view!=='sagas')return;if(S.sgo&&S.sgT0&&Date.now()-S.sgT0<1300){clearTimeout(S.sgTm);S.sgTm=setTimeout(sgDraw,1320-(Date.now()-S.sgT0));return}if(S.sgo&&S.sgfx)S.sgT0=Date.now();const v=$('#view'),y=v.scrollTop,bp=(document.querySelector('.sgv-body')||{}).scrollTop||0;v.innerHTML=sgHtml();sgWave();v.scrollTop=y;if(S.sgfx)sgFx();S.sgfx=0;const nb=document.querySelector('.sgv-body');if(nb&&bp)nb.scrollTop=bp;requestAnimationFrame(sgFit)}
 async function sagaSync(force){sagaLocal();sgDraw();return}
+/* una vez por semana busca en IGDB juegos nuevos y próximos lanzamientos de todas las sagas */
+async function sgAutoUpd(force){
+ if(sgAutoUpd.b||!igOn()||!(window.winteerNative&&winteerNative.igdbSagaGames&&winteerNative.igdbSagaNames))return;
+ if(!force&&Date.now()-(ST.sgau||0)<7*864e5)return;
+ sgAutoUpd.b=1;const first=!ST.sgau;let added=0;
+ try{
+  const ids=Object.keys(SGOFF.n),num=ids.filter(c=>+c<900000),cus=ids.filter(c=>+c>=900000);
+  const put=(c,l)=>{if(!l||!l.length)return;const before=new Set(((sgC(c)||{}).g||[]).map(x=>sgNorm(x.n)));l.forEach(x=>{if(!before.has(sgNorm(x.n))&&x.ts&&!first)added++});SGC.c[c]={g:l,t:Date.now(),v:2}};
+  for(let i=0;i<num.length;i+=10){const r=await winteerNative.igdbSagaGames({id:ST.igid,secret:ST.igsec,cids:num.slice(i,i+10)});if(!r||r.error)throw 0;for(const c in r.sagas)put(c,r.sagas[c])}
+  for(let i=0;i<cus.length;i+=6){const r=await winteerNative.igdbSagaNames({id:ST.igid,secret:ST.igsec,items:cus.slice(i,i+6).map(c=>({k:c,n:SGOFF.n[c]}))});if(!r||r.error)throw 0;for(const c in r.sagas)put(c,r.sagas[c])}
+  ST.sgau=Date.now();SGIDX=null;sgSave();save();if(added)toast(added+' juego'+(added>1?'s':'')+' nuevo'+(added>1?'s':'')+' o próximo'+(added>1?'s':'')+' en tus sagas');
+  if(S.view==='sagas')sgDraw()
+ }catch(e){}finally{sgAutoUpd.b=0}}
+/* guarda una copia de las portadas y logos de sagas que pusiste a mano (una sola vez) */
+async function sgArtExport(){try{if(!(window.winteerNative&&winteerNative.sgExport))return;const d=await idb(),st=()=>d.transaction('art').objectStore('art');const keys=await new Promise(r=>{const q=st().getAllKeys();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])});const ks=keys.filter(k=>/^p:sgl?:/.test(String(k)));if(!ks.length){ST.sgexp=Date.now();return}const files=[];for(const k of ks){const b=await new Promise(r=>{const q=st().get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)});if(!b||!b.size)continue;const buf=new Uint8Array(await b.arrayBuffer());let bin='';for(let i=0;i<buf.length;i+=0x8000)bin+=String.fromCharCode.apply(null,buf.subarray(i,i+0x8000));const m=/^p:(sgl?):(.+)$/.exec(String(k));files.push({k:(m[1]==='sg'?'cv_':'lg_')+m[2],t:b.type||'',d:btoa(bin)})}const r=await winteerNative.sgExport({files});if(r&&r.ok){ST.sgexp=Date.now();save()}}catch(e){}}
+setTimeout(()=>{try{if(!ST.sgexp)sgArtExport()}catch(e){}},15000);setTimeout(()=>{try{sgAutoUpd()}catch(e){}},45000);
 async function sagaSyncOld(force){
  if(!igOn()||!winteerNative.igdbSagas||sagaSync.b)return;
  if(force){SGC.m={};for(const k in SGC.c)SGC.c[k].t=0}
