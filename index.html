@@ -7286,7 +7286,14 @@ const A={
   shclose:()=>shClose(),
   shnav:a=>{SHI=(SHI+ +a.dataset.v+SHL.length)%SHL.length;shLight()},
   shfolder:a=>winteerNative.shotFolder(a.dataset.id||''),
-  shdel:async()=>{const x=SHL[SHI];if(!x)return;await winteerNative.shotDel(SHG,x.n);SHL.splice(SHI,1);$$('.shlb').forEach(e=>e.remove());shFill(SHG);toast('Captura eliminada')},
+  shdel:async()=>{const x=SHL[SHI];if(!x)return;
+    /* soltar el video antes de borrar: si no, Windows lo tiene bloqueado y no se borra */
+    $$('.shlb video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.load()}catch(e){}});await new Promise(r=>setTimeout(r,200));
+    let ok=false;try{ok=await winteerNative.shotDel(SHG,x.n)}catch(e){}
+    if(!ok){toast('No pude borrarlo ahora. Probá de nuevo en unos segundos');shLight();return}
+    SHL.splice(SHI,1);
+    if(!SHL.length){$$('.shlb').forEach(e=>e.remove())}else{SHI=Math.min(SHI,SHL.length-1);shLight()}
+    shFill(SHG);toast(x.clip?'Clip eliminado':'Captura eliminada')},
   shbg:async()=>{const x=SHL[SHI],g=gm(SHG);if(!x||!g)return;try{const b=await (await fetch(x.file)).blob(),key='c:'+g.id+':hero';await artPut(key,b);if(ART[key])URL.revokeObjectURL(ART[key]);ART[key]=URL.createObjectURL(b);save();$$('.shlb').forEach(e=>e.remove());if(S.view==='games')renderDetail(false);toast('Listo: ahora es el fondo de '+g.name)}catch(e){toast('No pude usar esa captura')}},
   stcap:()=>{if(BGC.stCap){winteerNative.shotCfg({stCap:false}).then(c=>{BGC=Object.assign(BGC,c);go('settings')});return}
     modal(`<h3>Antes de activarlo</h3><p class="hint2"><b>No lo uses en juegos con anti trampas</b> (Easy Anti-Cheat, BattlEye, Vanguard y parecidos, típicos de los online competitivos). Bloquean que se enganche la captura y en el peor caso el juego se puede quejar.</p><p class="hint2">Para que no se pisen con Steam, hay que apagar lo suyo. Te lo explico en dos minutos con el botón "Cómo evitar choques".</p><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="b2 g" data-a="mclose">Cancelar</button><button class="b2" data-a="stcapok">Activar</button></div>`)},

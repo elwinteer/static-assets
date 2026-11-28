@@ -3959,7 +3959,16 @@ app.whenReady().then(() => {
       return { ok: true, file: pathToFileURL(file).href };
     } catch (e) { clipBusy = false; return { ok: false }; }
   });
-  ipcMain.handle('shotDel', (_e, id, n) => { try { const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(n)) return false; fs.unlinkSync(path.join(dir, n)); try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|png|webm|mp4)$/, '.t.jpg'))); } catch (e) {} return true; } catch (e) { return false; } });
+  ipcMain.handle('shotDel', async (_e, id, n) => {
+    try {
+      const dir = path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')); if (!/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(n)) return false;
+      const f = path.join(dir, n);
+      /* en Windows un video que se esta reproduciendo (o recien cerrado) bloquea el archivo: se reintenta unos instantes */
+      for (let i = 0; i < 12; i++) { try { if (!fs.existsSync(f)) break; fs.unlinkSync(f); break; } catch (e) { if (i === 11) return false; await new Promise((r) => setTimeout(r, 250)); } }
+      try { fs.unlinkSync(path.join(dir, n.replace(/\.(jpg|png|webm|mp4)$/, '.t.jpg'))); } catch (e) {}
+      return !fs.existsSync(f);
+    } catch (e) { return false; }
+  });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
   ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; if (o && typeof o.stCap === 'boolean') cfg.stCap = o.stCap; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey, stCap: !!cfg.stCap }; });
   ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })
