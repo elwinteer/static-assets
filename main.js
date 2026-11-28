@@ -382,6 +382,14 @@ async function obsToggle() {
     obsLog('tecla: rec=' + !!obsRec + ' juego=' + (cur ? cur.id : 'ninguno') + ' ws=' + obsReady);
     if (obsRec) { await obsStopRec(); return; }
     if (!cur) return;
+    /* camino rapido: la captura ya estaba enganchada desde que abriste el juego -> grabar ya, sin esperas */
+    if (obsReady && obsAimed === obsKey(cur)) {
+      const F0 = Date.now(); recIcon(true);
+      const r0 = await obsCall('StartRecord', {}, 15000);
+      obsLog('rapido: StartRecord ' + JSON.stringify(r0 && r0.requestStatus) + ' a los ' + (Date.now() - F0) + ' ms de la tecla');
+      if (obsOk(r0)) { clearTimeout(recTimer); recTimer = null; obsRec = { id: cur.id, t: Date.now() }; clearTimeout(obsLimitT); obsLimitT = setTimeout(() => { if (obsRec && !obsBusy) obsToggle(); }, 20 * 60000); return; }
+      recIcon(false); obsLog('rapido fallo, sigo por el camino normal');
+    }
     const T0 = Date.now(), fgP = (obsAimed === obsKey(cur)) ? null : fgExe();
     for (let i = 0; i < 20 && obsAimBusy; i++) await new Promise(r => setTimeout(r, 400));
     let ok = false;
@@ -393,7 +401,7 @@ async function obsToggle() {
     }
     if (!ok) { recIcon(false); shotToast(null, 'No pude preparar OBS', 'err', 'Probá de nuevo con el juego a la vista.'); return; }
     /* no arranca hasta que llegue imagen real: asi el clip no empieza en negro (si no llega en 5 s, graba igual) */
-    const T1 = Date.now(); let live = obsLive; if (!live) { live = await obsWaitFrame(5000); obsLive = live; }
+    const T1 = Date.now(); let live = obsLive; if (!live) { live = await obsWaitFrame(1500); obsLive = live; }
     obsLog('listo para grabar: ' + (Date.now() - T0) + ' ms desde la tecla (espera de imagen ' + (Date.now() - T1) + ' ms, ' + (live ? 'con imagen' : 'SIN imagen') + ')');
     const r = await obsCall('StartRecord', {}, 15000);
     obsLog('StartRecord: ' + JSON.stringify(r && r.requestStatus) + ' a los ' + (Date.now() - T0) + ' ms');
