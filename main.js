@@ -293,7 +293,7 @@ async function obsStart() {
       r = await obsCall('CreateSceneCollection', { sceneCollectionName: 'WINTEER' }); await obsCall('SetCurrentSceneCollection', { sceneCollectionName: 'WINTEER' });
       await new Promise(r => setTimeout(r, 1200));
       const enc = await obsGpuEnc(), P = (cat, name, v) => obsCall('SetProfileParameter', { parameterCategory: cat, parameterName: name, parameterValue: v });
-      await P('Output', 'Mode', 'Simple'); await P('SimpleOutput', 'RecQuality', 'Small'); await P('SimpleOutput', 'RecFormat2', 'mp4'); await P('SimpleOutput', 'RecEncoder', enc); await P('SimpleOutput', 'RecAudioEncoder', 'aac'); await P('SimpleOutput', 'ABitrate', '96');
+      await P('Output', 'Mode', 'Simple'); await P('SimpleOutput', 'RecQuality', 'Small'); await P('SimpleOutput', 'RecFormat2', 'mp4'); await P('SimpleOutput', 'RecEncoder', (enc === 'nvenc' || enc === 'amd') ? enc + '_hevc' : enc); await P('SimpleOutput', 'RecAudioEncoder', 'aac'); await P('SimpleOutput', 'ABitrate', '96');
       const rd = path.join(app.getPath('userData'), 'obsrec'); fs.mkdirSync(rd, { recursive: true });
       await obsCall('SetRecordDirectory', { recordDirectory: rd });
       try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1920), oh = Math.round(h * ow / w / 2) * 2; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 30, fpsDenominator: 1 }); } catch (e) {}
