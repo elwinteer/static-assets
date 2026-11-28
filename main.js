@@ -70,21 +70,26 @@ using System;using System.Runtime.InteropServices;
 public class XI{[StructLayout(LayoutKind.Sequential)]public struct S{public uint P;public ushort B;public byte LT,RT;public short LX,LY,RX,RY;}
 [DllImport("xinput1_4.dll",EntryPoint="#100")]public static extern int Ex(int i,out S s);}
 "@
-$held=0;$gh=0
+$held=0;$gh=0;$pend=0;$cool=0;$was=$false
 while($true){$on=$false;$g=$false;$c=$false
 for($i=0;$i -lt 4;$i++){$s=New-Object XI+S;if([XI]::Ex($i,[ref]$s) -eq 0){$on=$true;if(($s.B -band 0x400) -ne 0){$g=$true};if(($s.B -band 0x30) -eq 0x30){$c=$true}}}
-if($g){$gh++}else{if($gh -gt 0 -and $gh -le 5){Write-Output 'T'};$gh=0}
-if($c){$held++;if($held -eq 8){Write-Output 'T'}}else{$held=0}
+if($on -ne $was){$cool=16;$was=$on;$pend=0;$gh=0;$held=0}
+if($cool -gt 0){$cool--}
+if($g){$gh++}else{if($gh -gt 0 -and $gh -le 4 -and $on -and $cool -le 0){$pend=3};$gh=0}
+if($pend -gt 0){if(-not $on -or $g){$pend=0}else{$pend--;if($pend -eq 0){Write-Output 'T'}}}
+if($c -and $cool -le 0){$held++;if($held -eq 8){Write-Output 'C'}}else{$held=0}
 if($on){Start-Sleep -Milliseconds 120}else{Start-Sleep -Milliseconds 1500}}`;
-function startPad() {
-  if (padProc || process.platform !== 'win32' || !cfg.bg || !cfg.pad) return;
+function startPad(force) {
+  if (padProc || process.platform !== 'win32' || cfg.pad === false || (!force && !cfg.bg)) return;
   try {
     padProc = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-EncodedCommand', Buffer.from(PADPS, 'utf16le').toString('base64')], { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
     padProc.stdout.on('data', (d) => {
-      if (!String(d).includes('T')) return;
-      /* con un juego en curso, el botón Xbox abre/cierra el overlay (como Shift+Tab); sin juego sigue abriendo el Modo consola */
-      try { if (ovReg && (ovWin || curNonSteam())) { ovToggle(); return; } } catch (e) {}
-      if (!(win && win.isVisible() && win.isFocused())) bpFromBg();
+      const t = String(d); if (!/[TC]/.test(t)) return;
+      /* si el launcher está en primer plano, el propio launcher atiende el botón */
+      if (win && win.isVisible() && win.isFocused()) return;
+      /* tocar el botón Xbox con un juego en curso abre/cierra el overlay; sin juego (o con Atrás+Menú sostenidos) abre el Modo consola */
+      try { if (t.includes('T') && !t.includes('C') && ovReg && (ovWin || curNonSteam())) { ovToggle(); return; } } catch (e) {}
+      bpFromBg();
     });
     padProc.on('exit', () => { padProc = null; });
   } catch (e) { padProc = null; }
@@ -205,6 +210,7 @@ function syncShot() {
     if (want && !shotReg) { if (globalShortcut.register(cfg.shotKey || 'F12', takeShot)) shotReg = cfg.shotKey || 'F12'; }
     if (ovReg && (!want || ovReg !== (cfg.ovKey || 'Shift+Tab'))) { globalShortcut.unregister(ovReg); ovReg = ''; if (!want) ovClose(); }
     if (want && !ovReg) { if (globalShortcut.register(cfg.ovKey || 'Shift+Tab', ovToggle)) ovReg = cfg.ovKey || 'Shift+Tab'; }
+    if (want) startPad(true); else if (!cfg.bg) stopPad();
     if (clipReg && (!want || clipReg !== cfg.clipKey)) { globalShortcut.unregister(clipReg); clipReg = ''; }
     if (want && !clipReg) { if (globalShortcut.register(cfg.clipKey || 'F9', takeClip)) clipReg = cfg.clipKey || 'F9'; }
   } catch (e) {}

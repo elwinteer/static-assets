@@ -15722,7 +15722,7 @@ function gpTick(){if(document.hidden)return;const pads=(navigator.getGamepads?[.
     if(OSKB){for(let i=0;i<p.buttons.length;i++){if(i===16)continue;if(fire('ob'+i,B(i))){ST.oskBtn=i;OSKB=0;save();toast('Listo: '+oskName());const l=$('#oskl');if(l)l.textContent=oskName();const bb=$('[data-a=oskbind]');if(bb)bb.textContent='Elegir botón';break}}continue}
     if(OSK){oskPad(fire,B,p);continue}
     if(!BP&&ST.oskOn&&fire('oy',B(ST.oskBtn==null?8:ST.oskBtn))){const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&/^(text|search|password|)$/.test(a.type||'')))){oskFor(a);continue}}
-    if(fire('g',B(16)))bpToggle();
+    {const gd=B(16);if(gd&&!st.gd)st.gd=now;else if(!gd&&st.gd){const dt=now-st.gd;st.gd=0;if(dt<450)bpToggle()}}
     if(B(8)&&B(9)){if(!st.h)st.h=now;else if(st.h>0&&now-st.h>1000){st.h=-1;bpToggle()}}else st.h=0;
     if(!BP)continue;BP.pi=p.index;const dzp=padDz(p);let ax=p.axes[0]||0,ay=p.axes[1]||0;if(Math.hypot(ax,ay)<dzp){ax=0;ay=0}
     if(fire('r',B(15)||ax>.6,1))bpMove(1);if(fire('l',B(14)||ax<-.6,1))bpMove(-1);
