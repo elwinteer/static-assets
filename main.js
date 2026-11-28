@@ -243,7 +243,7 @@ function obsWriteCfg() {
 function obsClose() { try { if (obsWS) obsWS.close(); } catch (e) {} obsWS = null; obsReady = false; try { obsAimReset(); } catch (e) {} for (const [, r] of obsReq) { try { r(null); } catch (e) {} } obsReq.clear(); }
 function obsConnect() {
   return new Promise((resolve) => {
-    let ws; try { const WS = require('ws'); ws = new WS('ws://127.0.0.1:' + OBS_PORT); } catch (e) { resolve(false); return; }
+    let ws; try { const WS = require('ws'); ws = new WS('ws://127.0.0.1:' + OBS_PORT, { perMessageDeflate: false }); try { ws._socket && ws._socket.setNoDelay(true); ws.on('open', () => { try { ws._socket.setNoDelay(true); } catch (e) {} }); } catch (e) {} } catch (e) { resolve(false); return; }
     let done = false; const fin = (v) => { if (!done) { done = true; resolve(v); } };
     const t = setTimeout(() => { try { ws.terminate(); } catch (e) {} fin(false); }, 4000);
     ws.on('message', (m) => {
@@ -283,6 +283,7 @@ async function obsStart() {
       else {
         obsWriteCfg(); obsNoSafe(); obsLog('abro OBS');
         obsProc = spawn(path.join(dir, 'obs64.exe'), ['--minimize-to-tray', '--disable-shutdown-check'], { cwd: dir, detached: false, stdio: 'ignore', windowsHide: false });
+        try { os.setPriority(obsProc.pid, os.constants.priority.PRIORITY_ABOVE_NORMAL); } catch (e) {}
         obsProc.on('exit', () => { obsProc = null; obsClose(); });
         obsProc.on('error', () => { obsProc = null; });
         let ok = false; for (let i = 0; i < 30 && !ok; i++) { await new Promise(r => setTimeout(r, 1500)); ok = await obsConnect(); }
