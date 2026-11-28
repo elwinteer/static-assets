@@ -327,7 +327,7 @@ async function obsFrameOk() {
   } catch (e) { return false; }
 }
 async function obsWaitFrame(ms) {
-  const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await obsFrameOk()) return true; await new Promise(r => setTimeout(r, 250)); } return false;
+  const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await obsFrameOk()) return true; await new Promise(r => setTimeout(r, 100)); } return false;
 }
 async function obsPreAim(tries) {
   clearTimeout(obsAimT); obsAimT = null;
@@ -344,13 +344,13 @@ async function obsPreAim(tries) {
   if (!ok && tries < 25) obsAimT = setTimeout(() => obsPreAim(tries + 1), 6000);
 }
 /* apunta la captura al juego que esta abierto */
-async function obsAim(cur, pre) {
+async function obsAim(cur, pre, fgP) {
   let cands = [];
   if (cur.t.exe) cands = [path.win32.basename(String(cur.t.exe)).toLowerCase()];
   else if ((cur.t.dirs || []).length) { try { const ps = await listProcs(); cands = [...new Set(ps.filter(p => cur.t.dirs.some(d => String(p).toLowerCase().startsWith(String(d).toLowerCase()))).map(p => path.win32.basename(String(p)).toLowerCase()))]; } catch (e) {} }
   try {
     if (cur.t.edir && !cands.length) { const ps = await listProcs(); cands = [...new Set(ps.filter(p => String(p).toLowerCase().startsWith(cur.t.edir)).map(p => path.win32.basename(String(p)).toLowerCase()))]; }
-    const fg = pre ? '' : await fgExe(), fb = fg ? path.win32.basename(fg) : '';
+    const fg = pre ? '' : await (fgP || fgExe()), fb = fg ? path.win32.basename(fg) : '';
     if (!pre) obsLog('aim al frente: ' + (fg || '?'));
     if (fb && !/^(winteer|electron|explorer|obs64|chrome|msedge|firefox|steam|steamwebhelper|cmd|powershell|conhost|searchhost|applicationframehost|shellhost)\.exe$/.test(fb)) cands = [fb, ...cands.filter(x => x !== fb)];
   } catch (e) {}
@@ -382,14 +382,14 @@ async function obsToggle() {
     obsLog('tecla: rec=' + !!obsRec + ' juego=' + (cur ? cur.id : 'ninguno') + ' ws=' + obsReady);
     if (obsRec) { await obsStopRec(); return; }
     if (!cur) return;
-    const T0 = Date.now();
+    const T0 = Date.now(), fgP = (obsAimed === obsKey(cur)) ? null : fgExe();
     for (let i = 0; i < 20 && obsAimBusy; i++) await new Promise(r => setTimeout(r, 400));
     let ok = false;
     for (let i = 0; i < 2 && !ok; i++) {
       if (i) { obsLog('reintento'); obsClose(); obsAimReset(); await new Promise(r => setTimeout(r, 1500)); }
       if (!(await obsStart())) continue;
       if (obsAimed === obsKey(cur) && obsReady) ok = true; /* ya estaba enganchada desde que abriste el juego */
-      else { ok = await obsAim(cur); if (ok) { obsAimed = obsKey(cur); obsLive = false; } }
+      else { ok = await obsAim(cur, false, fgP); if (ok) { obsAimed = obsKey(cur); obsLive = false; } }
     }
     if (!ok) { recIcon(false); shotToast(null, 'No pude preparar OBS', 'err', 'Probá de nuevo con el juego a la vista.'); return; }
     /* no arranca hasta que llegue imagen real: asi el clip no empieza en negro (si no llega en 5 s, graba igual) */
