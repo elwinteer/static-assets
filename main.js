@@ -392,8 +392,10 @@ async function obsToggle() {
     if (!cur) return;
     /* camino rapido: la captura ya estaba enganchada desde que abriste el juego -> grabar ya, sin esperas */
     if (obsReady && obsAimed === obsKey(cur)) {
-      const F0 = Date.now(); recIcon(true);
-      const r0 = await obsCall('StartRecord', {}, 15000);
+      const F0 = Date.now();
+      const p0 = obsCall('StartRecord', {}, 15000); /* la orden sale primero; el icono se arma mientras OBS arranca */
+      setImmediate(() => recIcon(true));
+      const r0 = await p0;
       obsLog('rapido: StartRecord ' + JSON.stringify(r0 && r0.requestStatus) + ' a los ' + (Date.now() - F0) + ' ms de la tecla');
       if (obsOk(r0)) { clearTimeout(recTimer); recTimer = null; obsRec = { id: cur.id, t: Date.now() }; clearTimeout(obsLimitT); obsLimitT = setTimeout(() => { if (obsRec && !obsBusy) obsToggle(); }, 20 * 60000); return; }
       recIcon(false); obsLog('rapido fallo, sigo por el camino normal');
