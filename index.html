@@ -237,6 +237,23 @@ code{background:var(--card2);padding:2px 7px;border-radius:6px;font-size:12px}
 .mb h3{font-size:22px;font-weight:600}.mb p{color:var(--muted);margin:10px 0 18px;font-size:13px;line-height:1.5}
 .mb textarea{width:100%;height:140px;background:var(--card2);border:0;outline:0;border-radius:12px;padding:12px;color:var(--text);font-family:Consolas,monospace;font-size:13px;margin-bottom:18px;resize:none}
 .mb .bs{display:flex;gap:12px;justify-content:center}
+
+.mb.axm{width:min(460px,92vw);padding:30px 30px 26px;text-align:left;background:linear-gradient(180deg,rgba(var(--argb),.10),transparent 42%),var(--panel);box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06);animation:axin .55s var(--spring) backwards}
+@keyframes axin{from{opacity:0;transform:translateY(26px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes axup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.axm>*{animation:axup .5s var(--spring) backwards}.axm>:nth-child(2){animation-delay:.05s}.axm>:nth-child(3){animation-delay:.09s}.axm>:nth-child(4){animation-delay:.13s}.axm>:nth-child(5){animation-delay:.17s}.axm>:nth-child(6){animation-delay:.21s}.axm>:nth-child(7){animation-delay:.25s}
+.axm .ax-ic{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;margin:0 auto 12px;color:#fff;background:linear-gradient(145deg,rgba(var(--argb),.55),rgba(var(--argb),.18));border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 28px rgba(var(--argb),.28)}
+.axm h3{text-align:center}.axm .ax-s{text-align:center;margin:4px 0 18px}
+.axm .ax-pick{width:100%;display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:18px;border:1.5px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.035);color:var(--text);cursor:pointer;text-align:left;font:inherit;transition:transform .25s var(--spring),border-color .25s,background .25s,box-shadow .25s}
+.axm .ax-pick:hover{transform:translateY(-2px);border-color:rgba(var(--argb),.7);background:rgba(var(--argb),.09);box-shadow:0 12px 30px rgba(0,0,0,.35)}.axm .ax-pick:active{transform:scale(.985)}
+.axm .ax-pi{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.08);transition:background .3s,transform .4s var(--spring)}.axm .ax-pick:hover .ax-pi{transform:rotate(-6deg) scale(1.06)}
+.axm .ax-pt{min-width:0;display:flex;flex-direction:column;gap:2px}.axm .ax-pt b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.axm .ax-pt small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left}
+.axm .ax-pick.ok{border-style:solid;border-color:rgba(var(--argb),.65);background:rgba(var(--argb),.12);animation:axok .5s var(--spring)}.axm .ax-pick.ok .ax-pi{background:rgba(var(--argb),.5)}
+@keyframes axok{0%{transform:scale(.97)}60%{transform:scale(1.015)}100%{transform:scale(1)}}
+.axm .ax-l{display:block;margin-top:16px;font-size:11.5px;color:var(--muted);letter-spacing:.04em}.axm .ax-l .txt{margin-top:6px;width:100%}
+.axm .ax-adv{margin-top:12px;font-size:12px;color:var(--muted)}.axm .ax-adv summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;user-select:none;transition:color .2s}.axm .ax-adv summary::-webkit-details-marker{display:none}.axm .ax-adv summary::before{content:"›";display:inline-block;transition:transform .25s var(--spring)}.axm .ax-adv[open] summary::before{transform:rotate(90deg)}.axm .ax-adv summary:hover{color:var(--text)}
+.axm .ax-adv[open] .txt{margin-top:8px;width:100%;animation:axup .3s var(--spring)}
+.axm .bs{margin-top:20px;justify-content:flex-end}.axm .ax-go{transition:opacity .25s,transform .25s var(--spring),filter .25s}.axm .ax-go.off{opacity:.4;filter:saturate(.4)}
 .b2{border:0;border-radius:14px;padding:12px 24px;font-size:14px;font-weight:600;color:var(--on-a);background:var(--a);transition:transform .3s var(--spring)}
 .b2:hover{transform:scale(1.07)}.b2.g{background:var(--card2)}
 /* ---------- intro ---------- */
@@ -7327,11 +7344,15 @@ const A={
     else if(!canPlay(g)){if(isEpicG(g)){toast('No está instalado. Abriendo Epic Games…');const u=(g.uri||'').replace(/([?&])action=[^&]*/,'$1action=install').replace(/&silent=true/,'');location.href=/action=install/.test(u)?u:(u?u+(u.includes('?')?'&':'?')+'action=install':'com.epicgames.launcher://store');detEpicLater()}else if(isXbG(g)){toast('No está instalado. Abriendo Microsoft Store…');location.href=(g.uri&&/^ms-windows-store:/.test(g.uri))?g.uri:'ms-windows-store://pdp/?PFN='+encodeURIComponent(g.id.slice(3));detXboxLater()}else{toast('No está instalado. Abriendo la instalación en Steam…');location.href='steam://install/'+g.app}return}
     else{if(stOf(g)==='Sin estado'&&g.hours>0)ST.rescued=(ST.rescued||0)+1;S.playing={id:g.id,t:Date.now()};toast(isCP(g)?'Despertá, samurái. Tenemos una ciudad que quemar.':egK(g)?EGT[egK(g)]:'Abriendo '+g.name+'…');launchGame(g)}
     renderList();renderDetail(false)},
-  addexe:()=>{modal(`<h3>Agregar un juego de otra tienda</h3><p>Elegí el archivo <code>.exe</code> del juego, o pegá su ruta completa (en el Explorador: Shift + clic derecho sobre el .exe → <i>Copiar como ruta de acceso</i>).</p>
-    <div class="ed" style="text-align:left"><label>Nombre<input class="txt" id="x-n" placeholder="Nombre del juego"></label><label>Ruta del .exe<input class="txt" id="x-p" placeholder="C:\\Juegos\\MiJuego\\juego.exe"></label>
-    ${window.winteerNative?'<button class="b2 sm" data-a="pickx" style="margin-top:10px;align-self:flex-start">Elegir archivo…</button>':'<label>…o elegí el archivo<input type="file" id="x-f" accept=".exe" style="display:block;margin-top:8px;color:var(--muted);font-size:12px"></label>'}</div>
-    <div class="bs" style="margin-top:16px"><button class="b2 g" data-a="close">Cancelar</button><button class="b2" data-a="doexe">Agregar</button></div>`);
-    $('#x-f').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!$('#x-n').value)$('#x-n').value=f.name.replace(/\.exe$/i,'');if(!$('#x-p').value&&f.path)$('#x-p').value=f.path})},
+  addexe:()=>{modal(`<div class="ax-ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 12.5h4M9 10.5v4"/><circle cx="16" cy="11.5" r=".6" fill="currentColor"/><circle cx="18" cy="13.5" r=".6" fill="currentColor"/></svg></div>
+    <h3>Agregar un juego</h3><p class="ax-s">De cualquier otra tienda o carpeta</p>
+    ${window.winteerNative?`<button class="ax-pick" data-a="pickx" id="ax-pick"><span class="ax-pi"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2.5h6.5A2.5 2.5 0 0 1 21 10v7.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span><span class="ax-pt"><b id="ax-t">Elegir el .exe del juego</b><small id="ax-d">Buscalo en tu PC</small></span></button>`:`<label class="ax-pick"><span class="ax-pt"><b>Elegir el .exe del juego</b><small>Buscalo en tu PC</small></span><input type="file" id="x-f" accept=".exe" style="display:none"></label>`}
+    <label class="ax-l">Nombre<input class="txt" id="x-n" placeholder="Nombre del juego" autocomplete="off"></label>
+    <details class="ax-adv"><summary>Ruta del archivo</summary><input class="txt" id="x-p" placeholder="C:\\Juegos\\MiJuego\\juego.exe" autocomplete="off"></details>
+    <div class="bs"><button class="b2 g" data-a="close">Cancelar</button><button class="b2 ax-go" id="ax-go" data-a="doexe">Agregar</button></div>`,'axm');
+    const u=()=>{const p=($('#x-p').value||'').trim(),n=$('#ax-pick'),go=$('#ax-go');if(go)go.classList.toggle('off',!p);if(n){n.classList.toggle('ok',!!p);const t=$('#ax-t'),d=$('#ax-d');if(t&&d){t.textContent=p?p.split(/[\\/]/).pop():'Elegir el .exe del juego';d.textContent=p?p:'Buscalo en tu PC'}}};
+    window.axUpd=u;$('#x-p').addEventListener('input',u);u();
+    const f=$('#x-f');if(f)f.addEventListener('change',e=>{const q=e.target.files[0];if(!q)return;if(!$('#x-n').value)$('#x-n').value=q.name.replace(/\.exe$/i,'');if(!$('#x-p').value&&q.path)$('#x-p').value=q.path;u()})},
   doexe:a=>{const n=$('#x-n').value.trim(),p=$('#x-p').value.trim().replace(/^"|"$/g,'');if(!n||!p){toast('Falta el nombre o la ruta del .exe');return}
     const g={id:'x'+Date.now(),app:0,exe:p,name:n,hours:0,status:'',last:'',notes:''};G.push(g);S.sel=g.id;S.q='';S.fs='';S.fc='';save();wpImg(g);a.closest('.modal').remove();toast('Agregado: '+n+'. Podés ponerle imágenes con Editar');go('games')},
   addm:()=>modal(`<h3>Agregar juegos</h3><p>Un juego por línea: <code>AppID, Nombre, Horas</code> (las horas son opcionales).<br>El AppID está en la URL de la tienda: store.steampowered.com/app/<b>292030</b>/…</p>
@@ -7457,7 +7478,7 @@ const A={
   etrno:async()=>{try{await winteerNative.trlDiscard(trk(EG))}catch(e){}const bx=$('#e-trpv');if(bx)bx.innerHTML=''},
   etrdel:async()=>{const k=trk(EG);await winteerNative.trlDel(k);TRX[k]='';edMedia('e-trs','','etrdel');toast('Trailer quitado')},
   epickexe:async()=>{const p=await winteerNative.pickExe();if(p){const i=$('#e-ex');if(i)i.value=p;toast('Ejecutable cambiado. Guardá los cambios para aplicarlo')}},
- pickx:async()=>{const p=await winteerNative.pickExe();if(p){$('#x-p').value=p;if(!$('#x-n').value)$('#x-n').value=p.split(/[\\/]/).pop().replace(/\.exe$/i,'')}},
+ pickx:async()=>{const p=await winteerNative.pickExe();if(p){$('#x-p').value=p;if(!$('#x-n').value)$('#x-n').value=p.split(/[\\/]/).pop().replace(/\.exe$/i,'');try{window.axUpd&&window.axUpd()}catch(e){}}},
   tg:a=>{const k=a.dataset.k,d=!!a.dataset.d;ST[k]=!P_(k,d);a.classList.toggle('on',ST[k]);applyPrefs();save()},
   lfs:a=>{S.fs=a.dataset.v;fRef()},lso:a=>{S.so=a.dataset.v;fRef()},
   lfc:a=>{S.fc=S.fc===a.dataset.v?'':a.dataset.v;fRef()},
