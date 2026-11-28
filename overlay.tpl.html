@@ -3,7 +3,8 @@
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Segoe UI Variable','Segoe UI',system-ui,sans-serif;color:#f4f4f7;user-select:none}
 button{font-family:inherit;color:inherit}
 @keyframes bi{from{opacity:0}to{opacity:1}}
-@keyframes dk{0%{opacity:0;transform:translate(-50%,46px) scale(.96)}100%{opacity:1;transform:translate(-50%,0)}}
+@keyframes dk{0%{opacity:0;transform:translate(-50%,64px) scale(.93)}55%{opacity:1}100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes hin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes cin{0%{opacity:0;transform:translateY(22px) scale(.94)}100%{opacity:1;transform:none}}
 @keyframes cout{to{opacity:0;transform:translateY(18px) scale(.95)}}
 @keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
@@ -17,14 +18,14 @@ button{font-family:inherit;color:inherit}
 @keyframes glow{0%,100%{box-shadow:0 8px 26px rgba(0,0,0,.5),0 0 0 rgba(var(--rgb),0)}50%{box-shadow:0 8px 26px rgba(0,0,0,.5),0 0 22px rgba(var(--rgb),.28)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes tst{0%{opacity:0;transform:translate(-50%,10px)}12%,86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
-.bye #dock{transition:transform .26s cubic-bezier(.5,0,.8,.4),opacity .22s;transform:translate(-50%,70px)!important;opacity:0}.bye #card{transition:transform .22s,opacity .2s;transform:translateY(24px) scale(.95);opacity:0}.bye #top{transition:transform .24s,opacity .2s;transform:translateY(-24px);opacity:0}.bye .bd{transition:opacity .25s;opacity:0}.bye #hint{opacity:0;transition:opacity .15s}
-.bd{position:fixed;inset:0;background:linear-gradient(0deg,rgba(5,5,8,.78),rgba(5,5,8,.38) 38%,rgba(5,5,8,.14) 70%);animation:bi .3s both}
+.bye #card{transition:transform .24s cubic-bezier(.5,0,.9,.4),opacity .2s;transform:translateY(26px) scale(.94);opacity:0}.bye #dock{transition:transform .34s .05s cubic-bezier(.55,0,.9,.35),opacity .26s .08s;transform:translate(-50%,84px) scale(.95)!important;opacity:0}.bye #top{transition:transform .3s .04s cubic-bezier(.55,0,.9,.35),opacity .24s .06s;transform:translateY(-30px) scale(.96);opacity:0}.bye .bd{animation:none;transition:opacity .36s .1s ease;opacity:0}.bye #hint{animation:none;opacity:0;transition:opacity .14s}.bye #toast{opacity:0}
+.bd{position:fixed;inset:0;background:linear-gradient(0deg,rgba(5,5,8,.78),rgba(5,5,8,.38) 38%,rgba(5,5,8,.14) 70%);animation:bi .42s cubic-bezier(.3,.6,.3,1) both}
 .gl{background:linear-gradient(160deg,rgba(34,34,38,.9),rgba(14,14,17,.94));border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 90px rgba(0,0,0,.65),inset 0 1.5px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden}
 .gl:before{content:"";position:absolute;inset:0;background:radial-gradient(70% 60% at 12% -10%,rgba(255,255,255,.12),transparent 70%);pointer-events:none}
 .fx{outline:none;transition:box-shadow .18s,transform .18s,background .2s}
 body.pad .fx.f{box-shadow:0 0 0 2.5px #fff,0 0 22px rgba(255,255,255,.35)!important;transform:scale(1.035);z-index:2}
 /* arriba */
-#top{position:fixed;right:34px;top:30px;padding:10px 22px 10px 10px;border-radius:28px;display:flex;gap:15px;align-items:center;animation:tp .55s .1s var(--sprg) both;z-index:3;min-width:350px;max-width:560px}
+#top{position:fixed;right:34px;top:30px;padding:10px 22px 10px 10px;border-radius:28px;display:flex;gap:15px;align-items:center;animation:tp .7s .16s cubic-bezier(.16,1.12,.3,1) both;z-index:3;min-width:350px;max-width:560px}
 .tbg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(26px) saturate(1.4);opacity:.34;pointer-events:none;animation:bi .8s .2s both}
 .tbg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,12,15,.5),rgba(12,12,15,.85) 55%)}
 .tx .k,.tx b,.tt span{text-shadow:0 1px 8px rgba(0,0,0,.6)}
@@ -35,7 +36,7 @@ body.pad .fx.f{box-shadow:0 0 0 2.5px #fff,0 0 22px rgba(255,255,255,.35)!import
 .tx b{display:block;font-size:19px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
 .tt{text-align:right;padding-left:16px;border-left:1px solid rgba(255,255,255,.14);position:relative}.tt span{display:block;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}.tt small{display:block;margin-top:1px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
 /* dock */
-#dock{box-shadow:0 30px 90px rgba(0,0,0,.65),0 14px 70px rgba(var(--t,255,255,255),.16),inset 0 1.5px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05);transition:box-shadow 1.2s ease;position:fixed;left:50%;bottom:50px;width:min(1280px,calc(100vw - 70px));height:104px;border-radius:34px;padding:0 24px;display:grid;grid-template-columns:minmax(220px,300px) 1fr auto;align-items:center;gap:22px;animation:dk .55s var(--sprg) both;transform:translate(-50%,0);z-index:4}
+#dock{box-shadow:0 30px 90px rgba(0,0,0,.65),0 14px 70px rgba(var(--t,255,255,255),.16),inset 0 1.5px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05);transition:box-shadow 1.2s ease;position:fixed;left:50%;bottom:50px;width:min(1280px,calc(100vw - 70px));height:104px;border-radius:34px;padding:0 24px;display:grid;grid-template-columns:minmax(220px,300px) 1fr auto;align-items:center;gap:22px;animation:dk .75s .06s cubic-bezier(.16,1.12,.3,1) both;transform:translate(-50%,0);z-index:4}
 .np{display:flex;align-items:center;gap:14px;cursor:pointer;border-radius:22px;padding:6px 8px 6px 6px;margin-left:-6px;min-width:0}
 .np:hover{background:rgba(255,255,255,.06)}
 .cv{width:68px;height:68px;border-radius:18px;flex:none;background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.04));display:grid;place-items:center;color:#9a9aa6;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.5);position:relative}
@@ -113,9 +114,9 @@ body.pad .fx.f{box-shadow:0 0 0 2.5px #fff,0 0 22px rgba(255,255,255,.35)!import
 .note{font-size:11.5px;color:var(--mut);line-height:1.5;padding:8px 12px}
 /* varios */
 #toast{position:fixed;left:50%;bottom:172px;transform:translate(-50%,0);padding:10px 18px;border-radius:16px;font-size:13.5px;font-weight:600;background:rgba(20,20,24,.96);border:1px solid rgba(255,255,255,.16);z-index:9;display:none;box-shadow:0 14px 40px rgba(0,0,0,.6)}#toast.on{display:block;animation:tst 2.6s ease both}
-#hint{position:fixed;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;color:#c9c9d2;z-index:4;pointer-events:none;display:flex;justify-content:center;gap:18px}#hint i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+#hint{animation:hin .5s .55s ease both;position:fixed;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;color:#c9c9d2;z-index:4;pointer-events:none;display:flex;justify-content:center;gap:18px}#hint i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
 kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font:600 11px 'Segoe UI',system-ui,sans-serif}.pb2{border-radius:50%;padding:0;min-width:19px;height:19px;display:inline-grid;place-items:center}
-.kp{display:none}body.pad .kp{display:inline-flex}body.pad .kk{display:none}
+#hint .kp{display:none}#hint .kk{display:inline-flex}body.gp #hint .kp{display:inline-flex}body.gp #hint .kk{display:none}
 .hid{display:none!important}
 </style></head><body>
 <div class="bd" id="bd"></div>
@@ -128,7 +129,7 @@ kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font
   <div class="pr"><span id="t0">0:00</span><div class="pg fx" id="pg" data-a="seek"><i id="pgi"></i><u id="pgd"></u></div><span id="t1">0:00</span></div></div>
  <div class="ibr" id="ibr"></div>
 </div>
-<div id="hint"><i class="kk"><kbd>Esc</kbd> cerrar</i><i class="kp"><span class="pb2" data-g="A">A</span> Elegir</i><i class="kp"><span class="pb2" data-g="B">B</span> Atrás</i><i class="kp"><span class="pb2" data-g="X">X</span> Pausa</i><i class="kp"><span class="pb2" data-g="Y">Y</span> A la cola</i><i class="kp"><kbd data-g="LB">LB</kbd><kbd data-g="RB">RB</kbd> Pista</i><i class="kp"><kbd data-g="LT">LT</kbd><kbd data-g="RT">RT</kbd> Volumen</i><i class="kp"><kbd>Menú</kbd> Cerrar</i></div>
+<div id="hint"><i class="kk"><kbd>← ↑ ↓ →</kbd> Mover</i><i class="kk"><kbd>Enter</kbd> Elegir</i><i class="kk"><kbd>Esc</kbd> Atrás</i><i class="kk"><kbd>Shift</kbd><kbd>Tab</kbd> Cerrar</i><i class="kp"><span class="pb2" data-g="A">A</span> Elegir</i><i class="kp"><span class="pb2" data-g="B">B</span> Atrás</i><i class="kp"><span class="pb2" data-g="X">X</span> Pausa</i><i class="kp"><span class="pb2" data-g="Y">Y</span> A la cola</i><i class="kp"><kbd data-g="LB">LB</kbd><kbd data-g="RB">RB</kbd> Pista</i><i class="kp"><kbd data-g="LT">LT</kbd><kbd data-g="RT">RT</kbd> Volumen</i><i class="kp"><kbd>Menú</kbd> Cerrar</i></div>
 <script>
 var D=__DATA__;
 function $(i){return document.getElementById(i)}
@@ -336,10 +337,11 @@ function nav(d){
 function act(){if(!cf)return;if(cf.tagName==='INPUT'){cf.focus();return}cf.click()}
 function back(){if(document.activeElement&&document.activeElement.tagName==='INPUT'){document.activeElement.blur();return}if(card)closeCard(true);else ov.act({a:'close'})}
 function setPad(on){if(on===padMode)return;padMode=on;document.body.classList.toggle('pad',on);if(on&&(!cf||!document.contains(cf)))nav('d')}
-document.addEventListener('mousemove',function(){if(padMode)setPad(false)});
+var gpOn=false;function setGp(on){if(on===gpOn)return;gpOn=on;document.body.classList.toggle('gp',on)}
+document.addEventListener('mousemove',function(){setGp(false);if(padMode)setPad(false)});
 document.addEventListener('keydown',function(e){
  var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
- var k=e.key,m={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[k];
+ setGp(false);var k=e.key,m={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[k];
  if(m){e.preventDefault();setPad(true);nav(m)}
  else if(k==='Enter'||k===' '){e.preventDefault();if(!padMode){setPad(true)}act()}
  else if(k==='Escape')back()});
@@ -364,8 +366,9 @@ function pad(){
   if(edge(q+'LT',pr(g,6),1)){any=true;setVol(SP.vol-5)}if(edge(q+'RT',pr(g,7),1)){any=true;setVol(SP.vol+5)}
   if(edge(q+'ST',pr(g,9))){any=true;ov.act({a:'close'})}
   var ry=g.axes[3]||0;if(Math.abs(ry)>.25){any=true;var s=$q('#card .bdy')||$('ms');if(s)s.scrollTop+=ry*22}
-  if(any){layout(g);if(!padMode)setPad(true)}}
+  if(any){layout(g);setGp(true);if(!padMode)setPad(true)}}
  requestAnimationFrame(pad)}
+try{var g0=navigator.getGamepads?navigator.getGamepads():[];for(var i0=0;i0<g0.length;i0++)if(g0[i0]&&g0[i0].connected){setGp(true);layout(g0[i0]);break}}catch(e){}
 requestAnimationFrame(pad);
 /* ---------- datos del launcher ---------- */
 function perf(d){PF=d;if(card==='perf')drawPerf()}

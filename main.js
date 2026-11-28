@@ -596,7 +596,7 @@ function ovClose(anim) {
   if (anim && ovWin && !ovWin.isDestroyed()) {
     if (ovBye) return; const w = ovWin; ovBye = true;
     try { w.webContents.send('ov', 'bye'); } catch (e) {}
-    setTimeout(() => { ovBye = false; if (ovWin === w) ovClose(); }, 260); return;
+    setTimeout(() => { ovBye = false; if (ovWin === w) ovClose(); }, 480); return;
   }
   ovBye = false; ovStopPerf(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' });
 }
@@ -680,10 +680,10 @@ function ovOpen(data) {
     fs.writeFileSync(path.join(dir, 'pre.js'), `const{ipcRenderer:r,contextBridge:c}=require('electron');c.exposeInMainWorld('ov',{act:a=>r.invoke('ovAct',a),open:n=>r.invoke('ovOpen',n),sp:(o,a)=>r.invoke('ovSp',o,a),on:f=>r.on('ov',(e,t,d)=>{try{f(t,d)}catch(x){}})});`);
     fs.writeFileSync(path.join(dir, 'ov.html'), ovHTML(data, shots, cur.t.started, ovPanes(), { k1: cfg.shotKey || 'F12', k2: cfg.clipKey || 'F9' }));
     const d = screen.getPrimaryDisplay(), b = d.bounds;
-    ovWin = new BrowserWindow({ x: b.x, y: b.y, width: b.width, height: b.height, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, alwaysOnTop: true, show: false, hasShadow: false, fullscreenable: false, webPreferences: { sandbox: true, contextIsolation: true, preload: path.join(dir, 'pre.js') } });
+    ovWin = new BrowserWindow({ x: b.x, y: b.y, width: b.width, height: b.height, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, alwaysOnTop: true, show: false, hasShadow: false, fullscreenable: false, enableLargerThanScreen: true, webPreferences: { sandbox: true, contextIsolation: true, preload: path.join(dir, 'pre.js') } });
     ovWin.setAlwaysOnTop(true, 'screen-saver');
     ovWin.loadFile(path.join(dir, 'ov.html'));
-    ovWin.once('ready-to-show', () => { try { ovWin.show(); ovWin.focus(); } catch (e) {} });
+    ovWin.once('ready-to-show', () => { try { ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.show(); ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.focus(); setTimeout(() => { try { if (ovWin && !ovWin.isDestroyed()) ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); } catch (e) {} }, 120); } catch (e) {} });
     ovWin.on('closed', () => { ovWin = null; });
     ovStartPerf();
   } catch (e) {}
