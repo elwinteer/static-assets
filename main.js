@@ -3963,7 +3963,7 @@ app.whenReady().then(() => {
     } catch (e) { return false; }
   });
   ipcMain.handle('shotFolder', (_e, id) => { const dir = id ? path.join(SHOTS, String(id).replace(/[^\w.-]/g, '_')) : SHOTS; try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {} shell.openPath(dir); return dir; });
-  ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; if (o && typeof o.stCap === 'boolean') cfg.stCap = o.stCap; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey, stCap: !!cfg.stCap }; });
+  ipcMain.handle('shotCfg', (_e, o) => { if (o && typeof o.shots === 'boolean') cfg.shots = o.shots; if (o && typeof o.key === 'string' && /^[\w+]+$/.test(o.key)) cfg.shotKey = o.key; if (o && typeof o.clipKey === 'string' && /^[\w+]+$/.test(o.clipKey)) cfg.clipKey = o.clipKey; if (o && typeof o.stCap === 'boolean') cfg.stCap = o.stCap; if (o && typeof o.ovPause === 'boolean') cfg.ovPause = o.ovPause; saveCfg(); syncShot(); return { shots: cfg.shots, shotKey: cfg.shotKey, clipKey: cfg.clipKey, stCap: !!cfg.stCap, ovPause: cfg.ovPause !== false }; });
   ipcMain.handle('friendToast', (_e, o) => { friendToast(o); return true; })
   ipcMain.handle('scrSources', async () => {
     const srcs = await desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 320, height: 180 }, fetchWindowIcons: false });
