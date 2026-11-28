@@ -114,7 +114,7 @@ body.pad .fx.f{box-shadow:0 0 0 2.5px #fff,0 0 22px rgba(255,255,255,.35)!import
 /* varios */
 #toast{position:fixed;left:50%;bottom:172px;transform:translate(-50%,0);padding:10px 18px;border-radius:16px;font-size:13.5px;font-weight:600;background:rgba(20,20,24,.96);border:1px solid rgba(255,255,255,.16);z-index:9;display:none;box-shadow:0 14px 40px rgba(0,0,0,.6)}#toast.on{display:block;animation:tst 2.6s ease both}
 #hint{position:fixed;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;color:#c9c9d2;z-index:4;pointer-events:none;display:flex;justify-content:center;gap:18px}#hint i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
-kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font:600 11px 'Segoe UI',system-ui,sans-serif}.pb2{border-radius:50%;padding:0;width:19px;height:19px;display:inline-grid;place-items:center}
+kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font:600 11px 'Segoe UI',system-ui,sans-serif}.pb2{border-radius:50%;padding:0;min-width:19px;height:19px;display:inline-grid;place-items:center}
 .kp{display:none}body.pad .kp{display:inline-flex}body.pad .kk{display:none}
 .hid{display:none!important}
 </style></head><body>
@@ -128,7 +128,7 @@ kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font
   <div class="pr"><span id="t0">0:00</span><div class="pg fx" id="pg" data-a="seek"><i id="pgi"></i><u id="pgd"></u></div><span id="t1">0:00</span></div></div>
  <div class="ibr" id="ibr"></div>
 </div>
-<div id="hint"><i class="kk"><kbd>Esc</kbd> cerrar</i><i class="kp"><span class="pb2">A</span> Elegir</i><i class="kp"><span class="pb2">B</span> Atrás</i><i class="kp"><span class="pb2">X</span> Pausa</i><i class="kp"><span class="pb2">Y</span> A la cola</i><i class="kp"><kbd>LB</kbd><kbd>RB</kbd> Pista</i><i class="kp"><kbd>LT</kbd><kbd>RT</kbd> Volumen</i></div>
+<div id="hint"><i class="kk"><kbd>Esc</kbd> cerrar</i><i class="kp"><span class="pb2" data-g="A">A</span> Elegir</i><i class="kp"><span class="pb2" data-g="B">B</span> Atrás</i><i class="kp"><span class="pb2" data-g="X">X</span> Pausa</i><i class="kp"><span class="pb2" data-g="Y">Y</span> A la cola</i><i class="kp"><kbd data-g="LB">LB</kbd><kbd data-g="RB">RB</kbd> Pista</i><i class="kp"><kbd data-g="LT">LT</kbd><kbd data-g="RT">RT</kbd> Volumen</i><i class="kp"><kbd>Menú</kbd> Cerrar</i></div>
 <script>
 var D=__DATA__;
 function $(i){return document.getElementById(i)}
@@ -189,7 +189,7 @@ function drawProg(){var s=SP.st;if(!s||s.idle||!s.dur){$('pgi').style.width='0';
 /* ---------- Spotify ---------- */
 function spc(o,a){try{return ov.sp(o,a||{})}catch(e){return Promise.resolve({ok:false})}}
 async function spState(){var r=await spc('state');if(r&&r.ok){SP.on=r.on;SP.cid=r.cid;SP.redir=r.redir;SP.idle=r.idle}drawNow()}
-async function spPoll(){if(!SP.on)return;var r=await spc('now');if(r&&r.ok){SP.st=r;SP.err='';if(r.vol!=null&&!volBusy)SP.vol=r.vol;if(!r.idle)SP.nodev=false;drawNow();if(card==='mus'&&SP.vol!=null)drawVol()}else if(r&&r.s===401){spState()}}
+async function spPoll(){if(!SP.on||Date.now()<(SP.hold||0))return;var r=await spc('now');if(r&&r.ok){SP.st=r;SP.err='';if(r.vol!=null&&!volBusy)SP.vol=r.vol;if(!r.idle)SP.nodev=false;drawNow();if(card==='mus'&&SP.vol!=null)drawVol()}else if(r&&r.s===401){spState()}}
 setInterval(spPoll,2000);
 function soon(){setTimeout(spPoll,350);setTimeout(spPoll,1100)}
 async function togglePlay(){
@@ -201,7 +201,7 @@ async function togglePlay(){
 async function ctrl(op,a){var r=await spc(op,a);if(!r.ok&&op!=='seek')toast('No se pudo. ¿Está Spotify abierto?');soon();return r}
 function doShuf(){var s=SP.st;if(!s||s.idle)return;s.sh=!s.sh;drawNow();ctrl('shuffle',{v:s.sh})}
 function doRep(){var s=SP.st;if(!s||s.idle)return;var n={off:'context',context:'track',track:'off'}[s.rp||'off'];s.rp=n;drawNow();ctrl('repeat',{v:n});toast({off:'Repetir: no',context:'Repetir: lista',track:'Repetir: canción'}[n])}
-function seekTo(ms){var s=SP.st;if(!s||s.idle)return;ms=Math.max(0,Math.min(s.dur-500,ms));s.pos=ms;s.ts=Date.now();drawProg();clearTimeout(seekTo.t);seekTo.t=setTimeout(function(){ctrl('seek',{v:ms})},200)}
+function seekTo(ms){var s=SP.st;if(!s||s.idle)return;SP.hold=Date.now()+1500;ms=Math.max(0,Math.min(s.dur-500,ms));s.pos=ms;s.ts=Date.now();drawProg();clearTimeout(seekTo.t);seekTo.t=setTimeout(function(){ctrl('seek',{v:ms})},200)}
 function curPos(){var s=SP.st;return s?s.pos+(s.pl?Date.now()-s.ts:0):0}
 var volBusy=false;
 function setVol(v){v=Math.max(0,Math.min(100,Math.round(v)));SP.vol=v;volBusy=true;drawVol();clearTimeout(setVol.t);setVol.t=setTimeout(async function(){await spc('vol',{v:v});volBusy=false},180)}
@@ -285,7 +285,7 @@ var lastSig='';
 function drawM(force){var el=$('ms');if(!el)return;var sig=MS.map(function(m){return m.t+(m.x||'')}).join('|');if(!force&&sig===lastSig)return;lastSig=sig;var nb=el.scrollTop+el.clientHeight>=el.scrollHeight-40;el.innerHTML=MS.length?MS.map(function(m){return '<div class="mg '+(m.me?'me':'th')+'">'+E(m.x)+'</div>'}).join(''):'<div class="empty">'+(cur?'No hay mensajes todavía. ¡Saludalo!':'Elegí un amigo para chatear sin salir del juego.')+'</div>';if(nb||force)el.scrollTop=el.scrollHeight}
 function send(){var i=$('ci'),x=i&&i.value.trim();if(!x||!cur)return;i.value='';MS.push({me:1,x:x,t:Date.now()});drawM();ov.act({a:'send',c:cur,x:x})}
 /* ---------- arrastrar progreso y volumen ---------- */
-function drag(el,kind){el.addEventListener('pointerdown',function(e){if(e.button!==0)return;var box=kind==='seek'?el:$q('.vb',el);if(!box)return;if(kind==='seek'&&(!SP.st||SP.st.idle))return;el.setPointerCapture(e.pointerId);el._d=1;var mv=function(ev){var r=box.getBoundingClientRect(),x=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));if(kind==='seek'){var s=SP.st;s.pos=x*s.dur;s.ts=Date.now();drawProg();el._x=x}else setVol(x*100)};mv(e);el.onpointermove=function(ev){if(el._d)mv(ev)};el.onpointerup=function(){el._d=0;el.onpointermove=null;if(kind==='seek'&&SP.st)seekTo(SP.st.pos)}})}
+function drag(el,kind){el.addEventListener('pointerdown',function(e){if(e.button!==0)return;var box=kind==='seek'?el:$q('.vb',el);if(!box)return;if(kind==='seek'&&(!SP.st||SP.st.idle))return;el.setPointerCapture(e.pointerId);el._d=1;SP.hold=Date.now()+60000;var mv=function(ev){var r=box.getBoundingClientRect(),x=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));if(kind==='seek'){var s=SP.st;s.pos=x*s.dur;s.ts=Date.now();drawProg();el._x=x}else setVol(x*100)};mv(e);el.onpointermove=function(ev){if(el._d)mv(ev)};el.onpointerup=function(){el._d=0;el.onpointermove=null;if(kind==='seek'&&SP.st)seekTo(SP.st.pos)}})}
 drag($('pg'),'seek');
 /* ---------- color de la portada ---------- */
 function tint(url){if(!url){document.documentElement.style.setProperty('--t','255,255,255');return}var im=new Image();im.crossOrigin='anonymous';im.onload=function(){try{var c=document.createElement('canvas');c.width=c.height=8;var x=c.getContext('2d');x.drawImage(im,0,0,8,8);var d=x.getImageData(0,0,8,8).data,r=0,g=0,b=0,n=0;for(var i=0;i<d.length;i+=4){var m=Math.max(d[i],d[i+1],d[i+2]),k=m-Math.min(d[i],d[i+1],d[i+2]);var w=1+k/40;r+=d[i]*w;g+=d[i+1]*w;b+=d[i+2]*w;n+=w}r/=n;g/=n;b/=n;var mx=Math.max(r,g,b,1),f=Math.min(1.8,200/mx);document.documentElement.style.setProperty('--t',Math.min(255,Math.round(r*f))+','+Math.min(255,Math.round(g*f))+','+Math.min(255,Math.round(b*f)))}catch(e){}};im.onerror=function(){};im.src=url}
@@ -344,24 +344,27 @@ document.addEventListener('keydown',function(e){
  else if(k==='Enter'||k===' '){e.preventDefault();if(!padMode){setPad(true)}act()}
  else if(k==='Escape')back()});
 /* mando */
-var hold={};
+var hold={},LAY='';
+var LBL={xb:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',RT:'RT'},ps:{A:'✕',B:'○',X:'□',Y:'△',LB:'L1',RB:'R1',LT:'L2',RT:'R2'},ns:{A:'B',B:'A',X:'Y',Y:'X',LB:'L',RB:'R',LT:'ZL',RT:'ZR'}};
+function layout(g){var id=String(g.id||'').toLowerCase(),k=/054c|dualshock|dualsense|wireless controller|playstation/.test(id)?'ps':/057e|nintendo|pro controller|joy-con/.test(id)?'ns':'xb';if(k===LAY)return;LAY=k;Array.prototype.forEach.call(document.querySelectorAll('[data-g]'),function(e){e.textContent=LBL[k][e.dataset.g]||e.dataset.g})}
 function edge(k,down,rep){var n=performance.now();if(down){if(!hold[k]){hold[k]=n+(rep?380:1e9);return true}if(rep&&n>hold[k]){hold[k]=n+105;return true}}else hold[k]=0;return false}
 function pr(g,i){var b=g.buttons[i];return !!b&&(b.pressed||b.value>.5)}
 function pad(){
- var gs=navigator.getGamepads?navigator.getGamepads():[],g=null;for(var i=0;i<gs.length;i++){if(gs[i]&&gs[i].connected){g=gs[i];break}}
- if(g){var ax=g.axes[0]||0,ay=g.axes[1]||0,any=false;
-  var L=pr(g,14)||ax<-.55,R=pr(g,15)||ax>.55,U=pr(g,12)||ay<-.55,Dn=pr(g,13)||ay>.55;
+ var gs=navigator.getGamepads?navigator.getGamepads():[];
+ for(var gi=0;gi<gs.length;gi++){var g=gs[gi];if(!g||!g.connected)continue;var q=gi+':',any=false;
+  var ax=g.axes[0]||0,ay=g.axes[1]||0,hz=Math.abs(ax)>=Math.abs(ay);
+  var L=pr(g,14)||(hz&&ax<-.55),R=pr(g,15)||(hz&&ax>.55),U=pr(g,12)||(!hz&&ay<-.55),Dn=pr(g,13)||(!hz&&ay>.55);
   if(L||R||U||Dn)any=true;
-  if(edge('L',L,1)){setPad(true);nav('l')}if(edge('R',R,1)){setPad(true);nav('r')}if(edge('U',U,1)){setPad(true);nav('u')}if(edge('D',Dn,1)){setPad(true);nav('d')}
-  if(edge('A',pr(g,0))){any=true;if(!padMode)setPad(true);else act()}
-  if(edge('B',pr(g,1))){any=true;setPad(true);back()}
-  if(edge('X',pr(g,2))){any=true;setPad(true);togglePlay()}
-  if(edge('Y',pr(g,3))){any=true;setPad(true);if(cf&&cf.classList.contains('rw')&&cf.dataset.a==='play'){spc('addq',{uri:cf.dataset.u}).then(function(r){toast(r.ok?'Agregada a la cola':'No se pudo agregar');setTimeout(loadQ,700)})}else openCard('mus')}
-  if(edge('LB',pr(g,4))){any=true;setPad(true);ctrl('prev')}if(edge('RB',pr(g,5))){any=true;setPad(true);ctrl('next')}
-  if(edge('LT',pr(g,6),1)){any=true;setVol(SP.vol-5)}if(edge('RT',pr(g,7),1)){any=true;setVol(SP.vol+5)}
-  if(edge('ST',pr(g,9))){any=true;ov.act({a:'close'})}
+  if(edge(q+'L',L,1)){setPad(true);nav('l')}if(edge(q+'R',R,1)){setPad(true);nav('r')}if(edge(q+'U',U,1)){setPad(true);nav('u')}if(edge(q+'D',Dn,1)){setPad(true);nav('d')}
+  if(edge(q+'A',pr(g,0))){any=true;if(!padMode)setPad(true);else act()}
+  if(edge(q+'B',pr(g,1))){any=true;setPad(true);back()}
+  if(edge(q+'X',pr(g,2))){any=true;setPad(true);togglePlay()}
+  if(edge(q+'Y',pr(g,3))){any=true;setPad(true);if(cf&&cf.classList.contains('rw')&&cf.dataset.a==='play'){spc('addq',{uri:cf.dataset.u}).then(function(r){toast(r.ok?'Agregada a la cola':'No se pudo agregar');setTimeout(loadQ,700)})}else openCard('mus')}
+  if(edge(q+'LB',pr(g,4))){any=true;setPad(true);ctrl('prev')}if(edge(q+'RB',pr(g,5))){any=true;setPad(true);ctrl('next')}
+  if(edge(q+'LT',pr(g,6),1)){any=true;setVol(SP.vol-5)}if(edge(q+'RT',pr(g,7),1)){any=true;setVol(SP.vol+5)}
+  if(edge(q+'ST',pr(g,9))){any=true;ov.act({a:'close'})}
   var ry=g.axes[3]||0;if(Math.abs(ry)>.25){any=true;var s=$q('#card .bdy')||$('ms');if(s)s.scrollTop+=ry*22}
-  if(any&&!padMode)setPad(true)}
+  if(any){layout(g);if(!padMode)setPad(true)}}
  requestAnimationFrame(pad)}
 requestAnimationFrame(pad);
 /* ---------- datos del launcher ---------- */

@@ -80,7 +80,12 @@ function startPad() {
   if (padProc || process.platform !== 'win32' || !cfg.bg || !cfg.pad) return;
   try {
     padProc = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-EncodedCommand', Buffer.from(PADPS, 'utf16le').toString('base64')], { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
-    padProc.stdout.on('data', (d) => { if (String(d).includes('T') && !(win && win.isVisible() && win.isFocused())) bpFromBg(); });
+    padProc.stdout.on('data', (d) => {
+      if (!String(d).includes('T')) return;
+      /* con un juego en curso, el botón Xbox abre/cierra el overlay (como Shift+Tab); sin juego sigue abriendo el Modo consola */
+      try { if (ovReg && (ovWin || curNonSteam())) { ovToggle(); return; } } catch (e) {}
+      if (!(win && win.isVisible() && win.isFocused())) bpFromBg();
+    });
     padProc.on('exit', () => { padProc = null; });
   } catch (e) { padProc = null; }
 }
