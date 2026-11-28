@@ -639,7 +639,22 @@ function steamripConsole() {
       } catch (e) { st.busy = 0; st.err = 'No se pudo cargar: ' + String(e.message || e).slice(0, 110); if (k === cur) draw(); }
     };
     let swT = 0;
-    setTimeout(() => { if (wpOk === null) wpPage(1, ST.new.psize || 12).then((w0) => { if (!w0) { wpOk = false; return; } wpOk = true; if (w0.tp) { ST.new.total = w0.tp; if (cur === 'new') draw(); } }).catch(() => { wpOk = false; }); }, 400);
+    /* Lanzamientos: la página 1 sale siempre de la lista en vivo del sitio (la misma que ve cualquiera), 18 por página, y se vuelve a pedir cada 4 minutos */
+    const NEWPS = 18;
+    const refNew = async () => {
+      try {
+        if (wpOk === false) return;
+        const w0 = await wpPage(1, NEWPS); if (!w0) { if (wpOk === null) wpOk = false; return; } wpOk = true;
+        const st = ST.new, old = (st.pages[1] || []).map((x) => x.href).join('|'), nw = w0.items.map((x) => x.href).join('|');
+        if (w0.tp) st.total = w0.tp;
+        if (old !== nw || st.psize !== NEWPS) {
+          if (st.psize !== NEWPS) { for (const k in st.pages) if (+k !== 1) delete st.pages[k]; st.psize = NEWPS; }
+          st.pages[1] = w0.items;
+          if (st.cur === 1) { st.items = st.pages[1]; if (cur === 'new') { draw(); try { drawHero(); } catch (e) {} } }
+        } else if (cur === 'new') draw();
+      } catch (e) {}
+    };
+    setTimeout(refNew, 400); setInterval(refNew, 240000);
     const sw = (k) => {
       const di = tabs.findIndex((x) => x.k === k) - tabs.findIndex((x) => x.k === cur), fw = di > 0; clearTimeout(swT);
       sh.querySelectorAll('#tb button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); pill(); w.scrollTo({ top: 0, behavior: 'smooth' });
