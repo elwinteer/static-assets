@@ -226,7 +226,7 @@ function recIcon(on) {
 /* ---------- grabacion con OBS (audio solo del juego, tiempo libre) ---------- */
 const OBS_PORT = 4477, OBS_SC = 'WINTEER';
 const OBS_HOSTS = /^(api\.github\.com|github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/i;
-let obsBusyT = 0, obsBusy = false, obsProc = null, obsWS = null, obsReq = new Map(), obsSeq = 0, obsRec = null, obsReady = false, obsPrep = null, obsLimitT = null;
+let obsCanvas = null, obsBusyT = 0, obsBusy = false, obsProc = null, obsWS = null, obsReq = new Map(), obsSeq = 0, obsRec = null, obsReady = false, obsPrep = null, obsLimitT = null;
 function obsDir() { for (const b of [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], 'C:\\Program Files']) { if (!b) continue; const d = path.join(b, 'obs-studio', 'bin', '64bit'); if (fs.existsSync(path.join(d, 'obs64.exe'))) return d; } return ''; }
 function obsOn() { return cfg.obs !== false; }
 function obsActive() { return process.platform === 'win32' && obsOn() && !!obsDir() && !!curNonSteam(); }
@@ -297,7 +297,7 @@ async function obsStart() {
       await P('Output', 'Mode', 'Simple'); await P('SimpleOutput', 'RecQuality', 'Small'); await P('SimpleOutput', 'RecFormat2', 'mp4'); await P('SimpleOutput', 'RecEncoder', (enc === 'nvenc' || enc === 'amd') ? enc + '_hevc' : enc); await P('SimpleOutput', 'RecAudioEncoder', 'aac'); await P('SimpleOutput', 'ABitrate', '96');
       const rd = path.join(app.getPath('userData'), 'obsrec'); fs.mkdirSync(rd, { recursive: true });
       await obsCall('SetRecordDirectory', { recordDirectory: rd });
-      try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1920), oh = Math.round(h * ow / w / 2) * 2; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 30, fpsDenominator: 1 }); } catch (e) {}
+      try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1920), oh = Math.round(h * ow / w / 2) * 2; obsCanvas = { w, h }; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 30, fpsDenominator: 1 }); } catch (e) {}
       await obsCall('CreateScene', { sceneName: OBS_SC }); await obsCall('SetCurrentProgramScene', { sceneName: OBS_SC });
       return true;
     } catch (e) { obsLog('obsStart error ' + (e && e.message)); return false; }
@@ -381,6 +381,12 @@ async function obsAim(cur, pre, fgP) {
   if (!val) return false;
   await obsCall('SetInputSettings', { inputName: 'WINTEER video', inputSettings: { window: val, capture_mode: 'window' }, overlay: true });
   await obsCall('SetInputSettings', { inputName: 'WINTEER audio', inputSettings: { window: val }, overlay: true });
+  /* que el video siempre entre entero en el cuadro, aunque el juego sea una ventana mas grande/chica (ventana sin bordes) */
+  try {
+    let cv = obsCanvas; if (!cv) { const r = await obsCall('GetVideoSettings', {}); const d = r && r.responseData; if (d) cv = { w: d.baseWidth, h: d.baseHeight }; }
+    const si = await obsCall('GetSceneItemId', { sceneName: OBS_SC, sourceName: 'WINTEER video' }), id = si && si.responseData && si.responseData.sceneItemId;
+    if (cv && id != null) await obsCall('SetSceneItemTransform', { sceneName: OBS_SC, sceneItemId: id, sceneItemTransform: { positionX: cv.w / 2, positionY: cv.h / 2, alignment: 0, boundsType: 'OBS_BOUNDS_SCALE_INNER', boundsAlignment: 0, boundsWidth: cv.w, boundsHeight: cv.h, cropLeft: 0, cropRight: 0, cropTop: 0, cropBottom: 0, rotation: 0 } });
+  } catch (e) {}
   return true;
 }
 async function obsToggle() {
