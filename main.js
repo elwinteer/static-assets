@@ -296,7 +296,7 @@ async function obsStart() {
       await P('Output', 'Mode', 'Simple'); await P('SimpleOutput', 'RecQuality', 'Small'); await P('SimpleOutput', 'RecFormat2', 'mp4'); await P('SimpleOutput', 'RecEncoder', enc); await P('SimpleOutput', 'RecAudioEncoder', 'aac'); await P('SimpleOutput', 'ABitrate', '96');
       const rd = path.join(app.getPath('userData'), 'obsrec'); fs.mkdirSync(rd, { recursive: true });
       await obsCall('SetRecordDirectory', { recordDirectory: rd });
-      try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1280), oh = Math.round(h * ow / w / 2) * 2; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 30, fpsDenominator: 1 }); } catch (e) {}
+      try { const d = screen.getPrimaryDisplay(), w = Math.round(d.size.width * d.scaleFactor), h = Math.round(d.size.height * d.scaleFactor), ow = Math.min(w, 1920), oh = Math.round(h * ow / w / 2) * 2; await obsCall('SetVideoSettings', { baseWidth: w, baseHeight: h, outputWidth: ow, outputHeight: oh, fpsNumerator: 30, fpsDenominator: 1 }); } catch (e) {}
       await obsCall('CreateScene', { sceneName: OBS_SC }); await obsCall('SetCurrentProgramScene', { sceneName: OBS_SC });
       return true;
     } catch (e) { obsLog('obsStart error ' + (e && e.message)); return false; }
