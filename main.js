@@ -363,6 +363,23 @@ setInterval(() => {
     obsCall('GetVersion', {}, 3000).then((r) => { if (!r) { obsClose(); } else if (obsAimed !== obsKey(curNonSteam() || null)) obsPreAim(0); }).catch(() => {});
   } catch (e) {}
 }, 8000);
+/* que el video siempre entre entero en el cuadro (nunca recortado), aunque el juego cambie de tamano o sea una ventana mas grande/chica */
+let obsFitSig = '';
+async function obsFit(log) {
+  try {
+    let cv = obsCanvas; if (!cv) { const r = await obsCall('GetVideoSettings', {}); const d = r && r.responseData; if (d) cv = { w: d.baseWidth, h: d.baseHeight }; }
+    const si = await obsCall('GetSceneItemId', { sceneName: OBS_SC, sourceName: 'WINTEER video' }), id = si && si.responseData && si.responseData.sceneItemId;
+    if (!cv || id == null) return;
+    const g = await obsCall('GetSceneItemTransform', { sceneName: OBS_SC, sceneItemId: id }), t = (g && g.responseData && g.responseData.sceneItemTransform) || {};
+    const sw = +t.sourceWidth || 0, sh = +t.sourceHeight || 0;
+    const sig = sw + 'x' + sh + '|' + (t.boundsType || '') + '|' + (t.cropLeft || 0) + (t.cropTop || 0) + (t.cropRight || 0) + (t.cropBottom || 0) + '|' + Math.round(+t.width || 0) + 'x' + Math.round(+t.height || 0) + '|' + Math.round(+t.positionX || 0) + ',' + Math.round(+t.positionY || 0);
+    if (sig === obsFitSig && !log) return;
+    if (log || sig !== obsFitSig) obsLog('fit: fuente ' + sw + 'x' + sh + ' en lienzo ' + cv.w + 'x' + cv.h);
+    await obsCall('SetSceneItemTransform', { sceneName: OBS_SC, sceneItemId: id, sceneItemTransform: { positionX: cv.w / 2, positionY: cv.h / 2, alignment: 0, boundsType: 'OBS_BOUNDS_SCALE_INNER', boundsAlignment: 0, boundsWidth: cv.w, boundsHeight: cv.h, cropLeft: 0, cropRight: 0, cropTop: 0, cropBottom: 0, rotation: 0 } });
+    obsFitSig = sig;
+  } catch (e) {}
+}
+setInterval(() => { if (obsReady) obsFit(); }, 2500);
 /* apunta la captura al juego que esta abierto */
 async function obsAim(cur, pre, fgP) {
   let cands = [];
@@ -392,12 +409,7 @@ async function obsAim(cur, pre, fgP) {
   if (!val) return false;
   await obsCall('SetInputSettings', { inputName: 'WINTEER video', inputSettings: { window: val, capture_mode: 'window' }, overlay: true });
   await obsCall('SetInputSettings', { inputName: 'WINTEER audio', inputSettings: { window: val }, overlay: true });
-  /* que el video siempre entre entero en el cuadro, aunque el juego sea una ventana mas grande/chica (ventana sin bordes) */
-  try {
-    let cv = obsCanvas; if (!cv) { const r = await obsCall('GetVideoSettings', {}); const d = r && r.responseData; if (d) cv = { w: d.baseWidth, h: d.baseHeight }; }
-    const si = await obsCall('GetSceneItemId', { sceneName: OBS_SC, sourceName: 'WINTEER video' }), id = si && si.responseData && si.responseData.sceneItemId;
-    if (cv && id != null) await obsCall('SetSceneItemTransform', { sceneName: OBS_SC, sceneItemId: id, sceneItemTransform: { positionX: cv.w / 2, positionY: cv.h / 2, alignment: 0, boundsType: 'OBS_BOUNDS_SCALE_INNER', boundsAlignment: 0, boundsWidth: cv.w, boundsHeight: cv.h, cropLeft: 0, cropRight: 0, cropTop: 0, cropBottom: 0, rotation: 0 } });
-  } catch (e) {}
+  await obsFit();
   return true;
 }
 async function obsToggle() {
