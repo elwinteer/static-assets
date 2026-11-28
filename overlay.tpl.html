@@ -114,9 +114,9 @@ body.pad .fx.f{box-shadow:0 0 0 2.5px #fff,0 0 22px rgba(255,255,255,.35)!import
 .note{font-size:11.5px;color:var(--mut);line-height:1.5;padding:8px 12px}
 /* varios */
 #toast{position:fixed;left:50%;bottom:172px;transform:translate(-50%,0);padding:10px 18px;border-radius:16px;font-size:13.5px;font-weight:600;background:rgba(20,20,24,.96);border:1px solid rgba(255,255,255,.16);z-index:9;display:none;box-shadow:0 14px 40px rgba(0,0,0,.6)}#toast.on{display:block;animation:tst 2.6s ease both}
-#hint{animation:hin .5s .55s ease both;position:fixed;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;color:#c9c9d2;z-index:4;pointer-events:none;display:flex;justify-content:center;gap:18px}#hint i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+#hint{position:fixed;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;color:#c9c9d2;z-index:4;pointer-events:none;display:flex;justify-content:center;gap:18px}#hint i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
 kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font:600 11px 'Segoe UI',system-ui,sans-serif}.pb2{border-radius:50%;padding:0;min-width:19px;height:19px;display:inline-grid;place-items:center}
-#hint .kp{display:none}#hint .kk{display:inline-flex}body.gp #hint .kp{display:inline-flex}body.gp #hint .kk{display:none}
+#hint{opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}body.gp #hint{opacity:1;transform:none}
 .hid{display:none!important}
 </style></head><body>
 <div class="bd" id="bd"></div>
@@ -129,7 +129,7 @@ kbd,.pb2{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font
   <div class="pr"><span id="t0">0:00</span><div class="pg fx" id="pg" data-a="seek"><i id="pgi"></i><u id="pgd"></u></div><span id="t1">0:00</span></div></div>
  <div class="ibr" id="ibr"></div>
 </div>
-<div id="hint"><i class="kk"><kbd>← ↑ ↓ →</kbd> Mover</i><i class="kk"><kbd>Enter</kbd> Elegir</i><i class="kk"><kbd>Esc</kbd> Atrás</i><i class="kk"><kbd>Shift</kbd><kbd>Tab</kbd> Cerrar</i><i class="kp"><span class="pb2" data-g="A">A</span> Elegir</i><i class="kp"><span class="pb2" data-g="B">B</span> Atrás</i><i class="kp"><span class="pb2" data-g="X">X</span> Pausa</i><i class="kp"><span class="pb2" data-g="Y">Y</span> A la cola</i><i class="kp"><kbd data-g="LB">LB</kbd><kbd data-g="RB">RB</kbd> Pista</i><i class="kp"><kbd data-g="LT">LT</kbd><kbd data-g="RT">RT</kbd> Volumen</i><i class="kp"><kbd>Menú</kbd> Cerrar</i></div>
+<div id="hint"><i class="kp"><span class="pb2" data-g="A">A</span> Elegir</i><i class="kp"><span class="pb2" data-g="B">B</span> Atrás</i><i class="kp"><span class="pb2" data-g="X">X</span> Pausa</i><i class="kp"><span class="pb2" data-g="Y">Y</span> A la cola</i><i class="kp"><kbd data-g="LB">LB</kbd><kbd data-g="RB">RB</kbd> Pista</i><i class="kp"><kbd data-g="LT">LT</kbd><kbd data-g="RT">RT</kbd> Volumen</i><i class="kp"><kbd>Menú</kbd> Cerrar</i></div>
 <script>
 var D=__DATA__;
 function $(i){return document.getElementById(i)}
@@ -188,6 +188,7 @@ function drawProg(){var s=SP.st;if(!s||s.idle||!s.dur){$('pgi').style.width='0';
  var p=Math.min(s.dur,s.pos+(s.pl?Date.now()-s.ts:0)),r=p/s.dur*100;$('pgi').style.width=r+'%';$('pgd').style.left=r+'%';$('t0').textContent=fmt(p);$('t1').textContent=fmt(s.dur)}
 (function lp(){drawProg();requestAnimationFrame(lp)})();
 /* ---------- Spotify ---------- */
+function spErr(r){r=r||{};return r.e==='premium'?'Spotify Premium es necesario para controlar la música':r.e==='nodev'?'No pude abrir Spotify. Abrilo una vez a mano e iniciá sesión':(r.e==='auth'||r.s===401)?'Reconectá Spotify desde Ajustes de música':r.s===429?'Spotify pide esperar unos segundos':r.s===403?'Spotify no dejó reproducir eso (¿cuenta Premium?)':r.s?'Spotify respondió '+r.s:'No se pudo reproducir'}
 function spc(o,a){try{return ov.sp(o,a||{})}catch(e){return Promise.resolve({ok:false})}}
 async function spState(){var r=await spc('state');if(r&&r.ok){SP.on=r.on;SP.cid=r.cid;SP.redir=r.redir;SP.idle=r.idle}drawNow()}
 async function spPoll(){if(!SP.on||Date.now()<(SP.hold||0))return;var r=await spc('now');if(r&&r.ok){SP.st=r;SP.err='';if(r.vol!=null&&!volBusy)SP.vol=r.vol;if(!r.idle)SP.nodev=false;drawNow();if(card==='mus'&&SP.vol!=null)drawVol()}else if(r&&r.s===401){spState()}}
@@ -197,9 +198,9 @@ async function togglePlay(){
  if(!SP.on){openCard('mus');return}
  var s=SP.st;
  if(s&&!s.idle){var pl=!s.pl;s.pl=pl;s.pos=s.pos+(pl?0:(Date.now()-s.ts));s.ts=Date.now();drawNow();await spc(pl?'play':'pause');soon();return}
- var e=await spc('ensure');if(!e.ok){SP.nodev=e.e==='nodev';drawNow();openCard('mus');return}
- var r=await spc('play');if(!r.ok){toast('Elegí algo para escuchar');openCard('mus');SP.tab='p';renderMus()}soon()}
-async function ctrl(op,a){var r=await spc(op,a);if(!r.ok&&op!=='seek')toast('No se pudo. ¿Está Spotify abierto?');soon();return r}
+ toast('Abriendo Spotify…');var e=await spc('ensure');if(!e.ok){SP.nodev=e.e==='nodev';toast(spErr(e));drawNow();openCard('mus');return}
+ var r=await spc('play');if(!r.ok){toast(r.s===404||r.s===403||r.s===400?'Elegí algo para escuchar':spErr(r));openCard('mus');SP.tab='p';renderMus()}soon()}
+async function ctrl(op,a){var r=await spc(op,a);if(!r.ok&&op!=='seek')toast(spErr(r));soon();return r}
 function doShuf(){var s=SP.st;if(!s||s.idle)return;s.sh=!s.sh;drawNow();ctrl('shuffle',{v:s.sh})}
 function doRep(){var s=SP.st;if(!s||s.idle)return;var n={off:'context',context:'track',track:'off'}[s.rp||'off'];s.rp=n;drawNow();ctrl('repeat',{v:n});toast({off:'Repetir: no',context:'Repetir: lista',track:'Repetir: canción'}[n])}
 function seekTo(ms){var s=SP.st;if(!s||s.idle)return;SP.hold=Date.now()+1500;ms=Math.max(0,Math.min(s.dur-500,ms));s.pos=ms;s.ts=Date.now();drawProg();clearTimeout(seekTo.t);seekTo.t=setTimeout(function(){ctrl('seek',{v:ms})},200)}
@@ -297,8 +298,8 @@ document.addEventListener('click',function(e){
  switch(a){
   case 'mus':case 'ach':case 'shots':case 'chat':case 'perf':case 'set':openCard(a);break;
   case 'play':if(t.classList.contains('cbtn')){togglePlay();break}
-   spc('play',{uri:t.dataset.u}).then(function(r){if(!r.ok)toast('No se pudo reproducir');soon();setTimeout(loadQ,900)});break;
-  case 'playc':spc('play',{uri:t.dataset.u}).then(function(r){if(!r.ok)toast('No se pudo reproducir');soon();setTimeout(loadQ,1200)});toast('Reproduciendo…');break;
+   toast('Abriendo Spotify…');spc('play',{uri:t.dataset.u}).then(function(r){if(!r.ok)toast(spErr(r));else toast('Reproduciendo…');soon();setTimeout(loadQ,900)});break;
+  case 'playc':toast('Abriendo Spotify…');spc('play',{uri:t.dataset.u}).then(function(r){if(!r.ok)toast(spErr(r));else toast('Reproduciendo…');soon();setTimeout(loadQ,1200)});break;
   case 'aq':e.stopPropagation();spc('addq',{uri:t.dataset.u}).then(function(r){toast(r.ok?'Agregada a la cola':'No se pudo agregar');setTimeout(loadQ,700)});break;
   case 'next':ctrl('next');break;case 'prev':ctrl('prev');break;case 'shuf':doShuf();break;case 'rep':doRep();break;
   case 'seek':if(e.detail>0&&SP.st&&!SP.st.idle){var r=t.getBoundingClientRect();seekTo((e.clientX-r.left)/r.width*SP.st.dur)}break;

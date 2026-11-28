@@ -598,7 +598,7 @@ function ovClose(anim) {
     try { w.webContents.send('ov', 'bye'); } catch (e) {}
     setTimeout(() => { ovBye = false; if (ovWin === w) ovClose(); }, 480); return;
   }
-  ovBye = false; ovStopPerf(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' });
+  ovBye = false; clearInterval(ovGrabT); ovStopPerf(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' });
 }
 function ovToggle() {
   if (ovWin && !ovWin.isDestroyed()) { ovClose(true); return; }
@@ -683,10 +683,26 @@ function ovOpen(data) {
     ovWin = new BrowserWindow({ x: b.x, y: b.y, width: b.width, height: b.height, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, alwaysOnTop: true, show: false, hasShadow: false, fullscreenable: false, enableLargerThanScreen: true, webPreferences: { sandbox: true, contextIsolation: true, preload: path.join(dir, 'pre.js') } });
     ovWin.setAlwaysOnTop(true, 'screen-saver');
     ovWin.loadFile(path.join(dir, 'ov.html'));
-    ovWin.once('ready-to-show', () => { try { ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.show(); ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.focus(); setTimeout(() => { try { if (ovWin && !ovWin.isDestroyed()) ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); } catch (e) {} }, 120); } catch (e) {} });
-    ovWin.on('closed', () => { ovWin = null; });
+    ovWin.once('ready-to-show', () => { try { ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.show(); ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.focus(); ovGrab(); setTimeout(() => { try { if (ovWin && !ovWin.isDestroyed()) ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); } catch (e) {} }, 120); } catch (e) {} });
+    ovWin.on('closed', () => { ovWin = null; clearInterval(ovGrabT); });
+    ovWin.on('blur', () => { setTimeout(ovGrab, 60); });
+    clearInterval(ovGrabT); ovGrabT = setInterval(ovGrab, 700);
     ovStartPerf();
   } catch (e) {}
+}
+/* Toma el foco de verdad (Windows no deja a una app quitarle el primer plano a un juego): así el juego deja de recibir el mando/teclado */
+let ovGrabT = null, ovGrabBusy = false, ovGrabOff = 0;
+function ovGrab() {
+  try {
+    if (!ovWin || ovWin.isDestroyed() || ovBye || Date.now() < ovGrabOff) return;
+    if (ovWin.isFocused()) return;
+    ovWin.setAlwaysOnTop(true, 'screen-saver'); ovWin.show(); ovWin.focus();
+    if (process.platform !== 'win32' || ovGrabBusy || ovWin.isFocused()) return;
+    const hb = ovWin.getNativeWindowHandle(), h = hb.length >= 8 ? Number(hb.readBigUInt64LE(0)) : hb.readUInt32LE(0);
+    ovGrabBusy = true;
+    const ps = "Add-Type 'using System;using System.Runtime.InteropServices;public class FG{[DllImport(\"user32.dll\")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport(\"user32.dll\")]public static extern IntPtr GetForegroundWindow();[DllImport(\"user32.dll\")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);[DllImport(\"user32.dll\")]public static extern bool AttachThreadInput(uint a,uint b,bool f);[DllImport(\"kernel32.dll\")]public static extern uint GetCurrentThreadId();}';$h=[IntPtr]" + h + ";$f=[FG]::GetForegroundWindow();$p=0;$t=[FG]::GetWindowThreadProcessId($f,[ref]$p);$c=[FG]::GetCurrentThreadId();[void][FG]::AttachThreadInput($c,$t,$true);[void][FG]::SetForegroundWindow($h);[void][FG]::AttachThreadInput($c,$t,$false)";
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps], { windowsHide: true, timeout: 8000 }, () => { ovGrabBusy = false; });
+  } catch (e) { ovGrabBusy = false; }
 }
 function ovHTML(o, shots, started, P, K) {
   const th = o.th || {};
@@ -3680,7 +3696,7 @@ app.whenReady().then(() => {
   } catch (e) {} });
   try { if (cfg.sp && cfg.sp.r && !SPM) SPM = require('./spotify.js').create({ cfg, saveCfg, shell }); } catch (e) {}
   ipcMain.handle('ovSp', async (e, op, a) => { try { if (!ovWin || ovWin.isDestroyed() || e.sender !== ovWin.webContents) return { ok: false }; if (!SPM) SPM = require('./spotify.js').create({ cfg, saveCfg, shell }); return await SPM.call(String(op || ''), a && typeof a === 'object' ? a : {}); } catch (x) { return { ok: false }; } });
-  ipcMain.handle('ovOpen', (_e, n) => { try { const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
+  ipcMain.handle('ovOpen', (_e, n) => { try { ovGrabOff = Date.now() + 8000; const cur = curNonSteam(); if (!cur || !/^c?[\d-T]+\.(jpg|png|webm|mp4)$/.test(String(n))) return; shell.openPath(path.join(SHOTS, String(cur.id).replace(/[^\w.-]/g, '_'), String(n))); } catch (e) {} });
   ipcMain.handle('pzScan', (_e, sd) => { try { return pzScan(String(sd || '')); } catch (e) { return { ok: false, mods: [], active: [] }; } });
   ipcMain.handle('pzApply', (_e, ids, sd) => pzApply(Array.isArray(ids) ? ids.slice(0, 600) : [], String(sd || '')));
   ipcMain.handle('pzSearch', (_e, q, p, so, tg, app) => pzSearch(q, p, String(so || ''), !!tg, app));

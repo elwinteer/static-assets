@@ -122,12 +122,17 @@ function create(ctx) {
         let d = await devices(); if (d === null) return { ok: false, e: 'auth' };
         if (!d.length) {
           if (!(await procs()).length) launch();
-          for (let i = 0; i < 24 && !d.length; i++) { await sleep(1000); d = (await devices()) || []; }
+          for (let i = 0; i < 30 && !d.length; i++) {
+            await sleep(1000); d = (await devices()) || [];
+            if (!d.length && i === 7) { try { launch(); } catch (e) {} }
+            if (!d.length && i === 15) { try { shell.openExternal('spotify:'); } catch (e) {} }
+          }
           if (!d.length) return { ok: false, e: 'nodev' };
           tune();
         }
-        if (!d.some((x) => x.is_active)) { const t = d.find((x) => !x.is_restricted) || d[0]; await api('PUT', '/me/player', { device_ids: [t.id], play: false }); await sleep(500); }
-        return { ok: true };
+        let t = d.find((x) => x.is_active);
+        if (!t) { t = d.find((x) => !x.is_restricted) || d[0]; await api('PUT', '/me/player', { device_ids: [t.id], play: false }); await sleep(700); }
+        return { ok: true, id: t.id };
       } finally { setTimeout(() => { launching = null; }, 800); }
     })();
     return launching;
@@ -169,9 +174,15 @@ function create(ctx) {
       case 'play': {
         const body = {}; if (a.uri && URI.test(a.uri)) { if (/:(track|episode)\:/.test(a.uri) && !a.ctx) body.uris = [a.uri]; else body.context_uri = a.uri; }
         if (a.ctx && URI.test(a.ctx)) { body.context_uri = a.ctx; if (a.uri && URI.test(a.uri)) body.offset = { uri: a.uri }; delete body.uris; }
-        let r = await api('PUT', '/me/player/play', Object.keys(body).length ? body : undefined);
-        if (r.s === 404) { const e = await ensure(); if (e.ok) r = await api('PUT', '/me/player/play', Object.keys(body).length ? body : undefined); }
-        return { ok: r.s < 300 && r.s > 0, s: r.s };
+        const bd = Object.keys(body).length ? body : undefined;
+        let r = await api('PUT', '/me/player/play', bd);
+        if (r.s === 404 || r.s === 502 || r.s === 503) {
+          const e = await ensure(); if (!e.ok) return { ok: false, e: e.e || 'nodev', s: r.s };
+          r = await api('PUT', '/me/player/play' + (e.id ? '?device_id=' + encodeURIComponent(e.id) : ''), bd);
+          if (r.s === 404) { await sleep(1200); r = await api('PUT', '/me/player/play' + (e.id ? '?device_id=' + encodeURIComponent(e.id) : ''), bd); }
+        }
+        const rs = r.d && r.d.error && r.d.error.reason;
+        return { ok: r.s < 300 && r.s > 0, s: r.s, e: r.s === 403 && /PREMIUM/i.test(rs || '') ? 'premium' : (r.s === 401 ? 'auth' : '') };
       }
       case 'pause': { const r = await api('PUT', '/me/player/pause'); return { ok: r.s < 300 }; }
       case 'next': { const r = await api('POST', '/me/player/next'); return { ok: r.s < 300 }; }
