@@ -576,14 +576,21 @@ function takeClip() {
 let achWin = null;
 
 /* ---------- overlay en juego (Shift+Tab) ---------- */
-let SPM = null, ovWin = null, ovReg = '', ovPend = null, ovPerfT = null, ovTp = null, ovGpu = 0, ovCpuPrev = null, ovTemps = { cpu: null, gpu: null, ok: false }, ovTempT = 0;
+let SPM = null, ovBye = false, ovWin = null, ovReg = '', ovPend = null, ovPerfT = null, ovTp = null, ovGpu = 0, ovCpuPrev = null, ovTemps = { cpu: null, gpu: null, ok: false }, ovTempT = 0;
 const OVP = () => path.join(app.getPath('userData'), 'ov');
 const OVD = { ach: true, shots: true, chat: true, perf: true };
 const ovPanes = () => Object.assign({}, OVD, cfg.ovPanes || {});
 function ovStopPerf() { try { clearInterval(ovPerfT); } catch (e) {} ovPerfT = null; try { if (ovTp) ovTp.kill(); } catch (e) {} ovTp = null; ovGpu = 0; }
-function ovClose() { ovStopPerf(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' }); }
+function ovClose(anim) {
+  if (anim && ovWin && !ovWin.isDestroyed()) {
+    if (ovBye) return; const w = ovWin; ovBye = true;
+    try { w.webContents.send('ov', 'bye'); } catch (e) {}
+    setTimeout(() => { ovBye = false; if (ovWin === w) ovClose(); }, 260); return;
+  }
+  ovBye = false; ovStopPerf(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' });
+}
 function ovToggle() {
-  if (ovWin && !ovWin.isDestroyed()) { ovClose(); return; }
+  if (ovWin && !ovWin.isDestroyed()) { ovClose(true); return; }
   const cur = curNonSteam(); if (!cur) return;
   if (ovPend) return;
   ovPend = setTimeout(() => { ovPend = null; ovOpen({ id: cur.id, name: String(cur.id), items: [], t: cur.t.started }); }, 900);
@@ -674,7 +681,7 @@ function ovHTML(o, shots, started, P, K) {
   const th = o.th || {};
   const SAFE = (s) => String(s || '').replace(/[^#\w\s,.()%-]/g, '').slice(0, 60);
   const T = { a: SAFE(th.a) || '#f2f2f5', a2: SAFE(th.a2) || '#ffffff', rgb: SAFE(th.rgb) || '242,242,245', on: SAFE(th.on) || '#0c0c0e' };
-  const data = { name: o.name, items: Array.isArray(o.items) ? o.items.slice(0, 40) : [], shots, started: +started || 0, P, K };
+  const data = { name: o.name, img: /^(data:image\/|https?:\/\/|file:)/i.test(String(o.img || '')) && String(o.img).length < 400000 ? String(o.img) : '', items: Array.isArray(o.items) ? o.items.slice(0, 40) : [], shots, started: +started || 0, P, K };
   const json = JSON.stringify(data).replace(/</g, '\\u003c');
   let html = fs.readFileSync(path.join(__dirname, 'overlay.tpl.html'), 'utf8');
   return html.split('__A2__').join(T.a2).split('__A__').join(T.a).split('__RGB__').join(T.rgb).split('__ON__').join(T.on).split('__DATA__').join(json);
@@ -3649,11 +3656,11 @@ app.whenReady().then(() => {
   ipcMain.handle('shotsMerge', (_e, o) => { try { return shotsMerge(o.from, o.to); } catch (e) { return { ok: false, err: String(e.message || e) }; } });
   ipcMain.handle('achToast', (_e, o) => { achToast(o); return true; });
   ipcMain.handle('clipSrc', async () => { try { const srcs = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 1, height: 1 } }); const d = screen.getPrimaryDisplay(); const x = srcs.find((q) => String(q.display_id) === String(d.id)) || srcs[0]; return x ? x.id : ''; } catch (e) { return ''; } });
-  ipcMain.handle('ovData', (_e, o) => { try { o = o || {}; ovOpen({ id: String(o.id || ''), name: String(o.name || ''), items: Array.isArray(o.items) ? o.items : [], t: +o.t || 0, th: o.th || {} }); } catch (e) {} return true; });
+  ipcMain.handle('ovData', (_e, o) => { try { o = o || {}; ovOpen({ id: String(o.id || ''), name: String(o.name || ''), img: String(o.img || ''), items: Array.isArray(o.items) ? o.items : [], t: +o.t || 0, th: o.th || {} }); } catch (e) {} return true; });
   ipcMain.handle('ovState', (_e, o) => { try { if (ovWin && !ovWin.isDestroyed()) ovWin.webContents.send('ov', 'st', o); } catch (e) {} return true; });
   ipcMain.handle('ovAct', (_e, a) => { try {
     a = typeof a === 'string' ? { a } : (a || {});
-    if (a.a === 'close') { ovClose(); return; }
+    if (a.a === 'close') { ovClose(true); return; }
     if (a.a === 'shot') { ovClose(); setTimeout(takeShot, 350); }
     if (a.a === 'clip') { ovClose(); setTimeout(takeClip, 350); }
     if (a.a === 'set' && ['ach', 'shots', 'chat', 'perf'].includes(a.k)) { cfg.ovPanes = Object.assign({}, cfg.ovPanes || {}, { [a.k]: !!a.v }); saveCfg(); }
