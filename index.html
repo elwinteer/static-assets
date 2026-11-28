@@ -6302,7 +6302,7 @@ const TG={1:'Acción',2:'Estrategia',3:'RPG',4:'Casual',9:'Carreras',18:'Deporte
 const GENRE_IDS=[1,2,3,4,9,18,23,25,28];
 const genresOf=g=>(GEN[g.app]||[]).filter(c=>GENRE_IDS.includes(c)).map(c=>TG[c]);
 const tagsOf=g=>[...new Set([...(GEN[g.app]||[]).map(c=>TG[c]).filter(Boolean),...(g.tags||[]),...(g.exe?['Otras tiendas']:[])])];
-const doneN=()=>G.filter(g=>g.status==='Terminado').length;
+const doneN=()=>GP().filter(g=>g.status==='Terminado').length;
 const RK=[['Sin empezar','Todavía no lo jugaste','lock'],['Novato','Abriste el juego','flake'],['Aprendiz','Más de 2 horas','star'],['Experto','Mitad de la historia','shield'],['Leyenda','Juego completado','crown']];
 function rankOf(g){const h=g.hours||0,m=parseFloat((g.hl||{}).m)||0;if(g.status==='Terminado')return 4;if(h<=0)return 0;if(h<2)return 1;if(h>=(m?m/2:10))return 3;return 2}
 function rankNext(g){const r=rankOf(g),h=g.hours||0,m=parseFloat((g.hl||{}).m)||0;if(r>=4)return {t:'¡Rango máximo! Este juego ya brilla en oro.',p:100};
@@ -6321,8 +6321,8 @@ const GA=[
  ['lib500','Glaciar','Tené 500 juegos en tu biblioteca','shield','e',()=>G.length>=500],
  ['h100','Entrada en calor','Juntá 100 horas jugadas','clock','c',()=>totalH()>=100],
  ['h1000','Maratón polar','Juntá 1000 horas jugadas','clock','e',()=>totalH()>=1000],
- ['fiel','Fiel compañero','100 horas en un solo juego','flame','r',()=>G.some(g=>g.hours>=100)],
- ['var','Explorador','Jugá 25 juegos distintos','compass','r',()=>G.filter(g=>g.hours>0).length>=25],
+ ['fiel','Fiel compañero','100 horas en un solo juego','flame','r',()=>GP().some(g=>g.hours>=100)],
+ ['var','Explorador','Jugá 25 juegos distintos','compass','r',()=>GP().filter(g=>g.hours>0).length>=25],
  ['exe','Rebelde','Agregá un juego de otra tienda','bolt','c',()=>G.some(g=>g.exe)],
  ['resc','Deshielo','Volvé a jugar un juego abandonado','flame','r',()=>(ST.rescued||0)>0],
  ['str7','Constancia','Jugá 7 días seguidos','cal','r',()=>streakAll()>=7],
@@ -6386,10 +6386,12 @@ if(ST.fxm==='full')ST.fxm='lite';
 if(ST.light||ST.dark===false){ST.light=false;ST.dark=true}
 if(!ST.thv){if((ST.accent||'').toLowerCase()==='#8b5cf6'){ST.accent=DEFA;delete ST.bgm;delete ST.ice}ST.thv=1}
 G.forEach(g=>{if('fam' in g)delete g.fam});
+G.forEach(g=>{if(/^(lossless scaling|wallpaper engine)$/i.test(String(g.name||'').trim())&&!(g.tags||[]).includes('Software'))g.tags=[...(g.tags||[]),'Software']});
 G.forEach(g=>{if(g.tags&&g.tags.includes('Fuera de Steam'))g.tags=g.tags.filter(t=>t!=='Fuera de Steam')});
 try{const _d=s=>atob(s).split('').reverse().join('');if(!ST.igid)ST.igid=_d('ZGE3bjVoa3MwMXppbWVkZmtidXh6NXZleWtrdWsw');if(!ST.igsec)ST.igsec=_d('aHcyNWJvMHp6ZGU3b3JmcHltdmQ3Yno3bXF3cnpq');if(!ST.key)ST.key=_d('OTcwZGQ3OTcyYzEzODlmMGMxMmIyZjk5MjVlZGVmYzY=');if(ST.useSgdb!==false)ST.useSgdb=true;ST.useSgdb=true}catch(e){}
 const save=()=>{XPC_T=0;try{vPurge()}catch(e){}try{checkGA()}catch(e){}try{localStorage.setItem('winteer2',JSON.stringify({ST,G}))}catch(e){}};
 const gm=id=>G.find(g=>g.id===id);
+const SWRE=/^(lossless scaling|wallpaper engine)$/i,swOf=g=>!!g&&((g.tags||[]).includes('Software')||SWRE.test(String(g.name||'').trim())),GP=()=>G.filter(g=>!swOf(g));
 const vL=()=>ST.vlt&&Array.isArray(ST.vlt.g)?ST.vlt:null;
 const vIsId=id=>{const L=vL();return !!(L&&id&&L.g.some(v=>v.id===id))};
 const vX=id=>{const L=vL();if(!L)return {};L.x=L.x||{};return L.x[id]=L.x[id]||{}};
@@ -6448,7 +6450,7 @@ function setAccent(h){ST.accent=h;applyLook()}
 setAccent(ST.accent);
 
 /* ---------- utilidades ---------- */
-const totalH=()=>G.reduce((s,g)=>s+g.hours,0);
+const totalH=()=>GP().reduce((s,g)=>s+g.hours,0);
 const fh=h=>h>0?(h<1?Math.round(h*60)+' min':h.toFixed(1)+' h'):'—';
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -6523,7 +6525,7 @@ const V={};
 function week(){const out=[],names=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
   for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);out.push([names[d.getDay()],ST.log[`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`]||0])}return out}
 const barsHTML=(w,min)=>{const mx=Math.max(2,...w.map(x=>x[1]));return `<div class="bars" style="min-height:${min}px">${w.map((x,i)=>`<div class="bar" title="${x[1].toFixed(1)} h"><i style="--h:${x[1]/mx*100}%;--d:${i}"></i></div>`).join('')}</div><div class="days">${w.map(x=>`<span>${x[0]}</span>`).join('')}</div>`};
-const stCount=s=>G.filter(g=>stOf(g)===s).length;
+const stCount=s=>GP().filter(g=>stOf(g)===s).length;
 
 function rp(){
   const feat=(S.playing&&gm(S.playing.id))||G.find(g=>stOf(g)==='Jugando');
@@ -6730,15 +6732,15 @@ function heatHTML(y,days){const off=(new Date(y,0,1).getDay()+6)%7,n=(y%4===0&&(
   return `<div class="heatw"><div class="heat">${c}</div></div><div class="hleg">Menos <i class="hz"></i><i class="hz l1"></i><i class="hz l2"></i><i class="hz l3"></i><i class="hz l4"></i> Más</div>`}
 V.stats=()=>{
   const cy=new Date().getFullYear(),ys=wrapYears().filter(x=>x>=2026),y=ys.includes(S.sy)?S.sy:cy,d=statYear(y);
-  const played=G.filter(g=>g.hours>0),top=[...played].sort((a,b)=>b.hours-a.hours).slice(0,10),mx=top.length?top[0].hours:1;
-  const stc=STATUS.map(s=>[s,stCount(s)]),tot=G.length||1;let acc=0;
+  const played=GP().filter(g=>g.hours>0),top=[...played].sort((a,b)=>b.hours-a.hours).slice(0,10),mx=top.length?top[0].hours:1;
+  const stc=STATUS.map(s=>[s,stCount(s)]),tot=GP().length||1;let acc=0;
   const cg=stc.filter(x=>x[1]).map(([s,n])=>{const a=acc;acc+=n/tot*100;return `${SCOL[s]} ${a}% ${acc}%`}).join(',');
   const gen={};played.forEach(g=>{const l=genresOf(g);(l.length?l:((INFO[g.id]||{}).gen||[])).forEach(t=>gen[t]=(gen[t]||0)+g.hours)});
   const gl=Object.entries(gen).sort((a,b)=>b[1]-a[1]).slice(0,6),gmx=gl.length?gl[0][1]:1;
-  const bl=G.filter(g=>stOf(g)==='Sin empezar'),blh=bl.reduce((t,g)=>t+(parseFloat((g.hl||{}).m)||0),0),bln=bl.filter(g=>parseFloat((g.hl||{}).m)>0).length;
-  const goal=ST.goal||12,dn=G.filter(g=>g.status==='Terminado'&&yOf(doneDate(g))===y).length,gp=Math.min(100,dn/goal*100);
+  const bl=GP().filter(g=>stOf(g)==='Sin empezar'),blh=bl.reduce((t,g)=>t+(parseFloat((g.hl||{}).m)||0),0),bln=bl.filter(g=>parseFloat((g.hl||{}).m)>0).length;
+  const goal=ST.goal||12,dn=GP().filter(g=>g.status==='Terminado'&&yOf(doneDate(g))===y).length,gp=Math.min(100,dn/goal*100);
   const mmx=Math.max(1,...d.month),wmx=Math.max(1,...d.wd),bmi=d.tot>0?d.month.indexOf(Math.max(...d.month)):-1,bwi=d.tot>0?d.wd.indexOf(Math.max(...d.wd)):-1;
-  const rate=G.length?Math.round(doneN()/Math.max(1,played.length)*100):0,avg=d.n?d.tot/d.n:0;
+  const rate=GP().length?Math.round(doneN()/Math.max(1,played.length)*100):0,avg=d.n?d.tot/d.n:0;
   const ins=[['Mes más fuerte',bmi>=0?`${MN[bmi]} · ${d.month[bmi].toFixed(1)} h`:'—'],['Día favorito',bwi>=0?['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][bwi]:'—'],['Día récord',d.max?`${d.max.toFixed(1)} h`:'—'],['Promedio por día activo',d.n?avg.toFixed(1)+' h':'—'],['Mayor racha',d.streak?d.streak+(d.streak===1?' día':' días'):'—'],['Juego más jugado',top[0]?esc(top[0].name):'—']];
   const WDF=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   const bars=(arr,lab,mx2,hi)=>`<div class="stx-bars">${arr.map((h,i)=>`<div class="stx-b ${i===hi?'hi':''}" title="${h.toFixed(1)} h"><em>${h>=1?Math.round(h):(h>0?h.toFixed(1):'')}</em><div><i style="--h:${h/mx2*100}%"></i></div><span>${lab[i]}</span></div>`).join('')}</div>`;
@@ -6782,9 +6784,9 @@ function s3RecCalc(){
     const mo={};dk.forEach(x=>{const q=x.slice(0,x.lastIndexOf('-'));mo[q]=(mo[q]||0)+L[x]});const mk=Object.keys(mo).reduce((a,x)=>mo[x]>mo[a]?x:a),[y2,m2]=mk.split('-').map(Number);
     R.push(['mes','flame',mo[mk],fh(mo[mk]),'Mes con más horas',new Date(y2,m2-1,1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})]);
     const rn=runs(dk.map(dayN));if(rn>1)R.push(['rac','bolt',rn,rn+' días','Racha más larga','días seguidos jugando'])}
-  const dn=G.filter(g=>g.status==='Terminado'&&g.hours>0);
+  const dn=GP().filter(g=>g.status==='Terminado'&&g.hours>0);
   if(dn.length){const g=dn.reduce((a,x)=>x.hours<a.hours?x:a);R.push(['rap','check',g.hours,fh(g.hours),'Terminado más corto',g.name,1])}
-  const yy={};G.filter(g=>g.status==='Terminado').forEach(g=>{const t=doneDate(g);if(t){const y=new Date(t).getFullYear();yy[y]=(yy[y]||0)+1}});
+  const yy={};GP().filter(g=>g.status==='Terminado').forEach(g=>{const t=doneDate(g);if(t){const y=new Date(t).getFullYear();yy[y]=(yy[y]||0)+1}});
   const yk=Object.keys(yy).reduce((a,x)=>yy[x]>(yy[a]||0)?x:a,'');
   if(yk&&yy[yk]>1)R.push(['ter','trophy',yy[yk],yy[yk]+' juegos','Más terminados en un año',yk]);
   const RC=ST.rec=ST.rec||{};let ch=0;const now=Date.now();
@@ -6801,15 +6803,15 @@ function s3TopHtml(mode){
  let list;
  if(mode==='m'){const h={};const GL=ST.gl||{};let any=false;for(const k in GL){if(k.startsWith(pre))for(const id in GL[k]){h[id]=(h[id]||0)+GL[k][id];any=true}}
   if(!any){const t0=new Date(now.getFullYear(),now.getMonth(),1).getTime();(ST.ses||[]).forEach(x=>{if(x.s>=t0)h[x.g]=(h[x.g]||0)+x.h})}
-  list=G.map(g=>({g,h:h[g.id]||0})).filter(x=>x.h>0)}
- else list=G.filter(g=>g.hours>0).map(g=>({g,h:g.hours}));
+  list=GP().map(g=>({g,h:h[g.id]||0})).filter(x=>x.h>0)}
+ else list=GP().filter(g=>g.hours>0).map(g=>({g,h:g.hours}));
  list=list.sort((a,b)=>b.h-a.h).slice(0,mode==='m'?5:10);const mx=list.length?list[0].h:1;
  const hh=v=>v>=1?fh(v):Math.max(1,Math.round(v*60))+' min';
  return `<h3>Lo más jugado${mode==='m'?` · ${MES}`:''}<span class="s3sw" data-m="${mode}"><button data-a="s3tp" data-v="m" class="${mode==='m'?'on':''}">Este mes</button><button data-a="s3tp" data-v="t" class="${mode==='t'?'on':''}">Total</button></span></h3>${list.length?`<div class="s3top ${mode==='t'?'t10':'t5'}">${list.map((x,i)=>`<div data-a="open" data-id="${x.g.id}" style="--r:${i}"><em>${i+1}</em><span class="s3ic">${thumb(x.g)}</span><div><div class="s3r"><b>${esc(x.g.name)}</b><span>${hh(x.h)}</span></div><div class="s3p"><i style="--w:${x.h/mx*100}%"></i></div></div></div>`).join('')}</div>`:`<div class="s3e">${mode==='m'?'Todavía no jugaste nada este mes. A medida que juegues, acá se arma tu top 10 (se reinicia cada mes).':'Sin juegos todavía.'}</div>`}`}
 V.statsOld=V.stats;
 V.stats=()=>{
   const cy=new Date().getFullYear(),ys=wrapYears().filter(x=>x>=2026),y=ys.includes(S.sy)?S.sy:cy,d=statYear(y);
-  const played=G.filter(g=>g.hours>0),top=[...played].sort((a,b)=>b.hours-a.hours).slice(0,5),tg=top[0],th=totalH();
+  const played=GP().filter(g=>g.hours>0),top=[...played].sort((a,b)=>b.hours-a.hours).slice(0,5),tg=top[0],th=totalH();
   const gen={};played.forEach(g=>{const l=genresOf(g);(l.length?l:((INFO[g.id]||{}).gen||[])).forEach(t=>gen[t]=(gen[t]||0)+g.hours)});
   const gl=Object.entries(gen).sort((a,b)=>b[1]-a[1]).slice(0,4),gt=gl.reduce((t,x)=>t+x[1],0)||1,GC=['#ff9a3c','#ffcf6a','#8ea2ff','#7be0b0'];
   const hrD=(()=>{const a=Array(24).fill(0);for(const x of (ST.ses||[])){let t=x.s,end=x.s+x.h*36e5;while(t<end){const e=Math.min(end,t+6e5);a[new Date(t).getHours()]+=(e-t)/36e5;t=e}}return a})();
@@ -6844,7 +6846,7 @@ function wrapData(y,q){q=q||0;const inQ=m=>!q||(m>=(q-1)*3+1&&m<=q*3),inP=t=>t&&
   for(const k in GL){const kk=k.split('-');if(+kk[0]!==y||!inQ(+kk[1]))continue;for(const id in GL[k])per[id]=(per[id]||0)+GL[k][id]}
   let pool=Object.entries(per).filter(e=>gm(e[0])).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>[gm(e[0]),e[1]]),fb=false;
   const aDays=new Set(),aG={};let ach=0;G.forEach(g=>{const o=ACHT[g.app];if(!o)return;for(const k in o)if(+k.slice(0,4)===y&&inQ(+k.slice(5,7))){aDays.add(k);aG[g.id]=(aG[g.id]||0)+o[k];ach+=o[k]}});
-  const inY=G.filter(g=>inP(lastTs(g))||aG[g.id]);
+  const inY=GP().filter(g=>inP(lastTs(g))||aG[g.id]);
   if(!pool.length){fb=true;pool=inY.filter(g=>g.hours>0).sort((a,b)=>(aG[b.id]||0)-(aG[a.id]||0)||b.hours-a.hours).slice(0,5).map(g=>[g,g.hours]).sort((a,b)=>b[1]-a[1])}
   const FX=q?null:WFIX[y];let fixed=false;
   if(FX){fixed=true;fb=true;ST.wsnap=ST.wsnap||{};const cy=new Date().getFullYear();pool=[];
@@ -6853,7 +6855,7 @@ function wrapData(y,q){q=q||0;const inQ=m=>!q||(m>=(q-1)*3+1&&m<=q*3),inP=t=>t&&
       if(y<cy){if(ST.wsnap[key]==null){ST.wsnap[key]=h;save()}h=ST.wsnap[key]}
       const g0=gs.length>1?{...gs[0],name:'The Walking Dead (saga)'}:gs[0];pool.push([g0,h])});pool.sort((a,b)=>b[1]-a[1])}
   const played=Object.keys(per).length||inY.length;
-  const done=G.filter(g=>g.status==='Terminado'&&inP(doneDate(g))).sort((a,b)=>doneDate(a)-doneDate(b));
+  const done=GP().filter(g=>g.status==='Terminado'&&inP(doneDate(g))).sort((a,b)=>doneDate(a)-doneDate(b));
   const gen={};(fixed?pool.map(p=>p[0]):fb?inY:Object.keys(per).map(gm).filter(Boolean)).forEach(g=>{const w=fb?1:per[g.id];wGen5(g).forEach(t=>gen[t]=(gen[t]||0)+w)});
   const mx=Math.max(...month);
   const ad=[...aDays].map(k=>dayN(k)).sort((a,b)=>a-b);
@@ -7551,7 +7553,7 @@ function lvlOf(){const x=xpOf();let o=ST.lv;if(!o||typeof o.l0!=='number'){o=ST.
   if(x>o.last){o.acc+=x-o.last;o.last=x;try{save()}catch(e){}}else if(x<o.last){o.last=x;try{save()}catch(e){}}
   const l0=o.l0,span=LV_MAX-l0,l=Math.min(LV_MAX,l0+Math.floor(span*Math.sqrt(o.acc/LV_T))),a=lvNeed(l,l0),b=l>=LV_MAX?a:lvNeed(l+1,l0);
   return{l,x,pct:l>=LV_MAX?100:Math.min(100,Math.max(0,(o.acc-a)/(b-a)*100)),next:l>=LV_MAX?0:Math.max(1,Math.ceil(b-o.acc)),t:LV_TT[Math.min(7,Math.floor(l/12))]}}
-function badgesOf(){const p=PR()||{},rt=G.filter(g=>g.rate>0).length;
+function badgesOf(){const p=PR()||{},rt=GP().filter(g=>g.rate>0).length;
   return [['Primer final','Completá un juego','check',doneN()>=1],['Diez finales','Completá 10 juegos','trophy',doneN()>=10],['Biblioteca grande','Tené 200 juegos','games',G.length>=200],['Coleccionista','Tené 500 juegos','crown',G.length>=500],
   ['Cien horas','Sumá 100 h jugadas','clock',totalH()>=100],['Mil horas','Sumá 1000 h jugadas','flame',totalH()>=1000],['Logrero','10 logros desbloqueados','bolt',gaN()>=10],['Racha de 7','7 días seguidos','flake',streakAll()>=7],
   ['Crítico','Calificá 5 juegos','star',rt>=5],['Instalador','10 juegos instalados','shield',G.filter(instOf).length>=10],['Perfil listo','Elegí tus 5 favoritos','compass',(p.fav||[]).length>=5],['Cronista','Escribí 10 reseñas','edit',RV().filter(r=>r.text).length>=10],['Fotógrafo','5 entradas con capturas','img',RV().filter(r=>(r.files||[]).length).length>=5]]}
@@ -7664,7 +7666,7 @@ function rareData(){const L=ST.log||{},GL=ST.gl||{},o={};
   const dc={};for(const k in GL)for(const id in GL[k])if(GL[k][id]>0)dc[id]=(dc[id]||0)+1;
   const top=Object.entries(dc).sort((a,b)=>b[1]-a[1]).map(([id,n])=>[gm(id),n]).filter(x=>x[0])[0];if(top)o.back={g:top[0],n:top[1]};
   const hr=Array(24).fill(0),ses=ST.ses||[];ses.forEach(x=>{let t=x.s,end=x.s+x.h*36e5;while(t<end){const st=Math.min(end,t+6e5);hr[new Date(t).getHours()]+=(st-t)/36e5;t=st}});o.hr=hr;o.nses=ses.length;
-  const gc={};G.forEach(g=>{if(!(g.hours>0))return;const ge=genresOf(g);ge.forEach(n=>gc[n]=(gc[n]||0)+g.hours/ge.length)});o.gen=Object.entries(gc).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const gc={};GP().forEach(g=>{if(!(g.hours>0))return;const ge=genresOf(g);ge.forEach(n=>gc[n]=(gc[n]||0)+g.hours/ge.length)});o.gen=Object.entries(gc).sort((a,b)=>b[1]-a[1]).slice(0,4);
   const rk={c:0,r:1,e:2,l:3,m:4};o.hito=GA.filter(x=>(ST.gach||{})[x[0]]).sort((x,y)=>rk[y[4]]-rk[x[4]]||ST.gach[y[0]]-ST.gach[x[0]])[0];return o}
 function rarezasBody(){const d=rareData(),mx=Math.max(.001,...d.hr),pk=d.hr.indexOf(mx),gm0=d.gen.length?d.gen[0][1]:1,ok=d.nses>=3;
   const when=h=>h<6?'de madrugada':h<12?'de mañana':h<19?'de tarde':'de noche';
@@ -7692,7 +7694,7 @@ function homeBanners(){const wnew=wrapNew()[0],gy=gyYear(),pend=gy&&!GY()[gy];le
   else if(pend)h+=gyBanner(gy);
   return h}
 function gyBanner(y){const end=new Date(y,11,1).getTime(),left=end-Date.now(),d=Math.floor(left/864e5),hh=Math.floor(left%864e5/36e5);
-  const cov=G.filter(g=>g.hours>0).sort((a,b)=>b.hours-a.hours).slice(0,3);
+  const cov=GP().filter(g=>g.hours>0).sort((a,b)=>b.hours-a.hours).slice(0,3);
   return `<section class="gy-ban rise" style="--i:1"><div class="gb-l"><small>${ic('trophy')} ${left>0?'SEMANA DEL JUEGO DEL AÑO':'JUEGO DEL AÑO'}</small><h2>¿Cuál fue tu juego de ${y}?</h2><div class="gb-a"><button class="gb-btn" data-a="gyopen">Elegir mi GOTY</button><span>${left>0?`Se habilita el Wrapped en <b>${d} d ${hh} h</b> · `:''}Queda en tu Wrapped ${y}</span></div></div><div class="gb-r">${cov.map((g,i)=>`<img class="gp${i}" src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`).join('')}</div></section>`}
 V.home=()=>{
   const p=PR(),pp=p||{name:UN(),handle:hnd(UN()),av:{k:ST.avc?'custom':'letter',c:0},ban:{k:'g',i:0},genres:[],fav:[]},L=lvlOf();
@@ -7710,7 +7712,7 @@ V.home=()=>{
      ${pp.bio?`<p class="pf-bio">${esc(pp.bio)}</p>`:''}<div class="pf-chips">${chipsP(pp)}</div></div>
     <div class="pf-xp"><div class="pf-xt"><b>${Math.round(L.x)} XP</b><span>faltan ${L.next} para el nivel ${L.l+1}${rwNext()}</span></div><div class="pf-bar"><i style="--w:${L.pct}%"></i></div></div></div>
    ${p?'':`<div class="pf-cta"><div><b>Todavía no creaste tu perfil</b><span>Elegí avatar, portada, tus favoritos y dejá el launcher a tu gusto.</span></div><button class="hm-go" data-a="obedit">Crear mi perfil</button></div>`}
-   <div class="pf-stats s4">${[['Juegos',G.length,'games',''],['Horas',Math.round(totalH()),'clock',' h'],['Completados',dn,'trophy',''],['Logros',gaN(),'bolt','']].map(s=>`<div class="pf-st">${ic(s[2])}<div><b data-count="${s[1]}" data-suf="${s[3]}">0</b><span>${s[0]}</span></div></div>`).join('')}</div>
+   <div class="pf-stats s4">${[['Juegos',GP().length,'games',''],['Horas',Math.round(totalH()),'clock',' h'],['Completados',dn,'trophy',''],['Logros',gaN(),'bolt','']].map(s=>`<div class="pf-st">${ic(s[2])}<div><b data-count="${s[1]}" data-suf="${s[3]}">0</b><span>${s[0]}</span></div></div>`).join('')}</div>
   </section>
   ${homeBanners()}
   <div class="ht-row rise" style="--i:1" id="htr">${homeTabs()}</div>
@@ -7798,7 +7800,7 @@ function h2Week(){const w=week(),st=h2streak(),nm=['D','L','M','X','J','V','S'];
   return `<section class="h2-c h2-wk rise" style="--i:4"><h3><b class="hdt"><i class="hdi fi">${ic('hd_flame')}</i>Racha semanal</b><span class="fire">${st>0?'🔥 '+st+(st===1?' día':' días'):'Jugá hoy para empezar'}</span></h3><div class="wk">${w.map((x,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return `<span class="${x[1]>0?'f':''}${i===6?' t':''}" style="--d:${i}" title="${x[1].toFixed(1)} h"><i></i>${nm[d.getDay()]}</span>`}).join('')}</div></section>`}
 function h2Pet(){const p=petCur();if(!p)return `<section class="h2-c h2-pt rise" style="--i:5" data-a="go" data-v="pet"><h3>Mi mascota</h3><p class="sub0" style="margin:0">Adoptá una mascota y acompañá tu launcher.</p></section>`;
   const m=petMood(p),MD=PMOOD[m];return `<section class="h2-c h2-pt rise" style="--i:5"><div class="pr" data-a="go" data-v="pet"><span class="pm-av">${petFace(p,60)}</span><div><b>${esc(p.name)}</b><small>Nivel ${pLvl(p)} · ${MD[1]} ${MD[0]}</small><span class="pm-x"><i style="width:${pLvlPct(p)}%"></i></span></div></div><span class="pm-q"><button data-a="petfeed" title="Alimentar">🍖</button><button data-a="petpat" title="Mimar">💗</button></span></section>`}
-function h2Tick(){const g=goalsList()[0],p=petCur(),it=[`${G.length} juegos en tu biblioteca`,`${Math.round(totalH())} h jugadas`,`${gaN()} hitos desbloqueados`,`${doneN()} juegos completados`];
+function h2Tick(){const g=goalsList()[0],p=petCur(),it=[`${GP().length} juegos en tu biblioteca`,`${Math.round(totalH())} h jugadas`,`${gaN()} hitos desbloqueados`,`${doneN()} juegos completados`];
   if(g)it.push(`Te faltan ${Math.max(0,Math.round((g.t-g.c)*10)/10)} para «${g.n}»`);if(p)it.push(`${p.name} está en nivel ${pLvl(p)}`);const st=h2streak();if(st>1)it.push(`Racha de ${st} días`);
   const h=it.map(x=>`<span>${esc(x)}</span>`).join('');return `<div class="h2-tick rise" style="--i:6"><b>HOY</b><div class="mv"><div class="tr" style="--d:${it.length*5}s">${h}${h}</div></div></div>`}
 function h2Resumen(){return `<section class="h2-c h2-rs rise" style="--i:2" ><h3><b class="hdt"><i class="hdi">${ic('hd_chart')}</i>Tu resumen</b><button class="n1all" data-a="h2to" data-v="stats">Estadísticas ${ic('arrow')}</button></h3><div class="rs3"><div><i class="ri">${ic('hd_clock')}</i><b>${Math.round(totalH()).toLocaleString('es-AR')}</b><small>horas</small></div><div><i class="ri">${ic('hd_check')}</i><b>${doneN()}</b><small>completados</small></div><div><i class="ri">${ic('hd_trophy')}</i><b>${gaN()}</b><small>hitos</small></div></div></section>`}
@@ -7832,7 +7834,7 @@ Object.assign(A,{
 });
 
 /* ---------- extras del perfil ---------- */
-function profFicha(){const y=new Date().getFullYear(),d=statYear(y),pl=G.filter(g=>g.hours>0);
+function profFicha(){const y=new Date().getFullYear(),d=statYear(y),pl=GP().filter(g=>g.hours>0);
   const gen={};pl.forEach(g=>{const l=genresOf(g);(l.length?l:((INFO[g.id]||{}).gen||[])).forEach(t=>gen[t]=(gen[t]||0)+g.hours)});
   const tg=Object.entries(gen).sort((a,b)=>b[1]-a[1])[0],tp=[...pl].sort((a,b)=>b.hours-a.hours)[0];
   const WD=['lunes','martes','miércoles','jueves','viernes','sábado','domingo'],bw=d.tot>0?d.wd.indexOf(Math.max(...d.wd)):-1;
@@ -9154,19 +9156,19 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='rv-aw
 let HC={};
 const HCATS=['Finales','Biblioteca','Horas','Constancia','Exploración','Diario','Perfil','Logros','Secretos'];
 const HPTS={c:10,r:25,e:50,l:100,m:2000};
-function hcCalc(){const pl=G.filter(g=>g.hours>0),rv=RV(),txt=rv.filter(r=>r.text),gn=new Set(),gh={},pm={};
+function hcCalc(){const pl=GP().filter(g=>g.hours>0),rv=RV(),txt=rv.filter(r=>r.text),gn=new Set(),gh={},pm={};
   pl.forEach(g=>genresOf(g).forEach(t=>{gn.add(t);gh[t]=(gh[t]||0)+g.hours}));
-  G.filter(g=>g.status==='Terminado').forEach(g=>{const t=doneDate(g);if(t){const d=new Date(t),k=d.getFullYear()+'-'+d.getMonth();pm[k]=(pm[k]||0)+1}});
+  GP().filter(g=>g.status==='Terminado').forEach(g=>{const t=doneDate(g);if(t){const d=new Date(t),k=d.getFullYear()+'-'+d.getMonth();pm[k]=(pm[k]||0)+1}});
   let ach=0;for(const k in ACHT)for(const d in ACHT[k])ach+=ACHT[k][d];
   const lv=lvlOf();
-  HC={done:doneN(),h:totalH(),played:pl.length,maxH:G.reduce((m,g)=>Math.max(m,g.hours||0),0),streak:streakAll(),days:Object.keys(ST.log||{}).filter(k=>ST.log[k]>0).length,
+  HC={done:doneN(),h:totalH(),played:pl.length,maxH:GP().reduce((m,g)=>Math.max(m,g.hours||0),0),streak:streakAll(),days:Object.keys(ST.log||{}).filter(k=>ST.log[k]>0).length,
    rv:rv.length,txt:txt.length,words:txt.reduce((s,r)=>s+r.text.split(/\s+/).length,0),shots:rv.reduce((s,r)=>s+(r.files||[]).length,0),genres:gn.size,gh,ach,
    five:rv.filter(r=>r.rate>=5).length,low:rv.filter(r=>r.rate>0&&r.rate<=1.5).length,replay:rv.filter(r=>r.replay).length,liked:rv.filter(r=>r.liked).length,
-   lists:LSS().length,wl:WL().length,lib:G.length,inst:G.filter(instOf).length,exe:G.filter(g=>g.exe).length,aurora:G.filter(g=>rankOf(g)>=4).length,
-   dropped:G.filter(g=>stOf(g)==='Sin estado'&&g.hours>0).length,backlog:G.filter(g=>stOf(g)==='Sin empezar').length,monthMax:Math.max(0,...Object.values(pm)),
+   lists:LSS().length,wl:WL().length,lib:GP().length,inst:GP().filter(instOf).length,exe:GP().filter(g=>g.exe).length,aurora:GP().filter(g=>rankOf(g)>=4).length,
+   dropped:GP().filter(g=>stOf(g)==='Sin estado'&&g.hours>0).length,backlog:GP().filter(g=>stOf(g)==='Sin empezar').length,monthMax:Math.max(0,...Object.values(pm)),
    cnt:ST.cnt||{},fl:ST.fl||{},lvl:lv.l,fav:((PR()||{}).fav||[]).length,prof:!!PR(),wseen:Object.keys(ST.wseen||{}).length,light:!!ST.light,hitos:0,indie:pl.filter(g=>genresOf(g).includes('Indie')).length,
-   pts:0,long:G.filter(g=>g.status==='Terminado'&&(parseFloat((g.hl||{}).m)||0)>=40).length,short:G.filter(g=>g.status==='Terminado'&&(parseFloat((g.hl||{}).m)||0)>0&&(parseFloat((g.hl||{}).m)||0)<=5).length,
-   big:G.filter(g=>g.hours>=100).length,h50c:G.filter(g=>g.hours>=50).length,h10c:G.filter(g=>g.hours>=10).length,rated:rv.filter(r=>r.rate>0).length,
+   pts:0,long:GP().filter(g=>g.status==='Terminado'&&(parseFloat((g.hl||{}).m)||0)>=40).length,short:GP().filter(g=>g.status==='Terminado'&&(parseFloat((g.hl||{}).m)||0)>0&&(parseFloat((g.hl||{}).m)||0)<=5).length,
+   big:GP().filter(g=>g.hours>=100).length,h50c:GP().filter(g=>g.hours>=50).length,h10c:GP().filter(g=>g.hours>=10).length,rated:rv.filter(r=>r.rate>0).length,
    wkd:Object.keys(ST.log||{}).filter(k=>ST.log[k]>0&&(()=>{const q=k.split('-');return [0,6].includes(new Date(+q[0],+q[1]-1,+q[2]).getDay())})()).length,
    age:ST.fl&&ST.fl.first?Math.floor((Date.now()-ST.fl.first)/864e5):0}}
 const hv=k=>{if(!HC.cnt)hcCalc();return typeof k==='function'?k():HC[k]||0};
@@ -9284,7 +9286,7 @@ TX.forEach(([k,n,d,i,r,fn])=>H('xt_'+k,n,d,i,r,k.startsWith('sec')||k==='allin'|
 const f=n=>n.toLocaleString('es-AR');
 const CLS=()=>{const L=ST.calls||[];return {n:L.length,h:L.reduce((q,c)=>q+(c.d||0),0)/3600,mx:Math.max(0,...L.map(c=>c.d||0))/3600,fr:new Set(L.map(c=>c.c).filter(Boolean)).size}};
 const hxCalc=()=>{const ses=(ST.ses||[]).filter(x=>x&&x.s&&x.h>0),gc={},gd={};
- G.forEach(g=>{const gs=genresOf(g);if(g.hours>0)gs.forEach(t=>gc[t]=(gc[t]||0)+1);if(g.status==='Terminado')gs.forEach(t=>gd[t]=(gd[t]||0)+1)});
+ GP().forEach(g=>{const gs=genresOf(g);if(g.hours>0)gs.forEach(t=>gc[t]=(gc[t]||0)+1);if(g.status==='Terminado')gs.forEach(t=>gd[t]=(gd[t]||0)+1)});
  let hn=0,hm=0,ha=0,he=0,hw=0,mx=0,s3=0;
  for(const x of ses){mx=Math.max(mx,x.h);if(x.h>=3)s3++;let t=x.s;const end=x.s+x.h*36e5;while(t<end){const st=Math.min(end,t+9e5),d=new Date(t),hr=d.getHours(),v=(st-t)/36e5;if(hr<6)hn+=v;else if(hr<12)hm+=v;else if(hr<19)ha+=v;else he+=v;if(d.getDay()===0||d.getDay()===6)hw+=v;t=st}}
  const L=ST.log||{},mo={},yr={},wd=Array(7).fill(0),mset=new Set();let dmax=0,d4=0;
@@ -9292,7 +9294,7 @@ const hxCalc=()=>{const ses=(ST.ses||[]).filter(x=>x&&x.s&&x.h>0),gc={},gd={};
  Object.assign(HC,{gc,gd,hn:Math.floor(hn),hm:Math.floor(hm),ha:Math.floor(ha),he:Math.floor(he),hw:Math.floor(hw),nses:ses.length,maxS:Math.floor(mx*10)/10,s3,mh:Math.floor(Math.max(0,...Object.values(mo))),dmax:Math.floor(dmax*10)/10,d4,yh:Math.floor(Math.max(0,...Object.values(yr))),wdc:wd,mon:mset.size,
   ...(()=>{const gh=Object.values(HC.gh||{}),dy={},mg={};let tot=0;for(const x of ses){tot+=x.h;const d=new Date(x.s),k=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(),m=d.getFullYear()+'-'+d.getMonth();(dy[k]=dy[k]||[]).push(x.g);(mg[m]=mg[m]||new Set()).add(x.g)}
    return {gv50:gh.filter(v=>v>=50).length,gv250:gh.filter(v=>v>=250).length,gv1000:gh.filter(v=>v>=1000).length,gvd:Object.keys(gd).length,comp:HC.played>=20?Math.min(100,Math.round(HC.done/HC.played*100)):0,lp:HC.lib>=50?Math.min(100,Math.round(HC.played/HC.lib*100)):0,hwd:Math.floor(Math.max(0,tot-hw)),nsd:Math.max(0,...Object.values(dy).map(a=>a.length)),gday:Math.max(0,...Object.values(dy).map(a=>new Set(a).size)),gmon:Math.max(0,...Object.values(mg).map(q=>q.size))}})(),
-  frn:(FR().list||[]).length,g25:G.filter(g=>g.hours>=25).length,g200:G.filter(g=>g.hours>=200).length})};
+  frn:(FR().list||[]).length,g25:GP().filter(g=>g.hours>=25).length,g200:GP().filter(g=>g.hours>=200).length})};
 const _hc=hcCalc;hcCalc=function(){_hc.apply(this,arguments);try{hxCalc()}catch(e){}};
 const nrm=d=>String(d).toLowerCase().replace(/(\d)\.(?=\d)/g,'$1'),have=new Set();GA.forEach(a=>{have.add(nrm(a[2]));have.add('n:'+String(a[1]).toLowerCase())});let ADD=0;
 const Hn=(id,n,d,i,r,c,k,t,s)=>{const a=nrm(d),b='n:'+String(n).toLowerCase();if(have.has(a)||have.has(b))return;have.add(a);have.add(b);ADD++;H(id,n,d,i,r,c,k,t,s)};
@@ -11259,7 +11261,7 @@ let AVFLT='';const nwL=(a,c,s)=>{const v=NWL[a[c]];let r=v?(typeof v==='string'?
 const avItem=(cat,id)=>(AVD[cat].it.find(x=>x[0]===id));
 const avPetLv=()=>{try{const p=petCur();return p?pLvl(p):0}catch(e){return 0}};
 /* ropa que se gana jugando: la prenda se consigue por lo que jugás, no por nivel */
-const gH=n=>G.reduce((t,g)=>t+(genresOf(g).includes(n)?(g.hours||0):0),0);
+const gH=n=>GP().reduce((t,g)=>t+(genresOf(g).includes(n)?(g.hours||0):0),0);
 const AVQ={
  h100:['100 h jugadas',()=>[totalH(),100]],h500:['500 h jugadas',()=>[totalH(),500]],h1000:['1000 h jugadas',()=>[totalH(),1000]],
  st7:['Racha de 7 días',()=>[streakAll(),7]],dn10:['10 juegos terminados',()=>[doneN(),10]],
@@ -11778,25 +11780,25 @@ const rnm=x=>typeof x==='object'&&x?String(x.name||x.n||x.title||''):String(x||'
 function recFeats(g){const f=new Map();genresOf(g).forEach(x=>f.set(x,1));(GEN[g.app]||[]).filter(c=>RMODE[c]).forEach(c=>f.set(RMODE[c],.35));const i=INFO[g.id];
   if(i){(i.gen||[]).forEach(x=>{x=rnm(x);if(!x)return;x=IGM[x.toLowerCase()]||x;if(!f.has(x))f.set(x,1)});(i.dev||[]).slice(0,2).forEach(d=>{d=rnm(d);if(d)f.set('dev:'+d,.8)})}return f}
 function recTaste(){const t={},pp=PR()||{},add=(g,w)=>recFeats(g).forEach((v,k)=>{t[k]=(t[k]||0)+w*v});
-  G.forEach(g=>{const h=g.hours||0;if(h<=0&&!g.fav&&!g.rate)return;let w=Math.pow(Math.min(h,250),.6);const r=g.rate||0;
+  GP().forEach(g=>{const h=g.hours||0;if(h<=0&&!g.fav&&!g.rate)return;let w=Math.pow(Math.min(h,250),.6);const r=g.rate||0;
     if(r>=4.5)w*=2.4;else if(r>=4)w*=1.8;else if(r>=3)w*=1.1;else if(r>0)w*=-.7;
     if(g.status==='Terminado')w*=1.4;if(stOf(g)==='Sin estado'&&h>0)w*=h<5?-.5:.3;if(g.fav)w+=12;add(g,w)});
   RV().forEach(r=>{if(r.rate>=4||r.liked){const g=gm(r.gid);if(g)add(g,6)}});
   (pp.fav||[]).map(gm).filter(Boolean).forEach(g=>add(g,10));(pp.genres||[]).forEach(x=>{t[x]=(t[x]||0)+15});
-  const cn={};G.forEach(g=>recFeats(g).forEach((v,k)=>{cn[k]=(cn[k]||0)+1}));for(const k in t)t[k]*=1-.7*(cn[k]||0)/G.length;
+  const cn={};GP().forEach(g=>recFeats(g).forEach((v,k)=>{cn[k]=(cn[k]||0)+1}));for(const k in t)t[k]*=1-.7*(cn[k]||0)/GP().length;
   const m=Math.max(1,...Object.values(t).map(Math.abs));for(const k in t)t[k]/=m;return t}
 function recScore(g,t){let s=0,n=0;recFeats(g).forEach((v,k)=>{if(t[k]!==undefined)s+=t[k]*v;n+=v});return n?s/Math.sqrt(n):0}
 function recPick(){const t=recTaste(),H=ST.recH||[],no=new Set(ST.recNo||[]),wl=new Set(WL()),cur=S.rec&&S.rec.id;
   const lowS=g=>{const v=scOf(g);return v!==null&&v<70},ok=g=>(g.hours||0)<1.5&&g.status!=='Terminado'&&!(stOf(g)==='Sin estado'&&g.hours>0)&&!no.has(g.id)&&g.id!==cur&&!lowS(g);
-  let C=G.filter(g=>ok(g)&&!H.slice(-25).includes(g.id));if(C.length<5)C=G.filter(ok);if(!C.length)C=G.filter(g=>g.id!==cur&&!no.has(g.id));if(!C.length){S.rec=null;return}
-  const gh={};G.forEach(g=>{const h=g.hours||0;if(h<=0)return;genresOf(g).forEach(x=>{if(!/^(Un jugador|Multijugador|Cooperativo)$/.test(x))gh[x]=(gh[x]||0)+h})});
+  let C=GP().filter(g=>ok(g)&&!H.slice(-25).includes(g.id));if(C.length<5)C=GP().filter(ok);if(!C.length)C=GP().filter(g=>g.id!==cur&&!no.has(g.id));if(!C.length){S.rec=null;return}
+  const gh={};GP().forEach(g=>{const h=g.hours||0;if(h<=0)return;genresOf(g).forEach(x=>{if(!/^(Un jugador|Multijugador|Cooperativo)$/.test(x))gh[x]=(gh[x]||0)+h})});
   const t5=Object.entries(gh).sort((a,b)=>b[1]-a[1]).slice(0,5),tw={};t5.forEach(([k,v])=>{tw[k]=.4+.6*v/t5[0][1]});
   const gb=g=>{let b=0;genresOf(g).forEach(x=>{if(tw[x])b+=tw[x]*.3});return b};
   const L=C.map(g=>({g,s:recScore(g,t)+gb(g)+(instOf(g)?.12:0)+(wl.has(g.id)?.25:0)+(scOf(g)!==null?(scOf(g)-70)/30*.18:0)})).sort((a,b)=>b.s-a.s).slice(0,20);
   const mx=L[0].s,mn=L[L.length-1].s,W=L.map(x=>Math.exp(4*(x.s-mx)));let r=Math.random()*W.reduce((a,b)=>a+b,0),i=0;while(i<W.length-1&&(r-=W[i])>0)i++;
   const c=L[i],g=c.g,fe=[...recFeats(g)].filter(([k])=>t[k]>.25).map(([k,v])=>[k,t[k]*v]).sort((a,b)=>b[1]-a[1]);
   const m5=genresOf(g).filter(x=>tw[x]).sort((a,b)=>tw[b]-tw[a]).slice(0,3),gen=m5.length?m5:fe.filter(([k])=>!k.startsWith('dev:')&&!RMODE[Object.keys(RMODE).find(z=>RMODE[z]===k)]).slice(0,2).map(x=>x[0]),dv=fe.find(([k])=>k.startsWith('dev:'));
-  const fk=recFeats(g);let sim=null,sb=0;G.forEach(o=>{if(o.id===g.id||(o.hours||0)<2)return;let z=0;recFeats(o).forEach((v,k)=>{if(fk.has(k)&&!RMODE[Object.keys(RMODE).find(q=>RMODE[q]===k)])z+=Math.min(v,fk.get(k))*(1+Math.max(0,t[k]||0))});z*=1+Math.min(o.hours,150)/150+(o.rate>=4?.5:0);if(z>sb){sb=z;sim=o}});
+  const fk=recFeats(g);let sim=null,sb=0;GP().forEach(o=>{if(o.id===g.id||(o.hours||0)<2)return;let z=0;recFeats(o).forEach((v,k)=>{if(fk.has(k)&&!RMODE[Object.keys(RMODE).find(q=>RMODE[q]===k)])z+=Math.min(v,fk.get(k))*(1+Math.max(0,t[k]||0))});z*=1+Math.min(o.hours,150)/150+(o.rate>=4?.5:0);if(z>sb){sb=z;sim=o}});
   let why=gen.length?'Porque jugás mucho '+(gen.length>1?gen.slice(0,-1).join(', ')+' y '+gen[gen.length-1]:gen[0]):'Para salir un poco de la rutina';if(dv)why+=' y te gusta '+dv[0].slice(4);if(sim&&sb>1.2)why+=' · parecido a '+sim.name;
   const pct=Math.round(62+36*Math.max(0,Math.min(1,(c.s-mn)/((mx-mn)||1))));
   S.rec={id:g.id,why,pct};ST.recH=[...H,g.id].slice(-60);save()}
@@ -15411,9 +15413,9 @@ function bpHomeCard(side){const L=side?bpNewsW():bpNewsL(),i=side?BP.hri:BP.hli,
   return`<div class="hni">${im?`<img src="${esc(im)}" ${fb?`data-fb="${esc(fb)}"`:''} alt="">`:''}${tg}</div><div class="hnb"><small>${sm}</small><b>${tt}</b></div><div class="hnd">${L.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>`}
 function bpHomePanel(side,anim){const el=BP.el.querySelector('.hnp'+side);if(!el)return;el.innerHTML=bpHomeCard(side);el.classList.remove('xsw');if(anim){void el.offsetWidth;el.classList.add('xsw')}el.querySelectorAll('img').forEach(im=>im.addEventListener('error',function(){if(this.dataset.fb&&this.src!==this.dataset.fb)this.src=this.dataset.fb}))}
 function bpHomeDraw(){if(!BP)return;const h=BP.el.querySelector('.bphome'),pr=PR()||{},lv=(()=>{try{return lvlOf()}catch(e){return{l:0,t:''}}})(),d=new Date(),m0=new Date(d.getFullYear(),d.getMonth(),1).getTime(),
-  tot=G.filter(g=>!g.hide).length,ins=G.filter(g=>!g.hide&&instOf(g)).length,fav=G.filter(g=>g.fav).length,mes=G.filter(g=>lastTs(g)>=m0).length,comp=G.filter(g=>{try{return /complet/i.test(stOf(g)||'')}catch(e){return false}}).length;
+  tot=GP().filter(g=>!g.hide).length,ins=GP().filter(g=>!g.hide&&instOf(g)).length,fav=GP().filter(g=>g.fav).length,mes=GP().filter(g=>lastTs(g)>=m0).length,comp=GP().filter(g=>{try{return /complet/i.test(stOf(g)||'')}catch(e){return false}}).length;
   BP.hp=BP.hp||0;BP.hli=BP.hli||0;BP.hri=BP.hri||0;
-  const sg={},gn={};G.forEach(g=>{if(!(g.hours>0))return;const c=bpSg(g);if(c)sg[c]=(sg[c]||0)+g.hours;((INFO[g.id]||{}).gen||[]).slice(0,1).forEach(x=>{gn[x]=(gn[x]||0)+g.hours})});const top=o=>Object.keys(o).sort((a,b)=>o[b]-o[a])[0],tsg=top(sg),tgn=top(gn);
+  const sg={},gn={};GP().forEach(g=>{if(!(g.hours>0))return;const c=bpSg(g);if(c)sg[c]=(sg[c]||0)+g.hours;((INFO[g.id]||{}).gen||[]).slice(0,1).forEach(x=>{gn[x]=(gn[x]||0)+g.hours})});const top=o=>Object.keys(o).sort((a,b)=>o[b]-o[a])[0],tsg=top(sg),tgn=top(gn);
   h.innerHTML=`<div class="hpc"><div class="hpa">${avHTML(pr,150)}</div><div class="hpi"><b>${esc(pr.name||UN()||'')}</b><span>${esc(lv.t||'')}</span><em>Nivel ${lv.l}</em><small>Tiempo total de juego: ${fh(totalH())}</small><div class="hch">${tsg?`<i>Saga principal · ${esc(tsg)}</i>`:''}${tgn?`<i>Género favorito · ${esc(tgn)}</i>`:''}</div></div><div class="hpt"><div><small>Juegos totales</small><b>${tot}</b></div><div><small>Instalados</small><b>${ins}</b></div><div><small>Favoritos</small><b>${fav}</b></div><div><small>Jugados este mes</small><b>${mes}</b></div><div><small>Completados</small><b>${comp}</b></div><div><small>Horas jugadas</small><b>${Math.round(totalH())}</b></div></div></div>
   <div class="hnw"><div class="hnc${BP.hp===0?' sel':''}" data-p="0"><h3>Noticias de la biblioteca</h3><div class="hnp hnp0"></div></div><div class="hnc${BP.hp===1?' sel':''}" data-p="1"><h3>Últimas noticias</h3><div class="hnp hnp1"></div></div></div>`;
   bpHomePanel(0);bpHomePanel(1);
@@ -15513,7 +15515,7 @@ function bpStHTML(){const cy=new Date().getFullYear(),ys=(()=>{try{return wrapYe
   const top=bpStTop(C.perY,5),gen={};top.forEach(([g,h])=>{const l=(()=>{try{return genresOf(g)}catch(e){return[]}})();(l.length?l:((INFO[g.id]||{}).gen||[])).forEach(t=>gen[t]=(gen[t]||0)+h)});
   const gl=Object.entries(gen).sort((a,b)=>b[1]-a[1]).slice(0,5),gmx=gl.length?gl[0][1]:1,tmx=top.length?top[0][1]:1;
   const bm=C.B.mes.findIndex(b=>b.h===Math.max(...C.B.mes.map(x=>x.h))),hb=C.B.hora.findIndex(b=>b.h===Math.max(...C.B.hora.map(x=>x.h)));
-  const dn=G.filter(g=>g.status==='Terminado'&&(()=>{try{return new Date(doneDate(g)).getFullYear()===y}catch(e){return false}})()).length;
+  const dn=GP().filter(g=>g.status==='Terminado'&&(()=>{try{return new Date(doneDate(g)).getFullYear()===y}catch(e){return false}})()).length;
   const hero=C.tot>0?(C.tot>=1?Math.round(C.tot)+'<i> h</i>':Math.round(C.tot*60)+'<i> min</i>'):'0<i> h</i>',
   sent=C.tot>=24?`Son ${(C.tot/24).toFixed(1).replace('.0','')} días enteros jugando. Tu mes fuerte fue ${BPMN[bm].toLowerCase()}.`:C.tot>0?`Tu mes fuerte fue ${BPMN[bm].toLowerCase()}.`:`Todavía no hay horas registradas en ${y}.`;
   const fact=(l,v)=>`<div><b>${v}</b><small>${l}</small></div>`;
@@ -15823,8 +15825,8 @@ function petSleepSVG(p){const c=PCOAT[p.coat||0]||PCOAT[0],a=p.ccol||c[1],bb=BRB
  <g class="pz-b"><g class="pz-tail">${U(tail.startsWith('<g')?tail.replace(/^<g>|<\/g>$/g,''):'', a)}${cn?'':tail}</g>${U(body,a)}${U(hind,a)}${thigh}${sh}${belly}${U(fore,a)}${socks}${col}
  <g class="pz-h">${earS.includes('rotate')?'':''}${U(head,a)}${extra?U(extra,a):''}${chm}${brow}${eye}${nose}<g class="pz-ear">${earS}</g></g></g>
  <text class="pz-z" x="14" y="52" font-size="24" fill="#fff">z</text><text class="pz-z z2" x="28" y="38" font-size="18" fill="#fff">z</text><text class="pz-z z3" x="8" y="34" font-size="14" fill="#fff">z</text></svg>`}
-function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=G.reduce((t,g)=>t+(g.hours||0),0),se=SEA_K&&SEAS[SEA_K]?SEAS[SEA_K]:null,d=new Date(),PH=ssPh(),Q=SSP[PH],
- top=G.slice().sort((x,y)=>(y.hours||0)-(x.hours||0)),im=g=>{try{return (cands(g,'grid')||[])[0]||''}catch(e){return ''}},iw=g=>{try{return (cands(g,'wide')||cands(g,'hero')||[])[0]||''}catch(e){return ''}},
+function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=GP().reduce((t,g)=>t+(g.hours||0),0),se=SEA_K&&SEAS[SEA_K]?SEAS[SEA_K]:null,d=new Date(),PH=ssPh(),Q=SSP[PH],
+ top=GP().slice().sort((x,y)=>(y.hours||0)-(x.hours||0)),im=g=>{try{return (cands(g,'grid')||[])[0]||''}catch(e){return ''}},iw=g=>{try{return (cands(g,'wide')||cands(g,'hero')||[])[0]||''}catch(e){return ''}},
  R=n=>{const x=Math.sin(n*999)*43758.5;return x-Math.floor(x)},
  cols=['#e05a5a','#4a7fe0','#e0b84a','#6ac27a','#b46ae0','#e0803a'],
  cov=top.slice(0,7).map((g,i)=>{const x=752+i*37,u=im(g),h=88-(i%3)*6;return u?`<image href="${esc(u)}" x="${x}" y="${150-h}" width="32" height="${h}" preserveAspectRatio="xMidYMid slice"/><rect x="${x}" y="${150-h}" width="32" height="${h}" fill="none" stroke="#0006"/>`:`<rect x="${x}" y="${150-h}" width="32" height="${h}" fill="${cols[i%6]}"/>`}).join(''),
@@ -16036,12 +16038,12 @@ function ssHTML(){const v=avXm(avView()),p=(()=>{try{return petCur()}catch(e){re
  <div class="ss-sh"></div><div class="ss-wsw" style="--sk:${{night:12,am:42,day:22,pm:56}[PH]||30}deg;--wo:${{night:.22,am:.4,day:.42,pm:.45}[PH]||.4}">${winW}</div>${winW}<div class="ss-wbn">${winW}</div><div class="ss-wlt" style="--wlo:${Math.min(1,(SSWL[PH]||SSWL.day)[3]*3)}">${winW}</div><style>#bpss{--wf:${{night:'brightness(.88)',am:'sepia(.1) brightness(1.02)',day:'brightness(1.05)',pm:'sepia(.22) saturate(1.12) brightness(.97)'}[PH]||''}}</style><div class="ss-sp"><b></b></div>${pet}
  ${se?`<div class="ss-sea">${se[1]} ${se[0]}</div>`:''}
  <div class="ss-in"><b>${Math.round(tot)} h jugadas</b>${G.length} juegos · ♪ ${Q.tx}</div><div class="ss-cap">Tocá cualquier botón para volver</div>`}
-function ssLines(PH){const nm=(()=>{try{return (PR()||{}).name||ST.name||''}catch(e){return ''}})(),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=Math.round(G.reduce((t,g)=>t+(g.hours||0),0)),top=G.slice().sort((x,y)=>(y.hours||0)-(x.hours||0))[0];
+function ssLines(PH){const nm=(()=>{try{return (PR()||{}).name||ST.name||''}catch(e){return ''}})(),p=(()=>{try{return petCur()}catch(e){return null}})(),tot=Math.round(GP().reduce((t,g)=>t+(g.hours||0),0)),top=GP().slice().sort((x,y)=>(y.hours||0)-(x.hours||0))[0];
  const L=['¿Seguís ahí? Yo sí, sin moverme.','Qué tranquilo está todo por acá…','¿Jugamos algo o seguimos relajando un rato?','Tengo ganas de una partida. ¿Y vos?','Ese teclado brilla más que mis ideas.','Si te quedás un rato más, me hago amigo del reloj.','Yo vigilo el cuarto. Vos descansá.','Cada tanto me estiro. Es parte del trabajo.','¿Sabías que el mando de la alfombra no se usa solo? Todavía.','Me quedé pensando en el próximo juego…'];
  if(nm)L.push('¿Todo bien, '+nm+'? Acá la pasamos tranquilos.','Ey, '+nm+', cuando quieras volvemos a jugar.');
  if(p&&p.name)L.push(p.name+' duerme como un campeón.','Shhh, que '+p.name+' está soñando con huesos.','Qué linda siesta se está pegando '+p.name+'.','No lo despiertes a '+p.name+', recién se acomodó.');
  if(tot>0)L.push('Ya llevás '+tot+' horas jugadas. ¡Una locura!');
- if(G.length>3)L.push('Tenés '+G.length+' juegos en la biblioteca. ¿Cuántos terminaste?');
+ if(GP().length>3)L.push('Tenés '+GP().length+' juegos en la biblioteca. ¿Cuántos terminaste?');
  if(top&&top.name)L.push('Tu juego más jugado es '+top.name+'. ¿Una más?');
  const F={night:['La lluvia suena de lujo hoy.','Ya es tarde… ¿no te da sueño?','Con esta lluvia, el mejor plan es un juego tranquilo.','La luna está enorme esta noche.'],am:['Buen día. ¿Un matecito y a jugar?','El sol recién sale. Qué lindo arrancar así.','Mañana tranquila… ideal para una partida corta.'],day:['Día de sol y nosotros adentro. Perfecto.','Mirá cuántas nubes. Todas lindas.','A esta hora el cuarto es una pileta de luz.'],pm:['Mirá ese atardecer, ¡no te lo pierdas!','Se está yendo el sol. Se viene la hora de jugar.','El cielo está en modo rosa y naranja.']};
  return L.concat(F[PH]||[])}
@@ -16260,7 +16262,7 @@ function frHero(c,d,m){const mine=new Map(G.map(g=>[frN(g.name),g])),g0=d.now&&m
    ${d.bio?`<p class="fp2-bio">${esc(d.bio)}</p>`:''}</div>
    <div class="fp2-hr"><div class="fp2-ac"><button class="fp2-b p" data-a="frtab" data-v="chat">Escribirle</button>${fbOn()?`<button class="fp2-b" data-a="frcall">${ic('phone')}Llamar</button>`:''}</div></div></div></section>`}
 function frStats(d){const n=d.n||0,dn=d.d||0,pc=n?Math.round(100*dn/n):0;
-  const T=[['Horas jugadas',d.h||0,Math.round(totalH()),'clock'],['Juegos',n,G.length,'games'],['Completados',dn,doneN(),'check'],['Hitos',d.ga||0,gaN(),'trophy'],['Nivel',d.lv||1,lvlOf().l,'bolt']];
+  const T=[['Horas jugadas',d.h||0,Math.round(totalH()),'clock'],['Juegos',n,GP().length,'games'],['Completados',dn,doneN(),'check'],['Hitos',d.ga||0,gaN(),'trophy'],['Nivel',d.lv||1,lvlOf().l,'bolt']];
   return `<div class="fp2-st">${T.map(([l,v,me,i,sub],k)=>`<div class="fp2-sc" style="--i:${k}"><u>${ic(i)}</u><b data-n="${v}">${v}</b><span>${l}</span></div>`).join('')}</div>`}
 function frCover(g,n){return g?`<img src="${art.grid(g)}" data-fb="${art.wide(g)}" alt="">`:`<b>${esc((n||'?')[0])}</b>`}
 function frCallsTab(c,d){const me=c==='me',F=FR().c,all=ST.calls||[],L=(me?all.slice():all.filter(x=>x.c===c)).sort((a,b)=>b.t-a.t),nm=me?'tus amigos':(d.name||'tu amigo');
@@ -16643,7 +16645,7 @@ function x8Pack(items,W,H){
   return items}
 function stMap(){
   const hrs={},unp={};GMAP.forEach(([n])=>{hrs[n]=0;unp[n]=[]});
-  G.filter(g=>!g.hide).forEach(g=>{x8Gen(g).forEach(n=>{if(g.hours>0)hrs[n]+=g.hours;else unp[n].push(g)})});
+  GP().filter(g=>!g.hide).forEach(g=>{x8Gen(g).forEach(n=>{if(g.hours>0)hrs[n]+=g.hours;else unp[n].push(g)})});
   const tot=Object.values(hrs).reduce((a,b)=>a+b,0);
   if(!tot)return '<div class="empty">Se llena cuando jugás y WINTEER descarga la información de tus juegos (IGDB).</div>';
   const mx=Math.max(...Object.values(hrs)),W=640,H=300;
@@ -16657,7 +16659,7 @@ function stMap(){
 /* ---------- 7 · tu década en juegos ---------- */
 function x8Year(g){const a=ACHT[g.app];let best=0;if(a){const by={};for(const k in a){const y=+String(k).slice(0,4);if(y>1990)by[y]=(by[y]||0)+a[k]}let m=0;for(const y in by)if(by[y]>m){m=by[y];best=+y}}return best||yOf(g.doneAt)||yOf(lastTs(g))||0}
 function stDec(){
-  const by={};G.filter(g=>!g.hide&&g.hours>0).forEach(g=>{const y=x8Year(g);if(y>=2000&&y<=new Date().getFullYear())(by[y]=by[y]||[]).push(g)});
+  const by={};GP().filter(g=>!g.hide&&g.hours>0).forEach(g=>{const y=x8Year(g);if(y>=2000&&y<=new Date().getFullYear())(by[y]=by[y]||[]).push(g)});
   const ys=Object.keys(by).map(Number).sort((a,b)=>b-a);
   if(!ys.length)return '<div class="empty">Se arma con tus logros de Steam, las fechas de completado y la última vez que jugaste cada juego.</div>';
   return `<p class="hint2" style="margin:0 0 10px">${ys[ys.length-1]}–${ys[0]}. El año de cada juego sale de tus logros de Steam, de cuando lo completaste y de la última vez que lo jugaste.</p>
