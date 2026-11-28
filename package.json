@@ -43,6 +43,7 @@
       "icon.png",
       "sagas/**/*",
       "boveda/**/*",
+      "audio/**/*",
       "package.json"
     ],
     "win": {
