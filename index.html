@@ -16035,7 +16035,7 @@ function wmSay(txt,dl){const b=$('#wm .wm-bub'),w=$('#wm .wm-nar');if(!b||!w)ret
     void b.offsetWidth;b.classList.add('tw');requestAnimationFrame(()=>b.classList.add('run'));
     w.classList.add('talk');if(WM.rig)WM.rig.talk=1;WM.ty=setTimeout(()=>{w.classList.remove('talk');if(WM&&WM.rig)WM.rig.talk=0},ws.length*55+700)},dl!=null?dl:had?300:(WM.i===0?2300:650));
   b.classList.remove('run','tw')}
-function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));const s=WM.s[WM.i],el=$('#wm');clearTimeout(WM.tm);WM.sd0=0;try{if(WM.au&&!WM.au.paused&&WM.au.currentTime>0){const ct=WM.au.currentTime,bar=240/WSG.bpm,end=ct+s.t/1000;let tg=WSG.ph+Math.ceil((end-WSG.ph)/bar)*bar;const D=WSG.dr.find(d=>d>=ct+s.t/1000*.85&&d<=end+4.5);if(D)tg=D;WM.sd0=Math.max(2500,Math.round((tg-ct)*1000))}}catch(e){}WM.L=1+Math.min(3,Math.floor(WM.i*4/WM.s.length));
+function wmShow(i){if(!WM)return;WM.i=Math.max(0,Math.min(WM.s.length-1,i));const s=WM.s[WM.i],el=$('#wm');clearTimeout(WM.tm);WM.sd0=0;try{if(WM.au&&!WM.au.paused&&WM.au.currentTime>0){const ct=WM.au.currentTime,bar=240/WSG.bpm,end=ct+s.t/1000;let tg=WSG.ph+Math.ceil((end-WSG.ph)/bar)*bar;const D=WSG.dr.find(d=>d>=ct+s.t/1000&&d<=end+4.5);if(D)tg=D;WM.sd0=Math.max(2500,Math.round((tg-ct)*1000))}}catch(e){}WM.L=1+Math.min(3,Math.floor(WM.i*4/WM.s.length));
   el.style.setProperty('--c',s.c.split(',')[0]);el.style.setProperty('--c2',s.c.split(',')[1]);
   const box=$('#wm .wm-s');box.innerHTML=s.h;wmSplit(box);[...box.children].forEach((c,n)=>c.style.setProperty('--n',n));box.dataset.v=WM.i%4;box.classList.remove('go');void box.offsetWidth;box.classList.add('go');
   const fl=$('#wm .wm-fl');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
