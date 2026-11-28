@@ -6370,9 +6370,9 @@ let XBN=0;function detXboxLater(){[30000,90000,240000].forEach(t=>setTimeout(()=
 async function detXbox(force){if(!(window.winteerNative&&winteerNative.scanXbox))return;if(!force&&Date.now()-XBN<90000)return;if(!G.some(isXbG))return;XBN=Date.now();try{const r=await winteerNative.scanXbox();if(!r||!r.found)return;const m={};(r.list||[]).forEach(x=>m[x.id]=x);let ch=0;G.forEach(g=>{if(!isXbG(g))return;const x=m[g.id],v=!!x;if(!!g.inst!==v){g.inst=v||undefined;ch++}if(x){if(x.exe&&g.xdet!==x.exe){g.xdet=x.exe;ch++}if(x.exe&&!g.xexe&&g.exe!==x.exe){g.exe=x.exe;ch++}if(x.shellApp&&g.shellApp!==x.shellApp){g.shellApp=x.shellApp;ch++}if(g.uri&&/^ms-windows-store:/.test(g.uri)){delete g.uri;ch++}}else if(!g.uri){g.uri='ms-windows-store://pdp/?PFN='+encodeURIComponent(g.id.slice(3));ch++}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}}catch(e){}}
 function detEpicLater(){[20000,60000,180000].forEach(t=>setTimeout(detEpic,t))}
 async function detEpic(){if(!(window.winteerNative&&winteerNative.scanEpic))return;try{const r=await winteerNative.scanEpic();if(!r||!r.found)return;const m={};(r.list||[]).forEach(x=>m[x.id]=x);let ch=0;G.forEach(g=>{if(!isEpicG(g))return;const x=m[g.id],v=!!x;if(!!g.inst!==v){g.inst=v||undefined;ch++}if(x){if(x.exe&&g.exe!==x.exe){g.exe=x.exe;ch++}if(x.uri&&g.uri!==x.uri){g.uri=x.uri;ch++}}});if(ch){save();try{if(S.view==='games'){renderList();renderDetail(false)}}catch(e){}}}catch(e){}}
-function launchGame(g){hcnt('play');
+function launchGame(g,sw){if(!sw)hcnt('play');
   if(pzOf(g)&&pzSt().auto&&pzProf()){const pp=pzProf();winteerNative.pzApply(pp.m,ST.steamDir||'').then(r=>{if(r&&r.ok)toast('Mods del perfil «'+pp.n+'» aplicados')}).catch(()=>{})}
-  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:g.name,exe:(g.emu?emExe(g):g.exe)||'',args:g.emu?emArgs(g):undefined,app:g.app||0,steamDir:ST.steamDir||'',uri:(isXbG(g)&&g.xexe)?'':(g.uri||''),shellApp:(isXbG(g)&&g.xexe)?'':(g.shellApp||''),borderless:!!g.bl}).then(r=>{S.trk=!!(r&&r.tracking)}).catch(()=>{S.trk=false});return}
+  if(window.winteerNative&&winteerNative.launch){winteerNative.launch({id:g.id,name:g.name,exe:(g.emu?emExe(g):g.exe)||'',args:g.emu?emArgs(g):undefined,app:g.app||0,steamDir:ST.steamDir||'',uri:(isXbG(g)&&g.xexe)?'':(g.uri||''),shellApp:(isXbG(g)&&g.xexe)?'':(g.shellApp||''),borderless:!!g.bl,sw:!!sw}).then(r=>{if(!sw)S.trk=!!(r&&r.tracking)}).catch(()=>{S.trk=false});return}
   if(g.exe){const u='[InternetShortcut]\r\nURL=file:///'+g.exe.replace(/\\/g,'/')+'\r\n',a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u],{type:'text/plain'}));a.download=g.name.replace(/[^\w\- ]/g,'').trim()+'.url';document.body.appendChild(a);a.click();a.remove();toast('Abrí el acceso que se descargó para iniciar el juego (en la versión Electron se abre solo)');return}
   location.href=g.launch||('steam://rungameid/'+g.app)}
 
@@ -7319,6 +7319,7 @@ const A={
   sgdb:a=>{ST.useSgdb=!ST.useSgdb;a.classList.toggle('on');if(ST.useSgdb&&!ST.key)toast('Pegá primero tu API key de SteamGridDB');save()},
   play:()=>{
     const g=gm(S.sel);
+    if(swOf(g)&&canPlay(g)&&!(S.playing&&S.playing.id===g.id)){toast('Abriendo '+g.name+'…');launchGame(g,1);return}
     if(S.playing&&S.playing.id===g.id){const h=((S.playing.end||Date.now())-S.playing.t)/3600000,d=new Date();
       g.hours+=h;try{autoDone(g,1)}catch(e){}ST.log[today()]=(ST.log[today()]||0)+h;try{(ST.ses=ST.ses||[]).push({g:g.id,s:S.playing.t,h:+h.toFixed(3)});if(ST.ses.length>1500)ST.ses=ST.ses.slice(-1500)}catch(e){}{const tk=today();ST.gl=ST.gl||{};ST.gl[tk]=ST.gl[tk]||{};ST.gl[tk][g.id]=(ST.gl[tk][g.id]||0)+h}g.last=d.toLocaleDateString('es-AR');S.playing=null;save();
       toast(`Sesión guardada: ${Math.max(1,Math.round(h*60))} min`)}

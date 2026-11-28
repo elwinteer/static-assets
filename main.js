@@ -3192,7 +3192,7 @@ app.whenReady().then(() => {
   protocol.handle('wimg', imgHandler);
   ipcMain.handle('launch', async (_e, o) => {
     const flN = String(o.name || '') + ' ' + (o.exe ? path.basename(String(o.exe)) : ''); if (flIs(flN)) flFix();
-    const tracking = watch(o);
+    const tracking = o.sw ? false : watch(o); /* software (Lossless Scaling, Wallpaper Engine): se abre sin seguirlo, sin OBS ni horas */
     try {
       if (o.uri) await shell.openExternal(o.uri);
       else if (o.shellApp) { const c = spawn('explorer.exe', [o.shellApp], { detached: true, stdio: 'ignore' }); c.unref(); }
