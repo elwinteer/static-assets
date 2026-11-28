@@ -343,6 +343,14 @@ async function obsPreAim(tries) {
   finally { obsAimBusy = false; }
   if (!ok && tries < 25) obsAimT = setTimeout(() => obsPreAim(tries + 1), 6000);
 }
+/* mantiene todo listo: si OBS se cae o se pierde la conexion mientras jugas, se rearma solo antes de que apretes la tecla */
+setInterval(() => {
+  try {
+    if (obsRec || obsBusy || obsAimBusy || obsPrep || !obsActive() || !curNonSteam()) return;
+    if (!obsReady) { obsAimReset(); obsPreAim(0); return; }
+    obsCall('GetVersion', {}, 3000).then((r) => { if (!r) { obsClose(); } else if (obsAimed !== obsKey(curNonSteam() || null)) obsPreAim(0); }).catch(() => {});
+  } catch (e) {}
+}, 8000);
 /* apunta la captura al juego que esta abierto */
 async function obsAim(cur, pre, fgP) {
   let cands = [];
