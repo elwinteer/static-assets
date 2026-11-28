@@ -15,7 +15,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function create(ctx) {
   const { cfg, saveCfg, shell } = ctx;
   const S = () => { if (!cfg.sp || typeof cfg.sp !== 'object') cfg.sp = {}; return cfg.sp; };
-  let until = 0, srv = null, launching = null, lastPlay = Date.now(), tuneT = null, idleT = null;
+  let refreshing = null, until = 0, srv = null, launching = null, lastPlay = Date.now(), tuneT = null, idleT = null;
 
   /* ---------- login ---------- */
   function setCid(c) {
@@ -63,7 +63,8 @@ function create(ctx) {
   async function token() {
     const s = S(); if (!s.cid || !s.r) return '';
     if (s.a && Date.now() < s.x) return s.a;
-    const r = await tokenReq({ grant_type: 'refresh_token', refresh_token: s.r, client_id: s.cid });
+    if (!refreshing) refreshing = tokenReq({ grant_type: 'refresh_token', refresh_token: s.r, client_id: s.cid }).finally(() => { refreshing = null; });
+    const r = await refreshing;
     if (!r.ok) { if (r.bad) { s.a = ''; s.r = ''; saveCfg(); } return ''; }
     return s.a;
   }
