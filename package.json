@@ -35,6 +35,8 @@
       "dl.js",
       "src.js",
       "bt.js",
+      "spotify.js",
+      "overlay.tpl.html",
       "webskin.js",
       "index.html",
       "icon.ico",
