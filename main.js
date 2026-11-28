@@ -592,13 +592,49 @@ const OVP = () => path.join(app.getPath('userData'), 'ov');
 const OVD = { ach: true, shots: true, chat: true, perf: true };
 const ovPanes = () => Object.assign({}, OVD, cfg.ovPanes || {});
 function ovStopPerf() { try { clearInterval(ovPerfT); } catch (e) {} ovPerfT = null; try { if (ovTp) ovTp.kill(); } catch (e) {} ovTp = null; ovGpu = 0; }
+
+/* Congela el juego mientras el overlay esta abierto: asi ningun boton (mando o teclado) le llega.
+   Un PowerShell aparte lo suspende y lo reanuda al cerrar, al salir WINTEER o si WINTEER se cae (nunca queda congelado). */
+let ovSusp = null;
+const OVSUSP_PS = `
+$ErrorActionPreference='SilentlyContinue'
+Add-Type 'using System;using System.Runtime.InteropServices;public class NT{[DllImport("ntdll.dll")]public static extern int NtSuspendProcess(IntPtr h);[DllImport("ntdll.dll")]public static extern int NtResumeProcess(IntPtr h);[DllImport("kernel32.dll")]public static extern IntPtr OpenProcess(uint a,bool b,uint p);[DllImport("kernel32.dll")]public static extern bool CloseHandle(IntPtr h);[DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();[DllImport("user32.dll")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);}'
+$par=[int]$env:OV_PAR; $pre=@($env:OV_PRE -split '\\|' | Where-Object {$_}); 
+$skip='^(winteer|electron|explorer|obs64|chrome|msedge|firefox|steam|steamwebhelper|cmd|powershell|conhost|searchhost|applicationframehost|shellhost|spotify|discord|dwm|csrss)$'
+$ids=@()
+[uint32]$fp=0; [void][NT]::GetWindowThreadProcessId([NT]::GetForegroundWindow(),[ref]$fp)
+$all=Get-Process | Where-Object {$_.Path}
+foreach($p in $all){ $pa=$p.Path.ToLower(); foreach($x in $pre){ if($x -and ($pa -eq $x -or $pa.StartsWith($x))){ $ids+=$p.Id; break } } }
+if($fp -gt 0){ $f=$all | Where-Object {$_.Id -eq $fp}; if($f -and $f.ProcessName.ToLower() -notmatch $skip -and $fp -ne $PID){ $ids+=$fp } }
+$ids=@($ids | Select-Object -Unique | Where-Object {$_ -ne $PID -and $_ -ne $par})
+$hs=@(); foreach($i in $ids){ $h=[NT]::OpenProcess(0x800,$false,[uint32]$i); if($h -ne [IntPtr]::Zero){ [void][NT]::NtSuspendProcess($h); $hs+=$h } }
+[Console]::Out.WriteLine('S '+$ids.Count); [Console]::Out.Flush()
+$job=[Console]::In.ReadLineAsync()
+while(-not $job.IsCompleted){ if(-not (Get-Process -Id $par -ErrorAction SilentlyContinue)){ break }; Start-Sleep -Milliseconds 300 }
+foreach($h in $hs){ [void][NT]::NtResumeProcess($h); [void][NT]::CloseHandle($h) }
+[Console]::Out.WriteLine('R'); [Console]::Out.Flush()
+`;
+function ovSuspend(cur) {
+  try {
+    if (process.platform !== 'win32' || ovSusp || cfg.ovPause === false) return;
+    const pre = [];
+    if (cur && cur.t) { if (cur.t.exe) pre.push(String(cur.t.exe).toLowerCase()); if (cur.t.edir) pre.push(String(cur.t.edir).toLowerCase()); (cur.t.dirs || []).forEach((d) => pre.push(String(d).toLowerCase())); }
+    const c = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-EncodedCommand', Buffer.from(OVSUSP_PS, 'utf16le').toString('base64')], { windowsHide: true, stdio: ['pipe', 'pipe', 'ignore'], env: { ...process.env, OV_PAR: String(process.pid), OV_PRE: pre.join('|') } });
+    ovSusp = c; c.on('exit', () => { if (ovSusp === c) ovSusp = null; }); c.on('error', () => { if (ovSusp === c) ovSusp = null; });
+  } catch (e) { ovSusp = null; }
+}
+function ovResume() {
+  const c = ovSusp; if (!c) return; ovSusp = null;
+  try { c.stdin.write('r\n'); c.stdin.end(); } catch (e) {}
+  setTimeout(() => { try { c.kill(); } catch (e) {} }, 4000);
+}
 function ovClose(anim) {
   if (anim && ovWin && !ovWin.isDestroyed()) {
     if (ovBye) return; const w = ovWin; ovBye = true;
     try { w.webContents.send('ov', 'bye'); } catch (e) {}
     setTimeout(() => { ovBye = false; if (ovWin === w) ovClose(); }, 480); return;
   }
-  ovBye = false; clearInterval(ovGrabT); ovStopPerf(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' });
+  ovBye = false; clearInterval(ovGrabT); ovStopPerf(); ovResume(); try { if (ovWin && !ovWin.isDestroyed()) ovWin.destroy(); } catch (e) {} ovWin = null; send({ type: 'ovfr', op: 'off' });
 }
 function ovToggle() {
   if (ovWin && !ovWin.isDestroyed()) { ovClose(true); return; }
@@ -672,6 +708,8 @@ function ovStartPerf() {
 }
 function ovOpen(data) {
   try {
+    if (!ovSusp) ovSuspend(curNonSteam());
+    try { if (cfg.sp && cfg.sp.r && SPM) SPM.call('ensure').catch(() => {}); } catch (e) {}
     if (ovPend) { clearTimeout(ovPend); ovPend = null; }
     if (ovWin && !ovWin.isDestroyed()) { ovStopPerf(); try { ovWin.destroy(); } catch (e) {} ovWin = null; }
     const dir = OVP(); fs.mkdirSync(dir, { recursive: true });
@@ -684,7 +722,7 @@ function ovOpen(data) {
     ovWin.setAlwaysOnTop(true, 'screen-saver');
     ovWin.loadFile(path.join(dir, 'ov.html'));
     ovWin.once('ready-to-show', () => { try { ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.show(); ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); ovWin.focus(); ovGrab(); setTimeout(() => { try { if (ovWin && !ovWin.isDestroyed()) ovWin.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height }); } catch (e) {} }, 120); } catch (e) {} });
-    ovWin.on('closed', () => { ovWin = null; clearInterval(ovGrabT); });
+    ovWin.on('closed', () => { ovWin = null; clearInterval(ovGrabT); ovResume(); });
     ovWin.on('blur', () => { setTimeout(ovGrab, 60); });
     clearInterval(ovGrabT); ovGrabT = setInterval(ovGrab, 700);
     ovStartPerf();
@@ -3958,5 +3996,5 @@ app.whenReady().then(() => {
   nxmArgv(process.argv);
 });
 app.on('second-instance', (_e, argv) => { showWin(); nxmArgv(argv); });
-app.on('before-quit', () => { quitting = true; try { whStop(); } catch (e) {} try { dlEng && dlEng.shutdown(); } catch (e) {} stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
+app.on('before-quit', () => { quitting = true; try { ovResume(); } catch (e) {} try { whStop(); } catch (e) {} try { dlEng && dlEng.shutdown(); } catch (e) {} stopPad(); try { globalShortcut.unregisterAll(); } catch (e) {} });
 app.on('window-all-closed', () => { if (!cfg.bg || quitting) app.quit(); });

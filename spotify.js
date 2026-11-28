@@ -121,11 +121,16 @@ function create(ctx) {
       try {
         let d = await devices(); if (d === null) return { ok: false, e: 'auth' };
         if (!d.length) {
-          if (!(await procs()).length) launch();
-          for (let i = 0; i < 30 && !d.length; i++) {
-            await sleep(1000); d = (await devices()) || [];
-            if (!d.length && i === 7) { try { launch(); } catch (e) {} }
-            if (!d.length && i === 15) { try { shell.openExternal('spotify:'); } catch (e) {} }
+          const had = (await procs()).length > 0;
+          if (!had) launch();
+          for (let i = 0; i < 80 && !d.length; i++) {
+            await sleep(500); d = (await devices()) || [];
+            if (d.length) break;
+            /* abierto pero sin aparecer como dispositivo: lo despierta con el enlace spotify: y, si sigue mudo, lo reinicia */
+            if (had && i === 6) { try { shell.openExternal('spotify:'); } catch (e) {} }
+            if (!had && i === 14) { try { launch(); } catch (e) {} }
+            if (i === 30) { try { await new Promise((r) => execFile('taskkill', ['/IM', 'Spotify.exe', '/F'], { windowsHide: true }, () => r())); await sleep(1500); launch(); } catch (e) {} }
+            if (i === 56) { try { shell.openExternal('spotify:'); } catch (e) {} }
           }
           if (!d.length) return { ok: false, e: 'nodev' };
           tune();
